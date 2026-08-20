@@ -1,12 +1,13 @@
 ﻿id,name,type_label,mtow_kg,empty_kg,internal_fuel_kg,max_payload_kg,bvr_missile,missile_mass_kg,sweep_le_deg,wingspan_m,wing_area_m2,wing_height_m,cd0,t_max_sl_n,t_main_stovl_sl_n,t_liftfan_sl_n,t_rollposts_sl_n,exhaust_mdot_kg_s,exhaust_d0_m,exhaust_height_m,shaft_power_sl_w,prop_diameter_m,nacelle_blockage_frac,notes
 F-35B,F-35B Lightning II,v/stol,27200,14651,6400,6800,AIM-120C AMRAAM,152.0,35,10.7,42.7,1.96,0.039,,83260,83260,14600,,,,,,,STOVL 推力为垂起模式海平面标定值（15°C）；含升力风扇；载弹量 6800 kg（Lockheed 15
-AV-8B,AV-8B Harrier II,v/stol,14061,6340,3540,4200,AIM-120C AMRAAM,152.0,37,9.25,21.37,1.55,0.043,,105000,0,1080,195.95,1.219,1.55,,,,Pegasus F402-408 23500 lbf；载弹量 4200 kg（Wikipedia 9
-J-15,歼-15,conventional,33000,17500,9800,6500,PL-12,199.0,42,14.7,67.84,2.55,0.0475,251000,,,,,,,,,,WS-10H/AL-31 双发最大加力约 251 kN；最大载弹量 6500 kg
-J-15T,歼-15T,conventional,35900,17800,10000,8000,PL-15,210.0,42,14.7,67.84,2.55,0.0475,264000,,,,,,,,,,弹射型，滑跃舰上仍按 STOBAR 仿真；最大载弹量 8000 kg
-J-35,歼-35,conventional,29500,15500,8000,8000,PL-15,210.0,38,13.6,66.9,1.96,0.039,186000,,,,,,,,,,WS-21 级双发加力约 186 kN；最大载弹量 8000 kg
-MiG-29K,MiG-29K,conventional,24500,12000,4560,5500,RVV-AE (R-77),175.0,40,11.99,34.5,1.89,0.043,176380,,,,,,,,,,2×RD-33MK；载弹量 5500 kg（Wikipedia combat payload）
-Rafale-M,阵风 M,conventional,24500,10600,4700,9500,MBDA Meteor,190.0,48,10.8,45.7,1.9,0.039,150000,,,,,,,,,,2×M88-2/E4；外挂 9500 kg（Dassault / Wikipedia 9.5 t）
-FA-18E,F/A-18E Super Hornet,conventional,29937,14552,6667,8050,AIM-120C AMRAAM,152.0,20,13.62,46.5,1.55,0.044,195800,,,,,,,,,,2×F414-GE-400；外挂 8050 kg（17
-FA-18C,F/A-18C/D Hornet,conventional,23541,10680,4930,6215,AIM-120C AMRAAM,152.0,20,11.43,38.0,1.52,0.045,156600,,,,,,,,,,2×F404-GE-402；外挂 6215 kg（13
-F-14,F-14 Tomcat,conventional,33724,18955,7348,6700,AIM-120C AMRAAM,152.0,20,19.54,52.49,2.10,0.046,250900,,,,,,,,,,F-14B/D；外挂约 6700 kg（Wikipedia over 6
+AV-8B,AV-8B Harrier II,v/stol,14061,6340,3540,4200,AIM-120C AMRAAM,152.0,37,9.25,21.37,1.55,0.054,,105000,0,1080,195.95,1.219,1.55,,,,Pegasus F402-408 23500 lbf；载弹量 4200 kg（Wikipedia 9
+J-15,歼-15,conventional,33000,17500,9800,6500,PL-12,199.0,42,14.7,67.84,2.55,0.026,251000,,,,,,,,,,WS-10H/AL-31 双发最大加力约 251 kN；最大载弹量 6500 kg
+J-15T,歼-15T,conventional,35900,17800,10000,8000,PL-15,210.0,42,14.7,67.84,2.55,0.0318,264000,,,,,,,,,,弹射型，滑跃舰上仍按 STOBAR 仿真；最大载弹量 8000 kg
+J-35,歼-35,conventional,29500,15500,8000,8000,PL-15,210.0,38,13.6,66.9,1.96,0.024,186000,,,,,,,,,,WS-21 双发加力约 186 kN；最大载弹量 8000 kg
+J-50,歼-50,conventional,51000,25000,15000,11000,PL-15,210.0,49.3,18.0,127.0,2.3,0.018,362600,,,,,,,,,,WS-15 双发加力约 181.3 kN；最大载弹量 11000 kg
+MiG-29K,MiG-29K,conventional,24500,12000,4560,5500,RVV-AE (R-77),175.0,40,11.99,34.5,1.89,0.033,176380,,,,,,,,,,2×RD-33MK；载弹量 5500 kg（Wikipedia combat payload）
+Rafale-M,阵风 M,conventional,24500,10600,4700,9500,MBDA Meteor,190.0,48,10.8,45.7,1.9,0.031,150000,,,,,,,,,,2×M88-2/E4；外挂 9500 kg（Dassault / Wikipedia 9.5 t）
+FA-18E,F/A-18E Super Hornet,conventional,29937,14552,6667,8050,AIM-120C AMRAAM,152.0,20,13.62,46.5,1.55,0.0389,195800,,,,,,,,,,2×F414-GE-400；外挂 8050 kg（17
+FA-18C,F/A-18C/D Hornet,conventional,23541,10680,4930,6215,AIM-120C AMRAAM,152.0,20,11.43,38.0,1.52,0.0415,156600,,,,,,,,,,2×F404-GE-402；外挂 6215 kg（13
+F-14,F-14 Tomcat,conventional,33724,18955,7348,6700,AIM-120C AMRAAM,152.0,20,19.54,52.49,2.10,0.0385,250900,,,,,,,,,,F-14B/D；外挂约 6700 kg（Wikipedia over 6
 MV-22,MV-22B Osprey,tiltrotor,25855,14432,6295,9100,—,0,0,13.97,28.0,2.6,0.062,,,,,,,,9180000,11.61,0.10,Wikipedia：2×T406 6150 hp、桨盘 ⌀38 ft 1 in、翼展 45 ft 10 in、机翼 301.4 ft²；内油约 13850 lb；CD0/机翼高度为短距构型估计；短舱遮挡 10%
