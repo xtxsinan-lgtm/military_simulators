@@ -164,6 +164,8 @@ function refreshStrategySection() {
     els.strategyDesc.classList.toggle('hidden', !text);
   }
 }
+
+function populateModeButtons() {
   /** 模式按钮由 data.modes 生成，与小程序 / catalog 同源，避免硬编码漏同步。 */
   const modes = data.modes || {};
   const ids = Object.keys(modes);
@@ -190,7 +192,7 @@ function refreshModeButtons() {
   refreshStrategySection();
 }
 
-function populateModeButtons() {
+function populateCarriers() {
   const list = filterCarriersForMode(currentMode, data.carriers);
   els.carrierSelect.innerHTML =
     list.length === 0
