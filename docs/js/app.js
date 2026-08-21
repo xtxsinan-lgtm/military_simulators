@@ -13,7 +13,7 @@ import {
 
 const PYODIDE_VERSION = '0.26.4';
 /** 与 takeoff.html 中 app.js?v= 及 data.json?v= 同步递增，避免 CDN/浏览器缓存旧资源 */
-const APP_VERSION = 22;
+const APP_VERSION = 23;
 let data = null;
 let pyodide = null;
 let pyReady = false;
@@ -66,22 +66,23 @@ if '/py' not in sys.path:
   }
 
   pyodide.globals.set('_takeoff_cfg', JSON.stringify(data.takeoff_config || {}));
-  pyodide.globals.set('_missile_interception_cfg', JSON.stringify(data.missile_interception_config || {}));
   await pyodide.runPythonAsync(`
 import json
 from utils.takeoff.takeoff_config import inject_takeoff_config
-from utils.missile_interception.missile_interception_config import inject_missile_interception_config
 inject_takeoff_config(json.loads(_takeoff_cfg))
-inject_missile_interception_config(json.loads(_missile_interception_cfg))
 `);
 
-  const importOrder = data.py_import_order || data.py_load_order.map((n) => n.replace(/\.py$/, '').replace(/\//g, '.'));
-  pyodide.globals.set('_py_import_order', importOrder);
-  await pyodide.runPythonAsync(`
-import importlib
-for _name in _py_import_order:
-    importlib.import_module(_name)
-`);
+  const importOrder = (data.py_import_order || data.py_load_order.map((n) => n.replace(/\.py$/, '').replace(/\//g, '.')))
+    .filter((name) => !name.includes('missile_interception'));
+  for (const moduleName of importOrder) {
+    try {
+      await pyodide.runPythonAsync(
+        `import importlib\nimportlib.import_module(${JSON.stringify(moduleName)})`
+      );
+    } catch (error) {
+      throw new Error(`Python 模块加载失败 (${moduleName}): ${error.message || error}`);
+    }
+  }
 }
 
 function setStatus(text, cls = '') {
