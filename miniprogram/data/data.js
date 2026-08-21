@@ -1408,6 +1408,244 @@ module.exports = {
       "default_strategy": "A",
       "default_temp_c": 30
     },
+    "modes": {
+      "short_takeoff": {
+        "ambient_temp_c": 15.0,
+        "wind_kt": 22,
+        "min_safe_distance_m": -60.0,
+        "rotation_aoa_deg": 12.5,
+        "dt_default": 0.01,
+        "max_sim_time_s": 60.0,
+        "max_runway_m": 3000.0,
+        "reference_aircraft": {
+          "mass_kg": 21620,
+          "s_ref_m2": 42.7,
+          "wingspan_m": 10.7,
+          "wing_height_m": 1.96,
+          "sweep_le_deg": 35,
+          "cd0": 0.039,
+          "t_main_stovl_sl_n": 83260,
+          "t_liftfan_sl_n": 83260,
+          "t_rollposts_sl_n": 14600
+        },
+        "search": {
+          "nozzle_final_deg": {
+            "start": 20,
+            "end": 90,
+            "step": 5
+          },
+          "v_trans_mps": {
+            "start": 0,
+            "end": 45,
+            "step": 5
+          },
+          "nozzle_b_deg": {
+            "start": 25,
+            "end": 89,
+            "step": 1
+          }
+        }
+      },
+      "short_ski_jump": {
+        "ambient_temp_c": 15.0,
+        "wind_kt": 22,
+        "min_safe_distance_m": -70.0,
+        "ski_jump_angle_deg": 13.0,
+        "ski_jump_lip_height_m": 6.0,
+        "dt_default": 0.02,
+        "max_ground_time_s": 30.0,
+        "max_air_time_s": 3.0,
+        "alpha_limit_deg": 20,
+        "reference_aircraft": {
+          "mass_kg_mtow": 27200,
+          "mass_kg_a2a": 21620,
+          "s_ref_m2": 42.7,
+          "wingspan_m": 10.7,
+          "wing_height_m": 1.96,
+          "sweep_le_deg": 35,
+          "cd0": 0.039,
+          "t_main_stovl_sl_n": 83260,
+          "t_liftfan_sl_n": 83260,
+          "t_rollposts_sl_n": 14600
+        },
+        "search": {
+          "strategy_c": {
+            "flat_length_m": {
+              "start": 0,
+              "end": 501,
+              "step": 10
+            },
+            "pitch_deg": {
+              "start": 20,
+              "end": 21,
+              "step": 1
+            }
+          },
+          "with_air_nozzle": {
+            "nozzle_takeoff_deg_a": {
+              "start": 5,
+              "end": 71,
+              "step": 5
+            },
+            "flat_length_m_a": {
+              "start": 30,
+              "end": 201,
+              "step": 20
+            },
+            "v_trans_mps_a": {
+              "start": 5,
+              "end": 76,
+              "step": 10
+            },
+            "nozzle_takeoff_deg_b": {
+              "start": 5,
+              "end": 31,
+              "step": 5
+            },
+            "flat_length_m_b": {
+              "start": 50,
+              "end": 501,
+              "step": 20
+            },
+            "pitch_deg": {
+              "start": 10,
+              "end": 21,
+              "step": 2
+            },
+            "nozzle_air_deg": {
+              "start": 0,
+              "end": 31,
+              "step": 5
+            },
+            "strategy_c_flat_length_m": {
+              "start": 0,
+              "end": 501,
+              "step": 20
+            },
+            "strategy_c_pitch_deg": {
+              "start": 10,
+              "end": 21,
+              "step": 2
+            }
+          },
+          "without_air_nozzle": {
+            "nozzle_takeoff_deg_a": {
+              "start": 5,
+              "end": 86,
+              "step": 5
+            },
+            "flat_length_m_a": {
+              "start": 10,
+              "end": 161,
+              "step": 10
+            },
+            "v_trans_mps_a": {
+              "start": 0,
+              "end": 41,
+              "step": 5
+            },
+            "nozzle_takeoff_deg_b": {
+              "start": 0,
+              "end": 31,
+              "step": 10
+            },
+            "flat_length_m_b": {
+              "start": 100,
+              "end": 501,
+              "step": 10
+            },
+            "pitch_deg": {
+              "start": 20,
+              "end": 21,
+              "step": 1
+            },
+            "nozzle_air_deg": {
+              "start": 0,
+              "end": 31,
+              "step": 5
+            },
+            "strategy_c_flat_length_m": {
+              "start": 0,
+              "end": 501,
+              "step": 10
+            },
+            "strategy_c_pitch_deg": {
+              "start": 20,
+              "end": 21,
+              "step": 1
+            }
+          }
+        }
+      },
+      "ski_jump": {
+        "ambient_temp_c": 30.0,
+        "wind_kt": 30,
+        "ski_jump_angle_deg": 14.0,
+        "dt_default": 0.02,
+        "max_ground_time_s": 30.0,
+        "max_air_time_s": 5.0,
+        "cl_max": 1.8,
+        "reference_aircraft": {
+          "mass_kg": 29500,
+          "s_ref_m2": 68.9,
+          "wingspan_m": 13.6,
+          "wing_height_m": 1.96,
+          "sweep_le_deg": 38,
+          "cd0": 0.039,
+          "t_max_sl_n": 186000
+        },
+        "search": {
+          "pitch_deg": {
+            "start": 10,
+            "end": 21,
+            "step": 1
+          },
+          "flat_length_m": {
+            "start": 0,
+            "end": 281,
+            "step": 20
+          }
+        }
+      },
+      "tiltrotor_short_takeoff": {
+        "ambient_temp_c": 15.0,
+        "wind_kt": 22,
+        "rotation_aoa_deg": 10.0,
+        "dt_default": 0.01,
+        "max_sim_time_s": 60.0,
+        "max_runway_m": 3000.0,
+        "figure_of_merit": 0.78,
+        "nacelle_blockage_frac": 0.1,
+        "reference_aircraft": {
+          "mass_kg": 20827.0,
+          "s_ref_m2": 28.0,
+          "wingspan_m": 13.97,
+          "wing_height_m": 2.6,
+          "sweep_le_deg": 0.0,
+          "cd0": 0.062,
+          "shaft_power_sl_w": 9180000,
+          "prop_diameter_m": 11.61,
+          "n_rotors": 2
+        },
+        "search": {
+          "nacelle_final_deg": {
+            "start": 20,
+            "end": 75,
+            "step": 5
+          },
+          "v_trans_mps": {
+            "start": 0,
+            "end": 45,
+            "step": 5
+          },
+          "nacelle_b_deg": {
+            "start": 25,
+            "end": 70,
+            "step": 1
+          }
+        }
+      }
+    },
     "stovl_strategy_descriptions": {
       "A": "滑跑初期主喷口保持水平（0°），升力主要由升力风扇提供；当地速达到转换阈值后，主喷口以固定速率向后偏转。仿真搜索最优目标喷口角与开始偏转的地速。",
       "B": "自滑跑起点起主喷口即固定在某一角度，全程不再变化。仿真搜索使起飞距离最短的固定喷口角。",

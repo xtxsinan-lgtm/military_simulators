@@ -39,6 +39,7 @@ def test_build_catalog_payload_modes():
     assert 'missile_interception_config' in payload
     assert payload['takeoff_config']['shared']['mu'] == 0.025
     assert 'A' in payload['takeoff_config']['stovl_strategy_descriptions']
+    assert set(payload['takeoff_config']['modes']) == set(payload['modes'])
     assert 'A' in payload['takeoff_config']['tiltrotor_strategy_descriptions']
     assert payload['missile_interception_config']['traj_types']['glide']
 

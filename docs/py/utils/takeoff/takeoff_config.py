@@ -60,6 +60,7 @@ def build_takeoff_config_payload() -> dict[str, Any]:
         'shared': dict(cfg['shared']),
         'physics': dict(cfg['physics']),
         'ui': dict(cfg['ui']),
-        'stovl_strategy_descriptions': dict(cfg.get('stovl_strategy_descriptions', {})),
-        'tiltrotor_strategy_descriptions': dict(cfg.get('tiltrotor_strategy_descriptions', {})),
+           'modes': {name: dict(mode) for name, mode in cfg['modes'].items()},
+           'stovl_strategy_descriptions': dict(cfg.get('stovl_strategy_descriptions', {})),
+           'tiltrotor_strategy_descriptions': dict(cfg.get('tiltrotor_strategy_descriptions', {})),
     }
