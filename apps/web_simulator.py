@@ -216,6 +216,15 @@ def _deck_launch_label(success: bool, distance_m: float | None, deck_length_m: f
     return f'甲板不足（超出 {-margin:.1f} m）'
 
 
+def result_distance_m(result: dict) -> float | None:
+    """读取起飞距离；0 m（垂起）为有效值，不能用布尔 or 丢掉。"""
+    for key in ('distance_m', 'total_m'):
+        value = result.get(key)
+        if value is not None:
+            return float(value)
+    return None
+
+
 def format_output_summary(
     distance_m: float | None,
     deck_margin_m: float | None,
@@ -292,7 +301,7 @@ def _format_f35b_output(result: dict, deck_length_m: float, mode_label: str,
                         strategy_labels: dict[str, str] | None = None,
                         angle_label: str = '喷管最终角') -> list[str]:
     pitch = '—' if result.get('pitch_deg') is None else f"{result['pitch_deg']}°"
-    dist = result.get('distance_m') or result.get('total_m')
+    dist = result_distance_m(result)
     flat_m = result.get('flat_m', result.get('x_m'))
     labels = strategy_labels or STOVL_STRATEGIES
     lines = [
@@ -368,7 +377,7 @@ def _capture_trajectory(
         )
     deck = build_deck_profile(flat_m, mod.SKI_JUMP_ARC)
     deck['total_deck_length_m'] = float(deck_length_m)
-    takeoff_m = result.get('distance_m') or result.get('total_m')
+    takeoff_m = result_distance_m(result)
     if takeoff_m is not None:
         deck['takeoff_distance_m'] = float(takeoff_m)
     elif deck['points']:
@@ -495,9 +504,7 @@ def run_simulation(
             '=' * 60,
         ] + lines
 
-        distance_m = result.get('distance_m') or result.get('total_m')
-        if distance_m is not None:
-            distance_m = float(distance_m)
+        distance_m = result_distance_m(result)
 
         trajectory, deck_profile = _capture_trajectory(
             mode, mod, result, deck_length, stovl_strategy)

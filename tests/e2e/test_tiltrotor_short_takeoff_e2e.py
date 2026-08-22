@@ -41,8 +41,33 @@ def test_tiltrotor_short_takeoff_strategies_ab():
         )
         assert result['success'] is True, strategy
         assert result['strategy'] == strategy
-        assert result['distance_m'] > 0
+        assert result['distance_m'] is not None
+        assert result['distance_m'] >= 0
         assert result['trajectory'] is None
         assert result['plume_applicable'] is False
         assert f'策略 {strategy}' in result['output']
         assert TILTROTOR_STRATEGIES[strategy] in result['output']
+
+
+@pytest.mark.e2e
+def test_tiltrotor_vtol_weight_zero_roll():
+    """官方垂起重量经完整 Web 链路应为 0 m 滑跑。"""
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)['MV-22']
+    carrier = next(c for c in load_carriers_csv(CARRIERS_CSV) if c.id == 'WASP')
+    result = run_simulation(
+        'tiltrotor_short_takeoff', aircraft, carrier, 23859.0, 15.0, 0.0, strategy='B',
+    )
+    assert result['success'] is True
+    assert result['distance_m'] == pytest.approx(0.0, abs=0.5)
+
+
+@pytest.mark.e2e
+def test_tiltrotor_official_sto_weight_needs_short_roll():
+    """官方短距重量不能垂起，但滑跑应远短于旧模型的 100 m 以上误报。"""
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)['MV-22']
+    carrier = next(c for c in load_carriers_csv(CARRIERS_CSV) if c.id == 'WASP')
+    result = run_simulation(
+        'tiltrotor_short_takeoff', aircraft, carrier, 25855.0, 15.0, 15.0, strategy='B',
+    )
+    assert result['success'] is True
+    assert 0.0 < result['distance_m'] < 150.0

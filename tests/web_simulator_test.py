@@ -9,6 +9,7 @@ from apps.web_simulator import (
     filter_carriers_for_mode,
     format_output_summary,
     resolve_ski_jump_geom,
+    result_distance_m,
     run_simulation,
     run_simulation_json,
 )
@@ -40,6 +41,15 @@ def test_format_output_summary_distance_only():
     """仅有起飞距离时不附带甲板字段。"""
     assert format_output_summary(52.4, None) == '起飞 52.4 m'
     assert format_output_summary(None, 10.0) == ''
+    assert format_output_summary(0.0, 250.0) == '起飞 0.0 m · 余量 250.0 m'
+
+
+def test_result_distance_m_keeps_zero():
+    """垂起 0 m 不得被布尔 or 丢掉。"""
+    assert result_distance_m({'distance_m': 0.0}) == 0.0
+    assert result_distance_m({'total_m': 0}) == 0.0
+    assert result_distance_m({'distance_m': None, 'total_m': 12.5}) == 12.5
+    assert result_distance_m({}) is None
 
 
 def test_resolve_ski_jump_from_height():

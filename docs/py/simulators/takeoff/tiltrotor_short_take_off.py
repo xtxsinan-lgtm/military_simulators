@@ -1,7 +1,7 @@
 """倾转旋翼短距起飞仿真（平直甲板，策略 A/B 短舱倾转）。
 
-机型以 MV-22 为参考：涡桨额定轴功率 + 桨盘直径 → 推力（含短舱遮挡），
-无升力风扇与滚转喷管。暂不计尾流波及，故不提供策略 C。
+机型以 MV-22 为参考：涡桨额定轴功率 + 桨盘直径 → 推力（含短舱遮挡与侧向入流），
+机翼计入悬停下洗与滑流增升。无升力风扇与滚转喷管。暂不计尾流波及，故不提供策略 C。
 
 策略说明
 --------
@@ -21,12 +21,19 @@ from __future__ import annotations
 import numpy as np
 
 from utils.takeoff.propeller_thrust import (
+    calc_effective_disk_area_m2,
     calc_prop_disk_area_m2,
     calc_propeller_thrust_n,
+    calc_rotor_induced_velocity_mps,
 )
 from utils.takeoff.search_utils import fine_range_symmetric
 from utils.takeoff.sim_config import apply_wind_knots_globals
 from utils.takeoff.takeoff_config import mode_config, shared_config
+from utils.takeoff.tiltrotor_aero import (
+    calc_slipstream_dynamic_pressure,
+    calc_slipstream_wing_speed_mps,
+    calc_tiltrotor_vertical_force_n,
+)
 from utils.takeoff.takeoff_physics import (
     G,
     KT_TO_MPS,
@@ -68,7 +75,13 @@ PROP_DIAMETER_M = float(_REF['prop_diameter_m'])
 N_ROTORS = int(_REF['n_rotors'])
 NACELLE_BLOCKAGE_FRAC = float(_MODE['nacelle_blockage_frac'])
 FIGURE_OF_MERIT = float(_MODE['figure_of_merit'])
+HOVER_DOWNLOAD_FRAC = float(_MODE['hover_download_frac'])
+SLIPSTREAM_WAKE_FACTOR = float(_MODE['slipstream_wake_factor'])
+SLIPSTREAM_WET_FRAC = float(_MODE['slipstream_wet_frac'])
+DOWNLOAD_ZERO_DEG = float(_MODE['download_zero_nacelle_deg'])
+DOWNLOAD_FULL_DEG = float(_MODE['download_full_nacelle_deg'])
 PROP_DISK_AREA_M2 = calc_prop_disk_area_m2(PROP_DIAMETER_M, N_ROTORS)
+PROP_DISK_AREA_EFF_M2 = calc_effective_disk_area_m2(PROP_DISK_AREA_M2, NACELLE_BLOCKAGE_FRAC)
 
 NACELLE_RATE_DEG_S = float(_SHARED['nacelle_rate_deg_s'])
 
@@ -130,7 +143,7 @@ def apply_propulsion_sl(
 ):
     """设置海平面轴功率与桨盘几何，并刷新当前温度下功率。"""
     global SHAFT_POWER_SL_W, PROP_DIAMETER_M, N_ROTORS, PROP_DISK_AREA_M2
-    global NACELLE_BLOCKAGE_FRAC, FIGURE_OF_MERIT
+    global PROP_DISK_AREA_EFF_M2, NACELLE_BLOCKAGE_FRAC, FIGURE_OF_MERIT
     SHAFT_POWER_SL_W = float(shaft_power_sl_w)
     PROP_DIAMETER_M = float(prop_diameter_m)
     N_ROTORS = int(n_rotors)
@@ -139,6 +152,8 @@ def apply_propulsion_sl(
         NACELLE_BLOCKAGE_FRAC = float(nacelle_blockage_frac)
     if figure_of_merit is not None:
         FIGURE_OF_MERIT = float(figure_of_merit)
+    PROP_DISK_AREA_EFF_M2 = calc_effective_disk_area_m2(
+        PROP_DISK_AREA_M2, NACELLE_BLOCKAGE_FRAC)
     apply_thrust_temperature(AMBIENT_TEMP_C)
 
 
@@ -164,7 +179,9 @@ def print_config_summary():
     print(f"轴功率:       {SHAFT_POWER_W/1e6:.2f} MW（{T_THRUST_REF_C:.0f}°C 标定 {SHAFT_POWER_SL_W/1e6:.2f} MW）")
     print(f"桨盘:         {N_ROTORS}×⌀{PROP_DIAMETER_M:.2f} m，总面积 {PROP_DISK_AREA_M2:.1f} m²")
     print(f"短舱遮挡比:   {NACELLE_BLOCKAGE_FRAC:.0%} | 品质因数 {FIGURE_OF_MERIT:.2f}")
+    print(f"悬停下洗比:   {HOVER_DOWNLOAD_FRAC:.1%} | 滑流尾迹系数 {SLIPSTREAM_WAKE_FACTOR:.1f}")
     print(f"静推力估计:   {t0/1000:.1f} kN（含遮挡与品质因数）")
+    print(f"净悬停推力:   {(t0 * (1.0 - HOVER_DOWNLOAD_FRAC))/1000:.1f} kN（扣机翼下洗）")
     print(f"起飞重量:     {MASS_KG:,.0f} kg")
     print(f"展弦比 AR:    {ASPECT_RATIO:.3f}")
     print(f"甲板风:       {WIND_KT} kt ({V_WIND_MPS:.2f} m/s)")
@@ -179,8 +196,10 @@ def dynamic_pressure(airspeed_mps):
 def current_prop_thrust_n(v_air_mps: float, nacelle_deg: float) -> float:
     """当前空速与短舱角下的总旋翼推力，N。"""
     nacelle_rad = np.radians(nacelle_deg)
-    # 水平来流在推力轴上的分量；短舱垂直时近似悬停
-    v_axial = max(float(v_air_mps) * float(np.cos(nacelle_rad)), 0.0)
+    v_air = max(float(v_air_mps), 0.0)
+    # 水平来流分解为轴向 + 侧向；短舱垂直时侧向即前飞来流
+    v_axial = max(v_air * float(np.cos(nacelle_rad)), 0.0)
+    v_edge = abs(v_air * float(np.sin(nacelle_rad)))
     return calc_propeller_thrust_n(
         SHAFT_POWER_W,
         RHO,
@@ -188,6 +207,7 @@ def current_prop_thrust_n(v_air_mps: float, nacelle_deg: float) -> float:
         v_axial_mps=v_axial,
         figure_of_merit=FIGURE_OF_MERIT,
         nacelle_blockage_frac=NACELLE_BLOCKAGE_FRAC,
+        v_edgewise_mps=v_edge,
     )
 
 
@@ -202,6 +222,57 @@ def _thrust_components(v_air_mps: float, nacelle_deg: float) -> tuple[float, flo
     t = current_prop_thrust_n(v_air_mps, nacelle_deg)
     rad = np.radians(nacelle_deg)
     return float(t * np.cos(rad)), float(t * np.sin(rad))
+
+
+def _slipstream_q(v_air_mps: float, nacelle_deg: float, thrust_n: float) -> float:
+    """滑流加权动压，仅用于机翼升力。
+
+    诱导速度按动量理想推力（实际推力 / 品质因数）计算：品质因数折的是
+    型阻功率，尾迹速度仍由动量理论给出。
+    """
+    rad = np.radians(nacelle_deg)
+    v_ax = max(float(v_air_mps), 0.0) * float(np.cos(rad))
+    v_ed = abs(float(v_air_mps) * float(np.sin(rad)))
+    t_ideal = float(thrust_n) / max(FIGURE_OF_MERIT, 0.1)
+    v_i = calc_rotor_induced_velocity_mps(
+        t_ideal, RHO, PROP_DISK_AREA_EFF_M2, v_ax, v_ed)
+    v_slip = calc_slipstream_wing_speed_mps(
+        v_air_mps, v_i, nacelle_deg, SLIPSTREAM_WAKE_FACTOR)
+    return calc_slipstream_dynamic_pressure(
+        RHO, v_air_mps, v_slip, SLIPSTREAM_WET_FRAC)
+
+
+def net_vertical_force_n(
+    v_air_mps: float,
+    nacelle_deg: float,
+    cl: float,
+    thrust_n: float | None = None,
+) -> float:
+    """净垂直力：旋翼垂直分量 + 滑流机翼升力 − 下洗，N。"""
+    t = current_prop_thrust_n(v_air_mps, nacelle_deg) if thrust_n is None else float(thrust_n)
+    return calc_tiltrotor_vertical_force_n(
+        t, RHO, PROP_DISK_AREA_EFF_M2, v_air_mps, nacelle_deg, cl, S_REF_M2,
+        hover_download_frac=HOVER_DOWNLOAD_FRAC,
+        wake_factor=SLIPSTREAM_WAKE_FACTOR,
+        wet_frac=SLIPSTREAM_WET_FRAC,
+        zero_deg=DOWNLOAD_ZERO_DEG,
+        full_deg=DOWNLOAD_FULL_DEG,
+        figure_of_merit=FIGURE_OF_MERIT,
+    )
+
+
+def _aero_step(v_air_mps: float, nacelle_deg: float):
+    """单步气动力：水平推力、垂直推力、滑行升力、抬头升力、阻力。"""
+    thrust = current_prop_thrust_n(v_air_mps, nacelle_deg)
+    rad = np.radians(nacelle_deg)
+    t_h = float(thrust * np.cos(rad))
+    t_v = float(thrust * np.sin(rad))
+    lift_taxi = net_vertical_force_n(v_air_mps, nacelle_deg, CL_TAXI, thrust)
+    lift_rot = net_vertical_force_n(v_air_mps, nacelle_deg, CL_ROTATION, thrust)
+    # 阻力按自由来流：机身不在滑流核心，避免用滑流 q 放大整机阻力
+    q_fs = dynamic_pressure(v_air_mps)
+    drag = q_fs * S_REF_M2 * (CD0 + K_IND * CL_TAXI ** 2 * PHI_GROUND)
+    return t_h, t_v, lift_taxi, lift_rot, drag
 
 
 def simulate_strategy_a(v_trans_mps, nacelle_final_deg, dt=DT_DEFAULT):
@@ -230,12 +301,8 @@ def simulate_strategy_a(v_trans_mps, nacelle_final_deg, dt=DT_DEFAULT):
         else:
             nacelle_deg = 0.0
 
-        t_h, t_v = _thrust_components(v_air, nacelle_deg)
-        q = dynamic_pressure(v_air)
-        lift = q * S_REF_M2 * CL_TAXI + t_v
-        drag = q * S_REF_M2 * (CD0 + K_IND * CL_TAXI ** 2 * PHI_GROUND)
+        t_h, t_v, lift, lift_potential, drag = _aero_step(v_air, nacelle_deg)
         normal = WEIGHT_N - lift
-        lift_potential = q * S_REF_M2 * CL_ROTATION + t_v
         if WEIGHT_N - lift_potential < 0:
             normal = 0.0
             airborne = True
@@ -252,6 +319,8 @@ def simulate_strategy_a(v_trans_mps, nacelle_final_deg, dt=DT_DEFAULT):
         history['t_h'].append(t_h)
         history['t_v'].append(t_v)
 
+        if airborne:
+            break
         v_gs = max(v_gs + accel * dt, 0.0)
         x += v_gs * dt
         t += dt
@@ -269,12 +338,8 @@ def simulate_strategy_b(nacelle_fixed_deg, dt=DT_DEFAULT):
 
     while t < MAX_SIM_TIME_S and x < MAX_RUNWAY_M:
         v_air = v_gs + V_WIND_MPS
-        t_h, t_v = _thrust_components(v_air, nacelle_fixed_deg)
-        q = dynamic_pressure(v_air)
-        lift = q * S_REF_M2 * CL_TAXI + t_v
-        drag = q * S_REF_M2 * (CD0 + K_IND * CL_TAXI ** 2 * PHI_GROUND)
+        t_h, t_v, lift, lift_potential, drag = _aero_step(v_air, nacelle_fixed_deg)
         normal = WEIGHT_N - lift
-        lift_potential = q * S_REF_M2 * CL_ROTATION + t_v
         if WEIGHT_N - lift_potential < 0:
             normal = 0.0
             airborne = True
@@ -291,6 +356,8 @@ def simulate_strategy_b(nacelle_fixed_deg, dt=DT_DEFAULT):
         history['t_h'].append(t_h)
         history['t_v'].append(t_v)
 
+        if airborne:
+            break
         v_gs = max(v_gs + accel * dt, 0.0)
         x += v_gs * dt
         t += dt
@@ -301,7 +368,18 @@ def simulate_strategy_b(nacelle_fixed_deg, dt=DT_DEFAULT):
 
 
 def evaluate_liftoff(history):
-    """从仿真历史提取离地指标，无法离地则返回 None。"""
+    """从仿真历史提取离地指标，无法离地则返回 None。起步即离地（垂起）记为 0 m。"""
+    if history['normal'].size == 0:
+        return None
+    if float(history['normal'][0]) <= 0.0:
+        return dict(
+            x_m=0.0,
+            v_gs_mps=float(history['v_gs'][0]),
+            v_air_mps=float(history['v_air'][0]),
+            t_s=float(history['t'][0]),
+            idx=0,
+            history=history,
+        )
     idx = find_liftoff_index(history['normal'])
     if idx is None:
         return None
