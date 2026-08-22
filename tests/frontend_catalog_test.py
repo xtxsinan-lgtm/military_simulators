@@ -40,6 +40,9 @@ def test_build_catalog_payload_modes():
     assert payload['takeoff_config']['shared']['mu'] == 0.025
     assert 'A' in payload['takeoff_config']['stovl_strategy_descriptions']
     assert set(payload['takeoff_config']['modes']) == set(payload['modes'])
+    tilt_mode = payload['takeoff_config']['modes']['tiltrotor_short_takeoff']
+    assert 'hover_download_frac' in tilt_mode
+    assert 'slipstream_wake_factor' in tilt_mode
     assert 'A' in payload['takeoff_config']['tiltrotor_strategy_descriptions']
     assert payload['missile_interception_config']['traj_types']['glide']
 

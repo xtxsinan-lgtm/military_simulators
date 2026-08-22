@@ -16,6 +16,21 @@ DEFAULT_DOWNLOAD_ZERO_DEG = 60.0
 DEFAULT_DOWNLOAD_FULL_DEG = 90.0
 
 
+def aero_params_from_mode(mode: dict | None) -> dict[str, float]:
+    """从起飞模式配置读取干涉参数；缺键时回退到官方标定默认值。
+
+    Pyodide 注入的 takeoff_config 若尚未同步新字段，模块仍须能加载。
+    """
+    src = mode if isinstance(mode, dict) else {}
+    return {
+        'hover_download_frac': float(src.get('hover_download_frac', DEFAULT_HOVER_DOWNLOAD_FRAC)),
+        'slipstream_wake_factor': float(src.get('slipstream_wake_factor', DEFAULT_SLIPSTREAM_WAKE_FACTOR)),
+        'slipstream_wet_frac': float(src.get('slipstream_wet_frac', DEFAULT_SLIPSTREAM_WET_FRAC)),
+        'download_zero_nacelle_deg': float(src.get('download_zero_nacelle_deg', DEFAULT_DOWNLOAD_ZERO_DEG)),
+        'download_full_nacelle_deg': float(src.get('download_full_nacelle_deg', DEFAULT_DOWNLOAD_FULL_DEG)),
+    }
+
+
 def calc_hover_download_schedule(
     nacelle_deg: float,
     zero_deg: float = DEFAULT_DOWNLOAD_ZERO_DEG,

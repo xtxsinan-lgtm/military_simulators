@@ -1616,6 +1616,12 @@ module.exports = {
         "max_runway_m": 3000.0,
         "figure_of_merit": 0.78,
         "nacelle_blockage_frac": 0.1,
+        "hover_download_frac": 0.117,
+        "slipstream_wake_factor": 2.0,
+        "slipstream_wet_frac": 0.9,
+        "download_zero_nacelle_deg": 60.0,
+        "download_full_nacelle_deg": 90.0,
+        "vtol_reference_mass_kg": 23859.0,
         "reference_aircraft": {
           "mass_kg": 20827.0,
           "s_ref_m2": 28.0,
@@ -1630,7 +1636,7 @@ module.exports = {
         "search": {
           "nacelle_final_deg": {
             "start": 20,
-            "end": 75,
+            "end": 90,
             "step": 5
           },
           "v_trans_mps": {
@@ -1640,7 +1646,7 @@ module.exports = {
           },
           "nacelle_b_deg": {
             "start": 25,
-            "end": 70,
+            "end": 90,
             "step": 1
           }
         }

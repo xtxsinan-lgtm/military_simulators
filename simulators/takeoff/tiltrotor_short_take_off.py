@@ -30,6 +30,7 @@ from utils.takeoff.search_utils import fine_range_symmetric
 from utils.takeoff.sim_config import apply_wind_knots_globals
 from utils.takeoff.takeoff_config import mode_config, shared_config
 from utils.takeoff.tiltrotor_aero import (
+    aero_params_from_mode,
     calc_slipstream_dynamic_pressure,
     calc_slipstream_wing_speed_mps,
     calc_tiltrotor_vertical_force_n,
@@ -75,11 +76,12 @@ PROP_DIAMETER_M = float(_REF['prop_diameter_m'])
 N_ROTORS = int(_REF['n_rotors'])
 NACELLE_BLOCKAGE_FRAC = float(_MODE['nacelle_blockage_frac'])
 FIGURE_OF_MERIT = float(_MODE['figure_of_merit'])
-HOVER_DOWNLOAD_FRAC = float(_MODE['hover_download_frac'])
-SLIPSTREAM_WAKE_FACTOR = float(_MODE['slipstream_wake_factor'])
-SLIPSTREAM_WET_FRAC = float(_MODE['slipstream_wet_frac'])
-DOWNLOAD_ZERO_DEG = float(_MODE['download_zero_nacelle_deg'])
-DOWNLOAD_FULL_DEG = float(_MODE['download_full_nacelle_deg'])
+_AERO = aero_params_from_mode(_MODE)
+HOVER_DOWNLOAD_FRAC = _AERO['hover_download_frac']
+SLIPSTREAM_WAKE_FACTOR = _AERO['slipstream_wake_factor']
+SLIPSTREAM_WET_FRAC = _AERO['slipstream_wet_frac']
+DOWNLOAD_ZERO_DEG = _AERO['download_zero_nacelle_deg']
+DOWNLOAD_FULL_DEG = _AERO['download_full_nacelle_deg']
 PROP_DISK_AREA_M2 = calc_prop_disk_area_m2(PROP_DIAMETER_M, N_ROTORS)
 PROP_DISK_AREA_EFF_M2 = calc_effective_disk_area_m2(PROP_DISK_AREA_M2, NACELLE_BLOCKAGE_FRAC)
 

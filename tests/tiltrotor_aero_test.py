@@ -5,6 +5,9 @@ import pytest
 
 from utils.takeoff.takeoff_physics import G
 from utils.takeoff.tiltrotor_aero import (
+    DEFAULT_HOVER_DOWNLOAD_FRAC,
+    DEFAULT_SLIPSTREAM_WAKE_FACTOR,
+    aero_params_from_mode,
     calc_hover_download_schedule,
     calc_slipstream_dynamic_pressure,
     calc_slipstream_wing_speed_mps,
@@ -12,6 +15,20 @@ from utils.takeoff.tiltrotor_aero import (
     calc_tiltrotor_vertical_force_n,
     calc_tiltrotor_wing_lift_n,
 )
+
+
+def test_aero_params_from_mode_uses_defaults_when_keys_missing():
+    """Pyodide 注入旧 takeoff_config 时不得 KeyError。"""
+    params = aero_params_from_mode({'figure_of_merit': 0.78})
+    assert params['hover_download_frac'] == DEFAULT_HOVER_DOWNLOAD_FRAC
+    assert params['slipstream_wake_factor'] == DEFAULT_SLIPSTREAM_WAKE_FACTOR
+    assert aero_params_from_mode(None)['hover_download_frac'] == DEFAULT_HOVER_DOWNLOAD_FRAC
+
+
+def test_aero_params_from_mode_reads_provided_keys():
+    params = aero_params_from_mode({'hover_download_frac': 0.2, 'slipstream_wet_frac': 1.0})
+    assert params['hover_download_frac'] == pytest.approx(0.2)
+    assert params['slipstream_wet_frac'] == pytest.approx(1.0)
 
 
 def test_calc_hover_download_schedule_endpoints():

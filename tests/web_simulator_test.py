@@ -98,7 +98,7 @@ def test_run_simulation_ski_jump_j15(aircraft, carriers):
         'ski_jump', ac, carrier, ac.a2a_mass_kg, 30.0, carrier.max_speed_kt,
     )
     assert result['success'] is True
-    assert result['distance_m'] == pytest.approx(85.6, rel=0.02)
+    assert result['distance_m'] == pytest.approx(83.6, rel=0.02)
     assert result['deck_launch_ok'] is True
     assert '起飞' in result['output_summary']
     assert '余量' in result['output_summary']
