@@ -770,9 +770,9 @@ def main() -> None:
 
     params = {
         'anchor1': a1,
-        'ld1_target': a1.get('ld_known', 8.8),
+        'ld1_target': a1.get('ld_known', 8.52),
         'anchor2': a2,
-        'ld2_target': a2.get('ld_known', 8.0),
+        'ld2_target': a2.get('ld_known', 8.62),
         'target': tgt,
         'empty_kg': tgt['empty_kg'],
         'internal_fuel_kg': tgt['internal_fuel_kg'],

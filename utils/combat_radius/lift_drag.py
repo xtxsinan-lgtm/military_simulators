@@ -285,7 +285,7 @@ def parasite_cd0(ac: Aircraft, cf0: float) -> float:
 
 
 def default_ld_anchor_aircraft() -> tuple[Aircraft, float, Aircraft, float]:
-    """默认两锚点：F-35C (L/D=8.8) 与 F-22 (L/D=8.0)，几何与机型库一致。"""
+    """默认两锚点：F-35C (L/D=8.52) 与 F-22 (L/D=8.62)，几何与机型库一致。"""
     f35c = Aircraft(
         'F-35C', AR=2.77, sweep_deg=30.9, wing_loading=0.341,
         tc=0.0510, mach=0.8, alt_m=11300,
@@ -298,7 +298,7 @@ def default_ld_anchor_aircraft() -> tuple[Aircraft, float, Aircraft, float]:
         planform='trapezoidal', layout='conventional',
         bwb=False, rough=False,
     )
-    return f35c, 8.8, f22, 8.0
+    return f35c, 8.52, f22, 8.62
 
 
 def calibrate_default_anchors() -> tuple[float, float]:

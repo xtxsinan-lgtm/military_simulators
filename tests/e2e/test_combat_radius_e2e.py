@@ -28,10 +28,13 @@ def _params_from_csv() -> dict:
 @pytest.mark.e2e
 def test_e2e_combat_radius_csv_anchors_predict_j20():
     """CSV 预设锚点标定后，歼-20 升阻比应落在合理巡航区间。"""
+    presets = load_presets()
+    a1 = get_preset_by_id(presets, 'F-35C')
+    a2 = get_preset_by_id(presets, 'F-22')
     r = run_combat_radius_json({'action': 'predict_ld', 'params': _params_from_csv()})
     assert r['success'] is True
-    assert r['anchors'][0]['ld'] == pytest.approx(8.8, abs=1e-8)
-    assert r['anchors'][1]['ld'] == pytest.approx(8.0, abs=1e-8)
+    assert r['anchors'][0]['ld'] == pytest.approx(a1['ld_known'], abs=1e-8)
+    assert r['anchors'][1]['ld'] == pytest.approx(a2['ld_known'], abs=1e-8)
     assert 7.0 < r['target']['ld'] < 10.0
 
 
@@ -85,9 +88,11 @@ def _efficiency_params() -> dict:
 @pytest.mark.e2e
 def test_e2e_combat_radius_f22_efficiency_tsfc():
     """F-22 巡航点负载应低于 1，并给出正的总效率与 TSFC。"""
+    presets = load_presets()
+    a2 = get_preset_by_id(presets, 'F-22')
     r = run_combat_radius_json({'action': 'estimate_efficiency', 'params': _efficiency_params()})
     assert r['success'] is True
-    assert r['ld'] == pytest.approx(8.0, abs=1e-6)
+    assert r['ld'] == pytest.approx(a2['ld_known'], abs=1e-6)
     assert 0 < r['load'] < 1
     assert r['eta_o'] > 0.05
     assert r['tsfc_mg_n_s'] > 0

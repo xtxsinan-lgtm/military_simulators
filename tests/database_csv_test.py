@@ -214,7 +214,7 @@ def test_load_combat_radius_aircraft_csv():
     assert rows[0]['rough'] is True
     f22 = next(r for r in rows if r['id'] == 'F-22')
     j20 = next(r for r in rows if r['id'] == 'J-20')
-    assert 'ld_known' not in j20
+    assert j20['ld_known'] == pytest.approx(9.21)
     assert f22['empty_kg'] == 19800
     assert f22['n_engines'] == 2
     assert f22['engine_id'] == 'f119'
@@ -267,12 +267,12 @@ def test_load_combat_radius_engine_csv():
     assert by_id['f119']['max_tsl_kN'] == 156.0
     assert by_id['f135']['max_tsl_kN'] == 191.0
     assert by_id['ws15']['max_tsl_kN'] == 156.0
+    assert by_id['ws15']['tsl_kN'] == 120.0
     assert by_id['ws15i']['max_tsl_kN'] == 185.0
     assert by_id['ws10c']['max_tsl_kN'] == 145.0
     assert by_id['ws19']['max_tsl_kN'] == 118.0
     assert by_id['ws21']['max_tsl_kN'] == 95.0
     assert by_id['f135']['t4_K'] == 2260.0
-    assert 'tsl_kN' not in by_id['ws15']
     assert by_id['f414']['bpr'] == pytest.approx(0.40)
     assert by_id['ws10h']['tsl_kN'] == 89.0
 

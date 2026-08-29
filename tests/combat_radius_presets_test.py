@@ -30,14 +30,14 @@ def test_load_presets_contains_anchors_and_j20():
     f35 = get_preset_by_id(presets, 'F-35C')
     assert f35 is not None
     assert f35['rough'] is True
-    assert f35['ld_known'] == 8.8
+    assert f35['ld_known'] == 8.52
     assert f35['n_engines'] == 1
     assert f35['engine_id'] == 'f135'
     j20 = get_preset_by_id(presets, 'J-20')
     assert j20 is not None
     assert j20['planform'] == 'trapezoidal'
     assert j20['layout'] == 'canard'
-    assert 'ld_known' not in j20
+    assert j20['ld_known'] == 9.21
     j50 = get_preset_by_id(presets, 'J-50')
     assert j50 is not None
     assert j50['planform'] == 'lambda'
@@ -98,7 +98,8 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
     assert f119['tsl_kN'] == 116.0
     ws15 = get_preset_by_id(engines, 'ws15')
     assert ws15 is not None
-    assert 'tsl_kN' not in ws15
+    assert ws15['tsl_kN'] == 120.0
+    assert ws15['max_tsl_kN'] == 156.0
     expected = {
         'ws15': (0.25, 25.5, 1841.0),
         'ws15i': (0.25, 29.0, 1975.0),

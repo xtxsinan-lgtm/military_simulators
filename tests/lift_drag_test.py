@@ -246,8 +246,8 @@ def test_calibrate_rejects_unphysical_targets():
 
 def test_default_ld_anchors_match_f35c_f22():
     a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
-    assert a1.name == 'F-35C' and ld1 == 8.8
-    assert a2.name == 'F-22' and ld2 == 8.0
+    assert a1.name == 'F-35C' and ld1 == 8.52
+    assert a2.name == 'F-22' and ld2 == 8.62
     cf0, k_e = calibrate_default_anchors()
     assert cf0 > 0 and k_e > 0
 

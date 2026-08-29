@@ -399,7 +399,7 @@ def test_main_rejects_missing_preset(monkeypatch):
 
 
 def test_main_rejects_engine_without_tsl(monkeypatch):
-    monkeypatch.setattr('sys.argv', ['combat_radius.py', '--aircraft', 'J-20', '--engine', 'ws15'])
+    monkeypatch.setattr('sys.argv', ['combat_radius.py', '--aircraft', 'J-20', '--engine', 'ws19'])
     with pytest.raises(SystemExit, match='海平面军推'):
         main()
 
@@ -579,4 +579,41 @@ def test_insufficient_mission_fuel_marks_points_infeasible():
     assert r['fuel_usable_kg'] is not None and r['fuel_usable_kg'] <= 0
 
 
+def test_ma08_combat_radius_calibration_targets():
+    """Ma 0.8 作战半径须拟合 F-35C≈1400 / F-22≈1100 / 歼-20≈1350 km。"""
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+
+    presets = load_presets()
+    engines = load_engine_presets()
+    a1 = get_preset_by_id(presets, 'F-35C')
+    a2 = get_preset_by_id(presets, 'F-22')
+    cases = [
+        ('F-35C', 'f135', 1400, 80),
+        ('F-22', 'f119', 1100, 50),
+        ('J-20', 'ws15', 1350, 50),
+    ]
+    for ac_id, eng_id, target_km, tol_km in cases:
+        tgt = get_preset_by_id(presets, ac_id)
+        eng = get_preset_by_id(engines, eng_id)
+        r = run_estimate_radius_from_params({
+            'anchor1': a1,
+            'ld1_target': a1['ld_known'],
+            'anchor2': a2,
+            'ld2_target': a2['ld_known'],
+            'target': tgt,
+            'empty_kg': tgt['empty_kg'],
+            'internal_fuel_kg': tgt['internal_fuel_kg'],
+            'n_pilots': tgt['n_pilots'],
+            'missile_mass_kg': tgt['missile_mass_kg'],
+            'n_engines': tgt['n_engines'],
+            'bpr': eng['bpr'],
+            'opr': eng['opr'],
+            't4_K': eng['t4_K'],
+            'tsl_kN': eng['tsl_kN'],
+        })
+        m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
+        assert m08['feasible'] is True, ac_id
+        assert m08['radius_km'] == pytest.approx(target_km, abs=tol_km), (
+            f'{ac_id} Ma0.8={m08["radius_km"]:.0f} km, 目标 {target_km}±{tol_km}'
+        )
 
