@@ -1,9 +1,9 @@
 /**
- * 作战半径 Web 前端：第一部分为巡航升阻比标定/估算，计算走 Pyodide Python 核心。
+ * 作战半径 Web 前端：升阻比标定 + 军推包线估算，计算走 Pyodide Python 核心。
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 1;
+const APP_VERSION = 2;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -12,6 +12,7 @@ const COMBAT_RADIUS_PY_FILES = [
   'utils/combat_radius/combat_radius_config.py',
   'utils/database_csv.py',
   'utils/combat_radius/lift_drag.py',
+  'utils/combat_radius/military_thrust.py',
   'utils/combat_radius/combat_radius_presets.py',
   'simulators/__init__.py',
   'simulators/combat_radius/__init__.py',
@@ -25,6 +26,7 @@ const COMBAT_RADIUS_IMPORTS = [
   'utils.combat_radius.combat_radius_config',
   'utils.database_csv',
   'utils.combat_radius.lift_drag',
+  'utils.combat_radius.military_thrust',
   'utils.combat_radius.combat_radius_presets',
   'simulators.combat_radius.combat_radius',
   'apps.combat_radius_web',
@@ -135,6 +137,9 @@ async function loadData() {
   }
   if (!data.combat_radius_presets) {
     throw new Error('data.json 缺少 combat_radius_presets，请运行 python3 scripts/build_all.py');
+  }
+  if (!data.combat_radius_engine_presets) {
+    throw new Error('data.json 缺少 combat_radius_engine_presets，请运行 python3 scripts/build_all.py');
   }
 }
 
@@ -258,6 +263,51 @@ function renderResult(r) {
   `;
 }
 
+function renderThrustResult(r) {
+  $('thrustBox').innerHTML = `
+    <div class="stat-row">
+      <div class="stat"><div class="k">可用军推</div><div class="v">${fmt(r.thrust_kN, 1)} kN</div><div class="sub">${fmt(r.thrust_tf, 2)} 吨力</div></div>
+      <div class="stat"><div class="k">推力衰减 α</div><div class="v amber">${fmt(r.alpha, 3)}</div></div>
+      <div class="stat"><div class="k">质量流比</div><div class="v">${fmt(r.mdot_ratio, 3)}</div></div>
+      <div class="stat"><div class="k">风扇压比</div><div class="v">${fmt(r.fan_pr, 2)}</div></div>
+    </div>
+    <p class="note">来流总温比 τr=${fmt(r.tau_r, 3)} · 大气 ${fmt(r.T0, 1)} K / ${fmt(r.P0 / 1000, 1)} kPa。α = T_flight / T_SL。</p>
+  `;
+}
+
+function readThrustParams() {
+  const fanRaw = $('engFanPr').value;
+  const params = {
+    name: ($('engPreset').selectedOptions[0] || {}).text || '',
+    bpr: Number($('engBpr').value),
+    opr: Number($('engOpr').value),
+    t4_K: Number($('engT4').value),
+    tsl_kN: Number($('engTsl').value),
+    alt_m: Number($('engAlt').value),
+    mach: Number($('engMach').value),
+    eta_c: Number($('engEta').value),
+  };
+  if (fanRaw !== '') params.fan_pr_override = Number(fanRaw);
+  return params;
+}
+
+function applyEnginePreset(p) {
+  if (!p) return;
+  $('engBpr').value = p.bpr;
+  $('engOpr').value = p.opr;
+  $('engT4').value = p.t4_K;
+  if (p.tsl_kN != null) $('engTsl').value = p.tsl_kN;
+}
+
+function bindEnginePreset() {
+  const presets = data.combat_radius_engine_presets || [];
+  fillSelect($('engPreset'), presets);
+  $('engPreset').addEventListener('change', () => {
+    const p = presets.find((x) => x.id === $('engPreset').value);
+    applyEnginePreset(p);
+  });
+}
+
 async function runEstimate() {
   if (runLock) return;
   runLock = true;
@@ -285,6 +335,27 @@ async function runEstimate() {
   }
 }
 
+async function runThrust() {
+  if (runLock) return;
+  runLock = true;
+  const btn = $('thrustBtn');
+  btn.disabled = true;
+  $('thrustStatus').textContent = 'RUNNING';
+  try {
+    await initPyodide();
+    const result = await callPythonAsync('estimate_thrust', readThrustParams());
+    if (!result.success) throw new Error(result.error || '估算失败');
+    renderThrustResult(result);
+    $('thrustStatus').textContent = 'READY';
+  } catch (e) {
+    $('thrustBox').innerHTML = `<p class="placeholder">${String(e.message || e)}</p>`;
+    $('thrustStatus').textContent = 'ERROR';
+  } finally {
+    btn.disabled = false;
+    runLock = false;
+  }
+}
+
 function applyUiDefaults() {
   const ui = data.combat_radius_config?.ui || {};
   const presets = data.combat_radius_presets || [];
@@ -305,6 +376,15 @@ function applyUiDefaults() {
     $('tgtPreset').value = tgt.id;
     applyPresetToFields('tgt', tgt);
   }
+  const engines = data.combat_radius_engine_presets || [];
+  const eng = engines.find((p) => p.id === ui.default_engine_id) || engines.find((p) => p.tsl_kN != null) || engines[0];
+  if (eng) {
+    $('engPreset').value = eng.id;
+    applyEnginePreset(eng);
+  }
+  $('engAlt').value = ui.default_thrust_alt_m ?? 11000;
+  $('engMach').value = ui.default_thrust_mach ?? 1.5;
+  $('engEta').value = ui.default_eta_c ?? 0.87;
 }
 
 async function main() {
@@ -316,8 +396,10 @@ async function main() {
     bindPresetSelect('a1Preset', 'a1', 'a1Ld');
     bindPresetSelect('a2Preset', 'a2', 'a2Ld');
     bindPresetSelect('tgtPreset', 'tgt', null);
+    bindEnginePreset();
     applyUiDefaults();
     $('runBtn').addEventListener('click', runEstimate);
+    $('thrustBtn').addEventListener('click', runThrust);
     initPyodide().catch((e) => {
       $('clock').textContent = 'ENGINE ERR';
       $('resultBox').textContent = String(e.message || e);

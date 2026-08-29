@@ -33,3 +33,4 @@ def test_combat_radius_config_file_exists_and_ui_defaults():
     ui = cr_ui()
     assert ui['default_anchor1_id'] == 'F-35C'
     assert ui['default_ld1'] == 8.8
+    assert ui['default_engine_id'] == 'f119'

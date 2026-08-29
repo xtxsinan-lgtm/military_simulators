@@ -6,8 +6,11 @@ import json
 from apps.combat_radius_web import _opt_bool, _opt_float, run_combat_radius, run_combat_radius_json
 from simulators.combat_radius.combat_radius import (
     format_ld_row,
+    parse_sea_level_thrust_n,
+    run_estimate_thrust_from_params,
     run_predict_ld,
     run_predict_ld_from_params,
+    _optional_float,
     _require_aircraft_params,
 )
 from utils.combat_radius.lift_drag import Aircraft
@@ -90,6 +93,7 @@ def test_run_combat_radius_presets_and_unknown_action():
     presets = run_combat_radius('presets')
     assert presets['success'] is True
     assert any(p['id'] == 'J-20' for p in presets['presets'])
+    assert any(p['id'] == 'f119' for p in presets['engine_presets'])
     bad = run_combat_radius('nope')
     assert bad['success'] is False
     assert '未知 action' in bad['error']
@@ -106,3 +110,58 @@ def test_run_combat_radius_json_predict_and_errors():
     assert failed['success'] is False
     parsed = run_combat_radius_json(json.dumps({'action': 'presets'}))
     assert parsed['success'] is True
+    assert any(p['id'] == 'f119' for p in parsed['engine_presets'])
+
+
+def test_optional_float_empty_and_numeric():
+    assert _optional_float(None) is None
+    assert _optional_float('') is None
+    assert _optional_float(1.5) == 1.5
+    assert _optional_float('2') == 2.0
+
+
+def test_parse_sea_level_thrust_n_from_n_or_kn():
+    assert parse_sea_level_thrust_n({'tsl_N': 116000}) == 116000.0
+    assert parse_sea_level_thrust_n({'tsl_kN': 116}) == 116000.0
+    assert parse_sea_level_thrust_n({'tsl_N': 5000, 'tsl_kN': 116}) == 5000.0
+    with pytest.raises(ValueError, match='海平面军推'):
+        parse_sea_level_thrust_n({})
+
+
+def _f119_thrust_params() -> dict:
+    return {
+        'name': 'F119',
+        'bpr': 0.30,
+        'opr': 26.0,
+        't4_K': 1922,
+        'tsl_kN': 116.0,
+        'alt_m': 11000,
+        'mach': 1.5,
+    }
+
+
+def test_run_estimate_thrust_from_params_f119():
+    r = run_estimate_thrust_from_params(_f119_thrust_params())
+    assert r['success'] is True
+    assert r['name'] == 'F119'
+    assert r['thrust_kN'] == pytest.approx(r['thrust_N'] / 1000.0)
+    assert 10.0 < r['thrust_kN'] < 116.0
+    alias = run_estimate_thrust_from_params({
+        'bpr': 0.30, 'opr': 26.0, 't4': 1922, 'tsl_N': 116000,
+        'alt_m': 11000, 'mach': 1.5,
+    })
+    assert alias['success'] is True
+    assert alias['thrust_N'] == pytest.approx(r['thrust_N'])
+
+
+def test_run_combat_radius_estimate_thrust_and_cycle_error():
+    ok = run_combat_radius('estimate_thrust', _f119_thrust_params())
+    assert ok['success'] is True
+    assert ok['alpha'] < 1.0
+    bad = run_combat_radius_json({
+        'action': 'estimate_thrust',
+        'params': {'bpr': 2.0, 'opr': 40.0, 't4_K': 900, 'tsl_kN': 100, 'alt_m': 0, 'mach': 0},
+    })
+    assert bad['success'] is False
+    assert '无解' in bad['error']
+

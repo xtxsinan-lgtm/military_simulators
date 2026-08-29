@@ -49,6 +49,7 @@ header{
 
 .grid{ display:grid; grid-template-columns: 1fr; gap:14px; }
 @media(min-width:980px){ .grid{grid-template-columns: 380px 1fr;} }
+.stack{ display:flex; flex-direction:column; gap:14px; }
 
 .panel{
   background:var(--panel); border:1px solid var(--line); border-radius:2px;

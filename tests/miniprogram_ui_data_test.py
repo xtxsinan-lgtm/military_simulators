@@ -75,3 +75,8 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '/api/missile_interception/simulate' in api_js
     assert 'runCombatRadiusSimulation' in api_js
     assert '/api/combat_radius/simulate' in api_js
+    cr_js = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
+    cr_wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
+    assert 'onRunThrust' in cr_js
+    assert 'estimate_thrust' in cr_js
+    assert '估算可用军推' in cr_wxml

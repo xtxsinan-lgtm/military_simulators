@@ -1,6 +1,8 @@
 """作战半径仿真核心。
 
-当前实现第一部分：根据几何参数与两锚点标定，估算巡航升阻比。
+当前实现：
+1. 根据几何参数与两锚点标定，估算巡航升阻比；
+2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推。
 后续将接入燃油消耗、任务剖面与作战半径积分。
 """
 from __future__ import annotations
@@ -13,6 +15,11 @@ from utils.combat_radius.lift_drag import (
     aircraft_from_dict,
     calibrate,
     predict_ld,
+)
+from utils.combat_radius.military_thrust import (
+    ETA_C_DEFAULT,
+    estimate_military_thrust,
+    thrust_result_to_dict,
 )
 
 
@@ -78,3 +85,37 @@ def run_predict_ld_from_params(params: dict[str, Any]) -> dict[str, Any]:
     ld1 = float(params.get('ld1_target', params.get('ld1')))
     ld2 = float(params.get('ld2_target', params.get('ld2')))
     return run_predict_ld(anchor1, ld1, anchor2, ld2, target)
+
+
+def _optional_float(value: Any) -> float | None:
+    """空值视为未提供；否则转为 float。"""
+    if value is None or value == '':
+        return None
+    return float(value)
+
+
+def parse_sea_level_thrust_n(params: dict[str, Any]) -> float:
+    """从 tsl_N 或 tsl_kN 读取海平面军推（牛顿）。"""
+    if params.get('tsl_N') not in (None, ''):
+        return float(params['tsl_N'])
+    if params.get('tsl_kN') not in (None, ''):
+        return float(params['tsl_kN']) * 1000.0
+    raise ValueError('缺少海平面军推 tsl_N 或 tsl_kN')
+
+
+def run_estimate_thrust_from_params(params: dict[str, Any]) -> dict[str, Any]:
+    """从 JSON 参数估算可用军推。"""
+    result = estimate_military_thrust(
+        bpr=float(params['bpr']),
+        opr=float(params['opr']),
+        t4_K=float(params.get('t4_K', params.get('t4'))),
+        tsl_N=parse_sea_level_thrust_n(params),
+        alt_m=float(params['alt_m']),
+        mach=float(params['mach']),
+        eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
+        fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
+    )
+    payload = thrust_result_to_dict(result)
+    payload['success'] = True
+    payload['name'] = str(params.get('name') or '')
+    return payload

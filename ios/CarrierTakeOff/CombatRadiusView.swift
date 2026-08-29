@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 作战半径升阻比估算界面（战术终端风格）
+/// 作战半径估算界面（升阻比 + 军推，战术终端风格）
 struct CombatRadiusView: View {
     @StateObject private var vm = CombatRadiusViewModel()
 
@@ -36,14 +36,39 @@ struct CombatRadiusView: View {
                     }
                     .buttonStyle(CombatRadiusPrimaryButton())
                     .disabled(vm.running)
+                }
 
-                    Text("第 2–4 部分（燃油、任务剖面、作战半径积分）将在后续接入同一终端。")
+                panel(title: "2. 军推估算", tag: "THRUST") {
+                    Text("理想 Brayton 双涵道循环：T4 全包线保持，海平面静止军推反标定换算流量。概念设计级估算。")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(CombatRadiusTheme.textDim)
+
+                    enginePresetPicker("发动机预设", selection: $vm.selectedEngineId) { vm.applyEngine() }
+                    field("涵道比 BPR", text: $vm.engBpr)
+                    field("总压比 OPR", text: $vm.engOpr)
+                    field("涡轮前温度 T4 (K)", text: $vm.engT4)
+                    field("海平面军推 (kN)", text: $vm.engTsl)
+                    field("高度 (m)", text: $vm.engAlt)
+                    field("马赫数", text: $vm.engMach)
+                    field("压气机效率 η_c", text: $vm.engEta)
+                    field("风扇压比（可空）", text: $vm.engFanPr)
+
+                    Button(vm.running ? "计算中…" : "▶ 估算可用军推") {
+                        Task { await vm.runThrust() }
+                    }
+                    .buttonStyle(CombatRadiusPrimaryButton())
+                    .disabled(vm.running)
+
+                    Text("第 3–4 部分（燃油、任务剖面、作战半径积分）将在后续接入同一终端。")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
                 }
 
                 if let r = vm.result, r.success {
                     resultsPanel(r)
+                }
+                if let r = vm.thrustResult, r.success {
+                    thrustResultsPanel(r)
                 }
             }
             .padding(14)
@@ -57,7 +82,7 @@ struct CombatRadiusView: View {
             Text("飞机作战半径估算终端")
                 .font(.system(size: 14, weight: .bold, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.green)
-            Text("COMBAT RADIUS · L/D CALIBRATION")
+            Text("COMBAT RADIUS · L/D + MILITARY THRUST")
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
         }
@@ -84,7 +109,7 @@ struct CombatRadiusView: View {
     }
 
     private func resultsPanel(_ r: CombatRadiusResult) -> some View {
-        panel(title: "输出") {
+        panel(title: "升阻比输出", tag: "OUTPUT") {
             HStack(spacing: 10) {
                 stat("待估 L/D", value: String(format: "%.4f", r.target?.ld ?? 0), sub: r.target?.name ?? "")
                 stat("Cf0", value: String(format: "%.6f", r.Cf0 ?? 0), amber: true)
@@ -101,6 +126,22 @@ struct CombatRadiusView: View {
                 }
                 .font(.system(size: 11, design: .monospaced))
             }
+        }
+    }
+
+    private func thrustResultsPanel(_ r: CombatRadiusResult) -> some View {
+        panel(title: "军推输出", tag: "THRUST") {
+            HStack(spacing: 10) {
+                stat("可用军推", value: String(format: "%.1f kN", r.thrust_kN ?? 0), sub: String(format: "%.2f 吨力", r.thrust_tf ?? 0))
+                stat("推力衰减 α", value: String(format: "%.3f", r.alpha ?? 0), amber: true)
+            }
+            HStack(spacing: 10) {
+                stat("质量流比", value: String(format: "%.3f", r.mdot_ratio ?? 0))
+                stat("风扇压比", value: String(format: "%.2f", r.fan_pr ?? 0))
+            }
+            Text(String(format: "来流总温比 τr=%.3f · 大气 %.1f K / %.1f kPa。α = T_flight / T_SL。", r.tau_r ?? 0, r.T0 ?? 0, (r.P0 ?? 0) / 1000))
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(CombatRadiusTheme.textDim)
         }
     }
 
@@ -124,14 +165,14 @@ struct CombatRadiusView: View {
         .overlay(Rectangle().stroke(CombatRadiusTheme.line, lineWidth: 1))
     }
 
-    private func panel<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func panel<Content: View>(title: String, tag: String = "L/D", @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(title.uppercased())
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(CombatRadiusTheme.textDim)
                 Spacer()
-                Text("L/D")
+                Text(tag)
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(CombatRadiusTheme.green)
             }
@@ -172,6 +213,23 @@ struct CombatRadiusView: View {
             Picker(label, selection: selection) {
                 Text("— 自定义 —").tag("")
                 ForEach(vm.presets) { p in
+                    Text(p.name).tag(p.id)
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(CombatRadiusTheme.cyan)
+            .onChange(of: selection.wrappedValue) { _, _ in onChange() }
+        }
+    }
+
+    private func enginePresetPicker(_ label: String, selection: Binding<String>, onChange: @escaping () -> Void) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(CombatRadiusTheme.textDim)
+            Picker(label, selection: selection) {
+                Text("— 自定义 —").tag("")
+                ForEach(vm.enginePresets) { p in
                     Text(p.name).tag(p.id)
                 }
             }

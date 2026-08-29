@@ -2,13 +2,15 @@
 from __future__ import annotations
 
 from utils.combat_radius.combat_radius_presets import (
+    build_combat_radius_engine_presets_payload,
     build_combat_radius_presets_payload,
     get_preset_by_id,
+    load_engine_presets,
     load_presets,
     preset_to_aircraft,
     preset_to_aircraft_dict,
 )
-from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV
+from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV, COMBAT_RADIUS_ENGINE_CSV
 
 
 def test_load_presets_contains_anchors_and_j20():
@@ -49,3 +51,28 @@ def test_build_combat_radius_presets_payload():
 def test_load_presets_missing_file_returns_empty(tmp_path):
     missing = tmp_path / 'no.csv'
     assert load_presets(missing) == []
+
+
+def test_load_engine_presets_contains_f119_and_optional_tsl():
+    engines = load_engine_presets()
+    ids = [p['id'] for p in engines]
+    assert 'f119' in ids
+    assert 'ws15' in ids
+    f119 = get_preset_by_id(engines, 'f119')
+    assert f119 is not None
+    assert f119['bpr'] == 0.30
+    assert f119['tsl_kN'] == 116.0
+    ws15 = get_preset_by_id(engines, 'ws15')
+    assert ws15 is not None
+    assert 'tsl_kN' not in ws15
+
+
+def test_build_combat_radius_engine_presets_payload():
+    payload = build_combat_radius_engine_presets_payload()
+    assert payload[0]['id'] == 'ws15'
+    assert COMBAT_RADIUS_ENGINE_CSV.is_file()
+
+
+def test_load_engine_presets_missing_file_returns_empty(tmp_path):
+    missing = tmp_path / 'no_eng.csv'
+    assert load_engine_presets(missing) == []

@@ -45,6 +45,10 @@ COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS = (
     'mach', 'alt_m', 'planform', 'layout', 'bwb', 'rough', 'ld_known', 'notes',
 )
 
+COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
+    'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'notes',
+)
+
 def _cell_str(value: Any) -> str:
     if value is None:
         return ''
@@ -63,6 +67,7 @@ def _parse_bool(raw: str) -> bool:
 
 
 def _parse_optional_float(raw: str) -> float | None:
+    """解析可选浮点；空白视为未填写并返回 None。"""
     text = raw.strip()
     if not text:
         return None
@@ -354,6 +359,44 @@ def load_combat_radius_aircraft_csv(path: str | Path | None = None) -> list[dict
             rows.append(item)
     if not rows:
         raise ValueError(f'{csv_path} 未读到有效作战半径机型记录')
+    return rows
+
+
+def load_combat_radius_engine_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载作战半径发动机预设（涵道比/总压比/T4/海平面军推）。"""
+    from utils.paths import COMBAT_RADIUS_ENGINE_CSV
+
+    csv_path = Path(path) if path is not None else COMBAT_RADIUS_ENGINE_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in COMBAT_RADIUS_ENGINE_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            item_id = (row.get('id') or '').strip()
+            name = (row.get('name') or '').strip()
+            if not item_id or not name:
+                continue
+            item: dict[str, Any] = {
+                'id': item_id,
+                'name': name,
+                'nation': _parse_nation(row, csv_path, item_id),
+                'bpr': _parse_float(row.get('bpr') or '', 'bpr'),
+                'opr': _parse_float(row.get('opr') or '', 'opr'),
+                't4_K': _parse_float(row.get('t4_K') or '', 't4_K'),
+            }
+            tsl = _parse_optional_float(row.get('tsl_kN') or '')
+            if tsl is not None:
+                item['tsl_kN'] = tsl
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效发动机记录')
     return rows
 
 

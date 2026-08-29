@@ -4,8 +4,14 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from simulators.combat_radius.combat_radius import run_predict_ld_from_params
-from utils.combat_radius.combat_radius_presets import build_combat_radius_presets_payload
+from simulators.combat_radius.combat_radius import (
+    run_estimate_thrust_from_params,
+    run_predict_ld_from_params,
+)
+from utils.combat_radius.combat_radius_presets import (
+    build_combat_radius_engine_presets_payload,
+    build_combat_radius_presets_payload,
+)
 
 
 def _opt_float(v: Any, default: float) -> float:
@@ -35,10 +41,19 @@ def run_combat_radius(
     action: str = 'predict_ld',
     params: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """统一入口：predict_ld / presets。"""
+    """统一入口：predict_ld / estimate_thrust / presets。"""
     params = params or {}
     if action == 'presets':
-        return {'success': True, 'presets': build_combat_radius_presets_payload()}
+        return {
+            'success': True,
+            'presets': build_combat_radius_presets_payload(),
+            'engine_presets': build_combat_radius_engine_presets_payload(),
+        }
+    if action == 'estimate_thrust':
+        try:
+            return run_estimate_thrust_from_params(params)
+        except Exception as exc:
+            return {'success': False, 'error': str(exc)}
     if action != 'predict_ld':
         return {'success': False, 'error': f'未知 action: {action}'}
     try:

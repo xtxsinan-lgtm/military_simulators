@@ -35,6 +35,36 @@ def test_e2e_combat_radius_csv_anchors_predict_j20():
     assert 7.0 < r['target']['ld'] < 10.0
 
 
+def _thrust_params() -> dict:
+    return {
+        'bpr': 0.30, 'opr': 26.0, 't4_K': 1922, 'tsl_kN': 116.0,
+        'alt_m': 11000, 'mach': 1.5,
+    }
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_f119_military_thrust():
+    """F119 在 11000 m / Ma 1.5 下可用军推应低于海平面静止值且为正。"""
+    r = run_combat_radius_json({'action': 'estimate_thrust', 'params': _thrust_params()})
+    assert r['success'] is True
+    assert 10.0 < r['thrust_kN'] < 116.0
+    assert 0.1 < r['alpha'] < 0.6
+    assert r['T0'] == pytest.approx(216.65, abs=1e-6)
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_thrust_http_api():
+    payload = {'action': 'estimate_thrust', 'params': _thrust_params()}
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    result = json.loads(body.decode())
+    assert result['success'] is True
+    assert 'thrust_kN' in result
+    assert result['fan_pr'] > 1.0
+
+
 @pytest.mark.e2e
 def test_e2e_combat_radius_http_api():
     payload = {'action': 'predict_ld', 'params': _params_from_csv()}
@@ -57,9 +87,13 @@ def test_e2e_combat_radius_three_channels_exist():
     html_text = html.read_text(encoding='utf-8')
     js_text = js.read_text(encoding='utf-8')
     assert 'run_combat_radius_json' in js_text
+    assert 'estimate_thrust' in js_text
     assert 'combat_radius.js' in html_text
     wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in wxml
+    assert '估算可用军推' in wxml
     ios = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusView.swift').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in ios
+    assert '估算可用军推' in ios
+    assert 'runThrust' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')

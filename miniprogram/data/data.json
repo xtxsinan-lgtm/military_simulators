@@ -1,5 +1,5 @@
 {
-  "version": 23,
+  "version": 24,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -41,7 +41,7 @@
       "id": "combat_radius",
       "name": "飞机作战半径估算",
       "eyebrow": "COMBAT RADIUS",
-      "subtitle": "几何参数标定升阻比 · 后续接入燃油与任务剖面",
+      "subtitle": "升阻比标定 · 军推包线估算",
       "html": "combat-radius.html",
       "miniprogram_page": "/pages/combat_radius/combat_radius",
       "ios_route": "combat_radius"
@@ -1810,6 +1810,73 @@
       "notes": "鸭式三角翼；待估机型，无公开巡航 L/D 锚点"
     }
   ],
+  "combat_radius_engine_presets": [
+    {
+      "id": "ws15",
+      "name": "涡扇15",
+      "nation": "中国",
+      "bpr": 0.25,
+      "opr": 25.5,
+      "t4_K": 1841.0,
+      "notes": "公开资料估计；海平面军推需手动填写"
+    },
+    {
+      "id": "ws15i",
+      "name": "涡扇15改进",
+      "nation": "中国",
+      "bpr": 0.25,
+      "opr": 29.0,
+      "t4_K": 1975.0,
+      "notes": "公开资料估计；海平面军推需手动填写"
+    },
+    {
+      "id": "ws19",
+      "name": "涡扇19",
+      "nation": "中国",
+      "bpr": 0.5,
+      "opr": 35.0,
+      "t4_K": 1850.0,
+      "notes": "公开资料估计；海平面军推需手动填写"
+    },
+    {
+      "id": "ws10c",
+      "name": "涡扇10C",
+      "nation": "中国",
+      "bpr": 0.6,
+      "opr": 30.0,
+      "t4_K": 1800.0,
+      "notes": "公开资料估计；海平面军推需手动填写"
+    },
+    {
+      "id": "ws21",
+      "name": "涡扇21",
+      "nation": "中国",
+      "bpr": 0.68,
+      "opr": 26.0,
+      "t4_K": 1650.0,
+      "notes": "公开资料估计；海平面军推需手动填写"
+    },
+    {
+      "id": "f119",
+      "name": "F119",
+      "nation": "美国",
+      "bpr": 0.3,
+      "opr": 26.0,
+      "t4_K": 1922.0,
+      "tsl_kN": 116.0,
+      "notes": "海平面静止军推约 116 kN"
+    },
+    {
+      "id": "f135",
+      "name": "F135",
+      "nation": "美国",
+      "bpr": 0.57,
+      "opr": 28.0,
+      "t4_K": 2260.0,
+      "tsl_kN": 125.0,
+      "notes": "海平面静止军推约 125 kN"
+    }
+  ],
   "combat_radius_config": {
     "version": 1,
     "ui": {
@@ -1817,7 +1884,11 @@
       "default_anchor2_id": "F-22",
       "default_target_id": "J-20",
       "default_ld1": 8.8,
-      "default_ld2": 8.0
+      "default_ld2": 8.0,
+      "default_engine_id": "f119",
+      "default_eta_c": 0.87,
+      "default_thrust_alt_m": 11000,
+      "default_thrust_mach": 1.5
     },
     "planform_labels": {
       "trapezoidal": "梯形翼",

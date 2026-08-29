@@ -17,7 +17,9 @@ def test_get_api_data_returns_aircraft_and_carriers():
     assert 'missile_interception_presets' in data
     assert 'asm' in data['missile_interception_presets']
     assert 'combat_radius_presets' in data
+    assert 'combat_radius_engine_presets' in data
     assert any(p['id'] == 'J-20' for p in data['combat_radius_presets'])
+    assert any(p['id'] == 'f119' for p in data['combat_radius_engine_presets'])
 
 
 def test_post_missile_interception_simulate_success():
@@ -62,6 +64,25 @@ def test_post_combat_radius_simulate_success():
     assert result['success'] is True
     assert result['Cf0'] > 0
     assert 7.0 < result['target']['ld'] < 10.0
+
+
+def test_post_combat_radius_estimate_thrust_success():
+    """作战半径 API 按发动机参数返回可用军推。"""
+    payload = {
+        'action': 'estimate_thrust',
+        'params': {
+            'bpr': 0.30, 'opr': 26.0, 't4_K': 1922, 'tsl_kN': 116.0,
+            'alt_m': 11000, 'mach': 1.5,
+        },
+    }
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    result = json.loads(body.decode())
+    assert result['success'] is True
+    assert 10.0 < result['thrust_kN'] < 116.0
+    assert result['alpha'] < 1.0
 
 
 def test_options_returns_cors():

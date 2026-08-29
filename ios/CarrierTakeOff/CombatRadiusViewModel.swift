@@ -48,7 +48,7 @@ struct CombatRadiusAircraftInput {
     }
 }
 
-/// 作战半径升阻比估算状态
+/// 作战半径估算状态（升阻比 + 军推）
 @MainActor
 final class CombatRadiusViewModel: ObservableObject {
     @Published var statusText = "加载预设…"
@@ -65,6 +65,17 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var planformOptions: [(String, String)] = [("trapezoidal", "梯形翼")]
     @Published var layoutOptions: [(String, String)] = [("conventional", "常规")]
     @Published var result: CombatRadiusResult?
+    @Published var enginePresets: [CombatRadiusEnginePresetItem] = []
+    @Published var selectedEngineId = ""
+    @Published var engBpr = ""
+    @Published var engOpr = ""
+    @Published var engT4 = ""
+    @Published var engTsl = ""
+    @Published var engAlt = "11000"
+    @Published var engMach = "1.5"
+    @Published var engEta = "0.87"
+    @Published var engFanPr = ""
+    @Published var thrustResult: CombatRadiusResult?
 
     init() {
         loadPresets()
@@ -75,6 +86,7 @@ final class CombatRadiusViewModel: ObservableObject {
         do {
             let catalog = try CatalogStore.loadBundledCatalog()
             presets = catalog.combat_radius_presets ?? []
+            enginePresets = catalog.combat_radius_engine_presets ?? []
             if let labels = catalog.combat_radius_config?.planform_labels, !labels.isEmpty {
                 let order = ["trapezoidal", "swept", "delta", "diamond", "unswept"]
                 planformOptions = orderedPairs(labels, preferred: order)
@@ -89,9 +101,13 @@ final class CombatRadiusViewModel: ObservableObject {
             applyDefault(id: ui?.default_target_id, slot: &tgt, selected: &selectedTgtId)
             if let v = ui?.default_ld1 { a1Ld = String(v) }
             if let v = ui?.default_ld2 { a2Ld = String(v) }
+            applyDefaultEngine(id: ui?.default_engine_id)
+            if let v = ui?.default_eta_c { engEta = String(v) }
+            if let v = ui?.default_thrust_alt_m { engAlt = String(format: "%.0f", v) }
+            if let v = ui?.default_thrust_mach { engMach = String(v) }
             statusText = presets.isEmpty
                 ? "data.json 缺少 combat_radius_presets，请运行 build_all.py"
-                : "预设已加载 · \(presets.count) 型"
+                : "预设已加载 · \(presets.count) 型 · 发动机 \(enginePresets.count) 台"
         } catch {
             statusText = error.localizedDescription
         }
@@ -137,6 +153,26 @@ final class CombatRadiusViewModel: ObservableObject {
         tgt.apply(p)
     }
 
+    /// 填入所选发动机的 BPR/OPR/T4；有海平面军推时一并写入
+    func applyEngine() {
+        guard let p = enginePresets.first(where: { $0.id == selectedEngineId }) else { return }
+        engBpr = String(p.bpr)
+        engOpr = String(p.opr)
+        engT4 = String(format: "%.0f", p.t4_K)
+        if let tsl = p.tsl_kN {
+            engTsl = String(tsl)
+        }
+    }
+
+    private func applyDefaultEngine(id: String?) {
+        let chosen = id.flatMap { targetId in enginePresets.first(where: { $0.id == targetId }) }
+            ?? enginePresets.first(where: { $0.tsl_kN != nil })
+            ?? enginePresets.first
+        guard let p = chosen else { return }
+        selectedEngineId = p.id
+        applyEngine()
+    }
+
     func run() async {
         running = true
         statusText = "计算中…"
@@ -168,6 +204,49 @@ final class CombatRadiusViewModel: ObservableObject {
             }
         } catch {
             result = nil
+            statusText = error.localizedDescription
+        }
+    }
+
+    /// 估算给定高度/马赫数下的可用军推
+    func runThrust() async {
+        running = true
+        statusText = "军推计算中…"
+        defer { running = false }
+        do {
+            var params: [String: Any] = [
+                "name": enginePresets.first(where: { $0.id == selectedEngineId })?.name ?? "",
+                "bpr": Double(engBpr) ?? 0,
+                "opr": Double(engOpr) ?? 0,
+                "t4_K": Double(engT4) ?? 0,
+                "tsl_kN": Double(engTsl) ?? 0,
+                "alt_m": Double(engAlt) ?? 11000,
+                "mach": Double(engMach) ?? 1.5,
+                "eta_c": Double(engEta) ?? 0.87,
+            ]
+            if let fan = Double(engFanPr), fan > 1 {
+                params["fan_pr_override"] = fan
+            }
+            let payload: [String: Any] = [
+                "action": "estimate_thrust",
+                "params": params,
+            ]
+            let r = try await LocalSimulatorEngine.shared.runCombatRadius(payload: payload)
+            guard r.success else {
+                throw NSError(
+                    domain: "CombatRadius",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: r.error ?? "估算失败"]
+                )
+            }
+            thrustResult = r
+            if let kn = r.thrust_kN {
+                statusText = String(format: "军推 = %.1f kN", kn)
+            } else {
+                statusText = "READY"
+            }
+        } catch {
+            thrustResult = nil
             statusText = error.localizedDescription
         }
     }

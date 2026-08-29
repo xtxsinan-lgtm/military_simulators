@@ -1,7 +1,7 @@
 <view class="cr-page">
   <view class="cr-header">
     <text class="cr-title">飞机作战半径估算终端</text>
-    <text class="cr-sub">COMBAT RADIUS · L/D</text>
+    <text class="cr-sub">COMBAT RADIUS · L/D + MILITARY THRUST</text>
   </view>
 
   <view class="panel">
@@ -161,11 +161,55 @@
     </view>
 
     <view class="btn" bindtap="onRun">▶ 估算升阻比</view>
-    <view class="note">第 2–4 部分（燃油、任务剖面、作战半径积分）将在后续接入同一终端。</view>
   </view>
 
   <view class="panel">
-    <view class="panel-head">输出 · OUTPUT</view>
+    <view class="panel-head">2. 军推估算 · THRUST</view>
+    <view class="note">理想 Brayton 双涵道循环：T4 全包线保持，海平面静止军推反标定换算流量。概念设计级估算。</view>
+    <view class="field">
+      <view class="field-label"><text>发动机预设</text></view>
+      <picker mode="selector" range="{{engineNames}}" value="{{enginePresetIndex}}" bindchange="onEnginePreset">
+        <view class="picker-val">{{engineNames[enginePresetIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>涵道比 BPR</text></view>
+      <input class="input" type="digit" value="{{engBpr}}" data-key="engBpr" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>总压比 OPR</text></view>
+      <input class="input" type="digit" value="{{engOpr}}" data-key="engOpr" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>涡轮前温度 T4</text><text class="unit">K</text></view>
+      <input class="input" type="digit" value="{{engT4}}" data-key="engT4" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>海平面军推</text><text class="unit">kN</text></view>
+      <input class="input" type="digit" value="{{engTsl}}" data-key="engTsl" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>高度</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{engAlt}}" data-key="engAlt" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>马赫数</text></view>
+      <input class="input" type="digit" value="{{engMach}}" data-key="engMach" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>压气机效率 η_c</text></view>
+      <input class="input" type="digit" value="{{engEta}}" data-key="engEta" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>风扇压比</text><text class="unit">可空</text></view>
+      <input class="input" type="digit" value="{{engFanPr}}" data-key="engFanPr" placeholder="由 BPR 估算" bindinput="onField"/>
+    </view>
+    <view class="btn" bindtap="onRunThrust">▶ 估算可用军推</view>
+    <view class="note">第 3–4 部分（燃油、任务剖面、作战半径积分）将在后续接入同一终端。</view>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">升阻比输出 · OUTPUT</view>
     <view class="note">{{statusText}}</view>
     <block wx:if="{{result}}">
       <view class="stat-row">
@@ -182,6 +226,20 @@
         <text class="td">{{item.CD0}}</text>
         <text class="td">{{item.CDi}}</text>
       </view>
+    </block>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">军推输出 · THRUST</view>
+    <view class="note">{{thrustStatusText}}</view>
+    <block wx:if="{{thrustResult}}">
+      <view class="stat-row">
+        <view class="stat"><view class="k">可用军推</view><view class="v">{{thrustKN}} kN</view><view class="sub">{{thrustTf}} 吨力</view></view>
+        <view class="stat"><view class="k">推力衰减 α</view><view class="v amber">{{thrustAlpha}}</view></view>
+        <view class="stat"><view class="k">质量流比</view><view class="v">{{thrustMdot}}</view></view>
+        <view class="stat"><view class="k">风扇压比</view><view class="v">{{thrustFanPr}}</view></view>
+      </view>
+      <view class="note">{{thrustNote}}</view>
     </block>
   </view>
 </view>

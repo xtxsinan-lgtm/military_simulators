@@ -3,12 +3,15 @@ import pytest
 
 from utils.database_csv import (
     COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS,
+    COMBAT_RADIUS_ENGINE_CSV_COLUMNS,
     MISSILE_INTERCEPTION_MISSILE_CSV_COLUMNS,
     MISSILE_INTERCEPTION_RADAR_CSV_COLUMNS,
+    _parse_optional_float,
     list_model_ids_from_missile_interception_csv,
     load_aircraft_csv,
     load_carriers_csv,
     load_combat_radius_aircraft_csv,
+    load_combat_radius_engine_csv,
     load_missile_interception_missile_csv,
     load_missile_interception_presets_csv,
     load_missile_interception_radar_csv,
@@ -17,6 +20,7 @@ from utils.paths import (
     AIRCRAFT_CSV,
     CARRIERS_CSV,
     COMBAT_RADIUS_AIRCRAFT_CSV,
+    COMBAT_RADIUS_ENGINE_CSV,
     MISSILE_INTERCEPTION_MISSILE_CSV,
     MISSILE_INTERCEPTION_RADAR_CSV,
 )
@@ -181,3 +185,31 @@ def test_combat_radius_csv_empty_raises(tmp_path):
     path.write_text(','.join(COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS) + '\n', encoding='utf-8')
     with pytest.raises(ValueError, match='未读到'):
         load_combat_radius_aircraft_csv(path)
+
+
+def test_parse_optional_float_blank_and_number():
+    assert _parse_optional_float('') is None
+    assert _parse_optional_float('  ') is None
+    assert _parse_optional_float('116.0') == 116.0
+
+
+def test_load_combat_radius_engine_csv():
+    rows = load_combat_radius_engine_csv(COMBAT_RADIUS_ENGINE_CSV)
+    by_id = {r['id']: r for r in rows}
+    assert by_id['f119']['tsl_kN'] == 116.0
+    assert by_id['f135']['t4_K'] == 2260.0
+    assert 'tsl_kN' not in by_id['ws15']
+
+
+def test_combat_radius_engine_csv_empty_raises(tmp_path):
+    path = tmp_path / 'eng.csv'
+    path.write_text(','.join(COMBAT_RADIUS_ENGINE_CSV_COLUMNS) + '\n', encoding='utf-8')
+    with pytest.raises(ValueError, match='未读到'):
+        load_combat_radius_engine_csv(path)
+
+
+def test_combat_radius_engine_csv_missing_column_raises(tmp_path):
+    path = tmp_path / 'eng.csv'
+    path.write_text('id,name,nation\nx,涡扇,中国\n', encoding='utf-8')
+    with pytest.raises(ValueError, match='缺少列'):
+        load_combat_radius_engine_csv(path)

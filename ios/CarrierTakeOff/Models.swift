@@ -13,6 +13,7 @@ struct CatalogPayload: Codable {
     var takeoff_config: TakeoffConfigPayload?
     var missile_interception_config: MissileInterceptionConfigPayload?
     var combat_radius_presets: [CombatRadiusPresetItem]?
+    var combat_radius_engine_presets: [CombatRadiusEnginePresetItem]?
     var combat_radius_config: CombatRadiusConfigPayload?
 }
 
@@ -80,6 +81,10 @@ struct CombatRadiusUiDefaults: Codable {
     var default_target_id: String?
     var default_ld1: Double?
     var default_ld2: Double?
+    var default_engine_id: String?
+    var default_eta_c: Double?
+    var default_thrust_alt_m: Double?
+    var default_thrust_mach: Double?
 }
 
 /// 作战半径机型几何预设
@@ -101,6 +106,18 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var notes: String?
 }
 
+/// 作战半径发动机预设（海平面军推 tsl_kN 可缺省，需手动填写）
+struct CombatRadiusEnginePresetItem: Codable, Identifiable, Hashable {
+    var id: String
+    var name: String
+    var nation: String?
+    var bpr: Double
+    var opr: Double
+    var t4_K: Double
+    var tsl_kN: Double?
+    var notes: String?
+}
+
 /// 作战半径 / 升阻比估算结果
 struct CombatRadiusResult: Codable {
     var success: Bool
@@ -110,6 +127,16 @@ struct CombatRadiusResult: Codable {
     var kappa_A: Double?
     var anchors: [CombatRadiusRow]?
     var target: CombatRadiusRow?
+    var thrust_N: Double?
+    var thrust_kN: Double?
+    var thrust_tf: Double?
+    var alpha: Double?
+    var tau_r: Double?
+    var mdot_ratio: Double?
+    var T0: Double?
+    var P0: Double?
+    var fan_pr: Double?
+    var name: String?
 }
 
 struct CombatRadiusRow: Codable, Identifiable, Hashable {

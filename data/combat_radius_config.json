@@ -5,7 +5,11 @@
     "default_anchor2_id": "F-22",
     "default_target_id": "J-20",
     "default_ld1": 8.8,
-    "default_ld2": 8.0
+    "default_ld2": 8.0,
+    "default_engine_id": "f119",
+    "default_eta_c": 0.87,
+    "default_thrust_alt_m": 11000,
+    "default_thrust_mach": 1.5
   },
   "planform_labels": {
     "trapezoidal": "梯形翼",

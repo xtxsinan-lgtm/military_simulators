@@ -170,7 +170,7 @@ def serve(host: str = '127.0.0.1', port: int = 8765) -> None:
     print('  GET  /api/data                  — 航母/战斗机/饱和打击预设', flush=True)
     print('  POST /api/simulate              — 起飞仿真', flush=True)
     print('  POST /api/missile_interception/simulate   — 饱和打击仿真', flush=True)
-    print('  POST /api/combat_radius/simulate          — 作战半径 / 升阻比估算', flush=True)
+    print('  POST /api/combat_radius/simulate          — 作战半径 / 升阻比与军推估算', flush=True)
     print('  （iOS App 不使用本服务，在设备本地 Pyodide 计算）', flush=True)
     if host in ('0.0.0.0', '::'):
         lan = _guess_lan_ip()

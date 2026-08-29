@@ -38,8 +38,10 @@ def test_build_catalog_payload_modes():
     assert 'takeoff_config' in payload
     assert 'missile_interception_config' in payload
     assert 'combat_radius_presets' in payload
+    assert 'combat_radius_engine_presets' in payload
     assert 'combat_radius_config' in payload
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
+    assert any(p['id'] == 'f119' for p in payload['combat_radius_engine_presets'])
     assert payload['takeoff_config']['shared']['mu'] == 0.025
     assert 'A' in payload['takeoff_config']['stovl_strategy_descriptions']
     assert set(payload['takeoff_config']['modes']) == set(payload['modes'])
@@ -99,6 +101,9 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'combat_radius.js' in html
     assert 'index.html' in html
     assert 'run_combat_radius_json' in js_text
+    assert 'estimate_thrust' in js_text
+    assert 'military_thrust.py' in js_text
+    assert '估算可用军推' in html
     assert 'combat-radius.html' in takeoff.read_text(encoding='utf-8')
     assert 'combat-radius.html' in sat.read_text(encoding='utf-8')
     ver_js = re.search(r'const APP_VERSION\s*=\s*(\d+)', js_text)
@@ -115,6 +120,7 @@ def test_pyodide_bundles_combat_radius_modules():
 
     for rel in (
         'utils/combat_radius/lift_drag.py',
+        'utils/combat_radius/military_thrust.py',
         'simulators/combat_radius/combat_radius.py',
         'apps/combat_radius_web.py',
     ):
@@ -122,6 +128,7 @@ def test_pyodide_bundles_combat_radius_modules():
     js = (ROOT / 'docs' / 'js' / 'combat_radius.js').read_text(encoding='utf-8')
     assert 'apps/combat_radius_web.py' in js
     assert 'utils.combat_radius.lift_drag' in js
+    assert 'utils.combat_radius.military_thrust' in js
 
 
 def test_pyodide_bundles_missile_interception_presets_csv_deps():
@@ -157,6 +164,7 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     assert [x['id'] for x in payload['missile_interception_presets']['asm']] == [x['id'] for x in csv_data['asm']]
     assert [x['id'] for x in payload['missile_interception_presets']['aew']] == [x['id'] for x in csv_data['aew']]
     assert [p['id'] for p in payload['combat_radius_presets']] == ['F-35C', 'F-22', 'J-20']
+    assert any(p['id'] == 'f119' for p in payload['combat_radius_engine_presets'])
     assert len(payload['aircraft']) >= 1
     assert len(payload['carriers']) >= 1
 

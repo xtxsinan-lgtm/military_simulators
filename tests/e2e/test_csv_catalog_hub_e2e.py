@@ -37,6 +37,7 @@ def test_e2e_catalog_auto_detects_csv_models():
     assert api['simulators'] == SIMULATORS
     assert len(api['missile_interception_presets']['sam']) == len(sat['sam'])
     assert [p['id'] for p in api['combat_radius_presets']] == ['F-35C', 'F-22', 'J-20']
+    assert any(p['id'] == 'f119' for p in api['combat_radius_engine_presets'])
 
 
 @pytest.mark.e2e
