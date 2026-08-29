@@ -25,16 +25,16 @@ struct MissileInterceptionStrikeView: View {
                     presetPicker("反舰导弹型号", selection: $vm.selectedAsmId, items: vm.asmModels) {
                         vm.applyAsmPreset()
                     }
-                    field("速度 (Ma)", text: $vm.vm)
+                    field("速度 (Ma)", text: $vm.vm, hintKey: "vm")
                     field("RCS (m²)", text: $vm.rcs, hintKey: "rcs")
-                    pickerRow("弹道", selection: $vm.traj, options: vm.trajOptions)
+                    pickerRow("弹道", selection: $vm.traj, options: vm.trajOptions, hintKey: "traj")
 
                     sectionLabel("▸ 预警机", color: MissileInterceptionTheme.cyan)
                     presetPicker("预警机预设", selection: $vm.selectedAewId, items: vm.aewPresets) {
                         vm.applyAewPreset()
                     }
-                    field("天线面积 (m²)", text: $vm.awacsArea)
-                    pickerRow("雷达体制", selection: $vm.awacsType, options: vm.radarOptions)
+                    field("天线面积 (m²)", text: $vm.awacsArea, hintKey: "awacsArea")
+                    pickerRow("雷达体制", selection: $vm.awacsType, options: vm.radarOptions, hintKey: "awacsType")
                     field("前出距离 (km)", text: $vm.standoff)
 
                     sectionLabel("▸ 舰载雷达 & 拦截弹", color: MissileInterceptionTheme.green)
@@ -47,15 +47,15 @@ struct MissileInterceptionStrikeView: View {
                     presetPicker("防空导弹型号", selection: $vm.selectedSamId, items: vm.samModels) {
                         vm.applySamPreset()
                     }
-                    field("舰载天线 (m²)", text: $vm.shipArea)
-                    pickerRow("舰载体制", selection: $vm.shipType, options: vm.radarOptions)
-                    field("拦截弹射程 (km)", text: $vm.samRange)
-                    field("拦截弹最大射高 (km)", text: $vm.samMaxAlt)
-                    field("拦截弹速度 (Ma)", text: $vm.vi)
-                    field("拦截弹直径 (m)", text: $vm.interceptorDia)
+                    field("舰载天线 (m²)", text: $vm.shipArea, hintKey: "shipArea")
+                    pickerRow("舰载体制", selection: $vm.shipType, options: vm.radarOptions, hintKey: "shipType")
+                    field("拦截弹射程 (km)", text: $vm.samRange, hintKey: "samRange")
+                    field("拦截弹最大射高 (km)", text: $vm.samMaxAlt, hintKey: "samMaxAlt")
+                    field("拦截弹速度 (Ma)", text: $vm.vi, hintKey: "vi")
+                    field("拦截弹直径 (m)", text: $vm.interceptorDia, hintKey: "interceptorDia")
                     pickerRow("制导头", selection: $vm.seekerType, options: vm.seekerOptions, hintKey: "seekerType")
-                    field("火控锁定时间 (s)", text: $vm.tlock)
-                    field("最小交战距离 (km)", text: $vm.minr)
+                    field("火控锁定时间 (s)", text: $vm.tlock, hintKey: "tlock")
+                    field("最小交战距离 (km)", text: $vm.minr, hintKey: "minr")
 
                     Button("◈ 估算交战距离与拦截率") {
                         Task { await vm.estimateDistanceAndPk() }
@@ -75,7 +75,7 @@ struct MissileInterceptionStrikeView: View {
                     readonlyField("舰载雷达探测距离 (km)", text: vm.shipDetectKm)
                     readonlyField("进入有效射高距离", text: vm.diveEntryDisplay)
                     field("交战距离 (km)", text: $vm.discoveryKm)
-                    field("单发拦截成功概率", text: $vm.pk)
+                    field("单发拦截成功概率", text: $vm.pk, hintKey: "pk")
 
                     Button(vm.running ? "计算中…" : "▶ 运行仿真") {
                         Task { await vm.run() }
