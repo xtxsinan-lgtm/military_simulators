@@ -84,6 +84,7 @@ Page({
     engOpr: '',
     engT4: '',
     engTsl: '',
+    engMaxTsl: '',
     engAlt: '11000',
     engMach: '1.5',
     engEta: '0.87',
@@ -127,6 +128,13 @@ Page({
     radiusClimb: '',
     radiusDescent: '',
     radiusNote: '',
+    maxSpeedStatusText: 'STANDBY',
+    maxSpeedResult: null,
+    maxSpeedKmh: '',
+    maxSpeedMach: '',
+    maxSpeedAlt: '',
+    maxSpeedProfileRows: [],
+    maxSpeedNote: '',
     radiusRows: [],
   },
 
@@ -185,6 +193,7 @@ Page({
           engOpr: eng ? String(eng.opr) : '',
           engT4: eng ? String(eng.t4_K) : '',
           engTsl: eng && eng.tsl_kN != null ? String(eng.tsl_kN) : '',
+          engMaxTsl: eng && eng.max_tsl_kN != null ? String(eng.max_tsl_kN) : '',
           engAlt: String(ui.default_thrust_alt_m ?? 11000),
           engMach: String(ui.default_thrust_mach ?? 1.5),
           engEta: String(ui.default_eta_c ?? 0.87),
@@ -243,6 +252,7 @@ Page({
             patch.engOpr = String(ep.opr);
             patch.engT4 = String(ep.t4_K);
             if (ep.tsl_kN != null) patch.engTsl = String(ep.tsl_kN);
+            if (ep.max_tsl_kN != null) patch.engMaxTsl = String(ep.max_tsl_kN);
           }
         }
       }
@@ -259,6 +269,7 @@ Page({
       patch.engOpr = String(p.opr);
       patch.engT4 = String(p.t4_K);
       if (p.tsl_kN != null) patch.engTsl = String(p.tsl_kN);
+      if (p.max_tsl_kN != null) patch.engMaxTsl = String(p.max_tsl_kN);
     }
     this.setData(patch);
   },
@@ -534,6 +545,61 @@ Page({
           radiusStatusText: String(e.message || e),
           running: false,
           radiusResult: null,
+        });
+      });
+  },
+
+  onRunMaxSpeed() {
+    if (this.data.running) return;
+    this.setData({ running: true, maxSpeedStatusText: '计算中…' });
+    const params = {
+      name: this.data.engineNames[this.data.enginePresetIndex] || '',
+      bpr: num(this.data.engBpr, 0),
+      opr: num(this.data.engOpr, 0),
+      t4_K: num(this.data.engT4, 0),
+      max_tsl_kN: num(this.data.engMaxTsl, 0),
+      eta_c: num(this.data.engEta, 0.87),
+      anchor1: this.toAircraft('a1'),
+      ld1_target: num(this.data.a1Ld, 8.8),
+      anchor2: this.toAircraft('a2'),
+      ld2_target: num(this.data.a2Ld, 8.0),
+      target: this.toAircraft('tgt'),
+      empty_kg: num(this.data.wtEmpty, 0),
+      internal_fuel_kg: num(this.data.wtFuel, 0),
+      n_pilots: num(this.data.wtPilots, 1),
+      missile_mass_kg: num(this.data.wtMissile, 0),
+      n_missiles: num(this.data.wtNMissiles, 4),
+      n_engines: num(this.data.wtEngines, 1),
+    };
+    if (this.data.engFanPr !== '') params.fan_pr_override = num(this.data.engFanPr, 0);
+    api.runCombatRadiusSimulation({
+      action: 'estimate_max_speed',
+      params,
+    })
+      .then((r) => {
+        if (!r.success) throw new Error(r.error || '估算失败');
+        const profileRows = (r.profile || []).map((p) => ({
+          altKm: fmt(p.alt_m / 1000, 1),
+          mach: fmt(p.mach, 3),
+          vKmh: fmt(p.v_kmh, 0),
+          loadPct: fmt(100 * p.load_raw, 1),
+        }));
+        this.setData({
+          maxSpeedResult: r,
+          maxSpeedKmh: r.feasible ? fmt(r.max_speed_kmh, 0) : '—',
+          maxSpeedMach: r.feasible ? fmt(r.max_speed_mach, 3) : '—',
+          maxSpeedAlt: r.feasible && r.alt_m != null ? fmt(r.alt_m / 1000, 1) : '—',
+          maxSpeedProfileRows: profileRows,
+          maxSpeedNote: r.feasible ? (r.note || '') : (r.fail_reason || '无法满足加力推力裕度'),
+          maxSpeedStatusText: 'READY',
+          running: false,
+        });
+      })
+      .catch((e) => {
+        this.setData({
+          maxSpeedStatusText: String(e.message || e),
+          running: false,
+          maxSpeedResult: null,
         });
       });
   },

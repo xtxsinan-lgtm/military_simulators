@@ -83,6 +83,7 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var engOpr = ""
     @Published var engT4 = ""
     @Published var engTsl = ""
+    @Published var engMaxTsl = ""
     @Published var engAlt = "11000"
     @Published var engMach = "1.5"
     @Published var engEta = "0.87"
@@ -100,6 +101,7 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var effAcc = "0.16"
     @Published var efficiencyResult: CombatRadiusResult?
     @Published var radiusResult: CombatRadiusResult?
+    @Published var maxSpeedResult: CombatRadiusResult?
 
     init() {
         loadPresets()
@@ -206,6 +208,11 @@ final class CombatRadiusViewModel: ObservableObject {
         engT4 = String(format: "%.0f", p.t4_K)
         if let tsl = p.tsl_kN {
             engTsl = String(tsl)
+        }
+        if let maxTsl = p.max_tsl_kN {
+            engMaxTsl = String(maxTsl)
+        } else {
+            engMaxTsl = ""
         }
     }
 
@@ -405,6 +412,57 @@ final class CombatRadiusViewModel: ObservableObject {
             }
         } catch {
             radiusResult = nil
+            statusText = error.localizedDescription
+        }
+    }
+
+    func runMaxSpeed() async {
+        running = true
+        statusText = "计算最大速度…"
+        defer { running = false }
+        do {
+            var params: [String: Any] = [
+                "name": enginePresets.first(where: { $0.id == selectedEngineId })?.name ?? "",
+                "bpr": Double(engBpr) ?? 0,
+                "opr": Double(engOpr) ?? 0,
+                "t4_K": Double(engT4) ?? 0,
+                "max_tsl_kN": Double(engMaxTsl) ?? 0,
+                "eta_c": Double(engEta) ?? 0.87,
+                "anchor1": a1.asParams(),
+                "ld1_target": Double(a1Ld) ?? 8.8,
+                "anchor2": a2.asParams(),
+                "ld2_target": Double(a2Ld) ?? 8.0,
+                "target": tgt.asParams(),
+                "empty_kg": Double(wtEmpty) ?? 0,
+                "internal_fuel_kg": Double(wtFuel) ?? 0,
+                "n_pilots": Double(wtPilots) ?? 1,
+                "missile_mass_kg": Double(wtMissile) ?? 0,
+                "n_missiles": Double(wtNMissiles) ?? 4,
+                "n_engines": Int(wtEngines) ?? 1,
+            ]
+            if let fan = Double(engFanPr), fan > 1 {
+                params["fan_pr_override"] = fan
+            }
+            let payload: [String: Any] = [
+                "action": "estimate_max_speed",
+                "params": params,
+            ]
+            let r = try await LocalSimulatorEngine.shared.runCombatRadius(payload: payload)
+            guard r.success else {
+                throw NSError(
+                    domain: "CombatRadius",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: r.error ?? "估算失败"]
+                )
+            }
+            maxSpeedResult = r
+            if r.feasible == true, let kmh = r.max_speed_kmh {
+                statusText = String(format: "最大速度 = %.0f km/h", kmh)
+            } else {
+                statusText = r.fail_reason ?? "READY"
+            }
+        } catch {
+            maxSpeedResult = nil
             statusText = error.localizedDescription
         }
     }

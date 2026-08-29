@@ -205,6 +205,10 @@
       <input class="input" type="digit" value="{{engTsl}}" data-key="engTsl" bindinput="onField"/>
     </view>
     <view class="field">
+      <view class="field-label"><text>海平面加力</text><text class="unit">kN</text></view>
+      <input class="input" type="digit" value="{{engMaxTsl}}" data-key="engMaxTsl" placeholder="最大速度用" bindinput="onField"/>
+    </view>
+    <view class="field">
       <view class="field-label"><text>高度</text><text class="unit">m</text></view>
       <input class="input" type="digit" value="{{engAlt}}" data-key="engAlt" bindinput="onField"/>
     </view>
@@ -272,6 +276,12 @@
     <view class="panel-head">4. 作战半径 · RANGE</view>
     <view class="note">搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖估算作战半径。马赫角优先用预设度数。降落冗余、爬升额外与降落节省一律按亚音速油耗入账（即使巡航点是超音速）。</view>
     <view class="btn" bindtap="onRunRadius">▶ 估算作战半径</view>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">5. 最大速度 · Vmax</view>
+    <view class="note">加力平飞：各高度二分最大马赫（阻力 ≤ 加力 92%），取真速最大点。使用海平面加力标定，不计作战半径。</view>
+    <view class="btn" bindtap="onRunMaxSpeed">▶ 估算最大速度</view>
   </view>
 
   <view class="panel">
@@ -351,6 +361,27 @@
         </block>
       </view>
       <view class="note">{{radiusNote}}</view>
+    </block>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">最大速度输出 · Vmax</view>
+    <view class="note">{{maxSpeedStatusText}}</view>
+    <block wx:if="{{maxSpeedResult}}">
+      <view class="stat-row">
+        <view class="stat"><view class="k">最大速度</view><view class="v amber">{{maxSpeedKmh}} km/h</view><view class="sub">Ma {{maxSpeedMach}}</view></view>
+        <view class="stat"><view class="k">最佳高度</view><view class="v">{{maxSpeedAlt}} km</view></view>
+      </view>
+      <view class="tr th">
+        <text class="th">高度km</text><text class="th">Ma</text><text class="th">km/h</text><text class="th">负载%</text>
+      </view>
+      <view class="tr" wx:for="{{maxSpeedProfileRows}}" wx:key="altKm">
+        <text class="td">{{item.altKm}}</text>
+        <text class="td">{{item.mach}}</text>
+        <text class="td">{{item.vKmh}}</text>
+        <text class="td">{{item.loadPct}}</text>
+      </view>
+      <view class="note">{{maxSpeedNote}}</view>
     </block>
   </view>
 </view>

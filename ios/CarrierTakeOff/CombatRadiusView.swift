@@ -48,6 +48,7 @@ struct CombatRadiusView: View {
                     field("总压比 OPR", text: $vm.engOpr)
                     field("涡轮前温度 T4 (K)", text: $vm.engT4)
                     field("海平面军推 (kN)", text: $vm.engTsl)
+                    field("海平面加力 (kN)", text: $vm.engMaxTsl)
                     field("高度 (m)", text: $vm.engAlt)
                     field("马赫数", text: $vm.engMach)
                     field("压气机效率 η_c", text: $vm.engEta)
@@ -95,6 +96,17 @@ struct CombatRadiusView: View {
                     .disabled(vm.running)
                 }
 
+                panel(title: "5. 最大速度", tag: "Vmax") {
+                    Text("加力平飞：各高度二分最大马赫（阻力 ≤ 加力 92%），取真速最大点。使用海平面加力标定，不计作战半径。")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(CombatRadiusTheme.textDim)
+                    Button(vm.running ? "计算中…" : "▶ 估算最大速度") {
+                        Task { await vm.runMaxSpeed() }
+                    }
+                    .buttonStyle(CombatRadiusPrimaryButton())
+                    .disabled(vm.running)
+                }
+
                 if let r = vm.result, r.success {
                     resultsPanel(r)
                 }
@@ -106,6 +118,9 @@ struct CombatRadiusView: View {
                 }
                 if let r = vm.radiusResult, r.success {
                     radiusResultsPanel(r)
+                }
+                if let r = vm.maxSpeedResult, r.success {
+                    maxSpeedResultsPanel(r)
                 }
             }
             .padding(14)
@@ -203,6 +218,45 @@ struct CombatRadiusView: View {
                 Text("告警：\(w)")
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(CombatRadiusTheme.amber)
+            }
+        }
+    }
+
+    private func maxSpeedResultsPanel(_ r: CombatRadiusResult) -> some View {
+        panel(title: "最大速度输出", tag: "Vmax") {
+            if r.feasible != true {
+                Text(r.fail_reason ?? "无法满足加力推力裕度")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.textDim)
+            } else {
+                HStack(spacing: 10) {
+                    stat(
+                        "最大速度",
+                        value: r.max_speed_kmh.map { String(format: "%.0f km/h", $0) } ?? "—",
+                        sub: r.max_speed_kts.map { String(format: "%.0f kt · Ma %.3f", $0, r.max_speed_mach ?? 0) } ?? "",
+                        amber: true
+                    )
+                    stat("最佳高度", value: r.alt_m.map { String(format: "%.1f km", $0 / 1000) } ?? "—")
+                }
+                HStack(spacing: 10) {
+                    stat("加力海推", value: r.max_tsl_kN.map { String(format: "%.0f kN", $0) } ?? "—")
+                    stat("负载", value: r.load.map { String(format: "%.1f%%", $0 * 100) } ?? "—")
+                }
+                ForEach(r.profile ?? []) { p in
+                    HStack {
+                        Text(String(format: "%.1f km", p.alt_m / 1000))
+                            .foregroundStyle(CombatRadiusTheme.green)
+                        Spacer()
+                        Text(String(format: "Ma %.3f  %.0f km/h", p.mach, p.v_kmh))
+                            .foregroundStyle(CombatRadiusTheme.text)
+                    }
+                    .font(.system(size: 11, design: .monospaced))
+                }
+            }
+            if let note = r.note, !note.isEmpty {
+                Text(note)
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.textDim)
             }
         }
     }

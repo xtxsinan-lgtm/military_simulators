@@ -68,6 +68,16 @@ from utils.combat_radius.lift_drag import (
     mach_cone_limit,
     predict_ld,
 )
+from utils.combat_radius.max_speed_search import (
+    ALT_COARSE_M as MAX_SPEED_ALT_COARSE_M,
+    ALT_MAX_M as MAX_SPEED_ALT_MAX_M,
+    ALT_MIN_M as MAX_SPEED_ALT_MIN_M,
+    ALT_REFINE_M as MAX_SPEED_ALT_REFINE_M,
+    MACH_SEARCH_HI as MAX_SPEED_MACH_HI,
+    MACH_SEARCH_ITERS as MAX_SPEED_MACH_ITERS,
+    MACH_SEARCH_LO as MAX_SPEED_MACH_LO,
+    search_global_max_speed,
+)
 from utils.combat_radius.military_thrust import (
     ETA_C_DEFAULT,
     estimate_military_thrust,
@@ -153,6 +163,15 @@ def parse_sea_level_thrust_n(params: dict[str, Any]) -> float:
     if params.get('tsl_kN') not in (None, ''):
         return float(params['tsl_kN']) * 1000.0
     raise ValueError('缺少海平面军推 tsl_N 或 tsl_kN')
+
+
+def parse_max_sea_level_thrust_n(params: dict[str, Any]) -> float:
+    """从 max_tsl_N 或 max_tsl_kN 读取海平面加力最大推力（牛顿）。"""
+    if params.get('max_tsl_N') not in (None, ''):
+        return float(params['max_tsl_N'])
+    if params.get('max_tsl_kN') not in (None, ''):
+        return float(params['max_tsl_kN']) * 1000.0
+    raise ValueError('缺少海平面加力最大推力 max_tsl_N 或 max_tsl_kN')
 
 
 def run_estimate_thrust_from_params(params: dict[str, Any]) -> dict[str, Any]:
@@ -626,6 +645,98 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         'points': points,
         'mission_fuel': fuel_adj,
         'note': _mission_fuel_note(carrier, reserve_min, mf),
+    }
+
+
+def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]:
+    """加力平飞最大速度：各高度二分最大马赫，取真速最大点。
+
+    使用海平面加力最大推力标定，约束为阻力 ≤ 可用加力 × 92%。
+    空战重量 = 空重 + 一半内油 + 飞行员 + 挂弹；不计作战半径与任务油量。
+    """
+    n_engines = _optional_int(params.get('n_engines'), 1)
+    if n_engines < 1:
+        raise ValueError('发动机台数须至少为 1')
+
+    target, cf0, k_e = _calibrate_from_params(params)
+    n_missiles = float(params.get('n_missiles', N_MISSILES_DEFAULT))
+    cruise_mass = combat_mass_breakdown(
+        empty_kg=float(params['empty_kg']),
+        internal_fuel_kg=float(params['internal_fuel_kg']),
+        n_pilots=float(params.get('n_pilots', 1)),
+        missile_mass_kg=float(params.get('missile_mass_kg', 0)),
+        n_missiles=n_missiles,
+        fuel_fraction=0.5,
+    )
+
+    t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
+    ctx = CruiseContext(
+        target=target,
+        cf0=cf0,
+        k_e=k_e,
+        mass_kg=cruise_mass['total_kg'],
+        n_engines=n_engines,
+        bpr=float(params['bpr']),
+        opr=float(params['opr']),
+        t4_K=t4max,
+        tsl_N=parse_max_sea_level_thrust_n(params),
+        eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
+        fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
+        thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
+    )
+
+    alt_min = float(params['alt_min_m']) if params.get('alt_min_m') not in (None, '') else MAX_SPEED_ALT_MIN_M
+    alt_max = float(params['alt_max_m']) if params.get('alt_max_m') not in (None, '') else MAX_SPEED_ALT_MAX_M
+    coarse_m = float(params['alt_coarse_m']) if params.get('alt_coarse_m') not in (None, '') else MAX_SPEED_ALT_COARSE_M
+    refine_m = float(params['alt_refine_m']) if params.get('alt_refine_m') not in (None, '') else MAX_SPEED_ALT_REFINE_M
+    mach_lo = float(params['mach_search_lo']) if params.get('mach_search_lo') not in (None, '') else MAX_SPEED_MACH_LO
+    mach_hi = float(params['mach_search_hi']) if params.get('mach_search_hi') not in (None, '') else MAX_SPEED_MACH_HI
+    mach_iters = _optional_int(params.get('mach_search_iters'), MAX_SPEED_MACH_ITERS)
+
+    result = search_global_max_speed(
+        ctx, alt_min, alt_max, coarse_m, refine_m, mach_lo, mach_hi, mach_iters,
+    )
+    if result is None:
+        return {
+            'success': True,
+            'name': str(params.get('name') or target.name),
+            'Cf0': cf0,
+            'k_e': k_e,
+            'n_engines': n_engines,
+            'mass_kg': cruise_mass['total_kg'],
+            'max_tsl_kN': parse_max_sea_level_thrust_n(params) / 1000.0,
+            'thrust_margin': ctx.thrust_margin,
+            'feasible': False,
+            'fail_reason': '全高度包线内无法满足 92% 加力推力裕度',
+            'max_speed_mach': None,
+            'max_speed_kmh': None,
+            'max_speed_kts': None,
+            'alt_m': None,
+            'profile': [],
+            'note': '加力最大速度：各高度二分最大马赫，取真速最大点；不计作战半径。',
+        }
+
+    best = result['best']
+    return {
+        'success': True,
+        'name': str(params.get('name') or target.name),
+        'Cf0': cf0,
+        'k_e': k_e,
+        'n_engines': n_engines,
+        'mass_kg': cruise_mass['total_kg'],
+        'max_tsl_kN': parse_max_sea_level_thrust_n(params) / 1000.0,
+        'thrust_margin': ctx.thrust_margin,
+        'feasible': True,
+        'max_speed_mach': best['mach'],
+        'max_speed_kmh': best['v_kmh'],
+        'max_speed_kts': best['v_kts'],
+        'alt_m': best['alt_m'],
+        'ld': best['ld'],
+        'drag_kN': best['drag_kN'],
+        'thrust_avail_kN': best['thrust_avail_kN'],
+        'load': best['load'],
+        'profile': result['profile'],
+        'note': '加力最大速度：各高度二分最大马赫，取真速最大点；不计作战半径。',
     }
 
 

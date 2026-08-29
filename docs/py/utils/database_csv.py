@@ -49,7 +49,7 @@ MISSILE_INTERCEPTION_RADAR_CATEGORIES = ('aew', 'ship')
 MISSILE_INTERCEPTION_CATEGORIES = ('asm', 'aew', 'ship', 'sam')
 
 COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
-    'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'notes',
+    'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'max_tsl_kN', 'notes',
 )
 
 def _cell_str(value: Any) -> str:
@@ -467,6 +467,9 @@ def load_combat_radius_engine_csv(path: str | Path | None = None) -> list[dict[s
             tsl = _parse_optional_float(row.get('tsl_kN') or '')
             if tsl is not None:
                 item['tsl_kN'] = tsl
+            max_tsl = _parse_optional_float(row.get('max_tsl_kN') or '')
+            if max_tsl is not None:
+                item['max_tsl_kN'] = max_tsl
             notes = (row.get('notes') or '').strip()
             if notes:
                 item['notes'] = notes

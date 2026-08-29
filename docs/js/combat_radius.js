@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 6;
+const APP_VERSION = 7;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -17,6 +17,7 @@ const COMBAT_RADIUS_PY_FILES = [
   'utils/combat_radius/cruise_load.py',
   'utils/combat_radius/breguet.py',
   'utils/combat_radius/cruise_search.py',
+  'utils/combat_radius/max_speed_search.py',
   'utils/combat_radius/combat_radius_presets.py',
   'simulators/__init__.py',
   'simulators/combat_radius/__init__.py',
@@ -35,6 +36,7 @@ const COMBAT_RADIUS_IMPORTS = [
   'utils.combat_radius.cruise_load',
   'utils.combat_radius.breguet',
   'utils.combat_radius.cruise_search',
+  'utils.combat_radius.max_speed_search',
   'utils.combat_radius.combat_radius_presets',
   'simulators.combat_radius.combat_radius',
   'apps.combat_radius_web',
@@ -340,6 +342,34 @@ function renderEffResult(r) {
   `;
 }
 
+function renderMaxSpeedResult(r) {
+  if (!r.feasible) {
+    $('maxSpeedBox').innerHTML = `<p class="placeholder">${r.fail_reason || '无法满足加力推力裕度'}</p>`;
+    return;
+  }
+  const rows = (r.profile || []).map((p) => `<tr>
+    <td>${fmt(p.alt_m / 1000, 1)}</td>
+    <td>${fmt(p.mach, 3)}</td>
+    <td>${fmt(p.v_kmh, 0)}</td>
+    <td>${fmt(100 * p.load_raw, 1)}%</td>
+  </tr>`).join('');
+  $('maxSpeedBox').innerHTML = `
+    <div class="stat-row">
+      <div class="stat"><div class="k">最大速度</div><div class="v amber">${fmt(r.max_speed_kmh, 0)} km/h</div><div class="sub">${fmt(r.max_speed_kts, 0)} kt · Ma ${fmt(r.max_speed_mach, 3)}</div></div>
+      <div class="stat"><div class="k">最佳高度</div><div class="v">${fmt(r.alt_m / 1000, 1)} km</div></div>
+      <div class="stat"><div class="k">加力海推</div><div class="v">${fmt(r.max_tsl_kN, 0)} kN</div><div class="sub">${r.n_engines} 发 · 空战 ${fmt(r.mass_kg, 0)} kg</div></div>
+      <div class="stat"><div class="k">负载</div><div class="v">${fmt(100 * r.load, 1)}%</div><div class="sub">D ${fmt(r.drag_kN, 1)} kN / T ${fmt(r.thrust_avail_kN, 1)} kN</div></div>
+    </div>
+    <div class="scroll-x">
+      <table>
+        <thead><tr><th>高度 km</th><th>Ma</th><th>km/h</th><th>负载</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <p class="note">${r.note || ''}</p>
+  `;
+}
+
 function renderRadiusResult(r) {
   const angle = r.mach_angle_deg != null
     ? `${fmt(r.mach_angle_deg, 1)}° · 锥限 Ma ${fmt(r.mach_cone_limit, 2)}`
@@ -392,6 +422,13 @@ function renderRadiusResult(r) {
   `;
 }
 
+function readMaxSpeedParams() {
+  const params = readEfficiencyParams();
+  params.max_tsl_kN = Number($('engMaxTsl').value);
+  delete params.tsl_kN;
+  return params;
+}
+
 function readEfficiencyParams() {
   const params = {
     ...readThrustParams(),
@@ -436,6 +473,8 @@ function applyEnginePreset(p) {
   $('engOpr').value = p.opr;
   $('engT4').value = p.t4_K;
   if (p.tsl_kN != null) $('engTsl').value = p.tsl_kN;
+  if (p.max_tsl_kN != null) $('engMaxTsl').value = p.max_tsl_kN;
+  else $('engMaxTsl').value = '';
 }
 
 function bindEnginePreset() {
@@ -516,6 +555,27 @@ async function runEfficiency() {
   }
 }
 
+async function runMaxSpeed() {
+  if (runLock) return;
+  runLock = true;
+  const btn = $('maxSpeedBtn');
+  btn.disabled = true;
+  $('maxSpeedStatus').textContent = 'RUNNING';
+  try {
+    await initPyodide();
+    const result = await callPythonAsync('estimate_max_speed', readMaxSpeedParams());
+    if (!result.success) throw new Error(result.error || '估算失败');
+    renderMaxSpeedResult(result);
+    $('maxSpeedStatus').textContent = 'READY';
+  } catch (e) {
+    $('maxSpeedBox').innerHTML = `<p class="placeholder">${String(e.message || e)}</p>`;
+    $('maxSpeedStatus').textContent = 'ERROR';
+  } finally {
+    btn.disabled = false;
+    runLock = false;
+  }
+}
+
 async function runRadius() {
   if (runLock) return;
   runLock = true;
@@ -586,6 +646,7 @@ async function main() {
     $('thrustBtn').addEventListener('click', runThrust);
     $('effBtn').addEventListener('click', runEfficiency);
     $('radiusBtn').addEventListener('click', runRadius);
+    $('maxSpeedBtn').addEventListener('click', runMaxSpeed);
     initPyodide().catch((e) => {
       $('clock').textContent = 'ENGINE ERR';
       $('resultBox').textContent = String(e.message || e);

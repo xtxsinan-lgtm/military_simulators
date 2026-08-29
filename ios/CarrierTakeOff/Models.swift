@@ -131,6 +131,7 @@ struct CombatRadiusEnginePresetItem: Codable, Identifiable, Hashable {
     var opr: Double
     var t4_K: Double
     var tsl_kN: Double?
+    var max_tsl_kN: Double?
     var notes: String?
 }
 
@@ -183,6 +184,23 @@ struct CombatRadiusResult: Codable {
     var carrier: Bool?
     var mission_fuel: CombatRadiusMissionFuel?
     var note: String?
+    var feasible: Bool?
+    var fail_reason: String?
+    var max_speed_mach: Double?
+    var max_speed_kmh: Double?
+    var max_speed_kts: Double?
+    var alt_m: Double?
+    var max_tsl_kN: Double?
+    var profile: [CombatRadiusMaxSpeedProfilePoint]?
+}
+
+struct CombatRadiusMaxSpeedProfilePoint: Codable, Identifiable, Hashable {
+    var alt_m: Double
+    var mach: Double
+    var v_kmh: Double
+    var load_raw: Double
+
+    var id: String { "\(alt_m)-\(mach)" }
 }
 
 struct CombatRadiusMissionFuel: Codable {

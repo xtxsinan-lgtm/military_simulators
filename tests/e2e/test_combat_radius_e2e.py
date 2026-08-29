@@ -266,7 +266,7 @@ def test_e2e_combat_radius_three_channels_exist():
 @pytest.mark.e2e
 def test_e2e_combat_radius_j15_radius_uses_csv_engine():
     """合并库中的歼-15 须能带 CSV 发动机走完布雷盖作战半径。"""
-    from utils.combat_radius.combat_radius_presets import load_engine_presets
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 
     presets = load_presets()
     engines = load_engine_presets()
@@ -304,3 +304,39 @@ def test_e2e_combat_radius_j15_radius_uses_csv_engine():
     assert r['carrier'] is True
     assert r['mission_fuel']['reserve_min'] == 40
     assert r['fuel_usable_kg'] < r['fuel_kg']
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_f22_max_speed_uses_ab_thrust():
+    """F-22 + F119 加力最大速度须可走通 estimate_max_speed。"""
+    presets = load_presets()
+    engines = load_engine_presets()
+    a1 = get_preset_by_id(presets, 'F-35C')
+    a2 = get_preset_by_id(presets, 'F-22')
+    tgt = get_preset_by_id(presets, 'F-22')
+    eng = get_preset_by_id(engines, 'f119')
+    assert eng['max_tsl_kN'] == 156.0
+    r = run_combat_radius_json({
+        'action': 'estimate_max_speed',
+        'params': {
+            'anchor1': a1,
+            'ld1_target': a1['ld_known'],
+            'anchor2': a2,
+            'ld2_target': a2['ld_known'],
+            'target': tgt,
+            'empty_kg': tgt['empty_kg'],
+            'internal_fuel_kg': tgt['internal_fuel_kg'],
+            'n_pilots': tgt['n_pilots'],
+            'missile_mass_kg': tgt['missile_mass_kg'],
+            'n_engines': tgt['n_engines'],
+            'bpr': eng['bpr'],
+            'opr': eng['opr'],
+            't4_K': eng['t4_K'],
+            'max_tsl_kN': eng['max_tsl_kN'],
+        },
+    })
+    assert r['success'] is True
+    assert r['feasible'] is True
+    assert r['max_speed_mach'] > 1.0
+    assert r['max_speed_kmh'] > 1200
+    assert 'profile' in r

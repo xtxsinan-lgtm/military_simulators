@@ -264,6 +264,13 @@ def test_load_combat_radius_engine_csv():
     rows = load_combat_radius_engine_csv(COMBAT_RADIUS_ENGINE_CSV)
     by_id = {r['id']: r for r in rows}
     assert by_id['f119']['tsl_kN'] == 116.0
+    assert by_id['f119']['max_tsl_kN'] == 156.0
+    assert by_id['f135']['max_tsl_kN'] == 191.0
+    assert by_id['ws15']['max_tsl_kN'] == 156.0
+    assert by_id['ws15i']['max_tsl_kN'] == 185.0
+    assert by_id['ws10c']['max_tsl_kN'] == 145.0
+    assert by_id['ws19']['max_tsl_kN'] == 118.0
+    assert by_id['ws21']['max_tsl_kN'] == 95.0
     assert by_id['f135']['t4_K'] == 2260.0
     assert 'tsl_kN' not in by_id['ws15']
     assert by_id['f414']['bpr'] == pytest.approx(0.40)
