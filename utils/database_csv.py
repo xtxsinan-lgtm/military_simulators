@@ -8,13 +8,21 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from utils.specs import AircraftSpec, CarrierSpec
 
+# 统一机型库：作战半径几何 + 起飞字段；carrier=1 才进入起飞仿真
 AIRCRAFT_CSV_COLUMNS = (
-    'id', 'name', 'type_label', 'mtow_kg', 'empty_kg', 'internal_fuel_kg', 'max_payload_kg',
-    'bvr_missile', 'missile_mass_kg', 'sweep_le_deg', 'wingspan_m', 'wing_area_m2',
-    'wing_height_m', 'cd0', 't_max_sl_n', 't_main_stovl_sl_n', 't_liftfan_sl_n',
-    't_rollposts_sl_n', 'exhaust_mdot_kg_s', 'exhaust_d0_m', 'exhaust_height_m',
-    'shaft_power_sl_w', 'prop_diameter_m', 'nacelle_blockage_frac', 'notes',
+    'id', 'name', 'nation', 'carrier', 'type_label',
+    'AR', 'sweep_deg', 'wing_loading', 'tc', 'mach', 'alt_m',
+    'planform', 'layout', 'bwb', 'rough', 'ld_known', 'notes',
+    'wing_area_m2', 'mach_angle_deg', 'bvr_missile', 'length_m', 'wingspan_m',
+    'empty_kg', 'internal_fuel_kg', 'n_pilots', 'missile_mass_kg', 'n_engines', 'engine_id',
+    'mtow_kg', 'max_payload_kg', 'wing_height_m', 'cd0',
+    't_max_sl_n', 't_main_stovl_sl_n', 't_liftfan_sl_n', 't_rollposts_sl_n',
+    'exhaust_mdot_kg_s', 'exhaust_d0_m', 'exhaust_height_m',
+    'shaft_power_sl_w', 'prop_diameter_m', 'nacelle_blockage_frac',
 )
+
+# 兼容旧名：作战半径从统一库抽取这些字段
+COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS = AIRCRAFT_CSV_COLUMNS
 
 CARRIERS_CSV_COLUMNS = (
     'id', 'name', 'nation', 'max_speed_kt', 'ski_jump', 'total_deck_length_m',
@@ -39,14 +47,6 @@ MISSILE_INTERCEPTION_RADAR_CSV_COLUMNS = (
 MISSILE_INTERCEPTION_MISSILE_CATEGORIES = ('asm', 'sam')
 MISSILE_INTERCEPTION_RADAR_CATEGORIES = ('aew', 'ship')
 MISSILE_INTERCEPTION_CATEGORIES = ('asm', 'aew', 'ship', 'sam')
-
-COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS = (
-    'id', 'name', 'nation', 'AR', 'sweep_deg', 'wing_loading', 'tc',
-    'mach', 'alt_m', 'planform', 'layout', 'bwb', 'rough', 'ld_known', 'notes',
-    'wing_area_m2', 'mach_angle_deg', 'bvr_missile',
-    'length_m', 'wingspan_m',
-    'empty_kg', 'internal_fuel_kg', 'n_pilots', 'missile_mass_kg', 'n_engines', 'engine_id',
-)
 
 COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
     'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'notes',
@@ -99,12 +99,52 @@ def _parse_nation(row: dict[str, str], path: Path, item_id: str) -> str:
 
 
 def export_aircraft_csv(path: str | Path, aircraft: dict[str, 'AircraftSpec']) -> None:
+    """写回起飞字段；若目标文件已是统一库，则保留作战半径几何列。"""
     path = Path(path)
+    existing: dict[str, dict[str, str]] = {}
+    if path.is_file():
+        with path.open('r', encoding='utf-8-sig', newline='') as f:
+            reader = csv.DictReader(f)
+            if reader.fieldnames and set(AIRCRAFT_CSV_COLUMNS) <= set(reader.fieldnames):
+                for row in reader:
+                    rid = (row.get('id') or '').strip()
+                    if rid:
+                        existing[rid] = dict(row)
     with path.open('w', encoding='utf-8-sig', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=AIRCRAFT_CSV_COLUMNS)
         writer.writeheader()
         for ac in aircraft.values():
-            writer.writerow({col: _cell_str(getattr(ac, col)) for col in AIRCRAFT_CSV_COLUMNS})
+            row = dict(existing.get(ac.id, {}))
+            row.update({
+                'id': ac.id,
+                'name': ac.name,
+                'type_label': ac.type_label,
+                'empty_kg': _cell_str(ac.empty_kg),
+                'internal_fuel_kg': _cell_str(ac.internal_fuel_kg),
+                'bvr_missile': ac.bvr_missile,
+                'missile_mass_kg': _cell_str(ac.missile_mass_kg),
+                'sweep_deg': _cell_str(ac.sweep_le_deg),
+                'wingspan_m': _cell_str(ac.wingspan_m),
+                'wing_area_m2': _cell_str(ac.wing_area_m2),
+                'wing_height_m': _cell_str(ac.wing_height_m),
+                'cd0': _cell_str(ac.cd0),
+                't_max_sl_n': _cell_str(ac.t_max_sl_n),
+                't_main_stovl_sl_n': _cell_str(ac.t_main_stovl_sl_n),
+                't_liftfan_sl_n': _cell_str(ac.t_liftfan_sl_n),
+                't_rollposts_sl_n': _cell_str(ac.t_rollposts_sl_n),
+                'exhaust_mdot_kg_s': _cell_str(ac.exhaust_mdot_kg_s),
+                'exhaust_d0_m': _cell_str(ac.exhaust_d0_m),
+                'exhaust_height_m': _cell_str(ac.exhaust_height_m),
+                'shaft_power_sl_w': _cell_str(ac.shaft_power_sl_w),
+                'prop_diameter_m': _cell_str(ac.prop_diameter_m),
+                'nacelle_blockage_frac': _cell_str(ac.nacelle_blockage_frac),
+                'n_pilots': _cell_str(ac.n_pilots),
+                'mtow_kg': _cell_str(ac.mtow_kg),
+                'max_payload_kg': _cell_str(ac.max_payload_kg),
+                'notes': ac.notes,
+                'carrier': row.get('carrier') or '1',
+            })
+            writer.writerow({col: row.get(col, '') for col in AIRCRAFT_CSV_COLUMNS})
 
 
 def export_carriers_csv(path: str | Path, carriers: list['CarrierSpec']) -> None:
@@ -116,11 +156,8 @@ def export_carriers_csv(path: str | Path, carriers: list['CarrierSpec']) -> None
             writer.writerow({col: _cell_str(getattr(c, col)) for col in CARRIERS_CSV_COLUMNS})
 
 
-def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
-    from utils.specs import AircraftSpec
-
-    path = Path(path)
-    rows: list[dict[str, str]] = []
+def _read_unified_aircraft_rows(path: Path) -> list[dict[str, str]]:
+    """读取统一机型库原始行；校验表头。"""
     with path.open('r', encoding='utf-8-sig', newline='') as f:
         reader = csv.DictReader(f)
         if reader.fieldnames is None:
@@ -128,42 +165,117 @@ def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
         missing = [c for c in AIRCRAFT_CSV_COLUMNS if c not in reader.fieldnames]
         if missing:
             raise ValueError(f'{path} 缺少列: {missing}')
-        rows.extend(reader)
+        return [row for row in reader if (row.get('id') or '').strip() and (row.get('name') or '').strip()]
 
+
+def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[str, Any]:
+    """统一库一行 → 作战半径预设字典。"""
+    from utils.combat_radius.lift_drag import LAYOUT_MULT, PLANFORM_MULT
+
+    item_id = (row.get('id') or '').strip()
+    planform = (row.get('planform') or '').strip()
+    layout = (row.get('layout') or '').strip()
+    if planform not in PLANFORM_MULT:
+        raise ValueError(f'{csv_path} 记录 {item_id} 未知 planform={planform!r}')
+    if layout not in LAYOUT_MULT:
+        raise ValueError(f'{csv_path} 记录 {item_id} 未知 layout={layout!r}')
+    item: dict[str, Any] = {
+        'id': item_id,
+        'name': (row.get('name') or '').strip(),
+        'nation': _parse_nation(row, csv_path, item_id),
+        'carrier': _parse_bool(row.get('carrier') or '0'),
+        'AR': _parse_float(row.get('AR') or '', 'AR'),
+        'sweep_deg': _parse_float(row.get('sweep_deg') or '', 'sweep_deg'),
+        'wing_loading': _parse_float(row.get('wing_loading') or '', 'wing_loading'),
+        'tc': _parse_float(row.get('tc') or '', 'tc'),
+        'mach': _parse_float(row.get('mach') or '', 'mach'),
+        'alt_m': _parse_float(row.get('alt_m') or '', 'alt_m'),
+        'planform': planform,
+        'layout': layout,
+        'bwb': _parse_bool(row.get('bwb') or '0'),
+        'rough': _parse_bool(row.get('rough') or '0'),
+        'empty_kg': _parse_float(row.get('empty_kg') or '', 'empty_kg'),
+        'internal_fuel_kg': _parse_float(row.get('internal_fuel_kg') or '', 'internal_fuel_kg'),
+        'n_pilots': _parse_int(row.get('n_pilots') or '', 'n_pilots'),
+        'missile_mass_kg': _parse_float(row.get('missile_mass_kg') or '', 'missile_mass_kg'),
+        'n_engines': _parse_int(row.get('n_engines') or '', 'n_engines'),
+    }
+    ld_known = _parse_optional_float(row.get('ld_known') or '')
+    if ld_known is not None:
+        item['ld_known'] = ld_known
+    notes = (row.get('notes') or '').strip()
+    if notes:
+        item['notes'] = notes
+    for key in ('wing_area_m2', 'mach_angle_deg', 'length_m', 'wingspan_m'):
+        value = _parse_optional_float(row.get(key) or '')
+        if value is not None:
+            item[key] = value
+    bvr = (row.get('bvr_missile') or '').strip()
+    if bvr:
+        item['bvr_missile'] = bvr
+    engine_id = (row.get('engine_id') or '').strip()
+    if engine_id:
+        item['engine_id'] = engine_id
+    type_label = (row.get('type_label') or '').strip()
+    if type_label:
+        item['type_label'] = type_label
+    return item
+
+
+def _estimate_cd0_for_item(item: dict[str, Any]) -> float:
+    """用作战半径升阻比模型估算起飞 CD0。"""
+    from utils.combat_radius.lift_drag import aircraft_from_dict, estimate_takeoff_cd0
+
+    return estimate_takeoff_cd0(aircraft_from_dict(item))
+
+
+def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
+    """加载统一机型库中的舰载机（carrier=1），供起飞仿真使用。"""
+    from utils.specs import AircraftSpec
+
+    csv_path = Path(path)
+    rows = _read_unified_aircraft_rows(csv_path)
     aircraft: dict[str, AircraftSpec] = {}
     for row in rows:
-        if not row.get('id', '').strip():
+        if not _parse_bool(row.get('carrier') or '0'):
             continue
         ac_id = row['id'].strip()
+        cr_item = _combat_radius_item_from_row(row, csv_path)
+        cd0_override = _parse_optional_float(row.get('cd0') or '')
+        cd0 = cd0_override if cd0_override is not None else _estimate_cd0_for_item(cr_item)
+        type_label = (row.get('type_label') or '').strip()
+        if not type_label:
+            raise ValueError(f'{csv_path} 舰载机 {ac_id} 缺少 type_label')
         aircraft[ac_id] = AircraftSpec(
             id=ac_id,
             name=row['name'].strip(),
-            type_label=row['type_label'].strip(),
-            mtow_kg=_parse_float(row['mtow_kg'], 'mtow_kg'),
-            empty_kg=_parse_float(row['empty_kg'], 'empty_kg'),
-            internal_fuel_kg=_parse_float(row['internal_fuel_kg'], 'internal_fuel_kg'),
-            max_payload_kg=_parse_float(row['max_payload_kg'], 'max_payload_kg'),
-            bvr_missile=row['bvr_missile'].strip(),
-            missile_mass_kg=_parse_float(row['missile_mass_kg'], 'missile_mass_kg'),
-            sweep_le_deg=_parse_float(row['sweep_le_deg'], 'sweep_le_deg'),
-            wingspan_m=_parse_float(row['wingspan_m'], 'wingspan_m'),
-            wing_area_m2=_parse_float(row['wing_area_m2'], 'wing_area_m2'),
-            wing_height_m=_parse_float(row['wing_height_m'], 'wing_height_m'),
-            cd0=_parse_float(row['cd0'], 'cd0'),
-            t_max_sl_n=_parse_optional_float(row['t_max_sl_n']),
-            t_main_stovl_sl_n=_parse_optional_float(row['t_main_stovl_sl_n']),
-            t_liftfan_sl_n=_parse_optional_float(row['t_liftfan_sl_n']),
-            t_rollposts_sl_n=_parse_optional_float(row['t_rollposts_sl_n']),
-            exhaust_mdot_kg_s=_parse_optional_float(row.get('exhaust_mdot_kg_s', '')),
-            exhaust_d0_m=_parse_optional_float(row.get('exhaust_d0_m', '')),
-            exhaust_height_m=_parse_optional_float(row.get('exhaust_height_m', '')),
-            shaft_power_sl_w=_parse_optional_float(row.get('shaft_power_sl_w', '')),
-            prop_diameter_m=_parse_optional_float(row.get('prop_diameter_m', '')),
-            nacelle_blockage_frac=_parse_optional_float(row.get('nacelle_blockage_frac', '')),
-            notes=row.get('notes', '').strip(),
+            type_label=type_label,
+            mtow_kg=_parse_float(row.get('mtow_kg') or '', 'mtow_kg'),
+            empty_kg=cr_item['empty_kg'],
+            internal_fuel_kg=cr_item['internal_fuel_kg'],
+            max_payload_kg=_parse_float(row.get('max_payload_kg') or '', 'max_payload_kg'),
+            bvr_missile=(row.get('bvr_missile') or '').strip(),
+            missile_mass_kg=cr_item['missile_mass_kg'],
+            sweep_le_deg=cr_item['sweep_deg'],
+            wingspan_m=_parse_float(row.get('wingspan_m') or '', 'wingspan_m'),
+            wing_area_m2=_parse_float(row.get('wing_area_m2') or '', 'wing_area_m2'),
+            wing_height_m=_parse_float(row.get('wing_height_m') or '', 'wing_height_m'),
+            cd0=cd0,
+            t_max_sl_n=_parse_optional_float(row.get('t_max_sl_n') or ''),
+            t_main_stovl_sl_n=_parse_optional_float(row.get('t_main_stovl_sl_n') or ''),
+            t_liftfan_sl_n=_parse_optional_float(row.get('t_liftfan_sl_n') or ''),
+            t_rollposts_sl_n=_parse_optional_float(row.get('t_rollposts_sl_n') or ''),
+            exhaust_mdot_kg_s=_parse_optional_float(row.get('exhaust_mdot_kg_s') or ''),
+            exhaust_d0_m=_parse_optional_float(row.get('exhaust_d0_m') or ''),
+            exhaust_height_m=_parse_optional_float(row.get('exhaust_height_m') or ''),
+            shaft_power_sl_w=_parse_optional_float(row.get('shaft_power_sl_w') or ''),
+            prop_diameter_m=_parse_optional_float(row.get('prop_diameter_m') or ''),
+            nacelle_blockage_frac=_parse_optional_float(row.get('nacelle_blockage_frac') or ''),
+            n_pilots=cr_item['n_pilots'],
+            notes=(row.get('notes') or '').strip(),
         )
     if not aircraft:
-        raise ValueError(f'{path} 未读到有效舰载机记录')
+        raise ValueError(f'{csv_path} 未读到有效舰载机记录（须 carrier=1）')
     return aircraft
 
 
@@ -316,84 +428,14 @@ def load_missile_interception_presets_csv(
 
 
 def load_combat_radius_aircraft_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
-    """加载作战半径机型几何预设。
-
-    返回字段与前端契约对齐：id/name/nation/AR/sweep_deg/wing_loading/tc/
-    mach/alt_m/planform/layout/bwb/rough，以及可选 ld_known、notes、
-    wing_area_m2、mach_angle_deg、bvr_missile、length_m、wingspan_m、
-    空战重量与发动机台数。
-    """
+    """从统一机型库加载作战半径预设（含陆基与舰载）。"""
     from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV
 
     csv_path = Path(path) if path is not None else COMBAT_RADIUS_AIRCRAFT_CSV
-    rows: list[dict[str, Any]] = []
-    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
-        reader = csv.DictReader(f)
-        if reader.fieldnames is None:
-            raise ValueError(f'{csv_path} 缺少表头')
-        missing = [c for c in COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS if c not in reader.fieldnames]
-        if missing:
-            raise ValueError(f'{csv_path} 缺少列: {missing}')
-        for row in reader:
-            item_id = (row.get('id') or '').strip()
-            name = (row.get('name') or '').strip()
-            if not item_id or not name:
-                continue
-            planform = (row.get('planform') or '').strip()
-            layout = (row.get('layout') or '').strip()
-            from utils.combat_radius.lift_drag import LAYOUT_MULT, PLANFORM_MULT
-            if planform not in PLANFORM_MULT:
-                raise ValueError(f'{csv_path} 记录 {item_id} 未知 planform={planform!r}')
-            if layout not in LAYOUT_MULT:
-                raise ValueError(f'{csv_path} 记录 {item_id} 未知 layout={layout!r}')
-            item: dict[str, Any] = {
-                'id': item_id,
-                'name': name,
-                'nation': _parse_nation(row, csv_path, item_id),
-                'AR': _parse_float(row.get('AR') or '', 'AR'),
-                'sweep_deg': _parse_float(row.get('sweep_deg') or '', 'sweep_deg'),
-                'wing_loading': _parse_float(row.get('wing_loading') or '', 'wing_loading'),
-                'tc': _parse_float(row.get('tc') or '', 'tc'),
-                'mach': _parse_float(row.get('mach') or '', 'mach'),
-                'alt_m': _parse_float(row.get('alt_m') or '', 'alt_m'),
-                'planform': planform,
-                'layout': layout,
-                'bwb': _parse_bool(row.get('bwb') or '0'),
-                'rough': _parse_bool(row.get('rough') or '0'),
-            }
-            ld_known = _parse_optional_float(row.get('ld_known') or '')
-            if ld_known is not None:
-                item['ld_known'] = ld_known
-            notes = (row.get('notes') or '').strip()
-            if notes:
-                item['notes'] = notes
-            wing_area = _parse_optional_float(row.get('wing_area_m2') or '')
-            if wing_area is not None:
-                item['wing_area_m2'] = wing_area
-            mach_angle = _parse_optional_float(row.get('mach_angle_deg') or '')
-            if mach_angle is not None:
-                item['mach_angle_deg'] = mach_angle
-            bvr = (row.get('bvr_missile') or '').strip()
-            if bvr:
-                item['bvr_missile'] = bvr
-            length_m = _parse_optional_float(row.get('length_m') or '')
-            wingspan_m = _parse_optional_float(row.get('wingspan_m') or '')
-            if length_m is not None:
-                item['length_m'] = length_m
-            if wingspan_m is not None:
-                item['wingspan_m'] = wingspan_m
-            item['empty_kg'] = _parse_float(row.get('empty_kg') or '', 'empty_kg')
-            item['internal_fuel_kg'] = _parse_float(row.get('internal_fuel_kg') or '', 'internal_fuel_kg')
-            item['n_pilots'] = _parse_int(row.get('n_pilots') or '', 'n_pilots')
-            item['missile_mass_kg'] = _parse_float(row.get('missile_mass_kg') or '', 'missile_mass_kg')
-            item['n_engines'] = _parse_int(row.get('n_engines') or '', 'n_engines')
-            engine_id = (row.get('engine_id') or '').strip()
-            if engine_id:
-                item['engine_id'] = engine_id
-            rows.append(item)
-    if not rows:
+    items = [_combat_radius_item_from_row(row, csv_path) for row in _read_unified_aircraft_rows(csv_path)]
+    if not items:
         raise ValueError(f'{csv_path} 未读到有效作战半径机型记录')
-    return rows
+    return items
 
 
 def load_combat_radius_engine_csv(path: str | Path | None = None) -> list[dict[str, Any]]:

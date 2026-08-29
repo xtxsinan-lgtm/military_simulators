@@ -14,10 +14,12 @@ from utils.combat_radius.combat_radius_presets import (
 )
 from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV, COMBAT_RADIUS_ENGINE_CSV
 
-# 作战半径机型库顺序：锚点在前，其后为扩充机型
+# 统一库：原作战半径 12 型在前，其后为起飞库补入的舰载机
 EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
     'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
     'J-35', 'J-35A', '53636', '53636N', '53536',
+    'F-35B', 'AV-8B', 'J-15', 'J-15T', 'MiG-29K', 'Rafale-M',
+    'FA-18E', 'FA-18C', 'F-14', 'MV-22',
 ]
 
 
@@ -48,6 +50,11 @@ def test_load_presets_contains_anchors_and_j20():
     assert j36['n_pilots'] == 2
     assert j36['planform'] == 'double_delta'
     assert j36['bwb'] is True
+    j15 = get_preset_by_id(presets, 'J-15')
+    assert j15 is not None
+    assert j15['carrier'] is True
+    f22 = get_preset_by_id(presets, 'F-22')
+    assert f22['carrier'] is False
 
 
 def test_get_preset_by_id_missing_returns_none():
@@ -99,6 +106,13 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
         'ws21': (0.68, 26.0, 1650.0),
         'f119': (0.30, 26.0, 1922.0),
         'f135': (0.57, 28.0, 2260.0),
+        'ws10h': (0.60, 30.0, 1800.0),
+        'f414': (0.40, 30.0, 1850.0),
+        'f404': (0.34, 26.0, 1700.0),
+        'f110': (0.76, 30.7, 1700.0),
+        'rd33mk': (0.49, 21.0, 1680.0),
+        'm88': (0.30, 24.5, 1850.0),
+        'f402': (1.20, 16.0, 1400.0),
     }
     for eid, (bpr, opr, t4) in expected.items():
         row = get_preset_by_id(engines, eid)

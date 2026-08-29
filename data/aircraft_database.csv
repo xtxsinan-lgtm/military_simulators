@@ -1,13 +1,23 @@
-﻿id,name,type_label,mtow_kg,empty_kg,internal_fuel_kg,max_payload_kg,bvr_missile,missile_mass_kg,sweep_le_deg,wingspan_m,wing_area_m2,wing_height_m,cd0,t_max_sl_n,t_main_stovl_sl_n,t_liftfan_sl_n,t_rollposts_sl_n,exhaust_mdot_kg_s,exhaust_d0_m,exhaust_height_m,shaft_power_sl_w,prop_diameter_m,nacelle_blockage_frac,notes
-F-35B,F-35B Lightning II,v/stol,27200,14651,6400,6800,AIM-120C AMRAAM,152.0,35,10.7,42.7,1.96,0.039,,83260,83260,14600,,,,,,,STOVL 推力为垂起模式海平面标定值（15°C）；含升力风扇；载弹量 6800 kg（Lockheed 15
-AV-8B,AV-8B Harrier II,v/stol,14061,6340,3540,4200,AIM-120C AMRAAM,152.0,37,9.25,21.37,1.55,0.054,,105000,0,1080,195.95,1.219,1.55,,,,Pegasus F402-408 23500 lbf；载弹量 4200 kg（Wikipedia 9
-J-15,歼-15,conventional,33000,17500,9800,6500,PL-12,199.0,42,14.7,67.84,2.55,0.026,251000,,,,,,,,,,WS-10H/AL-31 双发最大加力约 251 kN；最大载弹量 6500 kg
-J-15T,歼-15T,conventional,35900,17800,10000,8000,PL-15,210.0,42,14.7,67.84,2.55,0.0318,264000,,,,,,,,,,弹射型，滑跃舰上仍按 STOBAR 仿真；最大载弹量 8000 kg
-J-35,歼-35,conventional,29500,15500,8000,8000,PL-15,210.0,38,13.6,66.9,1.96,0.024,186000,,,,,,,,,,WS-21 双发加力约 186 kN；最大载弹量 8000 kg
-J-50,歼-50,conventional,51000,25000,15000,11000,PL-15,210.0,49.3,18.0,127.0,2.3,0.018,362600,,,,,,,,,,WS-15 双发加力约 181.3 kN；最大载弹量 11000 kg
-MiG-29K,MiG-29K,conventional,24500,12000,4560,5500,RVV-AE (R-77),175.0,40,11.99,34.5,1.89,0.033,176380,,,,,,,,,,2×RD-33MK；载弹量 5500 kg（Wikipedia combat payload）
-Rafale-M,阵风 M,conventional,24500,10600,4700,9500,MBDA Meteor,190.0,48,10.8,45.7,1.9,0.031,150000,,,,,,,,,,2×M88-2/E4；外挂 9500 kg（Dassault / Wikipedia 9.5 t）
-FA-18E,F/A-18E Super Hornet,conventional,29937,14552,6667,8050,AIM-120C AMRAAM,152.0,20,13.62,46.5,1.55,0.0389,195800,,,,,,,,,,2×F414-GE-400；外挂 8050 kg（17
-FA-18C,F/A-18C/D Hornet,conventional,23541,10680,4930,6215,AIM-120C AMRAAM,152.0,20,11.43,38.0,1.52,0.0415,156600,,,,,,,,,,2×F404-GE-402；外挂 6215 kg（13
-F-14,F-14 Tomcat,conventional,33724,18955,7348,6700,AIM-120C AMRAAM,152.0,20,19.54,52.49,2.10,0.0385,250900,,,,,,,,,,F-14B/D；外挂约 6700 kg（Wikipedia over 6
-MV-22,MV-22B Osprey,tiltrotor,25855,14432,6295,9100,—,0,0,13.97,28.0,2.6,0.062,,,,,,,,9180000,11.61,0.10,Wikipedia：2×T406 6150 hp、桨盘 ⌀38 ft 1 in、翼展 45 ft 10 in、机翼 301.4 ft²；内油约 13850 lb；CD0/机翼高度为短距构型估计；短舱遮挡 10%
+﻿id,name,nation,carrier,type_label,AR,sweep_deg,wing_loading,tc,mach,alt_m,planform,layout,bwb,rough,ld_known,notes,wing_area_m2,mach_angle_deg,bvr_missile,length_m,wingspan_m,empty_kg,internal_fuel_kg,n_pilots,missile_mass_kg,n_engines,engine_id,mtow_kg,max_payload_kg,wing_height_m,cd0,t_max_sl_n,t_main_stovl_sl_n,t_liftfan_sl_n,t_rollposts_sl_n,exhaust_mdot_kg_s,exhaust_d0_m,exhaust_height_m,shaft_power_sl_w,prop_diameter_m,nacelle_blockage_frac
+F-35C,F-35C Lightning II,美国,1,conventional,2.77,30.9,0.341,0.051,0.8,11300,trapezoidal,conventional,0,1,8.8,舰载型；Lockheed Fast Facts：MTOW 70k lb、F135 40k lbf、载弹 18k lb,62.06,33.0,AIM-120D,15.7,13.11,15700,8960,1,161,1,f135,31800,8160,2.05,,177930,,,,,,,,,
+F-22,F-22 Raptor,美国,0,conventional,2.37,41.3,0.318,0.052,0.8,11800,trapezoidal,conventional,0,0,8.0,陆基；常规布局梯形翼；2×F119；AIM-120D,78.0,28.5,AIM-120D,18.92,13.59,19800,8200,1,161,2,f119,,,,,,,,,,,,,,
+F-35A,F-35A Lightning II,美国,0,conventional,2.68,33.7,0.432,0.06,0.8,11300,trapezoidal,conventional,0,1,,陆基型；1×F135；AIM-120D,42.74,29.0,AIM-120D,15.7,10.7,13300,8300,1,161,1,f135,,,,,,,,,,,,,,
+J-20,歼-20,中国,0,conventional,2.32,46.3,0.329,0.043,0.8,12000,trapezoidal,canard,0,0,,陆基；梯形翼鸭式；2×涡扇15；PL-15,73.0,21.7,PL-15,21.2,13.01,18000,10000,1,210,2,ws15,,,,,,,,,,,,,,
+J-50,歼-50,中国,0,conventional,2.56,49.3,0.259,0.043,0.8,12000,lambda,tailless,0,0,,陆基；兰姆达翼无尾；2×涡扇15改进；PL-15；TWZ：略短于歼-36,106.0,28.6,PL-15,18.0,16.47,20000,13000,1,210,2,ws15i,,,,,,,,,,,,,,
+J-50N,歼-50舰载,中国,1,conventional,2.56,49.3,0.259,0.043,0.8,12000,lambda,tailless,0,0,,舰载型；几何同歼-50；推力按双发涡扇15改进加力约 181 kN×2 估计,106.0,28.6,PL-15,18.0,16.47,20800,13000,1,210,2,ws15i,42400,9200,2.1,,362600,,,,,,,,,
+J-36,歼-36,中国,0,conventional,2.49,65.1,0.277,0.043,0.8,12000,double_delta,tailless,1,0,,陆基；翼身融合双三角无尾；3×涡扇15改进；双座；TWZ 卫星约 18.9 m,148.7,27.7,PL-15,18.9,19.24,26500,26500,2,210,3,ws15i,,,,,,,,,,,,,,
+J-35,歼-35,中国,1,conventional,2.91,40.5,0.299,0.043,0.8,12000,trapezoidal,conventional,0,0,,舰载；梯形翼常规；2×涡扇21；重量/几何以作战半径库为准；加力约 186 kN,63.6,29.4,PL-15,17.3,13.6,14000,8000,1,210,2,ws21,29500,8000,1.96,,186000,,,,,,,,,
+J-35A,歼-35A,中国,0,conventional,2.89,39.0,0.331,0.047,0.8,12000,trapezoidal,conventional,0,0,,陆基型；2×涡扇19；PL-15；机长同维基 17.3 m,53.2,27.8,PL-15,17.3,12.4,13000,7200,1,210,2,ws19,,,,,,,,,,,,,,
+53636,53636无人战机,中国,0,conventional,2.62,53.3,0.183,0.043,0.8,12000,lambda,tailless,0,0,,陆基无人；兰姆达翼无尾；1×涡扇10C；机长按 GJ-11 12.2/14.4 比例缩放,57.9,26.0,PL-15,10.4,12.32,7300,4740,0,210,1,ws10c,,,,,,,,,,,,,,
+53636N,53636无人战机舰载版,中国,1,conventional,2.62,53.3,0.183,0.043,0.8,12000,lambda,tailless,0,0,,无人舰载；推力按涡扇10C 加力约 132 kN 估计,57.9,26.0,PL-15,10.4,12.32,7600,4740,0,210,1,ws10c,14500,2000,1.55,,132000,,,,,,,,,
+53536,53536无人战机,中国,0,conventional,1.98,51.2,0.186,0.043,0.8,12000,diamond,tailless,0,0,,陆基无人；钻石翼无尾；1×涡扇10C；机长按 GJ-11 比例缩放,62.2,20.0,PL-15,9.4,11.1,7200,6900,0,210,1,ws10c,,,,,,,,,,,,,,
+F-35B,F-35B Lightning II,美国,1,v/stol,2.68,35.0,0.435,0.06,0.8,11300,trapezoidal,conventional,0,1,,STOVL；Lockheed Fast Facts：翼展 10.7 m、翼面积 42.7 m²；含升力风扇,42.7,29.0,AIM-120D,15.6,10.7,14651,6400,1,161,1,f135,27200,6800,1.96,,,83260,83260,14600,,,,,,
+AV-8B,AV-8B Harrier II,美国,1,v/stol,4.0,37.0,0.413,0.08,0.8,11000,swept,conventional,0,1,,Pegasus F402-408；超临界翼；载弹量 4200 kg,21.37,18.1,AIM-120C AMRAAM,14.12,9.25,6340,3540,1,152,1,f402,14061,4200,1.55,,,105000,0,1080,195.95,1.219,1.55,,,
+J-15,歼-15,中国,1,conventional,3.19,42.0,0.343,0.052,0.8,12000,swept,conventional,0,0,,Wikipedia：翼面积 67.84 m²、机长 22.28 m；WS-10H/AL-31 双发加力约 251 kN,67.84,18.3,PL-12,22.28,14.7,17500,9800,1,199,2,ws10h,33000,6500,2.55,,251000,,,,,,,,,
+J-15T,歼-15T,中国,1,conventional,3.19,42.0,0.35,0.052,0.8,12000,swept,conventional,0,0,,弹射型，滑跃舰上仍按 STOBAR 仿真；几何同歼-15,67.84,18.3,PL-15,22.28,14.7,17800,10000,1,210,2,ws10h,35900,8000,2.55,,264000,,,,,,,,,
+MiG-29K,MiG-29K,俄罗斯,1,conventional,4.17,40.0,0.437,0.055,0.8,12000,swept,conventional,0,0,,2×RD-33MK；载弹量 5500 kg,34.5,19.1,RVV-AE (R-77),17.3,11.99,12000,4560,1,175,2,rd33mk,24500,5500,1.89,,176380,,,,,,,,,
+Rafale-M,阵风 M,法国,1,conventional,2.55,48.0,0.302,0.08,0.8,12000,delta,canard,0,0,,2×M88-2；三角翼鸭式；外挂 9500 kg,45.7,19.5,MBDA Meteor,15.27,10.8,10600,4700,1,190,2,m88,24500,9500,1.9,,150000,,,,,,,,,
+FA-18E,F/A-18E Super Hornet,美国,1,conventional,3.99,20.0,0.4,0.05,0.8,11300,trapezoidal,conventional,0,0,,2×F414-GE-400；Jane 展弦比约 4.0；外挂 8050 kg,46.5,20.4,AIM-120C AMRAAM,18.31,13.62,14552,6667,1,152,2,f414,29937,8050,1.55,,195800,,,,,,,,,
+FA-18C,F/A-18C/D Hornet,美国,1,conventional,3.44,20.0,0.365,0.05,0.8,11300,trapezoidal,conventional,0,0,,2×F404-GE-402；Jane 展弦比 3.52；外挂 6215 kg,38.0,18.5,AIM-120C AMRAAM,17.07,11.43,10680,4930,1,152,2,f404,23541,6215,1.52,,156600,,,,,,,,,
+F-14,F-14 Tomcat,美国,1,conventional,7.28,20.0,0.447,0.065,0.8,11000,swept,conventional,0,0,,变后掠；起飞按前掠 20° / 翼展 19.54 m；双座；F-14B/D F110,52.49,27.1,AIM-120C AMRAAM,19.1,19.54,18955,7348,2,152,2,f110,33724,6700,2.1,,250900,,,,,,,,,
+MV-22,MV-22B Osprey,美国,1,tiltrotor,6.97,0.0,0.635,0.12,0.4,11000,unswept,conventional,0,1,,2×T406；桨盘 ⌀38 ft；CD0 由升阻比模型估计；短舱遮挡 10%,28.0,21.8,—,17.48,13.97,14432,6295,2,0,2,,25855,9100,2.6,,,,,,,,,9180000,11.61,0.1

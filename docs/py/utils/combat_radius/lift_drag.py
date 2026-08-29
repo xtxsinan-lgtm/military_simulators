@@ -275,3 +275,39 @@ def predict_ld(ac: Aircraft, cf0: float, k_e: float) -> tuple[float, dict[str, f
         CDw=cdw,
         CD=cd,
     )
+
+
+def parasite_cd0(ac: Aircraft, cf0: float) -> float:
+    """由标定 Cf0 与浸润因子估算零升阻力系数 CD0（起飞可用）。"""
+    if cf0 <= 0:
+        raise ValueError('Cf0 须为正才能估算 CD0')
+    return cf0 * wetted_area_factor(ac)
+
+
+def default_ld_anchor_aircraft() -> tuple[Aircraft, float, Aircraft, float]:
+    """默认两锚点：F-35C (L/D=8.8) 与 F-22 (L/D=8.0)，几何与机型库一致。"""
+    f35c = Aircraft(
+        'F-35C', AR=2.77, sweep_deg=30.9, wing_loading=0.341,
+        tc=0.0510, mach=0.8, alt_m=11300,
+        planform='trapezoidal', layout='conventional',
+        bwb=False, rough=True,
+    )
+    f22 = Aircraft(
+        'F-22', AR=2.37, sweep_deg=41.3, wing_loading=0.318,
+        tc=0.0520, mach=0.8, alt_m=11800,
+        planform='trapezoidal', layout='conventional',
+        bwb=False, rough=False,
+    )
+    return f35c, 8.8, f22, 8.0
+
+
+def calibrate_default_anchors() -> tuple[float, float]:
+    """用默认 F-35C / F-22 锚点标定 (Cf0, k_e)。"""
+    a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
+    return calibrate(a1, ld1, a2, ld2)
+
+
+def estimate_takeoff_cd0(ac: Aircraft) -> float:
+    """用默认锚点标定后，估算该机起飞用零升阻力系数。"""
+    cf0, _k_e = calibrate_default_anchors()
+    return parasite_cd0(ac, cf0)

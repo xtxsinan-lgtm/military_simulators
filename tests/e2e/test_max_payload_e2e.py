@@ -35,3 +35,29 @@ def test_max_payload_flows_to_catalog_and_simulation_payload():
     })
     assert result['success'] is True
     assert 'output' in result
+
+
+@pytest.mark.e2e
+def test_e2e_f35c_carrier_ski_jump_and_land_excluded():
+    """F-35C 进入起飞仿真；陆基 F-22 不得出现在起飞机库。"""
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)
+    carriers = load_carriers_csv(CARRIERS_CSV)
+    catalog = build_catalog_payload(aircraft, carriers)
+    ids = {a['id'] for a in catalog['aircraft']}
+    assert 'F-35C' in ids
+    assert 'J-50N' in ids
+    assert 'F-22' not in ids
+    ac = next(a for a in catalog['aircraft'] if a['id'] == 'F-35C')
+    carrier = next(c for c in catalog['carriers'] if c['id'] == 'SHANDONG')
+    result = run_simulation_json({
+        'mode': 'ski_jump',
+        'aircraft': ac,
+        'carrier': carrier,
+        'mass_kg': aircraft['F-35C'].a2a_mass_kg,
+        'temp_c': 15.0,
+        'wind_kt': carrier['max_speed_kt'],
+        'ski_jump_angle_deg': carrier['ski_jump_angle_deg'],
+        'total_deck_length_m': carrier['total_deck_length_m'],
+    })
+    assert result['success'] is True
+    assert 'output' in result

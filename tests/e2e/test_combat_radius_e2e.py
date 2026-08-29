@@ -156,7 +156,7 @@ def test_e2e_combat_radius_expanded_fleet_predict_ld():
     presets = load_presets()
     a1 = get_preset_by_id(presets, 'F-35C')
     a2 = get_preset_by_id(presets, 'F-22')
-    for aid in ('J-50', 'J-36', '53636', '53536'):
+    for aid in ('J-50', 'J-36', '53636', '53536', 'J-15', 'F-35B'):
         tgt = get_preset_by_id(presets, aid)
         r = run_combat_radius_json({
             'action': 'predict_ld',

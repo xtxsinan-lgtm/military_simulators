@@ -1,4 +1,4 @@
-"""作战半径机型几何预设（源自 data/combat_radius_aircraft.csv）。
+"""作战半径机型几何预设（源自统一机型库 data/aircraft_database.csv）。
 
 前端经 build_all → data.json 的 combat_radius_presets 自动同步。
 """

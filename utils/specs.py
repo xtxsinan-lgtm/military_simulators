@@ -69,6 +69,7 @@ class AircraftSpec:
     shaft_power_sl_w: float | None = None
     prop_diameter_m: float | None = None
     nacelle_blockage_frac: float | None = None
+    n_pilots: int = 1
     notes: str = ''
 
     @property
@@ -129,7 +130,8 @@ class AircraftSpec:
     @property
     def a2a_mass_kg(self) -> float:
         return (self.empty_kg + self.internal_fuel_kg
-                + A2A_MISSILE_COUNT * self.missile_mass_kg + PILOT_LOAD_KG)
+                + A2A_MISSILE_COUNT * self.missile_mass_kg
+                + self.n_pilots * PILOT_LOAD_KG)
 
 
 @dataclass(frozen=True)

@@ -78,6 +78,7 @@ def aircraft_from_dict(d: dict[str, Any]) -> AircraftSpec:
         shaft_power_sl_w=_opt_float(d.get('shaft_power_sl_w')),
         prop_diameter_m=_opt_float(d.get('prop_diameter_m')),
         nacelle_blockage_frac=_opt_float(d.get('nacelle_blockage_frac')),
+        n_pilots=int(d['n_pilots']) if d.get('n_pilots') not in (None, '') else 1,
         notes=d.get('notes', ''),
     )
 

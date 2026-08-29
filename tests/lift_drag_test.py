@@ -12,6 +12,10 @@ from utils.combat_radius.lift_drag import (
     aircraft_from_dict,
     aircraft_mach_angle_rad,
     aircraft_to_dict,
+    calibrate_default_anchors,
+    default_ld_anchor_aircraft,
+    estimate_takeoff_cd0,
+    parasite_cd0,
     atmosphere,
     calibrate,
     cd_wave,
@@ -238,6 +242,25 @@ def test_calibrate_singular_when_anchors_identical():
 def test_calibrate_rejects_unphysical_targets():
     with pytest.raises(ValueError, match='物理无意义'):
         calibrate(_f35c(), 20.0, _f22(), 2.0)
+
+
+def test_default_ld_anchors_match_f35c_f22():
+    a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
+    assert a1.name == 'F-35C' and ld1 == 8.8
+    assert a2.name == 'F-22' and ld2 == 8.0
+    cf0, k_e = calibrate_default_anchors()
+    assert cf0 > 0 and k_e > 0
+
+
+def test_parasite_cd0_and_estimate_takeoff_cd0():
+    """起飞 CD0 应由浸润因子与默认锚点 Cf0 给出，且为正的小量。"""
+    ac = _f35c()
+    cf0, _k_e = calibrate_default_anchors()
+    cd0 = parasite_cd0(ac, cf0)
+    assert cd0 == pytest.approx(cf0 * wetted_area_factor(ac))
+    assert 0.01 < estimate_takeoff_cd0(ac) < 0.08
+    with pytest.raises(ValueError, match='Cf0'):
+        parasite_cd0(ac, 0.0)
 
 
 def test_predict_ld_j20_between_anchors():
