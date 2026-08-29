@@ -81,5 +81,8 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert 'estimate_thrust' in cr_js
     assert 'onRunEfficiency' in cr_js
     assert 'estimate_efficiency' in cr_js
+    assert 'onRunRadius' in cr_js
+    assert 'estimate_radius' in cr_js
     assert '估算可用军推' in cr_wxml
     assert '估算负载与 TSFC' in cr_wxml
+    assert '估算作战半径' in cr_wxml

@@ -1,7 +1,7 @@
 <view class="cr-page">
   <view class="cr-header">
     <text class="cr-title">飞机作战半径估算终端</text>
-    <text class="cr-sub">COMBAT RADIUS · L/D + THRUST + TSFC</text>
+    <text class="cr-sub">COMBAT RADIUS · L/D + THRUST + TSFC + BREGUET</text>
   </view>
 
   <view class="panel">
@@ -159,6 +159,14 @@
       <label><switch checked="{{tgt.bwb}}" data-slot="tgt" data-key="bwb" bindchange="onSwitch"/> 翼身融合</label>
       <label><switch checked="{{tgt.rough}}" data-slot="tgt" data-key="rough" bindchange="onSwitch"/> 表面不平整</label>
     </view>
+    <view class="field">
+      <view class="field-label"><text>机身长度</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.length_m}}" data-slot="tgt" data-key="length_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>翼展</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.wingspan_m}}" data-slot="tgt" data-key="wingspan_m" bindinput="onAcField"/>
+    </view>
 
     <view class="btn" bindtap="onRun">▶ 估算升阻比</view>
   </view>
@@ -247,7 +255,12 @@
       <input class="input" type="digit" value="{{effAcc}}" data-key="effAcc" bindinput="onField"/>
     </view>
     <view class="btn" bindtap="onRunEfficiency">▶ 估算负载与 TSFC</view>
-    <view class="note">第 4 部分（任务剖面与作战半径积分）将在后续接入同一终端。</view>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">4. 作战半径 · RANGE</view>
+    <view class="note">搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖平飞估算。自动给出 Ma 0.8 / 1.5 / 1.76 与最大巡航马赫。不计爬升下降余油。</view>
+    <view class="btn" bindtap="onRunRadius">▶ 估算作战半径</view>
   </view>
 
   <view class="panel">
@@ -296,6 +309,35 @@
         <view class="stat"><view class="k">反解 T4</view><view class="v">{{effT4}} K</view></view>
       </view>
       <view class="note">{{effNote}}</view>
+    </block>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">作战半径输出 · RANGE</view>
+    <view class="note">{{radiusStatusText}}</view>
+    <block wx:if="{{radiusResult}}">
+      <view class="stat-row">
+        <view class="stat"><view class="k">马赫角</view><view class="v">{{radiusAngle}}</view></view>
+        <view class="stat"><view class="k">最大巡航 Ma</view><view class="v amber">{{radiusMaxMach}}</view><view class="sub">{{radiusMass}}</view></view>
+      </view>
+      <view class="tr th">
+        <text class="th">点</text><text class="th">Ma</text><text class="th">半径km</text><text class="th">kg/km</text>
+      </view>
+      <view class="tr" wx:for="{{radiusRows}}" wx:key="label">
+        <block wx:if="{{item.ok}}">
+          <text class="td target">{{item.label}}</text>
+          <text class="td target">{{item.mach}}</text>
+          <text class="td">{{item.radius}}</text>
+          <text class="td">{{item.sfc}}</text>
+        </block>
+        <block wx:else>
+          <text class="td">{{item.label}}</text>
+          <text class="td">{{item.mach}}</text>
+          <text class="td">{{item.detail}}</text>
+          <text class="td">—</text>
+        </block>
+      </view>
+      <view class="note">{{radiusNote}}</view>
     </block>
   </view>
 </view>

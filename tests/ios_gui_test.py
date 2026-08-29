@@ -94,10 +94,13 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'func runThrust()' in cr_vm
     assert 'estimate_efficiency' in cr_vm
     assert 'func runEfficiency()' in cr_vm
+    assert 'estimate_radius' in cr_vm
+    assert 'func runRadius()' in cr_vm
     models = (IOS_ROOT / 'Models.swift').read_text(encoding='utf-8')
     assert 'combat_radius_engine_presets' in models
     assert 'CombatRadiusEnginePresetItem' in models
     assert 'tsfc_mg_n_s' in models
+    assert 'CombatRadiusCruisePoint' in models
 
 
 def test_ios_project_yml_exists():

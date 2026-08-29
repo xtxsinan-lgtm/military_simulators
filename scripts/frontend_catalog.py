@@ -29,7 +29,7 @@ TILTROTOR_STRATEGIES = {
 }
 
 # data.json 结构版本；字段变更时递增
-DATA_VERSION = 25
+DATA_VERSION = 26
 
 # 启动页可选模拟器（HTML / 小程序 / iOS 同源）
 SIMULATORS = [
@@ -55,7 +55,7 @@ SIMULATORS = [
         'id': 'combat_radius',
         'name': '飞机作战半径估算',
         'eyebrow': 'COMBAT RADIUS',
-        'subtitle': '升阻比标定 · 军推包线 · 巡航效率/TSFC',
+        'subtitle': '升阻比 · 军推 · TSFC · 布雷盖作战半径',
         'html': 'combat-radius.html',
         'miniprogram_page': '/pages/combat_radius/combat_radius',
         'ios_route': 'combat_radius',

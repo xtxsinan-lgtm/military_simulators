@@ -1,6 +1,8 @@
 """作战半径机型预设单元测试。"""
 from __future__ import annotations
 
+import pytest
+
 from utils.combat_radius.combat_radius_presets import (
     build_combat_radius_engine_presets_payload,
     build_combat_radius_presets_payload,
@@ -42,6 +44,8 @@ def test_preset_to_aircraft_and_dict():
     assert d['AR'] == 2.37
     assert 'id' not in d
     assert 'ld_known' not in d
+    assert p['length_m'] == pytest.approx(18.92)
+    assert ac.length_m == pytest.approx(18.92)
 
 
 def test_build_combat_radius_presets_payload():

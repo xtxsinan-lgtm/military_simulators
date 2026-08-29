@@ -14,12 +14,16 @@ from utils.combat_radius.lift_drag import (
     atmosphere,
     calibrate,
     cd_wave,
+    cd_wave_mach_angle,
     cl_cruise,
     components,
+    mach_angle_rad,
+    mach_cone_limit,
     oswald_e_raw,
     predict_ld,
     wetted_area_factor,
     _as_bool,
+    _optional_positive_float,
 )
 
 
@@ -75,6 +79,40 @@ def test_aircraft_from_dict_and_to_dict_roundtrip():
     assert d['rough'] is False
     again = aircraft_from_dict(d)
     assert again.AR == pytest.approx(2.32)
+    assert again.length_m == pytest.approx(0.0)
+    assert again.wingspan_m == pytest.approx(0.0)
+
+
+def test_optional_positive_float_blank_and_numeric():
+    assert _optional_positive_float(None) == 0.0
+    assert _optional_positive_float('') == 0.0
+    assert _optional_positive_float('18.92') == pytest.approx(18.92)
+
+
+def test_mach_angle_and_cone_limit():
+    phi = mach_angle_rad(18.92, 13.56)
+    assert 0 < phi < math.pi / 2
+    assert math.degrees(phi) == pytest.approx(math.degrees(math.atan(6.78 / 18.92)))
+    m_lim = mach_cone_limit(phi)
+    assert m_lim == pytest.approx(1.0 / math.sin(phi))
+    with pytest.raises(ValueError, match='机身长度'):
+        mach_angle_rad(0, 10)
+    with pytest.raises(ValueError, match='马赫角'):
+        mach_cone_limit(0.0)
+
+
+def test_cd_wave_mach_angle_zero_below_limit():
+    phi = mach_angle_rad(18.92, 13.56)
+    assert cd_wave_mach_angle(0.8, phi) == 0.0
+    # 远超锥限时附加波阻为正
+    assert cd_wave_mach_angle(mach_cone_limit(phi) + 0.5, phi) > 0
+
+
+def test_cd_wave_includes_mach_angle_extra_at_high_mach():
+    base = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 3.5, 'length_m': 0, 'wingspan_m': 0})
+    with_geom = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 3.5, 'length_m': 18.92, 'wingspan_m': 13.56})
+    cl = cl_cruise(base)
+    assert cd_wave(cl, with_geom) > cd_wave(cl, base)
 
 
 def test_aircraft_from_dict_rejects_unknown_planform():

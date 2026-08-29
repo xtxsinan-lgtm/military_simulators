@@ -66,6 +66,8 @@ class Aircraft:
     layout: LayoutId
     bwb: bool  # 翼身融合 —— 独立开关，与机型无绑定关系
     rough: bool  # 表面是否不平整 —— 独立开关，与机型无绑定关系
+    length_m: float = 0.0  # 机身长度，用于翼尖-机头马赫角；缺省 0 表示不启用
+    wingspan_m: float = 0.0  # 翼展，用于马赫角；缺省 0 表示不启用
 
 
 def _as_bool(value: Any, default: bool = False) -> bool:
@@ -104,7 +106,16 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         layout=layout,  # type: ignore[arg-type]
         bwb=_as_bool(data.get('bwb'), False),
         rough=_as_bool(data.get('rough'), False),
+        length_m=_optional_positive_float(data.get('length_m')),
+        wingspan_m=_optional_positive_float(data.get('wingspan_m')),
     )
+
+
+def _optional_positive_float(value: Any) -> float:
+    """空值视为 0；否则转为 float（允许 0，负值在马赫角函数里再拒绝）。"""
+    if value is None or value == '':
+        return 0.0
+    return float(value)
 
 
 def aircraft_to_dict(ac: Aircraft) -> dict[str, Any]:
@@ -151,13 +162,44 @@ def wetted_area_factor(ac: Aircraft) -> float:
     return thickness_mult * planform_mult * layout_mult * bwb_mult * rough_mult
 
 
+def mach_angle_rad(length_m: float, wingspan_m: float) -> float:
+    """翼尖与机头连线相对机身中轴线的夹角（弧度）。"""
+    if length_m <= 0 or wingspan_m <= 0:
+        raise ValueError('机身长度与翼展须为正才能计算马赫角')
+    return math.atan((wingspan_m / 2.0) / length_m)
+
+
+def mach_cone_limit(phi_rad: float) -> float:
+    """马赫锥刚好贴合翼尖-机头连线时的马赫数 M = 1 / sin(φ)。"""
+    sine = math.sin(phi_rad)
+    if sine <= 1e-12:
+        raise ValueError('马赫角须在 (0, 90°) 内')
+    return 1.0 / sine
+
+
+def cd_wave_mach_angle(mach: float, phi_rad: float) -> float:
+    """飞行马赫超过马赫角允许值后的附加波阻（与 Korn 同形的四次方）。
+
+    法向马赫数 M·sin(φ) > 1 时，机翼处于马赫锥外，附加 CDw。
+    """
+    excess = mach * math.sin(phi_rad) - 1.0
+    return 20.0 * excess ** 4 if excess > 0.0 else 0.0
+
+
 def cd_wave(CL: float, ac: Aircraft) -> float:
-    """Korn 方程估算阻力发散马赫数，超过后用四次方经验式估算波阻。"""
+    """Korn 方程估算阻力发散马赫数，超过后用四次方经验式估算波阻。
+
+    若提供机身长度与翼展，再叠加超过马赫角后的附加波阻。
+    """
     sweep = math.radians(ac.sweep_deg)
     cos_s = math.cos(sweep)
     m_dd = KAPPA_A / cos_s - ac.tc / cos_s - CL / (10.0 * cos_s ** 2)
     dm = ac.mach - m_dd
-    return 20.0 * dm ** 4 if dm > 0.0 else 0.0
+    cdw = 20.0 * dm ** 4 if dm > 0.0 else 0.0
+    if ac.length_m > 0.0 and ac.wingspan_m > 0.0:
+        phi = mach_angle_rad(ac.length_m, ac.wingspan_m)
+        cdw += cd_wave_mach_angle(ac.mach, phi)
+    return cdw
 
 
 def components(ac: Aircraft) -> dict[str, float]:

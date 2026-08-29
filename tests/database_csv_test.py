@@ -172,6 +172,8 @@ def test_load_combat_radius_aircraft_csv():
     assert rows[1]['n_engines'] == 2
     assert rows[1]['engine_id'] == 'f119'
     assert rows[0]['n_engines'] == 1
+    assert rows[1]['length_m'] == pytest.approx(18.92)
+    assert rows[1]['wingspan_m'] == pytest.approx(13.56)
 
 
 def test_parse_int_accepts_int_and_float_text():
@@ -185,7 +187,7 @@ def test_combat_radius_csv_unknown_planform_raises(tmp_path):
     path = tmp_path / 'cr.csv'
     path.write_text(
         ','.join(COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS) + '\n'
-        'X1,测试,中国,2.5,30,0.3,0.05,0.8,12000,hex,conventional,0,0,,,15000,8000,1,150,1,\n',
+        'X1,测试,中国,2.5,30,0.3,0.05,0.8,12000,hex,conventional,0,0,,,15.7,13.1,15000,8000,1,150,1,\n',
         encoding='utf-8',
     )
     with pytest.raises(ValueError, match='planform'):

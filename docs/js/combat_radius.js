@@ -1,9 +1,9 @@
 /**
- * 作战半径 Web 前端：升阻比标定 + 军推包线 + 巡航效率/TSFC，计算走 Pyodide Python 核心。
+ * 作战半径 Web 前端：升阻比标定 + 军推包线 + 巡航效率/TSFC + 布雷盖半径，计算走 Pyodide Python 核心。
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 3;
+const APP_VERSION = 4;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -15,6 +15,8 @@ const COMBAT_RADIUS_PY_FILES = [
   'utils/combat_radius/military_thrust.py',
   'utils/combat_radius/engine_efficiency.py',
   'utils/combat_radius/cruise_load.py',
+  'utils/combat_radius/breguet.py',
+  'utils/combat_radius/cruise_search.py',
   'utils/combat_radius/combat_radius_presets.py',
   'simulators/__init__.py',
   'simulators/combat_radius/__init__.py',
@@ -31,6 +33,8 @@ const COMBAT_RADIUS_IMPORTS = [
   'utils.combat_radius.military_thrust',
   'utils.combat_radius.engine_efficiency',
   'utils.combat_radius.cruise_load',
+  'utils.combat_radius.breguet',
+  'utils.combat_radius.cruise_search',
   'utils.combat_radius.combat_radius_presets',
   'simulators.combat_radius.combat_radius',
   'apps.combat_radius_web',
@@ -75,6 +79,10 @@ function renderAircraftFields(containerId, prefix) {
       <div class="field"><label>厚弦比 tc</label><input id="${prefix}_tc" type="number" step="0.001" min="0.01"></div>
     </div>
     <div class="pair">
+      <div class="field"><label>机身长度 <span class="unit">m</span></label><input id="${prefix}_len" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>翼展 <span class="unit">m</span></label><input id="${prefix}_span" type="number" step="0.01" min="0"></div>
+    </div>
+    <div class="pair">
       <div class="field"><label>马赫数</label><input id="${prefix}_mach" type="number" step="0.01" min="0.1"></div>
       <div class="field"><label>高度 <span class="unit">m</span></label><input id="${prefix}_alt" type="number" step="100" min="11000"></div>
     </div>
@@ -102,6 +110,8 @@ function applyPresetToFields(prefix, preset) {
   $(`${prefix}_layout`).value = preset.layout;
   $(`${prefix}_bwb`).checked = !!preset.bwb;
   $(`${prefix}_rough`).checked = !!preset.rough;
+  $(`${prefix}_len`).value = preset.length_m != null ? preset.length_m : '';
+  $(`${prefix}_span`).value = preset.wingspan_m != null ? preset.wingspan_m : '';
   if (prefix === 'tgt') applyWeightFromPreset(preset);
 }
 
@@ -113,6 +123,14 @@ function applyWeightFromPreset(p) {
   if (p.missile_mass_kg != null) $('wtMissile').value = p.missile_mass_kg;
   $('wtNMissiles').value = 4;
   if (p.n_engines != null) $('wtEngines').value = p.n_engines;
+  if (p.engine_id) {
+    const engines = data.combat_radius_engine_presets || [];
+    const eng = engines.find((x) => x.id === p.engine_id);
+    if (eng) {
+      $('engPreset').value = eng.id;
+      applyEnginePreset(eng);
+    }
+  }
 }
 
 function readAircraft(prefix) {
@@ -128,6 +146,8 @@ function readAircraft(prefix) {
     layout: $(`${prefix}_layout`).value,
     bwb: $(`${prefix}_bwb`).checked,
     rough: $(`${prefix}_rough`).checked,
+    length_m: Number($(`${prefix}_len`).value),
+    wingspan_m: Number($(`${prefix}_span`).value),
   };
 }
 
@@ -311,6 +331,51 @@ function renderEffResult(r) {
   `;
 }
 
+function renderRadiusResult(r) {
+  const angle = r.mach_angle_deg != null
+    ? `${fmt(r.mach_angle_deg, 1)}° · 锥限 Ma ${fmt(r.mach_cone_limit, 2)}`
+    : '未提供机身长度/翼展';
+  const rows = (r.points || []).map((p) => {
+    if (!p.feasible) {
+      return `<tr>
+        <td>${p.label}</td>
+        <td>${p.mach != null ? fmt(p.mach, 3) : '—'}</td>
+        <td colspan="8">无满足 92% 推力裕度的高度</td>
+      </tr>`;
+    }
+    return `<tr class="target">
+      <td>${p.label}</td>
+      <td>${fmt(p.mach, 3)}</td>
+      <td>${fmt(p.alt_m / 1000, 1)}</td>
+      <td>${fmt(p.ld, 2)}</td>
+      <td>${fmt(100 * p.eta_o, 1)}%</td>
+      <td>${p.tsfc_mg_n_s != null ? fmt(p.tsfc_mg_n_s, 2) : '—'}</td>
+      <td>${fmt(p.thrust_avail_kN, 1)}</td>
+      <td>${fmt(100 * p.load, 1)}%</td>
+      <td>${fmt(p.radius_km, 0)}</td>
+      <td>${fmt(p.fuel_kg_per_km, 2)}</td>
+    </tr>`;
+  }).join('');
+  $('radiusBox').innerHTML = `
+    <div class="stat-row">
+      <div class="stat"><div class="k">马赫角</div><div class="v">${angle}</div></div>
+      <div class="stat"><div class="k">最大巡航 Ma</div><div class="v amber">${r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—'}</div></div>
+      <div class="stat"><div class="k">起飞质量</div><div class="v">${fmt(r.mass_initial_kg, 0)} kg</div><div class="sub">终了 ${fmt(r.mass_final_kg, 0)} kg</div></div>
+      <div class="stat"><div class="k">内油</div><div class="v">${fmt(r.fuel_kg, 0)} kg</div><div class="sub">${r.n_missiles} 枚中距弹</div></div>
+    </div>
+    <div class="scroll-x">
+      <table>
+        <thead><tr>
+          <th>点</th><th>Ma</th><th>高度 km</th><th>L/D</th><th>η_o</th>
+          <th>TSFC</th><th>军推 kN</th><th>负载</th><th>半径 km</th><th>kg/km</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <p class="note">${r.note || ''} TSFC 单位 mg/(N·s)；kg/km 为往返航程均摊油耗。</p>
+  `;
+}
+
 function readEfficiencyParams() {
   const params = {
     ...readThrustParams(),
@@ -434,6 +499,27 @@ async function runEfficiency() {
   }
 }
 
+async function runRadius() {
+  if (runLock) return;
+  runLock = true;
+  const btn = $('radiusBtn');
+  btn.disabled = true;
+  $('radiusStatus').textContent = 'RUNNING';
+  try {
+    await initPyodide();
+    const result = await callPythonAsync('estimate_radius', readEfficiencyParams());
+    if (!result.success) throw new Error(result.error || '估算失败');
+    renderRadiusResult(result);
+    $('radiusStatus').textContent = 'READY';
+  } catch (e) {
+    $('radiusBox').innerHTML = `<p class="placeholder">${String(e.message || e)}</p>`;
+    $('radiusStatus').textContent = 'ERROR';
+  } finally {
+    btn.disabled = false;
+    runLock = false;
+  }
+}
+
 function applyUiDefaults() {
   const ui = data.combat_radius_config?.ui || {};
   const presets = data.combat_radius_presets || [];
@@ -482,6 +568,7 @@ async function main() {
     $('runBtn').addEventListener('click', runEstimate);
     $('thrustBtn').addEventListener('click', runThrust);
     $('effBtn').addEventListener('click', runEfficiency);
+    $('radiusBtn').addEventListener('click', runRadius);
     initPyodide().catch((e) => {
       $('clock').textContent = 'ENGINE ERR';
       $('resultBox').textContent = String(e.message || e);

@@ -1,4 +1,4 @@
-id,name,nation,AR,sweep_deg,wing_loading,tc,mach,alt_m,planform,layout,bwb,rough,ld_known,notes,empty_kg,internal_fuel_kg,n_pilots,missile_mass_kg,n_engines,engine_id
-F-35C,F-35C Lightning II,美国,2.77,30.9,0.341,0.0510,0.8,11300,trapezoidal,conventional,0,1,8.8,舰载型；空重/内油为公开资料估计；1×F135,15785,8981,1,152,1,f135
-F-22,F-22 Raptor,美国,2.37,41.3,0.318,0.0520,0.8,11800,trapezoidal,conventional,0,0,8.0,常规布局梯形翼；空重/内油为公开资料估计；2×F119,19700,8200,1,152,2,f119
-J-20,歼-20,中国,2.32,46.3,0.329,0.0430,0.8,12000,delta,canard,0,0,,鸭式三角翼；空重/内油为公开资料估计；2×涡扇15,17000,11200,1,210,2,ws15
+id,name,nation,AR,sweep_deg,wing_loading,tc,mach,alt_m,planform,layout,bwb,rough,ld_known,notes,length_m,wingspan_m,empty_kg,internal_fuel_kg,n_pilots,missile_mass_kg,n_engines,engine_id
+F-35C,F-35C Lightning II,美国,2.77,30.9,0.341,0.0510,0.8,11300,trapezoidal,conventional,0,1,8.8,舰载型；空重/内油为公开资料估计；1×F135,15.67,13.1,15785,8981,1,152,1,f135
+F-22,F-22 Raptor,美国,2.37,41.3,0.318,0.0520,0.8,11800,trapezoidal,conventional,0,0,8.0,常规布局梯形翼；空重/内油为公开资料估计；2×F119,18.92,13.56,19700,8200,1,152,2,f119
+J-20,歼-20,中国,2.32,46.3,0.329,0.0430,0.8,12000,delta,canard,0,0,,鸭式三角翼；空重/内油为公开资料估计；2×涡扇15,21.2,13.01,17000,11200,1,210,2,ws15

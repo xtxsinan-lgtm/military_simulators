@@ -106,6 +106,38 @@ def test_e2e_combat_radius_efficiency_http_api():
     assert 'tsfc_lb_lbf_h' in result
 
 
+def _radius_params() -> dict:
+    p = _efficiency_params()
+    return p
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_f22_breguet_radius():
+    """F-22 + F119 在 Ma 0.8 应给出正的作战半径；Ma 1.5 军推下可以不可行。"""
+    r = run_combat_radius_json({'action': 'estimate_radius', 'params': _radius_params()})
+    assert r['success'] is True
+    assert len(r['points']) == 4
+    m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
+    assert m08['feasible'] is True
+    assert m08['radius_km'] > 200
+    assert m08['fuel_kg_per_km'] > 0
+    assert r['mach_cone_limit'] > 1
+    assert r['max_cruise_mach'] is not None
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_radius_http_api():
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate',
+        json.dumps({'action': 'estimate_radius', 'params': _radius_params()}).encode(),
+    )
+    assert status == 200
+    result = json.loads(body.decode())
+    assert result['success'] is True
+    assert 'points' in result
+    assert result['points'][0]['id'] == 'mach_0_8'
+
+
 @pytest.mark.e2e
 def test_e2e_combat_radius_http_api():
     payload = {'action': 'predict_ld', 'params': _params_from_csv()}
@@ -134,11 +166,15 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '飞机作战半径估算终端' in wxml
     assert '估算可用军推' in wxml
     assert '估算负载与 TSFC' in wxml
+    assert '估算作战半径' in wxml
     assert 'estimate_efficiency' in js_text
+    assert 'estimate_radius' in js_text
     ios = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusView.swift').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in ios
     assert '估算可用军推' in ios
     assert '估算负载与 TSFC' in ios
+    assert '估算作战半径' in ios
     assert 'runThrust' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'runEfficiency' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
+    assert 'runRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')

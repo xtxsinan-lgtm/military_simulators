@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=3">
+<link rel="stylesheet" href="css/combat_radius.css?v=4">
 </head>
 <body>
 <div class="scanline"></div>
 <header>
   <div>
     <div class="title">飞机作战半径估算终端</div>
-    <div class="subtitle">COMBAT RADIUS · L/D + THRUST + TSFC</div>
+    <div class="subtitle">COMBAT RADIUS · L/D + THRUST + TSFC + BREGUET</div>
   </div>
   <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
     <a class="nav-link" href="index.html">← 启动页</a>
@@ -109,7 +109,12 @@
         <input type="number" id="effAcc" step="0.01" min="0" max="0.5" value="0.16">
       </div>
       <button class="run" id="effBtn">▶ 估算负载与 TSFC</button>
-      <p class="note">第 4 部分（任务剖面与作战半径积分）将在后续接入同一终端。</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span>4. 作战半径</span><span class="tag">RANGE</span></div>
+      <p class="note">给定马赫下搜索 L/D×η_o 最大、且阻力 ≤ 军推 92% 的高度，再用布雷盖公式由满内油平飞估算作战半径。自动计算 Ma 0.8 / 1.5 / 1.76 以及该机型最大巡航马赫。机身长度与翼展用于马赫角附加波阻。暂不计爬升、下降与余油。</p>
+      <button class="run" id="radiusBtn">▶ 估算作战半径</button>
     </div>
   </div>
 
@@ -129,9 +134,14 @@
       <div id="effStatus" class="clock">STANDBY</div>
       <div id="effBox" class="placeholder">等待负载与效率估算…</div>
     </div>
+    <div class="panel">
+      <div class="panel-head"><span>作战半径输出</span><span class="tag">RANGE</span></div>
+      <div id="radiusStatus" class="clock">STANDBY</div>
+      <div id="radiusBox" class="placeholder">等待作战半径估算…</div>
+    </div>
   </div>
 </div>
 <div class="footer">Python 仿真核心 · Pyodide · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=3"></script>
+<script type="module" src="js/combat_radius.js?v=4"></script>
 </body>
 </html>

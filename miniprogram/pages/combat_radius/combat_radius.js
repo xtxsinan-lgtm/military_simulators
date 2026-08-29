@@ -12,6 +12,8 @@ const EMPTY_AC = {
   layout: 'conventional',
   bwb: false,
   rough: false,
+  length_m: '',
+  wingspan_m: '',
 };
 
 function num(v, d) {
@@ -111,6 +113,13 @@ Page({
     effTsfcLb: '',
     effT4: '',
     effNote: '',
+    radiusStatusText: 'STANDBY',
+    radiusResult: null,
+    radiusAngle: '',
+    radiusMaxMach: '',
+    radiusMass: '',
+    radiusNote: '',
+    radiusRows: [],
   },
 
   onShow() {
@@ -211,7 +220,20 @@ Page({
       patch[`${slot}LayoutIndex`] = planformIndex(this.data.layoutIds, p.layout);
       if (slot === 'a1' && p.ld_known != null) patch.a1Ld = String(p.ld_known);
       if (slot === 'a2' && p.ld_known != null) patch.a2Ld = String(p.ld_known);
-      if (slot === 'tgt') Object.assign(patch, weightFromPreset(p));
+      if (slot === 'tgt') {
+        Object.assign(patch, weightFromPreset(p));
+        if (p.engine_id) {
+          const ei = this.data.enginePresets.findIndex((x) => x.id === p.engine_id);
+          if (ei >= 0) {
+            const ep = this.data.enginePresets[ei];
+            patch.enginePresetIndex = ei + 1;
+            patch.engBpr = String(ep.bpr);
+            patch.engOpr = String(ep.opr);
+            patch.engT4 = String(ep.t4_K);
+            if (ep.tsl_kN != null) patch.engTsl = String(ep.tsl_kN);
+          }
+        }
+      }
     }
     this.setData(patch);
   },
@@ -261,6 +283,8 @@ Page({
       layout: ac.layout,
       bwb: !!ac.bwb,
       rough: !!ac.rough,
+      length_m: num(ac.length_m, 0),
+      wingspan_m: num(ac.wingspan_m, 0),
     };
   },
 
@@ -405,6 +429,83 @@ Page({
           effStatusText: String(e.message || e),
           running: false,
           effResult: null,
+        });
+      });
+  },
+
+  onRunRadius() {
+    if (this.data.running) return;
+    this.setData({ running: true, radiusStatusText: '计算中…' });
+    const params = {
+      name: this.data.engineNames[this.data.enginePresetIndex] || '',
+      bpr: num(this.data.engBpr, 0),
+      opr: num(this.data.engOpr, 0),
+      t4_K: num(this.data.engT4, 0),
+      tsl_kN: num(this.data.engTsl, 0),
+      eta_c: num(this.data.engEta, 0.87),
+      anchor1: this.toAircraft('a1'),
+      ld1_target: num(this.data.a1Ld, 8.8),
+      anchor2: this.toAircraft('a2'),
+      ld2_target: num(this.data.a2Ld, 8.0),
+      target: this.toAircraft('tgt'),
+      empty_kg: num(this.data.wtEmpty, 0),
+      internal_fuel_kg: num(this.data.wtFuel, 0),
+      n_pilots: num(this.data.wtPilots, 1),
+      missile_mass_kg: num(this.data.wtMissile, 0),
+      n_missiles: num(this.data.wtNMissiles, 4),
+      n_engines: num(this.data.wtEngines, 1),
+      eps: num(this.data.effEps, 0.83),
+      etan: num(this.data.effEtan, 0.95),
+      acc_frac: num(this.data.effAcc, 0.16),
+    };
+    if (this.data.engFanPr !== '') params.fan_pr_override = num(this.data.engFanPr, 0);
+    api.runCombatRadiusSimulation({
+      action: 'estimate_radius',
+      params,
+    })
+      .then((r) => {
+        if (!r.success) throw new Error(r.error || '估算失败');
+        const rows = (r.points || []).map((p) => {
+          if (!p.feasible) {
+            return {
+              label: p.label,
+              mach: p.mach != null ? fmt(p.mach, 3) : '—',
+              detail: '无满足 92% 推力裕度的高度',
+              ok: false,
+            };
+          }
+          return {
+            label: p.label,
+            mach: fmt(p.mach, 3),
+            alt: fmt(p.alt_m / 1000, 1),
+            ld: fmt(p.ld, 2),
+            eta: fmt(100 * p.eta_o, 1),
+            tsfc: p.tsfc_mg_n_s != null ? fmt(p.tsfc_mg_n_s, 2) : '—',
+            thrust: fmt(p.thrust_avail_kN, 1),
+            load: fmt(100 * p.load, 1),
+            radius: fmt(p.radius_km, 0),
+            sfc: fmt(p.fuel_kg_per_km, 2),
+            ok: true,
+          };
+        });
+        this.setData({
+          radiusResult: r,
+          radiusAngle: r.mach_angle_deg != null
+            ? `${fmt(r.mach_angle_deg, 1)}° · 锥限 Ma ${fmt(r.mach_cone_limit, 2)}`
+            : '未提供机身长度/翼展',
+          radiusMaxMach: r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—',
+          radiusMass: `${fmt(r.mass_initial_kg, 0)} → ${fmt(r.mass_final_kg, 0)} kg`,
+          radiusNote: r.note || '',
+          radiusRows: rows,
+          radiusStatusText: 'READY',
+          running: false,
+        });
+      })
+      .catch((e) => {
+        this.setData({
+          radiusStatusText: String(e.message || e),
+          running: false,
+          radiusResult: null,
         });
       });
   },

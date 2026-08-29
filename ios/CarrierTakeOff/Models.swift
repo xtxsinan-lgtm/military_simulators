@@ -114,6 +114,8 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var missile_mass_kg: Double?
     var n_engines: Int?
     var engine_id: String?
+    var length_m: Double?
+    var wingspan_m: Double?
 }
 
 /// 作战半径发动机预设（海平面军推 tsl_kN 可缺省，需手动填写）
@@ -163,6 +165,30 @@ struct CombatRadiusResult: Codable {
     var V0: Double?
     var tsfc_mg_n_s: Double?
     var tsfc_lb_lbf_h: Double?
+    var warning: String?
+    var points: [CombatRadiusCruisePoint]?
+    var mach_angle_deg: Double?
+    var mach_cone_limit: Double?
+    var max_cruise_mach: Double?
+    var mass_initial_kg: Double?
+    var mass_final_kg: Double?
+    var fuel_kg: Double?
+    var note: String?
+}
+
+struct CombatRadiusCruisePoint: Codable, Identifiable, Hashable {
+    var id: String
+    var label: String
+    var mach: Double?
+    var feasible: Bool?
+    var alt_m: Double?
+    var ld: Double?
+    var eta_o: Double?
+    var tsfc_mg_n_s: Double?
+    var thrust_avail_kN: Double?
+    var load: Double?
+    var radius_km: Double?
+    var fuel_kg_per_km: Double?
     var warning: String?
 }
 

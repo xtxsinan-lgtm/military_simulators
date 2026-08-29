@@ -78,9 +78,17 @@ struct CombatRadiusView: View {
                     }
                     .buttonStyle(CombatRadiusPrimaryButton())
                     .disabled(vm.running)
-                    Text("第 4 部分（任务剖面与作战半径积分）将在后续接入同一终端。")
+                }
+
+                panel(title: "4. 作战半径", tag: "RANGE") {
+                    Text("搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖平飞估算。自动给出 Ma 0.8 / 1.5 / 1.76 与最大巡航马赫。机身长度与翼展用于马赫角。不计爬升下降余油。")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
+                    Button(vm.running ? "计算中…" : "▶ 估算作战半径") {
+                        Task { await vm.runRadius() }
+                    }
+                    .buttonStyle(CombatRadiusPrimaryButton())
+                    .disabled(vm.running)
                 }
 
                 if let r = vm.result, r.success {
@@ -91,6 +99,9 @@ struct CombatRadiusView: View {
                 }
                 if let r = vm.efficiencyResult, r.success {
                     efficiencyResultsPanel(r)
+                }
+                if let r = vm.radiusResult, r.success {
+                    radiusResultsPanel(r)
                 }
             }
             .padding(14)
@@ -104,7 +115,7 @@ struct CombatRadiusView: View {
             Text("飞机作战半径估算终端")
                 .font(.system(size: 14, weight: .bold, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.green)
-            Text("COMBAT RADIUS · L/D + THRUST + TSFC")
+            Text("COMBAT RADIUS · L/D + THRUST + TSFC + BREGUET")
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
         }
@@ -116,6 +127,8 @@ struct CombatRadiusView: View {
         field("前缘后掠角 (°)", text: ac.sweepDeg)
         field("翼载荷 (t/m²)", text: ac.wingLoading)
         field("厚弦比 tc", text: ac.tc)
+        field("机身长度 (m)", text: ac.lengthM)
+        field("翼展 (m)", text: ac.wingspanM)
         field("马赫数", text: ac.mach)
         field("高度 (m)", text: ac.altM)
         pickerRow("翼型", selection: ac.planform, options: vm.planformOptions)
@@ -184,6 +197,37 @@ struct CombatRadiusView: View {
                 Text("告警：\(w)")
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(CombatRadiusTheme.amber)
+            }
+        }
+    }
+
+    private func radiusResultsPanel(_ r: CombatRadiusResult) -> some View {
+        panel(title: "作战半径输出", tag: "RANGE") {
+            HStack(spacing: 10) {
+                let angle = r.mach_angle_deg.map { String(format: "%.1f°", $0) } ?? "—"
+                let cone = r.mach_cone_limit.map { String(format: "锥限 Ma %.2f", $0) } ?? ""
+                stat("马赫角", value: angle, sub: cone)
+                stat("最大巡航 Ma", value: r.max_cruise_mach.map { String(format: "%.3f", $0) } ?? "—", amber: true)
+            }
+            ForEach(r.points ?? []) { p in
+                HStack {
+                    Text(p.label)
+                        .foregroundStyle(CombatRadiusTheme.green)
+                    Spacer()
+                    if p.feasible == true, let km = p.radius_km {
+                        Text(String(format: "Ma %.3f  %.0f km", p.mach ?? 0, km))
+                            .foregroundStyle(CombatRadiusTheme.text)
+                    } else {
+                        Text("无 92% 裕度高度")
+                            .foregroundStyle(CombatRadiusTheme.textDim)
+                    }
+                }
+                .font(.system(size: 11, design: .monospaced))
+            }
+            if let note = r.note, !note.isEmpty {
+                Text(note)
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.textDim)
             }
         }
     }

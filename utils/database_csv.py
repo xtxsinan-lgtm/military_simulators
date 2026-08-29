@@ -43,6 +43,7 @@ MISSILE_INTERCEPTION_CATEGORIES = ('asm', 'aew', 'ship', 'sam')
 COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS = (
     'id', 'name', 'nation', 'AR', 'sweep_deg', 'wing_loading', 'tc',
     'mach', 'alt_m', 'planform', 'layout', 'bwb', 'rough', 'ld_known', 'notes',
+    'length_m', 'wingspan_m',
     'empty_kg', 'internal_fuel_kg', 'n_pilots', 'missile_mass_kg', 'n_engines', 'engine_id',
 )
 
@@ -317,7 +318,8 @@ def load_combat_radius_aircraft_csv(path: str | Path | None = None) -> list[dict
     """加载作战半径机型几何预设。
 
     返回字段与前端契约对齐：id/name/nation/AR/sweep_deg/wing_loading/tc/
-    mach/alt_m/planform/layout/bwb/rough，以及可选 ld_known、notes。
+    mach/alt_m/planform/layout/bwb/rough，以及可选 ld_known、notes、
+    length_m、wingspan_m、空战重量与发动机台数。
     """
     from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV
 
@@ -363,6 +365,12 @@ def load_combat_radius_aircraft_csv(path: str | Path | None = None) -> list[dict
             notes = (row.get('notes') or '').strip()
             if notes:
                 item['notes'] = notes
+            length_m = _parse_optional_float(row.get('length_m') or '')
+            wingspan_m = _parse_optional_float(row.get('wingspan_m') or '')
+            if length_m is not None:
+                item['length_m'] = length_m
+            if wingspan_m is not None:
+                item['wingspan_m'] = wingspan_m
             item['empty_kg'] = _parse_float(row.get('empty_kg') or '', 'empty_kg')
             item['internal_fuel_kg'] = _parse_float(row.get('internal_fuel_kg') or '', 'internal_fuel_kg')
             item['n_pilots'] = _parse_int(row.get('n_pilots') or '', 'n_pilots')

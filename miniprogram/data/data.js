@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 25,
+  "version": 26,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -45,7 +45,7 @@ module.exports = {
       "id": "combat_radius",
       "name": "飞机作战半径估算",
       "eyebrow": "COMBAT RADIUS",
-      "subtitle": "升阻比标定 · 军推包线 · 巡航效率/TSFC",
+      "subtitle": "升阻比 · 军推 · TSFC · 布雷盖作战半径",
       "html": "combat-radius.html",
       "miniprogram_page": "/pages/combat_radius/combat_radius",
       "ios_route": "combat_radius"
@@ -1779,6 +1779,8 @@ module.exports = {
       "rough": true,
       "ld_known": 8.8,
       "notes": "舰载型；空重/内油为公开资料估计；1×F135",
+      "length_m": 15.67,
+      "wingspan_m": 13.1,
       "empty_kg": 15785.0,
       "internal_fuel_kg": 8981.0,
       "n_pilots": 1,
@@ -1802,6 +1804,8 @@ module.exports = {
       "rough": false,
       "ld_known": 8.0,
       "notes": "常规布局梯形翼；空重/内油为公开资料估计；2×F119",
+      "length_m": 18.92,
+      "wingspan_m": 13.56,
       "empty_kg": 19700.0,
       "internal_fuel_kg": 8200.0,
       "n_pilots": 1,
@@ -1824,6 +1828,8 @@ module.exports = {
       "bwb": false,
       "rough": false,
       "notes": "鸭式三角翼；空重/内油为公开资料估计；2×涡扇15",
+      "length_m": 21.2,
+      "wingspan_m": 13.01,
       "empty_kg": 17000.0,
       "internal_fuel_kg": 11200.0,
       "n_pilots": 1,

@@ -6,11 +6,16 @@ import json
 from apps.combat_radius_web import _opt_bool, _opt_float, run_combat_radius, run_combat_radius_json
 from simulators.combat_radius.combat_radius import (
     format_ld_row,
+    main,
     parse_sea_level_thrust_n,
     run_estimate_efficiency_from_params,
+    run_estimate_radius_from_params,
     run_estimate_thrust_from_params,
     run_predict_ld,
     run_predict_ld_from_params,
+    _calibrate_from_params,
+    _enrich_radius_point,
+    _infeasible_point,
     _optional_float,
     _optional_int,
     _require_aircraft_params,
@@ -245,5 +250,145 @@ def test_run_estimate_efficiency_rejects_zero_engines():
             'n_engines': 0, 'bpr': 0.3, 'opr': 26, 't4_K': 1922, 'tsl_kN': 116,
             'alt_m': 10000, 'mach': 0.8,
         })
+
+
+def _radius_params() -> dict:
+    p = _sample_params()
+    p['target'] = {
+        **p['anchor2'],
+        'length_m': 18.92,
+        'wingspan_m': 13.56,
+    }
+    p.update({
+        'empty_kg': 19700,
+        'internal_fuel_kg': 8200,
+        'n_pilots': 1,
+        'missile_mass_kg': 152,
+        'n_missiles': 4,
+        'n_engines': 2,
+        'bpr': 0.30,
+        'opr': 26.0,
+        't4_K': 1922,
+        'tsl_kN': 116.0,
+        'alt_coarse_m': 3000,
+        'alt_refine_m': 1500,
+        'mach_search_iters': 4,
+        'mach_search_lo': 0.5,
+        'mach_search_hi': 1.8,
+    })
+    return p
+
+
+def test_calibrate_from_params_returns_target_and_cf0():
+    tgt, cf0, k_e = _calibrate_from_params(_sample_params())
+    assert tgt.name == 'J-20'
+    assert cf0 > 0 and k_e > 0
+
+
+def test_infeasible_point_shape():
+    row = _infeasible_point('mach_1_76', 'Ma 1.76', 1.76)
+    assert row['feasible'] is False
+    assert row['radius_km'] is None
+    assert row['warning'] == 'no_feasible_altitude'
+    none_mach = _infeasible_point('max_cruise', '最大巡航', None)
+    assert none_mach['mach'] is None
+
+
+def test_enrich_radius_point_and_missing_tsfc():
+    from utils.combat_radius.cruise_search import CruiseScored
+
+    scored = CruiseScored(
+        mach=0.8, alt_m=12000, ld=8.0, drag_N=30000, thrust_avail_N=60000,
+        load_raw=0.5, feasible=True, cd_breakdown={'CL': 0.3},
+        load=0.5, eta_o=0.18, v0=240.0, tsfc_kg_n_s=3e-5,
+        tsfc_mg_n_s=30.0, tsfc_lb_lbf_h=1.1, score=1.44,
+    )
+    row = _enrich_radius_point('mach_0_8', 'Ma 0.8', scored, 28000, 20000, 8000)
+    assert row['feasible'] is True
+    assert row['radius_km'] > 0
+    assert row['fuel_kg_per_km'] > 0
+    scored.tsfc_kg_n_s = None
+    scored.eta_o = 0.0
+    missing = _enrich_radius_point('x', 'x', scored, 28000, 20000, 8000)
+    assert missing['feasible'] is False
+    assert missing['warning'] == 'tsfc_unavailable'
+
+
+def test_run_estimate_radius_from_params_f22():
+    r = run_estimate_radius_from_params(_radius_params())
+    assert r['success'] is True
+    ids = [p['id'] for p in r['points']]
+    assert ids == ['mach_0_8', 'mach_1_5', 'mach_1_76', 'max_cruise']
+    m08 = r['points'][0]
+    assert m08['feasible'] is True
+    assert m08['radius_km'] > 100
+    assert m08['fuel_kg_per_km'] > 0
+    assert r['mach_angle_deg'] is not None
+    assert r['mach_cone_limit'] > 1
+    assert r['max_cruise_mach'] is not None
+    assert r['mass_initial_kg'] > r['mass_cruise_kg'] > r['mass_final_kg']
+
+
+def test_run_combat_radius_estimate_radius_action():
+    ok = run_combat_radius('estimate_radius', _radius_params())
+    assert ok['success'] is True
+    assert len(ok['points']) == 4
+    bad = run_combat_radius_json({'action': 'estimate_radius', 'params': {}})
+    assert bad['success'] is False
+
+
+def test_run_estimate_radius_rejects_zero_engines():
+    p = _radius_params()
+    p['n_engines'] = 0
+    with pytest.raises(ValueError, match='发动机台数'):
+        run_estimate_radius_from_params(p)
+
+
+def test_main_prints_table(capsys, monkeypatch):
+    fake = {
+        'name': 'F-22 / F119',
+        'mach_angle_deg': 20.0,
+        'mach_cone_limit': 2.9,
+        'max_cruise_mach': 1.6,
+        'points': [
+            {
+                'id': 'mach_0_8', 'label': 'Ma 0.8', 'mach': 0.8, 'feasible': True,
+                'alt_m': 12000, 'ld': 8.0, 'eta_o': 0.18, 'tsfc_mg_n_s': 30.0,
+                'thrust_avail_kN': 60.0, 'load': 0.45, 'radius_km': 900.0,
+                'fuel_kg_per_km': 4.5,
+            },
+            {'id': 'max_cruise', 'label': '最大巡航', 'mach': 1.6, 'feasible': False},
+        ],
+        'note': '全程平飞布雷盖估算，未计入爬升、下降、起飞、降落与返场余油。',
+    }
+    monkeypatch.setattr(
+        'simulators.combat_radius.combat_radius.run_estimate_radius_from_params',
+        lambda _params: fake,
+    )
+    monkeypatch.setattr('sys.argv', ['combat_radius.py', '--aircraft', 'F-22', '--engine', 'f119'])
+    main()
+    out = capsys.readouterr().out
+    assert 'F-22' in out
+    assert 'Ma 0.8' in out
+    assert '92%' in out
+    assert '布雷盖' in out
+
+
+def test_main_rejects_missing_preset(monkeypatch):
+    monkeypatch.setattr('sys.argv', ['combat_radius.py', '--aircraft', 'NOPE'])
+    with pytest.raises(SystemExit, match='机型预设'):
+        main()
+
+
+def test_main_rejects_engine_without_tsl(monkeypatch):
+    monkeypatch.setattr('sys.argv', ['combat_radius.py', '--aircraft', 'J-20', '--engine', 'ws15'])
+    with pytest.raises(SystemExit, match='海平面军推'):
+        main()
+
+
+def test_main_rejects_missing_engine(monkeypatch):
+    monkeypatch.setattr('sys.argv', ['combat_radius.py', '--engine', 'NOPE'])
+    with pytest.raises(SystemExit, match='发动机预设'):
+        main()
 
 
