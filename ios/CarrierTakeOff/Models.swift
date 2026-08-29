@@ -114,6 +114,7 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var missile_mass_kg: Double?
     var n_engines: Int?
     var engine_id: String?
+    var carrier: Bool?
     var length_m: Double?
     var wingspan_m: Double?
     var mach_angle_deg: Double?
@@ -175,8 +176,28 @@ struct CombatRadiusResult: Codable {
     var max_cruise_mach: Double?
     var mass_initial_kg: Double?
     var mass_final_kg: Double?
+    var mass_takeoff_kg: Double?
+    var mass_dry_kg: Double?
     var fuel_kg: Double?
+    var fuel_usable_kg: Double?
+    var carrier: Bool?
+    var mission_fuel: CombatRadiusMissionFuel?
     var note: String?
+}
+
+struct CombatRadiusMissionFuel: Codable {
+    var carrier: Bool?
+    var reserve_min: Double?
+    var reserve_cruise_kph: Double?
+    var reserve_loiter_km: Double?
+    var reserve_fuel_kg: Double?
+    var climb_extra_km: Double?
+    var climb_extra_kg: Double?
+    var descent_save_km: Double?
+    var descent_save_kg: Double?
+    var usable_fuel_kg: Double?
+    var takeoff_kg_per_km: Double?
+    var landing_kg_per_km: Double?
 }
 
 struct CombatRadiusCruisePoint: Codable, Identifiable, Hashable {
@@ -193,6 +214,7 @@ struct CombatRadiusCruisePoint: Codable, Identifiable, Hashable {
     var radius_km: Double?
     var fuel_kg_per_km: Double?
     var warning: String?
+    var fail_reason: String?
 }
 
 struct CombatRadiusRow: Codable, Identifiable, Hashable {

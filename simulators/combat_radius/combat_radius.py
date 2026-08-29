@@ -3,7 +3,8 @@
 1. 根据几何参数与两锚点标定，估算巡航升阻比；
 2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推；
 3. 由空战重量与 L/D 求阻力，再与可用军推得到负载比，估算热/推进/总效率与 TSFC；
-4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度，用布雷盖公式估作战半径。
+4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度，用布雷盖公式估作战半径；
+   降落冗余、爬升额外与降落节省一律按亚音速油耗入账。
 """
 from __future__ import annotations
 
@@ -19,7 +20,12 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 
-from utils.combat_radius.breguet import average_fuel_kg_per_km, combat_radius_m
+from utils.combat_radius.breguet import (
+    average_fuel_kg_per_km,
+    combat_radius_m,
+    mission_fuel_budget,
+)
+from utils.combat_radius.combat_radius_config import mission_fuel_config
 from utils.combat_radius.cruise_load import (
     N_MISSILES_DEFAULT,
     clamp_load,
@@ -38,6 +44,8 @@ from utils.combat_radius.cruise_search import (
     MACH_SEARCH_LO,
     THRUST_MARGIN_DEFAULT,
     CruiseContext,
+    evaluate_cruise_forces,
+    score_cruise_point,
     scored_to_dict,
     search_best_altitude,
     search_max_cruise_mach,
@@ -172,6 +180,77 @@ def _optional_int(value: Any, default: int) -> int:
     return int(float(value))
 
 
+def _as_bool(value: Any, default: bool = False) -> bool:
+    """解析可选布尔；空值用默认。"""
+    if value is None or value == '':
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value) and value != 0
+    text = str(value).strip().lower()
+    if text in ('1', 'true', 'yes', 'y', '是'):
+        return True
+    if text in ('0', 'false', 'no', 'n', '否'):
+        return False
+    return default
+
+
+def _parse_carrier(params: dict[str, Any]) -> bool:
+    """舰载标识：优先顶层 carrier，其次待估机预设。"""
+    if params.get('carrier') not in (None, ''):
+        return _as_bool(params['carrier'])
+    target = params.get('target')
+    if isinstance(target, dict) and target.get('carrier') not in (None, ''):
+        return _as_bool(target['carrier'])
+    return False
+
+
+def _subsonic_scored_for_burn(
+    ctx: CruiseContext,
+    alt_min_m: float,
+    alt_max_m: float,
+    coarse_m: float,
+    refine_m: float,
+    fallback_alt_m: float = 12000.0,
+) -> Any:
+    """取 Ma 0.8 最佳高度的亚音速油耗；推力不可行时退到 12 km 仍算 TSFC。"""
+    scored = search_best_altitude(
+        ctx, 0.8, alt_min_m, alt_max_m, coarse_m, refine_m,
+    )
+    if (
+        scored is not None
+        and scored.tsfc_kg_n_s is not None
+        and scored.v0 > 0
+        and scored.ld > 0
+        and scored.eta_o > 0
+    ):
+        return scored
+    alt = min(max(fallback_alt_m, alt_min_m), alt_max_m)
+    forces = evaluate_cruise_forces(ctx, 0.8, alt)
+    fallback = score_cruise_point(ctx, forces)
+    if (
+        fallback.tsfc_kg_n_s is not None
+        and fallback.v0 > 0
+        and fallback.ld > 0
+        and fallback.eta_o > 0
+    ):
+        return fallback
+    return None
+
+
+def _mission_fuel_note(carrier: bool, reserve_min: float, mf: dict[str, Any]) -> str:
+    """作战半径说明：冗余 / 爬升 / 降落均按亚音速油耗。"""
+    kind = '舰载' if carrier else '陆基'
+    return (
+        f'布雷盖半径已计入{kind}降落冗余 {reserve_min:g} min'
+        f'（{float(mf["reserve_cruise_kph"]):g} km/h 平飞）、'
+        f'爬升等价 {float(mf["climb_extra_km"]):g} km 额外油耗、'
+        f'降落等价 {float(mf["descent_save_km"]):g} km 节油；'
+        '超音速点的这三段仍按亚音速油耗计算。'
+    )
+
+
 def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """由 L/D、空战重量与可用军推估算负载比、总效率与 TSFC。
 
@@ -297,18 +376,54 @@ def _calibrate_from_params(params: dict[str, Any]) -> tuple[Aircraft, float, flo
     return target, float(ld_info['Cf0']), float(ld_info['k_e'])
 
 
-def _infeasible_point(point_id: str, label: str, mach: float | None) -> dict[str, Any]:
-    """给定马赫在搜索高度带内找不到满足推力裕度的点。"""
+def _radius_fail_reason(warning: str) -> str:
+    """不可行巡航点的中文原因，供三端直接展示。"""
+    if warning == 'insufficient_mission_fuel':
+        return '任务油量不足以覆盖冗余/爬升'
+    if warning == 'subsonic_burn_unavailable':
+        return '无法得到亚音速油耗'
+    if warning == 'tsfc_unavailable':
+        return '该点无法得到 TSFC'
+    return '无满足 92% 推力裕度的高度'
+
+
+def _infeasible_point(
+    point_id: str,
+    label: str,
+    mach: float | None,
+    warning: str = 'no_feasible_altitude',
+) -> dict[str, Any]:
+    """给定马赫找不到可用巡航点，或任务油量不足以给出半径。"""
     return {
         'id': point_id,
         'label': label,
         'mach': mach,
         'feasible': False,
-        'warning': 'no_feasible_altitude',
+        'warning': warning,
+        'fail_reason': _radius_fail_reason(warning),
         'radius_m': None,
         'radius_km': None,
         'fuel_kg_per_km': None,
     }
+
+
+def _failed_radius_point(
+    point_id: str,
+    label: str,
+    scored: Any,
+    warning: str,
+) -> dict[str, Any]:
+    """高度搜索成功但无法给出布雷盖半径时，保留气动点并标失败原因。"""
+    row = scored_to_dict(scored)
+    row['id'] = point_id
+    row['label'] = label
+    row['feasible'] = False
+    row['warning'] = warning
+    row['fail_reason'] = _radius_fail_reason(warning)
+    row['radius_m'] = None
+    row['radius_km'] = None
+    row['fuel_kg_per_km'] = None
+    return row
 
 
 def _enrich_radius_point(
@@ -326,6 +441,7 @@ def _enrich_radius_point(
     if scored.tsfc_kg_n_s is None or scored.v0 <= 0 or scored.eta_o <= 0:
         row['feasible'] = False
         row['warning'] = row.get('warning') or 'tsfc_unavailable'
+        row['fail_reason'] = _radius_fail_reason(row['warning'])
         row['radius_m'] = None
         row['radius_km'] = None
         row['fuel_kg_per_km'] = None
@@ -343,9 +459,11 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """串联升阻比、军推与效率，搜索最佳巡航高度并估算作战半径。
 
     固定评估 Ma 0.8 / 1.5 / 1.76，以及阻力不超过军推 92% 的最大巡航马赫。
-    布雷盖质量：起飞 = 空重 + 飞行员×0.1 t + 满内油 + 默认 4 枚中距弹；
-    终了 = 空重 + 飞行员×0.1 t + 4 枚中距弹（燃油耗尽，不抛弹）。
     巡航 L/D 仍用一半内油的空战重量。
+    布雷盖可用油 = 内油 − 降落冗余 − 爬升额外 + 降落节省；
+    冗余为舰载 40 min / 陆基 30 min、850 km/h 平飞，爬升/降落分别按
+    起飞重量与带余油降落重量的亚音速瞬时油耗 × 120 km / 87.5 km。
+    超音速巡航点仍用同一套亚音速任务油量。
     """
     n_engines = _optional_int(params.get('n_engines'), 1)
     if n_engines < 1:
@@ -408,15 +526,52 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     mach_hi = float(params['mach_search_hi']) if params.get('mach_search_hi') not in (None, '') else MACH_SEARCH_HI
     mach_iters = _optional_int(params.get('mach_search_iters'), MACH_SEARCH_ITERS)
 
+    carrier = _parse_carrier(params)
+    mf = mission_fuel_config()
+    reserve_min = (
+        float(mf['carrier_reserve_min']) if carrier else float(mf['land_reserve_min'])
+    )
+    subsonic = _subsonic_scored_for_burn(ctx, alt_min, alt_max, coarse_m, refine_m)
+    fuel_adj: dict[str, Any] | None = None
+    if (
+        subsonic is not None
+        and subsonic.tsfc_kg_n_s is not None
+        and subsonic.v0 > 0
+        and subsonic.ld > 0
+    ):
+        fuel_adj = mission_fuel_budget(
+            internal_fuel_kg=fuel_kg,
+            takeoff_mass_kg=takeoff_mass['total_kg'],
+            dry_mass_kg=dry_mass['total_kg'],
+            reserve_min=reserve_min,
+            cruise_kph=float(mf['reserve_cruise_kph']),
+            climb_extra_km=float(mf['climb_extra_km']),
+            descent_save_km=float(mf['descent_save_km']),
+            v_mps=subsonic.v0,
+            tsfc_kg_n_s=subsonic.tsfc_kg_n_s,
+            ld=subsonic.ld,
+            carrier=carrier,
+        )
+
     def pack_point(point_id: str, label: str, mach: float) -> dict[str, Any]:
         scored = search_best_altitude(
             ctx, mach, alt_min, alt_max, coarse_m, refine_m,
         )
         if scored is None:
             return _infeasible_point(point_id, label, mach)
+        if fuel_adj is None:
+            return _failed_radius_point(
+                point_id, label, scored, 'subsonic_burn_unavailable',
+            )
+        if float(fuel_adj['usable_fuel_kg']) <= 0:
+            return _failed_radius_point(
+                point_id, label, scored, 'insufficient_mission_fuel',
+            )
         return _enrich_radius_point(
             point_id, label, scored,
-            takeoff_mass['total_kg'], dry_mass['total_kg'], fuel_kg,
+            float(fuel_adj['mass_initial_kg']),
+            float(fuel_adj['mass_final_kg']),
+            float(fuel_adj['usable_fuel_kg']),
         )
 
     points: list[dict[str, Any]] = []
@@ -441,6 +596,12 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         mach_angle_deg = math.degrees(phi)
         m_cone = mach_cone_limit(phi)
 
+    breguet_initial = (
+        float(fuel_adj['mass_initial_kg']) if fuel_adj else takeoff_mass['total_kg']
+    )
+    breguet_final = (
+        float(fuel_adj['mass_final_kg']) if fuel_adj else dry_mass['total_kg']
+    )
     return {
         'success': True,
         'name': str(params.get('name') or target.name),
@@ -448,10 +609,14 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         'k_e': k_e,
         'n_engines': n_engines,
         'thrust_margin': ctx.thrust_margin,
+        'carrier': carrier,
         'mass_cruise_kg': cruise_mass['total_kg'],
-        'mass_initial_kg': takeoff_mass['total_kg'],
-        'mass_final_kg': dry_mass['total_kg'],
+        'mass_takeoff_kg': takeoff_mass['total_kg'],
+        'mass_dry_kg': dry_mass['total_kg'],
+        'mass_initial_kg': breguet_initial,
+        'mass_final_kg': breguet_final,
         'fuel_kg': fuel_kg,
+        'fuel_usable_kg': None if fuel_adj is None else float(fuel_adj['usable_fuel_kg']),
         'n_missiles': n_missiles,
         'length_m': target.length_m,
         'wingspan_m': target.wingspan_m,
@@ -459,13 +624,14 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         'mach_cone_limit': m_cone,
         'max_cruise_mach': max_mach,
         'points': points,
-        'note': '全程平飞布雷盖估算，未计入爬升、下降、起飞、降落与返场余油。',
+        'mission_fuel': fuel_adj,
+        'note': _mission_fuel_note(carrier, reserve_min, mf),
     }
 
 
 def main() -> None:
     """命令行入口：默认用 F-22 + F119 打印四个巡航点的作战半径。"""
-    parser = argparse.ArgumentParser(description='飞机作战半径估算（全程平飞布雷盖）')
+    parser = argparse.ArgumentParser(description='飞机作战半径估算（布雷盖 + 任务油量）')
     parser.add_argument('--aircraft', default='F-22', help='待估机型预设 id')
     parser.add_argument('--engine', default='f119', help='发动机预设 id')
     parser.add_argument('--anchor1', default='F-35C')
@@ -526,7 +692,9 @@ def main() -> None:
     for p in result['points']:
         if not p.get('feasible'):
             mach_txt = f'{p["mach"]:>6.3f}' if p.get('mach') is not None else f'{"—":>6}'
-            print(f'{p["label"]:<10} {mach_txt}  （无满足 92% 推力裕度的高度）')
+            warn = p.get('warning') or 'no_feasible_altitude'
+            reason = p.get('fail_reason') or _radius_fail_reason(warn)
+            print(f'{p["label"]:<10} {mach_txt}  （{reason}）')
             continue
         print(
             f'{p["label"]:<10} {p["mach"]:>6.3f} {p["alt_m"]/1000:>8.1f} '

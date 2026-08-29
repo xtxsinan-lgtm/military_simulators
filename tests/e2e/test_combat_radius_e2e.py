@@ -123,6 +123,13 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m08['fuel_kg_per_km'] > 0
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] is not None
+    assert r['carrier'] is False
+    mf = r['mission_fuel']
+    assert mf['reserve_min'] == 30
+    assert mf['climb_extra_kg'] > 0
+    assert mf['descent_save_kg'] > 0
+    assert r['fuel_usable_kg'] < r['fuel_kg']
+    assert '亚音速油耗' in r['note']
 
 
 @pytest.mark.e2e
@@ -249,6 +256,11 @@ def test_e2e_combat_radius_three_channels_exist():
     assert 'engine_id' in (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
     ios_vm = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'engine_id' in ios_vm
+    assert 'wtCarrier' in ios_vm
+    assert '舰载机' in html_text
+    assert '舰载机' in wxml
+    assert '舰载机' in ios
+    assert 'fail_reason' in js_text
 
 
 @pytest.mark.e2e
@@ -289,3 +301,6 @@ def test_e2e_combat_radius_j15_radius_uses_csv_engine():
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     assert m08['feasible'] is True
     assert m08['radius_km'] > 200
+    assert r['carrier'] is True
+    assert r['mission_fuel']['reserve_min'] == 40
+    assert r['fuel_usable_kg'] < r['fuel_kg']

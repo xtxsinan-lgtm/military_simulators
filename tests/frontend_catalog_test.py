@@ -40,6 +40,7 @@ def test_build_catalog_payload_modes():
     assert 'combat_radius_presets' in payload
     assert 'combat_radius_engine_presets' in payload
     assert 'combat_radius_config' in payload
+    assert payload['combat_radius_config']['mission_fuel']['carrier_reserve_min'] == 40
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-50' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-15' for p in payload['combat_radius_presets'])

@@ -250,6 +250,9 @@
       <view class="field-label"><text>发动机台数</text></view>
       <input class="input" type="number" value="{{wtEngines}}" data-key="wtEngines" bindinput="onField"/>
     </view>
+    <view class="check-row">
+      <label><switch checked="{{wtCarrier}}" bindchange="onCarrierSwitch"/> 舰载机（降落冗余 40 min / 陆基 30 min）</label>
+    </view>
     <view class="field">
       <view class="field-label"><text>部件效率 ε</text></view>
       <input class="input" type="digit" value="{{effEps}}" data-key="effEps" bindinput="onField"/>
@@ -267,7 +270,7 @@
 
   <view class="panel">
     <view class="panel-head">4. 作战半径 · RANGE</view>
-    <view class="note">搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖平飞估算。自动给出 Ma 0.8 / 1.5 / 1.76 与最大巡航马赫。马赫角优先用预设度数。不计爬升下降余油。</view>
+    <view class="note">搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖估算作战半径。马赫角优先用预设度数。降落冗余、爬升额外与降落节省一律按亚音速油耗入账（即使巡航点是超音速）。</view>
     <view class="btn" bindtap="onRunRadius">▶ 估算作战半径</view>
   </view>
 
@@ -328,6 +331,8 @@
         <view class="stat"><view class="k">马赫角</view><view class="v">{{radiusAngle}}</view></view>
         <view class="stat"><view class="k">最大巡航 Ma</view><view class="v amber">{{radiusMaxMach}}</view><view class="sub">{{radiusMass}}</view></view>
       </view>
+      <view class="note" wx:if="{{radiusFuel}}">{{radiusFuel}} · {{radiusReserve}}</view>
+      <view class="note" wx:if="{{radiusClimb}}">{{radiusClimb}} · {{radiusDescent}}</view>
       <view class="tr th">
         <text class="th">点</text><text class="th">Ma</text><text class="th">半径km</text><text class="th">kg/km</text>
       </view>

@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 28,
+  "version": 29,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -2609,7 +2609,7 @@ module.exports = {
     }
   ],
   "combat_radius_config": {
-    "version": 1,
+    "version": 2,
     "ui": {
       "default_anchor1_id": "F-35C",
       "default_anchor2_id": "F-22",
@@ -2638,6 +2638,13 @@ module.exports = {
       "conventional": "常规",
       "canard": "鸭翼",
       "tailless": "无尾"
+    },
+    "mission_fuel": {
+      "reserve_cruise_kph": 850,
+      "carrier_reserve_min": 40,
+      "land_reserve_min": 30,
+      "climb_extra_km": 120,
+      "descent_save_km": 87.5
     }
   }
 };

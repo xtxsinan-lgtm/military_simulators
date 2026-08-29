@@ -70,6 +70,10 @@ struct CombatRadiusView: View {
                     field("单枚中距弹 (kg)", text: $vm.wtMissile)
                     field("挂弹数", text: $vm.wtNMissiles)
                     field("发动机台数", text: $vm.wtEngines)
+                    Toggle("舰载机（降落冗余 40 min / 陆基 30 min）", isOn: $vm.wtCarrier)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundStyle(CombatRadiusTheme.text)
+                        .tint(CombatRadiusTheme.green)
                     field("部件效率 ε", text: $vm.effEps)
                     field("喷管效率 η_n", text: $vm.effEtan)
                     field("附件功提取比例", text: $vm.effAcc)
@@ -81,7 +85,7 @@ struct CombatRadiusView: View {
                 }
 
                 panel(title: "4. 作战半径", tag: "RANGE") {
-                    Text("搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖平飞估算。自动给出 Ma 0.8 / 1.5 / 1.76 与最大巡航马赫。马赫角优先用预设度数。不计爬升下降余油。")
+                    Text("搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖估算作战半径。马赫角优先用预设度数。降落冗余、爬升额外与降落节省一律按亚音速油耗入账（即使巡航点是超音速）。")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
                     Button(vm.running ? "计算中…" : "▶ 估算作战半径") {
@@ -211,6 +215,21 @@ struct CombatRadiusView: View {
                 stat("马赫角", value: angle, sub: cone)
                 stat("最大巡航 Ma", value: r.max_cruise_mach.map { String(format: "%.3f", $0) } ?? "—", amber: true)
             }
+            if let mf = r.mission_fuel {
+                let reserve = mf.reserve_fuel_kg.map { String(format: "%.0f kg", $0) } ?? "—"
+                let climb = mf.climb_extra_kg.map { String(format: "%.0f kg", $0) } ?? "—"
+                let descent = mf.descent_save_kg.map { String(format: "%.0f kg", $0) } ?? "—"
+                let usable = r.fuel_usable_kg.map { String(format: "%.0f kg", $0) } ?? "—"
+                let kind = (r.carrier == true) ? "舰载 40 min" : "陆基 30 min"
+                HStack(spacing: 10) {
+                    stat("可用油", value: usable, sub: kind)
+                    stat("降落冗余", value: reserve, sub: mf.reserve_loiter_km.map { String(format: "%.0f km", $0) } ?? "")
+                }
+                HStack(spacing: 10) {
+                    stat("爬升额外", value: climb, amber: true)
+                    stat("降落节省", value: descent)
+                }
+            }
             ForEach(r.points ?? []) { p in
                 HStack {
                     Text(p.label)
@@ -220,7 +239,7 @@ struct CombatRadiusView: View {
                         Text(String(format: "Ma %.3f  %.0f km", p.mach ?? 0, km))
                             .foregroundStyle(CombatRadiusTheme.text)
                     } else {
-                        Text("无 92% 裕度高度")
+                        Text(p.fail_reason ?? "无 92% 裕度高度")
                             .foregroundStyle(CombatRadiusTheme.textDim)
                     }
                 }

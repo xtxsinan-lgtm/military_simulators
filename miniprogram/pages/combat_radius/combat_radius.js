@@ -39,6 +39,7 @@ function weightFromPreset(p) {
   if (p.n_pilots != null) patch.wtPilots = String(p.n_pilots);
   if (p.missile_mass_kg != null) patch.wtMissile = String(p.missile_mass_kg);
   if (p.n_engines != null) patch.wtEngines = String(p.n_engines);
+  patch.wtCarrier = !!p.carrier;
   return patch;
 }
 
@@ -101,6 +102,7 @@ Page({
     wtMissile: '',
     wtNMissiles: '4',
     wtEngines: '1',
+    wtCarrier: false,
     effEps: '0.83',
     effEtan: '0.95',
     effAcc: '0.16',
@@ -120,6 +122,10 @@ Page({
     radiusAngle: '',
     radiusMaxMach: '',
     radiusMass: '',
+    radiusFuel: '',
+    radiusReserve: '',
+    radiusClimb: '',
+    radiusDescent: '',
     radiusNote: '',
     radiusRows: [],
   },
@@ -209,6 +215,10 @@ Page({
     const slot = e.currentTarget.dataset.slot;
     const key = e.currentTarget.dataset.key;
     this.setData({ [`${slot}.${key}`]: !!e.detail.value });
+  },
+
+  onCarrierSwitch(e) {
+    this.setData({ wtCarrier: !!e.detail.value });
   },
 
   onPreset(e) {
@@ -458,6 +468,7 @@ Page({
       missile_mass_kg: num(this.data.wtMissile, 0),
       n_missiles: num(this.data.wtNMissiles, 4),
       n_engines: num(this.data.wtEngines, 1),
+      carrier: !!this.data.wtCarrier,
       eps: num(this.data.effEps, 0.83),
       etan: num(this.data.effEtan, 0.95),
       acc_frac: num(this.data.effAcc, 0.16),
@@ -469,12 +480,13 @@ Page({
     })
       .then((r) => {
         if (!r.success) throw new Error(r.error || '估算失败');
+        const mf = r.mission_fuel || {};
         const rows = (r.points || []).map((p) => {
           if (!p.feasible) {
             return {
               label: p.label,
               mach: p.mach != null ? fmt(p.mach, 3) : '—',
-              detail: '无满足 92% 推力裕度的高度',
+              detail: p.fail_reason || '无满足 92% 推力裕度的高度',
               ok: false,
             };
           }
@@ -499,6 +511,18 @@ Page({
             : '未提供马赫角',
           radiusMaxMach: r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—',
           radiusMass: `${fmt(r.mass_initial_kg, 0)} → ${fmt(r.mass_final_kg, 0)} kg`,
+          radiusFuel: r.fuel_usable_kg != null
+            ? `可用 ${fmt(r.fuel_usable_kg, 0)} / 内油 ${fmt(r.fuel_kg, 0)} kg`
+            : '',
+          radiusReserve: mf.reserve_fuel_kg != null
+            ? `冗余 ${fmt(mf.reserve_fuel_kg, 0)} kg · ${r.carrier ? '舰载 40 min' : '陆基 30 min'}`
+            : '',
+          radiusClimb: mf.climb_extra_kg != null
+            ? `爬升额外 ${fmt(mf.climb_extra_kg, 0)} kg`
+            : '',
+          radiusDescent: mf.descent_save_kg != null
+            ? `降落节省 ${fmt(mf.descent_save_kg, 0)} kg`
+            : '',
           radiusNote: r.note || '',
           radiusRows: rows,
           radiusStatusText: 'READY',

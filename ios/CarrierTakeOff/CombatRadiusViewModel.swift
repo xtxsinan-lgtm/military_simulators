@@ -94,6 +94,7 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var wtMissile = ""
     @Published var wtNMissiles = "4"
     @Published var wtEngines = "1"
+    @Published var wtCarrier = false
     @Published var effEps = "0.83"
     @Published var effEtan = "0.95"
     @Published var effAcc = "0.16"
@@ -194,6 +195,7 @@ final class CombatRadiusViewModel: ObservableObject {
         if let v = p.missile_mass_kg { wtMissile = String(format: "%.0f", v) }
         wtNMissiles = "4"
         if let v = p.n_engines { wtEngines = String(v) }
+        wtCarrier = p.carrier ?? false
     }
 
     /// 填入所选发动机的 BPR/OPR/T4；有海平面军推时一并写入
@@ -375,6 +377,7 @@ final class CombatRadiusViewModel: ObservableObject {
                 "missile_mass_kg": Double(wtMissile) ?? 0,
                 "n_missiles": Double(wtNMissiles) ?? 4,
                 "n_engines": Int(wtEngines) ?? 1,
+                "carrier": wtCarrier,
                 "eps": Double(effEps) ?? 0.83,
                 "etan": Double(effEtan) ?? 0.95,
                 "acc_frac": Double(effAcc) ?? 0.16,

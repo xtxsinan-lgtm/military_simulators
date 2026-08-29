@@ -1,5 +1,12 @@
 {
-  "version": 1,
+  "version": 2,
+  "mission_fuel": {
+    "reserve_cruise_kph": 850,
+    "carrier_reserve_min": 40,
+    "land_reserve_min": 30,
+    "climb_extra_km": 120,
+    "descent_save_km": 87.5
+  },
   "ui": {
     "default_anchor1_id": "F-35C",
     "default_anchor2_id": "F-22",

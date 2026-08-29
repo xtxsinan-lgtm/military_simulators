@@ -13,12 +13,18 @@ from simulators.combat_radius.combat_radius import (
     run_estimate_thrust_from_params,
     run_predict_ld,
     run_predict_ld_from_params,
+    _as_bool,
     _calibrate_from_params,
     _enrich_radius_point,
+    _failed_radius_point,
     _infeasible_point,
+    _mission_fuel_note,
     _optional_float,
     _optional_int,
+    _parse_carrier,
+    _radius_fail_reason,
     _require_aircraft_params,
+    _subsonic_scored_for_burn,
 )
 from utils.combat_radius.lift_drag import Aircraft
 import pytest
@@ -293,6 +299,7 @@ def test_infeasible_point_shape():
     assert row['feasible'] is False
     assert row['radius_km'] is None
     assert row['warning'] == 'no_feasible_altitude'
+    assert row['fail_reason'] == '无满足 92% 推力裕度的高度'
     none_mach = _infeasible_point('max_cruise', '最大巡航', None)
     assert none_mach['mach'] is None
 
@@ -315,6 +322,7 @@ def test_enrich_radius_point_and_missing_tsfc():
     missing = _enrich_radius_point('x', 'x', scored, 28000, 20000, 8000)
     assert missing['feasible'] is False
     assert missing['warning'] == 'tsfc_unavailable'
+    assert missing['fail_reason'] == '该点无法得到 TSFC'
 
 
 def test_run_estimate_radius_from_params_f22():
@@ -330,6 +338,13 @@ def test_run_estimate_radius_from_params_f22():
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] is not None
     assert r['mass_initial_kg'] > r['mass_cruise_kg'] > r['mass_final_kg']
+    assert r['mission_fuel'] is not None
+    assert r['carrier'] is False
+    assert r['mission_fuel']['reserve_min'] == 30
+    assert r['fuel_usable_kg'] < r['fuel_kg']
+    assert r['mission_fuel']['climb_extra_kg'] > 0
+    assert r['mission_fuel']['descent_save_kg'] > 0
+    assert '亚音速油耗' in r['note']
 
 
 def test_run_combat_radius_estimate_radius_action():
@@ -362,7 +377,7 @@ def test_main_prints_table(capsys, monkeypatch):
             },
             {'id': 'max_cruise', 'label': '最大巡航', 'mach': 1.6, 'feasible': False},
         ],
-        'note': '全程平飞布雷盖估算，未计入爬升、下降、起飞、降落与返场余油。',
+        'note': '布雷盖半径已计入陆基降落冗余 30 min（850 km/h 平飞）。',
     }
     monkeypatch.setattr(
         'simulators.combat_radius.combat_radius.run_estimate_radius_from_params',
@@ -393,5 +408,175 @@ def test_main_rejects_missing_engine(monkeypatch):
     monkeypatch.setattr('sys.argv', ['combat_radius.py', '--engine', 'NOPE'])
     with pytest.raises(SystemExit, match='发动机预设'):
         main()
+
+
+def test_as_bool_and_parse_carrier():
+    """舰载标识：顶层优先于机型预设。"""
+    assert _as_bool(True) is True
+    assert _as_bool(0) is False
+    assert _as_bool('是') is True
+    assert _as_bool('否') is False
+    assert _as_bool(None, True) is True
+    assert _as_bool('maybe') is False
+    assert _parse_carrier({'carrier': 1}) is True
+    assert _parse_carrier({'target': {'carrier': True}}) is True
+    assert _parse_carrier({}) is False
+    assert _parse_carrier({'carrier': '0', 'target': {'carrier': True}}) is False
+
+
+def test_radius_fail_reason_and_mission_note():
+    """失败原因与任务油量说明文案。"""
+    assert '冗余' in _radius_fail_reason('insufficient_mission_fuel')
+    assert '亚音速' in _radius_fail_reason('subsonic_burn_unavailable')
+    assert 'TSFC' in _radius_fail_reason('tsfc_unavailable')
+    assert '92%' in _radius_fail_reason('no_feasible_altitude')
+    note = _mission_fuel_note(
+        True, 40,
+        {'reserve_cruise_kph': 850, 'climb_extra_km': 120, 'descent_save_km': 87.5},
+    )
+    assert '舰载' in note and '40' in note and '120' in note
+
+
+def test_failed_radius_point_keeps_aero():
+    from utils.combat_radius.cruise_search import CruiseScored
+
+    scored = CruiseScored(
+        mach=0.8, alt_m=12000, ld=8.0, drag_N=30000, thrust_avail_N=60000,
+        load_raw=0.5, feasible=True, cd_breakdown={'CL': 0.3},
+        load=0.5, eta_o=0.18, v0=240.0, tsfc_kg_n_s=3e-5,
+        tsfc_mg_n_s=30.0, tsfc_lb_lbf_h=1.1, score=1.44,
+    )
+    row = _failed_radius_point('mach_0_8', 'Ma 0.8', scored, 'insufficient_mission_fuel')
+    assert row['feasible'] is False
+    assert row['ld'] == 8.0
+    assert row['radius_km'] is None
+    assert '冗余' in row['fail_reason']
+
+
+def test_infeasible_point_custom_warning():
+    row = _infeasible_point('x', 'x', 1.5, 'insufficient_mission_fuel')
+    assert row['warning'] == 'insufficient_mission_fuel'
+    assert '冗余' in row['fail_reason']
+
+
+def _radius_ctx():
+    """用 F-22 半径参数搭一个巡航搜索上下文。"""
+    from utils.combat_radius.cruise_load import combat_mass_breakdown
+    from utils.combat_radius.cruise_search import CruiseContext
+    from utils.combat_radius.engine_efficiency import (
+        ACC_FRAC_DEFAULT, EPS_DEFAULT, ETAN_DEFAULT, T4IDLE_DEFAULT,
+    )
+    from utils.combat_radius.military_thrust import ETA_C_DEFAULT
+
+    params = _radius_params()
+    target, cf0, k_e = _calibrate_from_params(params)
+    cruise = combat_mass_breakdown(
+        empty_kg=float(params['empty_kg']),
+        internal_fuel_kg=float(params['internal_fuel_kg']),
+        n_pilots=float(params['n_pilots']),
+        missile_mass_kg=float(params['missile_mass_kg']),
+        n_missiles=float(params['n_missiles']),
+        fuel_fraction=0.5,
+    )
+    return CruiseContext(
+        target=target,
+        cf0=cf0,
+        k_e=k_e,
+        mass_kg=cruise['total_kg'],
+        n_engines=int(params['n_engines']),
+        bpr=float(params['bpr']),
+        opr=float(params['opr']),
+        t4_K=float(params['t4_K']),
+        tsl_N=float(params['tsl_kN']) * 1000.0,
+        eta_c=ETA_C_DEFAULT,
+        eps=EPS_DEFAULT,
+        etan=ETAN_DEFAULT,
+        acc_frac=ACC_FRAC_DEFAULT,
+        t4idle=T4IDLE_DEFAULT,
+    )
+
+
+def test_subsonic_scored_for_burn_search_and_fallback(monkeypatch):
+    """优先用 Ma 0.8 最佳高度；搜索失败时退到 12 km。"""
+    from utils.combat_radius.cruise_search import CruiseScored
+
+    ctx = _radius_ctx()
+    scored = _subsonic_scored_for_burn(ctx, 11000, 20000, 3000, 1500)
+    assert scored is not None
+    assert scored.tsfc_kg_n_s is not None
+    assert scored.v0 > 0
+
+    fake = CruiseScored(
+        mach=0.8, alt_m=12000, ld=8.0, drag_N=30000, thrust_avail_N=60000,
+        load_raw=0.5, feasible=True, cd_breakdown={'CL': 0.3},
+        load=0.5, eta_o=0.18, v0=240.0, tsfc_kg_n_s=3e-5,
+        tsfc_mg_n_s=30.0, tsfc_lb_lbf_h=1.1, score=1.44,
+    )
+    monkeypatch.setattr(
+        'simulators.combat_radius.combat_radius.search_best_altitude',
+        lambda *a, **k: fake,
+    )
+    assert _subsonic_scored_for_burn(ctx, 11000, 20000, 3000, 1500) is fake
+
+    monkeypatch.setattr(
+        'simulators.combat_radius.combat_radius.search_best_altitude',
+        lambda *a, **k: None,
+    )
+    fallback = _subsonic_scored_for_burn(ctx, 11000, 20000, 3000, 1500)
+    assert fallback is not None
+    assert fallback.tsfc_kg_n_s is not None
+
+    dead = CruiseScored(
+        mach=0.8, alt_m=12000, ld=8.0, drag_N=30000, thrust_avail_N=60000,
+        load_raw=0.5, feasible=False, cd_breakdown={'CL': 0.3},
+        load=1.0, eta_o=0.0, v0=0.0, tsfc_kg_n_s=None,
+        tsfc_mg_n_s=None, tsfc_lb_lbf_h=None, score=-1.0,
+    )
+    monkeypatch.setattr(
+        'simulators.combat_radius.combat_radius.score_cruise_point',
+        lambda *a, **k: dead,
+    )
+    assert _subsonic_scored_for_burn(ctx, 11000, 20000, 3000, 1500) is None
+
+
+def test_subsonic_burn_unavailable_marks_points(monkeypatch):
+    monkeypatch.setattr(
+        'simulators.combat_radius.combat_radius._subsonic_scored_for_burn',
+        lambda *a, **k: None,
+    )
+    r = run_estimate_radius_from_params(_radius_params())
+    m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
+    assert m08['feasible'] is False
+    assert m08['warning'] == 'subsonic_burn_unavailable'
+    assert r['mission_fuel'] is None
+    assert r['fuel_usable_kg'] is None
+
+
+def test_carrier_reserve_reduces_radius_vs_land():
+    """同样气动下舰载 40 min 冗余比陆基 30 min 更短。"""
+    land = run_estimate_radius_from_params({**_radius_params(), 'carrier': False})
+    sea = run_estimate_radius_from_params({**_radius_params(), 'carrier': True})
+    assert land['mission_fuel']['reserve_min'] == 30
+    assert sea['mission_fuel']['reserve_min'] == 40
+    r_land = next(p for p in land['points'] if p['id'] == 'mach_0_8')['radius_km']
+    r_sea = next(p for p in sea['points'] if p['id'] == 'mach_0_8')['radius_km']
+    assert r_sea < r_land
+    m15 = next(p for p in sea['points'] if p['id'] == 'mach_1_5')
+    m08 = next(p for p in sea['points'] if p['id'] == 'mach_0_8')
+    if m15.get('feasible'):
+        assert m15['radius_km'] != m08['radius_km']
+
+
+def test_insufficient_mission_fuel_marks_points_infeasible():
+    """内油过少时保留气动点但不给出半径。"""
+    p = _radius_params()
+    p['internal_fuel_kg'] = 50
+    r = run_estimate_radius_from_params(p)
+    m08 = next(x for x in r['points'] if x['id'] == 'mach_0_8')
+    assert m08['feasible'] is False
+    assert m08['warning'] == 'insufficient_mission_fuel'
+    assert m08['radius_km'] is None
+    assert r['fuel_usable_kg'] is not None and r['fuel_usable_kg'] <= 0
+
 
 

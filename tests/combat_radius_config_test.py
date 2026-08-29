@@ -6,6 +6,7 @@ from utils.combat_radius.combat_radius_config import (
     inject_combat_radius_config,
     layout_labels,
     load_combat_radius_config,
+    mission_fuel_config,
     planform_labels,
     ui_config,
 )
@@ -20,7 +21,7 @@ def test_load_combat_radius_config_file_exists_and_ui_defaults():
     assert ui['default_engine_id'] == 'f119'
     assert ui['default_eta_c'] == 0.87
     assert ui['default_eps'] == 0.83
-    assert load_combat_radius_config()['version'] == 1
+    assert load_combat_radius_config()['version'] == 2
 
 
 def test_planform_and_layout_labels():
@@ -40,6 +41,11 @@ def test_build_combat_radius_config_payload():
     assert payload['ui']['default_ld1'] == 8.8
     assert payload['ui']['default_thrust_alt_m'] == 11000
     assert payload['ui']['default_thrust_mach'] == 1.5
+    assert payload['mission_fuel']['carrier_reserve_min'] == 40
+    assert payload['mission_fuel']['land_reserve_min'] == 30
+    assert payload['mission_fuel']['climb_extra_km'] == 120
+    assert payload['mission_fuel']['descent_save_km'] == 87.5
+    assert payload['mission_fuel']['reserve_cruise_kph'] == 850
     assert 'trapezoidal' in payload['planform_labels']
     assert 'conventional' in payload['layout_labels']
 
@@ -77,4 +83,14 @@ def test_inject_combat_radius_config_overrides_disk():
     finally:
         mod._INJECTED = None
         load_combat_radius_config.cache_clear()
-    assert load_combat_radius_config()['version'] == 1
+    assert load_combat_radius_config()['version'] == 2
+
+
+def test_mission_fuel_config_defaults():
+    """舰载 40 min / 陆基 30 min，爬升 120 km，降落 87.5 km。"""
+    mf = mission_fuel_config()
+    assert mf['reserve_cruise_kph'] == 850
+    assert mf['carrier_reserve_min'] == 40
+    assert mf['land_reserve_min'] == 30
+    assert mf['climb_extra_km'] == 120
+    assert mf['descent_save_km'] == 87.5

@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 5;
+const APP_VERSION = 6;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -129,6 +129,7 @@ function applyWeightFromPreset(p) {
   if (p.missile_mass_kg != null) $('wtMissile').value = p.missile_mass_kg;
   $('wtNMissiles').value = 4;
   if (p.n_engines != null) $('wtEngines').value = p.n_engines;
+  $('wtCarrier').checked = !!p.carrier;
   if (p.engine_id) {
     const engines = data.combat_radius_engine_presets || [];
     const eng = engines.find((x) => x.id === p.engine_id);
@@ -343,12 +344,13 @@ function renderRadiusResult(r) {
   const angle = r.mach_angle_deg != null
     ? `${fmt(r.mach_angle_deg, 1)}° · 锥限 Ma ${fmt(r.mach_cone_limit, 2)}`
     : '未提供机身长度/翼展';
+  const mf = r.mission_fuel || {};
   const rows = (r.points || []).map((p) => {
     if (!p.feasible) {
       return `<tr>
         <td>${p.label}</td>
         <td>${p.mach != null ? fmt(p.mach, 3) : '—'}</td>
-        <td colspan="8">无满足 92% 推力裕度的高度</td>
+        <td colspan="8">${p.fail_reason || '无满足 92% 推力裕度的高度'}</td>
       </tr>`;
     }
     return `<tr class="target">
@@ -364,12 +366,18 @@ function renderRadiusResult(r) {
       <td>${fmt(p.fuel_kg_per_km, 2)}</td>
     </tr>`;
   }).join('');
+  const reserveKind = r.carrier ? '舰载 40 min' : '陆基 30 min';
   $('radiusBox').innerHTML = `
     <div class="stat-row">
       <div class="stat"><div class="k">马赫角</div><div class="v">${angle}</div></div>
       <div class="stat"><div class="k">最大巡航 Ma</div><div class="v amber">${r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—'}</div></div>
-      <div class="stat"><div class="k">起飞质量</div><div class="v">${fmt(r.mass_initial_kg, 0)} kg</div><div class="sub">终了 ${fmt(r.mass_final_kg, 0)} kg</div></div>
-      <div class="stat"><div class="k">内油</div><div class="v">${fmt(r.fuel_kg, 0)} kg</div><div class="sub">${r.n_missiles} 枚中距弹</div></div>
+      <div class="stat"><div class="k">布雷盖质量</div><div class="v">${fmt(r.mass_initial_kg, 0)} kg</div><div class="sub">终了 ${fmt(r.mass_final_kg, 0)} kg</div></div>
+      <div class="stat"><div class="k">可用油</div><div class="v">${r.fuel_usable_kg != null ? fmt(r.fuel_usable_kg, 0) : '—'} kg</div><div class="sub">内油 ${fmt(r.fuel_kg, 0)} · ${r.n_missiles} 枚弹</div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="k">降落冗余</div><div class="v">${mf.reserve_fuel_kg != null ? fmt(mf.reserve_fuel_kg, 0) : '—'} kg</div><div class="sub">${reserveKind} · ${mf.reserve_loiter_km != null ? fmt(mf.reserve_loiter_km, 0) : '—'} km</div></div>
+      <div class="stat"><div class="k">爬升额外</div><div class="v amber">${mf.climb_extra_kg != null ? fmt(mf.climb_extra_kg, 0) : '—'} kg</div><div class="sub">起飞 ${mf.takeoff_kg_per_km != null ? fmt(mf.takeoff_kg_per_km, 2) : '—'} kg/km × ${mf.climb_extra_km != null ? fmt(mf.climb_extra_km, 1) : '120'} km</div></div>
+      <div class="stat"><div class="k">降落节省</div><div class="v">${mf.descent_save_kg != null ? fmt(mf.descent_save_kg, 0) : '—'} kg</div><div class="sub">余油 ${mf.landing_kg_per_km != null ? fmt(mf.landing_kg_per_km, 2) : '—'} kg/km × ${mf.descent_save_km != null ? fmt(mf.descent_save_km, 1) : '87.5'} km</div></div>
     </div>
     <div class="scroll-x">
       <table>
@@ -398,6 +406,7 @@ function readEfficiencyParams() {
     missile_mass_kg: Number($('wtMissile').value),
     n_missiles: Number($('wtNMissiles').value),
     n_engines: Number($('wtEngines').value),
+    carrier: $('wtCarrier').checked,
     eps: Number($('effEps').value),
     etan: Number($('effEtan').value),
     acc_frac: Number($('effAcc').value),
