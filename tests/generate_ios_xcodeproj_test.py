@@ -18,4 +18,5 @@ def test_generate_ios_xcodeproj_writes_pbxproj():
     assert 'data.json' in text
     assert 'engine.js' in text
     assert 'LocalSimulatorEngine.swift' in text
+    assert 'CombatRadiusView.swift' in text
     assert 'PBXNativeTarget' in text

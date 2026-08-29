@@ -15,6 +15,9 @@ def test_ios_swift_sources_exist():
         'MissileInterceptionStrikeView.swift',
         'MissileInterceptionViewModel.swift',
         'MissileInterceptionTheme.swift',
+        'CombatRadiusView.swift',
+        'CombatRadiusViewModel.swift',
+        'CombatRadiusTheme.swift',
         'HubView.swift',
         'CatalogStore.swift',
         'LocalSimulatorEngine.swift',
@@ -35,12 +38,13 @@ def test_ios_swift_sources_exist():
 
 
 def test_ios_app_has_hub_then_simulators():
-    """App 入口为启动页 HubView，可进入起飞与饱和打击。"""
+    """App 入口为启动页 HubView，可进入起飞、饱和打击与作战半径。"""
     app = (IOS_ROOT / 'CarrierTakeOffApp.swift').read_text(encoding='utf-8')
     hub = (IOS_ROOT / 'HubView.swift').read_text(encoding='utf-8')
     assert 'HubView' in app
     assert 'NavigationStack' in app
     assert 'MissileInterceptionStrikeView' in hub
+    assert 'CombatRadiusView' in hub
     assert 'ContentView' in hub
     assert (IOS_ROOT / 'HubView.swift').is_file()
 
@@ -78,6 +82,10 @@ def test_ios_uses_local_engine_not_http_api():
     assert '__BUNDLED_CATALOG__' in engine_swift
     assert 'runMissileInterception' in engine_swift
     assert 'func runMissileInterception(payload:' in engine_swift
+    assert 'runCombatRadius' in engine_js
+    assert '__combatRadiusSim' in engine_js
+    assert 'run_combat_radius_json' in engine_js
+    assert 'func runCombatRadius(payload:' in engine_swift
     sat_vm = (IOS_ROOT / 'MissileInterceptionViewModel.swift').read_text(encoding='utf-8')
     assert 'runMissileInterception(payload:' in sat_vm
     assert 'runMissileInterception([' not in sat_vm

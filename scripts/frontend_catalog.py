@@ -7,6 +7,7 @@ from typing import Any
 from utils.specs import A2A_MISSILE_COUNT, PILOT_LOAD_KG
 from utils.takeoff.takeoff_config import build_takeoff_config_payload
 from utils.takeoff.takeoff_physics import PITCH_MAX_DEG
+from utils.combat_radius.combat_radius_config import build_combat_radius_config_payload
 from utils.missile_interception.missile_interception_config import build_missile_interception_config_payload
 
 MODES = {
@@ -28,7 +29,7 @@ TILTROTOR_STRATEGIES = {
 }
 
 # data.json 结构版本；字段变更时递增
-DATA_VERSION = 22
+DATA_VERSION = 23
 
 # 启动页可选模拟器（HTML / 小程序 / iOS 同源）
 SIMULATORS = [
@@ -49,6 +50,15 @@ SIMULATORS = [
         'html': 'missile-interception-strike.html',
         'miniprogram_page': '/pages/missile_interception/missile_interception',
         'ios_route': 'missile_interception',
+    },
+    {
+        'id': 'combat_radius',
+        'name': '飞机作战半径估算',
+        'eyebrow': 'COMBAT RADIUS',
+        'subtitle': '几何参数标定升阻比 · 后续接入燃油与任务剖面',
+        'html': 'combat-radius.html',
+        'miniprogram_page': '/pages/combat_radius/combat_radius',
+        'ios_route': 'combat_radius',
     },
 ]
 
@@ -86,6 +96,7 @@ def aircraft_to_dict(ac: Any) -> dict:
 
 def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
     """构建不含 py_sources 的共享目录数据（小程序 / API / Web 公共部分）。"""
+    from utils.combat_radius.combat_radius_presets import build_combat_radius_presets_payload
     from utils.missile_interception.missile_interception_presets import build_missile_interception_presets_payload
 
     return {
@@ -103,4 +114,6 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'missile_interception_presets': build_missile_interception_presets_payload(),
         'takeoff_config': build_takeoff_config_payload(),
         'missile_interception_config': build_missile_interception_config_payload(),
+        'combat_radius_presets': build_combat_radius_presets_payload(),
+        'combat_radius_config': build_combat_radius_config_payload(),
     }

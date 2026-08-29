@@ -8,6 +8,9 @@
 /* Begin PBXBuildFile section */
 		33243D7A0F9554E98680B994 /* CarrierTakeOffApp.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 7E41ED0ABE8753DD9FB196DC /* CarrierTakeOffApp.swift */; };
 		FABB823BD47F5B279DC26F7C /* CatalogStore.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 13A7DD20326F53EDA63E7DE0 /* CatalogStore.swift */; };
+		0FE9E4ED5CF8549281A29F13 /* CombatRadiusTheme.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 6AE6F9C96F1D5F61B1FA4FD1 /* CombatRadiusTheme.swift */; };
+		A6C9B3F3C4775EF8B693086A /* CombatRadiusView.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = B6985B641D225413B344B14C /* CombatRadiusView.swift */; };
+		DB0B196363805B299724A713 /* CombatRadiusViewModel.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = D58C7FF35EAF52DFB120527E /* CombatRadiusViewModel.swift */; };
 		B73C9A90C3215FF49DAB778D /* Components/ModeSelector.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = CA61023294D05872ACA99E62 /* Components/ModeSelector.swift */; };
 		1A356894595A57AFB0A74750 /* Components/SpecList.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = FCEB011FA83E558D8472FA90 /* Components/SpecList.swift */; };
 		EE05F5EEC20B5632A116556A /* Components/TrajectoryChart.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 45B15473805A5581B41C8F59 /* Components/TrajectoryChart.swift */; };
@@ -32,6 +35,9 @@
 		DB28CF1D1B635B14AB9B5A56 /* CarrierTakeOff.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CarrierTakeOff.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E41ED0ABE8753DD9FB196DC /* CarrierTakeOffApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CarrierTakeOffApp.swift"; sourceTree = "<group>"; };
 		13A7DD20326F53EDA63E7DE0 /* CatalogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CatalogStore.swift"; sourceTree = "<group>"; };
+		6AE6F9C96F1D5F61B1FA4FD1 /* CombatRadiusTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CombatRadiusTheme.swift"; sourceTree = "<group>"; };
+		B6985B641D225413B344B14C /* CombatRadiusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CombatRadiusView.swift"; sourceTree = "<group>"; };
+		D58C7FF35EAF52DFB120527E /* CombatRadiusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CombatRadiusViewModel.swift"; sourceTree = "<group>"; };
 		CA61023294D05872ACA99E62 /* Components/ModeSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModeSelector.swift"; sourceTree = "<group>"; };
 		FCEB011FA83E558D8472FA90 /* Components/SpecList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpecList.swift"; sourceTree = "<group>"; };
 		45B15473805A5581B41C8F59 /* Components/TrajectoryChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TrajectoryChart.swift"; sourceTree = "<group>"; };
@@ -75,6 +81,9 @@
 			children = (
 				7E41ED0ABE8753DD9FB196DC /* CarrierTakeOffApp.swift */,
 				13A7DD20326F53EDA63E7DE0 /* CatalogStore.swift */,
+				6AE6F9C96F1D5F61B1FA4FD1 /* CombatRadiusTheme.swift */,
+				B6985B641D225413B344B14C /* CombatRadiusView.swift */,
+				D58C7FF35EAF52DFB120527E /* CombatRadiusViewModel.swift */,
 				7807FAB89078571E89A10816 /* Config.swift */,
 				712D6BDDF2785D2FBFDA7180 /* ContentView.swift */,
 				846EBED37C4F535CA9EAC705 /* HubView.swift */,
@@ -170,6 +179,9 @@
 			files = (
 				33243D7A0F9554E98680B994 /* CarrierTakeOffApp.swift in Sources */,
 				FABB823BD47F5B279DC26F7C /* CatalogStore.swift in Sources */,
+				0FE9E4ED5CF8549281A29F13 /* CombatRadiusTheme.swift in Sources */,
+				A6C9B3F3C4775EF8B693086A /* CombatRadiusView.swift in Sources */,
+				DB0B196363805B299724A713 /* CombatRadiusViewModel.swift in Sources */,
 				B73C9A90C3215FF49DAB778D /* Components/ModeSelector.swift in Sources */,
 				1A356894595A57AFB0A74750 /* Components/SpecList.swift in Sources */,
 				EE05F5EEC20B5632A116556A /* Components/TrajectoryChart.swift in Sources */,

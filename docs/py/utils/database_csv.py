@@ -40,6 +40,11 @@ MISSILE_INTERCEPTION_MISSILE_CATEGORIES = ('asm', 'sam')
 MISSILE_INTERCEPTION_RADAR_CATEGORIES = ('aew', 'ship')
 MISSILE_INTERCEPTION_CATEGORIES = ('asm', 'aew', 'ship', 'sam')
 
+COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS = (
+    'id', 'name', 'nation', 'AR', 'sweep_deg', 'wing_loading', 'tc',
+    'mach', 'alt_m', 'planform', 'layout', 'bwb', 'rough', 'ld_known', 'notes',
+)
+
 def _cell_str(value: Any) -> str:
     if value is None:
         return ''
@@ -294,6 +299,62 @@ def load_missile_interception_presets_csv(
         'ship': radars['ship'],
         'sam': missiles['sam'],
     }
+
+
+def load_combat_radius_aircraft_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载作战半径机型几何预设。
+
+    返回字段与前端契约对齐：id/name/nation/AR/sweep_deg/wing_loading/tc/
+    mach/alt_m/planform/layout/bwb/rough，以及可选 ld_known、notes。
+    """
+    from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV
+
+    csv_path = Path(path) if path is not None else COMBAT_RADIUS_AIRCRAFT_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            item_id = (row.get('id') or '').strip()
+            name = (row.get('name') or '').strip()
+            if not item_id or not name:
+                continue
+            planform = (row.get('planform') or '').strip()
+            layout = (row.get('layout') or '').strip()
+            from utils.combat_radius.lift_drag import LAYOUT_MULT, PLANFORM_MULT
+            if planform not in PLANFORM_MULT:
+                raise ValueError(f'{csv_path} 记录 {item_id} 未知 planform={planform!r}')
+            if layout not in LAYOUT_MULT:
+                raise ValueError(f'{csv_path} 记录 {item_id} 未知 layout={layout!r}')
+            item: dict[str, Any] = {
+                'id': item_id,
+                'name': name,
+                'nation': _parse_nation(row, csv_path, item_id),
+                'AR': _parse_float(row.get('AR') or '', 'AR'),
+                'sweep_deg': _parse_float(row.get('sweep_deg') or '', 'sweep_deg'),
+                'wing_loading': _parse_float(row.get('wing_loading') or '', 'wing_loading'),
+                'tc': _parse_float(row.get('tc') or '', 'tc'),
+                'mach': _parse_float(row.get('mach') or '', 'mach'),
+                'alt_m': _parse_float(row.get('alt_m') or '', 'alt_m'),
+                'planform': planform,
+                'layout': layout,
+                'bwb': _parse_bool(row.get('bwb') or '0'),
+                'rough': _parse_bool(row.get('rough') or '0'),
+            }
+            ld_known = _parse_optional_float(row.get('ld_known') or '')
+            if ld_known is not None:
+                item['ld_known'] = ld_known
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效作战半径机型记录')
+    return rows
 
 
 def list_model_ids_from_missile_interception_csv(

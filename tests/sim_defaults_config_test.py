@@ -23,3 +23,13 @@ def test_missile_interception_config_file_exists_and_ui_defaults():
     assert load_missile_interception_config()['physics']['mach_mps'] == 340.0
     assert 'glide' in load_missile_interception_config()['traj_types']
     assert 'ballistic' in load_missile_interception_config()['traj_types']
+
+
+def test_combat_radius_config_file_exists_and_ui_defaults():
+    from utils.combat_radius.combat_radius_config import ui_config as cr_ui
+    from utils.paths import COMBAT_RADIUS_CONFIG_JSON
+
+    assert COMBAT_RADIUS_CONFIG_JSON.is_file()
+    ui = cr_ui()
+    assert ui['default_anchor1_id'] == 'F-35C'
+    assert ui['default_ld1'] == 8.8

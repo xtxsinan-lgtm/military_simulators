@@ -44,7 +44,7 @@ struct HubView: View {
                         )
                         .overlay(alignment: .top) {
                             Rectangle()
-                                .fill(sim.id == "missile_interception" ? Color(hex: 0xFFB020) : Color(hex: 0x38BDF8))
+                                .fill(hubAccent(for: sim.id))
                                 .frame(height: 3)
                         }
                     }
@@ -68,8 +68,21 @@ struct HubView: View {
         switch sim.ios_route ?? sim.id {
         case "missile_interception":
             MissileInterceptionStrikeView()
+        case "combat_radius":
+            CombatRadiusView()
         default:
             ContentView()
+        }
+    }
+
+    private func hubAccent(for id: String) -> Color {
+        switch id {
+        case "missile_interception":
+            return Color(hex: 0xFFB020)
+        case "combat_radius":
+            return Color(hex: 0x3DDC84)
+        default:
+            return Color(hex: 0x38BDF8)
         }
     }
 

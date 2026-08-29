@@ -37,6 +37,10 @@ PY_LOAD_ORDER = [
     'utils/missile_interception/missile_interception_radar.py',
     'utils/missile_interception/missile_interception_windows.py',
     'utils/missile_interception/missile_interception_monte_carlo.py',
+    'utils/combat_radius/__init__.py',
+    'utils/combat_radius/combat_radius_config.py',
+    'utils/combat_radius/lift_drag.py',
+    'utils/combat_radius/combat_radius_presets.py',
     'simulators/__init__.py',
     'simulators/takeoff/__init__.py',
     'simulators/takeoff/short_take_off.py',
@@ -45,9 +49,12 @@ PY_LOAD_ORDER = [
     'simulators/takeoff/tiltrotor_short_take_off.py',
     'simulators/missile_interception/__init__.py',
     'simulators/missile_interception/missile_interception_strike.py',
+    'simulators/combat_radius/__init__.py',
+    'simulators/combat_radius/combat_radius.py',
     'apps/__init__.py',
     'apps/web_simulator.py',
     'apps/missile_interception_strike_web.py',
+    'apps/combat_radius_web.py',
 ]
 
 PY_IMPORT_ORDER = [
@@ -69,13 +76,18 @@ PY_IMPORT_ORDER = [
     'utils.missile_interception.missile_interception_radar',
     'utils.missile_interception.missile_interception_windows',
     'utils.missile_interception.missile_interception_monte_carlo',
+    'utils.combat_radius.combat_radius_config',
+    'utils.combat_radius.lift_drag',
+    'utils.combat_radius.combat_radius_presets',
     'simulators.takeoff.short_take_off',
     'simulators.takeoff.short_ski_jump_take_off',
     'simulators.takeoff.ski_jump_take_off',
     'simulators.takeoff.tiltrotor_short_take_off',
     'simulators.missile_interception.missile_interception_strike',
+    'simulators.combat_radius.combat_radius',
     'apps.web_simulator',
     'apps.missile_interception_strike_web',
+    'apps.combat_radius_web',
 ]
 
 

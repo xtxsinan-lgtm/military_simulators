@@ -61,12 +61,17 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     app = json.loads((ROOT / 'miniprogram' / 'app.json').read_text(encoding='utf-8'))
     assert app['pages'][0] == 'pages/home/home'
     assert 'pages/missile_interception/missile_interception' in app['pages']
+    assert 'pages/combat_radius/combat_radius' in app['pages']
     assert 'tabBar' in app
     paths = [x['pagePath'] for x in app['tabBar']['list']]
     assert 'pages/home/home' in paths
     assert 'pages/missile_interception/missile_interception' in paths
+    assert 'pages/combat_radius/combat_radius' in paths
     assert (ROOT / 'miniprogram' / 'pages' / 'missile_interception' / 'missile_interception.js').is_file()
+    assert (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').is_file()
     assert (ROOT / 'miniprogram' / 'pages' / 'home' / 'home.js').is_file()
     api_js = (ROOT / 'miniprogram' / 'utils' / 'api.js').read_text(encoding='utf-8')
     assert 'runMissileInterceptionSimulation' in api_js
     assert '/api/missile_interception/simulate' in api_js
+    assert 'runCombatRadiusSimulation' in api_js
+    assert '/api/combat_radius/simulate' in api_js

@@ -37,6 +37,9 @@ def test_build_catalog_payload_modes():
     assert len(payload['missile_interception_presets']['asm']) >= 1
     assert 'takeoff_config' in payload
     assert 'missile_interception_config' in payload
+    assert 'combat_radius_presets' in payload
+    assert 'combat_radius_config' in payload
+    assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
     assert payload['takeoff_config']['shared']['mu'] == 0.025
     assert 'A' in payload['takeoff_config']['stovl_strategy_descriptions']
     assert set(payload['takeoff_config']['modes']) == set(payload['modes'])
@@ -78,6 +81,49 @@ def test_docs_missile_interception_page_exists_and_links():
     assert ver_js.group(1) == ver_html.group(1)
 
 
+def test_docs_combat_radius_page_exists_and_links():
+    """作战半径 HTML 页存在，并与起飞页/启动页/饱和打击页互链。"""
+    import re
+    from utils.paths import ROOT
+
+    page = ROOT / 'docs' / 'combat-radius.html'
+    hub = ROOT / 'docs' / 'index.html'
+    takeoff = ROOT / 'docs' / 'takeoff.html'
+    sat = ROOT / 'docs' / 'missile-interception-strike.html'
+    assert page.is_file()
+    js = ROOT / 'docs' / 'js' / 'combat_radius.js'
+    css = ROOT / 'docs' / 'css' / 'combat_radius.css'
+    assert js.is_file() and css.is_file()
+    html = page.read_text(encoding='utf-8')
+    js_text = js.read_text(encoding='utf-8')
+    assert 'combat_radius.js' in html
+    assert 'index.html' in html
+    assert 'run_combat_radius_json' in js_text
+    assert 'combat-radius.html' in takeoff.read_text(encoding='utf-8')
+    assert 'combat-radius.html' in sat.read_text(encoding='utf-8')
+    ver_js = re.search(r'const APP_VERSION\s*=\s*(\d+)', js_text)
+    ver_html = re.search(r'combat_radius\.js\?v=(\d+)', html)
+    ver_css = re.search(r'combat_radius\.css\?v=(\d+)', html)
+    assert ver_js and ver_html and ver_css
+    assert ver_js.group(1) == ver_html.group(1) == ver_css.group(1)
+
+
+def test_pyodide_bundles_combat_radius_modules():
+    """作战半径 Web 页须加载与 build_docs 一致的 Python 模块。"""
+    from scripts.build_docs import PY_LOAD_ORDER
+    from utils.paths import ROOT
+
+    for rel in (
+        'utils/combat_radius/lift_drag.py',
+        'simulators/combat_radius/combat_radius.py',
+        'apps/combat_radius_web.py',
+    ):
+        assert rel in PY_LOAD_ORDER
+    js = (ROOT / 'docs' / 'js' / 'combat_radius.js').read_text(encoding='utf-8')
+    assert 'apps/combat_radius_web.py' in js
+    assert 'utils.combat_radius.lift_drag' in js
+
+
 def test_pyodide_bundles_missile_interception_presets_csv_deps():
     """Pyodide 须打包 missile_interception_presets 的 CSV 依赖，避免 ModuleNotFoundError。"""
     from scripts.build_docs import PY_IMPORT_ORDER, PY_LOAD_ORDER
@@ -110,6 +156,7 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     csv_data = load_missile_interception_presets_csv()
     assert [x['id'] for x in payload['missile_interception_presets']['asm']] == [x['id'] for x in csv_data['asm']]
     assert [x['id'] for x in payload['missile_interception_presets']['aew']] == [x['id'] for x in csv_data['aew']]
+    assert [p['id'] for p in payload['combat_radius_presets']] == ['F-35C', 'F-22', 'J-20']
     assert len(payload['aircraft']) >= 1
     assert len(payload['carriers']) >= 1
 

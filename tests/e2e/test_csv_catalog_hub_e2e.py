@@ -36,6 +36,7 @@ def test_e2e_catalog_auto_detects_csv_models():
     api = json.loads(body.decode())
     assert api['simulators'] == SIMULATORS
     assert len(api['missile_interception_presets']['sam']) == len(sat['sam'])
+    assert [p['id'] for p in api['combat_radius_presets']] == ['F-35C', 'F-22', 'J-20']
 
 
 @pytest.mark.e2e
@@ -47,6 +48,7 @@ def test_e2e_docs_hub_and_takeoff_pages():
     assert 'data.simulators' in hub_js or 'simulators' in hub_js
     assert (ROOT / 'docs' / 'takeoff.html').is_file()
     assert (ROOT / 'docs' / 'missile-interception-strike.html').is_file()
+    assert (ROOT / 'docs' / 'combat-radius.html').is_file()
 
 
 @pytest.mark.e2e

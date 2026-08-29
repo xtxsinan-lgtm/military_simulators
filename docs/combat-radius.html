@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>飞机作战半径估算</title>
+<link rel="stylesheet" href="css/combat_radius.css?v=1">
+</head>
+<body>
+<div class="scanline"></div>
+<header>
+  <div>
+    <div class="title">飞机作战半径估算终端</div>
+    <div class="subtitle">COMBAT RADIUS · L/D CALIBRATION</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+    <a class="nav-link" href="index.html">← 启动页</a>
+    <a class="nav-link" href="takeoff.html">起飞仿真</a>
+    <a class="nav-link" href="missile-interception-strike.html">饱和打击</a>
+    <div class="clock" id="clock">SYS READY</div>
+  </div>
+</header>
+
+<div class="grid">
+  <div class="panel">
+    <div class="panel-head"><span>1. 升阻比估算</span><span class="tag">L/D</span></div>
+    <p class="note">用两架已知巡航 L/D 的锚点机标定 (Cf0, k_e)，再估算第三型机在给定高度/马赫数下的升阻比。ISA 大气适用于 11–20 km。</p>
+
+    <div class="section-label cyan">▸ 锚点 1</div>
+    <div class="field">
+      <label>机型预设</label>
+      <select id="a1Preset"></select>
+    </div>
+    <div class="field">
+      <label>已知巡航 L/D <span class="unit">目标</span></label>
+      <input type="number" id="a1Ld" value="8.8" min="1" step="0.1">
+    </div>
+    <div id="a1Fields"></div>
+
+    <div class="section-label amber">▸ 锚点 2</div>
+    <div class="field">
+      <label>机型预设</label>
+      <select id="a2Preset"></select>
+    </div>
+    <div class="field">
+      <label>已知巡航 L/D <span class="unit">目标</span></label>
+      <input type="number" id="a2Ld" value="8.0" min="1" step="0.1">
+    </div>
+    <div id="a2Fields"></div>
+
+    <div class="section-label green">▸ 待估机型</div>
+    <div class="field">
+      <label>机型预设</label>
+      <select id="tgtPreset"></select>
+    </div>
+    <div id="tgtFields"></div>
+
+    <button class="run" id="runBtn">▶ 估算升阻比</button>
+    <p class="note">第 2–4 部分（燃油、任务剖面、作战半径积分）将在后续接入同一终端。</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>输出</span><span class="tag">OUTPUT</span></div>
+    <div id="statusTag" class="clock">STANDBY</div>
+    <div id="resultBox" class="placeholder">等待标定与估算…</div>
+  </div>
+</div>
+<div class="footer">Python 仿真核心 · Pyodide · 与 catalog / 小程序 / iOS 同源</div>
+<script type="module" src="js/combat_radius.js?v=1"></script>
+</body>
+</html>

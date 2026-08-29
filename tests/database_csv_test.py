@@ -2,11 +2,13 @@
 import pytest
 
 from utils.database_csv import (
+    COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS,
     MISSILE_INTERCEPTION_MISSILE_CSV_COLUMNS,
     MISSILE_INTERCEPTION_RADAR_CSV_COLUMNS,
     list_model_ids_from_missile_interception_csv,
     load_aircraft_csv,
     load_carriers_csv,
+    load_combat_radius_aircraft_csv,
     load_missile_interception_missile_csv,
     load_missile_interception_presets_csv,
     load_missile_interception_radar_csv,
@@ -14,6 +16,7 @@ from utils.database_csv import (
 from utils.paths import (
     AIRCRAFT_CSV,
     CARRIERS_CSV,
+    COMBAT_RADIUS_AIRCRAFT_CSV,
     MISSILE_INTERCEPTION_MISSILE_CSV,
     MISSILE_INTERCEPTION_RADAR_CSV,
 )
@@ -151,3 +154,30 @@ def test_missile_interception_radar_csv_missing_nation_raises(tmp_path):
     )
     with pytest.raises(ValueError, match='nation'):
         load_missile_interception_radar_csv(path)
+
+
+def test_load_combat_radius_aircraft_csv():
+    """作战半径机型 CSV 须含锚点与歼-20，且列齐全。"""
+    rows = load_combat_radius_aircraft_csv(COMBAT_RADIUS_AIRCRAFT_CSV)
+    ids = [r['id'] for r in rows]
+    assert ids == ['F-35C', 'F-22', 'J-20']
+    assert rows[0]['rough'] is True
+    assert 'ld_known' not in rows[2]
+
+
+def test_combat_radius_csv_unknown_planform_raises(tmp_path):
+    path = tmp_path / 'cr.csv'
+    path.write_text(
+        ','.join(COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS) + '\n'
+        'X1,测试,中国,2.5,30,0.3,0.05,0.8,12000,hex,conventional,0,0,,\n',
+        encoding='utf-8',
+    )
+    with pytest.raises(ValueError, match='planform'):
+        load_combat_radius_aircraft_csv(path)
+
+
+def test_combat_radius_csv_empty_raises(tmp_path):
+    path = tmp_path / 'cr.csv'
+    path.write_text(','.join(COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS) + '\n', encoding='utf-8')
+    with pytest.raises(ValueError, match='未读到'):
+        load_combat_radius_aircraft_csv(path)

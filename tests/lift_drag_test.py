@@ -1,0 +1,190 @@
+"""巡航升阻比估算单元测试。"""
+from __future__ import annotations
+
+import math
+
+import pytest
+
+from utils.combat_radius.lift_drag import (
+    KAPPA_A,
+    RHO11,
+    Aircraft,
+    aircraft_from_dict,
+    aircraft_to_dict,
+    atmosphere,
+    calibrate,
+    cd_wave,
+    cl_cruise,
+    components,
+    oswald_e_raw,
+    predict_ld,
+    wetted_area_factor,
+    _as_bool,
+)
+
+
+def _f35c() -> Aircraft:
+    return Aircraft(
+        'F-35C', AR=2.77, sweep_deg=30.9, wing_loading=0.341,
+        tc=0.0510, mach=0.8, alt_m=11300,
+        planform='trapezoidal', layout='conventional',
+        bwb=False, rough=True,
+    )
+
+
+def _f22() -> Aircraft:
+    return Aircraft(
+        'F-22', AR=2.37, sweep_deg=41.3, wing_loading=0.318,
+        tc=0.0520, mach=0.8, alt_m=11800,
+        planform='trapezoidal', layout='conventional',
+        bwb=False, rough=False,
+    )
+
+
+def _j20() -> Aircraft:
+    return Aircraft(
+        'J-20', AR=2.32, sweep_deg=46.3, wing_loading=0.329,
+        tc=0.0430, mach=0.8, alt_m=12000,
+        planform='delta', layout='canard',
+        bwb=False, rough=False,
+    )
+
+
+def test_as_bool_parses_common_tokens():
+    assert _as_bool(True) is True
+    assert _as_bool(False) is False
+    assert _as_bool('是') is True
+    assert _as_bool('否') is False
+    assert _as_bool(1) is True
+    assert _as_bool(0) is False
+    assert _as_bool(None, True) is True
+    with pytest.raises(ValueError):
+        _as_bool('maybe')
+
+
+def test_aircraft_from_dict_and_to_dict_roundtrip():
+    ac = aircraft_from_dict({
+        'name': 'J-20', 'AR': 2.32, 'sweep_deg': 46.3, 'wing_loading': 0.329,
+        'tc': 0.043, 'mach': 0.8, 'alt_m': 12000,
+        'planform': 'delta', 'layout': 'canard', 'bwb': 0, 'rough': '否',
+    })
+    d = aircraft_to_dict(ac)
+    assert d['name'] == 'J-20'
+    assert d['planform'] == 'delta'
+    assert d['bwb'] is False
+    assert d['rough'] is False
+    again = aircraft_from_dict(d)
+    assert again.AR == pytest.approx(2.32)
+
+
+def test_aircraft_from_dict_rejects_unknown_planform():
+    with pytest.raises(ValueError, match='未知翼型'):
+        aircraft_from_dict({
+            'name': 'x', 'AR': 2, 'sweep_deg': 30, 'wing_loading': 0.3,
+            'tc': 0.05, 'mach': 0.8, 'alt_m': 12000,
+            'planform': 'ellipse', 'layout': 'conventional',
+        })
+
+
+def test_aircraft_from_dict_rejects_unknown_layout():
+    with pytest.raises(ValueError, match='未知布局'):
+        aircraft_from_dict({
+            'name': 'x', 'AR': 2, 'sweep_deg': 30, 'wing_loading': 0.3,
+            'tc': 0.05, 'mach': 0.8, 'alt_m': 12000,
+            'planform': 'delta', 'layout': 'tandem',
+        })
+
+
+def test_atmosphere_at_tropopause():
+    rho, a = atmosphere(11000)
+    assert rho == pytest.approx(RHO11)
+    assert a == pytest.approx(math.sqrt(1.4 * 287.05287 * 216.65))
+
+
+def test_atmosphere_density_falls_with_altitude():
+    rho_lo, _ = atmosphere(11000)
+    rho_hi, _ = atmosphere(15000)
+    assert rho_hi < rho_lo
+
+
+def test_cl_cruise_positive_and_below_one():
+    cl = cl_cruise(_f35c())
+    assert 0.1 < cl < 0.8
+
+
+def test_oswald_e_raw_swept_fighter_range():
+    e = oswald_e_raw(2.77, 30.9)
+    assert 0.5 < e < 1.2
+
+
+def test_wetted_area_factor_independent_switches():
+    base = _f22()
+    bwb = Aircraft(**{**aircraft_to_dict(base), 'bwb': True})
+    rough = Aircraft(**{**aircraft_to_dict(base), 'rough': True})
+    w0 = wetted_area_factor(base)
+    assert wetted_area_factor(bwb) == pytest.approx(w0 * 0.90)
+    assert wetted_area_factor(rough) == pytest.approx(w0 * 1.08)
+
+
+def test_wetted_area_factor_planform_and_layout():
+    ac = _f22()
+    w_trap = wetted_area_factor(ac)
+    delta = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'delta'})
+    diamond = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'diamond'})
+    swept = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'swept'})
+    unswept = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'unswept'})
+    canard = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'canard'})
+    tailless = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'tailless'})
+    assert wetted_area_factor(delta) < w_trap
+    assert wetted_area_factor(diamond) < wetted_area_factor(delta)
+    assert wetted_area_factor(swept) < w_trap
+    assert wetted_area_factor(unswept) > w_trap
+    assert wetted_area_factor(canard) > w_trap
+    assert wetted_area_factor(tailless) < w_trap
+
+
+def test_cd_wave_zero_at_cruise_mach():
+    ac = _f35c()
+    cl = cl_cruise(ac)
+    assert cd_wave(cl, ac) == 0.0
+
+
+def test_cd_wave_positive_when_mach_exceeds_mdd():
+    ac = Aircraft(**{**aircraft_to_dict(_f35c()), 'mach': 1.4})
+    cl = cl_cruise(ac)
+    assert cd_wave(cl, ac) > 0
+
+
+def test_components_keys_and_signs():
+    c = components(_j20())
+    assert set(c) == {'CL', 'e_raw', 'K', 'W', 'CDw'}
+    assert c['CL'] > 0 and c['K'] > 0 and c['W'] > 0
+    assert c['CDw'] >= 0
+
+
+def test_calibrate_reconstructs_anchor_ld():
+    cf0, k_e = calibrate(_f35c(), 8.8, _f22(), 8.0)
+    assert cf0 > 0 and k_e > 0
+    ld1, _ = predict_ld(_f35c(), cf0, k_e)
+    ld2, _ = predict_ld(_f22(), cf0, k_e)
+    assert ld1 == pytest.approx(8.8, abs=1e-10)
+    assert ld2 == pytest.approx(8.0, abs=1e-10)
+
+
+def test_calibrate_singular_when_anchors_identical():
+    ac = _f22()
+    with pytest.raises(ValueError, match='奇异'):
+        calibrate(ac, 8.0, ac, 8.0)
+
+
+def test_calibrate_rejects_unphysical_targets():
+    with pytest.raises(ValueError, match='物理无意义'):
+        calibrate(_f35c(), 20.0, _f22(), 2.0)
+
+
+def test_predict_ld_j20_between_anchors():
+    cf0, k_e = calibrate(_f35c(), 8.8, _f22(), 8.0)
+    ld, d = predict_ld(_j20(), cf0, k_e)
+    assert 7.0 < ld < 10.0
+    assert d['CD'] == pytest.approx(d['CD0'] + d['CDi'] + d['CDw'])
+    assert KAPPA_A == pytest.approx(0.90)

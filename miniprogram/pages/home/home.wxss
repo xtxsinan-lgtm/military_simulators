@@ -30,6 +30,7 @@
 }
 .card.takeoff { border-top: 6rpx solid #38bdf8; }
 .card.missile_interception { border-top: 6rpx solid #ffb020; }
+.card.combat_radius { border-top: 6rpx solid #3ddc84; }
 .card-id {
   font-size: 20rpx;
   color: #8aa0a8;

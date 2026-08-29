@@ -115,6 +115,22 @@ json.dumps(run_missile_interception_json(_missile_interception_payload_json), en
   return JSON.parse(raw);
 }
 
+/**
+ * 运行作战半径 / 升阻比估算：payload 含 action 与 params。
+ */
+async function runCombatRadius(payload) {
+  if (!ready || !pyodide) {
+    throw new Error('仿真引擎尚未就绪');
+  }
+  pyodide.globals.set('_combat_radius_payload_json', JSON.stringify(payload));
+  const raw = pyodide.runPython(`
+import json
+from apps.combat_radius_web import run_combat_radius_json
+json.dumps(run_combat_radius_json(_combat_radius_payload_json), ensure_ascii=False)
+`);
+  return JSON.parse(raw);
+}
+
 window.__carrierSim = {
   init: initEngine,
   run: runSimulation,
@@ -123,6 +139,11 @@ window.__carrierSim = {
 
 window.__missileInterceptionSim = {
   run: runMissileInterception,
+  isReady: () => ready,
+};
+
+window.__combatRadiusSim = {
+  run: runCombatRadius,
   isReady: () => ready,
 };
 

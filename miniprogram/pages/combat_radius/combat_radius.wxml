@@ -1,0 +1,187 @@
+<view class="cr-page">
+  <view class="cr-header">
+    <text class="cr-title">飞机作战半径估算终端</text>
+    <text class="cr-sub">COMBAT RADIUS · L/D</text>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">1. 升阻比估算 · L/D</view>
+    <view class="note">用两架已知巡航 L/D 的锚点标定 (Cf0, k_e)，再估算第三型机。ISA 11–20 km。</view>
+
+    <view class="section cyan">▸ 锚点 1</view>
+    <view class="field">
+      <view class="field-label"><text>机型预设</text></view>
+      <picker mode="selector" range="{{presetNames}}" value="{{a1PresetIndex}}" data-slot="a1" bindchange="onPreset">
+        <view class="picker-val">{{presetNames[a1PresetIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>已知巡航 L/D</text><text class="unit">目标</text></view>
+      <input class="input" type="digit" value="{{a1Ld}}" data-key="a1Ld" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>展弦比 AR</text></view>
+      <input class="input" type="digit" value="{{a1.AR}}" data-slot="a1" data-key="AR" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>前缘后掠角</text><text class="unit">°</text></view>
+      <input class="input" type="digit" value="{{a1.sweep_deg}}" data-slot="a1" data-key="sweep_deg" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>翼载荷</text><text class="unit">t/m²</text></view>
+      <input class="input" type="digit" value="{{a1.wing_loading}}" data-slot="a1" data-key="wing_loading" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>厚弦比 tc</text></view>
+      <input class="input" type="digit" value="{{a1.tc}}" data-slot="a1" data-key="tc" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>马赫数</text></view>
+      <input class="input" type="digit" value="{{a1.mach}}" data-slot="a1" data-key="mach" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>高度</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{a1.alt_m}}" data-slot="a1" data-key="alt_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>翼型</text></view>
+      <picker mode="selector" range="{{planformNames}}" value="{{a1PlanformIndex}}" data-slot="a1" bindchange="onPlanform">
+        <view class="picker-val">{{planformNames[a1PlanformIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>布局</text></view>
+      <picker mode="selector" range="{{layoutNames}}" value="{{a1LayoutIndex}}" data-slot="a1" bindchange="onLayout">
+        <view class="picker-val">{{layoutNames[a1LayoutIndex]}}</view>
+      </picker>
+    </view>
+    <view class="check-row">
+      <label><switch checked="{{a1.bwb}}" data-slot="a1" data-key="bwb" bindchange="onSwitch"/> 翼身融合</label>
+      <label><switch checked="{{a1.rough}}" data-slot="a1" data-key="rough" bindchange="onSwitch"/> 表面不平整</label>
+    </view>
+
+    <view class="section amber">▸ 锚点 2</view>
+    <view class="field">
+      <view class="field-label"><text>机型预设</text></view>
+      <picker mode="selector" range="{{presetNames}}" value="{{a2PresetIndex}}" data-slot="a2" bindchange="onPreset">
+        <view class="picker-val">{{presetNames[a2PresetIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>已知巡航 L/D</text><text class="unit">目标</text></view>
+      <input class="input" type="digit" value="{{a2Ld}}" data-key="a2Ld" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>展弦比 AR</text></view>
+      <input class="input" type="digit" value="{{a2.AR}}" data-slot="a2" data-key="AR" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>前缘后掠角</text><text class="unit">°</text></view>
+      <input class="input" type="digit" value="{{a2.sweep_deg}}" data-slot="a2" data-key="sweep_deg" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>翼载荷</text><text class="unit">t/m²</text></view>
+      <input class="input" type="digit" value="{{a2.wing_loading}}" data-slot="a2" data-key="wing_loading" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>厚弦比 tc</text></view>
+      <input class="input" type="digit" value="{{a2.tc}}" data-slot="a2" data-key="tc" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>马赫数</text></view>
+      <input class="input" type="digit" value="{{a2.mach}}" data-slot="a2" data-key="mach" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>高度</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{a2.alt_m}}" data-slot="a2" data-key="alt_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>翼型</text></view>
+      <picker mode="selector" range="{{planformNames}}" value="{{a2PlanformIndex}}" data-slot="a2" bindchange="onPlanform">
+        <view class="picker-val">{{planformNames[a2PlanformIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>布局</text></view>
+      <picker mode="selector" range="{{layoutNames}}" value="{{a2LayoutIndex}}" data-slot="a2" bindchange="onLayout">
+        <view class="picker-val">{{layoutNames[a2LayoutIndex]}}</view>
+      </picker>
+    </view>
+    <view class="check-row">
+      <label><switch checked="{{a2.bwb}}" data-slot="a2" data-key="bwb" bindchange="onSwitch"/> 翼身融合</label>
+      <label><switch checked="{{a2.rough}}" data-slot="a2" data-key="rough" bindchange="onSwitch"/> 表面不平整</label>
+    </view>
+
+    <view class="section green">▸ 待估机型</view>
+    <view class="field">
+      <view class="field-label"><text>机型预设</text></view>
+      <picker mode="selector" range="{{presetNames}}" value="{{tgtPresetIndex}}" data-slot="tgt" bindchange="onPreset">
+        <view class="picker-val">{{presetNames[tgtPresetIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>展弦比 AR</text></view>
+      <input class="input" type="digit" value="{{tgt.AR}}" data-slot="tgt" data-key="AR" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>前缘后掠角</text><text class="unit">°</text></view>
+      <input class="input" type="digit" value="{{tgt.sweep_deg}}" data-slot="tgt" data-key="sweep_deg" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>翼载荷</text><text class="unit">t/m²</text></view>
+      <input class="input" type="digit" value="{{tgt.wing_loading}}" data-slot="tgt" data-key="wing_loading" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>厚弦比 tc</text></view>
+      <input class="input" type="digit" value="{{tgt.tc}}" data-slot="tgt" data-key="tc" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>马赫数</text></view>
+      <input class="input" type="digit" value="{{tgt.mach}}" data-slot="tgt" data-key="mach" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>高度</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.alt_m}}" data-slot="tgt" data-key="alt_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>翼型</text></view>
+      <picker mode="selector" range="{{planformNames}}" value="{{tgtPlanformIndex}}" data-slot="tgt" bindchange="onPlanform">
+        <view class="picker-val">{{planformNames[tgtPlanformIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>布局</text></view>
+      <picker mode="selector" range="{{layoutNames}}" value="{{tgtLayoutIndex}}" data-slot="tgt" bindchange="onLayout">
+        <view class="picker-val">{{layoutNames[tgtLayoutIndex]}}</view>
+      </picker>
+    </view>
+    <view class="check-row">
+      <label><switch checked="{{tgt.bwb}}" data-slot="tgt" data-key="bwb" bindchange="onSwitch"/> 翼身融合</label>
+      <label><switch checked="{{tgt.rough}}" data-slot="tgt" data-key="rough" bindchange="onSwitch"/> 表面不平整</label>
+    </view>
+
+    <view class="btn" bindtap="onRun">▶ 估算升阻比</view>
+    <view class="note">第 2–4 部分（燃油、任务剖面、作战半径积分）将在后续接入同一终端。</view>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">输出 · OUTPUT</view>
+    <view class="note">{{statusText}}</view>
+    <block wx:if="{{result}}">
+      <view class="stat-row">
+        <view class="stat"><view class="k">待估 L/D</view><view class="v">{{resultLd}}</view><view class="sub">{{result.target.name}}</view></view>
+        <view class="stat"><view class="k">Cf0</view><view class="v amber">{{resultCf0}}</view></view>
+        <view class="stat"><view class="k">k_e</view><view class="v amber">{{resultKe}}</view></view>
+      </view>
+      <view class="tr th">
+        <text class="th">机型</text><text class="th">L/D</text><text class="th">CD0</text><text class="th">CDi</text>
+      </view>
+      <view class="tr" wx:for="{{resultRows}}" wx:key="name">
+        <text class="td {{item.target ? 'target' : ''}}">{{item.name}}</text>
+        <text class="td {{item.target ? 'target' : ''}}">{{item.ld}}</text>
+        <text class="td">{{item.CD0}}</text>
+        <text class="td">{{item.CDi}}</text>
+      </view>
+    </block>
+  </view>
+</view>

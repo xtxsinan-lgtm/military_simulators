@@ -109,7 +109,35 @@ function runMissileInterceptionSimulation(payload) {
   });
 }
 
-/** 将 modes 对象转为 [{id, label}]，供小程序可靠渲染 */
+/** 调用后端作战半径 / 升阻比估算 API */
+function runCombatRadiusSimulation(payload) {
+  const base = config.apiBaseUrl;
+  if (!base) {
+    return Promise.reject(
+      new Error('未配置 apiBaseUrl。请在 config.js 填写后端地址，或运行 python3 apps/miniprogram_api.py')
+    );
+  }
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: `${base}/api/combat_radius/simulate`,
+      method: 'POST',
+      header: { 'content-type': 'application/json' },
+      data: payload,
+      timeout: 60000,
+      success(res) {
+        if (res.statusCode >= 200 && res.statusCode < 300 && res.data) {
+          resolve(res.data);
+        } else {
+          const msg = (res.data && res.data.error) || `作战半径请求失败 (${res.statusCode})`;
+          reject(new Error(msg));
+        }
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '作战半径网络请求失败'));
+      },
+    });
+  });
+}
 function modesToList(modes) {
   const src = modes || {};
   return Object.keys(src).map((id) => ({ id, label: src[id] }));
@@ -120,5 +148,6 @@ module.exports = {
   loadSimulatorData,
   runSimulation,
   runMissileInterceptionSimulation,
+  runCombatRadiusSimulation,
   modesToList,
 };

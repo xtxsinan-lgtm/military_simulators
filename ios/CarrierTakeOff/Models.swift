@@ -12,6 +12,8 @@ struct CatalogPayload: Codable {
     var missile_interception_presets: MissileInterceptionPresets?
     var takeoff_config: TakeoffConfigPayload?
     var missile_interception_config: MissileInterceptionConfigPayload?
+    var combat_radius_presets: [CombatRadiusPresetItem]?
+    var combat_radius_config: CombatRadiusConfigPayload?
 }
 
 struct TakeoffConfigPayload: Codable {
@@ -62,6 +64,66 @@ struct SimulatorEntry: Codable, Identifiable, Hashable {
     var html: String?
     var miniprogram_page: String?
     var ios_route: String?
+}
+
+/// 作战半径配置
+struct CombatRadiusConfigPayload: Codable {
+    var version: Int?
+    var ui: CombatRadiusUiDefaults?
+    var planform_labels: [String: String]?
+    var layout_labels: [String: String]?
+}
+
+struct CombatRadiusUiDefaults: Codable {
+    var default_anchor1_id: String?
+    var default_anchor2_id: String?
+    var default_target_id: String?
+    var default_ld1: Double?
+    var default_ld2: Double?
+}
+
+/// 作战半径机型几何预设
+struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
+    var id: String
+    var name: String
+    var nation: String?
+    var AR: Double
+    var sweep_deg: Double
+    var wing_loading: Double
+    var tc: Double
+    var mach: Double
+    var alt_m: Double
+    var planform: String
+    var layout: String
+    var bwb: Bool
+    var rough: Bool
+    var ld_known: Double?
+    var notes: String?
+}
+
+/// 作战半径 / 升阻比估算结果
+struct CombatRadiusResult: Codable {
+    var success: Bool
+    var error: String?
+    var Cf0: Double?
+    var k_e: Double?
+    var kappa_A: Double?
+    var anchors: [CombatRadiusRow]?
+    var target: CombatRadiusRow?
+}
+
+struct CombatRadiusRow: Codable, Identifiable, Hashable {
+    var name: String
+    var ld: Double
+    var CL: Double?
+    var e_used: Double?
+    var CD0: Double?
+    var CDi: Double?
+    var CDw: Double?
+    var CD: Double?
+    var target_ld: Double?
+    var error: Double?
+    var id: String { name }
 }
 
 /// 饱和打击四类预设

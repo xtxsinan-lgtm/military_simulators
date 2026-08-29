@@ -2,7 +2,8 @@
   "pages": [
     "pages/home/home",
     "pages/index/index",
-    "pages/missile_interception/missile_interception"
+    "pages/missile_interception/missile_interception",
+    "pages/combat_radius/combat_radius"
   ],
   "window": {
     "navigationBarTitleText": "舰载作战仿真",
@@ -35,6 +36,12 @@
         "text": "饱和打击",
         "iconPath": "assets/tab-missile-interception.png",
         "selectedIconPath": "assets/tab-missile-interception-active.png"
+      },
+      {
+        "pagePath": "pages/combat_radius/combat_radius",
+        "text": "作战半径",
+        "iconPath": "assets/tab-combat-radius.png",
+        "selectedIconPath": "assets/tab-combat-radius-active.png"
       }
     ]
   },

@@ -92,6 +92,32 @@ final class LocalSimulatorEngine: NSObject, WKScriptMessageHandler {
         return try JSONDecoder().decode(MissileInterceptionResult.self, from: data)
     }
 
+    /// 在本地 Pyodide 中运行作战半径 / 升阻比估算
+    func runCombatRadius(payload: [String: Any]) async throws -> CombatRadiusResult {
+        try await prepare()
+        guard let webView else {
+            throw NSError(
+                domain: "LocalSimulatorEngine",
+                code: 2,
+                userInfo: [NSLocalizedDescriptionKey: "仿真引擎 WebView 未初始化"]
+            )
+        }
+        let result = try await webView.callAsyncJavaScript(
+            "return await window.__combatRadiusSim.run(payload);",
+            arguments: ["payload": payload],
+            contentWorld: .page
+        )
+        guard let obj = result else {
+            throw NSError(
+                domain: "LocalSimulatorEngine",
+                code: 4,
+                userInfo: [NSLocalizedDescriptionKey: "作战半径估算无返回"]
+            )
+        }
+        let data = try JSONSerialization.data(withJSONObject: obj)
+        return try JSONDecoder().decode(CombatRadiusResult.self, from: data)
+    }
+
     nonisolated func userContentController(
         _ userContentController: WKUserContentController,
         didReceive message: WKScriptMessage

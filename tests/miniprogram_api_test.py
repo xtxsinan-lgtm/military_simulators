@@ -16,6 +16,8 @@ def test_get_api_data_returns_aircraft_and_carriers():
     assert data['modes']['ski_jump'] == '滑跃起飞'
     assert 'missile_interception_presets' in data
     assert 'asm' in data['missile_interception_presets']
+    assert 'combat_radius_presets' in data
+    assert any(p['id'] == 'J-20' for p in data['combat_radius_presets'])
 
 
 def test_post_missile_interception_simulate_success():
@@ -35,6 +37,31 @@ def test_post_missile_interception_simulate_success():
     assert result['success'] is True
     assert result['n_rounds'] >= 1
     assert 'best' in result
+
+
+def test_post_combat_radius_simulate_success():
+    """作战半径 API 返回标定系数与待估 L/D。"""
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
+
+    presets = load_presets()
+    payload = {
+        'action': 'predict_ld',
+        'params': {
+            'anchor1': get_preset_by_id(presets, 'F-35C'),
+            'ld1_target': 8.8,
+            'anchor2': get_preset_by_id(presets, 'F-22'),
+            'ld2_target': 8.0,
+            'target': get_preset_by_id(presets, 'J-20'),
+        },
+    }
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    result = json.loads(body.decode())
+    assert result['success'] is True
+    assert result['Cf0'] > 0
+    assert 7.0 < result['target']['ld'] < 10.0
 
 
 def test_options_returns_cors():

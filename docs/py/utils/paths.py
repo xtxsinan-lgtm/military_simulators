@@ -13,4 +13,6 @@ MISSILE_INTERCEPTION_RADAR_CSV = DATA_DIR / 'missile_interception_radar_database
 BASELINE_JSON = DATA_DIR / 'baseline_before.json'
 TAKEOFF_CONFIG_JSON = DATA_DIR / 'takeoff_config.json'
 MISSILE_INTERCEPTION_CONFIG_JSON = DATA_DIR / 'missile_interception_config.json'
+COMBAT_RADIUS_AIRCRAFT_CSV = DATA_DIR / 'combat_radius_aircraft.csv'
+COMBAT_RADIUS_CONFIG_JSON = DATA_DIR / 'combat_radius_config.json'
 SURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'

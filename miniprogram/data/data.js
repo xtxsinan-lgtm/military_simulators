@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 22,
+  "version": 23,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -40,6 +40,15 @@ module.exports = {
       "html": "missile-interception-strike.html",
       "miniprogram_page": "/pages/missile_interception/missile_interception",
       "ios_route": "missile_interception"
+    },
+    {
+      "id": "combat_radius",
+      "name": "飞机作战半径估算",
+      "eyebrow": "COMBAT RADIUS",
+      "subtitle": "几何参数标定升阻比 · 后续接入燃油与任务剖面",
+      "html": "combat-radius.html",
+      "miniprogram_page": "/pages/combat_radius/combat_radius",
+      "ios_route": "combat_radius"
     }
   ],
   "aircraft": [
@@ -1751,6 +1760,80 @@ module.exports = {
       "vi": 3.8,
       "interceptor_dia": 0.35,
       "seeker_type": "active_aesa"
+    }
+  },
+  "combat_radius_presets": [
+    {
+      "id": "F-35C",
+      "name": "F-35C Lightning II",
+      "nation": "美国",
+      "AR": 2.77,
+      "sweep_deg": 30.9,
+      "wing_loading": 0.341,
+      "tc": 0.051,
+      "mach": 0.8,
+      "alt_m": 11300.0,
+      "planform": "trapezoidal",
+      "layout": "conventional",
+      "bwb": false,
+      "rough": true,
+      "ld_known": 8.8,
+      "notes": "舰载型；表面不平整（锯齿/口盖）作为独立开关"
+    },
+    {
+      "id": "F-22",
+      "name": "F-22 Raptor",
+      "nation": "美国",
+      "AR": 2.37,
+      "sweep_deg": 41.3,
+      "wing_loading": 0.318,
+      "tc": 0.052,
+      "mach": 0.8,
+      "alt_m": 11800.0,
+      "planform": "trapezoidal",
+      "layout": "conventional",
+      "bwb": false,
+      "rough": false,
+      "ld_known": 8.0,
+      "notes": "常规布局梯形翼；BWB 与表面不平整均关闭"
+    },
+    {
+      "id": "J-20",
+      "name": "歼-20",
+      "nation": "中国",
+      "AR": 2.32,
+      "sweep_deg": 46.3,
+      "wing_loading": 0.329,
+      "tc": 0.043,
+      "mach": 0.8,
+      "alt_m": 12000.0,
+      "planform": "delta",
+      "layout": "canard",
+      "bwb": false,
+      "rough": false,
+      "notes": "鸭式三角翼；待估机型，无公开巡航 L/D 锚点"
+    }
+  ],
+  "combat_radius_config": {
+    "version": 1,
+    "ui": {
+      "default_anchor1_id": "F-35C",
+      "default_anchor2_id": "F-22",
+      "default_target_id": "J-20",
+      "default_ld1": 8.8,
+      "default_ld2": 8.0
+    },
+    "planform_labels": {
+      "trapezoidal": "梯形翼",
+      "swept": "后掠翼",
+      "delta": "三角翼",
+      "diamond": "钻石翼",
+      "unswept": "平直翼"
+    },
+    "layout_labels": {
+      "conventional": "常规",
+      "canard": "鸭翼",
+      "tailless": "无尾"
     }
   }
 };
