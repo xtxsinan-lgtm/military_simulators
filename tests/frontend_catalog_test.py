@@ -40,6 +40,7 @@ def test_build_catalog_payload_modes():
     assert 'combat_radius_presets' in payload
     assert 'combat_radius_engine_presets' in payload
     assert 'combat_radius_config' in payload
+    assert 'combat_radius_results' in payload
     assert payload['combat_radius_config']['mission_fuel']['carrier_reserve_min'] == 40
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-50' for p in payload['combat_radius_presets'])
@@ -105,16 +106,15 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'combat_radius.js' in html
     assert 'index.html' in html
     assert 'run_combat_radius_json' in js_text
-    assert 'estimate_thrust' in js_text
+    assert 'aircraft_dashboard' in js_text
+    assert 'search_best_cruise' in js_text
+    assert 'estimate_engine_cycle' in js_text
     assert 'estimate_efficiency' in js_text
-    assert 'estimate_radius' in js_text
-    assert 'estimate_max_speed' in js_text
     assert 'engine_efficiency.py' in js_text
-    assert '估算可用军推' in html
-    assert '估算负载与 TSFC' in html
-    assert '估算作战半径' in html
-    assert '估算最大速度' in html
-    assert 'engMaxTsl' in html
+    assert '搜索最佳升阻比和巡航高度' in html
+    assert '混合作战半径' in html
+    assert '选择战机' in html
+    assert '锚点' not in html
     assert 'combat-radius.html' in takeoff.read_text(encoding='utf-8')
     assert 'combat-radius.html' in sat.read_text(encoding='utf-8')
     ver_js = re.search(r'const APP_VERSION\s*=\s*(\d+)', js_text)

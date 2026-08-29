@@ -23,6 +23,10 @@ from utils.missile_interception.missile_interception_radar import (
     estimate_pk,
 )
 from utils.missile_interception.missile_interception_windows import compute_windows
+from utils.missile_interception.missile_interception_display import (
+    annotate_strategy_candidates,
+    build_plan_rows,
+)
 
 # 海平面标准声速（m/s）
 MACH_MPS = float(physics_config()['mach_mps'])
@@ -87,6 +91,7 @@ def run_missile_interception_strike(
             'best': {'name': '', 'plan': []},
             'avg_survivors': [float(nm)],
             'all_candidates': [],
+            'plan_rows': [],
             'final_trials': final_trials,
             'note': (
                 '当前参数下无法形成有效拦截窗口：来袭导弹将在完成一次火控锁定前突破最小交战距离。'
@@ -111,12 +116,21 @@ def run_missile_interception_strike(
         f'搜索方法：先评估均分/前重/后重/中段集中等候选方案，再以相邻轮次间转移一枚弹药的方式做局部爬山，'
         f'直至无法进一步降低期望突防数。'
     )
+    avg_survivors = opt['final_res']['avg_survivors']
+    plan = list(best.get('plan') or [])
+    annotated = annotate_strategy_candidates(
+        opt['all_candidates'],
+        expected_leak,
+        str(best.get('name') or ''),
+        plan,
+    )
     base.update({
         'expected_leak': expected_leak,
         'intercept_rate': intercept_rate,
         'best': best,
-        'avg_survivors': opt['final_res']['avg_survivors'],
-        'all_candidates': opt['all_candidates'],
+        'avg_survivors': avg_survivors,
+        'all_candidates': annotated,
+        'plan_rows': build_plan_rows(plan, avg_survivors, pk),
         'final_trials': opt['final_trials'],
         'note': note,
     })

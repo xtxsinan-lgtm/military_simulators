@@ -35,6 +35,11 @@ final class SimulatorViewModel: ObservableObject {
     @Published var outputText: String = "选择参数后点击「开始仿真」，结果将显示在此处。"
     @Published var outputEmpty: Bool = true
     @Published var outputSummary: String = ""
+    @Published var highlights: [ResultHighlight] = []
+    @Published var resultStale: Bool = false
+    @Published var outputDetailsOpen: Bool = true
+    @Published var massRangeHint: String = ""
+    @Published var massError: String = ""
     @Published var running: Bool = false
     @Published var showTrajectory: Bool = false
     @Published var chartResult: SimulationResult?
@@ -45,6 +50,7 @@ final class SimulatorViewModel: ObservableObject {
     private var tiltrotorStrategies: [String: String] = [:]
     private var windUserEdited = false
     private var massUserEdited = false
+    private var resultFresh = false
 
     var selectedCarrier: Carrier? {
         carriers.first { $0.id == selectedCarrierId }
@@ -113,6 +119,7 @@ final class SimulatorViewModel: ObservableObject {
         showTrajectory = false
         chartResult = nil
         refreshSelections()
+        markResultsStale()
     }
 
     func refreshSelections() {
@@ -131,6 +138,7 @@ final class SimulatorViewModel: ObservableObject {
             ? cfg?.tiltrotor_strategy_descriptions
             : cfg?.stovl_strategy_descriptions
         strategyDescription = descs?[currentStrategy] ?? ""
+        markResultsStale()
     }
 
     func updateSkiJumpFromInputs() {
@@ -231,22 +239,68 @@ final class SimulatorViewModel: ObservableObject {
         if !massUserEdited {
             massKg = String(Int(round(Physics.a2aMassKg(ac))))
         }
+        refreshMassHint()
     }
 
     func onCarrierPicked(_ id: String) {
         windUserEdited = false
         selectedCarrierId = id
         updateCarrierInfo()
+        markResultsStale()
     }
 
     func onAircraftPicked(_ id: String) {
         massUserEdited = false
         selectedAircraftId = id
         updateAircraftInfo()
+        markResultsStale()
     }
 
-    func markWindEdited() { windUserEdited = true }
-    func markMassEdited() { massUserEdited = true }
+    func markWindEdited() {
+        windUserEdited = true
+        markResultsStale()
+    }
+
+    func markMassEdited() {
+        massUserEdited = true
+        refreshMassHint()
+        markResultsStale()
+    }
+
+    func markResultsStale() {
+        guard resultFresh else { return }
+        resultFresh = false
+        resultStale = true
+        setStatus("参数已更改 — 结果已过期，请重新仿真", .stale)
+    }
+
+    /// 与 Python validate_takeoff_mass 对齐
+    func validateTakeoffMass(_ mass: Double, mtow: Double, empty: Double) -> String {
+        if mass <= 0 { return "起飞重量必须为正数" }
+        if mass > mtow + 1e-6 {
+            return "起飞重量 \(Int(mass.rounded())) kg 超出最大起飞重量 \(Int(mtow.rounded())) kg"
+        }
+        if mass + 1e-6 < empty {
+            return "起飞重量 \(Int(mass.rounded())) kg 低于空重 \(Int(empty.rounded())) kg"
+        }
+        return ""
+    }
+
+    func refreshMassHint() {
+        guard let ac = selectedAircraft else {
+            massRangeHint = ""
+            massError = ""
+            return
+        }
+        massRangeHint = "范围：空重 \(Int(ac.empty_kg.rounded())) – MTOW \(Int(ac.mtow_kg.rounded())) kg"
+        if let mass = Double(massKg) {
+            massError = validateTakeoffMass(mass, mtow: ac.mtow_kg, empty: ac.empty_kg)
+        } else if massKg.isEmpty {
+            massError = ""
+        } else {
+            massError = "请填写有效的起飞重量"
+        }
+    }
 
     func runSimulation() async {
         guard let carrier = selectedCarrier, let aircraft = selectedAircraft else {
@@ -257,11 +311,19 @@ final class SimulatorViewModel: ObservableObject {
             setStatus("请填写有效的重量、温度和甲板风", .error)
             return
         }
+        refreshMassHint()
+        if !massError.isEmpty {
+            setStatus(massError, .error)
+            return
+        }
 
         running = true
         outputEmpty = false
         outputText = "计算中…"
         outputSummary = ""
+        highlights = []
+        resultStale = false
+        outputDetailsOpen = true
         showTrajectory = false
         chartResult = nil
         setStatus("仿真计算中（可能需要数秒至数十秒）…", .loading)
@@ -301,6 +363,10 @@ final class SimulatorViewModel: ObservableObject {
 
             if result.success {
                 outputSummary = Self.formatOutputSummary(result)
+                highlights = result.highlights ?? []
+                resultStale = false
+                resultFresh = true
+                outputDetailsOpen = false
                 let trajNote = showTraj ? " · 轨迹 \(traj?.count ?? 0) 点" : ""
                 let missing =
                     Physics.modeHasTrajectory(currentMode) && !showTraj ? " · 未返回轨迹数据" : ""
@@ -311,6 +377,9 @@ final class SimulatorViewModel: ObservableObject {
                 }
             } else {
                 outputSummary = ""
+                highlights = []
+                resultFresh = false
+                outputDetailsOpen = true
                 setStatus(result.error ?? "仿真失败", .error)
             }
         } catch {

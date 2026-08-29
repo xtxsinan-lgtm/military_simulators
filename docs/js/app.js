@@ -13,13 +13,15 @@ import {
 
 const PYODIDE_VERSION = '0.26.4';
 /** 与 takeoff.html 中 app.js?v= 及 data.json?v= 同步递增，避免 CDN/浏览器缓存旧资源 */
-const APP_VERSION = 24;
+const APP_VERSION = 25;
 let data = null;
 let pyodide = null;
 let pyReady = false;
 let currentMode = 'ski_jump';
 let currentStrategy = 'A';
 let skiGeom = null;
+/** 当前输出是否对应当前参数（改条件后置为过期） */
+let resultFresh = false;
 
 const els = {};
 
@@ -107,6 +109,81 @@ function formatOutputSummary(result) {
 function setOutputSummary(text) {
   if (!els.outputSummary) return;
   els.outputSummary.textContent = text || '';
+}
+
+/** 与 Python validate_takeoff_mass 对齐的即时校验。 */
+function validateTakeoffMass(massKg, mtowKg, emptyKg) {
+  const mass = Number(massKg);
+  if (!Number.isFinite(mass)) return '请填写有效的起飞重量';
+  if (mass <= 0) return '起飞重量必须为正数';
+  if (Number.isFinite(mtowKg) && mass > mtowKg + 1e-6) {
+    return `起飞重量 ${Math.round(mass)} kg 超出最大起飞重量 ${Math.round(mtowKg)} kg`;
+  }
+  if (Number.isFinite(emptyKg) && mass + 1e-6 < emptyKg) {
+    return `起飞重量 ${Math.round(mass)} kg 低于空重 ${Math.round(emptyKg)} kg`;
+  }
+  return '';
+}
+
+function refreshMassHint() {
+  const ac = getSelectedAircraft();
+  if (els.massRangeHint) {
+    if (ac) {
+      els.massRangeHint.textContent =
+        `范围：空重 ${Math.round(ac.empty_kg)} – MTOW ${Math.round(ac.mtow_kg)} kg`;
+    } else {
+      els.massRangeHint.textContent = '';
+    }
+  }
+  const err = ac
+    ? validateTakeoffMass(parseFloat(els.massInput.value), ac.mtow_kg, ac.empty_kg)
+    : '';
+  if (els.massError) {
+    els.massError.textContent = err;
+    els.massError.classList.toggle('hidden', !err);
+  }
+  if (els.massInput) els.massInput.classList.toggle('invalid', Boolean(err));
+  return err;
+}
+
+function markResultsStale() {
+  if (!resultFresh) return;
+  resultFresh = false;
+  if (els.staleBanner) els.staleBanner.classList.remove('hidden');
+  if (els.outputCard) els.outputCard.classList.add('stale');
+  setStatus('参数已更改 — 结果已过期，请重新仿真', '');
+}
+
+function clearResultsStale() {
+  resultFresh = true;
+  if (els.staleBanner) els.staleBanner.classList.add('hidden');
+  if (els.outputCard) els.outputCard.classList.remove('stale');
+}
+
+function renderHighlights(cards) {
+  if (!els.highlights) return;
+  if (!cards || !cards.length) {
+    els.highlights.classList.add('hidden');
+    els.highlights.innerHTML = '';
+    return;
+  }
+  els.highlights.classList.remove('hidden');
+  els.highlights.innerHTML = cards
+    .map(
+      (c) => `<div class="stat"><div class="k">${c.label}</div><div class="v ${c.tone || ''}">${c.value}</div></div>`
+    )
+    .join('');
+}
+
+function setupBackToTop() {
+  const btn = els.backToTop;
+  if (!btn) return;
+  const onScroll = () => {
+    btn.hidden = window.scrollY < 360;
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  onScroll();
 }
 
 function modeNeedsSkiJump(mode) {
@@ -327,6 +404,7 @@ function updateAircraftInfo() {
   if (!els.massInput.dataset.userEdited) {
     els.massInput.value = Math.round(a2aMassKg(ac));
   }
+  refreshMassHint();
 }
 
 async function initPyodide() {
@@ -560,6 +638,11 @@ async function runSimulation() {
     setStatus('请填写有效的重量、温度和甲板风', 'error');
     return;
   }
+  const massErr = refreshMassHint();
+  if (massErr) {
+    setStatus(massErr, 'error');
+    return;
+  }
 
   try {
     if (!pyReady) await initPyodide();
@@ -608,6 +691,9 @@ json.dumps(run_simulation_json(_payload_json), ensure_ascii=False)
     if (result.success) {
       drawTrajectory(result);
       setOutputSummary(formatOutputSummary(result));
+      renderHighlights(result.highlights);
+      clearResultsStale();
+      if (els.outputDetails) els.outputDetails.open = false;
       const trajNote =
         modeHasTrajectory(currentMode) && result.trajectory?.length
           ? ` · 轨迹 ${result.trajectory.length} 点`
@@ -619,12 +705,19 @@ json.dumps(run_simulation_json(_payload_json), ensure_ascii=False)
     } else {
       hideTrajectory();
       setOutputSummary('');
+      renderHighlights([]);
+      resultFresh = false;
+      if (els.staleBanner) els.staleBanner.classList.add('hidden');
+      if (els.outputCard) els.outputCard.classList.remove('stale');
+      if (els.outputDetails) els.outputDetails.open = true;
       setStatus(result.error || '仿真失败', 'error');
     }
   } catch (e) {
     hideTrajectory();
     els.output.textContent = String(e);
     setOutputSummary('');
+    renderHighlights([]);
+    resultFresh = false;
     setStatus(`仿真出错: ${e.message}`, 'error');
   } finally {
     els.runBtn.disabled = false;
@@ -642,33 +735,47 @@ function bindEvents() {
     populateAircraft();
     els.massInput.dataset.userEdited = '';
     els.windInput.dataset.userEdited = '';
+    markResultsStale();
   });
 
   els.strategyBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       currentStrategy = btn.dataset.strategy;
       refreshStrategySection();
+      markResultsStale();
     });
   });
 
   els.carrierSelect.addEventListener('change', () => {
     els.windInput.dataset.userEdited = '';
     updateCarrierInfo();
+    markResultsStale();
   });
 
   els.aircraftSelect.addEventListener('change', () => {
     els.massInput.dataset.userEdited = '';
     updateAircraftInfo();
+    markResultsStale();
   });
 
-  els.skiAngle.addEventListener('input', updateSkiJumpFromInputs);
-  els.skiArcLength.addEventListener('input', updateSkiJumpFromInputs);
+  els.skiAngle.addEventListener('input', () => {
+    updateSkiJumpFromInputs();
+    markResultsStale();
+  });
+  els.skiArcLength.addEventListener('input', () => {
+    updateSkiJumpFromInputs();
+    markResultsStale();
+  });
 
   els.windInput.addEventListener('input', () => {
     els.windInput.dataset.userEdited = '1';
+    markResultsStale();
   });
+  els.tempInput.addEventListener('input', markResultsStale);
   els.massInput.addEventListener('input', () => {
     els.massInput.dataset.userEdited = '1';
+    refreshMassHint();
+    markResultsStale();
   });
 
   els.runBtn.addEventListener('click', runSimulation);
@@ -711,6 +818,13 @@ async function main() {
   els.preloadBtn = $('preloadBtn');
   els.output = $('output');
   els.outputSummary = $('outputSummary');
+  els.outputDetails = $('outputDetails');
+  els.outputCard = $('outputCard');
+  els.staleBanner = $('staleBanner');
+  els.highlights = $('highlights');
+  els.massRangeHint = $('massRangeHint');
+  els.massError = $('massError');
+  els.backToTop = $('backToTop');
   els.status = $('status');
   els.trajectorySection = $('trajectorySection');
   els.trajectoryCanvas = $('trajectoryCanvas');
@@ -729,6 +843,8 @@ async function main() {
   populateCarriers();
   populateAircraft();
   bindEvents();
+  setupBackToTop();
+  refreshMassHint();
 
   applyTakeoffUiDefaults();
   setStatus('页面已加载。点击「预加载引擎」或「开始仿真」时将加载 Python 引擎。', '');

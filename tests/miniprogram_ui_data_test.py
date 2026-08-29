@@ -77,14 +77,11 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '/api/combat_radius/simulate' in api_js
     cr_js = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
     cr_wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
-    assert 'onRunThrust' in cr_js
-    assert 'estimate_thrust' in cr_js
-    assert 'onRunEfficiency' in cr_js
-    assert 'estimate_efficiency' in cr_js
-    assert 'onRunRadius' in cr_js
-    assert 'estimate_radius' in cr_js
-    assert '估算可用军推' in cr_wxml
-    assert '估算负载与 TSFC' in cr_wxml
-    assert '估算作战半径' in cr_wxml
+    assert 'onRunSearchCruise' in cr_js
+    assert 'search_best_cruise' in cr_js
+    assert 'aircraft_dashboard' in cr_js
+    assert 'estimate_engine_cycle' in cr_js
+    assert '搜索最佳升阻比和巡航高度' in cr_wxml
+    assert '混合作战半径' in cr_wxml
+    assert '锚点' not in cr_wxml
     assert 'mach_angle_deg' in cr_js
-    assert '马赫角' in cr_wxml

@@ -28,6 +28,8 @@ def test_e2e_ski_jump_trajectory(aircraft, carriers):
     assert result['distance_m'] == pytest.approx(85.6, rel=0.02)
     assert '起飞' in result['output_summary']
     assert '余量' in result['output_summary'] or '超出' in result['output_summary']
+    assert result['highlights']
+    assert any(c['key'] == 'distance' for c in result['highlights'])
 
     traj = result['trajectory']
     deck = result['deck_profile']

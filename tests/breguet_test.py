@@ -8,11 +8,13 @@ import pytest
 from utils.combat_radius.breguet import (
     G0,
     average_fuel_kg_per_km,
+    breguet_range_factor,
     breguet_range_m,
     combat_radius_m,
     instantaneous_fuel_kg_per_km,
     landing_reserve_fuel_kg,
     mission_fuel_budget,
+    mixed_combat_radius_m,
     reserve_loiter_km,
 )
 
@@ -166,3 +168,41 @@ def test_mission_fuel_budget_usable_and_masses():
             reserve_min=30, cruise_kph=850, climb_extra_km=120, descent_save_km=-1,
             v_mps=v, tsfc_kg_n_s=tsfc, ld=ld,
         )
+
+
+def test_breguet_range_factor_matches_range_over_ln():
+    v, tsfc, ld, wi, wf = 240.0, 2.5e-5, 8.0, 28000.0, 20000.0
+    k = breguet_range_factor(v, tsfc, ld)
+    assert k * math.log(wi / wf) == pytest.approx(breguet_range_m(v, tsfc, ld, wi, wf))
+    with pytest.raises(ValueError, match='巡航速度'):
+        breguet_range_factor(0, tsfc, ld)
+    with pytest.raises(ValueError, match='TSFC'):
+        breguet_range_factor(v, 0, ld)
+    with pytest.raises(ValueError, match='升阻比'):
+        breguet_range_factor(v, tsfc, 0)
+    with pytest.raises(ValueError, match='重力'):
+        breguet_range_factor(v, tsfc, ld, g0=0)
+
+
+def test_mixed_combat_radius_equals_symmetric_when_k_equal():
+    """去程返程 k 相同时，混合作战半径等于对称布雷盖半径。"""
+    v, tsfc, ld, wi, wf = 240.0, 2.5e-5, 8.0, 28000.0, 20000.0
+    mixed = mixed_combat_radius_m(v, tsfc, ld, v, tsfc, ld, wi, wf)
+    assert mixed == pytest.approx(combat_radius_m(v, tsfc, ld, wi, wf))
+
+
+def test_mixed_combat_radius_between_two_legs():
+    """超音速去程油耗更高时，混合半径应介于两段对称半径之间。"""
+    wi, wf = 28000.0, 20000.0
+    r_sub = combat_radius_m(240.0, 2.5e-5, 8.0, wi, wf)
+    r_sup = combat_radius_m(500.0, 5.0e-5, 5.0, wi, wf)
+    mixed = mixed_combat_radius_m(500.0, 5.0e-5, 5.0, 240.0, 2.5e-5, 8.0, wi, wf)
+    lo, hi = sorted((r_sub, r_sup))
+    assert lo < mixed < hi
+
+
+def test_mixed_combat_radius_rejects_bad_mass():
+    with pytest.raises(ValueError, match='起飞质量'):
+        mixed_combat_radius_m(240, 2.5e-5, 8, 240, 2.5e-5, 8, 1000, 1000)
+    with pytest.raises(ValueError, match='终了质量'):
+        mixed_combat_radius_m(240, 2.5e-5, 8, 240, 2.5e-5, 8, 2000, 0)

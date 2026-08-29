@@ -7,7 +7,7 @@ import pytest
 
 from apps.combat_radius_web import run_combat_radius_json
 from apps.miniprogram_api import handle_request
-from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
+from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.paths import ROOT
 
 
@@ -121,7 +121,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     """F-22 + F119 在 Ma 0.8 应给出正的作战半径；Ma 1.5 军推下可以不可行。"""
     r = run_combat_radius_json({'action': 'estimate_radius', 'params': _radius_params()})
     assert r['success'] is True
-    assert len(r['points']) == 4
+    assert len(r['points']) == 5
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     assert m08['feasible'] is True
     assert m08['radius_km'] > 200
@@ -236,26 +236,20 @@ def test_e2e_combat_radius_three_channels_exist():
     html_text = html.read_text(encoding='utf-8')
     js_text = js.read_text(encoding='utf-8')
     assert 'run_combat_radius_json' in js_text
-    assert 'estimate_thrust' in js_text
+    assert 'aircraft_dashboard' in js_text
     assert 'combat_radius.js' in html_text
     wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in wxml
-    assert '估算可用军推' in wxml
-    assert '估算负载与 TSFC' in wxml
-    assert '估算作战半径' in wxml
-    assert 'estimate_efficiency' in js_text
-    assert 'estimate_radius' in js_text
+    assert '搜索最佳升阻比和巡航高度' in wxml
+    assert '混合作战半径' in wxml
+    assert '锚点' not in wxml
+    assert 'search_best_cruise' in js_text
+    assert 'estimate_engine_cycle' in js_text
     ios = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusView.swift').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in ios
-    assert '估算可用军推' in ios
-    assert '估算负载与 TSFC' in ios
-    assert '估算作战半径' in ios
-    assert '马赫角' in html_text
-    assert '马赫角' in wxml
-    assert '马赫角' in ios
-    assert 'runThrust' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
-    assert 'runEfficiency' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
-    assert 'runRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
+    assert '搜索最佳升阻比和巡航高度' in ios
+    assert '混合作战半径' in ios
+    assert '锚点' not in ios
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')
     assert 'engine_id' in js_text
     assert 'engine_id' in (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
@@ -345,3 +339,75 @@ def test_e2e_combat_radius_f22_max_speed_uses_ab_thrust():
     assert r['max_speed_mach'] > 1.0
     assert r['max_speed_kmh'] > 1200
     assert 'profile' in r
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
+    """预计算快照须覆盖全部机型，且 F-22 与现场计算一致。"""
+    from utils.combat_radius.combat_radius_results import (
+        load_combat_radius_results,
+        run_preset_dashboard,
+    )
+
+    stored = load_combat_radius_results()
+    assert stored.get('version', 0) >= 1
+    fleet_ids = {p['id'] for p in load_presets()}
+    assert set(stored.get('aircraft', {})) == fleet_ids
+    f22 = stored['aircraft']['F-22']
+    assert f22['success'] is True
+    live = run_preset_dashboard('F-22')
+    assert live['success'] is True
+    live_m08 = next(p for p in live['points'] if p['id'] == 'mach_0_8')
+    stored_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
+    assert live_m08['radius_km'] == pytest.approx(stored_m08['radius_km'], rel=1e-4, abs=0.05)
+    assert live['max_cruise_mach'] == pytest.approx(f22['max_cruise_mach'], rel=1e-4, abs=1e-4)
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_dashboard_http_and_mixed():
+    """仪表盘 HTTP 与混合作战半径（超音速点）须走通。"""
+    p = _radius_params()
+    p['max_tsl_kN'] = 156.0
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate',
+        json.dumps({'action': 'aircraft_dashboard', 'params': p}).encode(),
+    )
+    assert status == 200
+    result = json.loads(body.decode())
+    assert result['success'] is True
+    assert 'max_speed' in result
+    assert any(pt['id'] == 'mach_2_0' for pt in result['points'])
+    m08 = next(pt for pt in result['points'] if pt['id'] == 'mach_0_8')
+    assert m08.get('mixed_radius_km') in (None, 0) or m08['mixed_radius_km'] is None
+    supers = [pt for pt in result['points'] if pt.get('feasible') and (pt.get('mach') or 0) > 1]
+    if supers:
+        assert any(pt.get('mixed_radius_km') for pt in supers)
+
+
+@pytest.mark.e2e
+def test_e2e_search_best_cruise_and_engine_cycle_http():
+    p = _efficiency_params()
+    p['mach'] = 0.8
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate',
+        json.dumps({'action': 'search_best_cruise', 'params': p}).encode(),
+    )
+    assert status == 200
+    result = json.loads(body.decode())
+    assert result['success'] is True
+    assert result['feasible'] is True
+    assert result['ld'] > 0
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate',
+        json.dumps({
+            'action': 'estimate_engine_cycle',
+            'params': {
+                'bpr': 0.30, 'opr': 26.0, 't4_K': 1922,
+                'mach': 0.8, 'alt_m': 12000, 'load': 0.45,
+            },
+        }).encode(),
+    )
+    assert status == 200
+    cycle = json.loads(body.decode())
+    assert cycle['success'] is True
+    assert cycle['eta_o'] > 0

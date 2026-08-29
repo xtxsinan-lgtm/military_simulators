@@ -34,6 +34,10 @@ def test_run_missile_interception_strike_fast():
     assert 'best' in r
     assert 'windows' in r
     assert len(r['avg_survivors']) == r['n_rounds'] + 1
+    assert r['plan_rows']
+    assert all(row['kill_prob'] > 0 for row in r['plan_rows'])
+    assert r['all_candidates']
+    assert any(c.get('relative_label') == '最优' for c in r['all_candidates'])
 
 
 def test_run_missile_interception_strike_no_windows():

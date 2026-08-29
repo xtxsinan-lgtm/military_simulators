@@ -29,6 +29,8 @@ def test_e2e_missile_interception_default_params():
     assert sum(result['best']['plan']) == 16
     assert 0 < result['expected_leak'] < 24
     assert len(result['all_candidates']) >= 4
+    assert result['plan_rows']
+    assert result['plan_rows'][0]['kill_prob'] > 0
     assert result['final_trials'] == 6000
     assert '期望突防' in result['note'] or '突防' in result['note']
 

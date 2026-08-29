@@ -66,4 +66,6 @@ def build_missile_interception_config_payload() -> dict[str, Any]:
         'ui': dict(cfg['ui']),
         'simulation': dict(cfg['simulation']),
         'estimate_defaults': dict(cfg['estimate_defaults']),
+        'field_hints': dict(cfg.get('field_hints', {})),
+        'field_ranges': dict(cfg.get('field_ranges', {})),
     }

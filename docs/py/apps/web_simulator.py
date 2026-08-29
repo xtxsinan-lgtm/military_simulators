@@ -20,6 +20,11 @@ from utils.specs import (
     VTOL_TYPE_LABEL,
     simulation_uses_plume_model,
 )
+from utils.takeoff.takeoff_input import (
+    build_takeoff_highlights,
+    extract_exit_kinematics,
+    validate_takeoff_mass,
+)
 from utils.takeoff.takeoff_physics import (
     FLAP_DEFLECTION_DEG,
     FLAP_EFFICIENCY,
@@ -409,6 +414,10 @@ def run_simulation(
     buf = io.StringIO()
     stovl_strategy = None
 
+    mass_err = validate_takeoff_mass(mass_kg, aircraft.mtow_kg, aircraft.empty_kg)
+    if mass_err:
+        return _fail(mass_err, '', mode)
+
     try:
         with redirect_stdout(buf):
             if mode == 'short_takeoff':
@@ -512,6 +521,8 @@ def run_simulation(
         plume_applicable = simulation_uses_plume_model(mode, aircraft)
         plume_edge = result.get('min_plume_trailing_edge_m') if plume_applicable else None
         deck_margin_m = deck_length - distance_m if distance_m is not None else None
+        deck_launch_ok = distance_m is not None and distance_m <= deck_length
+        exit_speed, exit_time = extract_exit_kinematics(result)
 
         return {
             'success': True,
@@ -519,9 +530,12 @@ def run_simulation(
             'strategy': stovl_strategy,
             'output': '\n'.join(output_lines),
             'distance_m': distance_m,
-            'deck_launch_ok': distance_m is not None and distance_m <= deck_length,
+            'deck_launch_ok': deck_launch_ok,
             'deck_margin_m': deck_margin_m,
             'output_summary': format_output_summary(distance_m, deck_margin_m),
+            'highlights': build_takeoff_highlights(
+                distance_m, deck_margin_m, exit_speed, exit_time, deck_launch_ok,
+            ),
             'plume_applicable': plume_applicable,
             'min_plume_trailing_edge_m': plume_edge,
             'result': _json_safe(result),

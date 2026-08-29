@@ -8,8 +8,13 @@
     <view class="panel-head">参数输入 · INPUT</view>
 
     <view class="field">
-      <view class="field-label"><text>来袭导弹数量</text><text class="unit">枚</text></view>
+      <view class="field-label">
+        <text>来袭导弹数量</text>
+        <text class="hint-q" data-key="nm" bindtap="onHint">?</text>
+        <text class="unit">枚</text>
+      </view>
       <input class="input" type="digit" value="{{nm}}" data-key="nm" bindinput="onField"/>
+      <view class="field-range" wx:if="{{ranges.nm}}">范围 {{ranges.nm.min}}–{{ranges.nm.max}} 枚</view>
     </view>
     <view class="field">
       <view class="field-label"><text>拦截弹数量</text><text class="unit">枚</text></view>
@@ -34,7 +39,7 @@
       <input class="input" type="digit" value="{{vm}}" data-key="vm" bindinput="onField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>RCS</text><text class="unit">m²</text></view>
+      <view class="field-label"><text>RCS</text><text class="hint-q" data-key="rcs" bindtap="onHint">?</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{rcs}}" data-key="rcs" bindinput="onField"/>
     </view>
     <view class="field">
@@ -113,7 +118,7 @@
       <input class="input" type="digit" value="{{interceptorDia}}" data-key="interceptorDia" bindinput="onField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>制导头体制</text></view>
+      <view class="field-label"><text>制导头体制</text><text class="hint-q" data-key="seekerType" bindtap="onHint">?</text></view>
       <picker mode="selector" range="{{seekerNames}}" value="{{seekerIndex}}" bindchange="onSeeker">
         <view class="picker-val">{{seekerNames[seekerIndex]}}</view>
       </picker>
@@ -134,11 +139,11 @@
 
     <view class="field">
       <view class="field-label"><text>预警机雷达探测距离</text><text class="unit">km</text></view>
-      <input class="input" type="digit" value="{{awacsDetectKm}}" disabled="true"/>
+      <input class="input" type="digit" value="{{awacsDetectKm}}" disabled="true" placeholder="待估算"/>
     </view>
     <view class="field">
       <view class="field-label"><text>舰载雷达探测距离</text><text class="unit">km</text></view>
-      <input class="input" type="digit" value="{{shipDetectKm}}" disabled="true"/>
+      <input class="input" type="digit" value="{{shipDetectKm}}" disabled="true" placeholder="待估算"/>
     </view>
     <view class="field">
       <view class="field-label"><text>进入有效射高距离</text><text class="unit">估算</text></view>
@@ -159,6 +164,7 @@
 
   <view class="panel" wx:if="{{hasResult}}">
     <view class="panel-head">仿真结果 · {{statusTag}}</view>
+    <view class="stale-banner" wx:if="{{resultStale}}">参数已更改，以下结果与当前输入不一致，请重新仿真。</view>
     <view class="stat-row">
       <view class="stat"><view class="k">拦截窗口数</view><view class="v">{{statRounds}}</view><view class="sub">{{statRoundsSub}}</view></view>
       <view class="stat"><view class="k">期望突防</view><view class="v red">{{statLeak}}</view><view class="sub">{{statLeakSub}}</view></view>
@@ -179,12 +185,13 @@
 
     <view class="section">▸ 最优弹药分配</view>
     <view class="table">
-      <view class="tr th"><text class="td">窗口</text><text class="td">预算</text><text class="td">轮初存活</text><text class="td">枚/目标</text></view>
+      <view class="tr th"><text class="td">窗口</text><text class="td">预算</text><text class="td">轮初存活</text><text class="td">枚/目标</text><text class="td">杀伤%</text></view>
       <view class="tr" wx:for="{{planRows}}" wx:key="round">
         <text class="td">#{{item.round}}</text>
         <text class="td">{{item.budget}}</text>
         <text class="td">{{item.surv}}</text>
         <text class="td">{{item.per}}</text>
+        <text class="td">{{item.kill}}</text>
       </view>
     </view>
 
@@ -193,13 +200,15 @@
 
     <view class="section">▸ 策略对比</view>
     <view class="table">
-      <view class="tr th"><text class="td">策略</text><text class="td">分配</text><text class="td">突防</text></view>
+      <view class="tr th"><text class="td">策略</text><text class="td">分配</text><text class="td">突防</text><text class="td">相对最优</text></view>
       <view class="tr" wx:for="{{strategies}}" wx:key="name">
         <text class="td {{item.best ? 'best' : ''}}">{{item.name}}</text>
         <text class="td {{item.best ? 'best' : ''}}">{{item.plan}}</text>
         <text class="td {{item.best ? 'best' : ''}}">{{item.leak}}</text>
+        <text class="td {{item.best ? 'best' : 'worse'}}">{{item.relative}}</text>
       </view>
     </view>
     <view class="note">{{finalNote}}</view>
   </view>
+  <view class="back-to-top" wx:if="{{showBackToTop}}" bindtap="onBackToTop">↑ 顶部</view>
 </view>

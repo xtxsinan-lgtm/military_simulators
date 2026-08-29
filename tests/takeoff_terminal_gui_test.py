@@ -31,7 +31,13 @@ def test_docs_takeoff_terminal_chrome():
     assert '.scanline' in css
     assert "var(--mono)" in css or '--mono:' in css
     assert 'id="outputSummary"' in html
+    assert 'id="highlights"' in html
+    assert 'id="staleBanner"' in html
+    assert 'id="backToTop"' in html
+    assert 'massRangeHint' in html
     assert 'formatOutputSummary' in app_js
+    assert 'validateTakeoffMass' in app_js
+    assert 'markResultsStale' in app_js
     assert 'LOCAL PYODIDE' not in html
     assert 'PYODIDE LOCAL' not in html
 
@@ -53,6 +59,9 @@ def test_miniprogram_takeoff_terminal_chrome():
 
     assert TERMINAL_TITLE in wxml
     assert 'outputSummary' in wxml or 'output-summary' in wxml
+    assert 'highlights' in wxml
+    assert 'resultStale' in wxml or 'stale-banner' in wxml
+    assert 'massRangeHint' in wxml
     for tag in CARD_TAGS:
         assert f'card-tag">{tag}</text>' in wxml or f'>{tag}</text>' in wxml
     assert TAKEOFF_BG in wxss
@@ -72,6 +81,10 @@ def test_ios_takeoff_terminal_chrome():
 
     assert TERMINAL_TITLE in content
     assert 'trailingSummary' in content or 'outputSummary' in content
+    assert 'highlights' in content
+    assert 'resultStale' in content
+    vm = (ROOT / 'ios' / 'CarrierTakeOff' / 'SimulatorViewModel.swift').read_text(encoding='utf-8')
+    assert 'validateTakeoffMass' in vm
     assert 'LOCAL PYODIDE' not in content
     assert 'PYODIDE LOCAL' not in content
     for tag in CARD_TAGS:

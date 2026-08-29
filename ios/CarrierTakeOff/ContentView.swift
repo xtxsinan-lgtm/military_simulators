@@ -5,8 +5,10 @@ struct ContentView: View {
     @StateObject private var vm = SimulatorViewModel()
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
+                Color.clear.frame(height: 0).id("pageTop")
                 header
                 StatusBar(text: vm.statusText, kind: vm.statusKind)
 
@@ -61,9 +63,11 @@ struct ContentView: View {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                             FieldInput(label: "滑跃角 (°)", text: $vm.skiAngle) {
                                 vm.updateSkiJumpFromInputs()
+                                vm.markResultsStale()
                             }
                             FieldInput(label: "滑跃弧长 (m)", text: $vm.skiArcLength) {
                                 vm.updateSkiJumpFromInputs()
+                                vm.markResultsStale()
                             }
                             FieldInput(label: "唇口高度 (m)", text: $vm.skiHeight, readonly: true)
                         }
@@ -98,8 +102,13 @@ struct ContentView: View {
                 CardView(title: "4. 仿真条件", tag: "INPUT") {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                         FieldInput(label: "甲板风 (kt)", text: $vm.windKt) { vm.markWindEdited() }
-                        FieldInput(label: "环境温度 (°C)", text: $vm.tempC)
-                        FieldInput(label: "起飞重量 (kg)", text: $vm.massKg) { vm.markMassEdited() }
+                        FieldInput(label: "环境温度 (°C)", text: $vm.tempC) { vm.markResultsStale() }
+                        FieldInput(
+                            label: "起飞重量 (kg)",
+                            text: $vm.massKg,
+                            hint: vm.massRangeHint,
+                            error: vm.massError
+                        ) { vm.markMassEdited() }
                     }
                     Button {
                         Task { await vm.runSimulation() }
@@ -127,17 +136,47 @@ struct ContentView: View {
                 }
 
                 CardView(title: "5. 仿真输出", tag: "OUTPUT", trailingSummary: vm.outputSummary) {
-                    ScrollView {
-                        Text(vm.outputText)
+                    if vm.resultStale {
+                        Text("参数已更改，以下结果与当前输入不一致，请重新仿真。")
                             .font(.system(size: 11, design: .monospaced))
-                            .foregroundStyle(vm.outputEmpty ? AppTheme.muted : AppTheme.text)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .textSelection(.enabled)
+                            .foregroundStyle(Color(hex: 0xFBBF24))
                     }
-                    .frame(maxHeight: 240)
-                    .padding(8)
-                    .background(Color(hex: 0x0D1117))
-                    .overlay(Rectangle().stroke(AppTheme.border, lineWidth: 1))
+                    if !vm.highlights.isEmpty {
+                        HStack(spacing: 10) {
+                            ForEach(vm.highlights) { card in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(card.label.uppercased())
+                                        .font(.system(size: 9, design: .monospaced))
+                                        .foregroundStyle(AppTheme.muted)
+                                    Text(card.value)
+                                        .font(.system(size: 18, weight: .bold, design: .monospaced))
+                                        .foregroundStyle(highlightTone(card.tone))
+                                }
+                                .padding(10)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(AppTheme.surface2)
+                                .overlay(Rectangle().stroke(AppTheme.border, lineWidth: 1))
+                            }
+                        }
+                    }
+                    Button(vm.outputDetailsOpen ? "▾ 收起计算详情" : "▸ 计算详情") {
+                        vm.outputDetailsOpen.toggle()
+                    }
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(AppTheme.muted)
+                    if vm.outputDetailsOpen {
+                        ScrollView {
+                            Text(vm.outputText)
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundStyle(vm.outputEmpty ? AppTheme.muted : AppTheme.text)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .textSelection(.enabled)
+                        }
+                        .frame(maxHeight: 240)
+                        .padding(8)
+                        .background(Color(hex: 0x0D1117))
+                        .overlay(Rectangle().stroke(AppTheme.border, lineWidth: 1))
+                    }
                 }
 
                 if vm.showTrajectory {
@@ -149,6 +188,18 @@ struct ContentView: View {
             .padding(.horizontal, 14)
             .padding(.top, 8)
             .padding(.bottom, 24)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            Button("↑ 顶部") {
+                withAnimation { proxy.scrollTo("pageTop", anchor: .top) }
+            }
+            .font(.system(size: 12, design: .monospaced))
+            .padding(8)
+            .background(AppTheme.surface)
+            .overlay(Rectangle().stroke(AppTheme.accent, lineWidth: 1))
+            .foregroundStyle(AppTheme.accent)
+            .padding(16)
+        }
         }
         .background(
             ZStack {
@@ -177,6 +228,14 @@ struct ContentView: View {
         )
         .preferredColorScheme(.dark)
         .task { await vm.bootstrap() }
+    }
+
+    private func highlightTone(_ tone: String?) -> Color {
+        switch tone {
+        case "ok": return AppTheme.success
+        case "danger": return AppTheme.danger
+        default: return AppTheme.accent
+        }
     }
 
     private var header: some View {

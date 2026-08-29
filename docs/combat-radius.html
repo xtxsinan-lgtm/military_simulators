@@ -4,93 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=7">
+<link rel="stylesheet" href="css/combat_radius.css?v=9">
 </head>
 <body>
 <div class="scanline"></div>
 <header>
   <div>
     <div class="title">飞机作战半径估算终端</div>
-    <div class="subtitle">COMBAT RADIUS · L/D + THRUST + TSFC + BREGUET</div>
+    <div class="subtitle">COMBAT RADIUS · PRECOMPUTED DASHBOARD + ON-DEMAND SEARCH</div>
   </div>
-  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-    <a class="nav-link" href="index.html">← 启动页</a>
+  <nav class="nav-links" aria-label="模拟器导航">
+    <a class="nav-link" href="index.html">启动页</a>
     <a class="nav-link" href="takeoff.html">起飞仿真</a>
     <a class="nav-link" href="missile-interception-strike.html">饱和打击</a>
+    <a class="nav-link current" href="combat-radius.html">作战半径</a>
     <div class="clock" id="clock">SYS READY</div>
-  </div>
+  </nav>
 </header>
 
 <div class="grid">
   <div class="stack">
     <div class="panel">
-      <div class="panel-head"><span>1. 升阻比估算</span><span class="tag">L/D</span></div>
-      <p class="note">用两架已知巡航 L/D 的锚点机标定 (Cf0, k_e)，再估算第三型机在给定高度/马赫数下的升阻比。ISA 大气适用于 11–20 km。</p>
-
-      <div class="section-label cyan">▸ 锚点 1</div>
+      <div class="panel-head"><span>选择战机</span><span class="tag">INPUT</span></div>
+      <p class="note">选择战机后自动显示最大巡航、极速，以及 Ma 0.8 / 1.5 / 1.76 / 2.0 与最大巡航的作战半径。超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。</p>
       <div class="field">
-        <label>机型预设</label>
-        <select id="a1Preset"></select>
-      </div>
-      <div class="field">
-        <label>已知巡航 L/D <span class="unit">目标</span></label>
-        <input type="number" id="a1Ld" value="8.52" min="1" step="0.1">
-      </div>
-      <div id="a1Fields"></div>
-
-      <div class="section-label amber">▸ 锚点 2</div>
-      <div class="field">
-        <label>机型预设</label>
-        <select id="a2Preset"></select>
-      </div>
-      <div class="field">
-        <label>已知巡航 L/D <span class="unit">目标</span></label>
-        <input type="number" id="a2Ld" value="8.62" min="1" step="0.1">
-      </div>
-      <div id="a2Fields"></div>
-
-      <div class="section-label green">▸ 待估机型</div>
-      <div class="field">
-        <label>机型预设</label>
+        <label>机型</label>
         <select id="tgtPreset"></select>
       </div>
       <div id="tgtFields"></div>
-
-      <button class="run" id="runBtn">▶ 估算升阻比</button>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head"><span>2. 军推估算</span><span class="tag">THRUST</span></div>
-      <p class="note">理想 Brayton 双涵道循环：T4 全包线保持，海平面静止军推反标定换算流量。概念设计级估算，不含进气道/喷管损失。</p>
-      <div class="field">
-        <label>发动机预设</label>
-        <select id="engPreset"></select>
-      </div>
-      <div class="pair">
-        <div class="field"><label>涵道比 BPR</label><input type="number" id="engBpr" step="0.01" min="0"></div>
-        <div class="field"><label>总压比 OPR</label><input type="number" id="engOpr" step="0.1" min="1.1"></div>
-      </div>
-      <div class="pair">
-        <div class="field"><label>涡轮前温度 T4 <span class="unit">K</span></label><input type="number" id="engT4" step="1" min="800"></div>
-        <div class="field"><label>海平面军推 <span class="unit">kN</span></label><input type="number" id="engTsl" step="0.1" min="0.1"></div>
-      </div>
-      <div class="pair">
-        <div class="field"><label>海平面加力 <span class="unit">kN</span></label><input type="number" id="engMaxTsl" step="0.1" min="0.1" placeholder="最大速度用"></div>
-        <div class="field"><label>高度 <span class="unit">m</span></label><input type="number" id="engAlt" step="100" min="0"></div>
-      </div>
-      <div class="pair">
-        <div class="field"><label>马赫数</label><input type="number" id="engMach" step="0.05" min="0"></div>
-        <div class="field"><label>压气机效率 η_c</label><input type="number" id="engEta" step="0.01" min="0.5" max="1" value="0.87"></div>
-      </div>
-      <div class="pair">
-        <div class="field"><label>风扇压比 <span class="unit">可空</span></label><input type="number" id="engFanPr" step="0.01" min="1.01" placeholder="由 BPR 估算"></div>
-      </div>
-      <button class="run" id="thrustBtn">▶ 估算可用军推</button>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head"><span>3. 负载与巡航效率</span><span class="tag">TSFC</span></div>
-      <p class="note">空战重量 = 空重 + 一半内油 + 飞行员×0.1 t + 4 枚中距弹。平飞阻力 D=W/(L/D)，负载比 = D/可用军推。再用实际布雷顿循环反解 T4，得到 η_th·η_p 与 TSFC。巡航点使用第 2 栏高度/马赫，升阻比用第 1 栏待估机几何重算。</p>
+      <div class="section-label cyan">▸ 重量与任务</div>
       <div class="pair">
         <div class="field"><label>空重 <span class="unit">kg</span></label><input type="number" id="wtEmpty" step="10" min="1"></div>
         <div class="field"><label>内油 <span class="unit">kg</span></label><input type="number" id="wtFuel" step="10" min="0"></div>
@@ -106,6 +48,23 @@
       <div class="check-row">
         <label><input type="checkbox" id="wtCarrier"> 舰载机（降落冗余 40 min / 陆基 30 min）</label>
       </div>
+      <div class="section-label amber">▸ 发动机</div>
+      <div class="field">
+        <label>发动机预设</label>
+        <select id="engPreset"></select>
+      </div>
+      <div class="pair">
+        <div class="field"><label>涵道比 BPR</label><input type="number" id="engBpr" step="0.01" min="0"></div>
+        <div class="field"><label>总压比 OPR</label><input type="number" id="engOpr" step="0.1" min="1.1"></div>
+      </div>
+      <div class="pair">
+        <div class="field"><label>涡轮前温度 T4 <span class="unit">K</span></label><input type="number" id="engT4" step="1" min="800"></div>
+        <div class="field"><label>海平面军推 <span class="unit">kN</span></label><input type="number" id="engTsl" step="0.1" min="0.1"></div>
+      </div>
+      <div class="pair">
+        <div class="field"><label>海平面加力 <span class="unit">kN</span></label><input type="number" id="engMaxTsl" step="0.1" min="0.1"></div>
+        <div class="field"><label>压气机效率 η_c</label><input type="number" id="engEta" step="0.01" min="0.5" max="1" value="0.87"></div>
+      </div>
       <div class="pair">
         <div class="field"><label>部件效率 ε</label><input type="number" id="effEps" step="0.01" min="0.5" max="1" value="0.83"></div>
         <div class="field"><label>喷管效率 η_n</label><input type="number" id="effEtan" step="0.01" min="0.5" max="1" value="0.95"></div>
@@ -114,51 +73,53 @@
         <label>附件功提取比例</label>
         <input type="number" id="effAcc" step="0.01" min="0" max="0.5" value="0.16">
       </div>
-      <button class="run" id="effBtn">▶ 估算负载与 TSFC</button>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head"><span>4. 作战半径</span><span class="tag">RANGE</span></div>
-      <p class="note">给定马赫下搜索 L/D×η_o 最大、且阻力 ≤ 军推 92% 的高度，再用布雷盖公式估算作战半径。自动计算 Ma 0.8 / 1.5 / 1.76 以及该机型最大巡航马赫。马赫角优先用预设度数。降落冗余、爬升额外与降落节省一律按亚音速油耗入账（即使巡航点是超音速）。</p>
-      <button class="run" id="radiusBtn">▶ 估算作战半径</button>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head"><span>5. 最大速度</span><span class="tag">Vmax</span></div>
-      <p class="note">加力平飞：各高度二分最大马赫（阻力 ≤ 加力 92%），取真速最大点。使用第 2 栏海平面加力标定，空战重量同第 3 栏；不计作战半径。</p>
-      <button class="run" id="maxSpeedBtn">▶ 估算最大速度</button>
     </div>
   </div>
 
   <div class="stack">
     <div class="panel">
-      <div class="panel-head"><span>升阻比输出</span><span class="tag">OUTPUT</span></div>
-      <div id="statusTag" class="clock">STANDBY</div>
-      <div id="resultBox" class="placeholder">等待标定与估算…</div>
-    </div>
-    <div class="panel">
-      <div class="panel-head"><span>军推输出</span><span class="tag">THRUST</span></div>
-      <div id="thrustStatus" class="clock">STANDBY</div>
-      <div id="thrustBox" class="placeholder">等待军推估算…</div>
-    </div>
-    <div class="panel">
-      <div class="panel-head"><span>效率 / TSFC 输出</span><span class="tag">TSFC</span></div>
-      <div id="effStatus" class="clock">STANDBY</div>
-      <div id="effBox" class="placeholder">等待负载与效率估算…</div>
-    </div>
-    <div class="panel">
-      <div class="panel-head"><span>作战半径输出</span><span class="tag">RANGE</span></div>
-      <div id="radiusStatus" class="clock">STANDBY</div>
-      <div id="radiusBox" class="placeholder">等待作战半径估算…</div>
-    </div>
-    <div class="panel">
-      <div class="panel-head"><span>最大速度输出</span><span class="tag">Vmax</span></div>
-      <div id="maxSpeedStatus" class="clock">STANDBY</div>
-      <div id="maxSpeedBox" class="placeholder">等待最大速度估算…</div>
+      <div class="panel-head"><span>包线与作战半径</span><span class="tag">DASHBOARD</span></div>
+      <div id="dashStatus" class="clock">STANDBY</div>
+      <div id="dashBox" class="placeholder">选择战机后自动加载预计算结果…</div>
     </div>
   </div>
 </div>
-<div class="footer">Python 仿真核心 · Pyodide · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=7"></script>
+
+<div class="stack" style="margin-top:14px;">
+  <div class="panel">
+    <div class="panel-head"><span>给定速度 · 搜索最佳升阻比与巡航高度</span><span class="tag">SEARCH</span></div>
+    <p class="note">临时按当前机型/发动机参数，在 11–20 km 内搜索使升阻比×总效率最大、且阻力不超过军推 92% 的高度。</p>
+    <div class="pair">
+      <div class="field"><label>马赫数</label><input type="number" id="q1Mach" step="0.05" min="0.1" value="0.9"></div>
+    </div>
+    <button class="run" id="q1Btn">▶ 搜索最佳升阻比和巡航高度</button>
+    <div id="q1Box" class="placeholder">等待搜索…</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>给定速度与高度</span><span class="tag">POINT</span></div>
+    <p class="note">不搜索高度，直接计算该点升阻比、最大可用推力、负载与热/推进/总效率。</p>
+    <div class="pair">
+      <div class="field"><label>马赫数</label><input type="number" id="q2Mach" step="0.05" min="0.1" value="0.8"></div>
+      <div class="field"><label>高度 <span class="unit">m</span></label><input type="number" id="q2Alt" step="100" min="0" value="12000"></div>
+    </div>
+    <button class="run" id="q2Btn">▶ 计算该点升阻比与效率</button>
+    <div id="q2Box" class="placeholder">等待计算…</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>给定速度、高度、负载 · 发动机效率</span><span class="tag">ENGINE</span></div>
+    <p class="note">只跑发动机循环，不依赖升阻比与阻力。负载为 0–1（也可填 0–100 的百分数）。</p>
+    <div class="pair">
+      <div class="field"><label>马赫数</label><input type="number" id="q3Mach" step="0.05" min="0" value="0.8"></div>
+      <div class="field"><label>高度 <span class="unit">m</span></label><input type="number" id="q3Alt" step="100" min="0" value="12000"></div>
+    </div>
+    <div class="field"><label>负载</label><input type="number" id="q3Load" step="0.01" min="0" max="100" value="0.45"></div>
+    <button class="run" id="q3Btn">▶ 计算发动机热/推进/总效率</button>
+    <div id="q3Box" class="placeholder">等待计算…</div>
+  </div>
+</div>
+<div class="footer">Python 仿真核心 · 预计算快照 + Pyodide 按需计算 · 与 catalog / 小程序 / iOS 同源</div>
+<script type="module" src="js/combat_radius.js?v=9"></script>
 </body>
 </html>

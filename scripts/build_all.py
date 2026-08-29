@@ -11,20 +11,23 @@ if str(ROOT) not in sys.path:
 
 
 def main() -> None:
-    """按依赖顺序构建：物理 → GitHub Pages → 小程序 → iOS。"""
+    """按依赖顺序构建：物理 → 作战半径预计算 → GitHub Pages → 小程序 → iOS。"""
     from scripts.generate_frontend_physics import write_physics_files
-    from scripts import build_docs, build_miniprogram, build_ios
+    from scripts import build_combat_radius_results, build_docs, build_miniprogram, build_ios
 
-    print('=== 1/4 生成前端 physics（JS + iOS Swift，常量来自 Python）===')
+    print('=== 1/5 生成前端 physics（JS + iOS Swift，常量来自 Python）===')
     write_physics_files()
 
-    print('=== 2/4 构建 Web（docs/data.json + docs/py）===')
+    print('=== 2/5 预计算作战半径仪表盘 ===')
+    build_combat_radius_results.main()
+
+    print('=== 3/5 构建 Web（docs/data.json + docs/py）===')
     build_docs.main()
 
-    print('=== 3/4 构建小程序（miniprogram/data/data.json）===')
+    print('=== 4/5 构建小程序（miniprogram/data/data.json）===')
     build_miniprogram.main()
 
-    print('=== 4/4 构建 iOS（ios/CarrierTakeOff/Resources/data.json）===')
+    print('=== 5/5 构建 iOS（ios/CarrierTakeOff/Resources/data.json）===')
     build_ios.main()
 
     from scripts.generate_ios_xcodeproj import main as generate_xcodeproj

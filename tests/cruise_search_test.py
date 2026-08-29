@@ -7,6 +7,8 @@ from utils.combat_radius.cruise_load import combat_mass_kg
 from utils.combat_radius.cruise_search import (
     ALT_MAX_M,
     ALT_MIN_M,
+    FIXED_MACHS,
+    SUPERSONIC_MACH,
     CruiseContext,
     any_feasible_altitude,
     altitude_grid,
@@ -142,3 +144,8 @@ def test_search_max_cruise_mach_returns_hi_if_feasible():
     ctx = _f22_ctx()
     m = search_max_cruise_mach(ctx, 0.5, 0.8, iters=3, step_m=3000.0)
     assert m == pytest.approx(0.8)
+
+
+def test_fixed_machs_include_two_and_supersonic_threshold():
+    assert FIXED_MACHS == (0.8, 1.5, 1.76, 2.0)
+    assert SUPERSONIC_MACH == 1.0

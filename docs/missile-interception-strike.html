@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>饱和打击 / 拦截仿真终端</title>
-<link rel="stylesheet" href="css/missile_interception.css?v=8">
+<link rel="stylesheet" href="css/missile_interception.css?v=10">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
@@ -14,16 +14,22 @@
     <div class="title">饱和打击 / 反导拦截仿真终端</div>
     <div class="subtitle">SHIPBORNE MISSILE INTERCEPTION</div>
   </div>
-  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-    <a class="nav-link" href="index.html">← 启动页</a>
+  <nav class="nav-links" aria-label="模拟器导航">
+    <a class="nav-link" href="index.html">启动页</a>
     <a class="nav-link" href="takeoff.html">起飞仿真</a>
+    <a class="nav-link current" href="missile-interception-strike.html">饱和打击</a>
     <a class="nav-link" href="combat-radius.html">作战半径</a>
     <div class="clock" id="clock">SYS READY</div>
-  </div>
+  </nav>
 </header>
 
+<nav class="jump-nav" aria-label="本页章节">
+  <a href="#inputPanel">参数</a>
+  <a href="#resultsPanel">结果</a>
+</nav>
+
 <div class="grid">
-  <div class="panel">
+  <div class="panel" id="inputPanel">
     <div class="panel-head"><span>参数输入</span><span class="tag">INPUT</span></div>
 
     <div class="field">
@@ -146,11 +152,11 @@
 
     <div class="field">
       <label>预警机雷达探测距离 <span class="unit">km</span></label>
-      <input type="number" id="awacsDetectKm" value="0" readonly>
+      <input type="number" id="awacsDetectKm" value="" readonly placeholder="待估算">
     </div>
     <div class="field">
       <label>舰载雷达探测距离 <span class="unit">km</span></label>
-      <input type="number" id="shipDetectKm" value="0" readonly>
+      <input type="number" id="shipDetectKm" value="" readonly placeholder="待估算">
     </div>
     <div class="field">
       <label>进入有效射高距离 <span class="unit">估算</span></label>
@@ -173,7 +179,8 @@
 
   <div class="panel" id="resultsPanel">
     <div class="panel-head"><span>仿真结果</span><span class="tag" id="statusTag">STANDBY</span></div>
-    <div class="placeholder" id="placeholder">加载引擎后点击「运行仿真」，系统将计算拦截窗口数、每轮最优弹药分配，并给出期望突防导弹数量。</div>
+    <p id="staleBanner" class="stale-banner hidden">参数已更改，以下结果与当前输入不一致，请重新仿真。</p>
+    <div class="placeholder" id="placeholder">加载引擎后将自动估算探测距离并运行默认仿真。</div>
     <div id="resultsBody" style="display:none;">
 
       <div class="stat-row">
@@ -219,6 +226,7 @@
 
 <div class="footer">MONTE CARLO N=<span id="mcN">–</span> · Python 同源仿真 · 仅用于战术资源分配算法演示</div>
 
-<script type="module" src="js/missile_interception.js?v=16"></script>
+<script type="module" src="js/missile_interception.js?v=17"></script>
+<button type="button" id="backToTop" class="back-to-top" hidden>↑ 顶部</button>
 </body>
 </html>

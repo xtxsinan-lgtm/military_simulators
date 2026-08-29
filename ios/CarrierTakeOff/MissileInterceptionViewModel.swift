@@ -27,6 +27,11 @@ final class MissileInterceptionViewModel: ObservableObject {
     @Published var pk = "0.7"
     @Published var tlock = "6"
     @Published var minr = "3"
+    private var resultFresh = false
+
+    var fieldHints: [String: String] {
+        (try? CatalogStore.loadBundledCatalog().missile_interception_config?.field_hints) ?? [:]
+    }
 
     @Published var asmPresets: [MissileInterceptionPresetItem] = []
     @Published var aewPresets: [MissileInterceptionPresetItem] = []
@@ -42,10 +47,11 @@ final class MissileInterceptionViewModel: ObservableObject {
 
     @Published var distNote = ""
     @Published var pkNote = ""
-    @Published var awacsDetectKm = "0"
-    @Published var shipDetectKm = "0"
+    @Published var awacsDetectKm = "待估算"
+    @Published var shipDetectKm = "待估算"
     @Published var diveEntryDisplay = "—"
     @Published var hasResult = false
+    @Published var resultStale = false
     @Published var result: MissileInterceptionResult?
 
     @Published var trajOptions: [(String, String)] = [
@@ -170,6 +176,7 @@ final class MissileInterceptionViewModel: ObservableObject {
         if let v = p.vm { vm = String(v) }
         if let v = p.rcs { rcs = String(v) }
         if let v = p.traj { traj = v }
+        markResultsStale()
     }
 
     func applyAewPreset() {
@@ -177,12 +184,14 @@ final class MissileInterceptionViewModel: ObservableObject {
         if let v = p.area { awacsArea = String(v) }
         if let v = p.type { awacsType = v }
         if let v = p.standoff { standoff = String(v) }
+        markResultsStale()
     }
 
     func applyShipPreset() {
         guard let p = shipPresets.first(where: { $0.id == selectedShipId }) else { return }
         if let v = p.area { shipArea = String(v) }
         if let v = p.type { shipType = v }
+        markResultsStale()
     }
 
     func applySamPreset() {
@@ -192,6 +201,7 @@ final class MissileInterceptionViewModel: ObservableObject {
         if let v = p.guidance { seekerType = v }
         if let v = p.range { samRange = String(v) }
         if let v = p.max_alt { samMaxAlt = String(v) }
+        markResultsStale()
     }
 
     private func estimateParams() -> [String: Any] {
@@ -303,6 +313,8 @@ final class MissileInterceptionViewModel: ObservableObject {
             }
             result = r
             hasResult = true
+            resultStale = false
+            resultFresh = true
             statusTag = "DONE"
             statusText = "MC N=\(r.final_trials ?? 0)"
         } catch {
@@ -310,5 +322,16 @@ final class MissileInterceptionViewModel: ObservableObject {
             statusText = error.localizedDescription
             hasResult = false
         }
+    }
+
+    func markResultsStale() {
+        guard resultFresh else { return }
+        resultFresh = false
+        resultStale = true
+        statusTag = "STALE"
+    }
+
+    func hint(for key: String) -> String {
+        fieldHints[key] ?? ""
     }
 }

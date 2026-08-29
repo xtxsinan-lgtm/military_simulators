@@ -6,7 +6,9 @@ import pytest
 from utils.combat_radius.combat_radius_presets import (
     build_combat_radius_engine_presets_payload,
     build_combat_radius_presets_payload,
+    clear_injected_combat_radius_presets,
     get_preset_by_id,
+    inject_combat_radius_presets,
     load_engine_presets,
     load_presets,
     preset_to_aircraft,
@@ -133,3 +135,16 @@ def test_build_combat_radius_engine_presets_payload():
 def test_load_engine_presets_missing_file_returns_empty(tmp_path):
     missing = tmp_path / 'no_eng.csv'
     assert load_engine_presets(missing) == []
+
+
+def test_inject_combat_radius_presets_overrides_csv():
+    inject_combat_radius_presets(
+        aircraft=[{'id': 'X', 'name': '注入机'}],
+        engines=[{'id': 'e', 'name': '注入发'}],
+    )
+    try:
+        assert load_presets()[0]['id'] == 'X'
+        assert load_engine_presets()[0]['id'] == 'e'
+    finally:
+        clear_injected_combat_radius_presets()
+    assert get_preset_by_id(load_presets(), 'F-22') is not None

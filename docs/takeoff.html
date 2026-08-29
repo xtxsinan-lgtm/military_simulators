@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>航母舰载机起飞距离仿真</title>
-  <link rel="stylesheet" href="css/style.css?v=24">
+  <link rel="stylesheet" href="css/style.css?v=25">
 </head>
 <body>
   <div class="scanline" aria-hidden="true"></div>
@@ -13,16 +13,25 @@
       <h1 class="terminal-title">航母舰载机起飞距离仿真终端</h1>
       <p class="terminal-sub" id="headerSubtitle">CARRIER TAKEOFF</p>
     </div>
-    <div class="nav-links">
-      <a class="nav-link" href="index.html">← 启动页</a>
+    <nav class="nav-links" aria-label="模拟器导航">
+      <a class="nav-link" href="index.html">启动页</a>
+      <a class="nav-link current" href="takeoff.html">起飞仿真</a>
       <a class="nav-link" href="missile-interception-strike.html">饱和打击</a>
-      <a class="nav-link" href="combat-radius.html">作战半径 →</a>
+      <a class="nav-link" href="combat-radius.html">作战半径</a>
       <span class="clock" id="takeoffClock">SYS READY</span>
-    </div>
+    </nav>
   </header>
 
   <main>
-    <section class="card">
+    <nav class="jump-nav" aria-label="本页章节">
+      <a href="#card-mode">模式</a>
+      <a href="#card-carrier">航母 / 机型</a>
+      <a href="#card-input">仿真条件</a>
+      <a href="#outputCard">输出</a>
+      <a href="#trajectorySection">轨迹</a>
+    </nav>
+
+    <section class="card" id="card-mode">
       <h2><span>1. 起飞模式</span><span class="tag">MODE</span></h2>
       <div class="mode-group" id="modeGroup"></div>
       <div id="strategySection" class="hidden" style="margin-top: 1rem;">
@@ -36,7 +45,7 @@
       </div>
     </section>
 
-    <div class="grid-2">
+    <div class="grid-2" id="card-carrier">
       <section class="card">
         <h2><span>2. 航母</span><span class="tag">CARRIER</span></h2>
         <label for="carrierSelect">选择航母</label>
@@ -74,7 +83,7 @@
       </section>
     </div>
 
-    <section class="card">
+    <section class="card" id="card-input">
       <h2><span>4. 仿真条件</span><span class="tag">INPUT</span></h2>
       <div class="run-row">
         <div class="field">
@@ -87,7 +96,9 @@
         </div>
         <div class="field">
           <label for="massInput">起飞重量 (kg)</label>
-          <input type="number" id="massInput" step="10" min="1000">
+          <input type="number" id="massInput" step="10" min="1">
+          <p class="field-hint" id="massRangeHint"></p>
+          <p class="field-error hidden" id="massError"></p>
         </div>
         <button type="button" id="preloadBtn" class="secondary">◈ 预加载引擎</button>
         <button type="button" id="runBtn" class="primary">▶ 开始仿真</button>
@@ -95,7 +106,7 @@
       <div id="status"></div>
     </section>
 
-    <section class="card">
+    <section class="card" id="outputCard">
       <h2>
         <span class="card-heading">
           <span>5. 仿真输出</span>
@@ -103,7 +114,12 @@
         </span>
         <span class="output-summary" id="outputSummary"></span>
       </h2>
-      <pre id="output" class="empty">选择参数后点击「开始仿真」，结果将显示在此处。</pre>
+      <p id="staleBanner" class="stale-banner hidden">参数已更改，以下结果与当前输入不一致，请重新仿真。</p>
+      <div id="highlights" class="stat-row hidden"></div>
+      <details id="outputDetails" class="output-details" open>
+        <summary>计算详情</summary>
+        <pre id="output" class="empty">选择参数后点击「开始仿真」，结果将显示在此处。</pre>
+      </details>
     </section>
 
     <section class="card hidden" id="trajectorySection">
@@ -126,6 +142,8 @@
     仿真由 Python 物理模型计算 · 数据来自 aircraft_database.csv / carriers_database.csv
   </footer>
 
-  <script type="module" src="js/app.js?v=24"></script>
+  <button type="button" id="backToTop" class="back-to-top" hidden>↑ 顶部</button>
+
+  <script type="module" src="js/app.js?v=25"></script>
 </body>
 </html>

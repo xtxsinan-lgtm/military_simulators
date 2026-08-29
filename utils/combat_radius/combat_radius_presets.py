@@ -11,9 +11,33 @@ from utils.combat_radius.lift_drag import Aircraft, aircraft_from_dict, aircraft
 from utils.database_csv import load_combat_radius_aircraft_csv, load_combat_radius_engine_csv
 from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV, COMBAT_RADIUS_ENGINE_CSV
 
+_INJECTED_AIRCRAFT: list[dict[str, Any]] | None = None
+_INJECTED_ENGINES: list[dict[str, Any]] | None = None
+
+
+def inject_combat_radius_presets(
+    aircraft: list[dict[str, Any]] | None = None,
+    engines: list[dict[str, Any]] | None = None,
+) -> None:
+    """注入机型/发动机预设（Pyodide / 测试用）；优先于 CSV。"""
+    global _INJECTED_AIRCRAFT, _INJECTED_ENGINES
+    if aircraft is not None:
+        _INJECTED_AIRCRAFT = [dict(item) for item in aircraft]
+    if engines is not None:
+        _INJECTED_ENGINES = [dict(item) for item in engines]
+
+
+def clear_injected_combat_radius_presets() -> None:
+    """清除注入的预设，恢复从 CSV 加载。"""
+    global _INJECTED_AIRCRAFT, _INJECTED_ENGINES
+    _INJECTED_AIRCRAFT = None
+    _INJECTED_ENGINES = None
+
 
 def load_presets(path: str | Path | None = None) -> list[dict[str, Any]]:
-    """加载机型几何预设；文件不存在时返回空列表（如 Pyodide 环境）。"""
+    """加载机型几何预设；注入优先于默认 CSV；显式路径仍读文件。"""
+    if path is None and _INJECTED_AIRCRAFT is not None:
+        return [dict(item) for item in _INJECTED_AIRCRAFT]
     csv_path = Path(path) if path is not None else COMBAT_RADIUS_AIRCRAFT_CSV
     if not csv_path.is_file():
         return []
@@ -45,7 +69,9 @@ def build_combat_radius_presets_payload(path: str | Path | None = None) -> list[
 
 
 def load_engine_presets(path: str | Path | None = None) -> list[dict[str, Any]]:
-    """加载发动机预设；文件不存在时返回空列表（如 Pyodide 环境）。"""
+    """加载发动机预设；注入优先于默认 CSV；显式路径仍读文件。"""
+    if path is None and _INJECTED_ENGINES is not None:
+        return [dict(item) for item in _INJECTED_ENGINES]
     csv_path = Path(path) if path is not None else COMBAT_RADIUS_ENGINE_CSV
     if not csv_path.is_file():
         return []

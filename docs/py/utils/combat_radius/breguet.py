@@ -48,6 +48,53 @@ def combat_radius_m(
     ) / 2.0
 
 
+def breguet_range_factor(
+    v_mps: float,
+    tsfc_kg_n_s: float,
+    ld: float,
+    g0: float = G0,
+) -> float:
+    """布雷盖航程因子 k，使航程 = k·ln(Wi/Wf)，单位米。"""
+    if v_mps <= 0:
+        raise ValueError('巡航速度须为正')
+    if tsfc_kg_n_s <= 0:
+        raise ValueError('TSFC 须为正')
+    if ld <= 0:
+        raise ValueError('升阻比须为正')
+    if g0 <= 0:
+        raise ValueError('重力加速度须为正')
+    return (v_mps / (g0 * tsfc_kg_n_s)) * ld
+
+
+def mixed_combat_radius_m(
+    v_out_mps: float,
+    tsfc_out_kg_n_s: float,
+    ld_out: float,
+    v_back_mps: float,
+    tsfc_back_kg_n_s: float,
+    ld_back: float,
+    mass_initial_kg: float,
+    mass_final_kg: float,
+    g0: float = G0,
+) -> float:
+    """混合作战半径（米）：去程用超音速点、返程用亚音速点，两边距离相等。
+
+    由 k_out·ln(m0/m1) = k_back·ln(m1/m_final) 解中间质量 m1，半径即单程距离。
+    当去程与返程的 k 相同时，结果与对称布雷盖作战半径一致。
+    """
+    k_out = breguet_range_factor(v_out_mps, tsfc_out_kg_n_s, ld_out, g0)
+    k_back = breguet_range_factor(v_back_mps, tsfc_back_kg_n_s, ld_back, g0)
+    if mass_final_kg <= 0:
+        raise ValueError('终了质量须为正')
+    if mass_initial_kg <= mass_final_kg:
+        raise ValueError('起飞质量须大于终了质量（须有可消耗内油）')
+    ratio = k_back / k_out
+    mass_mid = (mass_initial_kg * (mass_final_kg ** ratio)) ** (1.0 / (1.0 + ratio))
+    if not (mass_final_kg < mass_mid < mass_initial_kg):
+        raise ValueError('混合剖面无法在质量区间内闭合')
+    return k_out * math.log(mass_initial_kg / mass_mid)
+
+
 def average_fuel_kg_per_km(fuel_kg: float, radius_m: float) -> float:
     """按往返航程（2×作战半径）均摊的平均油耗，kg/km。"""
     if fuel_kg < 0:

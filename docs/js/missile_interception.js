@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-interception-strike.html 中 ?v= 同步递增 */
-const APP_VERSION = 16;
+const APP_VERSION = 17;
 
 /** 预警机预设中「无预警机」的特殊 value */
 const AEW_NONE_VALUE = '__none__';
@@ -19,6 +19,7 @@ const MISSILE_INTERCEPTION_PY_FILES = [
   'utils/missile_interception/missile_interception_radar.py',
   'utils/missile_interception/missile_interception_windows.py',
   'utils/missile_interception/missile_interception_monte_carlo.py',
+  'utils/missile_interception/missile_interception_display.py',
   'simulators/__init__.py',
   'simulators/missile_interception/__init__.py',
   'simulators/missile_interception/missile_interception_strike.py',
@@ -34,6 +35,7 @@ const MISSILE_INTERCEPTION_IMPORTS = [
   'utils.missile_interception.missile_interception_radar',
   'utils.missile_interception.missile_interception_windows',
   'utils.missile_interception.missile_interception_monte_carlo',
+  'utils.missile_interception.missile_interception_display',
   'simulators.missile_interception.missile_interception_strike',
   'apps.missile_interception_strike_web',
 ];
@@ -45,6 +47,8 @@ let chartRef = null;
 /** 防止重入；计算中再次点击则排队用最新参数再跑一轮 */
 let runLock = false;
 let rerunRequested = false;
+/** 当前结果是否对应当前参数 */
+let resultFresh = false;
 
 function $(id) {
   return document.getElementById(id);
@@ -402,20 +406,29 @@ function renderResults(r) {
   const tbodyP = document.querySelector('#planTable tbody');
   theadP.innerHTML =
     '<tr><th>窗口</th><th>本轮弹药预算</th><th>预期存活目标数(轮初)</th><th>每目标约分配</th><th>单目标本轮杀伤概率</th></tr>';
+  const planRows = r.plan_rows || [];
   let maxPer = 1;
-  for (let i = 0; i < nRounds; i++) {
-    const surv = avgSurvivors[i];
-    if (surv > 0) maxPer = Math.max(maxPer, best.plan[i] / surv);
+  if (planRows.length) {
+    planRows.forEach((row) => {
+      maxPer = Math.max(maxPer, row.per_target || 0);
+    });
+  } else {
+    for (let i = 0; i < nRounds; i++) {
+      const surv = avgSurvivors[i];
+      if (surv > 0) maxPer = Math.max(maxPer, best.plan[i] / surv);
+    }
   }
   let rows = '';
-  for (let ri = 0; ri < nRounds; ri++) {
-    const survBefore = avgSurvivors[ri];
-    const perTarget = survBefore > 0 ? best.plan[ri] / survBefore : 0;
-    const kFloor = Math.floor(perTarget);
-    const pkill = kFloor > 0 ? 1 - Math.pow(1 - pk, kFloor) : 0;
+  const nPlan = planRows.length || nRounds;
+  for (let ri = 0; ri < nPlan; ri++) {
+    const row = planRows[ri];
+    const survBefore = row ? row.survivors : avgSurvivors[ri];
+    const perTarget = row ? row.per_target : (survBefore > 0 ? best.plan[ri] / survBefore : 0);
+    const budget = row ? row.budget : best.plan[ri];
+    const pkill = row ? row.kill_prob : roundKillProbability(pk, perTarget);
     rows += `<tr>
       <td>#${ri + 1}</td>
-      <td>${best.plan[ri]} 枚</td>
+      <td>${budget} 枚</td>
       <td>${fmt(survBefore, 2)}</td>
       <td>≈${fmt(perTarget, 2)} 枚/目标
         <div class="bar-wrap"><div class="bar-bg"><div class="bar-fill i" style="width:${Math.min(100, (perTarget / maxPer) * 100)}%"></div></div></div>
@@ -475,12 +488,14 @@ function renderResults(r) {
     const bestKey = best.plan.join(',');
     tbodyS.innerHTML = allCandidates
       .map((c) => {
-        const isBest = c.name === best.name && c.plan.join(',') === bestKey;
+        const isBest = c.is_best || (c.name === best.name && c.plan.join(',') === bestKey);
+        const relLabel = c.relative_label || (isBest ? '最优' : '+' + fmt(c.expected_leak - minScore, 2));
+        const relClass = c.relative_tone === 'worse' ? 'worse' : (isBest ? 'best-label' : '');
         return `<tr class="${isBest ? 'best' : ''}">
         <td>${isBest ? '★ ' : ''}${c.name}</td>
         <td>[${c.plan.join(', ')}]</td>
         <td>${fmt(c.expected_leak, 2)}</td>
-        <td>${isBest ? '—' : '+' + fmt(c.expected_leak - minScore, 2)}</td>
+        <td class="${relClass}">${isBest ? '最优' : relLabel}</td>
       </tr>`;
       })
       .join('');
@@ -554,6 +569,7 @@ async function onRun() {
     const r = await callPythonAsync('simulate', collectSimParams());
     if (!r.success) throw new Error(r.error || '仿真失败');
     renderResults(r);
+    markResultFresh();
   } catch (e) {
     $('statusTag').textContent = 'ERROR';
     $('placeholder').style.display = 'block';
@@ -624,6 +640,102 @@ function applyMissileInterceptionUiDefaults() {
   setAwacsFieldsDisabled($('aewPreset').value === AEW_NONE_VALUE);
 }
 
+/** 与 Python round_kill_probability 对齐的回退算法（API 未返回 plan_rows 时）。 */
+function roundKillProbability(pk, interceptorsPerTarget) {
+  const p = Math.min(1, Math.max(0, Number(pk) || 0));
+  const n = Math.max(0, Number(interceptorsPerTarget) || 0);
+  const k = Math.floor(n);
+  const frac = n - k;
+  const pK = k <= 0 ? 0 : 1 - Math.pow(1 - p, k);
+  const pK1 = 1 - Math.pow(1 - p, k + 1);
+  return (1 - frac) * pK + frac * pK1;
+}
+
+function markResultFresh() {
+  resultFresh = true;
+  const banner = $('staleBanner');
+  const panel = $('resultsPanel');
+  if (banner) banner.classList.add('hidden');
+  if (panel) panel.classList.remove('stale');
+  const tag = $('statusTag');
+  if (tag && tag.textContent === 'STALE') tag.textContent = 'DONE';
+}
+
+function markResultsStale() {
+  if (!resultFresh) return;
+  resultFresh = false;
+  const banner = $('staleBanner');
+  const panel = $('resultsPanel');
+  if (banner) banner.classList.remove('hidden');
+  if (panel) panel.classList.add('stale');
+  const tag = $('statusTag');
+  if (tag && (tag.textContent === 'DONE' || tag.textContent === 'STANDBY')) {
+    tag.textContent = 'STALE';
+  }
+}
+
+function applyFieldHintsAndRanges() {
+  const cfg = data?.missile_interception_config || {};
+  const hints = cfg.field_hints || {};
+  const ranges = cfg.field_ranges || {};
+  const idToKey = {
+    Nm: 'nm', Ni: 'ni', vm: 'vm', rcs: 'rcs', traj: 'traj',
+    awacsArea: 'awacsArea', awacsType: 'awacsType', standoff: 'standoff',
+    shipArea: 'shipArea', shipType: 'shipType', samRange: 'samRange',
+    samMaxAlt: 'samMaxAlt', vi: 'vi', interceptorDia: 'interceptorDia',
+    seekerType: 'seekerType', tlock: 'tlock', minr: 'minr', pk: 'pk',
+  };
+  Object.entries(idToKey).forEach(([id, key]) => {
+    const el = $(id);
+    if (!el) return;
+    const field = el.closest('.field');
+    const label = field && field.querySelector('label');
+    if (label && hints[key] && !label.querySelector('.hint-q')) {
+      const tip = document.createElement('span');
+      tip.className = 'hint-q';
+      tip.title = hints[key];
+      tip.textContent = '?';
+      label.appendChild(tip);
+    }
+    const spec = ranges[key];
+    if (spec && el.tagName === 'INPUT') {
+      if (spec.min != null) el.min = spec.min;
+      if (spec.max != null) el.max = spec.max;
+      if (spec.step != null) el.step = spec.step;
+      if (field && !field.querySelector('.field-range')) {
+        const hint = document.createElement('div');
+        hint.className = 'field-range';
+        const unit = spec.unit ? ` ${spec.unit}` : '';
+        hint.textContent = `范围 ${spec.min}–${spec.max}${unit}`;
+        field.appendChild(hint);
+      }
+    }
+  });
+}
+
+function bindStaleOnInputs() {
+  document.querySelectorAll('.panel input, .panel select').forEach((el) => {
+    el.addEventListener('change', markResultsStale);
+    el.addEventListener('input', markResultsStale);
+  });
+}
+
+function setupBackToTop() {
+  const btn = $('backToTop');
+  if (!btn) return;
+  const onScroll = () => {
+    btn.hidden = window.scrollY < 360;
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  onScroll();
+}
+
+async function bootEstimateThenRun() {
+  await onEstimateDistanceAndPk();
+  await onRun();
+}
+
 async function main() {
   setInterval(tickClock, 1000);
   tickClock();
@@ -632,6 +744,7 @@ async function main() {
     populateTrajSelect();
     applyPresetsFromData();
     applyMissileInterceptionUiDefaults();
+    applyFieldHintsAndRanges();
   } catch (e) {
     $('statusTag').textContent = 'ERROR';
     $('placeholder').textContent = String(e.message || e);
@@ -639,8 +752,10 @@ async function main() {
   }
   $('estimateBtn').addEventListener('click', onEstimateDistanceAndPk);
   $('runBtn').addEventListener('click', onRun);
-  // 预加载引擎后自动跑一次默认参数
-  onRun();
+  bindStaleOnInputs();
+  setupBackToTop();
+  // 引擎就绪后先估算探测距离（避免默认 0 km），再跑默认仿真
+  bootEstimateThenRun();
 }
 
 main();

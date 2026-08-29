@@ -96,6 +96,7 @@ struct StatusBar: View {
         case .error: return AppTheme.danger
         case .loading: return AppTheme.accent
         case .idle: return AppTheme.muted
+        case .stale: return Color(hex: 0xFBBF24)
         }
     }
 
@@ -105,6 +106,7 @@ struct StatusBar: View {
         case .error: return AppTheme.danger.opacity(0.35)
         case .loading: return AppTheme.accent.opacity(0.35)
         case .idle: return AppTheme.border
+        case .stale: return Color(hex: 0xFBBF24).opacity(0.45)
         }
     }
 }
@@ -114,6 +116,8 @@ struct FieldInput: View {
     let label: String
     @Binding var text: String
     var readonly: Bool = false
+    var hint: String? = nil
+    var error: String? = nil
     var onEdit: (() -> Void)?
 
     var body: some View {
@@ -129,10 +133,20 @@ struct FieldInput: View {
                 .padding(.vertical, 9)
                 .foregroundStyle(readonly ? AppTheme.muted : AppTheme.text)
                 .background(AppTheme.surface2)
-                .overlay(Rectangle().stroke(AppTheme.border, lineWidth: 1))
+                .overlay(Rectangle().stroke((error?.isEmpty == false) ? AppTheme.danger : AppTheme.border, lineWidth: 1))
                 .onChange(of: text) { _, _ in
                     if !readonly { onEdit?() }
                 }
+            if let hint, !hint.isEmpty {
+                Text(hint)
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(AppTheme.muted)
+            }
+            if let error, !error.isEmpty {
+                Text(error)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(AppTheme.danger)
+            }
         }
     }
 }

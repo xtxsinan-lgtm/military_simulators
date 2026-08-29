@@ -88,7 +88,9 @@
       </view>
       <view class="grid-item">
         <text class="field-label">起飞重量 (kg)</text>
-        <input class="field-input" type="digit" value="{{massKg}}" bindinput="onMassInput" />
+        <input class="field-input {{massInvalid ? 'invalid' : ''}}" type="digit" value="{{massKg}}" bindinput="onMassInput" />
+        <text class="field-hint" wx:if="{{massRangeHint}}">{{massRangeHint}}</text>
+        <text class="field-error" wx:if="{{massError}}">{{massError}}</text>
       </view>
     </view>
     <view class="btn-row">
@@ -110,7 +112,15 @@
       </view>
       <text class="output-summary" wx:if="{{outputSummary}}">{{outputSummary}}</text>
     </view>
-    <text class="output-pre {{outputEmpty ? 'empty' : ''}}">{{outputText}}</text>
+    <view class="stale-banner" wx:if="{{resultStale}}">参数已更改，以下结果与当前输入不一致，请重新仿真。</view>
+    <view class="stat-row" wx:if="{{highlights.length}}">
+      <view class="stat" wx:for="{{highlights}}" wx:key="key">
+        <view class="k">{{item.label}}</view>
+        <view class="v {{item.tone}}">{{item.value}}</view>
+      </view>
+    </view>
+    <view class="details-toggle" bindtap="onToggleOutputDetails">{{outputDetailsOpen ? '▾ 收起计算详情' : '▸ 计算详情'}}</view>
+    <text class="output-pre {{outputEmpty ? 'empty' : ''}}" wx:if="{{outputDetailsOpen}}">{{outputText}}</text>
   </view>
 
   <!-- 6. 起飞轨迹：跟在仿真输出后，随页面滚动（非底部固定坞） -->
@@ -122,4 +132,5 @@
   <view class="page-footer">
     仿真由 Python 物理模型计算 · 数据来自 aircraft_database.csv / carriers_database.csv
   </view>
+  <view class="back-to-top" wx:if="{{showBackToTop}}" bindtap="onBackToTop">↑ 顶部</view>
 </view>

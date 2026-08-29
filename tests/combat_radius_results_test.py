@@ -1,0 +1,121 @@
+"""作战半径预计算快照单元测试。"""
+from __future__ import annotations
+
+import json
+
+from utils.combat_radius.combat_radius_results import (
+    RESULTS_VERSION,
+    build_combat_radius_results_catalog_payload,
+    build_combat_radius_results_payload,
+    dashboard_params_from_preset,
+    load_combat_radius_results,
+    run_preset_dashboard,
+    sanitize_cruise_point,
+    sanitize_dashboard,
+    sanitize_max_speed,
+    write_combat_radius_results,
+    _round,
+)
+from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+from utils.paths import COMBAT_RADIUS_RESULTS_JSON
+
+
+def test_round_none_and_digits():
+    assert _round(None, 2) is None
+    assert _round(1.23456, 2) == 1.23
+
+
+def test_dashboard_params_from_preset_f22():
+    ac = get_preset_by_id(load_presets(), 'F-22')
+    eng = get_preset_by_id(load_engine_presets(), 'f119')
+    p = dashboard_params_from_preset(ac, eng)
+    assert 'anchor1' not in p
+    assert p['tsl_kN'] == 116.0
+    assert p['n_engines'] == 2
+    assert p['carrier'] is False
+
+
+def test_sanitize_helpers_round_and_drop_blackbox():
+    point = sanitize_cruise_point({
+        'id': 'mach_1_5', 'label': 'Ma 1.5', 'mach': 1.50001, 'feasible': True,
+        'alt_m': 12000.44, 'ld': 7.12345, 'thrust_avail_kN': 40.1234,
+        'load': 0.45678, 'eta_th': 0.1111111, 'eta_p': 0.2222222,
+        'eta_o': 0.3333333, 'score': 2.1, 'radius_km': 800.129,
+        'fuel_kg_per_km': 4.5555, 'mixed_radius_km': 900.129,
+        'mixed_fuel_kg_per_km': 3.3333, 'tsfc_mg_n_s': 30.1234,
+        'Cf0': 0.9,
+    })
+    assert 'Cf0' not in point
+    assert point['radius_km'] == 800.13
+    ms = sanitize_max_speed({
+        'success': True, 'feasible': True, 'max_speed_mach': 2.12345,
+        'max_speed_kmh': 2200.19, 'profile': [1],
+    })
+    assert 'profile' not in ms
+    assert ms['max_speed_mach'] == 2.1235
+    failed = sanitize_dashboard({'success': False, 'error': 'x'})
+    assert failed['success'] is False
+    ok = sanitize_dashboard({
+        'success': True, 'name': 'F-22', 'carrier': False,
+        'max_cruise_mach': 1.23456, 'fuel_kg': 8200, 'fuel_usable_kg': 5000.12,
+        'n_engines': 2, 'points': [{'id': 'mach_0_8', 'feasible': True, 'mach': 0.8}],
+        'max_speed': {'feasible': True, 'max_speed_mach': 2.0},
+    })
+    assert ok['success'] is True
+    assert 'Cf0' not in ok
+
+
+def test_run_preset_dashboard_missing_engine():
+    r = run_preset_dashboard('NOPE')
+    assert r['success'] is False
+    mv = run_preset_dashboard('MV-22')
+    assert mv['success'] is False
+    assert '发动机' in mv['error']
+
+
+def test_run_preset_dashboard_missing_tsl():
+    r = run_preset_dashboard('J-50')
+    assert r['success'] is False
+    assert 'tsl_kN' in r['error']
+
+
+def test_run_preset_dashboard_f22_compact():
+    r = run_preset_dashboard('F-22')
+    assert r['success'] is True
+    assert 'Cf0' not in r
+    ids = [p['id'] for p in r['points']]
+    assert ids[0] == 'mach_0_8'
+    assert 'mach_2_0' in ids
+    assert 'max_speed' in r
+
+
+def test_load_combat_radius_results_missing_file(tmp_path):
+    empty = load_combat_radius_results(tmp_path / 'no.json')
+    assert empty['aircraft'] == {}
+
+
+def test_write_and_build_payload_use_stub(tmp_path, monkeypatch):
+    """write / build_payload 不在单元测试里跑全机队，用桩覆盖组装逻辑。"""
+    monkeypatch.setattr(
+        'utils.combat_radius.combat_radius_results.run_preset_dashboard',
+        lambda aid: {'success': True, 'id': aid},
+    )
+    payload = build_combat_radius_results_payload()
+    assert payload['version'] == RESULTS_VERSION
+    assert payload['aircraft']['F-22']['id'] == 'F-22'
+    out = tmp_path / 'cr.json'
+    write_combat_radius_results(out)
+    saved = json.loads(out.read_text(encoding='utf-8'))
+    assert saved['aircraft']['J-20']['id'] == 'J-20'
+
+
+def test_catalog_payload_reads_file_or_empty(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        'utils.combat_radius.combat_radius_results.COMBAT_RADIUS_RESULTS_JSON',
+        tmp_path / 'missing.json',
+    )
+    assert build_combat_radius_results_catalog_payload()['aircraft'] == {}
+
+
+def test_committed_results_path_constant():
+    assert COMBAT_RADIUS_RESULTS_JSON.name == 'combat_radius_results.json'

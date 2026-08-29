@@ -106,6 +106,8 @@ def test_run_simulation_ski_jump_j15(aircraft, carriers):
     assert result['min_plume_trailing_edge_m'] is None
     assert result['trajectory']
     assert result['deck_profile']
+    assert result['highlights']
+    assert any(c['key'] == 'distance' for c in result['highlights'])
     assert result['trajectory'][0]['phase'] == 'flat'
     assert any(p['phase'] == 'arc' for p in result['trajectory'])
 
@@ -155,3 +157,22 @@ def test_run_simulation_json_string(aircraft, carriers):
     result = run_simulation_json(json.dumps(payload))
     assert result['success'] is True
     assert result['distance_m'] == pytest.approx(52.4, rel=0.05)
+
+
+def test_run_simulation_rejects_negative_mass(aircraft, carriers):
+    """负重量在搜索前拒绝，不进入物理引擎。"""
+    carrier = next(c for c in carriers if c.id == 'SHANDONG')
+    ac = aircraft['J-15']
+    result = run_simulation('ski_jump', ac, carrier, -500.0, 30.0, carrier.max_speed_kt)
+    assert result['success'] is False
+    assert '正数' in result['error']
+
+
+def test_run_simulation_rejects_mass_above_mtow(aircraft, carriers):
+    """超出 MTOW 在搜索前拒绝。"""
+    carrier = next(c for c in carriers if c.id == 'WASP')
+    ac = aircraft['F-35B']
+    result = run_simulation('short_takeoff', ac, carrier, 50000.0, 30.0, 22.0)
+    assert result['success'] is False
+    assert '超出最大起飞重量' in result['error']
+    assert str(int(ac.mtow_kg)) in result['error']

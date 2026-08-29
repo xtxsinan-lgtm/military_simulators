@@ -90,19 +90,15 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'runMissileInterception(payload:' in sat_vm
     assert 'runMissileInterception([' not in sat_vm
     cr_vm = (IOS_ROOT / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
-    assert 'estimate_thrust' in cr_vm
-    assert 'func runThrust()' in cr_vm
-    assert 'estimate_efficiency' in cr_vm
-    assert 'func runEfficiency()' in cr_vm
-    assert 'estimate_radius' in cr_vm
-    assert 'func runRadius()' in cr_vm
+    assert 'aircraft_dashboard' in cr_vm
+    assert 'search_best_cruise' in cr_vm
+    assert 'estimate_engine_cycle' in cr_vm
+    assert 'func applyAircraft()' in cr_vm
     models = (IOS_ROOT / 'Models.swift').read_text(encoding='utf-8')
+    assert 'combat_radius_results' in models
     assert 'combat_radius_engine_presets' in models
-    assert 'CombatRadiusEnginePresetItem' in models
-    assert 'tsfc_mg_n_s' in models
+    assert 'mixed_radius_km' in models
     assert 'CombatRadiusCruisePoint' in models
-    assert 'mach_angle_deg' in models
-    assert 'wing_area_m2' in models
 
 
 def test_ios_project_yml_exists():

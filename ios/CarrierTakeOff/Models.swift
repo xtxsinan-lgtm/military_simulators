@@ -15,6 +15,7 @@ struct CatalogPayload: Codable {
     var combat_radius_presets: [CombatRadiusPresetItem]?
     var combat_radius_engine_presets: [CombatRadiusEnginePresetItem]?
     var combat_radius_config: CombatRadiusConfigPayload?
+    var combat_radius_results: CombatRadiusResultsPayload?
 }
 
 struct TakeoffConfigPayload: Codable {
@@ -32,6 +33,15 @@ struct TakeoffUiDefaults: Codable {
 struct MissileInterceptionConfigPayload: Codable {
     var ui: MissileInterceptionUiDefaults?
     var traj_types: [String: String]?
+    var field_hints: [String: String]?
+    var field_ranges: [String: MissileInterceptionFieldRange]?
+}
+
+struct MissileInterceptionFieldRange: Codable, Hashable {
+    var min: Double?
+    var max: Double?
+    var step: Double?
+    var unit: String?
 }
 
 struct MissileInterceptionUiDefaults: Codable {
@@ -89,6 +99,23 @@ struct CombatRadiusUiDefaults: Codable {
     var default_etan: Double?
     var default_acc_frac: Double?
     var default_t4idle: Double?
+}
+
+/// 作战半径预计算仪表盘（按机型 id 索引）
+struct CombatRadiusResultsPayload: Codable {
+    var version: Int?
+    var aircraft: [String: CombatRadiusResult]?
+}
+
+/// 极速摘要（仪表盘，不含高度剖面）
+struct CombatRadiusMaxSpeedSummary: Codable {
+    var success: Bool?
+    var feasible: Bool?
+    var fail_reason: String?
+    var max_speed_mach: Double?
+    var max_speed_kmh: Double?
+    var max_speed_kts: Double?
+    var alt_m: Double?
 }
 
 /// 作战半径机型几何预设
@@ -192,6 +219,7 @@ struct CombatRadiusResult: Codable {
     var alt_m: Double?
     var max_tsl_kN: Double?
     var profile: [CombatRadiusMaxSpeedProfilePoint]?
+    var max_speed: CombatRadiusMaxSpeedSummary?
 }
 
 struct CombatRadiusMaxSpeedProfilePoint: Codable, Identifiable, Hashable {
@@ -226,11 +254,15 @@ struct CombatRadiusCruisePoint: Codable, Identifiable, Hashable {
     var alt_m: Double?
     var ld: Double?
     var eta_o: Double?
+    var eta_th: Double?
+    var eta_p: Double?
     var tsfc_mg_n_s: Double?
     var thrust_avail_kN: Double?
     var load: Double?
     var radius_km: Double?
     var fuel_kg_per_km: Double?
+    var mixed_radius_km: Double?
+    var mixed_fuel_kg_per_km: Double?
     var warning: String?
     var fail_reason: String?
 }
@@ -293,6 +325,7 @@ struct MissileInterceptionResult: Codable {
     var best: MissileInterceptionPlan?
     var avg_survivors: [Double]?
     var all_candidates: [MissileInterceptionCandidate]?
+    var plan_rows: [MissileInterceptionPlanRow]?
     var engage_dist: Double?
     var binding: String?
     var speed_factor: Double?
@@ -334,10 +367,22 @@ struct MissileInterceptionPlan: Codable, Hashable {
     var plan: [Int]
 }
 
+struct MissileInterceptionPlanRow: Codable, Identifiable, Hashable {
+    var round: Int
+    var budget: Int
+    var survivors: Double
+    var per_target: Double
+    var kill_prob: Double
+    var id: Int { round }
+}
+
 struct MissileInterceptionCandidate: Codable, Identifiable, Hashable {
     var name: String
     var plan: [Int]
     var expected_leak: Double
+    var relative_label: String?
+    var relative_tone: String?
+    var is_best: Bool?
     var id: String { "\(name)-\(plan.map(String.init).joined(separator: ","))" }
 }
 
@@ -409,8 +454,18 @@ struct SimulationResult: Codable {
     var deck_margin_m: Double?
     var distance_m: Double?
     var output_summary: String?
+    var highlights: [ResultHighlight]?
     var trajectory: [TrajectoryPoint]?
     var deck_profile: DeckProfile?
+}
+
+/// 起飞输出高亮卡片
+struct ResultHighlight: Codable, Identifiable, Hashable {
+    var key: String
+    var label: String
+    var value: String
+    var tone: String?
+    var id: String { key }
 }
 
 struct TrajectoryPoint: Codable, Hashable {
@@ -432,6 +487,7 @@ enum StatusKind {
     case loading
     case ok
     case error
+    case stale
 }
 
 extension Encodable {

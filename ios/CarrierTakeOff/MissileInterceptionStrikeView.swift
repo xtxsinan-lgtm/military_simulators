@@ -5,16 +5,18 @@ struct MissileInterceptionStrikeView: View {
     @StateObject private var vm = MissileInterceptionViewModel()
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
+                Color.clear.frame(height: 0).id("pageTop")
                 header
                 Text(vm.statusText)
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(MissileInterceptionTheme.green)
 
                 panel(title: "参数输入") {
-                    field("来袭数量 (枚)", text: $vm.nm)
-                    field("拦截弹数量", text: $vm.ni)
+                    field("来袭数量 (枚)", text: $vm.nm, hintKey: "nm")
+                    field("拦截弹数量", text: $vm.ni, hintKey: "ni")
 
                     sectionLabel("▸ 打击方", color: MissileInterceptionTheme.red)
                     nationPicker("反舰导弹国别", selection: $vm.selectedAsmNation, nations: vm.asmNations) {
@@ -24,7 +26,7 @@ struct MissileInterceptionStrikeView: View {
                         vm.applyAsmPreset()
                     }
                     field("速度 (Ma)", text: $vm.vm)
-                    field("RCS (m²)", text: $vm.rcs)
+                    field("RCS (m²)", text: $vm.rcs, hintKey: "rcs")
                     pickerRow("弹道", selection: $vm.traj, options: vm.trajOptions)
 
                     sectionLabel("▸ 预警机", color: MissileInterceptionTheme.cyan)
@@ -51,7 +53,7 @@ struct MissileInterceptionStrikeView: View {
                     field("拦截弹最大射高 (km)", text: $vm.samMaxAlt)
                     field("拦截弹速度 (Ma)", text: $vm.vi)
                     field("拦截弹直径 (m)", text: $vm.interceptorDia)
-                    pickerRow("制导头", selection: $vm.seekerType, options: vm.seekerOptions)
+                    pickerRow("制导头", selection: $vm.seekerType, options: vm.seekerOptions, hintKey: "seekerType")
                     field("火控锁定时间 (s)", text: $vm.tlock)
                     field("最小交战距离 (km)", text: $vm.minr)
 
@@ -88,7 +90,20 @@ struct MissileInterceptionStrikeView: View {
             }
             .padding(14)
         }
+        .overlay(alignment: .bottomTrailing) {
+            Button("↑ 顶部") {
+                withAnimation { proxy.scrollTo("pageTop", anchor: .top) }
+            }
+            .font(.system(size: 12, design: .monospaced))
+            .padding(8)
+            .background(MissileInterceptionTheme.panel)
+            .overlay(Rectangle().stroke(MissileInterceptionTheme.cyan, lineWidth: 1))
+            .foregroundStyle(MissileInterceptionTheme.cyan)
+            .padding(16)
+        }
         .background(MissileInterceptionTheme.bg.ignoresSafeArea())
+        .task { await vm.estimateDistanceAndPk() }
+        }
     }
 
     private var header: some View {
@@ -107,6 +122,11 @@ struct MissileInterceptionStrikeView: View {
 
     private func resultsPanel(_ r: MissileInterceptionResult) -> some View {
         panel(title: "仿真结果 · \(vm.statusTag)") {
+            if vm.resultStale {
+                Text("参数已更改，以下结果与当前输入不一致，请重新仿真。")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(MissileInterceptionTheme.amber)
+            }
             HStack(spacing: 10) {
                 stat("窗口数", "\(r.n_rounds ?? 0)", nil)
                 stat("期望突防", String(format: "%.2f", r.expected_leak ?? 0), MissileInterceptionTheme.red)
@@ -124,11 +144,19 @@ struct MissileInterceptionStrikeView: View {
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundStyle(MissileInterceptionTheme.green)
             }
+            if let rows = r.plan_rows, !rows.isEmpty {
+                sectionLabel("▸ 最优弹药分配", color: MissileInterceptionTheme.textDim)
+                ForEach(rows) { row in
+                    Text("#\(row.round)  \(row.budget)枚  存活\(String(format: "%.2f", row.survivors))  ≈\(String(format: "%.2f", row.per_target))/目标  杀伤 \(String(format: "%.1f%%", row.kill_prob * 100))")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundStyle(MissileInterceptionTheme.text)
+                }
+            }
             sectionLabel("▸ 策略对比", color: MissileInterceptionTheme.textDim)
             ForEach(r.all_candidates ?? []) { c in
-                Text("\(c.name)  [\(c.plan.map(String.init).joined(separator: ", "))]  突防 \(String(format: "%.2f", c.expected_leak))")
+                Text("\(c.name)  [\(c.plan.map(String.init).joined(separator: ", "))]  突防 \(String(format: "%.2f", c.expected_leak))  \(c.relative_label ?? (c.is_best == true ? "最优" : ""))")
                     .font(.system(size: 10, design: .monospaced))
-                    .foregroundStyle(MissileInterceptionTheme.textDim)
+                    .foregroundStyle(c.is_best == true ? MissileInterceptionTheme.green : MissileInterceptionTheme.textDim)
             }
             if let note = r.note {
                 Text(note)
@@ -159,11 +187,19 @@ struct MissileInterceptionStrikeView: View {
             .padding(.top, 6)
     }
 
-    private func field(_ label: String, text: Binding<String>) -> some View {
+    private func field(_ label: String, text: Binding<String>, hintKey: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(label)
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundStyle(MissileInterceptionTheme.textDim)
+            HStack {
+                Text(label)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(MissileInterceptionTheme.textDim)
+                if let hintKey, !vm.hint(for: hintKey).isEmpty {
+                    Text("?")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(MissileInterceptionTheme.cyan)
+                        .help(vm.hint(for: hintKey))
+                }
+            }
             TextField("", text: text)
                 .textFieldStyle(.plain)
                 .padding(8)
@@ -171,6 +207,7 @@ struct MissileInterceptionStrikeView: View {
                 .overlay(Rectangle().stroke(MissileInterceptionTheme.line, lineWidth: 1))
                 .foregroundStyle(MissileInterceptionTheme.text)
                 .font(.system(size: 13, design: .monospaced))
+                .onChange(of: text.wrappedValue) { _, _ in vm.markResultsStale() }
         }
     }
 
@@ -190,11 +227,19 @@ struct MissileInterceptionStrikeView: View {
         }
     }
 
-    private func pickerRow(_ label: String, selection: Binding<String>, options: [(String, String)]) -> some View {
+    private func pickerRow(_ label: String, selection: Binding<String>, options: [(String, String)], hintKey: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(label)
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundStyle(MissileInterceptionTheme.textDim)
+            HStack {
+                Text(label)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(MissileInterceptionTheme.textDim)
+                if let hintKey, !vm.hint(for: hintKey).isEmpty {
+                    Text("?")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(MissileInterceptionTheme.cyan)
+                        .help(vm.hint(for: hintKey))
+                }
+            }
             Picker(label, selection: selection) {
                 ForEach(options, id: \.0) { opt in
                     Text(opt.1).tag(opt.0)
@@ -202,6 +247,7 @@ struct MissileInterceptionStrikeView: View {
             }
             .pickerStyle(.menu)
             .tint(MissileInterceptionTheme.cyan)
+            .onChange(of: selection.wrappedValue) { _, _ in vm.markResultsStale() }
         }
     }
 

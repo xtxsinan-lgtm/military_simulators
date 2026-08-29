@@ -18,6 +18,7 @@ def test_get_api_data_returns_aircraft_and_carriers():
     assert 'asm' in data['missile_interception_presets']
     assert 'combat_radius_presets' in data
     assert 'combat_radius_engine_presets' in data
+    assert 'combat_radius_results' in data
     assert any(p['id'] == 'J-20' for p in data['combat_radius_presets'])
     assert any(p['id'] == '53636' for p in data['combat_radius_presets'])
     assert any(p['id'] == 'J-36' for p in data['combat_radius_presets'])

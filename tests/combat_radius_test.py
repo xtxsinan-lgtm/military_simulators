@@ -5,16 +5,24 @@ import json
 
 from apps.combat_radius_web import _opt_bool, _opt_float, run_combat_radius, run_combat_radius_json
 from simulators.combat_radius.combat_radius import (
+    compact_max_speed,
+    ensure_default_anchors,
     format_ld_row,
     main,
     parse_sea_level_thrust_n,
+    run_aircraft_dashboard_from_params,
     run_estimate_efficiency_from_params,
+    run_estimate_engine_cycle_from_params,
     run_estimate_radius_from_params,
     run_estimate_thrust_from_params,
     run_predict_ld,
     run_predict_ld_from_params,
+    run_search_best_cruise_from_params,
     _as_bool,
+    _attach_mixed_radius,
     _calibrate_from_params,
+    _clear_mixed_radius_fields,
+    _cruise_context_from_params,
     _enrich_radius_point,
     _failed_radius_point,
     _infeasible_point,
@@ -329,7 +337,7 @@ def test_run_estimate_radius_from_params_f22():
     r = run_estimate_radius_from_params(_radius_params())
     assert r['success'] is True
     ids = [p['id'] for p in r['points']]
-    assert ids == ['mach_0_8', 'mach_1_5', 'mach_1_76', 'max_cruise']
+    assert ids == ['mach_0_8', 'mach_1_5', 'mach_1_76', 'mach_2_0', 'max_cruise']
     m08 = r['points'][0]
     assert m08['feasible'] is True
     assert m08['radius_km'] > 100
@@ -350,7 +358,7 @@ def test_run_estimate_radius_from_params_f22():
 def test_run_combat_radius_estimate_radius_action():
     ok = run_combat_radius('estimate_radius', _radius_params())
     assert ok['success'] is True
-    assert len(ok['points']) == 4
+    assert len(ok['points']) == 5
     bad = run_combat_radius_json({'action': 'estimate_radius', 'params': {}})
     assert bad['success'] is False
 
@@ -616,4 +624,119 @@ def test_ma08_combat_radius_calibration_targets():
         assert m08['radius_km'] == pytest.approx(target_km, abs=tol_km), (
             f'{ac_id} Ma0.8={m08["radius_km"]:.0f} km, 目标 {target_km}±{tol_km}'
         )
+
+
+def test_cruise_context_from_params_uses_half_fuel():
+    ctx, ac = _cruise_context_from_params(_radius_params())
+    assert ctx.n_engines == 2
+    assert ac.name == 'F-22 Raptor' or 'F-22' in ac.name
+    assert ctx.mass_kg > 0
+    assert ctx.tsl_N == pytest.approx(116000.0)
+    filled = ensure_default_anchors({'target': {'name': 'X'}})
+    assert filled['anchor1']['id'] == 'F-35C'
+    assert filled['anchor2']['id'] == 'F-22'
+    assert filled['ld1_target'] == pytest.approx(8.52)
+    assert filled['ld2_target'] == pytest.approx(8.62)
+    already = ensure_default_anchors(_sample_params())
+    assert already['anchor1']['name'] == 'F-35C'
+
+
+def test_clear_and_attach_mixed_radius():
+    row = {'id': 'mach_1_5'}
+    _clear_mixed_radius_fields(row)
+    assert row['mixed_radius_km'] is None
+    sub = {
+        'id': 'mach_0_8', 'feasible': True, 'V0': 240.0, 'tsfc_kg_n_s': 2.5e-5,
+        'ld': 8.0, 'mach': 0.8,
+    }
+    super_pt = {
+        'id': 'mach_1_5', 'feasible': True, 'V0': 500.0, 'tsfc_kg_n_s': 5.0e-5,
+        'ld': 5.0, 'mach': 1.5,
+    }
+    subsonic_only = {
+        'id': 'mach_0_8b', 'feasible': True, 'V0': 240.0, 'tsfc_kg_n_s': 2.5e-5,
+        'ld': 8.0, 'mach': 0.8,
+    }
+    points = [sub, super_pt, subsonic_only]
+    _attach_mixed_radius(points, 28000.0, 20000.0, 8000.0)
+    assert super_pt['mixed_radius_km'] > 0
+    assert super_pt['mixed_fuel_kg_per_km'] > 0
+    assert subsonic_only['mixed_radius_km'] is None
+
+
+def test_compact_max_speed_drops_profile():
+    compact = compact_max_speed({
+        'success': True, 'feasible': True, 'max_speed_mach': 2.1,
+        'max_speed_kmh': 2200, 'max_speed_kts': 1188, 'alt_m': 11000,
+        'ld': 4.0, 'load': 0.9, 'thrust_avail_kN': 80, 'note': 'x',
+        'profile': [{'alt_m': 0}],
+    })
+    assert 'profile' not in compact
+    assert compact['max_speed_mach'] == 2.1
+
+
+def test_run_search_best_cruise_from_params_ma08():
+    r = run_search_best_cruise_from_params({**_radius_params(), 'mach': 0.8})
+    assert r['success'] is True
+    assert r['feasible'] is True
+    assert r['ld'] > 0
+    assert r['eta_th'] > 0
+    assert r['eta_p'] > 0
+    assert r['thrust_avail_kN'] > 0
+
+
+def test_run_search_best_cruise_infeasible_mach():
+    r = run_search_best_cruise_from_params({**_radius_params(), 'mach': 3.5})
+    assert r['success'] is True
+    assert r['feasible'] is False
+    assert '92%' in r['fail_reason']
+
+
+def test_run_estimate_engine_cycle_from_params():
+    r = run_estimate_engine_cycle_from_params({
+        'bpr': 0.30, 'opr': 26.0, 't4_K': 1922,
+        'mach': 0.8, 'alt_m': 12000, 'load': 0.5,
+    })
+    assert r['success'] is True
+    assert r['eta_th'] > 0
+    assert r['eta_p'] > 0
+    assert r['eta_o'] > 0
+    pct = run_estimate_engine_cycle_from_params({
+        'bpr': 0.30, 'opr': 26.0, 't4_K': 1922,
+        'mach': 0.8, 'alt_m': 12000, 'load': 50,
+    })
+    assert pct['load'] == pytest.approx(0.5)
+
+
+def test_run_estimate_engine_cycle_rejects_missing_t4():
+    with pytest.raises(ValueError, match='涡轮前温度'):
+        run_estimate_engine_cycle_from_params({
+            'bpr': 0.3, 'mach': 0.8, 'alt_m': 12000, 'load': 0.4,
+        })
+
+
+def test_run_aircraft_dashboard_from_params_f22():
+    p = _radius_params()
+    p['max_tsl_kN'] = 156.0
+    dash = run_aircraft_dashboard_from_params(p)
+    assert dash['success'] is True
+    ids = [p['id'] for p in dash['points']]
+    assert 'mach_2_0' in ids
+    m08 = next(pt for pt in dash['points'] if pt['id'] == 'mach_0_8')
+    assert m08['mixed_radius_km'] is None
+    assert dash['max_speed']['feasible'] is True
+    supers = [pt for pt in dash['points'] if pt.get('feasible') and (pt.get('mach') or 0) > 1]
+    if supers:
+        assert any(pt.get('mixed_radius_km') for pt in supers)
+
+
+def test_run_combat_radius_new_actions():
+    dash = run_combat_radius('aircraft_dashboard', _radius_params())
+    assert dash['success'] is True
+    search = run_combat_radius('search_best_cruise', {**_radius_params(), 'mach': 0.8})
+    assert search['feasible'] is True
+    cycle = run_combat_radius('estimate_engine_cycle', {
+        'bpr': 0.30, 'opr': 26.0, 't4_K': 1922, 'mach': 0.8, 'alt_m': 12000, 'load': 0.4,
+    })
+    assert cycle['eta_o'] > 0
 

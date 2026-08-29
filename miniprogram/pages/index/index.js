@@ -62,6 +62,13 @@ Page({
     outputText: '选择参数后点击「开始仿真」，结果将显示在此处。',
     outputEmpty: true,
     outputSummary: '',
+    highlights: [],
+    resultStale: false,
+    outputDetailsOpen: true,
+    massRangeHint: '',
+    massError: '',
+    massInvalid: false,
+    showBackToTop: false,
     running: false,
     simResult: null,
     showTrajectory: false,
@@ -74,6 +81,7 @@ Page({
   _skiGeom: null,
   _windUserEdited: false,
   _massUserEdited: false,
+  _resultFresh: false,
 
   onLoad() {
     this.setData({
@@ -119,6 +127,52 @@ Page({
     }
   },
 
+  onPageScroll(e) {
+    const show = (e.scrollTop || 0) > 360;
+    if (show !== this.data.showBackToTop) this.setData({ showBackToTop: show });
+  },
+
+  onBackToTop() {
+    wx.pageScrollTo({ scrollTop: 0, duration: 300 });
+  },
+
+  onToggleOutputDetails() {
+    this.setData({ outputDetailsOpen: !this.data.outputDetailsOpen });
+  },
+
+  markResultsStale() {
+    if (!this._resultFresh) return;
+    this._resultFresh = false;
+    this.setData({ resultStale: true });
+    this.setStatus('参数已更改 — 结果已过期，请重新仿真', '');
+  },
+
+  /** 与 Python validate_takeoff_mass 对齐。 */
+  validateTakeoffMass(massKg, mtowKg, emptyKg) {
+    const mass = Number(massKg);
+    if (!Number.isFinite(mass)) return '请填写有效的起飞重量';
+    if (mass <= 0) return '起飞重量必须为正数';
+    if (Number.isFinite(mtowKg) && mass > mtowKg + 1e-6) {
+      return `起飞重量 ${Math.round(mass)} kg 超出最大起飞重量 ${Math.round(mtowKg)} kg`;
+    }
+    if (Number.isFinite(emptyKg) && mass + 1e-6 < emptyKg) {
+      return `起飞重量 ${Math.round(mass)} kg 低于空重 ${Math.round(emptyKg)} kg`;
+    }
+    return '';
+  },
+
+  refreshMassHint() {
+    const ac = this.getSelectedAircraft();
+    const massRangeHint = ac
+      ? `范围：空重 ${Math.round(ac.empty_kg)} – MTOW ${Math.round(ac.mtow_kg)} kg`
+      : '';
+    const massError = ac
+      ? this.validateTakeoffMass(parseFloat(this.data.massKg), ac.mtow_kg, ac.empty_kg)
+      : '';
+    this.setData({ massRangeHint, massError, massInvalid: Boolean(massError) });
+    return massError;
+  },
+
   setStatus(text, cls = '') {
     this.setData({ statusText: text, statusClass: cls });
   },
@@ -162,6 +216,7 @@ Page({
       simResult: null,
     });
     this.refreshSelections();
+    this.markResultsStale();
   },
 
   getSelectedCarrier() {
@@ -320,7 +375,7 @@ Page({
     if (!this._massUserEdited) {
       patch.massKg = String(Math.round(a2aMassKg(ac)));
     }
-    this.setData(patch);
+    this.setData(patch, () => this.refreshMassHint());
   },
 
   onModeChange(e) {
@@ -334,38 +389,50 @@ Page({
       currentStrategy: strategy,
       strategyDescription: this.resolveStrategyDescription(this.data.currentMode, strategy),
     });
+    this.markResultsStale();
   },
 
   onCarrierChange(e) {
     this._windUserEdited = false;
-    this.setData({ carrierIndex: Number(e.detail.value) }, () => this.updateCarrierInfo());
+    this.setData({ carrierIndex: Number(e.detail.value) }, () => {
+      this.updateCarrierInfo();
+      this.markResultsStale();
+    });
   },
 
   onAircraftChange(e) {
     this._massUserEdited = false;
-    this.setData({ aircraftIndex: Number(e.detail.value) }, () => this.updateAircraftInfo());
+    this.setData({ aircraftIndex: Number(e.detail.value) }, () => {
+      this.updateAircraftInfo();
+      this.markResultsStale();
+    });
   },
 
   onSkiAngleInput(e) {
     this.setData({ skiAngle: e.detail.value }, () => this.updateSkiJumpFromInputs());
+    this.markResultsStale();
   },
 
   onSkiArcInput(e) {
     this.setData({ skiArcLength: e.detail.value }, () => this.updateSkiJumpFromInputs());
+    this.markResultsStale();
   },
 
   onWindInput(e) {
     this._windUserEdited = true;
     this.setData({ windKt: e.detail.value });
+    this.markResultsStale();
   },
 
   onTempInput(e) {
     this.setData({ tempC: e.detail.value });
+    this.markResultsStale();
   },
 
   onMassInput(e) {
     this._massUserEdited = true;
-    this.setData({ massKg: e.detail.value });
+    this.setData({ massKg: e.detail.value }, () => this.refreshMassHint());
+    this.markResultsStale();
   },
 
   async onRunSimulation() {
@@ -383,15 +450,23 @@ Page({
       this.setStatus('请填写有效的重量、温度和甲板风', 'error');
       return;
     }
+    const massErr = this.refreshMassHint();
+    if (massErr) {
+      this.setStatus(massErr, 'error');
+      return;
+    }
 
-    this.setData({
-      running: true,
-      outputEmpty: false,
-      outputText: '计算中…',
-      outputSummary: '',
-      showTrajectory: false,
-      simResult: null,
-    });
+      this.setData({
+        running: true,
+        outputEmpty: false,
+        outputText: '计算中…',
+        outputSummary: '',
+        highlights: [],
+        resultStale: false,
+        outputDetailsOpen: true,
+        showTrajectory: false,
+        simResult: null,
+      });
     this.setStatus('仿真计算中（可能需要数秒至数十秒）…', 'loading');
 
     const payload = {
@@ -441,11 +516,15 @@ Page({
       this.setData({
         outputText: result.output || '(无输出)',
         outputSummary: result.success ? formatOutputSummary(result) : '',
+        highlights: result.success ? (result.highlights || []) : [],
+        resultStale: false,
+        outputDetailsOpen: !result.success,
         simResult: chartResult,
         showTrajectory: showTraj,
       });
 
       if (result.success) {
+        this._resultFresh = true;
         const trajNote = showTraj ? ` · 轨迹 ${traj.length} 点` : '';
         const missingTrajNote =
           modeHasTrajectory(this.data.currentMode) && !showTraj
@@ -462,6 +541,9 @@ Page({
       this.setData({
         outputText: String(e.message || e),
         outputSummary: '',
+        highlights: [],
+        resultStale: false,
+        outputDetailsOpen: true,
         showTrajectory: false,
         simResult: null,
       });

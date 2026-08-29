@@ -24,6 +24,7 @@ from utils.combat_radius.breguet import (
     average_fuel_kg_per_km,
     combat_radius_m,
     mission_fuel_budget,
+    mixed_combat_radius_m,
 )
 from utils.combat_radius.combat_radius_config import mission_fuel_config
 from utils.combat_radius.cruise_load import (
@@ -44,6 +45,7 @@ from utils.combat_radius.cruise_search import (
     MACH_SEARCH_LO,
     THRUST_MARGIN_DEFAULT,
     CruiseContext,
+    SUPERSONIC_MACH,
     evaluate_cruise_forces,
     score_cruise_point,
     scored_to_dict,
@@ -140,13 +142,43 @@ def _require_aircraft_params(params: dict[str, Any], key: str) -> dict[str, Any]
 
 
 def run_predict_ld_from_params(params: dict[str, Any]) -> dict[str, Any]:
-    """从 JSON 参数运行升阻比估算。"""
+    """从 JSON 参数运行升阻比估算。未提供锚点时用配置默认机型。"""
+    params = ensure_default_anchors(params)
     anchor1 = aircraft_from_dict(_require_aircraft_params(params, 'anchor1'))
     anchor2 = aircraft_from_dict(_require_aircraft_params(params, 'anchor2'))
     target = aircraft_from_dict(_require_aircraft_params(params, 'target'))
     ld1 = float(params.get('ld1_target', params.get('ld1')))
     ld2 = float(params.get('ld2_target', params.get('ld2')))
     return run_predict_ld(anchor1, ld1, anchor2, ld2, target)
+
+
+def ensure_default_anchors(params: dict[str, Any]) -> dict[str, Any]:
+    """未提供锚点时，用配置默认机型（F-35C / F-22）填入；界面不展示这些黑箱数字。"""
+    out = dict(params)
+    need1 = not isinstance(out.get('anchor1'), dict)
+    need2 = not isinstance(out.get('anchor2'), dict)
+    if not need1 and not need2:
+        return out
+    from utils.combat_radius.combat_radius_config import ui_config
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
+
+    ui = ui_config()
+    presets = load_presets()
+    if need1:
+        a1 = get_preset_by_id(presets, str(ui.get('default_anchor1_id', 'F-35C')))
+        if a1 is None:
+            raise ValueError('无法加载默认升阻比标定锚点 1')
+        out['anchor1'] = a1
+        if out.get('ld1_target', out.get('ld1')) in (None, ''):
+            out['ld1_target'] = a1.get('ld_known', ui.get('default_ld1', 8.52))
+    if need2:
+        a2 = get_preset_by_id(presets, str(ui.get('default_anchor2_id', 'F-22')))
+        if a2 is None:
+            raise ValueError('无法加载默认升阻比标定锚点 2')
+        out['anchor2'] = a2
+        if out.get('ld2_target', out.get('ld2')) in (None, ''):
+            out['ld2_target'] = a2.get('ld_known', ui.get('default_ld2', 8.62))
+    return out
 
 
 def _optional_float(value: Any) -> float | None:
@@ -274,8 +306,9 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
     """由 L/D、空战重量与可用军推估算负载比、总效率与 TSFC。
 
     若提供锚点+待估机几何，则在给定高度/马赫数下重算 L/D；
-    也可直接传入 ld，跳过升阻比标定。
+    也可直接传入 ld，跳过升阻比标定。未提供锚点时用配置默认机型。
     """
+    params = ensure_default_anchors(params)
     alt_m = float(params['alt_m'])
     mach = float(params['mach'])
     n_engines = _optional_int(params.get('n_engines'), 1)
@@ -384,6 +417,7 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
 
 def _calibrate_from_params(params: dict[str, Any]) -> tuple[Aircraft, float, float]:
     """从请求标定 (Cf0, k_e)，并返回覆盖了待估机几何的 Aircraft。"""
+    params = ensure_default_anchors(params)
     target = aircraft_from_dict(_require_aircraft_params(params, 'target'))
     ld_info = run_predict_ld_from_params({
         'anchor1': _require_aircraft_params(params, 'anchor1'),
@@ -471,13 +505,67 @@ def _enrich_radius_point(
     row['radius_m'] = radius
     row['radius_km'] = radius / 1000.0
     row['fuel_kg_per_km'] = average_fuel_kg_per_km(fuel_kg, radius)
+    _clear_mixed_radius_fields(row)
     return row
+
+
+def _clear_mixed_radius_fields(row: dict[str, Any]) -> None:
+    """占位混合作战半径字段，供后续统一填充。"""
+    row.setdefault('mixed_radius_m', None)
+    row.setdefault('mixed_radius_km', None)
+    row.setdefault('mixed_fuel_kg_per_km', None)
+
+
+def _attach_mixed_radius(
+    points: list[dict[str, Any]],
+    mass_initial_kg: float,
+    mass_final_kg: float,
+    fuel_kg: float,
+) -> None:
+    """超音速巡航点补上去程该马赫、返程 Ma 0.8 的混合作战半径。"""
+    subsonic = next(
+        (
+            p for p in points
+            if p.get('id') == 'mach_0_8' and p.get('feasible')
+            and p.get('tsfc_kg_n_s') and p.get('V0') and p.get('ld')
+        ),
+        None,
+    )
+    for row in points:
+        _clear_mixed_radius_fields(row)
+        if not row.get('feasible'):
+            continue
+        mach = row.get('mach')
+        if mach is None or float(mach) <= SUPERSONIC_MACH:
+            continue
+        if subsonic is None:
+            row['mixed_warning'] = 'no_subsonic_return'
+            continue
+        try:
+            radius = mixed_combat_radius_m(
+                float(row['V0']),
+                float(row['tsfc_kg_n_s']),
+                float(row['ld']),
+                float(subsonic['V0']),
+                float(subsonic['tsfc_kg_n_s']),
+                float(subsonic['ld']),
+                mass_initial_kg,
+                mass_final_kg,
+            )
+        except (ValueError, TypeError, KeyError):
+            row['mixed_warning'] = 'mixed_infeasible'
+            continue
+        row['mixed_radius_m'] = radius
+        row['mixed_radius_km'] = radius / 1000.0
+        if fuel_kg > 0 and radius > 0:
+            row['mixed_fuel_kg_per_km'] = average_fuel_kg_per_km(fuel_kg, radius)
 
 
 def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """串联升阻比、军推与效率，搜索最佳巡航高度并估算作战半径。
 
-    固定评估 Ma 0.8 / 1.5 / 1.76，以及阻力不超过军推 92% 的最大巡航马赫。
+    固定评估 Ma 0.8 / 1.5 / 1.76 / 2.0，以及阻力不超过军推 92% 的最大巡航马赫。
+    超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。
     巡航 L/D 仍用一半内油的空战重量。
     布雷盖可用油 = 内油 − 降落冗余 − 爬升额外 + 降落节省；
     冗余为舰载 40 min / 陆基 30 min、850 km/h 平飞，爬升/降落分别按
@@ -573,9 +661,12 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         )
 
     def pack_point(point_id: str, label: str, mach: float) -> dict[str, Any]:
-        scored = search_best_altitude(
-            ctx, mach, alt_min, alt_max, coarse_m, refine_m,
-        )
+        try:
+            scored = search_best_altitude(
+                ctx, mach, alt_min, alt_max, coarse_m, refine_m,
+            )
+        except ValueError:
+            return _infeasible_point(point_id, label, mach)
         if scored is None:
             return _infeasible_point(point_id, label, mach)
         if fuel_adj is None:
@@ -621,6 +712,16 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     breguet_final = (
         float(fuel_adj['mass_final_kg']) if fuel_adj else dry_mass['total_kg']
     )
+    if fuel_adj is not None and float(fuel_adj['usable_fuel_kg']) > 0:
+        _attach_mixed_radius(
+            points,
+            float(fuel_adj['mass_initial_kg']),
+            float(fuel_adj['mass_final_kg']),
+            float(fuel_adj['usable_fuel_kg']),
+        )
+    else:
+        for row in points:
+            _clear_mixed_radius_fields(row)
     return {
         'success': True,
         'name': str(params.get('name') or target.name),
@@ -738,6 +839,152 @@ def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]
         'profile': result['profile'],
         'note': '加力最大速度：各高度二分最大马赫，取真速最大点；不计作战半径。',
     }
+
+
+def compact_max_speed(result: dict[str, Any]) -> dict[str, Any]:
+    """仪表盘用的极速摘要，去掉高度剖面以控制体积。"""
+    return {
+        'success': bool(result.get('success', True)),
+        'feasible': result.get('feasible'),
+        'fail_reason': result.get('fail_reason'),
+        'max_speed_mach': result.get('max_speed_mach'),
+        'max_speed_kmh': result.get('max_speed_kmh'),
+        'max_speed_kts': result.get('max_speed_kts'),
+        'alt_m': result.get('alt_m'),
+        'ld': result.get('ld'),
+        'load': result.get('load'),
+        'thrust_avail_kN': result.get('thrust_avail_kN'),
+        'note': result.get('note'),
+    }
+
+
+def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]:
+    """机型仪表盘：最大巡航、极速、各马赫作战半径与混合作战半径。
+
+    锚点由配置默认填入，不要求前端传入。缺少海平面加力时极速标为不可行。
+    """
+    params = ensure_default_anchors(params)
+    radius = run_estimate_radius_from_params(params)
+    max_speed_block = {
+        'success': True,
+        'feasible': False,
+        'fail_reason': '缺少海平面加力最大推力',
+        'max_speed_mach': None,
+        'max_speed_kmh': None,
+        'max_speed_kts': None,
+        'alt_m': None,
+        'ld': None,
+        'load': None,
+        'thrust_avail_kN': None,
+        'note': None,
+    }
+    try:
+        max_speed_block = compact_max_speed(run_estimate_max_speed_from_params(params))
+    except ValueError as exc:
+        max_speed_block['fail_reason'] = str(exc)
+    radius['max_speed'] = max_speed_block
+    return radius
+
+
+def _cruise_context_from_params(params: dict[str, Any]) -> tuple[CruiseContext, Aircraft]:
+    """由请求参数标定并构造巡航搜索上下文（空战半油重量）。"""
+    params = ensure_default_anchors(params)
+    n_engines = _optional_int(params.get('n_engines'), 1)
+    if n_engines < 1:
+        raise ValueError('发动机台数须至少为 1')
+    target, cf0, k_e = _calibrate_from_params(params)
+    n_missiles = float(params.get('n_missiles', N_MISSILES_DEFAULT))
+    cruise_mass = combat_mass_breakdown(
+        empty_kg=float(params['empty_kg']),
+        internal_fuel_kg=float(params['internal_fuel_kg']),
+        n_pilots=float(params.get('n_pilots', 1)),
+        missile_mass_kg=float(params.get('missile_mass_kg', 0)),
+        n_missiles=n_missiles,
+        fuel_fraction=0.5,
+    )
+    t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
+    ctx = CruiseContext(
+        target=target,
+        cf0=cf0,
+        k_e=k_e,
+        mass_kg=cruise_mass['total_kg'],
+        n_engines=n_engines,
+        bpr=float(params['bpr']),
+        opr=float(params['opr']),
+        t4_K=t4max,
+        tsl_N=parse_sea_level_thrust_n(params),
+        eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
+        fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
+        fpr=_optional_float(params.get('FPR', params.get('fan_pr_override'))),
+        eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
+        etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
+        acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
+        t4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
+        thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
+    )
+    return ctx, target
+
+
+def run_search_best_cruise_from_params(params: dict[str, Any]) -> dict[str, Any]:
+    """给定马赫，搜索 L/D×η_o 最大且满足推力裕度的巡航高度。"""
+    mach = float(params['mach'])
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    ctx, target = _cruise_context_from_params(params)
+    alt_min = float(params['alt_min_m']) if params.get('alt_min_m') not in (None, '') else ALT_MIN_M
+    alt_max = float(params['alt_max_m']) if params.get('alt_max_m') not in (None, '') else ALT_MAX_M
+    coarse_m = float(params['alt_coarse_m']) if params.get('alt_coarse_m') not in (None, '') else ALT_COARSE_M
+    refine_m = float(params['alt_refine_m']) if params.get('alt_refine_m') not in (None, '') else ALT_REFINE_M
+    try:
+        scored = search_best_altitude(ctx, mach, alt_min, alt_max, coarse_m, refine_m)
+    except ValueError:
+        scored = None
+    if scored is None:
+        return {
+            'success': True,
+            'feasible': False,
+            'mach': mach,
+            'name': str(params.get('name') or target.name),
+            'fail_reason': _radius_fail_reason('no_feasible_altitude'),
+        }
+    row = scored_to_dict(scored)
+    row['success'] = True
+    row['name'] = str(params.get('name') or target.name)
+    return row
+
+
+def run_estimate_engine_cycle_from_params(params: dict[str, Any]) -> dict[str, Any]:
+    """给定速度、高度与负载，只算发动机热效率、推进效率与总效率。"""
+    load = float(params['load'])
+    if load > 1.0 and load <= 100.0:
+        load = load / 100.0
+    t4_raw = params.get('t4_K', params.get('t4', params.get('T4max')))
+    if t4_raw in (None, ''):
+        raise ValueError('缺少涡轮前温度 t4_K')
+    alt_raw = params.get('alt_m', params.get('altitude_m'))
+    if alt_raw in (None, ''):
+        raise ValueError('缺少高度 alt_m')
+    opr = _optional_float(params.get('opr'))
+    eff = compute_engine_efficiency(
+        bpr=float(params['bpr']),
+        mach=float(params['mach']),
+        altitude_m=float(alt_raw),
+        load=load,
+        OPR=opr,
+        FPR=_optional_float(params.get('FPR', params.get('fan_pr_override', params.get('fan_pr')))),
+        T4max=float(t4_raw),
+        T4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
+        eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
+        etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
+        acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
+    )
+    if not eff.valid:
+        raise ValueError(f'效率循环无解（{eff.warning or "unknown"}）')
+    payload = engine_result_to_dict(eff)
+    payload['success'] = True
+    payload['load'] = load
+    payload['name'] = str(params.get('name') or '')
+    return payload
 
 
 def main() -> None:

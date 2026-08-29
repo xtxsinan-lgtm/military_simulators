@@ -97,9 +97,10 @@ Page({
     shipArea: '12', samRange: '40', samMaxAlt: '33',
     discoveryKm: '120', ni: '16', vi: '3.8',
     interceptorDia: '0.35', pk: '0.7', tlock: '6', minr: '3',
-    awacsDetectKm: '0', shipDetectKm: '0', diveEntryDisplay: '—',
+    awacsDetectKm: '待估算', shipDetectKm: '待估算', diveEntryDisplay: '—',
     distNote: '', pkNote: '', statusText: '', statusTag: 'STANDBY',
-    running: false, hasResult: false,
+    running: false, hasResult: false, resultStale: false, showBackToTop: false,
+    fieldHints: {}, ranges: {},
     windows: [], planRows: [], strategies: [],
     statRounds: '–', statLeak: '–', statRate: '–',
     statRoundsSub: '', statLeakSub: '', statRateSub: '',
@@ -116,6 +117,7 @@ Page({
       const aewList = p.aew || [];
       const shipList = p.ship || [];
       const samList = p.sam || [];
+      const cfg = data.missile_interception_config || {};
       this.setData({
         asmList, aewList, shipList, samList,
         asmFiltered: asmList, shipFiltered: shipList, samFiltered: samList,
@@ -147,22 +149,50 @@ Page({
         seekerIndex: ['active_aesa', 'active_mech', 'semi_active'].indexOf(ui.seeker_type || 'active_aesa'),
         aewIndex: ui.has_awacs === false ? 0 : 1,
         hasAwacs: ui.has_awacs !== false,
-        statusText: '预设已加载。请配置后端 apiBaseUrl 后运行仿真。',
+        fieldHints: cfg.field_hints || {},
+        ranges: cfg.field_ranges || {},
+        statusText: '预设已加载。引擎就绪后将自动估算探测距离。',
+      }, () => {
+        const cfgJs = require('../../config.js');
+        if (cfgJs.apiBaseUrl) this.onEstimateDistanceAndPk();
       });
     }).catch((e) => {
       this.setData({ statusText: String(e.message || e) });
     });
   },
 
+  onPageScroll(e) {
+    const show = (e.scrollTop || 0) > 360;
+    if (show !== this.data.showBackToTop) this.setData({ showBackToTop: show });
+  },
+
+  onBackToTop() {
+    wx.pageScrollTo({ scrollTop: 0, duration: 300 });
+  },
+
+  onHint(e) {
+    const key = e.currentTarget.dataset.key;
+    const text = (this.data.fieldHints || {})[key];
+    if (!text) return;
+    wx.showModal({ title: '术语说明', content: text, showCancel: false });
+  },
+
+  markResultsStale() {
+    if (!this._resultFresh) return;
+    this._resultFresh = false;
+    this.setData({ resultStale: true, statusTag: 'STALE' });
+  },
+
   onField(e) {
     const key = e.currentTarget.dataset.key;
     this.setData({ [key]: e.detail.value });
+    this.markResultsStale();
   },
 
-  onTraj(e) { this.setData({ trajIndex: Number(e.detail.value) }); },
-  onAwacsType(e) { this.setData({ awacsTypeIndex: Number(e.detail.value) }); },
-  onShipType(e) { this.setData({ shipTypeIndex: Number(e.detail.value) }); },
-  onSeeker(e) { this.setData({ seekerIndex: Number(e.detail.value) }); },
+  onTraj(e) { this.setData({ trajIndex: Number(e.detail.value) }); this.markResultsStale(); },
+  onAwacsType(e) { this.setData({ awacsTypeIndex: Number(e.detail.value) }); this.markResultsStale(); },
+  onShipType(e) { this.setData({ shipTypeIndex: Number(e.detail.value) }); this.markResultsStale(); },
+  onSeeker(e) { this.setData({ seekerIndex: Number(e.detail.value) }); this.markResultsStale(); },
 
   /** 切换国别：重建该国别下的型号列表并复位为「— 自定义 —」。 */
   onNation(e, listKey, nationNamesKey, indexKey, filteredKey, namesKey, modelIndexKey) {
@@ -179,6 +209,7 @@ Page({
 
   onAsmNation(e) {
     this.onNation(e, 'asmList', 'asmNationNames', 'asmNationIndex', 'asmFiltered', 'asmNames', 'asmIndex');
+    this.markResultsStale();
   },
   /** 切换防御方国别：同时过滤驱护舰艇与防空导弹型号列表并复位为自定义。 */
   onDefenderNation(e) {
@@ -209,6 +240,7 @@ Page({
       asmId: p.id || '',
       maneuverClass: p.maneuver_class || '',
     });
+    this.markResultsStale();
   },
   onAewPreset(e) {
     // 0=无预警机 1=自定义 >=2=aewList[idx-2] 预设
@@ -220,6 +252,7 @@ Page({
       awacsArea: String(p.area), standoff: String(p.standoff),
       awacsTypeIndex: Math.max(0, RADAR_TYPES.indexOf(p.type)),
     });
+    this.markResultsStale();
   },
   onShipPreset(e) {
     const idx = Number(e.detail.value);
@@ -231,6 +264,7 @@ Page({
       shipArea: String(p.area),
       shipTypeIndex: Math.max(0, RADAR_TYPES.indexOf(p.type)),
     });
+    this.markResultsStale();
   },
   onSamPreset(e) {
     const idx = Number(e.detail.value);
@@ -243,6 +277,7 @@ Page({
       samMaxAlt: p.max_alt != null ? String(p.max_alt) : this.data.samMaxAlt,
       seekerIndex: Math.max(0, SEEKERS.indexOf(p.guidance)),
     });
+    this.markResultsStale();
   },
 
   estimateParams() {
@@ -350,26 +385,34 @@ Page({
     }));
     const avg = r.avg_survivors || [];
     const plan = (r.best && r.best.plan) || [];
-    const planRows = plan.map((budget, i) => {
+    const apiRows = r.plan_rows || [];
+    const planRows = (apiRows.length ? apiRows : plan.map((budget, i) => {
       const surv = avg[i] || 0;
       const per = surv > 0 ? budget / surv : 0;
+      return { round: i + 1, budget, survivors: surv, per_target: per, kill_prob: 0 };
+    })).map((row, i) => ({
+      round: row.round || i + 1,
+      budget: `${row.budget} 枚`,
+      surv: fmt(row.survivors, 2),
+      per: `≈${fmt(row.per_target, 2)}`,
+      kill: `${fmt((row.kill_prob || 0) * 100, 1)}%`,
+    }));
+    const bestKey = plan.join(',');
+    const strategies = (r.all_candidates || []).map((c) => {
+      const best = c.is_best || (c.name === (r.best && r.best.name) && (c.plan || []).join(',') === bestKey);
       return {
-        round: i + 1,
-        budget: `${budget} 枚`,
-        surv: fmt(surv, 2),
-        per: `≈${fmt(per, 2)}`,
+        name: c.name,
+        plan: `[${(c.plan || []).join(', ')}]`,
+        leak: fmt(c.expected_leak, 2),
+        best,
+        relative: c.relative_label || (best ? '最优' : ''),
       };
     });
-    const bestKey = plan.join(',');
-    const strategies = (r.all_candidates || []).map((c) => ({
-      name: c.name,
-      plan: `[${(c.plan || []).join(', ')}]`,
-      leak: fmt(c.expected_leak, 2),
-      best: c.name === (r.best && r.best.name) && (c.plan || []).join(',') === bestKey,
-    }));
+    this._resultFresh = true;
     this.setData({
       running: false,
       hasResult: true,
+      resultStale: false,
       statusTag: 'DONE',
       statusText: `MC N=${r.final_trials}`,
       windows,
