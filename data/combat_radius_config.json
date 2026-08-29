@@ -9,7 +9,11 @@
     "default_engine_id": "f119",
     "default_eta_c": 0.87,
     "default_thrust_alt_m": 11000,
-    "default_thrust_mach": 1.5
+    "default_thrust_mach": 1.5,
+    "default_eps": 0.83,
+    "default_etan": 0.95,
+    "default_acc_frac": 0.16,
+    "default_t4idle": 900
   },
   "planform_labels": {
     "trapezoidal": "梯形翼",

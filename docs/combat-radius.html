@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=2">
+<link rel="stylesheet" href="css/combat_radius.css?v=3">
 </head>
 <body>
 <div class="scanline"></div>
 <header>
   <div>
     <div class="title">飞机作战半径估算终端</div>
-    <div class="subtitle">COMBAT RADIUS · L/D + MILITARY THRUST</div>
+    <div class="subtitle">COMBAT RADIUS · L/D + THRUST + TSFC</div>
   </div>
   <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
     <a class="nav-link" href="index.html">← 启动页</a>
@@ -83,7 +83,33 @@
         <div class="field"><label>风扇压比 <span class="unit">可空</span></label><input type="number" id="engFanPr" step="0.01" min="1.01" placeholder="由 BPR 估算"></div>
       </div>
       <button class="run" id="thrustBtn">▶ 估算可用军推</button>
-      <p class="note">第 3–4 部分（燃油、任务剖面、作战半径积分）将在后续接入同一终端。</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span>3. 负载与巡航效率</span><span class="tag">TSFC</span></div>
+      <p class="note">空战重量 = 空重 + 一半内油 + 飞行员×0.1 t + 4 枚中距弹。平飞阻力 D=W/(L/D)，负载比 = D/可用军推。再用实际布雷顿循环反解 T4，得到 η_th·η_p 与 TSFC。巡航点使用第 2 栏高度/马赫，升阻比用第 1 栏待估机几何重算。</p>
+      <div class="pair">
+        <div class="field"><label>空重 <span class="unit">kg</span></label><input type="number" id="wtEmpty" step="10" min="1"></div>
+        <div class="field"><label>内油 <span class="unit">kg</span></label><input type="number" id="wtFuel" step="10" min="0"></div>
+      </div>
+      <div class="pair">
+        <div class="field"><label>飞行员数</label><input type="number" id="wtPilots" step="1" min="1" value="1"></div>
+        <div class="field"><label>单枚中距弹 <span class="unit">kg</span></label><input type="number" id="wtMissile" step="1" min="0"></div>
+      </div>
+      <div class="pair">
+        <div class="field"><label>挂弹数</label><input type="number" id="wtNMissiles" step="1" min="0" value="4"></div>
+        <div class="field"><label>发动机台数</label><input type="number" id="wtEngines" step="1" min="1" value="1"></div>
+      </div>
+      <div class="pair">
+        <div class="field"><label>部件效率 ε</label><input type="number" id="effEps" step="0.01" min="0.5" max="1" value="0.83"></div>
+        <div class="field"><label>喷管效率 η_n</label><input type="number" id="effEtan" step="0.01" min="0.5" max="1" value="0.95"></div>
+      </div>
+      <div class="field">
+        <label>附件功提取比例</label>
+        <input type="number" id="effAcc" step="0.01" min="0" max="0.5" value="0.16">
+      </div>
+      <button class="run" id="effBtn">▶ 估算负载与 TSFC</button>
+      <p class="note">第 4 部分（任务剖面与作战半径积分）将在后续接入同一终端。</p>
     </div>
   </div>
 
@@ -98,9 +124,14 @@
       <div id="thrustStatus" class="clock">STANDBY</div>
       <div id="thrustBox" class="placeholder">等待军推估算…</div>
     </div>
+    <div class="panel">
+      <div class="panel-head"><span>效率 / TSFC 输出</span><span class="tag">TSFC</span></div>
+      <div id="effStatus" class="clock">STANDBY</div>
+      <div id="effBox" class="placeholder">等待负载与效率估算…</div>
+    </div>
   </div>
 </div>
 <div class="footer">Python 仿真核心 · Pyodide · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=2"></script>
+<script type="module" src="js/combat_radius.js?v=3"></script>
 </body>
 </html>

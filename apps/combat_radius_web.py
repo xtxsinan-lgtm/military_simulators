@@ -5,6 +5,7 @@ import json
 from typing import Any
 
 from simulators.combat_radius.combat_radius import (
+    run_estimate_efficiency_from_params,
     run_estimate_thrust_from_params,
     run_predict_ld_from_params,
 )
@@ -41,7 +42,7 @@ def run_combat_radius(
     action: str = 'predict_ld',
     params: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """统一入口：predict_ld / estimate_thrust / presets。"""
+    """统一入口：predict_ld / estimate_thrust / estimate_efficiency / presets。"""
     params = params or {}
     if action == 'presets':
         return {
@@ -52,6 +53,11 @@ def run_combat_radius(
     if action == 'estimate_thrust':
         try:
             return run_estimate_thrust_from_params(params)
+        except Exception as exc:
+            return {'success': False, 'error': str(exc)}
+    if action == 'estimate_efficiency':
+        try:
+            return run_estimate_efficiency_from_params(params)
         except Exception as exc:
             return {'success': False, 'error': str(exc)}
     if action != 'predict_ld':

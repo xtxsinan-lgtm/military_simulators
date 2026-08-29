@@ -7,10 +7,12 @@ from apps.combat_radius_web import _opt_bool, _opt_float, run_combat_radius, run
 from simulators.combat_radius.combat_radius import (
     format_ld_row,
     parse_sea_level_thrust_n,
+    run_estimate_efficiency_from_params,
     run_estimate_thrust_from_params,
     run_predict_ld,
     run_predict_ld_from_params,
     _optional_float,
+    _optional_int,
     _require_aircraft_params,
 )
 from utils.combat_radius.lift_drag import Aircraft
@@ -164,4 +166,84 @@ def test_run_combat_radius_estimate_thrust_and_cycle_error():
     })
     assert bad['success'] is False
     assert '无解' in bad['error']
+
+
+def test_optional_int_default_and_cast():
+    assert _optional_int(None, 2) == 2
+    assert _optional_int('', 3) == 3
+    assert _optional_int('4', 1) == 4
+    assert _optional_int(2.0, 1) == 2
+
+
+def test_run_estimate_efficiency_from_params_f22():
+    p = _sample_params()
+    r = run_estimate_efficiency_from_params({
+        **p,
+        'target': p['anchor2'],
+        'empty_kg': 19700,
+        'internal_fuel_kg': 8200,
+        'n_pilots': 1,
+        'missile_mass_kg': 152,
+        'n_missiles': 4,
+        'n_engines': 2,
+        'bpr': 0.30,
+        'opr': 26.0,
+        't4_K': 1922,
+        'tsl_kN': 116.0,
+        'alt_m': 11800,
+        'mach': 0.8,
+    })
+    assert r['success'] is True
+    assert r['ld'] == pytest.approx(8.0, abs=1e-6)
+    assert r['n_engines'] == 2
+    assert 0 < r['load'] <= 1
+    assert r['eta_o'] > 0
+    assert r['tsfc_mg_n_s'] > 0
+    assert r['drag_kN'] < r['thrust_avail_kN']
+
+
+def test_run_estimate_efficiency_ld_override_and_overload():
+    r = run_estimate_efficiency_from_params({
+        'ld': 2.0,
+        'empty_kg': 19700,
+        'internal_fuel_kg': 8200,
+        'n_pilots': 1,
+        'missile_mass_kg': 152,
+        'n_engines': 1,
+        'bpr': 0.30,
+        'opr': 26.0,
+        't4_K': 1922,
+        'tsl_kN': 116.0,
+        'alt_m': 11800,
+        'mach': 0.8,
+    })
+    assert r['success'] is True
+    assert r['ld'] == pytest.approx(2.0)
+    assert r['load_raw'] > 1.0
+    assert r['load'] == pytest.approx(1.0)
+    assert 'load_exceeds_thrust' in (r['warning'] or '')
+
+
+def test_run_combat_radius_estimate_efficiency_action():
+    p = _sample_params()
+    ok = run_combat_radius('estimate_efficiency', {
+        **p,
+        'target': p['anchor2'],
+        'empty_kg': 19700, 'internal_fuel_kg': 8200, 'n_engines': 2,
+        'bpr': 0.30, 'opr': 26.0, 't4_K': 1922, 'tsl_kN': 116.0,
+        'alt_m': 11800, 'mach': 0.8,
+    })
+    assert ok['success'] is True
+    bad = run_combat_radius_json({'action': 'estimate_efficiency', 'params': {}})
+    assert bad['success'] is False
+
+
+def test_run_estimate_efficiency_rejects_zero_engines():
+    with pytest.raises(ValueError, match='发动机台数'):
+        run_estimate_efficiency_from_params({
+            'ld': 8.0, 'empty_kg': 10000, 'internal_fuel_kg': 4000,
+            'n_engines': 0, 'bpr': 0.3, 'opr': 26, 't4_K': 1922, 'tsl_kN': 116,
+            'alt_m': 10000, 'mach': 0.8,
+        })
+
 

@@ -85,6 +85,39 @@ def test_post_combat_radius_estimate_thrust_success():
     assert result['alpha'] < 1.0
 
 
+def test_post_combat_radius_estimate_efficiency_success():
+    """作战半径 API 返回巡航负载、总效率与 TSFC。"""
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
+
+    presets = load_presets()
+    f22 = get_preset_by_id(presets, 'F-22')
+    payload = {
+        'action': 'estimate_efficiency',
+        'params': {
+            'anchor1': get_preset_by_id(presets, 'F-35C'),
+            'ld1_target': 8.8,
+            'anchor2': f22,
+            'ld2_target': 8.0,
+            'target': f22,
+            'empty_kg': f22['empty_kg'],
+            'internal_fuel_kg': f22['internal_fuel_kg'],
+            'n_pilots': f22['n_pilots'],
+            'missile_mass_kg': f22['missile_mass_kg'],
+            'n_engines': f22['n_engines'],
+            'bpr': 0.30, 'opr': 26.0, 't4_K': 1922, 'tsl_kN': 116.0,
+            'alt_m': f22['alt_m'], 'mach': f22['mach'],
+        },
+    }
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    result = json.loads(body.decode())
+    assert result['success'] is True
+    assert result['eta_o'] > 0
+    assert result['tsfc_mg_n_s'] > 0
+
+
 def test_options_returns_cors():
     status, headers, body = handle_request('OPTIONS', '/api/simulate', None)
     assert status == 204

@@ -1,0 +1,90 @@
+"""空战重量、平飞阻力与发动机负载比。
+
+空战重量 = 空重 + 内油×1/2 + 飞行员数×0.1 吨 + 4 枚中距弹。
+平飞阻力 D = W / (L/D)；负载比 = D / 该高度速度下飞机最大可用推力。
+"""
+from __future__ import annotations
+
+G0 = 9.80665
+PILOT_MASS_KG = 100.0  # 0.1 吨 / 人
+N_MISSILES_DEFAULT = 4
+FUEL_FRACTION_DEFAULT = 0.5
+
+
+def combat_mass_kg(
+    empty_kg: float,
+    internal_fuel_kg: float,
+    n_pilots: float = 1.0,
+    missile_mass_kg: float = 0.0,
+    n_missiles: float = N_MISSILES_DEFAULT,
+    fuel_fraction: float = FUEL_FRACTION_DEFAULT,
+    pilot_mass_kg: float = PILOT_MASS_KG,
+) -> float:
+    """按空战构型估算质量（kg）。"""
+    if empty_kg < 0 or internal_fuel_kg < 0 or missile_mass_kg < 0:
+        raise ValueError('空重、内油、弹重不能为负')
+    if n_pilots < 0 or n_missiles < 0:
+        raise ValueError('飞行员数与挂弹数不能为负')
+    if fuel_fraction < 0 or fuel_fraction > 1:
+        raise ValueError('内油使用比例须在 [0, 1] 内')
+    if pilot_mass_kg < 0:
+        raise ValueError('单名飞行员质量不能为负')
+    return (
+        empty_kg
+        + fuel_fraction * internal_fuel_kg
+        + n_pilots * pilot_mass_kg
+        + n_missiles * missile_mass_kg
+    )
+
+
+def combat_mass_breakdown(
+    empty_kg: float,
+    internal_fuel_kg: float,
+    n_pilots: float = 1.0,
+    missile_mass_kg: float = 0.0,
+    n_missiles: float = N_MISSILES_DEFAULT,
+    fuel_fraction: float = FUEL_FRACTION_DEFAULT,
+    pilot_mass_kg: float = PILOT_MASS_KG,
+) -> dict[str, float]:
+    """空战质量分项，便于前端展示。"""
+    fuel_kg = fuel_fraction * internal_fuel_kg
+    pilots_kg = n_pilots * pilot_mass_kg
+    missiles_kg = n_missiles * missile_mass_kg
+    total = combat_mass_kg(
+        empty_kg, internal_fuel_kg, n_pilots, missile_mass_kg, n_missiles,
+        fuel_fraction, pilot_mass_kg,
+    )
+    return {
+        'empty_kg': float(empty_kg),
+        'fuel_kg': fuel_kg,
+        'pilots_kg': pilots_kg,
+        'missiles_kg': missiles_kg,
+        'total_kg': total,
+    }
+
+
+def cruise_drag_n(mass_kg: float, ld: float, g0: float = G0) -> float:
+    """平飞阻力（N）：升力等于重力，D = W / (L/D)。"""
+    if mass_kg <= 0:
+        raise ValueError('空战质量须为正')
+    if ld <= 0:
+        raise ValueError('升阻比须为正')
+    return mass_kg * g0 / ld
+
+
+def engine_load_ratio(drag_n: float, thrust_avail_n: float) -> float:
+    """负载比 = 平飞阻力 / 该工况最大可用推力（可大于 1）。"""
+    if drag_n < 0:
+        raise ValueError('阻力不能为负')
+    if thrust_avail_n <= 0:
+        raise ValueError('可用推力须为正')
+    return drag_n / thrust_avail_n
+
+
+def clamp_load(load: float) -> float:
+    """将负载比截断到效率模型允许的 [0, 1]。"""
+    if load < 0.0:
+        return 0.0
+    if load > 1.0:
+        return 1.0
+    return load

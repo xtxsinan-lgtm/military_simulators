@@ -76,6 +76,16 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var engEta = "0.87"
     @Published var engFanPr = ""
     @Published var thrustResult: CombatRadiusResult?
+    @Published var wtEmpty = ""
+    @Published var wtFuel = ""
+    @Published var wtPilots = "1"
+    @Published var wtMissile = ""
+    @Published var wtNMissiles = "4"
+    @Published var wtEngines = "1"
+    @Published var effEps = "0.83"
+    @Published var effEtan = "0.95"
+    @Published var effAcc = "0.16"
+    @Published var efficiencyResult: CombatRadiusResult?
 
     init() {
         loadPresets()
@@ -105,6 +115,10 @@ final class CombatRadiusViewModel: ObservableObject {
             if let v = ui?.default_eta_c { engEta = String(v) }
             if let v = ui?.default_thrust_alt_m { engAlt = String(format: "%.0f", v) }
             if let v = ui?.default_thrust_mach { engMach = String(v) }
+            if let v = ui?.default_eps { effEps = String(v) }
+            if let v = ui?.default_etan { effEtan = String(v) }
+            if let v = ui?.default_acc_frac { effAcc = String(v) }
+            applyWeight(from: presets.first(where: { $0.id == selectedTgtId }))
             statusText = presets.isEmpty
                 ? "data.json 缺少 combat_radius_presets，请运行 build_all.py"
                 : "预设已加载 · \(presets.count) 型 · 发动机 \(enginePresets.count) 台"
@@ -151,6 +165,18 @@ final class CombatRadiusViewModel: ObservableObject {
     func applyTgt() {
         guard let p = presets.first(where: { $0.id == selectedTgtId }) else { return }
         tgt.apply(p)
+        applyWeight(from: p)
+    }
+
+    /// 从机型预设填入空战重量与发动机台数
+    func applyWeight(from p: CombatRadiusPresetItem?) {
+        guard let p else { return }
+        if let v = p.empty_kg { wtEmpty = String(format: "%.0f", v) }
+        if let v = p.internal_fuel_kg { wtFuel = String(format: "%.0f", v) }
+        if let v = p.n_pilots { wtPilots = String(v) }
+        if let v = p.missile_mass_kg { wtMissile = String(format: "%.0f", v) }
+        wtNMissiles = "4"
+        if let v = p.n_engines { wtEngines = String(v) }
     }
 
     /// 填入所选发动机的 BPR/OPR/T4；有海平面军推时一并写入
@@ -247,6 +273,63 @@ final class CombatRadiusViewModel: ObservableObject {
             }
         } catch {
             thrustResult = nil
+            statusText = error.localizedDescription
+        }
+    }
+
+    /// 估算巡航负载比、总效率与 TSFC
+    func runEfficiency() async {
+        running = true
+        statusText = "效率计算中…"
+        defer { running = false }
+        do {
+            var params: [String: Any] = [
+                "name": enginePresets.first(where: { $0.id == selectedEngineId })?.name ?? "",
+                "bpr": Double(engBpr) ?? 0,
+                "opr": Double(engOpr) ?? 0,
+                "t4_K": Double(engT4) ?? 0,
+                "tsl_kN": Double(engTsl) ?? 0,
+                "alt_m": Double(engAlt) ?? 11000,
+                "mach": Double(engMach) ?? 1.5,
+                "eta_c": Double(engEta) ?? 0.87,
+                "anchor1": a1.asParams(),
+                "ld1_target": Double(a1Ld) ?? 8.8,
+                "anchor2": a2.asParams(),
+                "ld2_target": Double(a2Ld) ?? 8.0,
+                "target": tgt.asParams(),
+                "empty_kg": Double(wtEmpty) ?? 0,
+                "internal_fuel_kg": Double(wtFuel) ?? 0,
+                "n_pilots": Double(wtPilots) ?? 1,
+                "missile_mass_kg": Double(wtMissile) ?? 0,
+                "n_missiles": Double(wtNMissiles) ?? 4,
+                "n_engines": Int(wtEngines) ?? 1,
+                "eps": Double(effEps) ?? 0.83,
+                "etan": Double(effEtan) ?? 0.95,
+                "acc_frac": Double(effAcc) ?? 0.16,
+            ]
+            if let fan = Double(engFanPr), fan > 1 {
+                params["fan_pr_override"] = fan
+            }
+            let payload: [String: Any] = [
+                "action": "estimate_efficiency",
+                "params": params,
+            ]
+            let r = try await LocalSimulatorEngine.shared.runCombatRadius(payload: payload)
+            guard r.success else {
+                throw NSError(
+                    domain: "CombatRadius",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: r.error ?? "估算失败"]
+                )
+            }
+            efficiencyResult = r
+            if let eta = r.eta_o {
+                statusText = String(format: "η_o = %.1f%%", eta * 100)
+            } else {
+                statusText = "READY"
+            }
+        } catch {
+            efficiencyResult = nil
             statusText = error.localizedDescription
         }
     }

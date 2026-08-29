@@ -92,9 +92,12 @@ def test_ios_uses_local_engine_not_http_api():
     cr_vm = (IOS_ROOT / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'estimate_thrust' in cr_vm
     assert 'func runThrust()' in cr_vm
+    assert 'estimate_efficiency' in cr_vm
+    assert 'func runEfficiency()' in cr_vm
     models = (IOS_ROOT / 'Models.swift').read_text(encoding='utf-8')
     assert 'combat_radius_engine_presets' in models
     assert 'CombatRadiusEnginePresetItem' in models
+    assert 'tsfc_mg_n_s' in models
 
 
 def test_ios_project_yml_exists():

@@ -1,9 +1,9 @@
 /**
- * 作战半径 Web 前端：升阻比标定 + 军推包线估算，计算走 Pyodide Python 核心。
+ * 作战半径 Web 前端：升阻比标定 + 军推包线 + 巡航效率/TSFC，计算走 Pyodide Python 核心。
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 2;
+const APP_VERSION = 3;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -13,6 +13,8 @@ const COMBAT_RADIUS_PY_FILES = [
   'utils/database_csv.py',
   'utils/combat_radius/lift_drag.py',
   'utils/combat_radius/military_thrust.py',
+  'utils/combat_radius/engine_efficiency.py',
+  'utils/combat_radius/cruise_load.py',
   'utils/combat_radius/combat_radius_presets.py',
   'simulators/__init__.py',
   'simulators/combat_radius/__init__.py',
@@ -27,6 +29,8 @@ const COMBAT_RADIUS_IMPORTS = [
   'utils.database_csv',
   'utils.combat_radius.lift_drag',
   'utils.combat_radius.military_thrust',
+  'utils.combat_radius.engine_efficiency',
+  'utils.combat_radius.cruise_load',
   'utils.combat_radius.combat_radius_presets',
   'simulators.combat_radius.combat_radius',
   'apps.combat_radius_web',
@@ -98,6 +102,17 @@ function applyPresetToFields(prefix, preset) {
   $(`${prefix}_layout`).value = preset.layout;
   $(`${prefix}_bwb`).checked = !!preset.bwb;
   $(`${prefix}_rough`).checked = !!preset.rough;
+  if (prefix === 'tgt') applyWeightFromPreset(preset);
+}
+
+function applyWeightFromPreset(p) {
+  if (!p) return;
+  if (p.empty_kg != null) $('wtEmpty').value = p.empty_kg;
+  if (p.internal_fuel_kg != null) $('wtFuel').value = p.internal_fuel_kg;
+  if (p.n_pilots != null) $('wtPilots').value = p.n_pilots;
+  if (p.missile_mass_kg != null) $('wtMissile').value = p.missile_mass_kg;
+  $('wtNMissiles').value = 4;
+  if (p.n_engines != null) $('wtEngines').value = p.n_engines;
 }
 
 function readAircraft(prefix) {
@@ -275,6 +290,48 @@ function renderThrustResult(r) {
   `;
 }
 
+function renderEffResult(r) {
+  const loadPct = 100 * (r.load || 0);
+  const warn = r.warning
+    ? `<p class="note">告警：${r.warning === 'load_exceeds_thrust' || String(r.warning).includes('load_exceeds_thrust') ? '阻力超过可用军推，负载已截断到 100%。' : r.warning}</p>`
+    : '';
+  const tsfc = r.tsfc_mg_n_s != null
+    ? `${fmt(r.tsfc_mg_n_s, 2)} mg/(N·s)`
+    : '—';
+  const tsfcLb = r.tsfc_lb_lbf_h != null ? `${fmt(r.tsfc_lb_lbf_h, 3)} lb/(lbf·h)` : '';
+  $('effBox').innerHTML = `
+    <div class="stat-row">
+      <div class="stat"><div class="k">负载比</div><div class="v amber">${fmt(loadPct, 1)}%</div><div class="sub">原始 ${fmt(100 * (r.load_raw || 0), 1)}%</div></div>
+      <div class="stat"><div class="k">总效率 η_o</div><div class="v">${fmt(100 * (r.eta_o || 0), 1)}%</div><div class="sub">热 ${fmt(100 * (r.eta_th || 0), 1)}% · 推进 ${fmt(100 * (r.eta_p || 0), 1)}%</div></div>
+      <div class="stat"><div class="k">TSFC</div><div class="v">${tsfc}</div><div class="sub">${tsfcLb}</div></div>
+      <div class="stat"><div class="k">反解 T4</div><div class="v">${fmt(r.T4_solved, 0)} K</div></div>
+    </div>
+    <p class="note">空战重量 ${fmt(r.mass_kg, 0)} kg · 阻力 ${fmt(r.drag_kN, 2)} kN · 可用军推 ${fmt(r.thrust_avail_kN, 1)} kN（${r.n_engines} 发）· L/D ${fmt(r.ld, 3)} · V0 ${fmt(r.V0, 1)} m/s。</p>
+    ${warn}
+  `;
+}
+
+function readEfficiencyParams() {
+  const params = {
+    ...readThrustParams(),
+    anchor1: readAircraft('a1'),
+    ld1_target: Number($('a1Ld').value),
+    anchor2: readAircraft('a2'),
+    ld2_target: Number($('a2Ld').value),
+    target: readAircraft('tgt'),
+    empty_kg: Number($('wtEmpty').value),
+    internal_fuel_kg: Number($('wtFuel').value),
+    n_pilots: Number($('wtPilots').value),
+    missile_mass_kg: Number($('wtMissile').value),
+    n_missiles: Number($('wtNMissiles').value),
+    n_engines: Number($('wtEngines').value),
+    eps: Number($('effEps').value),
+    etan: Number($('effEtan').value),
+    acc_frac: Number($('effAcc').value),
+  };
+  return params;
+}
+
 function readThrustParams() {
   const fanRaw = $('engFanPr').value;
   const params = {
@@ -356,6 +413,27 @@ async function runThrust() {
   }
 }
 
+async function runEfficiency() {
+  if (runLock) return;
+  runLock = true;
+  const btn = $('effBtn');
+  btn.disabled = true;
+  $('effStatus').textContent = 'RUNNING';
+  try {
+    await initPyodide();
+    const result = await callPythonAsync('estimate_efficiency', readEfficiencyParams());
+    if (!result.success) throw new Error(result.error || '估算失败');
+    renderEffResult(result);
+    $('effStatus').textContent = 'READY';
+  } catch (e) {
+    $('effBox').innerHTML = `<p class="placeholder">${String(e.message || e)}</p>`;
+    $('effStatus').textContent = 'ERROR';
+  } finally {
+    btn.disabled = false;
+    runLock = false;
+  }
+}
+
 function applyUiDefaults() {
   const ui = data.combat_radius_config?.ui || {};
   const presets = data.combat_radius_presets || [];
@@ -385,6 +463,9 @@ function applyUiDefaults() {
   $('engAlt').value = ui.default_thrust_alt_m ?? 11000;
   $('engMach').value = ui.default_thrust_mach ?? 1.5;
   $('engEta').value = ui.default_eta_c ?? 0.87;
+  $('effEps').value = ui.default_eps ?? 0.83;
+  $('effEtan').value = ui.default_etan ?? 0.95;
+  $('effAcc').value = ui.default_acc_frac ?? 0.16;
 }
 
 async function main() {
@@ -400,6 +481,7 @@ async function main() {
     applyUiDefaults();
     $('runBtn').addEventListener('click', runEstimate);
     $('thrustBtn').addEventListener('click', runThrust);
+    $('effBtn').addEventListener('click', runEfficiency);
     initPyodide().catch((e) => {
       $('clock').textContent = 'ENGINE ERR';
       $('resultBox').textContent = String(e.message || e);

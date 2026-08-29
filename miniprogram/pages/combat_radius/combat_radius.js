@@ -27,6 +27,17 @@ function cloneAc(src) {
   return Object.assign({}, EMPTY_AC, src || {});
 }
 
+function weightFromPreset(p) {
+  if (!p) return {};
+  const patch = { wtNMissiles: '4' };
+  if (p.empty_kg != null) patch.wtEmpty = String(p.empty_kg);
+  if (p.internal_fuel_kg != null) patch.wtFuel = String(p.internal_fuel_kg);
+  if (p.n_pilots != null) patch.wtPilots = String(p.n_pilots);
+  if (p.missile_mass_kg != null) patch.wtMissile = String(p.missile_mass_kg);
+  if (p.n_engines != null) patch.wtEngines = String(p.n_engines);
+  return patch;
+}
+
 function planformIndex(ids, id) {
   const i = ids.indexOf(id);
   return i >= 0 ? i : 0;
@@ -80,6 +91,26 @@ Page({
     thrustMdot: '',
     thrustFanPr: '',
     thrustNote: '',
+    wtEmpty: '',
+    wtFuel: '',
+    wtPilots: '1',
+    wtMissile: '',
+    wtNMissiles: '4',
+    wtEngines: '1',
+    effEps: '0.83',
+    effEtan: '0.95',
+    effAcc: '0.16',
+    effStatusText: 'STANDBY',
+    effResult: null,
+    effLoadPct: '',
+    effLoadRawPct: '',
+    effEtaO: '',
+    effEtaTh: '',
+    effEtaP: '',
+    effTsfc: '',
+    effTsfcLb: '',
+    effT4: '',
+    effNote: '',
   },
 
   onShow() {
@@ -140,6 +171,10 @@ Page({
           engAlt: String(ui.default_thrust_alt_m ?? 11000),
           engMach: String(ui.default_thrust_mach ?? 1.5),
           engEta: String(ui.default_eta_c ?? 0.87),
+          effEps: String(ui.default_eps ?? 0.83),
+          effEtan: String(ui.default_etan ?? 0.95),
+          effAcc: String(ui.default_acc_frac ?? 0.16),
+          ...weightFromPreset(tgtp),
           statusText: presets.length ? '预设已加载' : '缺少 combat_radius_presets，请运行 build_all.py',
         });
       })
@@ -176,6 +211,7 @@ Page({
       patch[`${slot}LayoutIndex`] = planformIndex(this.data.layoutIds, p.layout);
       if (slot === 'a1' && p.ld_known != null) patch.a1Ld = String(p.ld_known);
       if (slot === 'a2' && p.ld_known != null) patch.a2Ld = String(p.ld_known);
+      if (slot === 'tgt') Object.assign(patch, weightFromPreset(p));
     }
     this.setData(patch);
   },
@@ -309,6 +345,66 @@ Page({
           thrustStatusText: String(e.message || e),
           running: false,
           thrustResult: null,
+        });
+      });
+  },
+
+  onRunEfficiency() {
+    if (this.data.running) return;
+    this.setData({ running: true, effStatusText: '计算中…' });
+    const params = {
+      name: this.data.engineNames[this.data.enginePresetIndex] || '',
+      bpr: num(this.data.engBpr, 0),
+      opr: num(this.data.engOpr, 0),
+      t4_K: num(this.data.engT4, 0),
+      tsl_kN: num(this.data.engTsl, 0),
+      alt_m: num(this.data.engAlt, 11000),
+      mach: num(this.data.engMach, 1.5),
+      eta_c: num(this.data.engEta, 0.87),
+      anchor1: this.toAircraft('a1'),
+      ld1_target: num(this.data.a1Ld, 8.8),
+      anchor2: this.toAircraft('a2'),
+      ld2_target: num(this.data.a2Ld, 8.0),
+      target: this.toAircraft('tgt'),
+      empty_kg: num(this.data.wtEmpty, 0),
+      internal_fuel_kg: num(this.data.wtFuel, 0),
+      n_pilots: num(this.data.wtPilots, 1),
+      missile_mass_kg: num(this.data.wtMissile, 0),
+      n_missiles: num(this.data.wtNMissiles, 4),
+      n_engines: num(this.data.wtEngines, 1),
+      eps: num(this.data.effEps, 0.83),
+      etan: num(this.data.effEtan, 0.95),
+      acc_frac: num(this.data.effAcc, 0.16),
+    };
+    if (this.data.engFanPr !== '') params.fan_pr_override = num(this.data.engFanPr, 0);
+    api.runCombatRadiusSimulation({
+      action: 'estimate_efficiency',
+      params,
+    })
+      .then((r) => {
+        if (!r.success) throw new Error(r.error || '估算失败');
+        const tsfc = r.tsfc_mg_n_s != null ? `${fmt(r.tsfc_mg_n_s, 2)} mg/(N·s)` : '—';
+        const tsfcLb = r.tsfc_lb_lbf_h != null ? `${fmt(r.tsfc_lb_lbf_h, 3)} lb/(lbf·h)` : '';
+        this.setData({
+          effResult: r,
+          effLoadPct: fmt(100 * (r.load || 0), 1),
+          effLoadRawPct: fmt(100 * (r.load_raw || 0), 1),
+          effEtaO: fmt(100 * (r.eta_o || 0), 1),
+          effEtaTh: fmt(100 * (r.eta_th || 0), 1),
+          effEtaP: fmt(100 * (r.eta_p || 0), 1),
+          effTsfc: tsfc,
+          effTsfcLb: tsfcLb,
+          effT4: fmt(r.T4_solved, 0),
+          effNote: `空战重量 ${fmt(r.mass_kg, 0)} kg · 阻力 ${fmt(r.drag_kN, 2)} kN · 可用军推 ${fmt(r.thrust_avail_kN, 1)} kN（${r.n_engines} 发）· L/D ${fmt(r.ld, 3)}。`,
+          effStatusText: r.warning ? String(r.warning) : 'READY',
+          running: false,
+        });
+      })
+      .catch((e) => {
+        this.setData({
+          effStatusText: String(e.message || e),
+          running: false,
+          effResult: null,
         });
       });
   },

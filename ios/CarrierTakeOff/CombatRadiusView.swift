@@ -58,8 +58,27 @@ struct CombatRadiusView: View {
                     }
                     .buttonStyle(CombatRadiusPrimaryButton())
                     .disabled(vm.running)
+                }
 
-                    Text("第 3–4 部分（燃油、任务剖面、作战半径积分）将在后续接入同一终端。")
+                panel(title: "3. 负载与巡航效率", tag: "TSFC") {
+                    Text("空战重量 = 空重 + 一半内油 + 飞行员×0.1 t + 4 枚中距弹。D=W/(L/D)，负载=D/可用军推。巡航点用第 2 栏高度/马赫。")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(CombatRadiusTheme.textDim)
+                    field("空重 (kg)", text: $vm.wtEmpty)
+                    field("内油 (kg)", text: $vm.wtFuel)
+                    field("飞行员数", text: $vm.wtPilots)
+                    field("单枚中距弹 (kg)", text: $vm.wtMissile)
+                    field("挂弹数", text: $vm.wtNMissiles)
+                    field("发动机台数", text: $vm.wtEngines)
+                    field("部件效率 ε", text: $vm.effEps)
+                    field("喷管效率 η_n", text: $vm.effEtan)
+                    field("附件功提取比例", text: $vm.effAcc)
+                    Button(vm.running ? "计算中…" : "▶ 估算负载与 TSFC") {
+                        Task { await vm.runEfficiency() }
+                    }
+                    .buttonStyle(CombatRadiusPrimaryButton())
+                    .disabled(vm.running)
+                    Text("第 4 部分（任务剖面与作战半径积分）将在后续接入同一终端。")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
                 }
@@ -69,6 +88,9 @@ struct CombatRadiusView: View {
                 }
                 if let r = vm.thrustResult, r.success {
                     thrustResultsPanel(r)
+                }
+                if let r = vm.efficiencyResult, r.success {
+                    efficiencyResultsPanel(r)
                 }
             }
             .padding(14)
@@ -82,7 +104,7 @@ struct CombatRadiusView: View {
             Text("飞机作战半径估算终端")
                 .font(.system(size: 14, weight: .bold, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.green)
-            Text("COMBAT RADIUS · L/D + MILITARY THRUST")
+            Text("COMBAT RADIUS · L/D + THRUST + TSFC")
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
         }
@@ -142,6 +164,27 @@ struct CombatRadiusView: View {
             Text(String(format: "来流总温比 τr=%.3f · 大气 %.1f K / %.1f kPa。α = T_flight / T_SL。", r.tau_r ?? 0, r.T0 ?? 0, (r.P0 ?? 0) / 1000))
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
+        }
+    }
+
+    private func efficiencyResultsPanel(_ r: CombatRadiusResult) -> some View {
+        panel(title: "效率 / TSFC 输出", tag: "TSFC") {
+            HStack(spacing: 10) {
+                stat("负载比", value: String(format: "%.1f%%", (r.load ?? 0) * 100), sub: String(format: "原始 %.1f%%", (r.load_raw ?? 0) * 100), amber: true)
+                stat("总效率 η_o", value: String(format: "%.1f%%", (r.eta_o ?? 0) * 100), sub: String(format: "热 %.1f%% · 推进 %.1f%%", (r.eta_th ?? 0) * 100, (r.eta_p ?? 0) * 100))
+            }
+            HStack(spacing: 10) {
+                stat("TSFC", value: r.tsfc_mg_n_s.map { String(format: "%.2f mg/(N·s)", $0) } ?? "—", sub: r.tsfc_lb_lbf_h.map { String(format: "%.3f lb/(lbf·h)", $0) } ?? "")
+                stat("反解 T4", value: String(format: "%.0f K", r.T4_solved ?? 0))
+            }
+            Text(String(format: "空战重量 %.0f kg · 阻力 %.2f kN · 可用军推 %.1f kN（%d 发）· L/D %.3f。", r.mass_kg ?? 0, r.drag_kN ?? 0, r.thrust_avail_kN ?? 0, r.n_engines ?? 1, r.ld ?? 0))
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(CombatRadiusTheme.textDim)
+            if let w = r.warning, !w.isEmpty {
+                Text("告警：\(w)")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.amber)
+            }
         }
     }
 

@@ -85,6 +85,10 @@ struct CombatRadiusUiDefaults: Codable {
     var default_eta_c: Double?
     var default_thrust_alt_m: Double?
     var default_thrust_mach: Double?
+    var default_eps: Double?
+    var default_etan: Double?
+    var default_acc_frac: Double?
+    var default_t4idle: Double?
 }
 
 /// 作战半径机型几何预设
@@ -104,6 +108,12 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var rough: Bool
     var ld_known: Double?
     var notes: String?
+    var empty_kg: Double?
+    var internal_fuel_kg: Double?
+    var n_pilots: Int?
+    var missile_mass_kg: Double?
+    var n_engines: Int?
+    var engine_id: String?
 }
 
 /// 作战半径发动机预设（海平面军推 tsl_kN 可缺省，需手动填写）
@@ -137,6 +147,23 @@ struct CombatRadiusResult: Codable {
     var P0: Double?
     var fan_pr: Double?
     var name: String?
+    var ld: Double?
+    var mass_kg: Double?
+    var drag_N: Double?
+    var drag_kN: Double?
+    var n_engines: Int?
+    var thrust_avail_N: Double?
+    var thrust_avail_kN: Double?
+    var load: Double?
+    var load_raw: Double?
+    var eta_th: Double?
+    var eta_p: Double?
+    var eta_o: Double?
+    var T4_solved: Double?
+    var V0: Double?
+    var tsfc_mg_n_s: Double?
+    var tsfc_lb_lbf_h: Double?
+    var warning: String?
 }
 
 struct CombatRadiusRow: Codable, Identifiable, Hashable {

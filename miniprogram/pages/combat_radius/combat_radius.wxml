@@ -1,7 +1,7 @@
 <view class="cr-page">
   <view class="cr-header">
     <text class="cr-title">飞机作战半径估算终端</text>
-    <text class="cr-sub">COMBAT RADIUS · L/D + MILITARY THRUST</text>
+    <text class="cr-sub">COMBAT RADIUS · L/D + THRUST + TSFC</text>
   </view>
 
   <view class="panel">
@@ -205,7 +205,49 @@
       <input class="input" type="digit" value="{{engFanPr}}" data-key="engFanPr" placeholder="由 BPR 估算" bindinput="onField"/>
     </view>
     <view class="btn" bindtap="onRunThrust">▶ 估算可用军推</view>
-    <view class="note">第 3–4 部分（燃油、任务剖面、作战半径积分）将在后续接入同一终端。</view>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">3. 负载与巡航效率 · TSFC</view>
+    <view class="note">空战重量 = 空重 + 一半内油 + 飞行员×0.1 t + 4 枚中距弹。D=W/(L/D)，负载=D/可用军推。巡航点用第 2 栏高度/马赫。</view>
+    <view class="field">
+      <view class="field-label"><text>空重</text><text class="unit">kg</text></view>
+      <input class="input" type="digit" value="{{wtEmpty}}" data-key="wtEmpty" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>内油</text><text class="unit">kg</text></view>
+      <input class="input" type="digit" value="{{wtFuel}}" data-key="wtFuel" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>飞行员数</text></view>
+      <input class="input" type="number" value="{{wtPilots}}" data-key="wtPilots" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>单枚中距弹</text><text class="unit">kg</text></view>
+      <input class="input" type="digit" value="{{wtMissile}}" data-key="wtMissile" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>挂弹数</text></view>
+      <input class="input" type="number" value="{{wtNMissiles}}" data-key="wtNMissiles" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>发动机台数</text></view>
+      <input class="input" type="number" value="{{wtEngines}}" data-key="wtEngines" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>部件效率 ε</text></view>
+      <input class="input" type="digit" value="{{effEps}}" data-key="effEps" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>喷管效率 η_n</text></view>
+      <input class="input" type="digit" value="{{effEtan}}" data-key="effEtan" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>附件功提取比例</text></view>
+      <input class="input" type="digit" value="{{effAcc}}" data-key="effAcc" bindinput="onField"/>
+    </view>
+    <view class="btn" bindtap="onRunEfficiency">▶ 估算负载与 TSFC</view>
+    <view class="note">第 4 部分（任务剖面与作战半径积分）将在后续接入同一终端。</view>
   </view>
 
   <view class="panel">
@@ -240,6 +282,20 @@
         <view class="stat"><view class="k">风扇压比</view><view class="v">{{thrustFanPr}}</view></view>
       </view>
       <view class="note">{{thrustNote}}</view>
+    </block>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">效率 / TSFC 输出</view>
+    <view class="note">{{effStatusText}}</view>
+    <block wx:if="{{effResult}}">
+      <view class="stat-row">
+        <view class="stat"><view class="k">负载比</view><view class="v amber">{{effLoadPct}}%</view><view class="sub">原始 {{effLoadRawPct}}%</view></view>
+        <view class="stat"><view class="k">总效率 η_o</view><view class="v">{{effEtaO}}%</view><view class="sub">热 {{effEtaTh}}% · 推进 {{effEtaP}}%</view></view>
+        <view class="stat"><view class="k">TSFC</view><view class="v">{{effTsfc}}</view><view class="sub">{{effTsfcLb}}</view></view>
+        <view class="stat"><view class="k">反解 T4</view><view class="v">{{effT4}} K</view></view>
+      </view>
+      <view class="note">{{effNote}}</view>
     </block>
   </view>
 </view>

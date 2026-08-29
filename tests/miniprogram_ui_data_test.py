@@ -79,4 +79,7 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     cr_wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
     assert 'onRunThrust' in cr_js
     assert 'estimate_thrust' in cr_js
+    assert 'onRunEfficiency' in cr_js
+    assert 'estimate_efficiency' in cr_js
     assert '估算可用军推' in cr_wxml
+    assert '估算负载与 TSFC' in cr_wxml

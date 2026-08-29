@@ -2,13 +2,30 @@
 
 当前实现：
 1. 根据几何参数与两锚点标定，估算巡航升阻比；
-2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推。
-后续将接入燃油消耗、任务剖面与作战半径积分。
+2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推；
+3. 由空战重量与 L/D 求阻力，再与可用军推得到负载比，估算热/推进/总效率与 TSFC。
+后续将接入任务剖面与作战半径积分。
 """
 from __future__ import annotations
 
 from typing import Any
 
+from utils.combat_radius.cruise_load import (
+    N_MISSILES_DEFAULT,
+    clamp_load,
+    combat_mass_breakdown,
+    cruise_drag_n,
+    engine_load_ratio,
+)
+from utils.combat_radius.engine_efficiency import (
+    ACC_FRAC_DEFAULT,
+    EPS_DEFAULT,
+    ETAN_DEFAULT,
+    T4IDLE_DEFAULT,
+    compute_engine_efficiency,
+    engine_result_to_dict,
+    tsfc_from_eta_o,
+)
 from utils.combat_radius.lift_drag import (
     KAPPA_A,
     Aircraft,
@@ -118,4 +135,123 @@ def run_estimate_thrust_from_params(params: dict[str, Any]) -> dict[str, Any]:
     payload = thrust_result_to_dict(result)
     payload['success'] = True
     payload['name'] = str(params.get('name') or '')
+    return payload
+
+
+def _optional_int(value: Any, default: int) -> int:
+    """空值用默认整数；否则转为 int。"""
+    if value is None or value == '':
+        return default
+    return int(float(value))
+
+
+def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any]:
+    """由 L/D、空战重量与可用军推估算负载比、总效率与 TSFC。
+
+    若提供锚点+待估机几何，则在给定高度/马赫数下重算 L/D；
+    也可直接传入 ld，跳过升阻比标定。
+    """
+    alt_m = float(params['alt_m'])
+    mach = float(params['mach'])
+    n_engines = _optional_int(params.get('n_engines'), 1)
+    if n_engines < 1:
+        raise ValueError('发动机台数须至少为 1')
+
+    ld_override = _optional_float(params.get('ld'))
+    ld_info: dict[str, Any] = {}
+    if ld_override is not None:
+        ld = ld_override
+    else:
+        target_raw = dict(_require_aircraft_params(params, 'target'))
+        target_raw['mach'] = mach
+        target_raw['alt_m'] = alt_m
+        ld_params = {
+            'anchor1': _require_aircraft_params(params, 'anchor1'),
+            'ld1_target': params.get('ld1_target', params.get('ld1')),
+            'anchor2': _require_aircraft_params(params, 'anchor2'),
+            'ld2_target': params.get('ld2_target', params.get('ld2')),
+            'target': target_raw,
+        }
+        ld_info = run_predict_ld_from_params(ld_params)
+        ld = float(ld_info['target']['ld'])
+
+    breakdown = combat_mass_breakdown(
+        empty_kg=float(params['empty_kg']),
+        internal_fuel_kg=float(params['internal_fuel_kg']),
+        n_pilots=float(params.get('n_pilots', 1)),
+        missile_mass_kg=float(params.get('missile_mass_kg', 0)),
+        n_missiles=float(params.get('n_missiles', N_MISSILES_DEFAULT)),
+    )
+    drag_n = cruise_drag_n(breakdown['total_kg'], ld)
+
+    thrust_one = estimate_military_thrust(
+        bpr=float(params['bpr']),
+        opr=float(params['opr']),
+        t4_K=float(params.get('t4_K', params.get('t4'))),
+        tsl_N=parse_sea_level_thrust_n(params),
+        alt_m=alt_m,
+        mach=mach,
+        eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
+        fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
+    )
+    thrust_avail_n = thrust_one.thrust_N * n_engines
+    load_raw = engine_load_ratio(drag_n, thrust_avail_n)
+    load = clamp_load(load_raw)
+
+    t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
+    eff = compute_engine_efficiency(
+        bpr=float(params['bpr']),
+        mach=mach,
+        altitude_m=alt_m,
+        load=load,
+        OPR=float(params['opr']),
+        FPR=_optional_float(params.get('FPR', params.get('fan_pr_override'))),
+        T4max=t4max,
+        T4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
+        eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
+        etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
+        acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
+    )
+    if not eff.valid:
+        raise ValueError(f'效率循环无解（{eff.warning or "unknown"}）')
+
+    payload: dict[str, Any] = {
+        'success': True,
+        'ld': ld,
+        'mass_kg': breakdown['total_kg'],
+        'mass_breakdown': breakdown,
+        'drag_N': drag_n,
+        'drag_kN': drag_n / 1000.0,
+        'n_engines': n_engines,
+        'thrust_per_engine_N': thrust_one.thrust_N,
+        'thrust_avail_N': thrust_avail_n,
+        'thrust_avail_kN': thrust_avail_n / 1000.0,
+        'load_raw': load_raw,
+        'load': load,
+        'name': str(params.get('name') or ''),
+    }
+    payload.update(thrust_result_to_dict(thrust_one))
+    payload.update(engine_result_to_dict(eff))
+    # 整机可用推力覆盖单发 thrust_N 字段，避免与前端军推面板混淆
+    payload['thrust_N'] = thrust_avail_n
+    payload['thrust_kN'] = thrust_avail_n / 1000.0
+
+    warnings: list[str] = []
+    if load_raw > 1.0:
+        warnings.append('load_exceeds_thrust')
+    if eff.warning:
+        warnings.append(eff.warning)
+    payload['warning'] = ','.join(warnings) if warnings else None
+
+    if eff.eta_o > 0 and eff.V0 > 0:
+        payload.update(tsfc_from_eta_o(eff.V0, eff.eta_o))
+    else:
+        payload['tsfc_kg_n_s'] = None
+        payload['tsfc_mg_n_s'] = None
+        payload['tsfc_lb_lbf_h'] = None
+
+    if ld_info:
+        payload['Cf0'] = ld_info['Cf0']
+        payload['k_e'] = ld_info['k_e']
+        payload['target'] = ld_info['target']
     return payload

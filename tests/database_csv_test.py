@@ -6,6 +6,7 @@ from utils.database_csv import (
     COMBAT_RADIUS_ENGINE_CSV_COLUMNS,
     MISSILE_INTERCEPTION_MISSILE_CSV_COLUMNS,
     MISSILE_INTERCEPTION_RADAR_CSV_COLUMNS,
+    _parse_int,
     _parse_optional_float,
     list_model_ids_from_missile_interception_csv,
     load_aircraft_csv,
@@ -167,13 +168,24 @@ def test_load_combat_radius_aircraft_csv():
     assert ids == ['F-35C', 'F-22', 'J-20']
     assert rows[0]['rough'] is True
     assert 'ld_known' not in rows[2]
+    assert rows[1]['empty_kg'] == 19700
+    assert rows[1]['n_engines'] == 2
+    assert rows[1]['engine_id'] == 'f119'
+    assert rows[0]['n_engines'] == 1
+
+
+def test_parse_int_accepts_int_and_float_text():
+    assert _parse_int('2', 'n') == 2
+    assert _parse_int('1.0', 'n') == 1
+    with pytest.raises(ValueError, match='必填'):
+        _parse_int('', 'n')
 
 
 def test_combat_radius_csv_unknown_planform_raises(tmp_path):
     path = tmp_path / 'cr.csv'
     path.write_text(
         ','.join(COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS) + '\n'
-        'X1,测试,中国,2.5,30,0.3,0.05,0.8,12000,hex,conventional,0,0,,\n',
+        'X1,测试,中国,2.5,30,0.3,0.05,0.8,12000,hex,conventional,0,0,,,15000,8000,1,150,1,\n',
         encoding='utf-8',
     )
     with pytest.raises(ValueError, match='planform'):

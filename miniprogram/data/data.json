@@ -1,5 +1,5 @@
 {
-  "version": 24,
+  "version": 25,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -41,7 +41,7 @@
       "id": "combat_radius",
       "name": "飞机作战半径估算",
       "eyebrow": "COMBAT RADIUS",
-      "subtitle": "升阻比标定 · 军推包线估算",
+      "subtitle": "升阻比标定 · 军推包线 · 巡航效率/TSFC",
       "html": "combat-radius.html",
       "miniprogram_page": "/pages/combat_radius/combat_radius",
       "ios_route": "combat_radius"
@@ -1774,7 +1774,13 @@
       "bwb": false,
       "rough": true,
       "ld_known": 8.8,
-      "notes": "舰载型；表面不平整（锯齿/口盖）作为独立开关"
+      "notes": "舰载型；空重/内油为公开资料估计；1×F135",
+      "empty_kg": 15785.0,
+      "internal_fuel_kg": 8981.0,
+      "n_pilots": 1,
+      "missile_mass_kg": 152.0,
+      "n_engines": 1,
+      "engine_id": "f135"
     },
     {
       "id": "F-22",
@@ -1791,7 +1797,13 @@
       "bwb": false,
       "rough": false,
       "ld_known": 8.0,
-      "notes": "常规布局梯形翼；BWB 与表面不平整均关闭"
+      "notes": "常规布局梯形翼；空重/内油为公开资料估计；2×F119",
+      "empty_kg": 19700.0,
+      "internal_fuel_kg": 8200.0,
+      "n_pilots": 1,
+      "missile_mass_kg": 152.0,
+      "n_engines": 2,
+      "engine_id": "f119"
     },
     {
       "id": "J-20",
@@ -1807,7 +1819,13 @@
       "layout": "canard",
       "bwb": false,
       "rough": false,
-      "notes": "鸭式三角翼；待估机型，无公开巡航 L/D 锚点"
+      "notes": "鸭式三角翼；空重/内油为公开资料估计；2×涡扇15",
+      "empty_kg": 17000.0,
+      "internal_fuel_kg": 11200.0,
+      "n_pilots": 1,
+      "missile_mass_kg": 210.0,
+      "n_engines": 2,
+      "engine_id": "ws15"
     }
   ],
   "combat_radius_engine_presets": [
@@ -1888,7 +1906,11 @@
       "default_engine_id": "f119",
       "default_eta_c": 0.87,
       "default_thrust_alt_m": 11000,
-      "default_thrust_mach": 1.5
+      "default_thrust_mach": 1.5,
+      "default_eps": 0.83,
+      "default_etan": 0.95,
+      "default_acc_frac": 0.16,
+      "default_t4idle": 900
     },
     "planform_labels": {
       "trapezoidal": "梯形翼",

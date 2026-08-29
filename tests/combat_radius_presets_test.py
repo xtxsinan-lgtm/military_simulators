@@ -21,6 +21,8 @@ def test_load_presets_contains_anchors_and_j20():
     assert f35 is not None
     assert f35['rough'] is True
     assert f35['ld_known'] == 8.8
+    assert f35['n_engines'] == 1
+    assert f35['engine_id'] == 'f135'
     j20 = get_preset_by_id(presets, 'J-20')
     assert j20 is not None
     assert j20['planform'] == 'delta'

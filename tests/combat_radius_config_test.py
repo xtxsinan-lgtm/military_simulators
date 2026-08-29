@@ -19,6 +19,7 @@ def test_load_combat_radius_config_file_exists_and_ui_defaults():
     assert ui['default_target_id'] == 'J-20'
     assert ui['default_engine_id'] == 'f119'
     assert ui['default_eta_c'] == 0.87
+    assert ui['default_eps'] == 0.83
     assert load_combat_radius_config()['version'] == 1
 
 

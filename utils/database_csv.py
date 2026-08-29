@@ -43,6 +43,7 @@ MISSILE_INTERCEPTION_CATEGORIES = ('asm', 'aew', 'ship', 'sam')
 COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS = (
     'id', 'name', 'nation', 'AR', 'sweep_deg', 'wing_loading', 'tc',
     'mach', 'alt_m', 'planform', 'layout', 'bwb', 'rough', 'ld_known', 'notes',
+    'empty_kg', 'internal_fuel_kg', 'n_pilots', 'missile_mass_kg', 'n_engines', 'engine_id',
 )
 
 COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
@@ -75,10 +76,16 @@ def _parse_optional_float(raw: str) -> float | None:
 
 
 def _parse_float(raw: str, field: str) -> float:
+    """解析必填浮点。"""
     text = raw.strip()
     if not text:
         raise ValueError(f'缺少必填数值字段 {field}')
     return float(text)
+
+
+def _parse_int(raw: str, field: str) -> int:
+    """解析必填整数（允许 1.0 这种浮点写法）。"""
+    return int(_parse_float(raw, field))
 
 
 def _parse_nation(row: dict[str, str], path: Path, item_id: str) -> str:
@@ -356,6 +363,14 @@ def load_combat_radius_aircraft_csv(path: str | Path | None = None) -> list[dict
             notes = (row.get('notes') or '').strip()
             if notes:
                 item['notes'] = notes
+            item['empty_kg'] = _parse_float(row.get('empty_kg') or '', 'empty_kg')
+            item['internal_fuel_kg'] = _parse_float(row.get('internal_fuel_kg') or '', 'internal_fuel_kg')
+            item['n_pilots'] = _parse_int(row.get('n_pilots') or '', 'n_pilots')
+            item['missile_mass_kg'] = _parse_float(row.get('missile_mass_kg') or '', 'missile_mass_kg')
+            item['n_engines'] = _parse_int(row.get('n_engines') or '', 'n_engines')
+            engine_id = (row.get('engine_id') or '').strip()
+            if engine_id:
+                item['engine_id'] = engine_id
             rows.append(item)
     if not rows:
         raise ValueError(f'{csv_path} 未读到有效作战半径机型记录')
