@@ -72,6 +72,19 @@ def test_evaluate_cruise_forces_f22_cruise_is_feasible():
     assert cruise_point_feasible(ctx, 0.8, 11800) is True
 
 
+def test_score_cruise_point_infeasible_cycle():
+    """效率循环无解时评分须为 -1，且不给出 TSFC。"""
+    ctx = _f22_ctx()
+    forces = evaluate_cruise_forces(ctx, 0.8, 11800)
+    ctx.bpr = 8.0
+    ctx.opr = 50.0
+    ctx.t4_K = 700.0
+    scored = score_cruise_point(ctx, forces)
+    assert scored.score == pytest.approx(-1.0)
+    assert scored.warning == 'cycle_infeasible'
+    assert scored.tsfc_mg_n_s is None
+
+
 def test_evaluate_cruise_forces_rejects_nonpositive_mach():
     with pytest.raises(ValueError, match='马赫数'):
         evaluate_cruise_forces(_f22_ctx(), 0.0, 12000)

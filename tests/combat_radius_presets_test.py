@@ -53,6 +53,7 @@ def test_load_presets_contains_anchors_and_j20():
     j15 = get_preset_by_id(presets, 'J-15')
     assert j15 is not None
     assert j15['carrier'] is True
+    assert j15['engine_id'] == 'ws10h'
     f22 = get_preset_by_id(presets, 'F-22')
     assert f22['carrier'] is False
 

@@ -61,3 +61,8 @@ def test_e2e_f35c_carrier_ski_jump_and_land_excluded():
     })
     assert result['success'] is True
     assert 'output' in result
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
+    from utils.combat_radius.lift_drag import aircraft_from_dict as cr_from_dict, estimate_takeoff_cd0
+
+    preset = get_preset_by_id(load_presets(), 'F-35C')
+    assert ac['cd0'] == pytest.approx(estimate_takeoff_cd0(cr_from_dict(preset)))

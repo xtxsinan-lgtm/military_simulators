@@ -270,6 +270,38 @@ def test_load_combat_radius_engine_csv():
     assert by_id['ws10h']['tsl_kN'] == 89.0
 
 
+def test_combat_radius_csv_missing_nation_raises(tmp_path):
+    path = tmp_path / 'cr.csv'
+    path.write_text(_unified_csv_text([_valid_land_row(nation='')]), encoding='utf-8')
+    with pytest.raises(ValueError, match='nation'):
+        load_combat_radius_aircraft_csv(path)
+
+
+def test_combat_radius_engine_csv_missing_nation_raises(tmp_path):
+    path = tmp_path / 'eng.csv'
+    path.write_text(
+        ','.join(COMBAT_RADIUS_ENGINE_CSV_COLUMNS) + '\n'
+        'x,涡扇,,0.3,26,1800,100,测\n',
+        encoding='utf-8',
+    )
+    with pytest.raises(ValueError, match='nation'):
+        load_combat_radius_engine_csv(path)
+
+
+def test_takeoff_cd0_matches_lift_drag_estimate():
+    """舰载机 CD0 须与作战半径升阻比模型一致（CSV 留空时）。"""
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
+    from utils.combat_radius.lift_drag import aircraft_from_dict, estimate_takeoff_cd0
+
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)
+    j15_cr = get_preset_by_id(load_presets(), 'J-15')
+    expected = estimate_takeoff_cd0(aircraft_from_dict(j15_cr))
+    assert aircraft['J-15'].cd0 == pytest.approx(expected)
+    assert aircraft['F-35C'].cd0 == pytest.approx(
+        estimate_takeoff_cd0(aircraft_from_dict(get_preset_by_id(load_presets(), 'F-35C')))
+    )
+
+
 def test_combat_radius_engine_csv_empty_raises(tmp_path):
     path = tmp_path / 'eng.csv'
     path.write_text(','.join(COMBAT_RADIUS_ENGINE_CSV_COLUMNS) + '\n', encoding='utf-8')

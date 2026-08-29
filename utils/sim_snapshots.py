@@ -15,7 +15,42 @@ from utils.paths import BASELINE_JSON
 BASELINE_PATH = BASELINE_JSON
 
 
+def reset_takeoff_module_defaults(mod) -> None:
+    """把起飞模块全局量恢复为 takeoff_config 参考机与环境，避免先前仿真污染快照。"""
+    ref = mod._REF
+    mode = mod._MODE
+    mod.apply_thrust_temperature(float(mode['ambient_temp_c']))
+    if hasattr(mod, 'apply_wind_knots'):
+        mod.apply_wind_knots(float(mode['wind_kt']))
+    mass = ref.get('mass_kg', ref.get('mass_kg_a2a'))
+    geom = dict(
+        mass_kg=float(mass),
+        s_ref_m2=float(ref['s_ref_m2']),
+        wingspan_m=float(ref['wingspan_m']),
+        wing_height_m=float(ref['wing_height_m']),
+        sweep_le_deg=float(ref['sweep_le_deg']),
+        cd0=float(ref['cd0']),
+    )
+    if 't_max_sl_n' in ref:
+        mod.apply_aircraft_geometry(**geom, t_max_sl_n=float(ref['t_max_sl_n']))
+    else:
+        mod.apply_aircraft_geometry(**geom)
+        if hasattr(mod, 'apply_stovl_thrust_sl'):
+            mod.apply_stovl_thrust_sl(
+                float(ref['t_main_stovl_sl_n']),
+                float(ref.get('t_liftfan_sl_n') or 0.0),
+                float(ref.get('t_rollposts_sl_n') or 0.0),
+            )
+    if hasattr(mod, 'apply_ski_jump_deck') and 'ski_jump_angle_deg' in mode:
+        lip = mode.get('ski_jump_lip_height_m')
+        mod.apply_ski_jump_deck(
+            float(mode['ski_jump_angle_deg']),
+            lip_height_m=float(lip) if lip is not None else None,
+        )
+
+
 def snap_flat() -> dict[str, Any]:
+    reset_takeoff_module_defaults(flat)
     return {
         'rho': flat.RHO,
         'thrust_factor': flat.THRUST_TEMP_FACTOR,
@@ -30,6 +65,7 @@ def snap_flat() -> dict[str, Any]:
 
 
 def snap_ski_stovl() -> dict[str, Any]:
+    reset_takeoff_module_defaults(ski_stovl)
     with contextlib.redirect_stdout(io.StringIO()):
         r = ski_stovl.search_strategy_c(ski_stovl.MIN_SAFE_DISTANCE_M)
     return {
@@ -43,6 +79,7 @@ def snap_ski_stovl() -> dict[str, Any]:
 
 
 def snap_ski_conv() -> dict[str, Any]:
+    reset_takeoff_module_defaults(ski_conv)
     with contextlib.redirect_stdout(io.StringIO()):
         best = ski_conv.search_flat_length()
     return {

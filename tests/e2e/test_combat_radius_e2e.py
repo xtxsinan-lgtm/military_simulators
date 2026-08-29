@@ -245,3 +245,47 @@ def test_e2e_combat_radius_three_channels_exist():
     assert 'runEfficiency' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'runRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')
+    assert 'engine_id' in js_text
+    assert 'engine_id' in (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
+    ios_vm = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
+    assert 'engine_id' in ios_vm
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_j15_radius_uses_csv_engine():
+    """合并库中的歼-15 须能带 CSV 发动机走完布雷盖作战半径。"""
+    from utils.combat_radius.combat_radius_presets import load_engine_presets
+
+    presets = load_presets()
+    engines = load_engine_presets()
+    a1 = get_preset_by_id(presets, 'F-35C')
+    a2 = get_preset_by_id(presets, 'F-22')
+    tgt = get_preset_by_id(presets, 'J-15')
+    eng = get_preset_by_id(engines, tgt['engine_id'])
+    assert eng is not None
+    assert tgt['carrier'] is True
+    r = run_combat_radius_json({
+        'action': 'estimate_radius',
+        'params': {
+            'anchor1': a1,
+            'ld1_target': a1['ld_known'],
+            'anchor2': a2,
+            'ld2_target': a2['ld_known'],
+            'target': tgt,
+            'empty_kg': tgt['empty_kg'],
+            'internal_fuel_kg': tgt['internal_fuel_kg'],
+            'n_pilots': tgt['n_pilots'],
+            'missile_mass_kg': tgt['missile_mass_kg'],
+            'n_engines': tgt['n_engines'],
+            'bpr': eng['bpr'],
+            'opr': eng['opr'],
+            't4_K': eng['t4_K'],
+            'tsl_kN': eng['tsl_kN'],
+            'alt_m': tgt['alt_m'],
+            'mach': tgt['mach'],
+        },
+    })
+    assert r['success'] is True
+    m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
+    assert m08['feasible'] is True
+    assert m08['radius_km'] > 200
