@@ -33,7 +33,9 @@ RHO11 = 0.36391  # 11000 m 处密度 (kg/m^3)
 KAPPA_A = 0.90  # Korn 方程翼型技术因子，固定为超临界翼型典型值
 # Ma 0.8 巡航下 CDw≈0，此系数不参与 2 变量标定，留给更高马赫数场景
 
-PlanformId = Literal['trapezoidal', 'swept', 'delta', 'diamond', 'unswept']
+PlanformId = Literal[
+    'trapezoidal', 'swept', 'delta', 'diamond', 'unswept', 'lambda', 'double_delta',
+]
 LayoutId = Literal['conventional', 'canard', 'tailless']
 
 # 浸润面积/参考面积的相对因子（绝对量级由 Cf0 吸收，这里只保留相对趋势）
@@ -41,7 +43,9 @@ PLANFORM_MULT: dict[str, float] = {
     'trapezoidal': 1.00,  # 梯形翼
     'swept': 0.99,  # 后掠翼：相对梯形略减（后掠角本身另计入 Oswald）
     'delta': 0.97,  # 三角翼
+    'double_delta': 0.975,  # 双三角翼：略多于单三角
     'diamond': 0.96,  # 钻石翼
+    'lambda': 0.96,  # 兰姆达翼
     'unswept': 1.02,  # 平直翼：相对梯形略增
 }
 LAYOUT_MULT: dict[str, float] = {
@@ -66,8 +70,9 @@ class Aircraft:
     layout: LayoutId
     bwb: bool  # 翼身融合 —— 独立开关，与机型无绑定关系
     rough: bool  # 表面是否不平整 —— 独立开关，与机型无绑定关系
-    length_m: float = 0.0  # 机身长度，用于翼尖-机头马赫角；缺省 0 表示不启用
-    wingspan_m: float = 0.0  # 翼展，用于马赫角；缺省 0 表示不启用
+    length_m: float = 0.0  # 机身长度，未给马赫角时用于估算；缺省 0 表示不启用
+    wingspan_m: float = 0.0  # 翼展；缺省 0 表示不启用
+    mach_angle_deg: float = 0.0  # 翼尖-机头连线与机身轴线夹角（度）；优先于机长/翼展
 
 
 def _as_bool(value: Any, default: bool = False) -> bool:
@@ -108,6 +113,7 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         rough=_as_bool(data.get('rough'), False),
         length_m=_optional_positive_float(data.get('length_m')),
         wingspan_m=_optional_positive_float(data.get('wingspan_m')),
+        mach_angle_deg=_optional_positive_float(data.get('mach_angle_deg')),
     )
 
 
@@ -150,7 +156,7 @@ def wetted_area_factor(ac: Aircraft) -> float:
     """浸润面积/参考面积的相对因子。
 
     - 翼型越厚，浸润面积/摩擦阻力略增
-    - 三角翼/钻石翼相比梯形翼浸润面积/参考面积略小；平直翼略大
+    - 三角翼/双三角/钻石翼/兰姆达翼相比梯形翼浸润面积/参考面积略小；平直翼略大
     - 鸭式布局多一个升力面；无尾布局减少
     - 翼身融合 (bwb) 与表面不平整 (rough) 是两个完全独立的开关
     """
@@ -163,10 +169,22 @@ def wetted_area_factor(ac: Aircraft) -> float:
 
 
 def mach_angle_rad(length_m: float, wingspan_m: float) -> float:
-    """翼尖与机头连线相对机身中轴线的夹角（弧度）。"""
+    """由机长与翼展估算翼尖-机头连线相对机身中轴线的夹角（弧度）。"""
     if length_m <= 0 or wingspan_m <= 0:
         raise ValueError('机身长度与翼展须为正才能计算马赫角')
     return math.atan((wingspan_m / 2.0) / length_m)
+
+
+def aircraft_mach_angle_rad(ac: Aircraft) -> float | None:
+    """机型马赫角（弧度）：优先用预设度数，否则由机长/翼展估算；都没有则 None。"""
+    if ac.mach_angle_deg > 0.0:
+        phi = math.radians(ac.mach_angle_deg)
+        if math.sin(phi) <= 1e-12:
+            raise ValueError('马赫角须在 (0, 90°) 内')
+        return phi
+    if ac.length_m > 0.0 and ac.wingspan_m > 0.0:
+        return mach_angle_rad(ac.length_m, ac.wingspan_m)
+    return None
 
 
 def mach_cone_limit(phi_rad: float) -> float:
@@ -189,15 +207,15 @@ def cd_wave_mach_angle(mach: float, phi_rad: float) -> float:
 def cd_wave(CL: float, ac: Aircraft) -> float:
     """Korn 方程估算阻力发散马赫数，超过后用四次方经验式估算波阻。
 
-    若提供机身长度与翼展，再叠加超过马赫角后的附加波阻。
+    若提供马赫角（或机长/翼展），再叠加超过马赫角后的附加波阻。
     """
     sweep = math.radians(ac.sweep_deg)
     cos_s = math.cos(sweep)
     m_dd = KAPPA_A / cos_s - ac.tc / cos_s - CL / (10.0 * cos_s ** 2)
     dm = ac.mach - m_dd
     cdw = 20.0 * dm ** 4 if dm > 0.0 else 0.0
-    if ac.length_m > 0.0 and ac.wingspan_m > 0.0:
-        phi = mach_angle_rad(ac.length_m, ac.wingspan_m)
+    phi = aircraft_mach_angle_rad(ac)
+    if phi is not None:
         cdw += cd_wave_mach_angle(ac.mach, phi)
     return cdw
 

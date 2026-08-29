@@ -36,7 +36,10 @@ def test_e2e_catalog_auto_detects_csv_models():
     api = json.loads(body.decode())
     assert api['simulators'] == SIMULATORS
     assert len(api['missile_interception_presets']['sam']) == len(sat['sam'])
-    assert [p['id'] for p in api['combat_radius_presets']] == ['F-35C', 'F-22', 'J-20']
+    assert [p['id'] for p in api['combat_radius_presets']] == [
+        'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
+        'J-35', 'J-35A', '53636', '53636N', '53536',
+    ]
     assert any(p['id'] == 'f119' for p in api['combat_radius_engine_presets'])
 
 

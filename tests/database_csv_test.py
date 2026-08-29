@@ -162,23 +162,35 @@ def test_missile_interception_radar_csv_missing_nation_raises(tmp_path):
 
 
 def test_load_combat_radius_aircraft_csv():
-    """作战半径机型 CSV 须含锚点与歼-20，且列齐全。"""
+    """作战半径机型 CSV 须含锚点与扩充机型，且列齐全。"""
     rows = load_combat_radius_aircraft_csv(COMBAT_RADIUS_AIRCRAFT_CSV)
     ids = [r['id'] for r in rows]
-    assert ids == ['F-35C', 'F-22', 'J-20']
+    assert ids == [
+        'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
+        'J-35', 'J-35A', '53636', '53636N', '53536',
+    ]
     assert rows[0]['rough'] is True
-    assert 'ld_known' not in rows[2]
-    assert rows[1]['empty_kg'] == 19700
-    assert rows[1]['n_engines'] == 2
-    assert rows[1]['engine_id'] == 'f119'
+    f22 = next(r for r in rows if r['id'] == 'F-22')
+    j20 = next(r for r in rows if r['id'] == 'J-20')
+    assert 'ld_known' not in j20
+    assert f22['empty_kg'] == 19800
+    assert f22['n_engines'] == 2
+    assert f22['engine_id'] == 'f119'
+    assert f22['mach_angle_deg'] == pytest.approx(28.5)
+    assert f22['wing_area_m2'] == pytest.approx(78.0)
     assert rows[0]['n_engines'] == 1
-    assert rows[1]['length_m'] == pytest.approx(18.92)
-    assert rows[1]['wingspan_m'] == pytest.approx(13.56)
+    uav = next(r for r in rows if r['id'] == '53636')
+    assert uav['n_pilots'] == 0
+    j36 = next(r for r in rows if r['id'] == 'J-36')
+    assert j36['n_engines'] == 3
+    assert j36['n_pilots'] == 2
+    assert j36['planform'] == 'double_delta'
 
 
 def test_parse_int_accepts_int_and_float_text():
     assert _parse_int('2', 'n') == 2
     assert _parse_int('1.0', 'n') == 1
+    assert _parse_int('0', 'n_pilots') == 0
     with pytest.raises(ValueError, match='必填'):
         _parse_int('', 'n')
 
@@ -187,7 +199,7 @@ def test_combat_radius_csv_unknown_planform_raises(tmp_path):
     path = tmp_path / 'cr.csv'
     path.write_text(
         ','.join(COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS) + '\n'
-        'X1,测试,中国,2.5,30,0.3,0.05,0.8,12000,hex,conventional,0,0,,,15.7,13.1,15000,8000,1,150,1,\n',
+        'X1,测试,中国,2.5,30,0.3,0.05,0.8,12000,hex,conventional,0,0,,,60,25,,15.7,13.1,15000,8000,1,150,1,\n',
         encoding='utf-8',
     )
     with pytest.raises(ValueError, match='planform'):

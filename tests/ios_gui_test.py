@@ -101,6 +101,8 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'CombatRadiusEnginePresetItem' in models
     assert 'tsfc_mg_n_s' in models
     assert 'CombatRadiusCruisePoint' in models
+    assert 'mach_angle_deg' in models
+    assert 'wing_area_m2' in models
 
 
 def test_ios_project_yml_exists():

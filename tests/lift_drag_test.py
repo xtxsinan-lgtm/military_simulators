@@ -10,6 +10,7 @@ from utils.combat_radius.lift_drag import (
     RHO11,
     Aircraft,
     aircraft_from_dict,
+    aircraft_mach_angle_rad,
     aircraft_to_dict,
     atmosphere,
     calibrate,
@@ -49,7 +50,7 @@ def _j20() -> Aircraft:
     return Aircraft(
         'J-20', AR=2.32, sweep_deg=46.3, wing_loading=0.329,
         tc=0.0430, mach=0.8, alt_m=12000,
-        planform='delta', layout='canard',
+        planform='trapezoidal', layout='canard',
         bwb=False, rough=False,
     )
 
@@ -70,11 +71,13 @@ def test_aircraft_from_dict_and_to_dict_roundtrip():
     ac = aircraft_from_dict({
         'name': 'J-20', 'AR': 2.32, 'sweep_deg': 46.3, 'wing_loading': 0.329,
         'tc': 0.043, 'mach': 0.8, 'alt_m': 12000,
-        'planform': 'delta', 'layout': 'canard', 'bwb': 0, 'rough': '否',
+        'planform': 'trapezoidal', 'layout': 'canard', 'bwb': 0, 'rough': '否',
+        'mach_angle_deg': 21.7,
     })
     d = aircraft_to_dict(ac)
     assert d['name'] == 'J-20'
-    assert d['planform'] == 'delta'
+    assert d['planform'] == 'trapezoidal'
+    assert d['mach_angle_deg'] == pytest.approx(21.7)
     assert d['bwb'] is False
     assert d['rough'] is False
     again = aircraft_from_dict(d)
@@ -108,11 +111,24 @@ def test_cd_wave_mach_angle_zero_below_limit():
     assert cd_wave_mach_angle(mach_cone_limit(phi) + 0.5, phi) > 0
 
 
+def test_aircraft_mach_angle_rad_prefers_degrees():
+    """预设马赫角优先于机长/翼展估算。"""
+    from_deg = Aircraft(**{**aircraft_to_dict(_f22()), 'mach_angle_deg': 28.5, 'length_m': 18.92, 'wingspan_m': 13.56})
+    phi = aircraft_mach_angle_rad(from_deg)
+    assert phi is not None
+    assert math.degrees(phi) == pytest.approx(28.5)
+    fallback = Aircraft(**{**aircraft_to_dict(_f22()), 'mach_angle_deg': 0, 'length_m': 18.92, 'wingspan_m': 13.56})
+    assert aircraft_mach_angle_rad(fallback) == pytest.approx(mach_angle_rad(18.92, 13.56))
+    assert aircraft_mach_angle_rad(_f22()) is None
+
+
 def test_cd_wave_includes_mach_angle_extra_at_high_mach():
     base = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 3.5, 'length_m': 0, 'wingspan_m': 0})
     with_geom = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 3.5, 'length_m': 18.92, 'wingspan_m': 13.56})
+    with_deg = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 3.5, 'mach_angle_deg': 28.5})
     cl = cl_cruise(base)
     assert cd_wave(cl, with_geom) > cd_wave(cl, base)
+    assert cd_wave(cl, with_deg) > cd_wave(cl, base)
 
 
 def test_aircraft_from_dict_rejects_unknown_planform():
@@ -169,12 +185,16 @@ def test_wetted_area_factor_planform_and_layout():
     w_trap = wetted_area_factor(ac)
     delta = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'delta'})
     diamond = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'diamond'})
+    lam = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'lambda'})
+    double_delta = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'double_delta'})
     swept = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'swept'})
     unswept = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'unswept'})
     canard = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'canard'})
     tailless = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'tailless'})
     assert wetted_area_factor(delta) < w_trap
     assert wetted_area_factor(diamond) < wetted_area_factor(delta)
+    assert wetted_area_factor(lam) == pytest.approx(wetted_area_factor(diamond))
+    assert wetted_area_factor(delta) < wetted_area_factor(double_delta) < w_trap
     assert wetted_area_factor(swept) < w_trap
     assert wetted_area_factor(unswept) > w_trap
     assert wetted_area_factor(canard) > w_trap

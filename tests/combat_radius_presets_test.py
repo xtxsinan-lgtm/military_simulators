@@ -14,11 +14,17 @@ from utils.combat_radius.combat_radius_presets import (
 )
 from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV, COMBAT_RADIUS_ENGINE_CSV
 
+# 作战半径机型库顺序：锚点在前，其后为扩充机型
+EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
+    'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
+    'J-35', 'J-35A', '53636', '53636N', '53536',
+]
+
 
 def test_load_presets_contains_anchors_and_j20():
     presets = load_presets()
     ids = [p['id'] for p in presets]
-    assert ids == ['F-35C', 'F-22', 'J-20']
+    assert ids == EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS
     f35 = get_preset_by_id(presets, 'F-35C')
     assert f35 is not None
     assert f35['rough'] is True
@@ -27,9 +33,21 @@ def test_load_presets_contains_anchors_and_j20():
     assert f35['engine_id'] == 'f135'
     j20 = get_preset_by_id(presets, 'J-20')
     assert j20 is not None
-    assert j20['planform'] == 'delta'
+    assert j20['planform'] == 'trapezoidal'
     assert j20['layout'] == 'canard'
     assert 'ld_known' not in j20
+    j50 = get_preset_by_id(presets, 'J-50')
+    assert j50 is not None
+    assert j50['planform'] == 'lambda'
+    uav = get_preset_by_id(presets, '53636')
+    assert uav is not None
+    assert uav['n_pilots'] == 0
+    j36 = get_preset_by_id(presets, 'J-36')
+    assert j36 is not None
+    assert j36['n_engines'] == 3
+    assert j36['n_pilots'] == 2
+    assert j36['planform'] == 'double_delta'
+    assert j36['bwb'] is True
 
 
 def test_get_preset_by_id_missing_returns_none():
@@ -44,8 +62,10 @@ def test_preset_to_aircraft_and_dict():
     assert d['AR'] == 2.37
     assert 'id' not in d
     assert 'ld_known' not in d
-    assert p['length_m'] == pytest.approx(18.92)
-    assert ac.length_m == pytest.approx(18.92)
+    assert p['mach_angle_deg'] == pytest.approx(28.5)
+    assert ac.mach_angle_deg == pytest.approx(28.5)
+    assert p['empty_kg'] == 19800
+    assert p['bvr_missile'] == 'AIM-120D'
 
 
 def test_build_combat_radius_presets_payload():
@@ -71,6 +91,21 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
     ws15 = get_preset_by_id(engines, 'ws15')
     assert ws15 is not None
     assert 'tsl_kN' not in ws15
+    expected = {
+        'ws15': (0.25, 25.5, 1841.0),
+        'ws15i': (0.25, 29.0, 1975.0),
+        'ws19': (0.50, 35.0, 1850.0),
+        'ws10c': (0.60, 30.0, 1800.0),
+        'ws21': (0.68, 26.0, 1650.0),
+        'f119': (0.30, 26.0, 1922.0),
+        'f135': (0.57, 28.0, 2260.0),
+    }
+    for eid, (bpr, opr, t4) in expected.items():
+        row = get_preset_by_id(engines, eid)
+        assert row is not None
+        assert row['bpr'] == pytest.approx(bpr)
+        assert row['opr'] == pytest.approx(opr)
+        assert row['t4_K'] == pytest.approx(t4)
 
 
 def test_build_combat_radius_engine_presets_payload():

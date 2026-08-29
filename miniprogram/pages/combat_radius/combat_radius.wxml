@@ -160,6 +160,14 @@
       <label><switch checked="{{tgt.rough}}" data-slot="tgt" data-key="rough" bindchange="onSwitch"/> 表面不平整</label>
     </view>
     <view class="field">
+      <view class="field-label"><text>翼面积</text><text class="unit">m²</text></view>
+      <input class="input" type="digit" value="{{tgt.wing_area_m2}}" data-slot="tgt" data-key="wing_area_m2" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>马赫角</text><text class="unit">°</text></view>
+      <input class="input" type="digit" value="{{tgt.mach_angle_deg}}" data-slot="tgt" data-key="mach_angle_deg" bindinput="onAcField"/>
+    </view>
+    <view class="field">
       <view class="field-label"><text>机身长度</text><text class="unit">m</text></view>
       <input class="input" type="digit" value="{{tgt.length_m}}" data-slot="tgt" data-key="length_m" bindinput="onAcField"/>
     </view>
@@ -259,7 +267,7 @@
 
   <view class="panel">
     <view class="panel-head">4. 作战半径 · RANGE</view>
-    <view class="note">搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖平飞估算。自动给出 Ma 0.8 / 1.5 / 1.76 与最大巡航马赫。不计爬升下降余油。</view>
+    <view class="note">搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖平飞估算。自动给出 Ma 0.8 / 1.5 / 1.76 与最大巡航马赫。马赫角优先用预设度数。不计爬升下降余油。</view>
     <view class="btn" bindtap="onRunRadius">▶ 估算作战半径</view>
   </view>
 

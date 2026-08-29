@@ -15,13 +15,15 @@
     "default_acc_frac": 0.16,
     "default_t4idle": 900
   },
-  "planform_labels": {
-    "trapezoidal": "梯形翼",
-    "swept": "后掠翼",
-    "delta": "三角翼",
-    "diamond": "钻石翼",
-    "unswept": "平直翼"
-  },
+    "planform_labels": {
+      "trapezoidal": "梯形翼",
+      "swept": "后掠翼",
+      "delta": "三角翼",
+      "double_delta": "双三角翼",
+      "diamond": "钻石翼",
+      "lambda": "兰姆达翼",
+      "unswept": "平直翼"
+    },
   "layout_labels": {
     "conventional": "常规",
     "canard": "鸭翼",

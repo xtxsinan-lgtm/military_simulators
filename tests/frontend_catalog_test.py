@@ -41,6 +41,8 @@ def test_build_catalog_payload_modes():
     assert 'combat_radius_engine_presets' in payload
     assert 'combat_radius_config' in payload
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
+    assert any(p['id'] == 'J-50' for p in payload['combat_radius_presets'])
+    assert any(p['id'] == '53636' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'f119' for p in payload['combat_radius_engine_presets'])
     assert payload['takeoff_config']['shared']['mu'] == 0.025
     assert 'A' in payload['takeoff_config']['stovl_strategy_descriptions']
@@ -174,7 +176,10 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     csv_data = load_missile_interception_presets_csv()
     assert [x['id'] for x in payload['missile_interception_presets']['asm']] == [x['id'] for x in csv_data['asm']]
     assert [x['id'] for x in payload['missile_interception_presets']['aew']] == [x['id'] for x in csv_data['aew']]
-    assert [p['id'] for p in payload['combat_radius_presets']] == ['F-35C', 'F-22', 'J-20']
+    assert [p['id'] for p in payload['combat_radius_presets']] == [
+        'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
+        'J-35', 'J-35A', '53636', '53636N', '53536',
+    ]
     assert any(p['id'] == 'f119' for p in payload['combat_radius_engine_presets'])
     assert len(payload['aircraft']) >= 1
     assert len(payload['carriers']) >= 1

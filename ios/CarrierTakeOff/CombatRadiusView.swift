@@ -81,7 +81,7 @@ struct CombatRadiusView: View {
                 }
 
                 panel(title: "4. 作战半径", tag: "RANGE") {
-                    Text("搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖平飞估算。自动给出 Ma 0.8 / 1.5 / 1.76 与最大巡航马赫。机身长度与翼展用于马赫角。不计爬升下降余油。")
+                    Text("搜索 L/D×η_o 最大且阻力 ≤ 军推 92% 的高度，布雷盖平飞估算。自动给出 Ma 0.8 / 1.5 / 1.76 与最大巡航马赫。马赫角优先用预设度数。不计爬升下降余油。")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
                     Button(vm.running ? "计算中…" : "▶ 估算作战半径") {
@@ -127,6 +127,8 @@ struct CombatRadiusView: View {
         field("前缘后掠角 (°)", text: ac.sweepDeg)
         field("翼载荷 (t/m²)", text: ac.wingLoading)
         field("厚弦比 tc", text: ac.tc)
+        field("翼面积 (m²)", text: ac.wingAreaM2)
+        field("马赫角 (°)", text: ac.machAngleDeg)
         field("机身长度 (m)", text: ac.lengthM)
         field("翼展 (m)", text: ac.wingspanM)
         field("马赫数", text: ac.mach)

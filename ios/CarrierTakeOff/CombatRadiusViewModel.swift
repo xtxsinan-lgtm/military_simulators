@@ -16,6 +16,8 @@ struct CombatRadiusAircraftInput {
     var rough = false
     var lengthM = ""
     var wingspanM = ""
+    var machAngleDeg = ""
+    var wingAreaM2 = ""
 
     /// 填入预设几何
     mutating func apply(_ p: CombatRadiusPresetItem) {
@@ -30,8 +32,10 @@ struct CombatRadiusAircraftInput {
         layout = p.layout
         bwb = p.bwb
         rough = p.rough
-        if let v = p.length_m { lengthM = String(v) }
-        if let v = p.wingspan_m { wingspanM = String(v) }
+        lengthM = p.length_m.map { String($0) } ?? ""
+        wingspanM = p.wingspan_m.map { String($0) } ?? ""
+        machAngleDeg = p.mach_angle_deg.map { String($0) } ?? ""
+        wingAreaM2 = p.wing_area_m2.map { String($0) } ?? ""
     }
 
     /// 转为 Python API 机型字典
@@ -50,6 +54,8 @@ struct CombatRadiusAircraftInput {
             "rough": rough,
             "length_m": Double(lengthM) ?? 0,
             "wingspan_m": Double(wingspanM) ?? 0,
+            "mach_angle_deg": Double(machAngleDeg) ?? 0,
+            "wing_area_m2": Double(wingAreaM2) ?? 0,
         ]
     }
 }
@@ -105,7 +111,7 @@ final class CombatRadiusViewModel: ObservableObject {
             presets = catalog.combat_radius_presets ?? []
             enginePresets = catalog.combat_radius_engine_presets ?? []
             if let labels = catalog.combat_radius_config?.planform_labels, !labels.isEmpty {
-                let order = ["trapezoidal", "swept", "delta", "diamond", "unswept"]
+                let order = ["trapezoidal", "swept", "delta", "double_delta", "diamond", "lambda", "unswept"]
                 planformOptions = orderedPairs(labels, preferred: order)
             }
             if let labels = catalog.combat_radius_config?.layout_labels, !labels.isEmpty {

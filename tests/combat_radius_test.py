@@ -41,7 +41,7 @@ def _sample_params() -> dict:
         'target': {
             'name': 'J-20', 'AR': 2.32, 'sweep_deg': 46.3, 'wing_loading': 0.329,
             'tc': 0.043, 'mach': 0.8, 'alt_m': 12000,
-            'planform': 'delta', 'layout': 'canard', 'bwb': False, 'rough': False,
+            'planform': 'trapezoidal', 'layout': 'canard', 'bwb': False, 'rough': False,
         },
     }
 
@@ -100,6 +100,8 @@ def test_run_combat_radius_presets_and_unknown_action():
     presets = run_combat_radius('presets')
     assert presets['success'] is True
     assert any(p['id'] == 'J-20' for p in presets['presets'])
+    assert any(p['id'] == 'J-50' for p in presets['presets'])
+    assert any(p['id'] == '53636' for p in presets['presets'])
     assert any(p['id'] == 'f119' for p in presets['engine_presets'])
     bad = run_combat_radius('nope')
     assert bad['success'] is False
@@ -185,7 +187,7 @@ def test_run_estimate_efficiency_from_params_f22():
     r = run_estimate_efficiency_from_params({
         **p,
         'target': p['anchor2'],
-        'empty_kg': 19700,
+        'empty_kg': 19800,
         'internal_fuel_kg': 8200,
         'n_pilots': 1,
         'missile_mass_kg': 152,
@@ -210,7 +212,7 @@ def test_run_estimate_efficiency_from_params_f22():
 def test_run_estimate_efficiency_ld_override_and_overload():
     r = run_estimate_efficiency_from_params({
         'ld': 2.0,
-        'empty_kg': 19700,
+        'empty_kg': 19800,
         'internal_fuel_kg': 8200,
         'n_pilots': 1,
         'missile_mass_kg': 152,
@@ -234,7 +236,7 @@ def test_run_combat_radius_estimate_efficiency_action():
     ok = run_combat_radius('estimate_efficiency', {
         **p,
         'target': p['anchor2'],
-        'empty_kg': 19700, 'internal_fuel_kg': 8200, 'n_engines': 2,
+        'empty_kg': 19800, 'internal_fuel_kg': 8200, 'n_engines': 2,
         'bpr': 0.30, 'opr': 26.0, 't4_K': 1922, 'tsl_kN': 116.0,
         'alt_m': 11800, 'mach': 0.8,
     })
@@ -256,11 +258,11 @@ def _radius_params() -> dict:
     p = _sample_params()
     p['target'] = {
         **p['anchor2'],
-        'length_m': 18.92,
-        'wingspan_m': 13.56,
+        'mach_angle_deg': 28.5,
+        'wingspan_m': 13.59,
     }
     p.update({
-        'empty_kg': 19700,
+        'empty_kg': 19800,
         'internal_fuel_kg': 8200,
         'n_pilots': 1,
         'missile_mass_kg': 152,

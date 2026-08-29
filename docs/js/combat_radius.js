@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 4;
+const APP_VERSION = 5;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -79,6 +79,10 @@ function renderAircraftFields(containerId, prefix) {
       <div class="field"><label>厚弦比 tc</label><input id="${prefix}_tc" type="number" step="0.001" min="0.01"></div>
     </div>
     <div class="pair">
+      <div class="field"><label>翼面积 <span class="unit">m²</span></label><input id="${prefix}_area" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>马赫角 <span class="unit">°</span></label><input id="${prefix}_mach_angle" type="number" step="0.1" min="0"></div>
+    </div>
+    <div class="pair">
       <div class="field"><label>机身长度 <span class="unit">m</span></label><input id="${prefix}_len" type="number" step="0.01" min="0"></div>
       <div class="field"><label>翼展 <span class="unit">m</span></label><input id="${prefix}_span" type="number" step="0.01" min="0"></div>
     </div>
@@ -110,6 +114,8 @@ function applyPresetToFields(prefix, preset) {
   $(`${prefix}_layout`).value = preset.layout;
   $(`${prefix}_bwb`).checked = !!preset.bwb;
   $(`${prefix}_rough`).checked = !!preset.rough;
+  $(`${prefix}_area`).value = preset.wing_area_m2 != null ? preset.wing_area_m2 : '';
+  $(`${prefix}_mach_angle`).value = preset.mach_angle_deg != null ? preset.mach_angle_deg : '';
   $(`${prefix}_len`).value = preset.length_m != null ? preset.length_m : '';
   $(`${prefix}_span`).value = preset.wingspan_m != null ? preset.wingspan_m : '';
   if (prefix === 'tgt') applyWeightFromPreset(preset);
@@ -148,6 +154,8 @@ function readAircraft(prefix) {
     rough: $(`${prefix}_rough`).checked,
     length_m: Number($(`${prefix}_len`).value),
     wingspan_m: Number($(`${prefix}_span`).value),
+    mach_angle_deg: Number($(`${prefix}_mach_angle`).value),
+    wing_area_m2: Number($(`${prefix}_area`).value),
   };
 }
 

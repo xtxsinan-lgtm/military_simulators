@@ -22,6 +22,14 @@ def test_combat_mass_kg_half_fuel_pilots_and_missiles():
     assert PILOT_MASS_KG == 100.0
 
 
+def test_combat_mass_kg_zero_pilots_uav():
+    """无人机飞行员数为 0 时不计入乘员质量。"""
+    mass = combat_mass_kg(
+        empty_kg=7300, internal_fuel_kg=4740, n_pilots=0, missile_mass_kg=210, n_missiles=4,
+    )
+    assert mass == pytest.approx(7300 + 0.5 * 4740 + 4 * 210)
+
+
 def test_combat_mass_kg_rejects_bad_inputs():
     with pytest.raises(ValueError, match='不能为负'):
         combat_mass_kg(empty_kg=-1, internal_fuel_kg=1)

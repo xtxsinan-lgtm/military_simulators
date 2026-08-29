@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=4">
+<link rel="stylesheet" href="css/combat_radius.css?v=5">
 </head>
 <body>
 <div class="scanline"></div>
@@ -93,7 +93,7 @@
         <div class="field"><label>内油 <span class="unit">kg</span></label><input type="number" id="wtFuel" step="10" min="0"></div>
       </div>
       <div class="pair">
-        <div class="field"><label>飞行员数</label><input type="number" id="wtPilots" step="1" min="1" value="1"></div>
+        <div class="field"><label>飞行员数</label><input type="number" id="wtPilots" step="1" min="0" value="1"></div>
         <div class="field"><label>单枚中距弹 <span class="unit">kg</span></label><input type="number" id="wtMissile" step="1" min="0"></div>
       </div>
       <div class="pair">
@@ -113,7 +113,7 @@
 
     <div class="panel">
       <div class="panel-head"><span>4. 作战半径</span><span class="tag">RANGE</span></div>
-      <p class="note">给定马赫下搜索 L/D×η_o 最大、且阻力 ≤ 军推 92% 的高度，再用布雷盖公式由满内油平飞估算作战半径。自动计算 Ma 0.8 / 1.5 / 1.76 以及该机型最大巡航马赫。机身长度与翼展用于马赫角附加波阻。暂不计爬升、下降与余油。</p>
+      <p class="note">给定马赫下搜索 L/D×η_o 最大、且阻力 ≤ 军推 92% 的高度，再用布雷盖公式由满内油平飞估算作战半径。自动计算 Ma 0.8 / 1.5 / 1.76 以及该机型最大巡航马赫。马赫角优先用预设度数，缺省时才由机长/翼展估算附加波阻。暂不计爬升、下降与余油。</p>
       <button class="run" id="radiusBtn">▶ 估算作战半径</button>
     </div>
   </div>
@@ -142,6 +142,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · Pyodide · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=4"></script>
+<script type="module" src="js/combat_radius.js?v=5"></script>
 </body>
 </html>

@@ -55,8 +55,8 @@ from utils.combat_radius.lift_drag import (
     KAPPA_A,
     Aircraft,
     aircraft_from_dict,
+    aircraft_mach_angle_rad,
     calibrate,
-    mach_angle_rad,
     mach_cone_limit,
     predict_ld,
 )
@@ -436,8 +436,8 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
 
     mach_angle_deg = None
     m_cone = None
-    if target.length_m > 0 and target.wingspan_m > 0:
-        phi = mach_angle_rad(target.length_m, target.wingspan_m)
+    phi = aircraft_mach_angle_rad(target)
+    if phi is not None:
         mach_angle_deg = math.degrees(phi)
         m_cone = mach_cone_limit(phi)
 

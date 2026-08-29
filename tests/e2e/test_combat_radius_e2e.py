@@ -151,6 +151,70 @@ def test_e2e_combat_radius_http_api():
 
 
 @pytest.mark.e2e
+def test_e2e_combat_radius_expanded_fleet_predict_ld():
+    """扩充机型（兰姆达翼、无人机、三发双座）须能完成升阻比标定。"""
+    presets = load_presets()
+    a1 = get_preset_by_id(presets, 'F-35C')
+    a2 = get_preset_by_id(presets, 'F-22')
+    for aid in ('J-50', 'J-36', '53636', '53536'):
+        tgt = get_preset_by_id(presets, aid)
+        r = run_combat_radius_json({
+            'action': 'predict_ld',
+            'params': {
+                'anchor1': a1,
+                'ld1_target': a1['ld_known'],
+                'anchor2': a2,
+                'ld2_target': a2['ld_known'],
+                'target': tgt,
+            },
+        })
+        assert r['success'] is True, aid
+        assert 6.0 < r['target']['ld'] < 12.0
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_uav_and_j36_weight_fields():
+    """无人机零飞行员、歼-36 三发双座须进入空战重量。"""
+    presets = load_presets()
+    uav = get_preset_by_id(presets, '53636')
+    assert uav['n_pilots'] == 0
+    j36 = get_preset_by_id(presets, 'J-36')
+    assert j36['n_engines'] == 3
+    assert j36['n_pilots'] == 2
+    f22 = get_preset_by_id(presets, 'F-22')
+    p = _params_from_csv()
+    p['target'] = uav
+    p.update({
+        'empty_kg': uav['empty_kg'],
+        'internal_fuel_kg': uav['internal_fuel_kg'],
+        'n_pilots': 0,
+        'missile_mass_kg': uav['missile_mass_kg'],
+        'n_engines': 1,
+        'bpr': 0.30, 'opr': 26.0, 't4_K': 1922, 'tsl_kN': 116.0,
+        'alt_m': uav['alt_m'], 'mach': uav['mach'],
+    })
+    r = run_combat_radius_json({'action': 'estimate_efficiency', 'params': p})
+    assert r['success'] is True
+    assert r['mass_kg'] == pytest.approx(
+        uav['empty_kg'] + 0.5 * uav['internal_fuel_kg'] + 4 * uav['missile_mass_kg']
+    )
+    p36 = _params_from_csv()
+    p36['target'] = j36
+    p36.update({
+        'empty_kg': j36['empty_kg'],
+        'internal_fuel_kg': j36['internal_fuel_kg'],
+        'n_pilots': 2,
+        'missile_mass_kg': j36['missile_mass_kg'],
+        'n_engines': 3,
+        'bpr': 0.30, 'opr': 26.0, 't4_K': 1922, 'tsl_kN': 116.0,
+        'alt_m': j36['alt_m'], 'mach': j36['mach'],
+    })
+    r36 = run_combat_radius_json({'action': 'estimate_efficiency', 'params': p36})
+    assert r36['success'] is True
+    assert r36['n_engines'] == 3
+
+
+@pytest.mark.e2e
 def test_e2e_combat_radius_three_channels_exist():
     """HTML / 小程序 / iOS 三端须同时存在作战半径入口。"""
     html = ROOT / 'docs' / 'combat-radius.html'
@@ -174,6 +238,9 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '估算可用军推' in ios
     assert '估算负载与 TSFC' in ios
     assert '估算作战半径' in ios
+    assert '马赫角' in html_text
+    assert '马赫角' in wxml
+    assert '马赫角' in ios
     assert 'runThrust' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'runEfficiency' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'runRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')

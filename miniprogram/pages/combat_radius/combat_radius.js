@@ -14,6 +14,8 @@ const EMPTY_AC = {
   rough: false,
   length_m: '',
   wingspan_m: '',
+  mach_angle_deg: '',
+  wing_area_m2: '',
 };
 
 function num(v, d) {
@@ -285,6 +287,8 @@ Page({
       rough: !!ac.rough,
       length_m: num(ac.length_m, 0),
       wingspan_m: num(ac.wingspan_m, 0),
+      mach_angle_deg: num(ac.mach_angle_deg, 0),
+      wing_area_m2: num(ac.wing_area_m2, 0),
     };
   },
 
@@ -492,7 +496,7 @@ Page({
           radiusResult: r,
           radiusAngle: r.mach_angle_deg != null
             ? `${fmt(r.mach_angle_deg, 1)}° · 锥限 Ma ${fmt(r.mach_cone_limit, 2)}`
-            : '未提供机身长度/翼展',
+            : '未提供马赫角',
           radiusMaxMach: r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—',
           radiusMass: `${fmt(r.mass_initial_kg, 0)} → ${fmt(r.mass_final_kg, 0)} kg`,
           radiusNote: r.note || '',

@@ -26,6 +26,8 @@ def test_load_combat_radius_config_file_exists_and_ui_defaults():
 def test_planform_and_layout_labels():
     pf = planform_labels()
     assert pf['delta'] == '三角翼'
+    assert pf['double_delta'] == '双三角翼'
+    assert pf['lambda'] == '兰姆达翼'
     assert pf['diamond'] == '钻石翼'
     assert pf['unswept'] == '平直翼'
     ly = layout_labels()
