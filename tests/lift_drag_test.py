@@ -6,7 +6,12 @@ import math
 import pytest
 
 from utils.combat_radius.lift_drag import (
+    CDW_KORN_COEF,
+    CDW_SS_BODY,
+    CDW_SS_WING,
+    F22_SUPERCRUISE_MACH,
     KAPPA_A,
+    KORN_DM_CAP,
     RHO11,
     Aircraft,
     aircraft_from_dict,
@@ -19,9 +24,12 @@ from utils.combat_radius.lift_drag import (
     atmosphere,
     calibrate,
     cd_wave,
+    cd_wave_korn,
     cd_wave_mach_angle,
+    cd_wave_supersonic,
     cl_cruise,
     components,
+    drag_divergence_mach,
     mach_angle_rad,
     mach_cone_limit,
     oswald_e_raw,
@@ -215,6 +223,52 @@ def test_cd_wave_positive_when_mach_exceeds_mdd():
     ac = Aircraft(**{**aircraft_to_dict(_f35c()), 'mach': 1.4})
     cl = cl_cruise(ac)
     assert cd_wave(cl, ac) > 0
+
+
+def test_drag_divergence_mach_above_cruise():
+    """F-22 超临界翼 Mdd 应高于 Ma 0.8，亚音速巡航无 Korn 波阻。"""
+    ac = _f22()
+    mdd = drag_divergence_mach(cl_cruise(ac), ac)
+    assert mdd > ac.mach
+    assert cd_wave_korn(cl_cruise(ac), ac) == 0.0
+
+
+def test_korn_wave_drag_is_capped():
+    """Korn 超量封顶后，Ma 1.76 的跨声速项应远小于未封顶的 (M-Mdd)⁴。"""
+    ac = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.76, 'alt_m': 11000})
+    cl = cl_cruise(ac)
+    capped = cd_wave_korn(cl, ac)
+    assert capped == pytest.approx(CDW_KORN_COEF * KORN_DM_CAP ** 4)
+    uncapped = CDW_KORN_COEF * (1.76 - drag_divergence_mach(cl, ac)) ** 4
+    assert capped < 0.01
+    assert uncapped > 1.0
+
+
+def test_cd_wave_supersonic_zero_at_or_below_sonic():
+    ac = _f22()
+    assert cd_wave_supersonic(0.8, ac) == 0.0
+    assert cd_wave_supersonic(1.0, ac) == 0.0
+    assert cd_wave_supersonic(1.5, ac) > 0.0
+
+
+def test_cd_wave_supersonic_falls_with_sweep_and_rises_with_thickness():
+    """后掠越大前缘法向马赫越低；厚翼超音速波阻更大。"""
+    base = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.76, 'sweep_deg': 30.0, 'tc': 0.05})
+    swept = Aircraft(**{**aircraft_to_dict(base), 'sweep_deg': 55.0})
+    thick = Aircraft(**{**aircraft_to_dict(base), 'tc': 0.08})
+    assert cd_wave_supersonic(1.76, swept) < cd_wave_supersonic(1.76, base)
+    assert cd_wave_supersonic(1.76, thick) > cd_wave_supersonic(1.76, base)
+    assert CDW_SS_BODY > 0 and CDW_SS_WING > 0
+
+
+def test_supersonic_total_cdw_is_order_one_hundredth():
+    """F-22 超巡点总波阻应为百分位量级，不能再出现 CDw>1。"""
+    ac = Aircraft(**{
+        **aircraft_to_dict(_f22()), 'mach': F22_SUPERCRUISE_MACH,
+        'alt_m': 11000, 'mach_angle_deg': 28.5,
+    })
+    cdw = cd_wave(cl_cruise(ac), ac)
+    assert 0.005 < cdw < 0.02
 
 
 def test_components_keys_and_signs():

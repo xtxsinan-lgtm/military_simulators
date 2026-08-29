@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from utils.combat_radius.combat_radius_results import (
     RESULTS_VERSION,
     build_combat_radius_results_catalog_payload,
@@ -88,6 +90,13 @@ def test_run_preset_dashboard_f22_compact():
     assert ids[0] == 'mach_0_8'
     assert 'mach_2_0' in ids
     assert 'max_speed' in r
+    assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.02)
+    m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
+    m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
+    m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')
+    assert m15['feasible'] is True
+    assert m176['feasible'] is True
+    assert m20['feasible'] is False
 
 
 def test_load_combat_radius_results_missing_file(tmp_path):

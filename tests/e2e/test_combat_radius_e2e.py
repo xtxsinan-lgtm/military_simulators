@@ -118,16 +118,22 @@ def _radius_params() -> dict:
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_f22_breguet_radius():
-    """F-22 + F119 在 Ma 0.8 应给出正的作战半径；Ma 1.5 军推下可以不可行。"""
+    """F-22 + F119 在 Ma 0.8/1.5/1.76 应可行，最大巡航锚定超巡 Ma 1.76。"""
     r = run_combat_radius_json({'action': 'estimate_radius', 'params': _radius_params()})
     assert r['success'] is True
     assert len(r['points']) == 5
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
+    m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
+    m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
+    m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')
     assert m08['feasible'] is True
     assert m08['radius_km'] > 200
     assert m08['fuel_kg_per_km'] > 0
+    assert m15['feasible'] is True
+    assert m176['feasible'] is True
+    assert m20['feasible'] is False
     assert r['mach_cone_limit'] > 1
-    assert r['max_cruise_mach'] is not None
+    assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.02)
     assert r['carrier'] is False
     mf = r['mission_fuel']
     assert mf['reserve_min'] == 30

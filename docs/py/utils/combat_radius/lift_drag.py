@@ -4,8 +4,13 @@
 再代入任意第三型机估算其 L/D。
 
 物理框架：
-    CD = CD0(摩擦/寄生阻力) + CDi(诱导阻力) + CDw(跨声速波阻)
+    CD = CD0(摩擦/寄生阻力) + CDi(诱导阻力) + CDw(波阻)
     L/D = CL / CD
+
+波阻分三段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
+    1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
+    2. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项，系数由 F-22 军推最大巡航 Ma 1.76 标定；
+    3. 超过马赫锥后的附加波阻（翼尖-机头连线）。
 
 标定原理（闭式线性解）：
     CDi = K_raw / k_e，其中 K_raw = CL²/(π·AR·e_raymer)，k_e 未知
@@ -15,6 +20,7 @@
         W_1·x + K_1·y = C_1
         W_2·x + K_2·y = C_2
     其中 C_i = CL_i/target_i - CDw_i，用克莱姆法则直接求解，无需迭代。
+    Ma 0.8 下 CDw≈0，(Cf0, k_e) 仍只由亚音速锚点决定。
 """
 from __future__ import annotations
 
@@ -23,7 +29,7 @@ from dataclasses import asdict, dataclass
 from typing import Any, Literal
 
 # ---------------------------------------------------------------------------
-# 常数（ISA 11~20 km 等温层 + Korn 翼型技术因子）
+# 常数（ISA 11~20 km 等温层 + Korn 跨声速 + F-22 超巡波阻标定）
 # ---------------------------------------------------------------------------
 G0 = 9.80665
 R_AIR = 287.05287
@@ -31,7 +37,14 @@ GAMMA = 1.4
 T_ISO = 216.65  # 11~20 km 等温层温度 (K)
 RHO11 = 0.36391  # 11000 m 处密度 (kg/m^3)
 KAPPA_A = 0.90  # Korn 方程翼型技术因子，固定为超临界翼型典型值
-# Ma 0.8 巡航下 CDw≈0，此系数不参与 2 变量标定，留给更高马赫数场景
+CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小超量
+KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
+COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
+# 超音速波阻系数：使 F-22 + F119 在空战重量下军推最大巡航马赫 = 1.76
+# 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²，F-22@1.76 上约各半
+F22_SUPERCRUISE_MACH = 1.76
+CDW_SS_BODY = 0.00650
+CDW_SS_WING = 7.55
 
 PlanformId = Literal[
     'trapezoidal', 'swept', 'delta', 'diamond', 'unswept', 'lambda', 'double_delta',
@@ -201,19 +214,42 @@ def cd_wave_mach_angle(mach: float, phi_rad: float) -> float:
     法向马赫数 M·sin(φ) > 1 时，机翼处于马赫锥外，附加 CDw。
     """
     excess = mach * math.sin(phi_rad) - 1.0
-    return 20.0 * excess ** 4 if excess > 0.0 else 0.0
+    return CDW_KORN_COEF * excess ** 4 if excess > 0.0 else 0.0
+
+
+def drag_divergence_mach(CL: float, ac: Aircraft) -> float:
+    """Korn 方程阻力发散马赫数 Mdd。"""
+    sweep = math.radians(ac.sweep_deg)
+    cos_s = math.cos(sweep)
+    return KAPPA_A / cos_s - ac.tc / cos_s - CL / (10.0 * cos_s ** 2)
+
+
+def cd_wave_korn(CL: float, ac: Aircraft) -> float:
+    """跨声速 Korn 波阻；超量马赫封顶，避免四次方在超音速爆炸。"""
+    dm = ac.mach - drag_divergence_mach(CL, ac)
+    if dm <= 0.0:
+        return 0.0
+    return CDW_KORN_COEF * min(dm, KORN_DM_CAP) ** 4
+
+
+def cd_wave_supersonic(mach: float, ac: Aircraft) -> float:
+    """M>1 后的体积波阻：机身面积律 + 超音速前缘机翼项。
+
+    系数由 F-22 军推最大巡航马赫 = 1.76 标定。后掠越大，前缘法向马赫越低，机翼项越小。
+    """
+    if mach <= 1.0:
+        return 0.0
+    cos_s = max(abs(math.cos(math.radians(ac.sweep_deg))), COS_SWEEP_MIN)
+    cdw = CDW_SS_BODY * (mach - 1.0) ** 2
+    excess_le = mach * cos_s - 1.0
+    if excess_le > 0.0:
+        cdw += CDW_SS_WING * (ac.tc / cos_s) ** 2 * excess_le ** 2
+    return cdw
 
 
 def cd_wave(CL: float, ac: Aircraft) -> float:
-    """Korn 方程估算阻力发散马赫数，超过后用四次方经验式估算波阻。
-
-    若提供马赫角（或机长/翼展），再叠加超过马赫角后的附加波阻。
-    """
-    sweep = math.radians(ac.sweep_deg)
-    cos_s = math.cos(sweep)
-    m_dd = KAPPA_A / cos_s - ac.tc / cos_s - CL / (10.0 * cos_s ** 2)
-    dm = ac.mach - m_dd
-    cdw = 20.0 * dm ** 4 if dm > 0.0 else 0.0
+    """总波阻 = 封顶 Korn + 超音速体积项 +（可选）马赫锥外附加。"""
+    cdw = cd_wave_korn(CL, ac) + cd_wave_supersonic(ac.mach, ac)
     phi = aircraft_mach_angle_rad(ac)
     if phi is not None:
         cdw += cd_wave_mach_angle(ac.mach, phi)

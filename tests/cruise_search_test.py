@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pytest
 
+from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.combat_radius.cruise_load import combat_mass_kg
 from utils.combat_radius.cruise_search import (
     ALT_MAX_M,
@@ -19,7 +20,12 @@ from utils.combat_radius.cruise_search import (
     search_best_altitude,
     search_max_cruise_mach,
 )
-from utils.combat_radius.lift_drag import Aircraft, calibrate
+from utils.combat_radius.lift_drag import (
+    F22_SUPERCRUISE_MACH,
+    Aircraft,
+    aircraft_from_dict,
+    calibrate,
+)
 
 
 def _f35c() -> Aircraft:
@@ -149,3 +155,44 @@ def test_search_max_cruise_mach_returns_hi_if_feasible():
 def test_fixed_machs_include_two_and_supersonic_threshold():
     assert FIXED_MACHS == (0.8, 1.5, 1.76, 2.0)
     assert SUPERSONIC_MACH == 1.0
+
+
+def _f22_csv_ctx() -> CruiseContext:
+    """与仪表盘一致：CSV 几何、亚音速锚点 L/D、F119 军推。"""
+    presets = load_presets()
+    engines = load_engine_presets()
+    f35 = get_preset_by_id(presets, 'F-35C')
+    f22 = get_preset_by_id(presets, 'F-22')
+    eng = get_preset_by_id(engines, 'f119')
+    a1 = aircraft_from_dict(f35)
+    a2 = aircraft_from_dict(f22)
+    cf0, k_e = calibrate(a1, f35['ld_known'], a2, f22['ld_known'])
+    mass = combat_mass_kg(
+        f22['empty_kg'], f22['internal_fuel_kg'], f22['n_pilots'],
+        f22['missile_mass_kg'], 4,
+    )
+    return CruiseContext(
+        target=a2,
+        cf0=cf0,
+        k_e=k_e,
+        mass_kg=mass,
+        n_engines=int(f22['n_engines']),
+        bpr=eng['bpr'],
+        opr=eng['opr'],
+        t4_K=eng['t4_K'],
+        tsl_N=float(eng['tsl_kN']) * 1000.0,
+    )
+
+
+def test_f22_max_cruise_mach_anchored_at_supercruise():
+    """超音速波阻须使 F-22 军推最大巡航落在超巡锚点 Ma 1.76 附近。"""
+    ctx = _f22_csv_ctx()
+    m = search_max_cruise_mach(ctx)
+    assert m == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
+    assert any_feasible_altitude(ctx, F22_SUPERCRUISE_MACH) is True
+    assert any_feasible_altitude(ctx, 1.5) is True
+    assert any_feasible_altitude(ctx, 2.0) is False
+    best_15 = search_best_altitude(ctx, 1.5)
+    assert best_15 is not None
+    assert best_15.ld > 2.0
+    assert best_15.cd_breakdown['CDw'] < 0.05
