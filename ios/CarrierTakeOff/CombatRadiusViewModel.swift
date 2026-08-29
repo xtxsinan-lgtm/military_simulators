@@ -99,6 +99,7 @@ final class CombatRadiusViewModel: ObservableObject {
     private var resultsMap: [String: CombatRadiusResult] = [:]
     private var liveTask: Task<Void, Never>?
     private var applying = false
+    private var dryToMaxRatio = 0.7
 
     init() {
         loadPresets()
@@ -121,6 +122,9 @@ final class CombatRadiusViewModel: ObservableObject {
             }
             let ui = catalog.combat_radius_config?.ui
             if let v = ui?.default_eta_c { engEta = String(v) }
+            if let r = catalog.combat_radius_config?.engine?.dry_to_max_thrust_ratio, r > 0, r <= 1 {
+                dryToMaxRatio = r
+            }
             let defaultId = ui?.default_target_id
             applying = true
             if let p = (defaultId.flatMap { id in presets.first(where: { $0.id == id }) }) ?? presets.first {
@@ -133,7 +137,9 @@ final class CombatRadiusViewModel: ObservableObject {
                 }
                 showSnapshot()
             }
-            applying = false
+            DispatchQueue.main.async { [weak self] in
+                self?.applying = false
+            }
             statusText = presets.isEmpty
                 ? "data.json 缺少 combat_radius_presets，请运行 build_all.py"
                 : "预设已加载 · \(presets.count) 型"
@@ -164,8 +170,10 @@ final class CombatRadiusViewModel: ObservableObject {
             selectedEngineId = engId
             applyEngine()
         }
-        applying = false
         showSnapshot()
+        DispatchQueue.main.async { [weak self] in
+            self?.applying = false
+        }
     }
 
     /// 从机型预设填入空战重量与发动机台数
@@ -186,7 +194,13 @@ final class CombatRadiusViewModel: ObservableObject {
         engBpr = String(p.bpr)
         engOpr = String(p.opr)
         engT4 = String(format: "%.0f", p.t4_K)
-        engTsl = p.tsl_kN.map { String($0) } ?? ""
+        if let tsl = p.tsl_kN, tsl > 0 {
+            engTsl = String(tsl)
+        } else if let maxTsl = p.max_tsl_kN, maxTsl > 0 {
+            engTsl = String(format: "%.1f", maxTsl * dryToMaxRatio)
+        } else {
+            engTsl = ""
+        }
         engMaxTsl = p.max_tsl_kN.map { String($0) } ?? ""
     }
 
@@ -225,9 +239,11 @@ final class CombatRadiusViewModel: ObservableObject {
             "bpr": Double(engBpr) ?? 0,
             "opr": Double(engOpr) ?? 0,
             "t4_K": Double(engT4) ?? 0,
-            "tsl_kN": Double(engTsl) ?? 0,
             "eta_c": Double(engEta) ?? 0.87,
         ]
+        if let tsl = Double(engTsl), tsl > 0 {
+            params["tsl_kN"] = tsl
+        }
         if let maxTsl = Double(engMaxTsl), maxTsl > 0 {
             params["max_tsl_kN"] = maxTsl
         }

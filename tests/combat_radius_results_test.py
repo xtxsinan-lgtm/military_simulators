@@ -73,10 +73,11 @@ def test_run_preset_dashboard_missing_engine():
     assert '发动机' in mv['error']
 
 
-def test_run_preset_dashboard_missing_tsl():
+def test_run_preset_dashboard_j50_uses_engine_thrust():
+    """歼-50 绑定涡扇15改进，须用发动机表推力算出仪表盘，不能报缺军推。"""
     r = run_preset_dashboard('J-50')
-    assert r['success'] is False
-    assert 'tsl_kN' in r['error']
+    assert r['success'] is True
+    assert r.get('points')
 
 
 def test_run_preset_dashboard_f22_compact():

@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 9;
+const APP_VERSION = 10;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -147,12 +147,29 @@ function applyWeightFromPreset(p) {
   }
 }
 
+function dryToMaxRatio() {
+  const ratio = Number(data?.combat_radius_config?.engine?.dry_to_max_thrust_ratio);
+  return ratio > 0 && ratio <= 1 ? ratio : 0.7;
+}
+
+function resolveTslKN(engine) {
+  if (!engine) return '';
+  const tsl = Number(engine.tsl_kN);
+  if (Number.isFinite(tsl) && tsl > 0) return tsl;
+  const maxTsl = Number(engine.max_tsl_kN);
+  if (Number.isFinite(maxTsl) && maxTsl > 0) {
+    return Math.round(maxTsl * dryToMaxRatio() * 10) / 10;
+  }
+  return '';
+}
+
 function applyEnginePreset(p) {
   if (!p) return;
   $('engBpr').value = p.bpr;
   $('engOpr').value = p.opr;
   $('engT4').value = p.t4_K;
-  $('engTsl').value = p.tsl_kN != null ? p.tsl_kN : '';
+  const tsl = resolveTslKN(p);
+  $('engTsl').value = tsl === '' ? '' : tsl;
   $('engMaxTsl').value = p.max_tsl_kN != null ? p.max_tsl_kN : '';
 }
 
@@ -190,12 +207,13 @@ function readDashboardParams() {
     bpr: Number($('engBpr').value),
     opr: Number($('engOpr').value),
     t4_K: Number($('engT4').value),
-    tsl_kN: Number($('engTsl').value),
     eta_c: Number($('engEta').value),
     eps: Number($('effEps').value),
     etan: Number($('effEtan').value),
     acc_frac: Number($('effAcc').value),
   };
+  const tsl = Number($('engTsl').value);
+  if (Number.isFinite(tsl) && tsl > 0) params.tsl_kN = tsl;
   if ($('engMaxTsl').value !== '') params.max_tsl_kN = Number($('engMaxTsl').value);
   return params;
 }
@@ -485,6 +503,7 @@ async function runEngineCycle() {
 function bindLiveInputs() {
   const root = document.querySelector('.grid');
   root.addEventListener('input', (e) => {
+    if (e.target && (e.target.id === 'tgtPreset' || e.target.id === 'engPreset')) return;
     if (e.target && e.target.closest && e.target.closest('.panel')) scheduleLiveDash();
   });
   root.addEventListener('change', (e) => {

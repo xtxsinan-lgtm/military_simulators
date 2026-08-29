@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from simulators.combat_radius.combat_radius import run_aircraft_dashboard_from_params
+from simulators.combat_radius.combat_radius import resolve_tsl_kN, run_aircraft_dashboard_from_params
 from utils.combat_radius.combat_radius_config import ui_config
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.combat_radius.cruise_load import N_MISSILES_DEFAULT
@@ -36,7 +36,7 @@ def dashboard_params_from_preset(
         'bpr': engine['bpr'],
         'opr': engine['opr'],
         't4_K': engine['t4_K'],
-        'tsl_kN': engine.get('tsl_kN'),
+        'tsl_kN': resolve_tsl_kN(engine),
         'max_tsl_kN': engine.get('max_tsl_kN'),
     }
     return params
@@ -121,7 +121,7 @@ def run_preset_dashboard(aircraft_id: str) -> dict[str, Any]:
     engine = get_preset_by_id(load_engine_presets(), str(engine_id))
     if engine is None:
         return {'success': False, 'error': f'找不到发动机 {engine_id}'}
-    if engine.get('tsl_kN') in (None, ''):
+    if engine.get('tsl_kN') in (None, '') and engine.get('max_tsl_kN') in (None, ''):
         return {'success': False, 'error': '缺少海平面军推 tsl_kN'}
     try:
         raw = run_aircraft_dashboard_from_params(dashboard_params_from_preset(aircraft, engine))

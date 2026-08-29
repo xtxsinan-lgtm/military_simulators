@@ -1,5 +1,8 @@
 {
-  "version": 2,
+  "version": 3,
+  "engine": {
+    "dry_to_max_thrust_ratio": 0.7
+  },
   "mission_fuel": {
     "reserve_cruise_kph": 850,
     "carrier_reserve_min": 40,

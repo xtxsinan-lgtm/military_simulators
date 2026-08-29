@@ -83,6 +83,11 @@ struct CombatRadiusConfigPayload: Codable {
     var ui: CombatRadiusUiDefaults?
     var planform_labels: [String: String]?
     var layout_labels: [String: String]?
+    var engine: CombatRadiusEngineConfig?
+}
+
+struct CombatRadiusEngineConfig: Codable {
+    var dry_to_max_thrust_ratio: Double?
 }
 
 struct CombatRadiusUiDefaults: Codable {

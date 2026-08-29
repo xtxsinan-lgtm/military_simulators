@@ -252,6 +252,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '锚点' not in ios
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')
     assert 'engine_id' in js_text
+    assert 'resolveTslKN' in js_text
     assert 'engine_id' in (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
     ios_vm = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'engine_id' in ios_vm
@@ -361,6 +362,28 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     stored_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert live_m08['radius_km'] == pytest.approx(stored_m08['radius_km'], rel=1e-4, abs=0.05)
     assert live['max_cruise_mach'] == pytest.approx(f22['max_cruise_mach'], rel=1e-4, abs=1e-4)
+    j50 = stored['aircraft']['J-50']
+    assert j50['success'] is True
+    f35c = stored['aircraft']['F-35C']
+    assert f35c['success'] is True
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_zero_tsl_uses_engine_max():
+    """前端把空军推当成 0 时，须用发动机加力估军推，不能报参数超出有效范围。"""
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+    from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
+
+    ac = get_preset_by_id(load_presets(), 'J-50')
+    eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
+    params = dashboard_params_from_preset(ac, eng)
+    params['tsl_kN'] = 0
+    params['max_tsl_kN'] = eng['max_tsl_kN']
+    r = run_combat_radius_json({'action': 'aircraft_dashboard', 'params': params})
+    assert r['success'] is True
+    assert '参数超出有效范围' not in str(r.get('error', ''))
+    points_ok = [p for p in (r.get('points') or []) if p.get('feasible')]
+    assert points_ok
 
 
 @pytest.mark.e2e

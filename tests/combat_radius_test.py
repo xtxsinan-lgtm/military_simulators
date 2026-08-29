@@ -10,6 +10,7 @@ from simulators.combat_radius.combat_radius import (
     format_ld_row,
     main,
     parse_sea_level_thrust_n,
+    resolve_tsl_kN,
     run_aircraft_dashboard_from_params,
     run_estimate_efficiency_from_params,
     run_estimate_engine_cycle_from_params,
@@ -30,6 +31,7 @@ from simulators.combat_radius.combat_radius import (
     _optional_float,
     _optional_int,
     _parse_carrier,
+    _positive_thrust_value,
     _radius_fail_reason,
     _require_aircraft_params,
     _subsonic_scored_for_burn,
@@ -144,12 +146,39 @@ def test_optional_float_empty_and_numeric():
     assert _optional_float('2') == 2.0
 
 
+def test_positive_thrust_value_rejects_zero_and_nan():
+    assert _positive_thrust_value(None) is None
+    assert _positive_thrust_value('') is None
+    assert _positive_thrust_value(0) is None
+    assert _positive_thrust_value(-10) is None
+    assert _positive_thrust_value(float('nan')) is None
+    assert _positive_thrust_value(120) == 120.0
+
+
 def test_parse_sea_level_thrust_n_from_n_or_kn():
     assert parse_sea_level_thrust_n({'tsl_N': 116000}) == 116000.0
     assert parse_sea_level_thrust_n({'tsl_kN': 116}) == 116000.0
     assert parse_sea_level_thrust_n({'tsl_N': 5000, 'tsl_kN': 116}) == 5000.0
     with pytest.raises(ValueError, match='海平面军推'):
         parse_sea_level_thrust_n({})
+
+
+def test_parse_sea_level_thrust_n_zero_uses_max_tsl():
+    """选机后前端常把空军推当成 0 传来，须改用发动机加力按比例估计军推。"""
+    from utils.combat_radius.combat_radius_config import dry_to_max_thrust_ratio
+
+    n = parse_sea_level_thrust_n({'tsl_kN': 0, 'max_tsl_kN': 185})
+    assert n == pytest.approx(185.0 * dry_to_max_thrust_ratio() * 1000.0)
+    assert resolve_tsl_kN({'tsl_kN': 0, 'max_tsl_kN': 185}) == pytest.approx(
+        185.0 * dry_to_max_thrust_ratio()
+    )
+    with pytest.raises(ValueError, match='海平面军推'):
+        parse_sea_level_thrust_n({'tsl_kN': 0})
+
+
+def test_resolve_tsl_kn_prefers_explicit_military_thrust():
+    assert resolve_tsl_kN({'tsl_kN': 120, 'max_tsl_kN': 156}) == 120.0
+    assert resolve_tsl_kN({}) is None
 
 
 def _f119_thrust_params() -> dict:
@@ -407,7 +436,15 @@ def test_main_rejects_missing_preset(monkeypatch):
 
 
 def test_main_rejects_engine_without_tsl(monkeypatch):
-    monkeypatch.setattr('sys.argv', ['combat_radius.py', '--aircraft', 'J-20', '--engine', 'ws19'])
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id as real_get
+
+    def fake_get(presets, pid):
+        if pid == 'notsl':
+            return {'id': 'notsl', 'name': '无推力', 'bpr': 0.3, 'opr': 26.0, 't4_K': 1800.0}
+        return real_get(presets, pid)
+
+    monkeypatch.setattr('utils.combat_radius.combat_radius_presets.get_preset_by_id', fake_get)
+    monkeypatch.setattr('sys.argv', ['combat_radius.py', '--aircraft', 'J-20', '--engine', 'notsl'])
     with pytest.raises(SystemExit, match='海平面军推'):
         main()
 

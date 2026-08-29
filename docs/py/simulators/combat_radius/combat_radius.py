@@ -26,7 +26,7 @@ from utils.combat_radius.breguet import (
     mission_fuel_budget,
     mixed_combat_radius_m,
 )
-from utils.combat_radius.combat_radius_config import mission_fuel_config
+from utils.combat_radius.combat_radius_config import dry_to_max_thrust_ratio, mission_fuel_config
 from utils.combat_radius.cruise_load import (
     N_MISSILES_DEFAULT,
     clamp_load,
@@ -188,13 +188,46 @@ def _optional_float(value: Any) -> float | None:
     return float(value)
 
 
+def _positive_thrust_value(value: Any) -> float | None:
+    """推力须为正；空值、0、负数、NaN 视为未提供。"""
+    if value in (None, ''):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if number <= 0.0 or number != number:
+        return None
+    return number
+
+
+def resolve_tsl_kN(params: dict[str, Any]) -> float | None:
+    """解析海平面军推 (kN)：优先 tsl，缺省时用加力 × 军推/加力比例。
+
+    前端选机后若把空军推当成 0 传来，仍应使用发动机表里的加力数字，
+    避免军推循环报「参数超出有效范围」。
+    """
+    tsl_n = _positive_thrust_value(params.get('tsl_N'))
+    if tsl_n is not None:
+        return tsl_n / 1000.0
+    tsl_kn = _positive_thrust_value(params.get('tsl_kN'))
+    if tsl_kn is not None:
+        return tsl_kn
+    max_n = _positive_thrust_value(params.get('max_tsl_N'))
+    if max_n is not None:
+        return max_n / 1000.0 * dry_to_max_thrust_ratio()
+    max_kn = _positive_thrust_value(params.get('max_tsl_kN'))
+    if max_kn is not None:
+        return max_kn * dry_to_max_thrust_ratio()
+    return None
+
+
 def parse_sea_level_thrust_n(params: dict[str, Any]) -> float:
-    """从 tsl_N 或 tsl_kN 读取海平面军推（牛顿）。"""
-    if params.get('tsl_N') not in (None, ''):
-        return float(params['tsl_N'])
-    if params.get('tsl_kN') not in (None, ''):
-        return float(params['tsl_kN']) * 1000.0
-    raise ValueError('缺少海平面军推 tsl_N 或 tsl_kN')
+    """从 tsl_N / tsl_kN 读取海平面军推（牛顿）；缺省则由加力按比例估计。"""
+    tsl_kn = resolve_tsl_kN(params)
+    if tsl_kn is None:
+        raise ValueError('缺少海平面军推 tsl_N 或 tsl_kN')
+    return tsl_kn * 1000.0
 
 
 def parse_max_sea_level_thrust_n(params: dict[str, Any]) -> float:
@@ -1012,7 +1045,8 @@ def main() -> None:
         raise SystemExit('找不到机型预设')
     if eng is None:
         raise SystemExit('找不到发动机预设')
-    if eng.get('tsl_kN') is None:
+    tsl_kn = resolve_tsl_kN(eng)
+    if tsl_kn is None:
         raise SystemExit(f'发动机 {args.engine} 未填写海平面军推 tsl_kN')
 
     params = {
@@ -1030,7 +1064,7 @@ def main() -> None:
         'bpr': eng['bpr'],
         'opr': eng['opr'],
         't4_K': eng['t4_K'],
-        'tsl_kN': eng['tsl_kN'],
+        'tsl_kN': tsl_kn,
         'name': f'{tgt["name"]} / {eng["name"]}',
     }
     result = run_estimate_radius_from_params(params)

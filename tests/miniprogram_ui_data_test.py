@@ -85,3 +85,4 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '混合作战半径' in cr_wxml
     assert '锚点' not in cr_wxml
     assert 'mach_angle_deg' in cr_js
+    assert 'resolveTslKN' in cr_js

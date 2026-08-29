@@ -28,6 +28,19 @@ function fmt(n, d) {
   return Number(n).toFixed(d);
 }
 
+function resolveTslKN(engine, ratio) {
+  if (!engine) return '';
+  const tsl = Number(engine.tsl_kN);
+  if (Number.isFinite(tsl) && tsl > 0) return String(tsl);
+  const maxTsl = Number(engine.max_tsl_kN);
+  const r = Number(ratio);
+  const use = r > 0 && r <= 1 ? r : 0.7;
+  if (Number.isFinite(maxTsl) && maxTsl > 0) {
+    return String(Math.round(maxTsl * use * 10) / 10);
+  }
+  return '';
+}
+
 function cloneAc(src) {
   return Object.assign({}, EMPTY_AC, src || {});
 }
@@ -107,7 +120,7 @@ Page({
     q3Load: '0.45',
     q3Text: '',
     running: false,
-    applying: false,
+    dryToMaxRatio: 0.7,
   },
 
   onShow() {
@@ -128,6 +141,8 @@ Page({
           const i = engines.findIndex((p) => p.id === id);
           return i >= 0 ? i + 1 : 0;
         };
+        const ratioRaw = Number((cfg.engine || {}).dry_to_max_thrust_ratio);
+        const dryToMaxRatio = ratioRaw > 0 && ratioRaw <= 1 ? ratioRaw : 0.7;
         const eng = (tgtp && tgtp.engine_id && engines.find((p) => p.id === tgtp.engine_id))
           || engines.find((p) => p.id === ui.default_engine_id)
           || engines[0];
@@ -142,9 +157,10 @@ Page({
           engBpr: eng ? String(eng.bpr) : '',
           engOpr: eng ? String(eng.opr) : '',
           engT4: eng ? String(eng.t4_K) : '',
-          engTsl: eng && eng.tsl_kN != null ? String(eng.tsl_kN) : '',
+          engTsl: resolveTslKN(eng, dryToMaxRatio),
           engMaxTsl: eng && eng.max_tsl_kN != null ? String(eng.max_tsl_kN) : '',
           engEta: String(ui.default_eta_c ?? 0.87),
+          dryToMaxRatio,
           resultsMap: (data.combat_radius_results && data.combat_radius_results.aircraft) || {},
           ...weightFromPreset(tgtp),
           statusText: presets.length ? '预设已加载' : '缺少 combat_radius_presets，请运行 build_all.py',
@@ -183,7 +199,7 @@ Page({
       engOpr: String(p.opr),
       engT4: String(p.t4_K),
     };
-    patch.engTsl = p.tsl_kN != null ? String(p.tsl_kN) : '';
+    patch.engTsl = resolveTslKN(p, this.data.dryToMaxRatio);
     patch.engMaxTsl = p.max_tsl_kN != null ? String(p.max_tsl_kN) : '';
     return patch;
   },
@@ -276,9 +292,10 @@ Page({
       bpr: num(this.data.engBpr, 0),
       opr: num(this.data.engOpr, 0),
       t4_K: num(this.data.engT4, 0),
-      tsl_kN: num(this.data.engTsl, 0),
       eta_c: num(this.data.engEta, 0.87),
     };
+    const tsl = num(this.data.engTsl, 0);
+    if (tsl > 0) params.tsl_kN = tsl;
     if (this.data.engMaxTsl !== '') params.max_tsl_kN = num(this.data.engMaxTsl, 0);
     return params;
   },

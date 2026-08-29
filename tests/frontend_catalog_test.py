@@ -42,6 +42,7 @@ def test_build_catalog_payload_modes():
     assert 'combat_radius_config' in payload
     assert 'combat_radius_results' in payload
     assert payload['combat_radius_config']['mission_fuel']['carrier_reserve_min'] == 40
+    assert payload['combat_radius_config']['engine']['dry_to_max_thrust_ratio'] == 0.7
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-50' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-15' for p in payload['combat_radius_presets'])
@@ -122,6 +123,9 @@ def test_docs_combat_radius_page_exists_and_links():
     ver_css = re.search(r'combat_radius\.css\?v=(\d+)', html)
     assert ver_js and ver_html and ver_css
     assert ver_js.group(1) == ver_html.group(1) == ver_css.group(1)
+    assert 'resolveTslKN' in js_text
+    assert "e.target.id === 'tgtPreset'" in js_text
+    assert js_text.count("e.target.id === 'tgtPreset'") >= 2
 
 
 def test_pyodide_bundles_combat_radius_modules():
