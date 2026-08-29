@@ -35,7 +35,7 @@ struct MissileInterceptionStrikeView: View {
                     }
                     field("天线面积 (m²)", text: $vm.awacsArea, hintKey: "awacsArea")
                     pickerRow("雷达体制", selection: $vm.awacsType, options: vm.radarOptions, hintKey: "awacsType")
-                    field("前出距离 (km)", text: $vm.standoff)
+                    field("前出距离 (km)", text: $vm.standoff, hintKey: "standoff")
 
                     sectionLabel("▸ 舰载雷达 & 拦截弹", color: MissileInterceptionTheme.green)
                     nationPicker("防御方国别", selection: $vm.selectedDefenderNation, nations: vm.defenderNations) {
@@ -208,6 +208,11 @@ struct MissileInterceptionStrikeView: View {
                 .foregroundStyle(MissileInterceptionTheme.text)
                 .font(.system(size: 13, design: .monospaced))
                 .onChange(of: text.wrappedValue) { _, _ in vm.markResultsStale() }
+            if let hintKey, !vm.rangeHint(for: hintKey).isEmpty {
+                Text(vm.rangeHint(for: hintKey))
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(MissileInterceptionTheme.textDim)
+            }
         }
     }
 

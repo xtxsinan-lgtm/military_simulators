@@ -30,6 +30,17 @@ function num(v, d) {
   return Number.isFinite(n) ? n : d;
 }
 
+/** 与 Python round_kill_probability 对齐（API 未返回 plan_rows 时的回退）。 */
+function roundKillProbability(pk, interceptorsPerTarget) {
+  const p = Math.min(1, Math.max(0, Number(pk) || 0));
+  const n = Math.max(0, Number(interceptorsPerTarget) || 0);
+  const k = Math.floor(n);
+  const frac = n - k;
+  const pK = k <= 0 ? 0 : 1 - Math.pow(1 - p, k);
+  const pK1 = 1 - Math.pow(1 - p, k + 1);
+  return (1 - frac) * pK + frac * pK1;
+}
+
 /** 从预设列表提取去重国别（按首次出现顺序，与 Python nations_sorted 一致）。 */
 function nationsSorted(presets) {
   const seen = [];
@@ -389,7 +400,7 @@ Page({
     const planRows = (apiRows.length ? apiRows : plan.map((budget, i) => {
       const surv = avg[i] || 0;
       const per = surv > 0 ? budget / surv : 0;
-      return { round: i + 1, budget, survivors: surv, per_target: per, kill_prob: 0 };
+      return { round: i + 1, budget, survivors: surv, per_target: per, kill_prob: roundKillProbability(this.data.pk, per) };
     })).map((row, i) => ({
       round: row.round || i + 1,
       budget: `${row.budget} 枚`,

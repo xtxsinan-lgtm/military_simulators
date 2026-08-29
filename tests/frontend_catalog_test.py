@@ -168,6 +168,11 @@ def test_pyodide_bundles_missile_interception_presets_csv_deps():
     assert "utils/database_csv.py" in sat_js
     assert "utils.paths" in sat_js
     assert "utils.database_csv" in sat_js
+    assert "utils/missile_interception/missile_interception_display.py" in sat_js
+    assert "utils.missile_interception.missile_interception_display" in sat_js
+    assert 'utils/missile_interception/missile_interception_display.py' in PY_LOAD_ORDER
+    assert 'utils.takeoff.takeoff_input' in PY_IMPORT_ORDER
+    assert 'utils/takeoff/takeoff_input.py' in PY_LOAD_ORDER
 
 
 def test_build_catalog_payload_includes_simulators_and_csv_presets():
@@ -180,6 +185,10 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
         load_carriers_csv(CARRIERS_CSV),
     )
     assert payload['simulators'] == SIMULATORS
+    sat_cfg = payload['missile_interception_config']
+    assert 'rcs' in sat_cfg['field_hints']
+    assert 'seekerType' in sat_cfg['field_hints']
+    assert sat_cfg['field_ranges']['nm']['min'] == 1
     csv_data = load_missile_interception_presets_csv()
     assert [x['id'] for x in payload['missile_interception_presets']['asm']] == [x['id'] for x in csv_data['asm']]
     assert [x['id'] for x in payload['missile_interception_presets']['aew']] == [x['id'] for x in csv_data['aew']]

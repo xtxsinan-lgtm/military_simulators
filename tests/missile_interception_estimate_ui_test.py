@@ -319,3 +319,61 @@ def test_missile_counts_at_top_of_inputs():
     _assert_missile_counts_first(html, 'HTML', ('来袭导弹数量',), ('防空拦截弹数量', '拦截弹数量'))
     _assert_missile_counts_first(wxml, '小程序', ('来袭导弹数量',), ('拦截弹数量',))
     _assert_missile_counts_first(view, 'iOS', ('来袭数量',), ('拦截弹数量',))
+
+
+def test_html_missile_interception_stale_nav_and_auto_estimate():
+    """HTML 饱和页：探测距离不默认 0、启动自动估算、过期提示、章节跳转与回到顶部。"""
+    html = (ROOT / 'docs' / 'missile-interception-strike.html').read_text(encoding='utf-8')
+    js = (ROOT / 'docs' / 'js' / 'missile_interception.js').read_text(encoding='utf-8')
+    assert 'id="awacsDetectKm"' in html
+    assert 'value="0"' not in html.split('id="awacsDetectKm"', 1)[1][:200]
+    assert 'placeholder="待估算"' in html
+    assert 'id="staleBanner"' in html
+    assert 'id="backToTop"' in html
+    assert 'id="inputPanel"' in html
+    assert 'href="#resultsPanel"' in html
+    assert 'bootEstimateThenRun' in js
+    assert 'markResultsStale' in js
+    assert 'roundKillProbability' in js
+    assert 'relative_label' in js
+    assert 'field_hints' in js
+
+
+def test_miniprogram_missile_interception_stale_and_kill_fallback():
+    """小程序饱和页：过期提示、术语问号、杀伤概率回退与待估算探测距离。"""
+    wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_interception' / 'missile_interception.wxml').read_text(
+        encoding='utf-8'
+    )
+    js = (ROOT / 'miniprogram' / 'pages' / 'missile_interception' / 'missile_interception.js').read_text(
+        encoding='utf-8'
+    )
+    assert 'resultStale' in wxml
+    assert '待估算' in wxml
+    assert 'onBackToTop' in wxml
+    assert 'data-key="rcs"' in wxml
+    assert 'data-key="seekerType"' in wxml
+    assert 'roundKillProbability' in js
+    assert 'markResultsStale' in js
+    assert 'relative_label' in js
+
+
+def test_ios_missile_interception_stale_nav_and_auto_estimate():
+    """iOS 饱和页：过期提示、启动估算、回到顶部、术语提示。"""
+    view = (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileInterceptionStrikeView.swift').read_text(
+        encoding='utf-8'
+    )
+    vm = (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileInterceptionViewModel.swift').read_text(
+        encoding='utf-8'
+    )
+    assert 'resultStale' in view
+    assert '待估算' in vm
+    assert '↑ 顶部' in view
+    assert 'pageTop' in view
+    assert 'estimateDistanceAndPk' in view
+    assert 'markResultsStale' in vm
+    assert 'func rangeHint' in vm
+    assert 'hintKey: "rcs"' in view
+    assert 'hintKey: "seekerType"' in view
+    assert 'relative_label' in view
+    assert 'plan_rows' in view
+

@@ -35,15 +35,16 @@
       </picker>
     </view>
     <view class="field">
-      <view class="field-label"><text>导弹速度</text><text class="unit">Ma</text></view>
+      <view class="field-label"><text>导弹速度</text><text class="hint-q" data-key="vm" bindtap="onHint">?</text><text class="unit">Ma</text></view>
       <input class="input" type="digit" value="{{vm}}" data-key="vm" bindinput="onField"/>
+      <view class="field-range" wx:if="{{ranges.vm}}">范围 {{ranges.vm.min}}–{{ranges.vm.max}} Ma</view>
     </view>
     <view class="field">
       <view class="field-label"><text>RCS</text><text class="hint-q" data-key="rcs" bindtap="onHint">?</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{rcs}}" data-key="rcs" bindinput="onField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>弹道类型</text></view>
+      <view class="field-label"><text>弹道类型</text><text class="hint-q" data-key="traj" bindtap="onHint">?</text></view>
       <picker mode="selector" range="{{trajNames}}" value="{{trajIndex}}" bindchange="onTraj">
         <view class="picker-val">{{trajNames[trajIndex]}}</view>
       </picker>
@@ -58,11 +59,12 @@
       <view class="note" wx:if="{{!hasAwacs}}">已选择「无预警机」：发现距离退化为仅取决于舰载雷达（功率/视距取小），下方预警机字段不参与计算。</view>
     </view>
     <view class="field">
-      <view class="field-label"><text>天线面积</text><text class="unit">m²</text></view>
+      <view class="field-label"><text>天线面积</text><text class="hint-q" data-key="awacsArea" bindtap="onHint">?</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{awacsArea}}" data-key="awacsArea" bindinput="onField"/>
+      <view class="field-range" wx:if="{{ranges.awacsArea}}">范围 {{ranges.awacsArea.min}}–{{ranges.awacsArea.max}} m²</view>
     </view>
     <view class="field">
-      <view class="field-label"><text>雷达体制</text></view>
+      <view class="field-label"><text>雷达体制</text><text class="hint-q" data-key="awacsType" bindtap="onHint">?</text></view>
       <picker mode="selector" range="{{radarTypeNames}}" value="{{awacsTypeIndex}}" bindchange="onAwacsType">
         <view class="picker-val">{{radarTypeNames[awacsTypeIndex]}}</view>
       </picker>
@@ -92,7 +94,7 @@
       </picker>
     </view>
     <view class="field">
-      <view class="field-label"><text>舰载天线面积</text><text class="unit">m²</text></view>
+      <view class="field-label"><text>舰载天线面积</text><text class="hint-q" data-key="shipArea" bindtap="onHint">?</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{shipArea}}" data-key="shipArea" bindinput="onField"/>
     </view>
     <view class="field">
@@ -114,7 +116,7 @@
       <input class="input" type="digit" value="{{vi}}" data-key="vi" bindinput="onField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>拦截弹直径</text><text class="unit">m</text></view>
+      <view class="field-label"><text>拦截弹直径</text><text class="hint-q" data-key="interceptorDia" bindtap="onHint">?</text><text class="unit">m</text></view>
       <input class="input" type="digit" value="{{interceptorDia}}" data-key="interceptorDia" bindinput="onField"/>
     </view>
     <view class="field">
@@ -154,7 +156,7 @@
       <input class="input" type="digit" value="{{discoveryKm}}" data-key="discoveryKm" bindinput="onField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>单发拦截成功概率</text><text class="unit">0–1</text></view>
+      <view class="field-label"><text>单发拦截成功概率</text><text class="hint-q" data-key="pk" bindtap="onHint">?</text><text class="unit">0–1</text></view>
       <input class="input" type="digit" value="{{pk}}" data-key="pk" bindinput="onField"/>
     </view>
 

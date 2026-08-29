@@ -31,6 +31,7 @@ def test_e2e_missile_interception_default_params():
     assert len(result['all_candidates']) >= 4
     assert result['plan_rows']
     assert result['plan_rows'][0]['kill_prob'] > 0
+    assert any(c.get('relative_label') == '最优' for c in result['all_candidates'])
     assert result['final_trials'] == 6000
     assert '期望突防' in result['note'] or '突防' in result['note']
 

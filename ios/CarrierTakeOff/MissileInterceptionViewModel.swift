@@ -33,6 +33,10 @@ final class MissileInterceptionViewModel: ObservableObject {
         (try? CatalogStore.loadBundledCatalog().missile_interception_config?.field_hints) ?? [:]
     }
 
+    var fieldRanges: [String: MissileInterceptionFieldRange] {
+        (try? CatalogStore.loadBundledCatalog().missile_interception_config?.field_ranges) ?? [:]
+    }
+
     @Published var asmPresets: [MissileInterceptionPresetItem] = []
     @Published var aewPresets: [MissileInterceptionPresetItem] = []
     @Published var shipPresets: [MissileInterceptionPresetItem] = []
@@ -333,5 +337,18 @@ final class MissileInterceptionViewModel: ObservableObject {
 
     func hint(for key: String) -> String {
         fieldHints[key] ?? ""
+    }
+
+    /// 与 Web field-range 文案对齐的取值范围提示
+    func rangeHint(for key: String) -> String {
+        guard let spec = fieldRanges[key], let lo = spec.min, let hi = spec.max else { return "" }
+        let unit = spec.unit ?? ""
+        let unitPart = unit.isEmpty ? "" : " \(unit)"
+        return "范围 \(fmtRange(lo))–\(fmtRange(hi))\(unitPart)"
+    }
+
+    private func fmtRange(_ value: Double) -> String {
+        if value == value.rounded() { return String(Int(value.rounded())) }
+        return String(format: "%g", value)
     }
 }
