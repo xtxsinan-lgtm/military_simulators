@@ -149,7 +149,17 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert mf['climb_extra_kg'] > 0
     assert mf['descent_save_kg'] > 0
     assert r['fuel_usable_kg'] < r['fuel_kg']
+    assert r['mass_initial_kg'] == pytest.approx(r['mass_takeoff_kg'])
+    assert mf['takeoff_kg_per_km'] > mf['landing_kg_per_km']
     assert '亚音速油耗' in r['note']
+    from utils.combat_radius.breguet import apply_mission_distance_offsets_m, combat_radius_m
+    r0 = combat_radius_m(
+        m08['V0'], m08['tsfc_kg_n_s'], m08['ld'],
+        r['mass_initial_kg'], r['mass_final_kg'],
+    )
+    assert m08['radius_m'] == pytest.approx(
+        apply_mission_distance_offsets_m(r0, mf['climb_extra_km'], mf['descent_save_km']),
+    )
 
 
 @pytest.mark.e2e

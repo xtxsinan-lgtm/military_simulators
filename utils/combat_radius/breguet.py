@@ -1,6 +1,7 @@
 """布雷盖航程公式，以及降落冗余 / 爬升额外 / 降落节省的任务油量账。
 
-作战半径取巡航段航程的一半（去程+返程对称，挂弹不抛）。
+作战半径先按出发总重 → 返回总重（干重+冗余）做布雷盖，不含爬升/降落；
+再按出发瞬时油耗扣爬升等价距离的一半，按返回瞬时油耗加降落节省距离的一半。
 爬升、降落与返场余油一律按亚音速瞬时油耗计算，即使巡航段是超音速。
 """
 from __future__ import annotations
@@ -161,6 +162,22 @@ def landing_reserve_fuel_kg(
     return (alpha * dry_mass_kg * loiter_km) / denom
 
 
+def apply_mission_distance_offsets_m(
+    radius_m: float,
+    climb_extra_km: float,
+    descent_save_km: float,
+) -> float:
+    """把无爬升/降落的布雷盖半径，按爬升额外与降落节省的等价距离修正。
+
+    作战半径是往返航程的一半，因此半径变化 = (−爬升 + 降落节省) / 2。
+    """
+    if climb_extra_km < 0:
+        raise ValueError('爬升等价距离不能为负')
+    if descent_save_km < 0:
+        raise ValueError('降落等价距离不能为负')
+    return radius_m + (-climb_extra_km + descent_save_km) * 500.0
+
+
 def mission_fuel_budget(
     *,
     internal_fuel_kg: float,
@@ -176,11 +193,12 @@ def mission_fuel_budget(
     carrier: bool = False,
     g0: float = G0,
 ) -> dict[str, float | bool]:
-    """按亚音速瞬时油耗结算降落冗余、爬升额外与降落节省。
+    """按出发/返回瞬时油耗结算冗余、爬升额外与降落节省。
 
-    可用油 = 内油 - 冗余 - 爬升额外 + 降落节省。
-    布雷盖起点质量 = 干重 + 可用油 + 冗余 = 起飞质量 - 爬升额外 + 降落节省。
-    布雷盖终点质量 = 干重 + 冗余。
+    布雷盖质量：出发总重 → 返回总重（干重+冗余），不含爬升/降落。
+    出发瞬时油耗 × 爬升等价距离 = 爬升额外油量；
+    返回瞬时油耗 × 降落等价距离 = 降落节省油量；冗余按返回重量闭合。
+    可用油 = 内油 − 冗余 − 爬升额外 + 降落节省，供油量校核与平均油耗。
     """
     if internal_fuel_kg < 0:
         raise ValueError('内油不能为负')
@@ -203,9 +221,11 @@ def mission_fuel_budget(
     )
     climb_extra_kg = takeoff_kg_per_km * climb_extra_km
     descent_save_kg = landing_kg_per_km * descent_save_km
-    usable_fuel_kg = internal_fuel_kg - reserve_kg - climb_extra_kg + descent_save_kg
+    cruise_fuel_kg = internal_fuel_kg - reserve_kg
+    usable_fuel_kg = cruise_fuel_kg - climb_extra_kg + descent_save_kg
     mass_final_kg = land_mass_kg
-    mass_initial_kg = mass_final_kg + usable_fuel_kg
+    mass_initial_kg = takeoff_mass_kg
+    radius_adjust_km = (-float(climb_extra_km) + float(descent_save_km)) / 2.0
     return {
         'carrier': bool(carrier),
         'reserve_min': float(reserve_min),
@@ -216,11 +236,13 @@ def mission_fuel_budget(
         'climb_extra_kg': climb_extra_kg,
         'descent_save_km': float(descent_save_km),
         'descent_save_kg': descent_save_kg,
+        'cruise_fuel_kg': cruise_fuel_kg,
         'usable_fuel_kg': usable_fuel_kg,
         'takeoff_kg_per_km': takeoff_kg_per_km,
         'landing_kg_per_km': landing_kg_per_km,
         'mass_initial_kg': mass_initial_kg,
         'mass_final_kg': mass_final_kg,
+        'radius_adjust_km': radius_adjust_km,
         'subsonic_v_mps': float(v_mps),
         'subsonic_tsfc_kg_n_s': float(tsfc_kg_n_s),
         'subsonic_ld': float(ld),

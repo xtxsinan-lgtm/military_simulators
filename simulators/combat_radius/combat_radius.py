@@ -3,8 +3,8 @@
 1. 根据几何参数与两锚点标定，估算巡航升阻比；
 2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推；
 3. 由空战重量与 L/D 求阻力，再与可用军推得到负载比，估算热/推进/总效率与 TSFC；
-4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度，用布雷盖公式估作战半径；
-   降落冗余、爬升额外与降落节省一律按亚音速油耗入账。
+4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度；
+   先按出发总重→返回总重做布雷盖（含冗余、不含爬升/降落），再按出发/返回瞬时油耗修正爬升与降落。
 """
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ if str(_ROOT) not in sys.path:
 
 
 from utils.combat_radius.breguet import (
+    apply_mission_distance_offsets_m,
     average_fuel_kg_per_km,
     combat_radius_m,
     mission_fuel_budget,
@@ -328,13 +329,13 @@ def _subsonic_scored_for_burn(
 
 
 def _mission_fuel_note(carrier: bool, reserve_min: float, mf: dict[str, Any]) -> str:
-    """作战半径说明：冗余 / 爬升 / 降落均按亚音速油耗。"""
+    """作战半径说明：先布雷盖（含冗余），再按出发/返回瞬时油耗修正爬升与降落。"""
     kind = '舰载' if carrier else '陆基'
     return (
-        f'布雷盖半径已计入{kind}降落冗余 {reserve_min:g} min'
-        f'（{float(mf["reserve_cruise_kph"]):g} km/h 平飞）、'
-        f'爬升等价 {float(mf["climb_extra_km"]):g} km 额外油耗、'
-        f'降落等价 {float(mf["descent_save_km"]):g} km 节油；'
+        f'布雷盖半径先按出发重量→返回重量计算（已含{kind}降落冗余 {reserve_min:g} min'
+        f'，{float(mf["reserve_cruise_kph"]):g} km/h 平飞），不含爬升/降落；'
+        f'再按出发瞬时油耗扣爬升等价 {float(mf["climb_extra_km"]):g} km 的一半、'
+        f'按返回瞬时油耗加降落等价 {float(mf["descent_save_km"]):g} km 的一半；'
         '超音速点的这三段仍按亚音速油耗计算。'
     )
 
@@ -558,8 +559,10 @@ def _enrich_radius_point(
     mass_initial_kg: float,
     mass_final_kg: float,
     fuel_kg: float,
+    climb_extra_km: float = 0.0,
+    descent_save_km: float = 0.0,
 ) -> dict[str, Any]:
-    """把评分点补上布雷盖作战半径与平均油耗。"""
+    """先按出发/返回重量做布雷盖，再按爬升额外与降落节省修正半径。"""
     row = scored_to_dict(scored)
     row['id'] = point_id
     row['label'] = label
@@ -574,6 +577,15 @@ def _enrich_radius_point(
     radius = combat_radius_m(
         scored.v0, scored.tsfc_kg_n_s, scored.ld, mass_initial_kg, mass_final_kg,
     )
+    radius = apply_mission_distance_offsets_m(radius, climb_extra_km, descent_save_km)
+    if radius <= 0:
+        row['feasible'] = False
+        row['warning'] = 'insufficient_mission_fuel'
+        row['fail_reason'] = _radius_fail_reason(row['warning'])
+        row['radius_m'] = None
+        row['radius_km'] = None
+        row['fuel_kg_per_km'] = None
+        return row
     row['radius_m'] = radius
     row['radius_km'] = radius / 1000.0
     row['fuel_kg_per_km'] = average_fuel_kg_per_km(fuel_kg, radius)
@@ -593,6 +605,8 @@ def _attach_mixed_radius(
     mass_initial_kg: float,
     mass_final_kg: float,
     fuel_kg: float,
+    climb_extra_km: float = 0.0,
+    descent_save_km: float = 0.0,
 ) -> None:
     """超音速巡航点补上去程该马赫、返程 Ma 0.8 的混合作战半径。"""
     subsonic = next(
@@ -624,7 +638,13 @@ def _attach_mixed_radius(
                 mass_initial_kg,
                 mass_final_kg,
             )
+            radius = apply_mission_distance_offsets_m(
+                radius, climb_extra_km, descent_save_km,
+            )
         except (ValueError, TypeError, KeyError):
+            row['mixed_warning'] = 'mixed_infeasible'
+            continue
+        if radius <= 0:
             row['mixed_warning'] = 'mixed_infeasible'
             continue
         row['mixed_radius_m'] = radius
@@ -639,10 +659,10 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     固定评估 Ma 0.8 / 1.5 / 1.76 / 2.0，以及阻力不超过军推 92% 的最大巡航马赫。
     超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。
     巡航 L/D 仍用一半内油的空战重量。
-    布雷盖可用油 = 内油 − 降落冗余 − 爬升额外 + 降落节省；
-    冗余为舰载 40 min / 陆基 30 min、850 km/h 平飞，爬升/降落分别按
-    起飞重量与带余油降落重量的亚音速瞬时油耗 × 120 km / 87.5 km。
-    超音速巡航点仍用同一套亚音速任务油量。
+    布雷盖先按出发总重 → 返回总重（干重+冗余）计算，不含爬升/降落；
+    冗余为舰载 40 min / 陆基 30 min、850 km/h 平飞。
+    出发瞬时油耗 × 120 km 为爬升额外，返回瞬时油耗 × 87.5 km 为降落节省，
+    半径再按 −爬升/2 + 降落节省/2 修正。超音速点仍用同一套亚音速任务油量。
     """
     n_engines = _optional_int(params.get('n_engines'), 1)
     if n_engines < 1:
@@ -747,7 +767,10 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
                 row = _failed_radius_point(
                     point_id, label, scored, 'subsonic_burn_unavailable',
                 )
-            elif float(fuel_adj['usable_fuel_kg']) <= 0:
+            elif (
+                float(fuel_adj['cruise_fuel_kg']) <= 0
+                or float(fuel_adj['usable_fuel_kg']) <= 0
+            ):
                 row = _failed_radius_point(
                     point_id, label, scored, 'insufficient_mission_fuel',
                 )
@@ -757,6 +780,8 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
                     float(fuel_adj['mass_initial_kg']),
                     float(fuel_adj['mass_final_kg']),
                     float(fuel_adj['usable_fuel_kg']),
+                    float(fuel_adj['climb_extra_km']),
+                    float(fuel_adj['descent_save_km']),
                 )
         return _attach_max_ld_to_point(
             row, ctx, mach, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
@@ -793,12 +818,18 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     breguet_final = (
         float(fuel_adj['mass_final_kg']) if fuel_adj else dry_mass['total_kg']
     )
-    if fuel_adj is not None and float(fuel_adj['usable_fuel_kg']) > 0:
+    if (
+        fuel_adj is not None
+        and float(fuel_adj['cruise_fuel_kg']) > 0
+        and float(fuel_adj['usable_fuel_kg']) > 0
+    ):
         _attach_mixed_radius(
             points,
             float(fuel_adj['mass_initial_kg']),
             float(fuel_adj['mass_final_kg']),
             float(fuel_adj['usable_fuel_kg']),
+            float(fuel_adj['climb_extra_km']),
+            float(fuel_adj['descent_save_km']),
         )
     else:
         for row in points:

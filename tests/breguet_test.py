@@ -7,6 +7,7 @@ import pytest
 
 from utils.combat_radius.breguet import (
     G0,
+    apply_mission_distance_offsets_m,
     average_fuel_kg_per_km,
     breguet_range_factor,
     breguet_range_m,
@@ -98,8 +99,21 @@ def test_landing_reserve_fuel_kg_closed_form():
         landing_reserve_fuel_kg(dry, 1e9, v, tsfc, ld)
 
 
+def test_apply_mission_distance_offsets_m():
+    """半径修正 = −爬升/2 + 降落节省/2。"""
+    r0 = 1_000_000.0
+    assert apply_mission_distance_offsets_m(r0, 120.0, 87.5) == pytest.approx(
+        r0 - 60_000.0 + 43_750.0,
+    )
+    assert apply_mission_distance_offsets_m(r0, 0.0, 0.0) == pytest.approx(r0)
+    with pytest.raises(ValueError, match='爬升等价'):
+        apply_mission_distance_offsets_m(r0, -1.0, 0.0)
+    with pytest.raises(ValueError, match='降落等价'):
+        apply_mission_distance_offsets_m(r0, 0.0, -1.0)
+
+
 def test_mission_fuel_budget_usable_and_masses():
-    """可用油 = 内油 - 冗余 - 爬升额外 + 降落节省；超音速巡航复用同一套质量。"""
+    """布雷盖用出发/返回总重；爬升按出发瞬时、降落与冗余按返回瞬时。"""
     v, tsfc, ld = 236.11, 2.5e-5, 8.0
     dry, fuel = 20000.0, 8000.0
     takeoff = dry + fuel
@@ -118,13 +132,24 @@ def test_mission_fuel_budget_usable_and_masses():
     )
     assert budget['carrier'] is False
     assert budget['reserve_loiter_km'] == pytest.approx(425.0)
+    assert budget['mass_initial_kg'] == pytest.approx(takeoff)
+    assert budget['mass_final_kg'] == pytest.approx(dry + budget['reserve_fuel_kg'])
+    assert budget['takeoff_kg_per_km'] == pytest.approx(
+        instantaneous_fuel_kg_per_km(v, tsfc, ld, takeoff),
+    )
+    assert budget['landing_kg_per_km'] == pytest.approx(
+        instantaneous_fuel_kg_per_km(v, tsfc, ld, budget['mass_final_kg']),
+    )
+    assert budget['climb_extra_kg'] == pytest.approx(budget['takeoff_kg_per_km'] * 120)
+    assert budget['descent_save_kg'] == pytest.approx(budget['landing_kg_per_km'] * 87.5)
+    assert budget['cruise_fuel_kg'] == pytest.approx(fuel - budget['reserve_fuel_kg'])
     assert budget['usable_fuel_kg'] == pytest.approx(
         fuel - budget['reserve_fuel_kg'] - budget['climb_extra_kg'] + budget['descent_save_kg'],
     )
-    assert budget['mass_final_kg'] == pytest.approx(dry + budget['reserve_fuel_kg'])
-    assert budget['mass_initial_kg'] == pytest.approx(
-        budget['mass_final_kg'] + budget['usable_fuel_kg'],
-    )
+    assert budget['radius_adjust_km'] == pytest.approx((-120.0 + 87.5) / 2.0)
+    r0 = combat_radius_m(v, tsfc, ld, budget['mass_initial_kg'], budget['mass_final_kg'])
+    r = apply_mission_distance_offsets_m(r0, 120.0, 87.5)
+    assert r == pytest.approx(r0 - 60_000.0 + 43_750.0)
     sea = mission_fuel_budget(
         internal_fuel_kg=fuel,
         takeoff_mass_kg=takeoff,
@@ -141,8 +166,14 @@ def test_mission_fuel_budget_usable_and_masses():
     assert sea['carrier'] is True
     assert sea['reserve_fuel_kg'] > budget['reserve_fuel_kg']
     assert sea['usable_fuel_kg'] < budget['usable_fuel_kg']
-    r_sub = combat_radius_m(v, tsfc, ld, budget['mass_initial_kg'], budget['mass_final_kg'])
-    r_sup = combat_radius_m(400.0, 4e-5, 6.0, budget['mass_initial_kg'], budget['mass_final_kg'])
+    r_sub = apply_mission_distance_offsets_m(
+        combat_radius_m(v, tsfc, ld, budget['mass_initial_kg'], budget['mass_final_kg']),
+        120.0, 87.5,
+    )
+    r_sup = apply_mission_distance_offsets_m(
+        combat_radius_m(400.0, 4e-5, 6.0, budget['mass_initial_kg'], budget['mass_final_kg']),
+        120.0, 87.5,
+    )
     assert r_sub > 0 and r_sup > 0
     with pytest.raises(ValueError, match='内油'):
         mission_fuel_budget(
