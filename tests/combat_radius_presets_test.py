@@ -46,6 +46,10 @@ def test_load_presets_contains_anchors_and_j20():
     uav = get_preset_by_id(presets, '53636')
     assert uav is not None
     assert uav['n_pilots'] == 0
+    assert uav['length_m'] == pytest.approx(14.6)
+    ac_uav = preset_to_aircraft(uav)
+    assert ac_uav.canopy is False
+    assert ac_uav.mach_angle_deg == pytest.approx(22.9)
     j36 = get_preset_by_id(presets, 'J-36')
     assert j36 is not None
     assert j36['n_engines'] == 3

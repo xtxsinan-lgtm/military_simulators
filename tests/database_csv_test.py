@@ -228,8 +228,13 @@ def test_load_combat_radius_aircraft_csv():
     assert j36['n_pilots'] == 2
     assert j36['planform'] == 'double_delta'
     j35 = next(r for r in rows if r['id'] == 'J-35')
-    assert j35['length_m'] == pytest.approx(17.3)
+    assert j35['length_m'] == pytest.approx(17.7)
     assert j35['carrier'] is True
+    j35a = next(r for r in rows if r['id'] == 'J-35A')
+    assert j35a['length_m'] == pytest.approx(17.7)
+    assert uav['length_m'] == pytest.approx(14.6)
+    uav535 = next(r for r in rows if r['id'] == '53536')
+    assert uav535['length_m'] == pytest.approx(16.7)
 
 
 def test_parse_int_accepts_int_and_float_text():

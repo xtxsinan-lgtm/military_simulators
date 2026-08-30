@@ -251,6 +251,13 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     presets = load_presets()
     uav = get_preset_by_id(presets, '53636')
     assert uav['n_pilots'] == 0
+    assert uav['length_m'] == pytest.approx(14.6)
+    uav535 = get_preset_by_id(presets, '53536')
+    assert uav535['length_m'] == pytest.approx(16.7)
+    j35 = get_preset_by_id(presets, 'J-35')
+    j35a = get_preset_by_id(presets, 'J-35A')
+    assert j35['length_m'] == pytest.approx(17.7)
+    assert j35a['length_m'] == pytest.approx(17.7)
     j36 = get_preset_by_id(presets, 'J-36')
     assert j36['n_engines'] == 3
     assert j36['n_pilots'] == 2

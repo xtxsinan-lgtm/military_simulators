@@ -11,6 +11,7 @@
 避免抛物线极曲线把 L/Dmax 推到 CL≈0.57（Ma 0.8 约 15 km）。
 低翼载飞机同一高度 CL 更小，可以飞得更高。
 锚点标定在 CL≈0.35，此项近似为零，不改变 (Cf0, k_e)。
+无座舱无人机去掉风挡浸润；机长只进入马赫锥项（Ma 1.5 通常未触发）。
 
 波阻分四段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
     1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
@@ -68,6 +69,8 @@ CDW_TRANS_WIDTH = 0.14
 # 无尾/翼身融合面积律更好，只打折体积波阻（机身+机翼项），升力波阻仍按 CL
 CDW_TAILLESS = 0.72
 CDW_BWB = 0.90
+# 无座舱浸润折扣：去掉风挡/框与座舱鼓包，机头更圆滑（相对有座舱约 −3%）
+NO_CANOPY_MULT = 0.97
 # 大迎角附加阻力：超过巡航 CL 后 (CL-CL_on)²，使 L/D 在标定高度附近见顶。
 # 起点取 0.35，使 F-35C/F-22 锚点 CDa=0，不扰动 (Cf0, k_e) 与超巡波阻标定。
 CL_AOA_ONSET = 0.35
@@ -113,6 +116,7 @@ class Aircraft:
     length_m: float = 0.0  # 机身长度，未给马赫角时用于估算；缺省 0 表示不启用
     wingspan_m: float = 0.0  # 翼展；缺省 0 表示不启用
     mach_angle_deg: float = 0.0  # 翼尖-机头连线与机身轴线夹角（度）；优先于机长/翼展
+    canopy: bool = True  # 有座舱风挡；无人机为 False，浸润更小
 
 
 def _as_bool(value: Any, default: bool = False) -> bool:
@@ -129,6 +133,16 @@ def _as_bool(value: Any, default: bool = False) -> bool:
     if text in ('0', 'false', 'no', 'n', '否'):
         return False
     raise ValueError(f'无法解析布尔值: {value!r}')
+
+
+def _canopy_from_dict(data: dict[str, Any]) -> bool:
+    """座舱开关：显式 canopy 优先；否则 n_pilots>0 视为有座舱，无人机为无。"""
+    if data.get('canopy') not in (None, ''):
+        return _as_bool(data.get('canopy'), True)
+    n_pilots = data.get('n_pilots')
+    if n_pilots not in (None, ''):
+        return float(n_pilots) > 0
+    return True
 
 
 def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
@@ -154,6 +168,7 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         length_m=_optional_positive_float(data.get('length_m')),
         wingspan_m=_optional_positive_float(data.get('wingspan_m')),
         mach_angle_deg=_optional_positive_float(data.get('mach_angle_deg')),
+        canopy=_canopy_from_dict(data),
     )
 
 
@@ -199,13 +214,15 @@ def wetted_area_factor(ac: Aircraft) -> float:
     - 三角翼/双三角/钻石翼/兰姆达翼相比梯形翼浸润面积/参考面积略小；平直翼略大
     - 鸭式布局多一个升力面；无尾布局减少
     - 翼身融合 (bwb) 与表面不平整 (rough) 是两个完全独立的开关
+    - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
     """
     planform_mult = PLANFORM_MULT[ac.planform]
     layout_mult = LAYOUT_MULT[ac.layout]
     bwb_mult = 0.90 if ac.bwb else 1.00
     rough_mult = 1.08 if ac.rough else 1.00
+    canopy_mult = 1.0 if ac.canopy else NO_CANOPY_MULT
     thickness_mult = 1.0 + 4.0 * ac.tc
-    return thickness_mult * planform_mult * layout_mult * bwb_mult * rough_mult
+    return thickness_mult * planform_mult * layout_mult * bwb_mult * rough_mult * canopy_mult
 
 
 def mach_angle_rad(length_m: float, wingspan_m: float) -> float:

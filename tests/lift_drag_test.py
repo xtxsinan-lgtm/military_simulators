@@ -23,6 +23,7 @@ from utils.combat_radius.lift_drag import (
     J35_SUPERCRUISE_MACH,
     KAPPA_A,
     KORN_DM_CAP,
+    NO_CANOPY_MULT,
     RHO11,
     Aircraft,
     aircraft_from_dict,
@@ -49,6 +50,7 @@ from utils.combat_radius.lift_drag import (
     predict_ld,
     wetted_area_factor,
     _as_bool,
+    _canopy_from_dict,
     _optional_positive_float,
 )
 
@@ -203,6 +205,22 @@ def test_wetted_area_factor_independent_switches():
     w0 = wetted_area_factor(base)
     assert wetted_area_factor(bwb) == pytest.approx(w0 * 0.90)
     assert wetted_area_factor(rough) == pytest.approx(w0 * 1.08)
+    no_canopy = Aircraft(**{**aircraft_to_dict(base), 'canopy': False})
+    assert wetted_area_factor(no_canopy) == pytest.approx(w0 * NO_CANOPY_MULT)
+
+
+def test_canopy_from_dict_infers_from_n_pilots():
+    """显式 canopy 优先；否则 n_pilots=0 视为无座舱。"""
+    assert _canopy_from_dict({}) is True
+    assert _canopy_from_dict({'n_pilots': 1}) is True
+    assert _canopy_from_dict({'n_pilots': 0}) is False
+    assert _canopy_from_dict({'n_pilots': 0, 'canopy': True}) is True
+    uav = aircraft_from_dict({
+        'name': 'UAV', 'AR': 2.5, 'sweep_deg': 50, 'wing_loading': 0.18,
+        'tc': 0.043, 'mach': 0.8, 'alt_m': 12000,
+        'planform': 'lambda', 'layout': 'tailless', 'n_pilots': 0,
+    })
+    assert uav.canopy is False
 
 
 def test_wetted_area_factor_planform_and_layout():
@@ -409,3 +427,31 @@ def test_predict_ld_j20_between_anchors():
     assert 7.0 < ld < 10.0
     assert d['CD'] == pytest.approx(d['CD0'] + d['CDi'] + d['CDw'] + d['CDa'])
     assert KAPPA_A == pytest.approx(0.90)
+
+
+def test_lambda_uav_ma15_ld_below_j50_because_cl_is_lower():
+    """同为兰姆达无尾时，53636 翼载更低 → Ma 1.5 的 CL 更小，L/D 仍低于歼-50。
+
+    无座舱只削 CD0；构型项（翼型/布局/粗糙度）与歼-50 相同，不是 L/D 差距来源。
+    """
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets, preset_to_aircraft
+
+    presets = load_presets()
+    uav = preset_to_aircraft(get_preset_by_id(presets, '53636'))
+    j50 = preset_to_aircraft(get_preset_by_id(presets, 'J-50'))
+    assert uav.planform == j50.planform == 'lambda'
+    assert uav.layout == j50.layout == 'tailless'
+    assert uav.rough is False and j50.rough is False
+    assert uav.canopy is False and j50.canopy is True
+    assert uav.wing_loading < j50.wing_loading
+    cf0, k_e = calibrate_default_anchors()
+    uav_m = Aircraft(**{**aircraft_to_dict(uav), 'mach': 1.5, 'alt_m': 11000})
+    j50_m = Aircraft(**{**aircraft_to_dict(j50), 'mach': 1.5, 'alt_m': 11000})
+    ld_u, d_u = predict_ld(uav_m, cf0, k_e)
+    ld_j, d_j = predict_ld(j50_m, cf0, k_e)
+    assert d_u['CL'] < d_j['CL']
+    assert d_u['CD0'] < d_j['CD0']
+    assert ld_u < ld_j
+    manned = Aircraft(**{**aircraft_to_dict(uav_m), 'canopy': True})
+    ld_manned, _ = predict_ld(manned, cf0, k_e)
+    assert ld_u > ld_manned
