@@ -92,6 +92,7 @@ def test_format_ld_row_with_and_without_target():
     row = format_ld_row(ac, r['Cf0'], r['k_e'], 8.0)
     assert row['target_ld'] == 8.0
     assert abs(row['error']) < 1e-9
+    assert 'CDa' in row
     bare = format_ld_row(ac, r['Cf0'], r['k_e'])
     assert 'target_ld' not in bare
 
@@ -724,7 +725,7 @@ def test_run_search_best_cruise_from_params_ma08():
     assert r['thrust_avail_kN'] > 0
     assert r['max_ld'] >= r['ld'] - 1e-9
     assert r['max_ld_thrust_mode'] == 'military'
-    assert 11000.0 <= r['alt_m'] <= 12200.0
+    assert 11000.0 <= r['alt_m'] <= 12500.0
 
 
 def test_run_search_best_cruise_infeasible_mach():

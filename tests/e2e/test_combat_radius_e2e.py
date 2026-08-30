@@ -138,7 +138,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
     assert m20['max_ld_thrust_mode'] == 'afterburner'
     assert m15['radius_km'] < m08['radius_km']
-    assert 11000.0 <= m08['alt_m'] <= 12200.0
+    assert 11000.0 <= m08['alt_m'] <= 12500.0
     assert m15['alt_m'] > m08['alt_m']
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.02)
@@ -422,7 +422,8 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert j50['success'] is True
     assert j50['max_cruise_mach'] > f22['max_cruise_mach']
     j50_m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
-    assert 11000.0 <= j50_m08['alt_m'] <= 12500.0
+    f22_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
+    assert j50_m08['alt_m'] >= f22_m08['alt_m']
     f35c = stored['aircraft']['F-35C']
     assert f35c['success'] is True
 

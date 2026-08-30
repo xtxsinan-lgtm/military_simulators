@@ -4,8 +4,13 @@
 再代入任意第三型机估算其 L/D。
 
 物理框架：
-    CD = CD0(摩擦/寄生阻力) + CDi(诱导阻力) + CDw(波阻)
+    CD = CD0(摩擦/寄生阻力) + CDi(诱导阻力) + CDa(大迎角附加) + CDw(波阻)
     L/D = CL / CD
+
+大迎角项：超过典型巡航 CL 后诱导/分离阻力按 (CL-CL_on)² 上升，
+避免抛物线极曲线把 L/Dmax 推到 CL≈0.57（Ma 0.8 约 15 km）。
+低翼载飞机同一高度 CL 更小，可以飞得更高。
+锚点标定在 CL≈0.35，此项近似为零，不改变 (Cf0, k_e)。
 
 波阻分三段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
     1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
@@ -18,12 +23,12 @@
 标定原理（闭式线性解）：
     CDi = K_raw / k_e，其中 K_raw = CL²/(π·AR·e_raymer)，k_e 未知
     CD0 = Cf0 · W，其中 W 为浸润面积代理因子，Cf0 未知
-    对每个锚点 i：CL_i / (Cf0·W_i + K_i/k_e + CDw_i) = target_i
+    对每个锚点 i：CL_i / (Cf0·W_i + K_i/k_e + CDw_i + CDa_i) = target_i
     整理为线性方程组（令 x=Cf0, y=1/k_e）：
         W_1·x + K_1·y = C_1
         W_2·x + K_2·y = C_2
-    其中 C_i = CL_i/target_i - CDw_i，用克莱姆法则直接求解，无需迭代。
-    Ma 0.8 下 CDw≈0，(Cf0, k_e) 仍只由亚音速锚点决定。
+    其中 C_i = CL_i/target_i - CDw_i - CDa_i，用克莱姆法则直接求解，无需迭代。
+    Ma 0.8 下 CDw≈0 且锚点 CDa≈0，(Cf0, k_e) 仍只由亚音速锚点决定。
 """
 from __future__ import annotations
 
@@ -55,6 +60,10 @@ CDW_CANARD = 0.0128  # 鸭翼附加，乘 (M-1)²
 # 无尾/翼身融合面积律更好，只打折体积波阻（机身+机翼项），升力波阻仍按 CL
 CDW_TAILLESS = 0.72
 CDW_BWB = 0.90
+# 大迎角附加阻力：超过巡航 CL 后 (CL-CL_on)²，使 L/D 在标定高度附近见顶。
+# 起点取 0.35，使 F-35C/F-22 锚点 CDa=0，不扰动 (Cf0, k_e) 与超巡波阻标定。
+CL_AOA_ONSET = 0.35
+CD_AOA_COEF = 2.0
 
 PlanformId = Literal[
     'trapezoidal', 'swept', 'delta', 'diamond', 'unswept', 'lambda', 'double_delta',
@@ -268,6 +277,12 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     return cdw
 
 
+def cd_high_aoa(CL: float) -> float:
+    """大迎角附加阻力：CL 超过巡航起点后按超出量平方增长。"""
+    excess = CL - CL_AOA_ONSET
+    return CD_AOA_COEF * excess ** 2 if excess > 0.0 else 0.0
+
+
 def cd_wave(CL: float, ac: Aircraft) -> float:
     """总波阻 = 封顶 Korn + 超音速体积/升力/鸭翼项 +（可选）马赫锥外附加。"""
     cdw = cd_wave_korn(CL, ac) + cd_wave_supersonic(ac.mach, ac, CL)
@@ -278,13 +293,14 @@ def cd_wave(CL: float, ac: Aircraft) -> float:
 
 
 def components(ac: Aircraft) -> dict[str, float]:
-    """单机中间量：CL、e_raw、K(=CDi 当 k_e=1)、W(浸润因子)、CDw。"""
+    """单机中间量：CL、e_raw、K(=CDi 当 k_e=1)、W(浸润因子)、CDw、CDa。"""
     CL = cl_cruise(ac)
     e_raw = oswald_e_raw(ac.AR, ac.sweep_deg)
     k_ind = CL ** 2 / (math.pi * ac.AR * e_raw)
     wetted = wetted_area_factor(ac)
     cdw = cd_wave(CL, ac)
-    return dict(CL=CL, e_raw=e_raw, K=k_ind, W=wetted, CDw=cdw)
+    cda = cd_high_aoa(CL)
+    return dict(CL=CL, e_raw=e_raw, K=k_ind, W=wetted, CDw=cdw, CDa=cda)
 
 
 def calibrate(
@@ -297,8 +313,8 @@ def calibrate(
     c1 = components(anchor1)
     c2 = components(anchor2)
 
-    c_rhs1 = c1['CL'] / ld1_target - c1['CDw']
-    c_rhs2 = c2['CL'] / ld2_target - c2['CDw']
+    c_rhs1 = c1['CL'] / ld1_target - c1['CDw'] - c1['CDa']
+    c_rhs2 = c2['CL'] / ld2_target - c2['CDw'] - c2['CDa']
 
     det = c1['W'] * c2['K'] - c2['W'] * c1['K']
     if abs(det) < 1e-12:
@@ -322,7 +338,8 @@ def predict_ld(ac: Aircraft, cf0: float, k_e: float) -> tuple[float, dict[str, f
     cdi = c['K'] / k_e
     cd0 = cf0 * c['W']
     cdw = c['CDw']
-    cd = cd0 + cdi + cdw
+    cda = c['CDa']
+    cd = cd0 + cdi + cdw + cda
     ld = c['CL'] / cd
     return ld, dict(
         CL=c['CL'],
@@ -330,6 +347,7 @@ def predict_ld(ac: Aircraft, cf0: float, k_e: float) -> tuple[float, dict[str, f
         CD0=cd0,
         CDi=cdi,
         CDw=cdw,
+        CDa=cda,
         CD=cd,
     )
 

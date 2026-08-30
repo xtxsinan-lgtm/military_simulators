@@ -13,6 +13,8 @@ from utils.combat_radius.lift_drag import (
     CDW_SS_LIFT,
     CDW_SS_WING,
     CDW_TAILLESS,
+    CD_AOA_COEF,
+    CL_AOA_ONSET,
     F22_SUPERCRUISE_MACH,
     J20_SUPERCRUISE_MACH,
     KAPPA_A,
@@ -28,6 +30,7 @@ from utils.combat_radius.lift_drag import (
     parasite_cd0,
     atmosphere,
     calibrate,
+    cd_high_aoa,
     cd_wave,
     cd_wave_korn,
     cd_wave_mach_angle,
@@ -314,9 +317,31 @@ def test_tailless_and_bwb_discount_volume_wave_drag():
 
 def test_components_keys_and_signs():
     c = components(_j20())
-    assert set(c) == {'CL', 'e_raw', 'K', 'W', 'CDw'}
+    assert set(c) == {'CL', 'e_raw', 'K', 'W', 'CDw', 'CDa'}
     assert c['CL'] > 0 and c['K'] > 0 and c['W'] > 0
     assert c['CDw'] >= 0
+    assert c['CDa'] >= 0
+
+
+def test_cd_high_aoa_zero_near_cruise_cl_and_rises():
+    """标定巡航 CL 附近附加阻力为零；再增大迎角则上升。"""
+    assert cd_high_aoa(CL_AOA_ONSET) == 0.0
+    assert cd_high_aoa(CL_AOA_ONSET - 0.05) == 0.0
+    assert cd_high_aoa(cl_cruise(_f35c())) == 0.0
+    assert cd_high_aoa(cl_cruise(_f22())) == 0.0
+    assert cd_high_aoa(0.50) == pytest.approx(CD_AOA_COEF * (0.50 - CL_AOA_ONSET) ** 2)
+    assert cd_high_aoa(0.58) > cd_high_aoa(0.45)
+
+
+def test_f22_ma08_ld_peaks_near_catalog_not_15km():
+    """抛物线极曲线会把 L/Dmax 推到 15 km；大迎角项须让标定高度附近更高。"""
+    cf0, k_e = calibrate_default_anchors()
+    cruise = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 0.8, 'alt_m': 11800})
+    high = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 0.8, 'alt_m': 15000})
+    ld_c, _ = predict_ld(cruise, cf0, k_e)
+    ld_h, d_h = predict_ld(high, cf0, k_e)
+    assert d_h['CDa'] > 0
+    assert ld_c > ld_h
 
 
 def test_calibrate_reconstructs_anchor_ld():
@@ -362,5 +387,5 @@ def test_predict_ld_j20_between_anchors():
     cf0, k_e = calibrate(_f35c(), 8.8, _f22(), 8.0)
     ld, d = predict_ld(_j20(), cf0, k_e)
     assert 7.0 < ld < 10.0
-    assert d['CD'] == pytest.approx(d['CD0'] + d['CDi'] + d['CDw'])
+    assert d['CD'] == pytest.approx(d['CD0'] + d['CDi'] + d['CDw'] + d['CDa'])
     assert KAPPA_A == pytest.approx(0.90)

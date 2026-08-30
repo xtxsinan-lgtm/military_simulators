@@ -3,8 +3,7 @@
 1. 根据几何参数与两锚点标定，估算巡航升阻比；
 2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推；
 3. 由空战重量与 L/D 求阻力，再与可用军推得到负载比，估算热/推进/总效率与 TSFC；
-4. 在给定马赫下按发动机最佳负载选巡航高度（CL 不超过标定巡航值，
-   阻力不超过军推 92%），用布雷盖公式估作战半径；
+4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度，用布雷盖公式估作战半径；
    降落冗余、爬升额外与降落节省一律按亚音速油耗入账。
 """
 from __future__ import annotations
@@ -107,6 +106,7 @@ def format_ld_row(
         'CD0': breakdown['CD0'],
         'CDi': breakdown['CDi'],
         'CDw': breakdown['CDw'],
+        'CDa': breakdown['CDa'],
         'CD': breakdown['CD'],
     }
     if target_ld is not None:
@@ -1007,7 +1007,7 @@ def _cruise_context_from_params(params: dict[str, Any]) -> tuple[CruiseContext, 
 
 
 def run_search_best_cruise_from_params(params: dict[str, Any]) -> dict[str, Any]:
-    """给定马赫，按发动机最佳负载搜索巡航高度（CL 不超过标定值）。
+    """给定马赫，搜索 L/D×η_o 最大且满足推力裕度的巡航高度。
 
     无论能否军推巡航，都附带可飞高度（开加力也可以）上的最大升阻比。
     """
