@@ -100,8 +100,11 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
     assert f119['tsl_kN'] == 116.0
     ws15 = get_preset_by_id(engines, 'ws15')
     assert ws15 is not None
-    assert ws15['tsl_kN'] == 120.0
+    assert ws15['tsl_kN'] == 112.0
     assert ws15['max_tsl_kN'] == 156.0
+    ws15i = get_preset_by_id(engines, 'ws15i')
+    assert ws15i is not None
+    assert ws15i['tsl_kN'] == pytest.approx(13.5 * 9.80665, abs=0.05)
     expected = {
         'ws15': (0.25, 25.5, 1841.0),
         'ws15i': (0.25, 29.0, 1975.0),

@@ -8,6 +8,7 @@ import pytest
 from apps.combat_radius_web import run_combat_radius_json
 from apps.miniprogram_api import handle_request
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+from utils.combat_radius.lift_drag import J20_SUPERCRUISE_MACH
 from utils.paths import ROOT
 
 
@@ -153,7 +154,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_j20_supercruise_and_radius_order():
-    """歼-20 最大巡航约 Ma 1.70；Ma 1.5 作战半径须小于亚音速。"""
+    """歼-20 最大巡航约 Ma 1.63；Ma 1.5 作战半径须小于亚音速。"""
     presets = load_presets()
     engines = load_engine_presets()
     j20 = get_preset_by_id(presets, 'J-20')
@@ -176,7 +177,7 @@ def test_e2e_combat_radius_j20_supercruise_and_radius_order():
         },
     })
     assert r['success'] is True
-    assert r['max_cruise_mach'] == pytest.approx(1.70, abs=0.02)
+    assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
     m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
@@ -417,7 +418,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert     live['max_cruise_mach'] == pytest.approx(f22['max_cruise_mach'], rel=1e-4, abs=1e-4)
     j20 = stored['aircraft']['J-20']
     assert j20['success'] is True
-    assert j20['max_cruise_mach'] == pytest.approx(1.70, abs=0.02)
+    assert j20['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
     j50 = stored['aircraft']['J-50']
     assert j50['success'] is True
     assert j50['max_cruise_mach'] > f22['max_cruise_mach']

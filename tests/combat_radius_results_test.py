@@ -18,6 +18,7 @@ from utils.combat_radius.combat_radius_results import (
     write_combat_radius_results,
     _round,
 )
+from utils.combat_radius.lift_drag import J20_SUPERCRUISE_MACH
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.paths import COMBAT_RADIUS_RESULTS_JSON
 
@@ -124,7 +125,7 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
     """歼-20 最大巡航应低于 F-22，且 Ma 1.5 半径不超过亚音速。"""
     r = run_preset_dashboard('J-20')
     assert r['success'] is True
-    assert r['max_cruise_mach'] == pytest.approx(1.70, abs=0.02)
+    assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
     m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')

@@ -219,7 +219,7 @@ def test_f22_max_cruise_mach_anchored_at_supercruise():
 
 
 def test_j20_max_cruise_mach_anchored_below_f22():
-    """鸭翼附加波阻须使歼-20 军推最大巡航落在 Ma 1.70 附近，低于 F-22。"""
+    """鸭翼附加波阻须使歼-20 军推最大巡航落在 Ma 1.63 附近，低于 F-22。"""
     ctx = _csv_ctx('J-20')
     m = search_max_cruise_mach(ctx)
     assert m == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
