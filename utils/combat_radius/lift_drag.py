@@ -12,12 +12,14 @@
 低翼载飞机同一高度 CL 更小，可以飞得更高。
 锚点标定在 CL≈0.35，此项近似为零，不改变 (Cf0, k_e)。
 
-波阻分三段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
+波阻分四段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
     1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
-    2. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项
+    2. 跨声速鼓包：阻力发散后在 Ma 1.15 附近高斯见顶，Ma 1.5 前衰减，
+       避免 Ma 1.2 仍按亚音速 CL_opt 爬到 17 km、导致 1.5 以前高度回落；
+    3. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项
        + 升力波阻 CL²(M-1)（高空大 CL 时压低 L/D，避免超音速布雷盖半径超过亚音速）
        + 鸭翼附加 (M-1)²（歼-20 军推最大巡航标定到 Ma 1.70）；
-    3. 超过马赫锥后的附加波阻（翼尖-机头连线）。
+    4. 超过马赫锥后的附加波阻（翼尖-机头连线）。
     体积项系数使 F-22 军推最大巡航 = Ma 1.76。
 
 标定原理（闭式线性解）：
@@ -53,10 +55,16 @@ COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
 # 升力项 × CL²(M-1)，避免 19 km 超音速 L/D 仍接近亚音速、布雷盖半径倒挂
 F22_SUPERCRUISE_MACH = 1.76
 J20_SUPERCRUISE_MACH = 1.70
-CDW_SS_BODY = 0.00545
+J35_SUPERCRUISE_MACH = 1.12
+J35A_SUPERCRUISE_MACH = 1.47
+CDW_SS_BODY = 0.00590
 CDW_SS_WING = 6.32
-CDW_SS_LIFT = 0.38
-CDW_CANARD = 0.0128  # 鸭翼附加，乘 (M-1)²
+CDW_SS_LIFT = 0.22
+CDW_CANARD = 0.0138  # 鸭翼附加，乘 (M-1)²
+# 跨声速阻力鼓包：峰值在 Ma 1.15，半宽 0.14，Ma 1.5 时已基本衰减
+CDW_TRANS_AMP = 0.007
+CDW_TRANS_PEAK = 1.15
+CDW_TRANS_WIDTH = 0.14
 # 无尾/翼身融合面积律更好，只打折体积波阻（机身+机翼项），升力波阻仍按 CL
 CDW_TAILLESS = 0.72
 CDW_BWB = 0.90
@@ -251,6 +259,17 @@ def cd_wave_korn(CL: float, ac: Aircraft) -> float:
     return CDW_KORN_COEF * min(dm, KORN_DM_CAP) ** 4
 
 
+def cd_wave_transonic(mach: float, CL: float, ac: Aircraft) -> float:
+    """跨声速阻力鼓包：超过 Mdd 后在 Ma 1.15 附近见顶，高超音速衰减。"""
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    mdd = drag_divergence_mach(CL, ac)
+    if mach <= mdd:
+        return 0.0
+    x = (mach - CDW_TRANS_PEAK) / CDW_TRANS_WIDTH
+    return CDW_TRANS_AMP * math.exp(-0.5 * x * x)
+
+
 def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加。
 
@@ -284,8 +303,12 @@ def cd_high_aoa(CL: float) -> float:
 
 
 def cd_wave(CL: float, ac: Aircraft) -> float:
-    """总波阻 = 封顶 Korn + 超音速体积/升力/鸭翼项 +（可选）马赫锥外附加。"""
-    cdw = cd_wave_korn(CL, ac) + cd_wave_supersonic(ac.mach, ac, CL)
+    """总波阻 = 封顶 Korn + 跨声速鼓包 + 超音速体积/升力/鸭翼项 +（可选）马赫锥外附加。"""
+    cdw = (
+        cd_wave_korn(CL, ac)
+        + cd_wave_transonic(ac.mach, CL, ac)
+        + cd_wave_supersonic(ac.mach, ac, CL)
+    )
     phi = aircraft_mach_angle_rad(ac)
     if phi is not None:
         cdw += cd_wave_mach_angle(ac.mach, phi)

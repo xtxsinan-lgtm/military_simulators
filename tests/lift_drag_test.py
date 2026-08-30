@@ -13,10 +13,14 @@ from utils.combat_radius.lift_drag import (
     CDW_SS_LIFT,
     CDW_SS_WING,
     CDW_TAILLESS,
+    CDW_TRANS_AMP,
+    CDW_TRANS_PEAK,
     CD_AOA_COEF,
     CL_AOA_ONSET,
     F22_SUPERCRUISE_MACH,
     J20_SUPERCRUISE_MACH,
+    J35A_SUPERCRUISE_MACH,
+    J35_SUPERCRUISE_MACH,
     KAPPA_A,
     KORN_DM_CAP,
     RHO11,
@@ -35,6 +39,7 @@ from utils.combat_radius.lift_drag import (
     cd_wave_korn,
     cd_wave_mach_angle,
     cd_wave_supersonic,
+    cd_wave_transonic,
     cl_cruise,
     components,
     drag_divergence_mach,
@@ -257,6 +262,21 @@ def test_cd_wave_supersonic_zero_at_or_below_sonic():
     assert cd_wave_supersonic(0.8, ac) == 0.0
     assert cd_wave_supersonic(1.0, ac) == 0.0
     assert cd_wave_supersonic(1.5, ac) > 0.0
+
+
+def test_cd_wave_transonic_zero_below_mdd_and_peaks_near_115():
+    """鼓包在 Mdd 以下为零，Ma 1.15 附近高于 Ma 1.5，且 Ma 0.8 标定不受影响。"""
+    ac = _f22()
+    cl = cl_cruise(ac)
+    assert cd_wave_transonic(0.8, cl, ac) == 0.0
+    with pytest.raises(ValueError, match='马赫数'):
+        cd_wave_transonic(0.0, cl, ac)
+    peak = cd_wave_transonic(CDW_TRANS_PEAK, cl, Aircraft(**{**aircraft_to_dict(ac), 'mach': CDW_TRANS_PEAK}))
+    at15 = cd_wave_transonic(1.5, cl, Aircraft(**{**aircraft_to_dict(ac), 'mach': 1.5}))
+    at176 = cd_wave_transonic(1.76, cl, Aircraft(**{**aircraft_to_dict(ac), 'mach': 1.76}))
+    assert peak == pytest.approx(CDW_TRANS_AMP)
+    assert peak > at15 > at176
+    assert at15 < 0.4 * CDW_TRANS_AMP
 
 
 def test_cd_wave_supersonic_falls_with_sweep_and_rises_with_thickness():

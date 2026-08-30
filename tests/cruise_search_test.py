@@ -28,6 +28,8 @@ from utils.combat_radius.cruise_search import (
 from utils.combat_radius.lift_drag import (
     F22_SUPERCRUISE_MACH,
     J20_SUPERCRUISE_MACH,
+    J35A_SUPERCRUISE_MACH,
+    J35_SUPERCRUISE_MACH,
     Aircraft,
     aircraft_from_dict,
     calibrate,
@@ -310,19 +312,31 @@ def test_low_wing_loading_can_cruise_higher_at_mach08():
     assert light.alt_m >= f22.alt_m - 200.0
 
 
-def test_f22_cruise_altitude_rises_then_drops_near_max():
-    """速度升高巡航高度应升高；接近最大巡航时军推不够，高度回落。"""
+def test_f22_cruise_altitude_rises_until_mach_15_then_drops():
+    """Ma 1.5 以前最佳高度随速度升高；接近最大巡航时军推不够，高度回落。"""
     ctx = _f22_csv_ctx()
     a08 = search_best_altitude(ctx, 0.8)
+    a10 = search_best_altitude(ctx, 1.0)
     a12 = search_best_altitude(ctx, 1.2)
+    a14 = search_best_altitude(ctx, 1.4)
     a15 = search_best_altitude(ctx, 1.5)
     a176 = search_best_altitude(ctx, 1.76)
-    assert a08 is not None and a12 is not None and a15 is not None and a176 is not None
-    assert a12.alt_m > a08.alt_m
-    assert a176.alt_m < a12.alt_m
-    assert a176.alt_m <= a15.alt_m
+    assert None not in (a08, a10, a12, a14, a15, a176)
+    assert a08.alt_m < a10.alt_m < a12.alt_m
+    assert a12.alt_m <= a14.alt_m + 200.0
+    assert a15.alt_m >= a12.alt_m - 200.0
+    assert a176.alt_m < a15.alt_m
     assert a15.load_raw > a08.load_raw
     assert a176.load_raw >= 0.90
+
+
+def test_j35_and_j35a_max_cruise_anchored():
+    """歼-35 / 歼-35A 军推最大巡航分别标定到 Ma 1.12 / 1.47。"""
+    j35 = search_max_cruise_mach(_csv_ctx('J-35'))
+    j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
+    assert j35 == pytest.approx(J35_SUPERCRUISE_MACH, abs=0.03)
+    assert j35a == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
+    assert j35a > j35
 
 
 def test_search_max_cruise_mach_when_low_mach_infeasible():

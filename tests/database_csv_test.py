@@ -273,9 +273,9 @@ def test_load_combat_radius_engine_csv():
     assert by_id['ws10c']['max_tsl_kN'] == 145.0
     assert by_id['ws10c']['tsl_kN'] == pytest.approx(101.5)
     assert by_id['ws19']['max_tsl_kN'] == 118.0
-    assert by_id['ws19']['tsl_kN'] == pytest.approx(82.6)
+    assert by_id['ws19']['tsl_kN'] == pytest.approx(68.0)
     assert by_id['ws21']['max_tsl_kN'] == 95.0
-    assert by_id['ws21']['tsl_kN'] == pytest.approx(66.5)
+    assert by_id['ws21']['tsl_kN'] == pytest.approx(69.5)
     assert by_id['f135']['t4_K'] == 2260.0
     assert by_id['f414']['bpr'] == pytest.approx(0.40)
     assert by_id['ws10h']['tsl_kN'] == 89.0

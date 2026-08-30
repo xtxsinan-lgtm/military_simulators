@@ -426,6 +426,10 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert j50_m08['alt_m'] >= f22_m08['alt_m']
     f35c = stored['aircraft']['F-35C']
     assert f35c['success'] is True
+    j35 = stored['aircraft']['J-35']
+    j35a = stored['aircraft']['J-35A']
+    assert j35['max_cruise_mach'] == pytest.approx(1.12, abs=0.03)
+    assert j35a['max_cruise_mach'] == pytest.approx(1.47, abs=0.03)
 
 
 @pytest.mark.e2e
