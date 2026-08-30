@@ -345,7 +345,7 @@ def test_infeasible_point_shape():
 
 
 def test_enrich_radius_point_and_missing_tsfc():
-    from utils.combat_radius.breguet import apply_mission_distance_offsets_m, combat_radius_m
+    from utils.combat_radius.breguet import combat_radius_m
     from utils.combat_radius.cruise_search import CruiseScored
 
     scored = CruiseScored(
@@ -358,18 +358,10 @@ def test_enrich_radius_point_and_missing_tsfc():
     assert row['feasible'] is True
     assert row['radius_km'] > 0
     assert row['fuel_kg_per_km'] > 0
-    r0 = combat_radius_m(240.0, 3e-5, 8.0, 28000, 20000)
-    adjusted = _enrich_radius_point(
-        'mach_0_8', 'Ma 0.8', scored, 28000, 20000, 8000, 120.0, 87.5,
-    )
-    assert adjusted['radius_m'] == pytest.approx(
-        apply_mission_distance_offsets_m(r0, 120.0, 87.5),
-    )
-    too_much_climb = _enrich_radius_point(
-        'mach_0_8', 'Ma 0.8', scored, 28000, 20000, 8000, 1e6, 0.0,
-    )
-    assert too_much_climb['feasible'] is False
-    assert too_much_climb['warning'] == 'insufficient_mission_fuel'
+    assert row['radius_m'] == pytest.approx(combat_radius_m(240.0, 3e-5, 8.0, 28000, 20000))
+    bad_mass = _enrich_radius_point('mach_0_8', 'Ma 0.8', scored, 20000, 20000, 0)
+    assert bad_mass['feasible'] is False
+    assert bad_mass['warning'] == 'insufficient_mission_fuel'
     scored.tsfc_kg_n_s = None
     scored.eta_o = 0.0
     missing = _enrich_radius_point('x', 'x', scored, 28000, 20000, 8000)
@@ -391,7 +383,12 @@ def test_run_estimate_radius_from_params_f22():
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] is not None
     assert r['mass_initial_kg'] > r['mass_cruise_kg'] > r['mass_final_kg']
-    assert r['mass_initial_kg'] == pytest.approx(r['mass_takeoff_kg'])
+    assert r['mass_initial_kg'] == pytest.approx(
+        r['mass_takeoff_kg'] - r['mission_fuel']['climb_extra_kg'],
+    )
+    assert r['mass_final_kg'] == pytest.approx(
+        r['mass_dry_kg'] + r['mission_fuel']['held_fuel_kg'],
+    )
     assert r['mission_fuel'] is not None
     assert r['carrier'] is False
     assert r['mission_fuel']['reserve_min'] == 30
@@ -400,15 +397,11 @@ def test_run_estimate_radius_from_params_f22():
     assert r['mission_fuel']['descent_save_kg'] > 0
     assert r['mission_fuel']['takeoff_kg_per_km'] > r['mission_fuel']['landing_kg_per_km']
     assert '亚音速油耗' in r['note']
-    from utils.combat_radius.breguet import apply_mission_distance_offsets_m, combat_radius_m
-    mf = r['mission_fuel']
-    r0 = combat_radius_m(
+    from utils.combat_radius.breguet import combat_radius_m
+    assert m08['radius_m'] == pytest.approx(combat_radius_m(
         m08['V0'], m08['tsfc_kg_n_s'], m08['ld'],
         r['mass_initial_kg'], r['mass_final_kg'],
-    )
-    assert m08['radius_m'] == pytest.approx(
-        apply_mission_distance_offsets_m(r0, mf['climb_extra_km'], mf['descent_save_km']),
-    )
+    ))
 
 
 def test_run_combat_radius_estimate_radius_action():
@@ -726,13 +719,11 @@ def test_clear_and_attach_mixed_radius():
     assert super_pt['mixed_radius_km'] > 0
     assert super_pt['mixed_fuel_kg_per_km'] > 0
     assert subsonic_only['mixed_radius_km'] is None
-    from utils.combat_radius.breguet import apply_mission_distance_offsets_m, mixed_combat_radius_m
-    raw = mixed_combat_radius_m(
-        500.0, 5.0e-5, 5.0, 240.0, 2.5e-5, 8.0, 28000.0, 20000.0,
-    )
-    _attach_mixed_radius(points, 28000.0, 20000.0, 8000.0, 120.0, 87.5)
+    from utils.combat_radius.breguet import mixed_combat_radius_m
     assert super_pt['mixed_radius_m'] == pytest.approx(
-        apply_mission_distance_offsets_m(raw, 120.0, 87.5),
+        mixed_combat_radius_m(
+            500.0, 5.0e-5, 5.0, 240.0, 2.5e-5, 8.0, 28000.0, 20000.0,
+        ),
     )
 
 

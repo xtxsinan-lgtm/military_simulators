@@ -133,6 +133,7 @@ def test_build_combat_radius_engine_presets_payload():
     payload = build_combat_radius_engine_presets_payload()
     assert payload[0]['id'] == 'ws15'
     assert COMBAT_RADIUS_ENGINE_CSV.is_file()
+    assert COMBAT_RADIUS_ENGINE_CSV.name == 'aircraft_engine_database.csv'
 
 
 def test_load_engine_presets_missing_file_returns_empty(tmp_path):
