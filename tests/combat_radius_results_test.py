@@ -122,7 +122,7 @@ def test_run_preset_dashboard_j50_supercruise_above_f22():
 
 
 def test_run_preset_dashboard_j20_supercruise_below_f22():
-    """歼-20 最大巡航应低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
+    """歼-20 最大巡航应低于 F-22；Ma 0.8 半径约 1160 km，且大于 Ma 1.5。"""
     r = run_preset_dashboard('J-20')
     assert r['success'] is True
     assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
@@ -132,7 +132,7 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
     assert m08['feasible'] is True
     assert m15['feasible'] is True
     assert m176['feasible'] is False
-    assert m08['radius_km'] == pytest.approx(1350, abs=40)
+    assert m08['radius_km'] == pytest.approx(1160, abs=50)
     assert m15['radius_km'] < m08['radius_km']
 
 

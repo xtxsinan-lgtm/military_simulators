@@ -36,7 +36,7 @@ def test_e2e_combat_radius_csv_anchors_predict_j20():
     assert r['success'] is True
     assert r['anchors'][0]['ld'] == pytest.approx(a1['ld_known'], abs=1e-8)
     assert r['anchors'][1]['ld'] == pytest.approx(a2['ld_known'], abs=1e-8)
-    assert 9.0 < r['target']['ld'] < 13.0
+    assert 8.0 < r['target']['ld'] < 11.0
 
 
 def _thrust_params() -> dict:
@@ -165,7 +165,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_j20_supercruise_and_radius_order():
-    """歼-20 最大巡航约 Ma 1.63；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
+    """歼-20 最大巡航约 Ma 1.63；Ma 0.8 半径约 1160 km，且大于 Ma 1.5。"""
     presets = load_presets()
     engines = load_engine_presets()
     j20 = get_preset_by_id(presets, 'J-20')
@@ -195,7 +195,7 @@ def test_e2e_combat_radius_j20_supercruise_and_radius_order():
     assert m08['feasible'] is True
     assert m15['feasible'] is True
     assert m176['feasible'] is False
-    assert m08['radius_km'] == pytest.approx(1350, abs=40)
+    assert m08['radius_km'] == pytest.approx(1160, abs=50)
     assert m15['radius_km'] < m08['radius_km']
 
 

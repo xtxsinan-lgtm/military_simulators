@@ -12,7 +12,6 @@
 低翼载飞机同一高度 CL 更小，可以飞得更高。
 锚点标定在 CL≈0.35，此项近似为零，不改变 (Cf0, k_e)。
 无座舱无人机去掉风挡浸润；机长只进入马赫锥项（Ma 1.5 通常未触发）。
-升力鸭的净 CD0 含有利干扰项，按歼-20 Ma 0.8 作战半径 1350 km 标定。
 
 波阻分四段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
     1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
@@ -59,10 +58,10 @@ F22_SUPERCRUISE_MACH = 1.76
 J20_SUPERCRUISE_MACH = 1.63
 J35_SUPERCRUISE_MACH = 1.12
 J35A_SUPERCRUISE_MACH = 1.47
-CDW_SS_BODY = 0.00590
+CDW_SS_BODY = 0.00968
 CDW_SS_WING = 6.32
-CDW_SS_LIFT = 0.22
-CDW_CANARD = 0.0445  # 鸭翼附加，乘 (M-1)²；与 CANARD_CD0_MULT 一起使歼-20 超巡 ≈ Ma 1.63
+CDW_SS_LIFT = 0.35
+CDW_CANARD = 0.0149  # 鸭翼附加，乘 (M-1)²
 # 跨声速阻力鼓包：峰值在 Ma 1.15，半宽 0.14，Ma 1.5 时已基本衰减
 CDW_TRANS_AMP = 0.007
 CDW_TRANS_PEAK = 1.15
@@ -94,12 +93,9 @@ PLANFORM_MULT: dict[str, float] = {
 }
 LAYOUT_MULT: dict[str, float] = {
     'conventional': 1.00,  # 常规
-    'canard': 1.05,  # 鸭式：多一个升力面
+    'canard': 1.05,  # 鸭式：多一个升力面，浸润/干扰阻力↑
     'tailless': 0.93,  # 无尾：浸润面积↓
 }
-# 升力鸭有利干扰 / 前体涡流，压低巡航 CD0（相对「多一块平面」）。
-# 与 LAYOUT_MULT['canard'] 相乘为净浸润；按歼-20 Ma 0.8 作战半径 1350 km 标定。
-CANARD_CD0_MULT = 0.595
 
 
 @dataclass
@@ -216,7 +212,7 @@ def wetted_area_factor(ac: Aircraft) -> float:
 
     - 翼型越厚，浸润面积/摩擦阻力略增
     - 三角翼/双三角/钻石翼/兰姆达翼相比梯形翼浸润面积/参考面积略小；平直翼略大
-    - 鸭式布局多一个升力面，但升力鸭有利干扰会再乘 CANARD_CD0_MULT；无尾布局减少
+    - 鸭式布局多一个升力面；无尾布局减少
     - 翼身融合 (bwb) 与表面不平整 (rough) 是两个完全独立的开关
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
     """
@@ -225,12 +221,8 @@ def wetted_area_factor(ac: Aircraft) -> float:
     bwb_mult = 0.90 if ac.bwb else 1.00
     rough_mult = 1.08 if ac.rough else 1.00
     canopy_mult = 1.0 if ac.canopy else NO_CANOPY_MULT
-    canard_if = CANARD_CD0_MULT if ac.layout == 'canard' else 1.0
     thickness_mult = 1.0 + 4.0 * ac.tc
-    return (
-        thickness_mult * planform_mult * layout_mult * bwb_mult
-        * rough_mult * canopy_mult * canard_if
-    )
+    return thickness_mult * planform_mult * layout_mult * bwb_mult * rough_mult * canopy_mult
 
 
 def mach_angle_rad(length_m: float, wingspan_m: float) -> float:
@@ -408,7 +400,10 @@ def parasite_cd0(ac: Aircraft, cf0: float) -> float:
 
 
 def default_ld_anchor_aircraft() -> tuple[Aircraft, float, Aircraft, float]:
-    """默认两锚点：F-35C (L/D=8.52) 与 F-22 (L/D=8.62)，几何与机型库一致。"""
+    """默认两锚点：F-35C (L/D=9.20) 与 F-22 (L/D=9.30)，几何与机型库一致。
+
+    锚点按 F-35C Ma 0.8 作战半径约 1400 km 抬升全局极曲线；F-22 取略高 L/D。
+    """
     f35c = Aircraft(
         'F-35C', AR=2.77, sweep_deg=30.9, wing_loading=0.341,
         tc=0.0510, mach=0.8, alt_m=11300,
@@ -421,7 +416,7 @@ def default_ld_anchor_aircraft() -> tuple[Aircraft, float, Aircraft, float]:
         planform='trapezoidal', layout='conventional',
         bwb=False, rough=False,
     )
-    return f35c, 8.52, f22, 8.62
+    return f35c, 9.20, f22, 9.30
 
 
 def calibrate_default_anchors() -> tuple[float, float]:

@@ -32,14 +32,14 @@ def test_load_presets_contains_anchors_and_j20():
     f35 = get_preset_by_id(presets, 'F-35C')
     assert f35 is not None
     assert f35['rough'] is True
-    assert f35['ld_known'] == 8.52
+    assert f35['ld_known'] == 9.20
     assert f35['n_engines'] == 1
     assert f35['engine_id'] == 'f135'
     j20 = get_preset_by_id(presets, 'J-20')
     assert j20 is not None
     assert j20['planform'] == 'trapezoidal'
     assert j20['layout'] == 'canard'
-    assert j20['ld_known'] == 11.51
+    assert j20['ld_known'] == 9.01
     j50 = get_preset_by_id(presets, 'J-50')
     assert j50 is not None
     assert j50['planform'] == 'lambda'

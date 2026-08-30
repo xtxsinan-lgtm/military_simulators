@@ -645,7 +645,7 @@ def test_insufficient_mission_fuel_marks_points_infeasible():
 
 
 def test_ma08_combat_radius_calibration_targets():
-    """Ma 0.8 作战半径须拟合 F-35C≈1200 / F-22≈850 / 歼-20≈1350 km。"""
+    """Ma 0.8 作战半径须拟合 F-35C≈1400 / F-22≈935 / 歼-20≈1160 km。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 
     presets = load_presets()
@@ -653,9 +653,9 @@ def test_ma08_combat_radius_calibration_targets():
     a1 = get_preset_by_id(presets, 'F-35C')
     a2 = get_preset_by_id(presets, 'F-22')
     cases = [
-        ('F-35C', 'f135', 1200, 80),
-        ('F-22', 'f119', 850, 60),
-        ('J-20', 'ws15', 1350, 40),
+        ('F-35C', 'f135', 1400, 40),
+        ('F-22', 'f119', 935, 40),
+        ('J-20', 'ws15', 1160, 50),
     ]
     for ac_id, eng_id, target_km, tol_km in cases:
         tgt = get_preset_by_id(presets, ac_id)
@@ -692,8 +692,8 @@ def test_cruise_context_from_params_uses_half_fuel():
     filled = ensure_default_anchors({'target': {'name': 'X'}})
     assert filled['anchor1']['id'] == 'F-35C'
     assert filled['anchor2']['id'] == 'F-22'
-    assert filled['ld1_target'] == pytest.approx(8.52)
-    assert filled['ld2_target'] == pytest.approx(8.62)
+    assert filled['ld1_target'] == pytest.approx(9.20)
+    assert filled['ld2_target'] == pytest.approx(9.30)
     already = ensure_default_anchors(_sample_params())
     assert already['anchor1']['name'] == 'F-35C'
 

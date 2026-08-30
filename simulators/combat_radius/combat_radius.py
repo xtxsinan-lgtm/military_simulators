@@ -175,14 +175,14 @@ def ensure_default_anchors(params: dict[str, Any]) -> dict[str, Any]:
             raise ValueError('无法加载默认升阻比标定锚点 1')
         out['anchor1'] = a1
         if out.get('ld1_target', out.get('ld1')) in (None, ''):
-            out['ld1_target'] = a1.get('ld_known', ui.get('default_ld1', 8.52))
+            out['ld1_target'] = a1.get('ld_known', ui.get('default_ld1', 9.20))
     if need2:
         a2 = get_preset_by_id(presets, str(ui.get('default_anchor2_id', 'F-22')))
         if a2 is None:
             raise ValueError('无法加载默认升阻比标定锚点 2')
         out['anchor2'] = a2
         if out.get('ld2_target', out.get('ld2')) in (None, ''):
-            out['ld2_target'] = a2.get('ld_known', ui.get('default_ld2', 8.62))
+            out['ld2_target'] = a2.get('ld_known', ui.get('default_ld2', 9.30))
     return out
 
 
@@ -1130,9 +1130,9 @@ def main() -> None:
 
     params = {
         'anchor1': a1,
-        'ld1_target': a1.get('ld_known', 8.52),
+        'ld1_target': a1.get('ld_known', 9.20),
         'anchor2': a2,
-        'ld2_target': a2.get('ld_known', 8.62),
+        'ld2_target': a2.get('ld_known', 9.30),
         'target': tgt,
         'empty_kg': tgt['empty_kg'],
         'internal_fuel_kg': tgt['internal_fuel_kg'],

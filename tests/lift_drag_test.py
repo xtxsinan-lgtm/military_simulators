@@ -6,7 +6,6 @@ import math
 import pytest
 
 from utils.combat_radius.lift_drag import (
-    CANARD_CD0_MULT,
     CDW_BWB,
     CDW_CANARD,
     CDW_KORN_COEF,
@@ -24,7 +23,6 @@ from utils.combat_radius.lift_drag import (
     J35_SUPERCRUISE_MACH,
     KAPPA_A,
     KORN_DM_CAP,
-    LAYOUT_MULT,
     NO_CANOPY_MULT,
     RHO11,
     Aircraft,
@@ -242,11 +240,7 @@ def test_wetted_area_factor_planform_and_layout():
     assert wetted_area_factor(delta) < wetted_area_factor(double_delta) < w_trap
     assert wetted_area_factor(swept) < w_trap
     assert wetted_area_factor(unswept) > w_trap
-    # 升力鸭净浸润 = 多一块平面 × 有利干扰，低于常规梯形
-    assert wetted_area_factor(canard) == pytest.approx(
-        w_trap * LAYOUT_MULT['canard'] * CANARD_CD0_MULT,
-    )
-    assert wetted_area_factor(canard) < w_trap
+    assert wetted_area_factor(canard) > w_trap
     assert wetted_area_factor(tailless) < w_trap
 
 
@@ -410,8 +404,8 @@ def test_calibrate_rejects_unphysical_targets():
 
 def test_default_ld_anchors_match_f35c_f22():
     a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
-    assert a1.name == 'F-35C' and ld1 == 8.52
-    assert a2.name == 'F-22' and ld2 == 8.62
+    assert a1.name == 'F-35C' and ld1 == 9.20
+    assert a2.name == 'F-22' and ld2 == 9.30
     cf0, k_e = calibrate_default_anchors()
     assert cf0 > 0 and k_e > 0
 
@@ -433,17 +427,6 @@ def test_predict_ld_j20_between_anchors():
     assert 7.0 < ld < 10.0
     assert d['CD'] == pytest.approx(d['CD0'] + d['CDi'] + d['CDw'] + d['CDa'])
     assert KAPPA_A == pytest.approx(0.90)
-
-
-def test_canard_cd0_mult_calibrated_for_j20_radius():
-    """升力鸭有利干扰系数须按歼-20 作战半径标定，且净浸润低于常规布局。"""
-    assert CANARD_CD0_MULT == pytest.approx(0.595)
-    assert CANARD_CD0_MULT < 1.0
-    ac = _j20()
-    w = wetted_area_factor(ac)
-    assert w == pytest.approx(
-        (1.0 + 4.0 * ac.tc) * LAYOUT_MULT['canard'] * CANARD_CD0_MULT,
-    )
 
 
 def test_lambda_uav_ma15_ld_below_j50_because_cl_is_lower():

@@ -41,8 +41,8 @@ def test_planform_and_layout_labels():
 
 def test_build_combat_radius_config_payload():
     payload = build_combat_radius_config_payload()
-    assert payload['ui']['default_ld1'] == 8.52
-    assert payload['ui']['default_ld2'] == 8.62
+    assert payload['ui']['default_ld1'] == 9.20
+    assert payload['ui']['default_ld2'] == 9.30
     assert payload['ui']['default_thrust_alt_m'] == 11000
     assert payload['ui']['default_thrust_mach'] == 1.5
     assert payload['mission_fuel']['carrier_reserve_min'] == 40
