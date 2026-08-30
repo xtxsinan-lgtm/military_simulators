@@ -6,10 +6,13 @@ import math
 import pytest
 
 from utils.combat_radius.lift_drag import (
+    CDW_CANARD,
     CDW_KORN_COEF,
     CDW_SS_BODY,
+    CDW_SS_LIFT,
     CDW_SS_WING,
     F22_SUPERCRUISE_MACH,
+    J20_SUPERCRUISE_MACH,
     KAPPA_A,
     KORN_DM_CAP,
     RHO11,
@@ -269,6 +272,25 @@ def test_supersonic_total_cdw_is_order_one_hundredth():
     })
     cdw = cd_wave(cl_cruise(ac), ac)
     assert 0.005 < cdw < 0.02
+
+
+def test_cd_wave_supersonic_rises_with_cl():
+    """升力波阻随 CL 增大，高空超音速 L/D 会被压下来。"""
+    ac = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.5})
+    low = cd_wave_supersonic(1.5, ac, 0.08)
+    high = cd_wave_supersonic(1.5, ac, 0.30)
+    assert high > low
+    assert CDW_SS_LIFT > 0
+    assert high - low == pytest.approx(CDW_SS_LIFT * (0.30 ** 2 - 0.08 ** 2) * 0.5)
+
+
+def test_canard_adds_supersonic_wave_drag():
+    """鸭翼在超音速多一项 (M-1)²，常规布局没有。"""
+    conv = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'conventional'})
+    canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
+    extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
+    assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.70)
 
 
 def test_components_keys_and_signs():

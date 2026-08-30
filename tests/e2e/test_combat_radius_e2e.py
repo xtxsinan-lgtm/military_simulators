@@ -132,6 +132,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m15['feasible'] is True
     assert m176['feasible'] is True
     assert m20['feasible'] is False
+    assert m15['radius_km'] < m08['radius_km']
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.02)
     assert r['carrier'] is False
@@ -141,6 +142,41 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert mf['descent_save_kg'] > 0
     assert r['fuel_usable_kg'] < r['fuel_kg']
     assert '亚音速油耗' in r['note']
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_j20_supercruise_and_radius_order():
+    """歼-20 最大巡航约 Ma 1.70；Ma 1.5 作战半径须小于亚音速。"""
+    presets = load_presets()
+    engines = load_engine_presets()
+    j20 = get_preset_by_id(presets, 'J-20')
+    a1 = get_preset_by_id(presets, 'F-35C')
+    a2 = get_preset_by_id(presets, 'F-22')
+    eng = get_preset_by_id(engines, 'ws15')
+    r = run_combat_radius_json({
+        'action': 'estimate_radius',
+        'params': {
+            'anchor1': a1, 'ld1_target': a1['ld_known'],
+            'anchor2': a2, 'ld2_target': a2['ld_known'],
+            'target': j20,
+            'empty_kg': j20['empty_kg'],
+            'internal_fuel_kg': j20['internal_fuel_kg'],
+            'n_pilots': j20['n_pilots'],
+            'missile_mass_kg': j20['missile_mass_kg'],
+            'n_engines': j20['n_engines'],
+            'bpr': eng['bpr'], 'opr': eng['opr'], 't4_K': eng['t4_K'],
+            'tsl_kN': eng['tsl_kN'],
+        },
+    })
+    assert r['success'] is True
+    assert r['max_cruise_mach'] == pytest.approx(1.70, abs=0.02)
+    m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
+    m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
+    m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
+    assert m08['feasible'] is True
+    assert m15['feasible'] is True
+    assert m176['feasible'] is False
+    assert m15['radius_km'] < m08['radius_km']
 
 
 @pytest.mark.e2e
@@ -367,7 +403,10 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     live_m08 = next(p for p in live['points'] if p['id'] == 'mach_0_8')
     stored_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert live_m08['radius_km'] == pytest.approx(stored_m08['radius_km'], rel=1e-4, abs=0.05)
-    assert live['max_cruise_mach'] == pytest.approx(f22['max_cruise_mach'], rel=1e-4, abs=1e-4)
+    assert     live['max_cruise_mach'] == pytest.approx(f22['max_cruise_mach'], rel=1e-4, abs=1e-4)
+    j20 = stored['aircraft']['J-20']
+    assert j20['success'] is True
+    assert j20['max_cruise_mach'] == pytest.approx(1.70, abs=0.02)
     j50 = stored['aircraft']['J-50']
     assert j50['success'] is True
     f35c = stored['aircraft']['F-35C']

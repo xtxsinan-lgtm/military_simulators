@@ -9,8 +9,11 @@
 
 波阻分三段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
     1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
-    2. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项，系数由 F-22 军推最大巡航 Ma 1.76 标定；
+    2. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项
+       + 升力波阻 CL²(M-1)（高空大 CL 时压低 L/D，避免超音速布雷盖半径超过亚音速）
+       + 鸭翼附加 (M-1)²（歼-20 军推最大巡航标定到 Ma 1.70）；
     3. 超过马赫锥后的附加波阻（翼尖-机头连线）。
+    体积项系数使 F-22 军推最大巡航 = Ma 1.76。
 
 标定原理（闭式线性解）：
     CDi = K_raw / k_e，其中 K_raw = CL²/(π·AR·e_raymer)，k_e 未知
@@ -29,7 +32,7 @@ from dataclasses import asdict, dataclass
 from typing import Any, Literal
 
 # ---------------------------------------------------------------------------
-# 常数（ISA 11~20 km 等温层 + Korn 跨声速 + F-22 超巡波阻标定）
+# 常数（ISA 11~20 km 等温层 + Korn 跨声速 + F-22/歼-20 超巡波阻标定）
 # ---------------------------------------------------------------------------
 G0 = 9.80665
 R_AIR = 287.05287
@@ -40,11 +43,15 @@ KAPPA_A = 0.90  # Korn 方程翼型技术因子，固定为超临界翼型典型
 CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小超量
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
-# 超音速波阻系数：使 F-22 + F119 在空战重量下军推最大巡航马赫 = 1.76
-# 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²，F-22@1.76 上约各半
+# 超音速波阻：F-22 军推最大巡航 Ma 1.76；歼-20（鸭翼）标定到 Ma 1.70
+# 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
+# 升力项 × CL²(M-1)，避免 19 km 超音速 L/D 仍接近亚音速、布雷盖半径倒挂
 F22_SUPERCRUISE_MACH = 1.76
-CDW_SS_BODY = 0.00650
-CDW_SS_WING = 7.55
+J20_SUPERCRUISE_MACH = 1.70
+CDW_SS_BODY = 0.00545
+CDW_SS_WING = 6.32
+CDW_SS_LIFT = 0.38
+CDW_CANARD = 0.0128  # 鸭翼附加，乘 (M-1)²
 
 PlanformId = Literal[
     'trapezoidal', 'swept', 'delta', 'diamond', 'unswept', 'lambda', 'double_delta',
@@ -232,24 +239,30 @@ def cd_wave_korn(CL: float, ac: Aircraft) -> float:
     return CDW_KORN_COEF * min(dm, KORN_DM_CAP) ** 4
 
 
-def cd_wave_supersonic(mach: float, ac: Aircraft) -> float:
-    """M>1 后的体积波阻：机身面积律 + 超音速前缘机翼项。
+def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
+    """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加。
 
-    系数由 F-22 军推最大巡航马赫 = 1.76 标定。后掠越大，前缘法向马赫越低，机翼项越小。
+    体积项使 F-22 军推最大巡航 = 1.76；鸭翼附加使歼-20 ≈ 1.70。
+    升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速。
     """
     if mach <= 1.0:
         return 0.0
     cos_s = max(abs(math.cos(math.radians(ac.sweep_deg))), COS_SWEEP_MIN)
-    cdw = CDW_SS_BODY * (mach - 1.0) ** 2
+    dm = mach - 1.0
+    cdw = CDW_SS_BODY * dm ** 2
     excess_le = mach * cos_s - 1.0
     if excess_le > 0.0:
         cdw += CDW_SS_WING * (ac.tc / cos_s) ** 2 * excess_le ** 2
+    if ac.layout == 'canard':
+        cdw += CDW_CANARD * dm ** 2
+    if CL > 0.0:
+        cdw += CDW_SS_LIFT * (CL ** 2) * dm
     return cdw
 
 
 def cd_wave(CL: float, ac: Aircraft) -> float:
-    """总波阻 = 封顶 Korn + 超音速体积项 +（可选）马赫锥外附加。"""
-    cdw = cd_wave_korn(CL, ac) + cd_wave_supersonic(ac.mach, ac)
+    """总波阻 = 封顶 Korn + 超音速体积/升力/鸭翼项 +（可选）马赫锥外附加。"""
+    cdw = cd_wave_korn(CL, ac) + cd_wave_supersonic(ac.mach, ac, CL)
     phi = aircraft_mach_angle_rad(ac)
     if phi is not None:
         cdw += cd_wave_mach_angle(ac.mach, phi)

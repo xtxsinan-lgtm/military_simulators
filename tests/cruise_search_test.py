@@ -22,6 +22,7 @@ from utils.combat_radius.cruise_search import (
 )
 from utils.combat_radius.lift_drag import (
     F22_SUPERCRUISE_MACH,
+    J20_SUPERCRUISE_MACH,
     Aircraft,
     aircraft_from_dict,
     calibrate,
@@ -157,31 +158,37 @@ def test_fixed_machs_include_two_and_supersonic_threshold():
     assert SUPERSONIC_MACH == 1.0
 
 
-def _f22_csv_ctx() -> CruiseContext:
-    """与仪表盘一致：CSV 几何、亚音速锚点 L/D、F119 军推。"""
+def _csv_ctx(aircraft_id: str) -> CruiseContext:
+    """与仪表盘一致：CSV 几何、亚音速锚点 L/D、绑定发动机军推。"""
     presets = load_presets()
     engines = load_engine_presets()
     f35 = get_preset_by_id(presets, 'F-35C')
     f22 = get_preset_by_id(presets, 'F-22')
-    eng = get_preset_by_id(engines, 'f119')
+    ac = get_preset_by_id(presets, aircraft_id)
+    eng = get_preset_by_id(engines, str(ac['engine_id']))
     a1 = aircraft_from_dict(f35)
     a2 = aircraft_from_dict(f22)
     cf0, k_e = calibrate(a1, f35['ld_known'], a2, f22['ld_known'])
     mass = combat_mass_kg(
-        f22['empty_kg'], f22['internal_fuel_kg'], f22['n_pilots'],
-        f22['missile_mass_kg'], 4,
+        ac['empty_kg'], ac['internal_fuel_kg'], ac.get('n_pilots') or 0,
+        ac.get('missile_mass_kg') or 0, 4,
     )
     return CruiseContext(
-        target=a2,
+        target=aircraft_from_dict(ac),
         cf0=cf0,
         k_e=k_e,
         mass_kg=mass,
-        n_engines=int(f22['n_engines']),
+        n_engines=int(ac['n_engines']),
         bpr=eng['bpr'],
         opr=eng['opr'],
         t4_K=eng['t4_K'],
         tsl_N=float(eng['tsl_kN']) * 1000.0,
     )
+
+
+def _f22_csv_ctx() -> CruiseContext:
+    """F-22 + F119 仪表盘巡航上下文。"""
+    return _csv_ctx('F-22')
 
 
 def test_f22_max_cruise_mach_anchored_at_supercruise():
@@ -196,3 +203,22 @@ def test_f22_max_cruise_mach_anchored_at_supercruise():
     assert best_15 is not None
     assert best_15.ld > 2.0
     assert best_15.cd_breakdown['CDw'] < 0.05
+
+
+def test_j20_max_cruise_mach_anchored_below_f22():
+    """鸭翼附加波阻须使歼-20 军推最大巡航落在 Ma 1.70 附近，低于 F-22。"""
+    ctx = _csv_ctx('J-20')
+    m = search_max_cruise_mach(ctx)
+    assert m == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
+    assert any_feasible_altitude(ctx, 1.5) is True
+    assert any_feasible_altitude(ctx, 1.76) is False
+
+
+def test_supersonic_cruise_score_below_subsonic():
+    """Ma 1.5 的 L/D×η_o 不得高于 Ma 0.8，否则布雷盖半径会倒挂。"""
+    for aid in ('F-22', 'J-20'):
+        ctx = _csv_ctx(aid)
+        sub = search_best_altitude(ctx, 0.8)
+        super15 = search_best_altitude(ctx, 1.5)
+        assert sub is not None and super15 is not None
+        assert super15.score < sub.score
