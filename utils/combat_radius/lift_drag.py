@@ -52,6 +52,9 @@ CDW_SS_BODY = 0.00545
 CDW_SS_WING = 6.32
 CDW_SS_LIFT = 0.38
 CDW_CANARD = 0.0128  # 鸭翼附加，乘 (M-1)²
+# 无尾/翼身融合面积律更好，只打折体积波阻（机身+机翼项），升力波阻仍按 CL
+CDW_TAILLESS = 0.72
+CDW_BWB = 0.90
 
 PlanformId = Literal[
     'trapezoidal', 'swept', 'delta', 'diamond', 'unswept', 'lambda', 'double_delta',
@@ -243,6 +246,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加。
 
     体积项使 F-22 军推最大巡航 = 1.76；鸭翼附加使歼-20 ≈ 1.70。
+    无尾/翼身融合只打折体积项（面积律更好），升力波阻不打折。
     升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速。
     """
     if mach <= 1.0:
@@ -253,6 +257,10 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     excess_le = mach * cos_s - 1.0
     if excess_le > 0.0:
         cdw += CDW_SS_WING * (ac.tc / cos_s) ** 2 * excess_le ** 2
+    if ac.layout == 'tailless':
+        cdw *= CDW_TAILLESS
+    if ac.bwb:
+        cdw *= CDW_BWB
     if ac.layout == 'canard':
         cdw += CDW_CANARD * dm ** 2
     if CL > 0.0:

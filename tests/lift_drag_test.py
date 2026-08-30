@@ -6,11 +6,13 @@ import math
 import pytest
 
 from utils.combat_radius.lift_drag import (
+    CDW_BWB,
     CDW_CANARD,
     CDW_KORN_COEF,
     CDW_SS_BODY,
     CDW_SS_LIFT,
     CDW_SS_WING,
+    CDW_TAILLESS,
     F22_SUPERCRUISE_MACH,
     J20_SUPERCRUISE_MACH,
     KAPPA_A,
@@ -291,6 +293,23 @@ def test_canard_adds_supersonic_wave_drag():
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
     assert J20_SUPERCRUISE_MACH == pytest.approx(1.70)
+
+
+def test_tailless_and_bwb_discount_volume_wave_drag():
+    """无尾/翼身融合只打折体积波阻，升力波阻不变。"""
+    conv = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.5, 'layout': 'conventional', 'bwb': False})
+    tail = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'tailless'})
+    bwb = Aircraft(**{**aircraft_to_dict(conv), 'bwb': True})
+    vol_conv = cd_wave_supersonic(1.5, conv, 0.0)
+    vol_tail = cd_wave_supersonic(1.5, tail, 0.0)
+    vol_bwb = cd_wave_supersonic(1.5, bwb, 0.0)
+    assert vol_tail == pytest.approx(vol_conv * CDW_TAILLESS)
+    assert vol_bwb == pytest.approx(vol_conv * CDW_BWB)
+    lift_conv = cd_wave_supersonic(1.5, conv, 0.25) - vol_conv
+    lift_tail = cd_wave_supersonic(1.5, tail, 0.25) - vol_tail
+    assert lift_tail == pytest.approx(lift_conv)
+    assert 0.5 < CDW_TAILLESS < 1.0
+    assert 0.5 < CDW_BWB < 1.0
 
 
 def test_components_keys_and_signs():

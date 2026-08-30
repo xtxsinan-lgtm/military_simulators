@@ -103,6 +103,20 @@ def test_run_preset_dashboard_f22_compact():
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
     assert m20['max_ld_thrust_mode'] == 'afterburner'
     assert m15['radius_km'] < next(p for p in r['points'] if p['id'] == 'mach_0_8')['radius_km']
+    m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
+    assert 11000.0 <= m08['alt_m'] <= 12200.0
+
+
+def test_run_preset_dashboard_j50_supercruise_above_f22():
+    """无尾兰姆达翼体积波阻更低，歼-50 最大巡航应高于 F-22。"""
+    f22 = run_preset_dashboard('F-22')
+    j50 = run_preset_dashboard('J-50')
+    assert f22['success'] is True and j50['success'] is True
+    assert j50['max_cruise_mach'] > f22['max_cruise_mach']
+    m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
+    m15 = next(p for p in j50['points'] if p['id'] == 'mach_1_5')
+    assert 11000.0 <= m08['alt_m'] <= 12500.0
+    assert m15['alt_m'] > m08['alt_m']
 
 
 def test_run_preset_dashboard_j20_supercruise_below_f22():

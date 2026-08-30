@@ -1,6 +1,8 @@
 """巡航高度 / 最大马赫搜索单元测试。"""
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
@@ -8,15 +10,20 @@ from utils.combat_radius.cruise_load import combat_mass_kg
 from utils.combat_radius.cruise_search import (
     ALT_MAX_M,
     ALT_MIN_M,
+    CL_CRUISE_MARGIN,
     FIXED_MACHS,
     SUPERSONIC_MACH,
     CruiseContext,
+    _better_load_match,
     any_feasible_altitude,
     altitude_grid,
+    cruise_cl_allowed,
     cruise_point_feasible,
+    design_cruise_cl,
     evaluate_cruise_forces,
     flyable_forces,
     max_ld_fields,
+    optimal_engine_load,
     score_cruise_point,
     scored_to_dict,
     search_best_altitude,
@@ -30,6 +37,7 @@ from utils.combat_radius.lift_drag import (
     Aircraft,
     aircraft_from_dict,
     calibrate,
+    cl_cruise,
 )
 
 
@@ -125,7 +133,7 @@ def test_search_best_altitude_mach_08():
     best = search_best_altitude(ctx, 0.8, ALT_MIN_M, ALT_MAX_M, 2000.0, 1000.0)
     assert best is not None
     assert best.feasible is True
-    assert ALT_MIN_M <= best.alt_m <= ALT_MAX_M
+    assert ALT_MIN_M <= best.alt_m <= 12000.0
     assert best.score > 0
 
 
@@ -134,6 +142,18 @@ def test_search_best_altitude_none_when_overloaded():
     ctx.n_engines = 1
     ctx.tsl_N = 1000.0  # 几乎没有推力
     assert search_best_altitude(ctx, 0.8, ALT_MIN_M, ALT_MAX_M, 2000.0, 1000.0) is None
+
+
+def test_search_best_altitude_rejects_nonpositive_mach():
+    with pytest.raises(ValueError, match='马赫数'):
+        search_best_altitude(_f22_ctx(), 0.0)
+
+
+def test_design_cruise_cl_rejects_nonpositive():
+    ctx = _f22_csv_ctx()
+    ctx.target = replace(ctx.target, wing_loading=0.0)
+    with pytest.raises(ValueError, match='升力系数'):
+        design_cruise_cl(ctx)
 
 
 def test_search_max_cruise_mach_none_when_unpowered():
@@ -282,3 +302,69 @@ def test_max_ld_fields_none_and_point():
     assert packed['max_ld'] == pytest.approx(point.forces.ld)
     assert packed['max_ld_alt_m'] == pytest.approx(point.forces.alt_m)
     assert packed['max_ld_thrust_mode'] == 'military'
+
+
+def test_design_cruise_cl_and_cl_cap():
+    """标定 CL 取机型库高度；超过上限的点须被拒绝。"""
+    ctx = _f22_csv_ctx()
+    cl_cap = design_cruise_cl(ctx) * CL_CRUISE_MARGIN
+    assert cl_cap == pytest.approx(cl_cruise(ctx.target), rel=1e-6)
+    at_design = evaluate_cruise_forces(ctx, 0.8, ctx.target.alt_m)
+    assert cruise_cl_allowed(at_design, cl_cap) is True
+    at_high = evaluate_cruise_forces(ctx, 0.8, 15000.0)
+    assert at_high.cd_breakdown['CL'] > cl_cap
+    assert cruise_cl_allowed(at_high, cl_cap) is False
+    with pytest.raises(ValueError, match='上限'):
+        cruise_cl_allowed(at_design, 0.0)
+
+
+def test_optimal_engine_load_rises_with_mach():
+    """最佳负载须随马赫升高，Ma 1.5 应明显高于 Ma 0.8。"""
+    ctx = _f22_csv_ctx()
+    lo = optimal_engine_load(ctx, 0.8)
+    hi = optimal_engine_load(ctx, 1.5)
+    assert 0.4 < lo < 0.85
+    assert hi > lo + 0.1
+    with pytest.raises(ValueError, match='马赫数'):
+        optimal_engine_load(ctx, 0.0)
+
+
+def test_better_load_match_prefers_closer_then_higher():
+    """负载误差更小者胜；误差相同时取较高高度。"""
+    ctx = _f22_csv_ctx()
+    a = score_cruise_point(ctx, evaluate_cruise_forces(ctx, 0.8, 11000))
+    b = score_cruise_point(ctx, evaluate_cruise_forces(ctx, 0.8, 11800))
+    opt = 0.50
+    closer = a if abs(a.load_raw - opt) < abs(b.load_raw - opt) else b
+    other = b if closer is a else a
+    assert _better_load_match(closer, other, opt) is True
+    assert _better_load_match(other, closer, opt) is False
+    assert _better_load_match(b, None, opt) is True
+    same = score_cruise_point(ctx, evaluate_cruise_forces(ctx, 0.8, 11800))
+    tied_low = replace(same, alt_m=11000.0)
+    assert _better_load_match(same, tied_low, same.load_raw) is True
+
+
+def test_f22_f35c_mach08_cruise_near_catalog_altitude():
+    """Ma 0.8 须落在标定巡航高度附近，不能被 L/Dmax 推到 15 km。"""
+    f22 = search_best_altitude(_f22_csv_ctx(), 0.8)
+    f35 = search_best_altitude(_csv_ctx('F-35C'), 0.8)
+    assert f22 is not None and f35 is not None
+    assert 11000.0 <= f22.alt_m <= 12200.0
+    assert 11000.0 <= f35.alt_m <= 12200.0
+    assert f22.cd_breakdown['CL'] <= design_cruise_cl(_f22_csv_ctx()) + 1e-6
+
+
+def test_f22_cruise_altitude_rises_then_drops_near_max():
+    """速度升高巡航高度应升高；接近最大巡航时军推不够，高度回落。"""
+    ctx = _f22_csv_ctx()
+    a08 = search_best_altitude(ctx, 0.8)
+    a12 = search_best_altitude(ctx, 1.2)
+    a15 = search_best_altitude(ctx, 1.5)
+    a176 = search_best_altitude(ctx, 1.76)
+    assert a08 is not None and a12 is not None and a15 is not None and a176 is not None
+    assert a12.alt_m > a08.alt_m
+    assert a15.alt_m >= a12.alt_m - 200.0
+    assert a176.alt_m < a15.alt_m
+    assert a15.load_raw > a08.load_raw
+    assert a176.load_raw >= 0.90

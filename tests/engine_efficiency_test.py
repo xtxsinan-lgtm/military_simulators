@@ -109,6 +109,14 @@ def test_find_optimal_load_returns_interior_maximum():
     assert eta > 0.1
 
 
+def test_find_optimal_load_increases_with_mach():
+    """同一发动机在 tropopause，最佳负载须随马赫升高。"""
+    kwargs = dict(bpr=0.30, altitude_m=12000.0, OPR=26.0, T4max=1922.0, coarse_step=0.02)
+    lo, _ = find_optimal_load(mach=0.8, **kwargs)
+    hi, _ = find_optimal_load(mach=1.5, **kwargs)
+    assert hi > lo + 0.1
+
+
 def test_tsfc_from_eta_o_identity():
     v0 = 240.0
     eta_o = 0.20

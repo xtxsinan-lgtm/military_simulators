@@ -3,7 +3,12 @@
 高度搜索范围限制在 11–20 km：与升阻比大气（11–20 km 等温层）
 和效率模型 ISA 上限取交集。可行性约束为
 阻力 ≤ 该点最大可用军推 × 推力裕度（默认 92%）。
-目标函数为升阻比 × 总效率。
+
+巡航高度不按 L/D 峰值选取（抛物线极曲线的 CL_opt 会把 Ma 0.8
+推到约 15 km）。改为：在该马赫下把发动机负载贴近最佳负载
+（最佳负载随马赫升高而增大，巡航高度随之升高），且升力系数
+不超过机型库标定巡航 CL；接近最大巡航时军推不够，高度回落。
+布雷盖半径仍用该点的 L/D×η_o 入账。
 """
 from __future__ import annotations
 
@@ -17,9 +22,10 @@ from utils.combat_radius.engine_efficiency import (
     ETAN_DEFAULT,
     T4IDLE_DEFAULT,
     compute_engine_efficiency,
+    find_optimal_load,
     tsfc_from_eta_o,
 )
-from utils.combat_radius.lift_drag import Aircraft, predict_ld
+from utils.combat_radius.lift_drag import Aircraft, cl_cruise, predict_ld
 from utils.combat_radius.military_thrust import ETA_C_DEFAULT, estimate_military_thrust
 
 THRUST_MARGIN_DEFAULT = 0.92
@@ -27,6 +33,10 @@ ALT_MIN_M = 11000.0
 ALT_MAX_M = 20000.0
 ALT_COARSE_M = 1000.0
 ALT_REFINE_M = 200.0
+# 等温层内效率几乎不随高度变，用 12 km 算该马赫的最佳负载即可
+OPT_LOAD_ALT_M = 12000.0
+# 1.0：不允许超过机型库标定状态（通常 Ma 0.8、11–12 km）的 CL
+CL_CRUISE_MARGIN = 1.0
 FIXED_MACHS = (0.8, 1.5, 1.76, 2.0)
 SUPERSONIC_MACH = 1.0
 MACH_SEARCH_LO = 0.50
@@ -198,6 +208,58 @@ def any_feasible_altitude(
     return False
 
 
+def design_cruise_cl(ctx: CruiseContext) -> float:
+    """机型库标定状态（通常 Ma 0.8、11–12 km）的平飞升力系数。"""
+    cl = cl_cruise(ctx.target)
+    if cl <= 0:
+        raise ValueError('标定巡航升力系数须为正')
+    return cl
+
+
+def cruise_cl_allowed(forces: CruiseForces, cl_cap: float) -> bool:
+    """该点升力系数是否不超过标定巡航 CL 上限。"""
+    if cl_cap <= 0:
+        raise ValueError('升力系数上限须为正')
+    cl = float(forces.cd_breakdown.get('CL') or 0.0)
+    return cl <= cl_cap + 1e-9
+
+
+def optimal_engine_load(ctx: CruiseContext, mach: float, alt_m: float = OPT_LOAD_ALT_M) -> float:
+    """该马赫下使发动机总效率最大的负载比（等温层内几乎不随高度变）。"""
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    load, _eta = find_optimal_load(
+        bpr=ctx.bpr,
+        mach=mach,
+        altitude_m=alt_m,
+        OPR=ctx.opr,
+        FPR=ctx.fpr if ctx.fpr is not None else ctx.fan_pr_override,
+        T4max=ctx.t4_K,
+        T4idle=ctx.t4idle,
+        eps=ctx.eps,
+        etan=ctx.etan,
+        acc_frac=ctx.acc_frac,
+    )
+    return load
+
+
+def _better_load_match(
+    candidate: CruiseScored,
+    best: CruiseScored | None,
+    opt_load: float,
+) -> bool:
+    """负载更接近最佳负载则取 candidate；误差相同时取较高高度。"""
+    if best is None:
+        return True
+    err = abs(candidate.load_raw - opt_load)
+    best_err = abs(best.load_raw - opt_load)
+    if err < best_err - 1e-12:
+        return True
+    if abs(err - best_err) <= 1e-12 and candidate.alt_m > best.alt_m:
+        return True
+    return False
+
+
 def search_best_altitude(
     ctx: CruiseContext,
     mach: float,
@@ -206,14 +268,22 @@ def search_best_altitude(
     coarse_m: float = ALT_COARSE_M,
     refine_m: float = ALT_REFINE_M,
 ) -> CruiseScored | None:
-    """在给定马赫下搜索使 L/D×η_o 最大、且阻力不超过军推裕度的高度。"""
+    """在给定马赫下搜索巡航高度：负载贴近发动机最佳负载，且 CL 不超过标定值。
+
+    可行 = 阻力不超过军推裕度，且 CL ≤ 机型库标定巡航 CL。
+    速度升高时最佳负载变大，高度随之升高；接近最大巡航时军推不够则回落。
+    """
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    opt_load = optimal_engine_load(ctx, mach)
+    cl_cap = design_cruise_cl(ctx) * CL_CRUISE_MARGIN
     best: CruiseScored | None = None
     for alt in altitude_grid(alt_min_m, alt_max_m, coarse_m):
         forces = evaluate_cruise_forces(ctx, mach, alt)
-        if not forces.feasible:
+        if not forces.feasible or not cruise_cl_allowed(forces, cl_cap):
             continue
         scored = score_cruise_point(ctx, forces)
-        if scored.score > (best.score if best is not None else -1.0):
+        if _better_load_match(scored, best, opt_load):
             best = scored
     if best is None:
         return None
@@ -221,10 +291,10 @@ def search_best_altitude(
     hi = min(alt_max_m, best.alt_m + coarse_m)
     for alt in altitude_grid(lo, hi, refine_m):
         forces = evaluate_cruise_forces(ctx, mach, alt)
-        if not forces.feasible:
+        if not forces.feasible or not cruise_cl_allowed(forces, cl_cap):
             continue
         scored = score_cruise_point(ctx, forces)
-        if scored.score > best.score:
+        if _better_load_match(scored, best, opt_load):
             best = scored
     return best
 

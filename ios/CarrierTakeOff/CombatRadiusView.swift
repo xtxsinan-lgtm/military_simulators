@@ -207,7 +207,7 @@ struct CombatRadiusView: View {
                 }
                 .font(.system(size: 11, design: .monospaced))
             }
-            Text("最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按各马赫最大升阻比计算。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。")
+            Text("最佳巡航高度按发动机最佳负载选取，升力系数不超过标定巡航 CL。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按各马赫最大升阻比计算。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。")
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
         }
