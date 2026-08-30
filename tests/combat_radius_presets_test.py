@@ -39,7 +39,7 @@ def test_load_presets_contains_anchors_and_j20():
     assert j20 is not None
     assert j20['planform'] == 'trapezoidal'
     assert j20['layout'] == 'canard'
-    assert j20['ld_known'] == 9.21
+    assert j20['ld_known'] == 11.51
     j50 = get_preset_by_id(presets, 'J-50')
     assert j50 is not None
     assert j50['planform'] == 'lambda'

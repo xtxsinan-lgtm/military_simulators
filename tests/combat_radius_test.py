@@ -645,7 +645,7 @@ def test_insufficient_mission_fuel_marks_points_infeasible():
 
 
 def test_ma08_combat_radius_calibration_targets():
-    """Ma 0.8 作战半径须拟合 F-35C≈1200 / F-22≈850 / 歼-20≈1070 km。"""
+    """Ma 0.8 作战半径须拟合 F-35C≈1200 / F-22≈850 / 歼-20≈1350 km。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 
     presets = load_presets()
@@ -655,7 +655,7 @@ def test_ma08_combat_radius_calibration_targets():
     cases = [
         ('F-35C', 'f135', 1200, 80),
         ('F-22', 'f119', 850, 60),
-        ('J-20', 'ws15', 1070, 60),
+        ('J-20', 'ws15', 1350, 40),
     ]
     for ac_id, eng_id, target_km, tol_km in cases:
         tgt = get_preset_by_id(presets, ac_id)
