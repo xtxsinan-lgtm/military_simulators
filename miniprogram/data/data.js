@@ -2801,7 +2801,10 @@ module.exports = {
             "fuel_kg_per_km": 2.629,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.82
+            "tsfc_mg_n_s": 29.82,
+            "max_ld": 10.2972,
+            "max_ld_alt_m": 15400.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_5",
@@ -2821,7 +2824,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 3.9078,
+            "max_ld_alt_m": 15000.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -2841,7 +2847,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -2861,7 +2870,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -2881,20 +2893,23 @@ module.exports = {
             "fuel_kg_per_km": 4.671,
             "mixed_radius_km": 1031.99,
             "mixed_fuel_kg_per_km": 3.65,
-            "tsfc_mg_n_s": 32.89
+            "tsfc_mg_n_s": 32.89,
+            "max_ld": 7.4164,
+            "max_ld_alt_m": 17000.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.7034,
-          "max_speed_kmh": 1809.3,
-          "max_speed_kts": 976.9,
+          "max_speed_mach": 1.7,
+          "max_speed_kmh": 1805.7,
+          "max_speed_kts": 975.0,
           "alt_m": 11000.0,
-          "ld": 1.6935,
-          "load": 0.92,
-          "thrust_avail_kN": 131.701
+          "ld": 1.7035,
+          "load": 0.9176,
+          "thrust_avail_kN": 131.269
         }
       },
       "F-22": {
@@ -2924,7 +2939,10 @@ module.exports = {
             "fuel_kg_per_km": 3.131,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.183
+            "tsfc_mg_n_s": 29.183,
+            "max_ld": 9.6772,
+            "max_ld_alt_m": 15000.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -2944,7 +2962,10 @@ module.exports = {
             "fuel_kg_per_km": 4.42,
             "mixed_radius_km": 907.01,
             "mixed_fuel_kg_per_km": 3.776,
-            "tsfc_mg_n_s": 34.604
+            "tsfc_mg_n_s": 34.604,
+            "max_ld": 5.0972,
+            "max_ld_alt_m": 18600.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -2964,7 +2985,10 @@ module.exports = {
             "fuel_kg_per_km": 10.831,
             "mixed_radius_km": 490.54,
             "mixed_fuel_kg_per_km": 6.981,
-            "tsfc_mg_n_s": 37.173
+            "tsfc_mg_n_s": 37.173,
+            "max_ld": 3.7618,
+            "max_ld_alt_m": 18200.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_2_0",
@@ -2984,7 +3008,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 2.11,
+            "max_ld_alt_m": 15800.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "max_cruise",
@@ -3004,20 +3031,23 @@ module.exports = {
             "fuel_kg_per_km": 10.857,
             "mixed_radius_km": 489.62,
             "mixed_fuel_kg_per_km": 6.994,
-            "tsfc_mg_n_s": 37.187
+            "tsfc_mg_n_s": 37.187,
+            "max_ld": 3.7534,
+            "max_ld_alt_m": 18200.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.0871,
-          "max_speed_kmh": 2216.8,
-          "max_speed_kts": 1197.0,
-          "alt_m": 11000.0,
-          "ld": 0.9283,
-          "load": 0.92,
-          "thrust_avail_kN": 282.978
+          "max_speed_mach": 2.08,
+          "max_speed_kmh": 2209.3,
+          "max_speed_kts": 1192.9,
+          "alt_m": 11800.0,
+          "ld": 1.0595,
+          "load": 0.9191,
+          "thrust_avail_kN": 248.18
         }
       },
       "F-35A": {
@@ -3047,7 +3077,10 @@ module.exports = {
             "fuel_kg_per_km": 2.192,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.603
+            "tsfc_mg_n_s": 28.603,
+            "max_ld": 9.931,
+            "max_ld_alt_m": 13800.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -3067,7 +3100,10 @@ module.exports = {
             "fuel_kg_per_km": 4.341,
             "mixed_radius_km": 1129.31,
             "mixed_fuel_kg_per_km": 3.266,
-            "tsfc_mg_n_s": 34.588
+            "tsfc_mg_n_s": 34.588,
+            "max_ld": 4.8801,
+            "max_ld_alt_m": 17200.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -3087,7 +3123,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 3.4312,
+            "max_ld_alt_m": 16600.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_2_0",
@@ -3107,7 +3146,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 1.7928,
+            "max_ld_alt_m": 14000.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "max_cruise",
@@ -3127,20 +3169,23 @@ module.exports = {
             "fuel_kg_per_km": 5.245,
             "mixed_radius_km": 992.01,
             "mixed_fuel_kg_per_km": 3.718,
-            "tsfc_mg_n_s": 34.907
+            "tsfc_mg_n_s": 34.907,
+            "max_ld": 4.5942,
+            "max_ld_alt_m": 17200.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.0636,
-          "max_speed_kmh": 2191.8,
-          "max_speed_kts": 1183.5,
-          "alt_m": 11000.0,
-          "ld": 1.0538,
-          "load": 0.92,
-          "thrust_avail_kN": 184.036
+          "max_speed_mach": 2.06,
+          "max_speed_kmh": 2188.0,
+          "max_speed_kts": 1181.4,
+          "alt_m": 11200.0,
+          "ld": 1.0922,
+          "load": 0.919,
+          "thrust_avail_kN": 177.763
         }
       },
       "J-20": {
@@ -3170,7 +3215,10 @@ module.exports = {
             "fuel_kg_per_km": 3.208,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.459
+            "tsfc_mg_n_s": 29.459,
+            "max_ld": 9.2583,
+            "max_ld_alt_m": 14600.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -3190,7 +3238,10 @@ module.exports = {
             "fuel_kg_per_km": 4.647,
             "mixed_radius_km": 1099.57,
             "mixed_fuel_kg_per_km": 3.928,
-            "tsfc_mg_n_s": 34.842
+            "tsfc_mg_n_s": 34.842,
+            "max_ld": 4.7766,
+            "max_ld_alt_m": 18400.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -3210,7 +3261,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 3.0933,
+            "max_ld_alt_m": 17000.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_2_0",
@@ -3230,7 +3284,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -3250,20 +3307,23 @@ module.exports = {
             "fuel_kg_per_km": 10.785,
             "mixed_radius_km": 617.29,
             "mixed_fuel_kg_per_km": 6.997,
-            "tsfc_mg_n_s": 37.005
+            "tsfc_mg_n_s": 37.005,
+            "max_ld": 3.5506,
+            "max_ld_alt_m": 17600.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.9438,
-          "max_speed_kmh": 2064.6,
-          "max_speed_kts": 1114.8,
-          "alt_m": 11000.0,
-          "ld": 1.0276,
-          "load": 0.92,
-          "thrust_avail_kN": 248.332
+          "max_speed_mach": 1.94,
+          "max_speed_kmh": 2060.6,
+          "max_speed_kts": 1112.6,
+          "alt_m": 11400.0,
+          "ld": 1.0986,
+          "load": 0.9191,
+          "thrust_avail_kN": 232.499
         }
       },
       "J-50": {
@@ -3293,7 +3353,10 @@ module.exports = {
             "fuel_kg_per_km": 3.27,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.238
+            "tsfc_mg_n_s": 29.238,
+            "max_ld": 10.204,
+            "max_ld_alt_m": 15600.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -3313,7 +3376,10 @@ module.exports = {
             "fuel_kg_per_km": 4.924,
             "mixed_radius_km": 1419.04,
             "mixed_fuel_kg_per_km": 4.097,
-            "tsfc_mg_n_s": 34.703
+            "tsfc_mg_n_s": 34.703,
+            "max_ld": 5.4658,
+            "max_ld_alt_m": 19600.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -3333,7 +3399,10 @@ module.exports = {
             "fuel_kg_per_km": 11.375,
             "mixed_radius_km": 794.04,
             "mixed_fuel_kg_per_km": 7.322,
-            "tsfc_mg_n_s": 37.302
+            "tsfc_mg_n_s": 37.302,
+            "max_ld": 4.2538,
+            "max_ld_alt_m": 19400.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_2_0",
@@ -3353,7 +3422,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 2.9696,
+            "max_ld_alt_m": 18400.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "max_cruise",
@@ -3373,20 +3445,23 @@ module.exports = {
             "fuel_kg_per_km": 12.168,
             "mixed_radius_km": 753.21,
             "mixed_fuel_kg_per_km": 7.719,
-            "tsfc_mg_n_s": 37.387
+            "tsfc_mg_n_s": 37.387,
+            "max_ld": 4.2244,
+            "max_ld_alt_m": 19400.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.2001,
-          "max_speed_kmh": 2336.9,
-          "max_speed_kts": 1261.8,
+          "max_speed_mach": 2.2,
+          "max_speed_kmh": 2336.7,
+          "max_speed_kts": 1261.7,
           "alt_m": 11000.0,
-          "ld": 0.8018,
-          "load": 0.92,
-          "thrust_avail_kN": 364.795
+          "ld": 0.802,
+          "load": 0.9199,
+          "thrust_avail_kN": 364.767
         }
       },
       "J-50N": {
@@ -3416,7 +3491,10 @@ module.exports = {
             "fuel_kg_per_km": 3.397,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.239
+            "tsfc_mg_n_s": 29.239,
+            "max_ld": 10.204,
+            "max_ld_alt_m": 15600.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -3436,7 +3514,10 @@ module.exports = {
             "fuel_kg_per_km": 5.446,
             "mixed_radius_km": 1263.52,
             "mixed_fuel_kg_per_km": 4.422,
-            "tsfc_mg_n_s": 34.707
+            "tsfc_mg_n_s": 34.707,
+            "max_ld": 5.4389,
+            "max_ld_alt_m": 19400.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -3456,7 +3537,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 4.2032,
+            "max_ld_alt_m": 19200.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_2_0",
@@ -3476,7 +3560,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 2.7886,
+            "max_ld_alt_m": 17800.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "max_cruise",
@@ -3496,20 +3583,23 @@ module.exports = {
             "fuel_kg_per_km": 11.964,
             "mixed_radius_km": 727.39,
             "mixed_fuel_kg_per_km": 7.681,
-            "tsfc_mg_n_s": 36.851
+            "tsfc_mg_n_s": 36.851,
+            "max_ld": 4.367,
+            "max_ld_alt_m": 19200.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.1729,
-          "max_speed_kmh": 2307.9,
-          "max_speed_kts": 1246.2,
-          "alt_m": 11000.0,
-          "ld": 0.8395,
-          "load": 0.92,
-          "thrust_avail_kN": 358.597
+          "max_speed_mach": 2.16,
+          "max_speed_kmh": 2294.2,
+          "max_speed_kts": 1238.8,
+          "alt_m": 12800.0,
+          "ld": 1.1252,
+          "load": 0.9193,
+          "thrust_avail_kN": 267.732
         }
       },
       "J-36": {
@@ -3539,7 +3629,10 @@ module.exports = {
             "fuel_kg_per_km": 5.54,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.375
+            "tsfc_mg_n_s": 29.375,
+            "max_ld": 8.8926,
+            "max_ld_alt_m": 13800.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -3559,7 +3652,10 @@ module.exports = {
             "fuel_kg_per_km": 5.8,
             "mixed_radius_km": 2137.96,
             "mixed_fuel_kg_per_km": 5.67,
-            "tsfc_mg_n_s": 34.709
+            "tsfc_mg_n_s": 34.709,
+            "max_ld": 5.5781,
+            "max_ld_alt_m": 19200.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -3579,7 +3675,10 @@ module.exports = {
             "fuel_kg_per_km": 7.092,
             "mixed_radius_km": 1919.34,
             "mixed_fuel_kg_per_km": 6.316,
-            "tsfc_mg_n_s": 37.374
+            "tsfc_mg_n_s": 37.374,
+            "max_ld": 4.7004,
+            "max_ld_alt_m": 20000.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_2_0",
@@ -3599,7 +3698,10 @@ module.exports = {
             "fuel_kg_per_km": 10.255,
             "mixed_radius_km": 1534.91,
             "mixed_fuel_kg_per_km": 7.897,
-            "tsfc_mg_n_s": 41.468
+            "tsfc_mg_n_s": 41.468,
+            "max_ld": 3.912,
+            "max_ld_alt_m": 20000.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "max_cruise",
@@ -3619,20 +3721,23 @@ module.exports = {
             "fuel_kg_per_km": 23.245,
             "mixed_radius_km": 842.25,
             "mixed_fuel_kg_per_km": 14.392,
-            "tsfc_mg_n_s": 44.316
+            "tsfc_mg_n_s": 44.316,
+            "max_ld": 3.4273,
+            "max_ld_alt_m": 19800.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.3952,
-          "max_speed_kmh": 2566.8,
-          "max_speed_kts": 1386.0,
-          "alt_m": 10400.0,
-          "ld": 0.6846,
-          "load": 0.92,
-          "thrust_avail_kN": 635.158
+          "max_speed_mach": 2.4,
+          "max_speed_kmh": 2549.2,
+          "max_speed_kts": 1376.4,
+          "alt_m": 14800.0,
+          "ld": 1.3049,
+          "load": 0.9198,
+          "thrust_avail_kN": 333.284
         }
       },
       "J-35": {
@@ -3662,7 +3767,10 @@ module.exports = {
             "fuel_kg_per_km": 2.123,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.297
+            "tsfc_mg_n_s": 28.297,
+            "max_ld": 10.6206,
+            "max_ld_alt_m": 15600.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -3682,7 +3790,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 3.7381,
+            "max_ld_alt_m": 14400.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -3702,7 +3813,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -3722,7 +3836,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -3742,20 +3859,23 @@ module.exports = {
             "fuel_kg_per_km": 4.385,
             "mixed_radius_km": 1052.22,
             "mixed_fuel_kg_per_km": 3.254,
-            "tsfc_mg_n_s": 31.996
+            "tsfc_mg_n_s": 31.996,
+            "max_ld": 6.8626,
+            "max_ld_alt_m": 16800.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.6224,
-          "max_speed_kmh": 1723.2,
-          "max_speed_kts": 930.4,
+          "max_speed_mach": 1.62,
+          "max_speed_kmh": 1720.7,
+          "max_speed_kts": 929.1,
           "alt_m": 11000.0,
-          "ld": 1.9903,
-          "load": 0.92,
-          "thrust_avail_kN": 101.439
+          "ld": 1.9977,
+          "load": 0.9181,
+          "thrust_avail_kN": 101.271
         }
       },
       "J-35A": {
@@ -3785,7 +3905,10 @@ module.exports = {
             "fuel_kg_per_km": 2.007,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.765
+            "tsfc_mg_n_s": 28.765,
+            "max_ld": 10.5995,
+            "max_ld_alt_m": 15200.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -3805,7 +3928,10 @@ module.exports = {
             "fuel_kg_per_km": 3.24,
             "mixed_radius_km": 1209.95,
             "mixed_fuel_kg_per_km": 2.624,
-            "tsfc_mg_n_s": 35.482
+            "tsfc_mg_n_s": 35.482,
+            "max_ld": 5.2937,
+            "max_ld_alt_m": 18800.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -3825,7 +3951,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 3.8525,
+            "max_ld_alt_m": 18000.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_2_0",
@@ -3845,7 +3974,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 1.9131,
+            "max_ld_alt_m": 14600.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "max_cruise",
@@ -3865,20 +3997,23 @@ module.exports = {
             "fuel_kg_per_km": 7.206,
             "mixed_radius_km": 689.09,
             "mixed_fuel_kg_per_km": 4.607,
-            "tsfc_mg_n_s": 39.247
+            "tsfc_mg_n_s": 39.247,
+            "max_ld": 4.2305,
+            "max_ld_alt_m": 18400.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.0486,
-          "max_speed_kmh": 2175.9,
-          "max_speed_kts": 1174.9,
-          "alt_m": 11000.0,
-          "ld": 1.0572,
-          "load": 0.92,
-          "thrust_avail_kN": 176.845
+          "max_speed_mach": 2.04,
+          "max_speed_kmh": 2166.8,
+          "max_speed_kts": 1170.0,
+          "alt_m": 12000.0,
+          "ld": 1.244,
+          "load": 0.9193,
+          "thrust_avail_kN": 150.417
         }
       },
       "53636": {
@@ -3908,7 +4043,10 @@ module.exports = {
             "fuel_kg_per_km": 1.259,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.588
+            "tsfc_mg_n_s": 28.588,
+            "max_ld": 9.9707,
+            "max_ld_alt_m": 17600.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_5",
@@ -3928,7 +4066,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 3.6736,
+            "max_ld_alt_m": 16600.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -3948,7 +4089,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -3968,7 +4112,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -3988,20 +4135,23 @@ module.exports = {
             "fuel_kg_per_km": 3.478,
             "mixed_radius_km": 888.65,
             "mixed_fuel_kg_per_km": 2.369,
-            "tsfc_mg_n_s": 32.588
+            "tsfc_mg_n_s": 32.588,
+            "max_ld": 6.3831,
+            "max_ld_alt_m": 19000.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.6757,
-          "max_speed_kmh": 1779.8,
-          "max_speed_kts": 961.0,
-          "alt_m": 11000.0,
-          "ld": 1.3198,
-          "load": 0.92,
-          "thrust_avail_kN": 84.887
+          "max_speed_mach": 1.66,
+          "max_speed_kmh": 1763.2,
+          "max_speed_kts": 952.0,
+          "alt_m": 12200.0,
+          "ld": 1.616,
+          "load": 0.9187,
+          "thrust_avail_kN": 69.427
         }
       },
       "53636N": {
@@ -4031,7 +4181,10 @@ module.exports = {
             "fuel_kg_per_km": 1.312,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.587
+            "tsfc_mg_n_s": 28.587,
+            "max_ld": 9.9707,
+            "max_ld_alt_m": 17600.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_5",
@@ -4051,7 +4204,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 3.4424,
+            "max_ld_alt_m": 16000.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -4071,7 +4227,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -4091,7 +4250,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -4111,20 +4273,23 @@ module.exports = {
             "fuel_kg_per_km": 3.482,
             "mixed_radius_km": 840.87,
             "mixed_fuel_kg_per_km": 2.397,
-            "tsfc_mg_n_s": 32.289
+            "tsfc_mg_n_s": 32.289,
+            "max_ld": 6.571,
+            "max_ld_alt_m": 18800.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.6331,
-          "max_speed_kmh": 1734.6,
-          "max_speed_kts": 936.6,
-          "alt_m": 11000.0,
-          "ld": 1.4019,
-          "load": 0.92,
-          "thrust_avail_kN": 82.197
+          "max_speed_mach": 1.62,
+          "max_speed_kmh": 1720.7,
+          "max_speed_kts": 929.1,
+          "alt_m": 12000.0,
+          "ld": 1.6596,
+          "load": 0.919,
+          "thrust_avail_kN": 69.504
         }
       },
       "53536": {
@@ -4154,7 +4319,10 @@ module.exports = {
             "fuel_kg_per_km": 1.492,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.668
+            "tsfc_mg_n_s": 28.668,
+            "max_ld": 9.1565,
+            "max_ld_alt_m": 17000.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_5",
@@ -4174,7 +4342,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 2.6548,
+            "max_ld_alt_m": 14000.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -4194,7 +4365,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -4214,7 +4388,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -4234,20 +4411,23 @@ module.exports = {
             "fuel_kg_per_km": 3.363,
             "mixed_radius_km": 1295.09,
             "mixed_fuel_kg_per_km": 2.427,
-            "tsfc_mg_n_s": 31.805
+            "tsfc_mg_n_s": 31.805,
+            "max_ld": 6.6489,
+            "max_ld_alt_m": 18200.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.5631,
-          "max_speed_kmh": 1660.3,
-          "max_speed_kts": 896.5,
-          "alt_m": 11000.0,
-          "ld": 1.5726,
-          "load": 0.92,
-          "thrust_avail_kN": 77.882
+          "max_speed_mach": 1.56,
+          "max_speed_kmh": 1657.0,
+          "max_speed_kts": 894.7,
+          "alt_m": 11200.0,
+          "ld": 1.6277,
+          "load": 0.9195,
+          "thrust_avail_kN": 75.282
         }
       },
       "F-35B": {
@@ -4277,7 +4457,10 @@ module.exports = {
             "fuel_kg_per_km": 2.295,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.677
+            "tsfc_mg_n_s": 28.677,
+            "max_ld": 9.8823,
+            "max_ld_alt_m": 13800.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -4297,7 +4480,10 @@ module.exports = {
             "fuel_kg_per_km": 4.579,
             "mixed_radius_km": 745.73,
             "mixed_fuel_kg_per_km": 3.437,
-            "tsfc_mg_n_s": 34.604
+            "tsfc_mg_n_s": 34.604,
+            "max_ld": 4.8987,
+            "max_ld_alt_m": 17200.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_1_76",
@@ -4317,7 +4503,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 3.4672,
+            "max_ld_alt_m": 16600.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "mach_2_0",
@@ -4337,7 +4526,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": 1.7765,
+            "max_ld_alt_m": 13800.0,
+            "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "max_cruise",
@@ -4357,20 +4549,23 @@ module.exports = {
             "fuel_kg_per_km": 5.307,
             "mixed_radius_km": 674.32,
             "mixed_fuel_kg_per_km": 3.801,
-            "tsfc_mg_n_s": 34.836
+            "tsfc_mg_n_s": 34.836,
+            "max_ld": 4.6845,
+            "max_ld_alt_m": 17200.0,
+            "max_ld_thrust_mode": "afterburner"
           }
         ],
         "max_speed": {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.0601,
-          "max_speed_kmh": 2188.1,
-          "max_speed_kts": 1181.5,
+          "max_speed_mach": 2.06,
+          "max_speed_kmh": 2188.0,
+          "max_speed_kts": 1181.4,
           "alt_m": 11000.0,
-          "ld": 1.0804,
-          "load": 0.92,
-          "thrust_avail_kN": 183.474
+          "ld": 1.0805,
+          "load": 0.9199,
+          "thrust_avail_kN": 183.459
         }
       },
       "AV-8B": {
@@ -4400,7 +4595,10 @@ module.exports = {
             "fuel_kg_per_km": 1.02,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.494
+            "tsfc_mg_n_s": 28.494,
+            "max_ld": 10.9012,
+            "max_ld_alt_m": 15000.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -4420,7 +4618,10 @@ module.exports = {
             "fuel_kg_per_km": 1.718,
             "mixed_radius_km": 1089.42,
             "mixed_fuel_kg_per_km": 1.369,
-            "tsfc_mg_n_s": 37.621
+            "tsfc_mg_n_s": 37.621,
+            "max_ld": 4.3398,
+            "max_ld_alt_m": 15600.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_76",
@@ -4440,7 +4641,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -4460,7 +4664,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -4480,7 +4687,10 @@ module.exports = {
             "fuel_kg_per_km": 4.145,
             "mixed_radius_km": 577.54,
             "mixed_fuel_kg_per_km": 2.583,
-            "tsfc_mg_n_s": 43.224
+            "tsfc_mg_n_s": 43.224,
+            "max_ld": 1.8429,
+            "max_ld_alt_m": 11000.0,
+            "max_ld_thrust_mode": "military"
           }
         ],
         "max_speed": {
@@ -4523,7 +4733,10 @@ module.exports = {
             "fuel_kg_per_km": 2.584,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.404
+            "tsfc_mg_n_s": 28.404,
+            "max_ld": 10.7637,
+            "max_ld_alt_m": 15000.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -4543,7 +4756,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_1_76",
@@ -4563,7 +4779,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -4583,7 +4802,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -4603,7 +4825,10 @@ module.exports = {
             "fuel_kg_per_km": 6.621,
             "mixed_radius_km": 912.28,
             "mixed_fuel_kg_per_km": 4.603,
-            "tsfc_mg_n_s": 34.7
+            "tsfc_mg_n_s": 34.7,
+            "max_ld": 2.7841,
+            "max_ld_alt_m": 11000.0,
+            "max_ld_thrust_mode": "military"
           }
         ],
         "max_speed": {
@@ -4646,7 +4871,10 @@ module.exports = {
             "fuel_kg_per_km": 2.634,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.391
+            "tsfc_mg_n_s": 28.391,
+            "max_ld": 10.763,
+            "max_ld_alt_m": 15000.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -4666,7 +4894,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_1_76",
@@ -4686,7 +4917,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -4706,7 +4940,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -4726,7 +4963,10 @@ module.exports = {
             "fuel_kg_per_km": 6.614,
             "mixed_radius_km": 926.79,
             "mixed_fuel_kg_per_km": 4.624,
-            "tsfc_mg_n_s": 34.674
+            "tsfc_mg_n_s": 34.674,
+            "max_ld": 2.842,
+            "max_ld_alt_m": 11000.0,
+            "max_ld_thrust_mode": "military"
           }
         ],
         "max_speed": {
@@ -4769,7 +5009,10 @@ module.exports = {
             "fuel_kg_per_km": 1.579,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.916
+            "tsfc_mg_n_s": 28.916,
+            "max_ld": 11.7472,
+            "max_ld_alt_m": 14200.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -4789,7 +5032,10 @@ module.exports = {
             "fuel_kg_per_km": 2.848,
             "mixed_radius_km": 830.37,
             "mixed_fuel_kg_per_km": 2.213,
-            "tsfc_mg_n_s": 34.884
+            "tsfc_mg_n_s": 34.884,
+            "max_ld": 4.1688,
+            "max_ld_alt_m": 13200.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_76",
@@ -4809,7 +5055,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -4829,7 +5078,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -4849,7 +5101,10 @@ module.exports = {
             "fuel_kg_per_km": 4.361,
             "mixed_radius_km": 618.81,
             "mixed_fuel_kg_per_km": 2.97,
-            "tsfc_mg_n_s": 36.506
+            "tsfc_mg_n_s": 36.506,
+            "max_ld": 2.6171,
+            "max_ld_alt_m": 11000.0,
+            "max_ld_thrust_mode": "military"
           }
         ],
         "max_speed": {
@@ -4892,7 +5147,10 @@ module.exports = {
             "fuel_kg_per_km": 1.934,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.528
+            "tsfc_mg_n_s": 29.528,
+            "max_ld": 9.0594,
+            "max_ld_alt_m": 15200.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -4912,7 +5170,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_1_76",
@@ -4932,7 +5193,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -4952,7 +5216,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -4972,7 +5239,10 @@ module.exports = {
             "fuel_kg_per_km": 3.745,
             "mixed_radius_km": 637.75,
             "mixed_fuel_kg_per_km": 2.839,
-            "tsfc_mg_n_s": 32.755
+            "tsfc_mg_n_s": 32.755,
+            "max_ld": 3.3168,
+            "max_ld_alt_m": 11000.0,
+            "max_ld_thrust_mode": "military"
           }
         ],
         "max_speed": {
@@ -5015,7 +5285,10 @@ module.exports = {
             "fuel_kg_per_km": 1.808,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.838
+            "tsfc_mg_n_s": 28.838,
+            "max_ld": 12.4771,
+            "max_ld_alt_m": 15000.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -5035,7 +5308,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_1_76",
@@ -5055,7 +5331,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -5075,7 +5354,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -5095,7 +5377,10 @@ module.exports = {
             "fuel_kg_per_km": 4.326,
             "mixed_radius_km": 924.55,
             "mixed_fuel_kg_per_km": 3.067,
-            "tsfc_mg_n_s": 33.64
+            "tsfc_mg_n_s": 33.64,
+            "max_ld": 3.5347,
+            "max_ld_alt_m": 11000.0,
+            "max_ld_thrust_mode": "military"
           }
         ],
         "max_speed": {
@@ -5138,7 +5423,10 @@ module.exports = {
             "fuel_kg_per_km": 1.428,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.072
+            "tsfc_mg_n_s": 29.072,
+            "max_ld": 11.891,
+            "max_ld_alt_m": 15400.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -5158,7 +5446,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_1_76",
@@ -5178,7 +5469,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -5198,7 +5492,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -5218,7 +5515,10 @@ module.exports = {
             "fuel_kg_per_km": 3.501,
             "mixed_radius_km": 840.62,
             "mixed_fuel_kg_per_km": 2.464,
-            "tsfc_mg_n_s": 33.999
+            "tsfc_mg_n_s": 33.999,
+            "max_ld": 3.3129,
+            "max_ld_alt_m": 11000.0,
+            "max_ld_thrust_mode": "military"
           }
         ],
         "max_speed": {
@@ -5261,7 +5561,10 @@ module.exports = {
             "fuel_kg_per_km": 1.977,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 28.063
+            "tsfc_mg_n_s": 28.063,
+            "max_ld": 13.9969,
+            "max_ld_alt_m": 15200.0,
+            "max_ld_thrust_mode": "military"
           },
           {
             "id": "mach_1_5",
@@ -5281,7 +5584,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_1_76",
@@ -5301,7 +5607,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "mach_2_0",
@@ -5321,7 +5630,10 @@ module.exports = {
             "fuel_kg_per_km": null,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": null
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           },
           {
             "id": "max_cruise",
@@ -5341,7 +5653,10 @@ module.exports = {
             "fuel_kg_per_km": 4.042,
             "mixed_radius_km": 1038.31,
             "mixed_fuel_kg_per_km": 3.009,
-            "tsfc_mg_n_s": 31.833
+            "tsfc_mg_n_s": 31.833,
+            "max_ld": 5.2145,
+            "max_ld_alt_m": 11000.0,
+            "max_ld_thrust_mode": "military"
           }
         ],
         "max_speed": {

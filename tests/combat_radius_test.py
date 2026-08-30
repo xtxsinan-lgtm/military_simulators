@@ -20,6 +20,7 @@ from simulators.combat_radius.combat_radius import (
     run_predict_ld_from_params,
     run_search_best_cruise_from_params,
     _as_bool,
+    _attach_max_ld_to_point,
     _attach_mixed_radius,
     _calibrate_from_params,
     _clear_mixed_radius_fields,
@@ -28,6 +29,7 @@ from simulators.combat_radius.combat_radius import (
     _failed_radius_point,
     _infeasible_point,
     _mission_fuel_note,
+    _optional_ab_context,
     _optional_float,
     _optional_int,
     _parse_carrier,
@@ -720,6 +722,8 @@ def test_run_search_best_cruise_from_params_ma08():
     assert r['eta_th'] > 0
     assert r['eta_p'] > 0
     assert r['thrust_avail_kN'] > 0
+    assert r['max_ld'] >= r['ld'] - 1e-9
+    assert r['max_ld_thrust_mode'] == 'military'
 
 
 def test_run_search_best_cruise_infeasible_mach():
@@ -727,6 +731,38 @@ def test_run_search_best_cruise_infeasible_mach():
     assert r['success'] is True
     assert r['feasible'] is False
     assert '92%' in r['fail_reason']
+    assert r['max_ld'] is None
+
+
+def test_run_search_best_cruise_infeasible_has_ab_max_ld():
+    """不能军推巡航的马赫仍应给出加力可飞高度上的最大升阻比。"""
+    r = run_search_best_cruise_from_params({
+        **_radius_params(), 'mach': 2.2, 'max_tsl_kN': 156.0,
+        'alt_coarse_m': 1000, 'alt_refine_m': 200,
+        'mach_search_hi': 2.5,
+    })
+    assert r['success'] is True
+    assert r['feasible'] is False
+    assert r['max_ld'] is not None and r['max_ld'] > 0
+    assert r['max_ld_thrust_mode'] == 'afterburner'
+
+
+def test_optional_ab_context_and_attach_max_ld():
+    """有加力则构造加力上下文；马赫非法时最大升阻比为空。"""
+    ctx, _tgt = _cruise_context_from_params(_radius_params())
+    assert _optional_ab_context(ctx, _radius_params()) is None
+    ab = _optional_ab_context(ctx, {**_radius_params(), 'max_tsl_kN': 156.0})
+    assert ab is not None
+    assert ab.tsl_N == pytest.approx(156000.0)
+    empty = _attach_max_ld_to_point(
+        {}, ctx, None, ab, 11000, 20000, 3000, 1500,
+    )
+    assert empty['max_ld'] is None
+    row = _attach_max_ld_to_point(
+        {}, ctx, 0.8, ab, 11000, 20000, 3000, 1500,
+    )
+    assert row['max_ld'] > 0
+    assert row['max_ld_thrust_mode'] == 'military'
 
 
 def test_run_estimate_engine_cycle_from_params():
@@ -761,7 +797,12 @@ def test_run_aircraft_dashboard_from_params_f22():
     assert 'mach_2_0' in ids
     m08 = next(pt for pt in dash['points'] if pt['id'] == 'mach_0_8')
     assert m08['mixed_radius_km'] is None
+    assert m08['max_ld'] is not None and m08['max_ld'] > 0
+    assert m08['max_ld_thrust_mode'] == 'military'
+    m20 = next(pt for pt in dash['points'] if pt['id'] == 'mach_2_0')
+    assert m20['max_ld'] is not None and m20['max_ld'] > 0
     assert dash['max_speed']['feasible'] is True
+    assert dash['max_speed']['ld'] is not None
     supers = [pt for pt in dash['points'] if pt.get('feasible') and (pt.get('mach') or 0) > 1]
     if supers:
         assert any(pt.get('mixed_radius_km') for pt in supers)

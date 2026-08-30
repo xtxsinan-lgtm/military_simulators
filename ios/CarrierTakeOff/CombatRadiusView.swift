@@ -65,6 +65,7 @@ struct CombatRadiusView: View {
                         if r.feasible == true {
                             HStack(spacing: 10) {
                                 stat("最佳 L/D", value: String(format: "%.3f", r.ld ?? 0))
+                                stat("最大 L/D", value: String(format: "%.3f", r.max_ld ?? r.ld ?? 0))
                                 stat("高度", value: String(format: "%.1f km", (r.alt_m ?? 0) / 1000), amber: true)
                             }
                             HStack(spacing: 10) {
@@ -75,6 +76,14 @@ struct CombatRadiusView: View {
                                 stat("热效率", value: String(format: "%.1f%%", (r.eta_th ?? 0) * 100))
                                 stat("推进效率", value: String(format: "%.1f%%", (r.eta_p ?? 0) * 100))
                             }
+                        } else if let maxLd = r.max_ld {
+                            HStack(spacing: 10) {
+                                stat("最大 L/D", value: String(format: "%.3f", maxLd))
+                                stat("高度", value: String(format: "%.1f km", (r.max_ld_alt_m ?? 0) / 1000), amber: true)
+                            }
+                            Text(r.fail_reason ?? "无可行巡航高度")
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundStyle(CombatRadiusTheme.textDim)
                         } else {
                             Text(r.fail_reason ?? "无可行高度")
                                 .font(.system(size: 11, design: .monospaced))
@@ -178,6 +187,7 @@ struct CombatRadiusView: View {
                     Text(p.label)
                         .foregroundStyle(CombatRadiusTheme.green)
                     Spacer()
+                    let maxLd = p.max_ld.map { String(format: " L/Dmax %.2f", $0) } ?? ""
                     if p.feasible == true, let km = p.radius_km {
                         let mixed: String = {
                             if let m = p.mach, m > 1, let mix = p.mixed_radius_km {
@@ -188,16 +198,16 @@ struct CombatRadiusView: View {
                             }
                             return " 混合不适用"
                         }()
-                        Text(String(format: "Ma %.3f  %.0f km%@", p.mach ?? 0, km, mixed))
+                        Text(String(format: "Ma %.3f  %.0f km%@%@", p.mach ?? 0, km, mixed, maxLd))
                             .foregroundStyle(CombatRadiusTheme.text)
                     } else {
-                        Text(p.fail_reason ?? "无 92% 裕度高度")
+                        Text((p.fail_reason ?? "无 92% 裕度高度") + maxLd)
                             .foregroundStyle(CombatRadiusTheme.textDim)
                     }
                 }
                 .font(.system(size: 11, design: .monospaced))
             }
-            Text("混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。")
+            Text("最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按各马赫最大升阻比计算。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。")
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
         }

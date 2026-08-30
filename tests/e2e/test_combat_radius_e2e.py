@@ -119,7 +119,10 @@ def _radius_params() -> dict:
 @pytest.mark.e2e
 def test_e2e_combat_radius_f22_breguet_radius():
     """F-22 + F119 在 Ma 0.8/1.5/1.76 应可行，最大巡航锚定超巡 Ma 1.76。"""
-    r = run_combat_radius_json({'action': 'estimate_radius', 'params': _radius_params()})
+    r = run_combat_radius_json({
+        'action': 'estimate_radius',
+        'params': {**_radius_params(), 'max_tsl_kN': 156.0},
+    })
     assert r['success'] is True
     assert len(r['points']) == 5
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
@@ -132,6 +135,8 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m15['feasible'] is True
     assert m176['feasible'] is True
     assert m20['feasible'] is False
+    assert m20['max_ld'] is not None and m20['max_ld'] > 0
+    assert m20['max_ld_thrust_mode'] == 'afterburner'
     assert m15['radius_km'] < m08['radius_km']
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.02)
@@ -284,6 +289,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '飞机作战半径估算终端' in wxml
     assert '搜索最佳升阻比和巡航高度' in wxml
     assert '混合作战半径' in wxml
+    assert '最大 L/D' in wxml
     assert '锚点' not in wxml
     assert 'search_best_cruise' in js_text
     assert 'estimate_engine_cycle' in js_text
@@ -291,7 +297,9 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '飞机作战半径估算终端' in ios
     assert '搜索最佳升阻比和巡航高度' in ios
     assert '混合作战半径' in ios
+    assert '最大 L/D' in ios
     assert '锚点' not in ios
+    assert 'maxLd' in js_text
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')
     assert 'engine_id' in js_text
     assert 'resolveTslKN' in js_text
@@ -381,6 +389,7 @@ def test_e2e_combat_radius_f22_max_speed_uses_ab_thrust():
     assert r['feasible'] is True
     assert r['max_speed_mach'] > 1.0
     assert r['max_speed_kmh'] > 1200
+    assert r['ld'] > 0
     assert 'profile' in r
 
 
@@ -445,6 +454,8 @@ def test_e2e_combat_radius_dashboard_http_and_mixed():
     assert result['success'] is True
     assert 'max_speed' in result
     assert any(pt['id'] == 'mach_2_0' for pt in result['points'])
+    m20 = next(pt for pt in result['points'] if pt['id'] == 'mach_2_0')
+    assert m20.get('max_ld') is not None and m20['max_ld'] > 0
     m08 = next(pt for pt in result['points'] if pt['id'] == 'mach_0_8')
     assert m08.get('mixed_radius_km') in (None, 0) or m08['mixed_radius_km'] is None
     supers = [pt for pt in result['points'] if pt.get('feasible') and (pt.get('mach') or 0) > 1]
@@ -465,6 +476,18 @@ def test_e2e_search_best_cruise_and_engine_cycle_http():
     assert result['success'] is True
     assert result['feasible'] is True
     assert result['ld'] > 0
+    assert result['max_ld'] is not None and result['max_ld'] >= result['ld'] - 1e-9
+    p['mach'] = 2.0
+    p['max_tsl_kN'] = 156.0
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate',
+        json.dumps({'action': 'search_best_cruise', 'params': p}).encode(),
+    )
+    assert status == 200
+    high = json.loads(body.decode())
+    assert high['success'] is True
+    assert high['feasible'] is False
+    assert high.get('max_ld') is not None and high['max_ld'] > 0
     status, _, body = handle_request(
         'POST', '/api/combat_radius/simulate',
         json.dumps({

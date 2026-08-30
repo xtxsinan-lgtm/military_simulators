@@ -45,10 +45,13 @@ def test_sanitize_helpers_round_and_drop_blackbox():
         'eta_o': 0.3333333, 'score': 2.1, 'radius_km': 800.129,
         'fuel_kg_per_km': 4.5555, 'mixed_radius_km': 900.129,
         'mixed_fuel_kg_per_km': 3.3333, 'tsfc_mg_n_s': 30.1234,
-        'Cf0': 0.9,
+        'Cf0': 0.9, 'max_ld': 8.98765, 'max_ld_alt_m': 15000.4,
+        'max_ld_thrust_mode': 'afterburner',
     })
     assert 'Cf0' not in point
     assert point['radius_km'] == 800.13
+    assert point['max_ld'] == 8.9877
+    assert point['max_ld_thrust_mode'] == 'afterburner'
     ms = sanitize_max_speed({
         'success': True, 'feasible': True, 'max_speed_mach': 2.12345,
         'max_speed_kmh': 2200.19, 'profile': [1],
@@ -97,6 +100,8 @@ def test_run_preset_dashboard_f22_compact():
     assert m15['feasible'] is True
     assert m176['feasible'] is True
     assert m20['feasible'] is False
+    assert m20['max_ld'] is not None and m20['max_ld'] > 0
+    assert m20['max_ld_thrust_mode'] == 'afterburner'
     assert m15['radius_km'] < next(p for p in r['points'] if p['id'] == 'mach_0_8')['radius_km']
 
 

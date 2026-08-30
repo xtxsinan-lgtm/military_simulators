@@ -114,6 +114,7 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'engine_efficiency.py' in js_text
     assert '搜索最佳升阻比和巡航高度' in html
     assert '混合作战半径' in html
+    assert '最大 L/D' in html
     assert '选择战机' in html
     assert '锚点' not in html
     assert 'combat-radius.html' in takeoff.read_text(encoding='utf-8')

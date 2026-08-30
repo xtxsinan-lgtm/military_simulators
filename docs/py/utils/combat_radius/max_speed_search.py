@@ -1,6 +1,7 @@
-"""加力最大速度搜索：各高度二分最大马赫，取真速最大点。
+"""加力最大速度搜索：各马赫在可飞高度上取最大升阻比，再取真速最大点。
 
 约束：平飞阻力 ≤ 该高度加力可用推力 × 推力裕度（默认 92%）。
+每个马赫只在能飞的高度里选升阻比最大的点（阻力最小），再比较真速。
 推力由海平面加力标定经理想循环外推；空战重量与作战半径巡航一致。
 """
 from __future__ import annotations
@@ -9,11 +10,11 @@ import math
 from typing import Any
 
 from utils.combat_radius.cruise_search import (
-    THRUST_MARGIN_DEFAULT,
     CruiseContext,
     CruiseForces,
     altitude_grid,
     evaluate_cruise_forces,
+    search_max_ld_altitude,
 )
 from utils.combat_radius.military_thrust import GAMMA, R, isa
 
@@ -24,6 +25,8 @@ ALT_REFINE_M = 200.0
 MACH_SEARCH_LO = 0.30
 MACH_SEARCH_HI = 3.00
 MACH_SEARCH_ITERS = 16
+MACH_COARSE = 0.10
+MACH_REFINE = 0.02
 KTS_PER_MPS = 1.94384
 
 
@@ -114,6 +117,24 @@ def _pack_altitude_point(
     }
 
 
+def _max_ld_row_at_mach(
+    ctx: CruiseContext,
+    mach: float,
+    alt_min_m: float,
+    alt_max_m: float,
+    coarse_m: float,
+    refine_m: float,
+) -> dict[str, Any] | None:
+    """给定马赫，在加力可飞高度上取最大升阻比，打包为极速剖面点。"""
+    found = search_max_ld_altitude(
+        ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m,
+        primary_mode='afterburner',
+    )
+    if found is None:
+        return None
+    return _pack_altitude_point(ctx, found.forces.alt_m, mach, found.forces)
+
+
 def search_global_max_speed(
     ctx: CruiseContext,
     alt_min_m: float = ALT_MIN_M,
@@ -123,17 +144,23 @@ def search_global_max_speed(
     mach_lo: float = MACH_SEARCH_LO,
     mach_hi: float = MACH_SEARCH_HI,
     mach_iters: int = MACH_SEARCH_ITERS,
+    mach_coarse: float = MACH_COARSE,
+    mach_refine: float = MACH_REFINE,
 ) -> dict[str, Any] | None:
-    """扫描高度网格，各高度求最大马赫，再取真速最大的点。"""
+    """扫描马赫网格：各马赫取可飞高度上的最大升阻比，再取真速最大点。"""
+    if mach_coarse <= 0 or mach_refine <= 0:
+        raise ValueError('马赫步长须为正')
+    if mach_lo <= 0 or mach_hi < mach_lo:
+        raise ValueError('马赫搜索区间非法')
+    # mach_iters 保留签名兼容；现按最大升阻比扫马赫，不再按高度二分
+    _ = mach_iters
     best: dict[str, Any] | None = None
     profile: list[dict[str, Any]] = []
 
-    for alt in altitude_grid(alt_min_m, alt_max_m, coarse_m):
-        mach = search_max_mach_at_altitude(ctx, alt, mach_lo, mach_hi, mach_iters)
-        if mach is None:
+    for mach in altitude_grid(mach_lo, mach_hi, mach_coarse):
+        row = _max_ld_row_at_mach(ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m)
+        if row is None:
             continue
-        forces = evaluate_cruise_forces(ctx, mach, alt)
-        row = _pack_altitude_point(ctx, alt, mach, forces)
         profile.append(row)
         if best is None or row['v_mps'] > best['v_mps']:
             best = row
@@ -141,21 +168,19 @@ def search_global_max_speed(
     if best is None:
         return None
 
-    lo = max(alt_min_m, best['alt_m'] - coarse_m)
-    hi = min(alt_max_m, best['alt_m'] + coarse_m)
-    for alt in altitude_grid(lo, hi, refine_m):
-        if any(abs(p['alt_m'] - alt) < 1.0 for p in profile):
+    lo = max(mach_lo, best['mach'] - mach_coarse)
+    hi = min(mach_hi, best['mach'] + mach_coarse)
+    for mach in altitude_grid(lo, hi, mach_refine):
+        if any(abs(p['mach'] - mach) < 1e-9 for p in profile):
             continue
-        mach = search_max_mach_at_altitude(ctx, alt, mach_lo, mach_hi, mach_iters)
-        if mach is None:
+        row = _max_ld_row_at_mach(ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m)
+        if row is None:
             continue
-        forces = evaluate_cruise_forces(ctx, mach, alt)
-        row = _pack_altitude_point(ctx, alt, mach, forces)
         profile.append(row)
         if row['v_mps'] > best['v_mps']:
             best = row
 
-    profile.sort(key=lambda r: r['alt_m'])
+    profile.sort(key=lambda r: r['mach'])
     return {
         'best': best,
         'profile': profile,

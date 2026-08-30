@@ -101,6 +101,7 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'combat_radius_engine_presets' in models
     assert 'mixed_radius_km' in models
     assert 'CombatRadiusCruisePoint' in models
+    assert 'max_ld' in models
     assert 'CombatRadiusEngineConfig' in models
 
 

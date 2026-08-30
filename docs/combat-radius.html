@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=12">
+<link rel="stylesheet" href="css/combat_radius.css?v=13">
 </head>
 <body>
 <div class="scanline"></div>
@@ -26,7 +26,7 @@
   <div class="stack">
     <div class="panel">
       <div class="panel-head"><span>选择战机</span><span class="tag">INPUT</span></div>
-      <p class="note">选择战机后自动显示最大巡航、极速，以及 Ma 0.8 / 1.5 / 1.76 / 2.0 与最大巡航的作战半径。超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。</p>
+      <p class="note">选择战机后自动显示最大巡航、极速，以及 Ma 0.8 / 1.5 / 1.76 / 2.0 与最大巡航的作战半径。不能巡航的速度仍给出可飞高度（可开加力）上的最大 L/D。极速按各马赫最大升阻比计算。超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。</p>
       <div class="field">
         <label>机型</label>
         <select id="tgtPreset"></select>
@@ -88,7 +88,7 @@
 <div class="stack" style="margin-top:14px;">
   <div class="panel">
     <div class="panel-head"><span>给定速度 · 搜索最佳升阻比与巡航高度</span><span class="tag">SEARCH</span></div>
-    <p class="note">临时按当前机型/发动机参数，在 11–20 km 内搜索使升阻比×总效率最大、且阻力不超过军推 92% 的高度。</p>
+    <p class="note">临时按当前机型/发动机参数，在 11–20 km 内搜索使升阻比×总效率最大、且阻力不超过军推 92% 的高度。不能巡航时仍计算可飞高度（可开加力）上的最大升阻比。</p>
     <div class="pair">
       <div class="field"><label>马赫数</label><input type="number" id="q1Mach" step="0.05" min="0.1" value="0.9"></div>
     </div>
@@ -120,6 +120,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预计算快照 + Pyodide 按需计算 · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=12"></script>
+<script type="module" src="js/combat_radius.js?v=13"></script>
 </body>
 </html>

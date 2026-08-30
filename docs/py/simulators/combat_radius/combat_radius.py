@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import math
 import sys
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -47,10 +48,12 @@ from utils.combat_radius.cruise_search import (
     CruiseContext,
     SUPERSONIC_MACH,
     evaluate_cruise_forces,
+    max_ld_fields,
     score_cruise_point,
     scored_to_dict,
     search_best_altitude,
     search_max_cruise_mach,
+    search_max_ld_altitude,
 )
 from utils.combat_radius.engine_efficiency import (
     ACC_FRAC_DEFAULT,
@@ -462,6 +465,41 @@ def _calibrate_from_params(params: dict[str, Any]) -> tuple[Aircraft, float, flo
     return target, float(ld_info['Cf0']), float(ld_info['k_e'])
 
 
+def _optional_ab_context(ctx: CruiseContext, params: dict[str, Any]) -> CruiseContext | None:
+    """若请求带了海平面加力，构造加力搜索上下文。"""
+    try:
+        tsl_n = parse_max_sea_level_thrust_n(params)
+    except (TypeError, ValueError):
+        return None
+    if tsl_n <= 0:
+        return None
+    return replace(ctx, tsl_N=tsl_n)
+
+
+def _attach_max_ld_to_point(
+    row: dict[str, Any],
+    ctx: CruiseContext,
+    mach: float | None,
+    ab_ctx: CruiseContext | None,
+    alt_min_m: float,
+    alt_max_m: float,
+    coarse_m: float,
+    refine_m: float,
+) -> dict[str, Any]:
+    """给巡航点补上可飞高度中的最大升阻比（军推优先，不足则加力）。"""
+    if mach is None or mach <= 0:
+        row.update(max_ld_fields(None))
+        return row
+    try:
+        point = search_max_ld_altitude(
+            ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m, ab_ctx=ab_ctx,
+        )
+    except ValueError:
+        point = None
+    row.update(max_ld_fields(point))
+    return row
+
+
 def _radius_fail_reason(warning: str) -> str:
     """不可行巡航点的中文原因，供三端直接展示。"""
     if warning == 'insufficient_mission_fuel':
@@ -665,6 +703,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     mach_lo = float(params['mach_search_lo']) if params.get('mach_search_lo') not in (None, '') else MACH_SEARCH_LO
     mach_hi = float(params['mach_search_hi']) if params.get('mach_search_hi') not in (None, '') else MACH_SEARCH_HI
     mach_iters = _optional_int(params.get('mach_search_iters'), MACH_SEARCH_ITERS)
+    ab_ctx = _optional_ab_context(ctx, params)
 
     carrier = _parse_carrier(params)
     mf = mission_fuel_config()
@@ -699,22 +738,27 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
                 ctx, mach, alt_min, alt_max, coarse_m, refine_m,
             )
         except ValueError:
-            return _infeasible_point(point_id, label, mach)
-        if scored is None:
-            return _infeasible_point(point_id, label, mach)
-        if fuel_adj is None:
-            return _failed_radius_point(
-                point_id, label, scored, 'subsonic_burn_unavailable',
-            )
-        if float(fuel_adj['usable_fuel_kg']) <= 0:
-            return _failed_radius_point(
-                point_id, label, scored, 'insufficient_mission_fuel',
-            )
-        return _enrich_radius_point(
-            point_id, label, scored,
-            float(fuel_adj['mass_initial_kg']),
-            float(fuel_adj['mass_final_kg']),
-            float(fuel_adj['usable_fuel_kg']),
+            row = _infeasible_point(point_id, label, mach)
+        else:
+            if scored is None:
+                row = _infeasible_point(point_id, label, mach)
+            elif fuel_adj is None:
+                row = _failed_radius_point(
+                    point_id, label, scored, 'subsonic_burn_unavailable',
+                )
+            elif float(fuel_adj['usable_fuel_kg']) <= 0:
+                row = _failed_radius_point(
+                    point_id, label, scored, 'insufficient_mission_fuel',
+                )
+            else:
+                row = _enrich_radius_point(
+                    point_id, label, scored,
+                    float(fuel_adj['mass_initial_kg']),
+                    float(fuel_adj['mass_final_kg']),
+                    float(fuel_adj['usable_fuel_kg']),
+                )
+        return _attach_max_ld_to_point(
+            row, ctx, mach, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
         )
 
     points: list[dict[str, Any]] = []
@@ -727,7 +771,10 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         ctx, mach_lo, mach_hi, mach_iters, alt_min, alt_max, coarse_m,
     )
     if max_mach is None:
-        points.append(_infeasible_point('max_cruise', '最大巡航', None))
+        points.append(_attach_max_ld_to_point(
+            _infeasible_point('max_cruise', '最大巡航', None),
+            ctx, None, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
+        ))
     else:
         max_row = pack_point('max_cruise', '最大巡航', max_mach)
         points.append(max_row)
@@ -783,7 +830,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]:
-    """加力平飞最大速度：各高度二分最大马赫，取真速最大点。
+    """加力平飞最大速度：各马赫在可飞高度上取最大升阻比，再取真速最大点。
 
     使用海平面加力最大推力标定，约束为阻力 ≤ 可用加力 × 92%。
     空战重量 = 空重 + 一半内油 + 飞行员 + 挂弹；不计作战半径与任务油量。
@@ -847,7 +894,7 @@ def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]
             'max_speed_kts': None,
             'alt_m': None,
             'profile': [],
-            'note': '加力最大速度：各高度二分最大马赫，取真速最大点；不计作战半径。',
+            'note': '加力最大速度：各马赫在可飞高度上取最大升阻比，再取真速最大点；不计作战半径。',
         }
 
     best = result['best']
@@ -870,7 +917,7 @@ def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]
         'thrust_avail_kN': best['thrust_avail_kN'],
         'load': best['load'],
         'profile': result['profile'],
-        'note': '加力最大速度：各高度二分最大马赫，取真速最大点；不计作战半径。',
+        'note': '加力最大速度：各马赫在可飞高度上取最大升阻比，再取真速最大点；不计作战半径。',
     }
 
 
@@ -959,7 +1006,10 @@ def _cruise_context_from_params(params: dict[str, Any]) -> tuple[CruiseContext, 
 
 
 def run_search_best_cruise_from_params(params: dict[str, Any]) -> dict[str, Any]:
-    """给定马赫，搜索 L/D×η_o 最大且满足推力裕度的巡航高度。"""
+    """给定马赫，搜索 L/D×η_o 最大且满足推力裕度的巡航高度。
+
+    无论能否军推巡航，都附带可飞高度（开加力也可以）上的最大升阻比。
+    """
     mach = float(params['mach'])
     if mach <= 0:
         raise ValueError('马赫数须为正')
@@ -968,22 +1018,28 @@ def run_search_best_cruise_from_params(params: dict[str, Any]) -> dict[str, Any]
     alt_max = float(params['alt_max_m']) if params.get('alt_max_m') not in (None, '') else ALT_MAX_M
     coarse_m = float(params['alt_coarse_m']) if params.get('alt_coarse_m') not in (None, '') else ALT_COARSE_M
     refine_m = float(params['alt_refine_m']) if params.get('alt_refine_m') not in (None, '') else ALT_REFINE_M
+    ab_ctx = _optional_ab_context(ctx, params)
     try:
         scored = search_best_altitude(ctx, mach, alt_min, alt_max, coarse_m, refine_m)
     except ValueError:
         scored = None
     if scored is None:
-        return {
+        row = {
             'success': True,
             'feasible': False,
             'mach': mach,
             'name': str(params.get('name') or target.name),
             'fail_reason': _radius_fail_reason('no_feasible_altitude'),
         }
+        return _attach_max_ld_to_point(
+            row, ctx, mach, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
+        )
     row = scored_to_dict(scored)
     row['success'] = True
     row['name'] = str(params.get('name') or target.name)
-    return row
+    return _attach_max_ld_to_point(
+        row, ctx, mach, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
+    )
 
 
 def run_estimate_engine_cycle_from_params(params: dict[str, Any]) -> dict[str, Any]:

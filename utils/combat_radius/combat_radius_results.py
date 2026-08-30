@@ -70,6 +70,9 @@ def sanitize_cruise_point(point: dict[str, Any]) -> dict[str, Any]:
         'mixed_radius_km': _round(point.get('mixed_radius_km'), 2),
         'mixed_fuel_kg_per_km': _round(point.get('mixed_fuel_kg_per_km'), 3),
         'tsfc_mg_n_s': _round(point.get('tsfc_mg_n_s'), 3),
+        'max_ld': _round(point.get('max_ld'), 4),
+        'max_ld_alt_m': _round(point.get('max_ld_alt_m'), 1),
+        'max_ld_thrust_mode': point.get('max_ld_thrust_mode'),
     }
 
 

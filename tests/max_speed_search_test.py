@@ -9,6 +9,7 @@ from utils.combat_radius.lift_drag import calibrate, aircraft_from_dict
 from utils.combat_radius.max_speed_search import (
     MACH_SEARCH_HI,
     MACH_SEARCH_LO,
+    _max_ld_row_at_mach,
     search_global_max_speed,
     search_max_mach_at_altitude,
     true_airspeed_mps,
@@ -67,7 +68,31 @@ def test_search_global_max_speed_f22_f119():
     best = result['best']
     assert best['mach'] > 1.0
     assert best['v_kmh'] > 1500
+    assert best['ld'] > 0
     assert len(result['profile']) >= 1
+    at_best = _max_ld_row_at_mach(ctx, best['mach'], 0.0, 20000.0, 1000.0, 200.0)
+    assert at_best is not None
+    assert at_best['ld'] == pytest.approx(best['ld'], rel=1e-6)
+    with pytest.raises(ValueError, match='步长'):
+        search_global_max_speed(ctx, mach_coarse=0)
+    with pytest.raises(ValueError, match='区间'):
+        search_global_max_speed(ctx, mach_lo=2.0, mach_hi=0.5)
+
+
+def test_max_ld_row_at_mach_none_when_unpowered():
+    """加力过小则该马赫没有可飞高度。"""
+    ctx = _f22_ctx(1.0)
+    assert _max_ld_row_at_mach(ctx, 2.0, 0.0, 20000.0, 2000.0, 1000.0) is None
+    ctx = _f22_ctx(156.0)
+    row = _max_ld_row_at_mach(ctx, 0.8, 0.0, 20000.0, 2000.0, 1000.0)
+    assert row is not None
+    assert row['mach'] == pytest.approx(0.8)
+    assert row['ld'] > 0
+
+
+def test_search_global_max_speed_none_when_unpowered():
+    ctx = _f22_ctx(1.0)
+    assert search_global_max_speed(ctx, coarse_m=5000.0, refine_m=2500.0, mach_coarse=0.5, mach_refine=0.25) is None
 
 
 def test_run_estimate_max_speed_from_params():

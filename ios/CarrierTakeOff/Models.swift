@@ -225,6 +225,9 @@ struct CombatRadiusResult: Codable {
     var max_tsl_kN: Double?
     var profile: [CombatRadiusMaxSpeedProfilePoint]?
     var max_speed: CombatRadiusMaxSpeedSummary?
+    var max_ld: Double?
+    var max_ld_alt_m: Double?
+    var max_ld_thrust_mode: String?
 }
 
 struct CombatRadiusMaxSpeedProfilePoint: Codable, Identifiable, Hashable {
@@ -270,6 +273,9 @@ struct CombatRadiusCruisePoint: Codable, Identifiable, Hashable {
     var mixed_fuel_kg_per_km: Double?
     var warning: String?
     var fail_reason: String?
+    var max_ld: Double?
+    var max_ld_alt_m: Double?
+    var max_ld_thrust_mode: String?
 }
 
 struct CombatRadiusRow: Codable, Identifiable, Hashable {

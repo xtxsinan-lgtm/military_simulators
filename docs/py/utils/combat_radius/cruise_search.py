@@ -87,6 +87,14 @@ class CruiseScored(CruiseForces):
     warning: str | None = None
 
 
+@dataclass
+class MaxLdPoint:
+    """可飞高度上的最大升阻比点（军推优先，不足则加力）。"""
+
+    forces: CruiseForces
+    thrust_mode: str  # 'military' | 'afterburner'
+
+
 def altitude_grid(lo_m: float, hi_m: float, step_m: float) -> list[float]:
     """闭区间 [lo, hi] 上按步长生成高度网格（整数步，避免浮点越过上界）。"""
     if step_m <= 0:
@@ -247,6 +255,90 @@ def search_max_cruise_mach(
         else:
             hi = mid
     return lo
+
+
+def try_cruise_forces(ctx: CruiseContext, mach: float, alt_m: float) -> CruiseForces | None:
+    """计算力平衡；推力循环无解时返回 None。"""
+    try:
+        return evaluate_cruise_forces(ctx, mach, alt_m)
+    except ValueError:
+        return None
+
+
+def flyable_forces(
+    ctx: CruiseContext,
+    mach: float,
+    alt_m: float,
+    ab_ctx: CruiseContext | None = None,
+    primary_mode: str = 'military',
+) -> MaxLdPoint | None:
+    """该点能否平飞：先看主推力（默认军推），不足再用加力。"""
+    if primary_mode not in ('military', 'afterburner'):
+        raise ValueError('推力模式须为 military 或 afterburner')
+    primary = try_cruise_forces(ctx, mach, alt_m)
+    if primary is not None and primary.feasible:
+        return MaxLdPoint(forces=primary, thrust_mode=primary_mode)
+    if ab_ctx is not None:
+        afterburner = try_cruise_forces(ab_ctx, mach, alt_m)
+        if afterburner is not None and afterburner.feasible:
+            return MaxLdPoint(forces=afterburner, thrust_mode='afterburner')
+    return None
+
+
+def search_max_ld_altitude(
+    ctx: CruiseContext,
+    mach: float,
+    alt_min_m: float = ALT_MIN_M,
+    alt_max_m: float = ALT_MAX_M,
+    coarse_m: float = ALT_COARSE_M,
+    refine_m: float = ALT_REFINE_M,
+    ab_ctx: CruiseContext | None = None,
+    primary_mode: str = 'military',
+) -> MaxLdPoint | None:
+    """在给定马赫下，于可飞高度中取升阻比最大点。
+
+    可飞 = 阻力不超过该点可用推力 × 裕度。军推不够时可用加力。
+    """
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    best: MaxLdPoint | None = None
+    for alt in altitude_grid(alt_min_m, alt_max_m, coarse_m):
+        point = flyable_forces(ctx, mach, alt, ab_ctx, primary_mode)
+        if point is None:
+            continue
+        if best is None or point.forces.ld > best.forces.ld:
+            best = point
+    if best is None:
+        return None
+    lo = max(alt_min_m, best.forces.alt_m - coarse_m)
+    hi = min(alt_max_m, best.forces.alt_m + coarse_m)
+    for alt in altitude_grid(lo, hi, refine_m):
+        point = flyable_forces(ctx, mach, alt, ab_ctx, primary_mode)
+        if point is None:
+            continue
+        if point.forces.ld > best.forces.ld:
+            best = point
+    return best
+
+
+def max_ld_fields(point: MaxLdPoint | None) -> dict[str, Any]:
+    """最大升阻比点 → 仪表盘/搜索用的紧凑字段。"""
+    if point is None:
+        return {
+            'max_ld': None,
+            'max_ld_alt_m': None,
+            'max_ld_thrust_mode': None,
+            'max_ld_thrust_avail_kN': None,
+            'max_ld_load': None,
+        }
+    forces = point.forces
+    return {
+        'max_ld': forces.ld,
+        'max_ld_alt_m': forces.alt_m,
+        'max_ld_thrust_mode': point.thrust_mode,
+        'max_ld_thrust_avail_kN': forces.thrust_avail_N / 1000.0,
+        'max_ld_load': forces.load_raw,
+    }
 
 
 def scored_to_dict(point: CruiseScored) -> dict[str, Any]:

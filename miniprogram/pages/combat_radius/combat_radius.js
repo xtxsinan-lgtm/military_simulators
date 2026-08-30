@@ -59,10 +59,12 @@ function weightFromPreset(p) {
 
 function dashRowsFrom(r) {
   return (r.points || []).map((p) => {
+    const maxLd = p.max_ld != null ? fmt(p.max_ld, 2) : '—';
     if (!p.feasible) {
       return {
         label: p.label,
         mach: p.mach != null ? fmt(p.mach, 3) : '—',
+        maxLd,
         radius: p.fail_reason || '不可行',
         mixed: '—',
         ok: false,
@@ -74,6 +76,7 @@ function dashRowsFrom(r) {
     return {
       label: p.label,
       mach: fmt(p.mach, 3),
+      maxLd,
       radius: fmt(p.radius_km, 0),
       mixed,
       ok: true,
@@ -334,11 +337,17 @@ Page({
       .then((r) => {
         if (!r.success) throw new Error(r.error || '搜索失败');
         if (!r.feasible) {
-          this.setData({ q1Text: r.fail_reason || '无可行高度', running: false });
+          const maxLd = r.max_ld != null
+            ? `最大 L/D ${fmt(r.max_ld, 2)} · ${fmt((r.max_ld_alt_m || 0) / 1000, 1)} km · ${r.max_ld_thrust_mode === 'afterburner' ? '加力' : '军推'}。`
+            : '';
+          this.setData({
+            q1Text: `${r.fail_reason || '无可行高度'}${maxLd ? ' ' + maxLd : ''}`,
+            running: false,
+          });
           return;
         }
         this.setData({
-          q1Text: `L/D ${fmt(r.ld, 2)} · ${fmt(r.alt_m / 1000, 1)} km · 推力 ${fmt(r.thrust_avail_kN, 1)} kN · 负载 ${fmt(100 * r.load, 1)}% · η_th ${fmt(100 * r.eta_th, 1)}% · η_p ${fmt(100 * r.eta_p, 1)}%`,
+          q1Text: `L/D ${fmt(r.ld, 2)} · 最大 L/D ${fmt(r.max_ld, 2)} · ${fmt(r.alt_m / 1000, 1)} km · 推力 ${fmt(r.thrust_avail_kN, 1)} kN · 负载 ${fmt(100 * r.load, 1)}% · η_th ${fmt(100 * r.eta_th, 1)}% · η_p ${fmt(100 * r.eta_p, 1)}%`,
           running: false,
         });
       })

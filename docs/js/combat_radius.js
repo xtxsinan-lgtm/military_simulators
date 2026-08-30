@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 12;
+const APP_VERSION = 13;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -307,6 +307,12 @@ function snapshotFor(id) {
     : null;
 }
 
+function thrustModeLabel(mode) {
+  if (mode === 'afterburner') return '加力';
+  if (mode === 'military') return '军推';
+  return '—';
+}
+
 function renderDash(r, sourceLabel) {
   if (!r || !r.success) {
     $('dashBox').innerHTML = `<p class="placeholder">${(r && r.error) || '无法计算该机型仪表盘（例如缺少海平面军推）。填写参数后将自动重算。'}</p>`;
@@ -318,11 +324,17 @@ function renderDash(r, sourceLabel) {
     ? `${fmt(ms.max_speed_kmh, 0)} km/h · Ma ${fmt(ms.max_speed_mach, 3)}`
     : (ms.fail_reason || '不可用');
   const rows = (r.points || []).map((p) => {
+    const maxLd = p.max_ld != null ? fmt(p.max_ld, 2) : '—';
+    const maxLdAlt = p.max_ld_alt_m != null ? fmt(p.max_ld_alt_m / 1000, 1) : '—';
+    const mode = thrustModeLabel(p.max_ld_thrust_mode);
     if (!p.feasible) {
       return `<tr>
         <td>${p.label || ''}</td>
         <td>${p.mach != null ? fmt(p.mach, 3) : '—'}</td>
-        <td colspan="10">${p.fail_reason || '无满足 92% 推力裕度的高度'}</td>
+        <td>${maxLdAlt}</td>
+        <td>—</td>
+        <td>${maxLd}</td>
+        <td colspan="7">${mode}可飞 · ${p.fail_reason || '无满足 92% 推力裕度的高度'}</td>
       </tr>`;
     }
     const mixed = p.mach != null && p.mach > 1
@@ -333,6 +345,7 @@ function renderDash(r, sourceLabel) {
       <td>${fmt(p.mach, 3)}</td>
       <td>${fmt((p.alt_m || 0) / 1000, 1)}</td>
       <td>${fmt(p.ld, 2)}</td>
+      <td>${maxLd}</td>
       <td>${fmt(p.thrust_avail_kN, 1)}</td>
       <td>${pct(p.load)}</td>
       <td>${pct(p.eta_th)}</td>
@@ -352,13 +365,13 @@ function renderDash(r, sourceLabel) {
     <div class="scroll-x">
       <table>
         <thead><tr>
-          <th>点</th><th>Ma</th><th>高度 km</th><th>最佳 L/D</th><th>军推 kN</th><th>负载</th>
+          <th>点</th><th>Ma</th><th>高度 km</th><th>最佳 L/D</th><th>最大 L/D</th><th>军推 kN</th><th>负载</th>
           <th>η_th</th><th>η_p</th><th>η_o</th><th>半径 km</th><th>混合作战半径</th><th>kg/km</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。</p>
+    <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按各马赫最大升阻比取真速最大点。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。</p>
   `;
   $('dashStatus').textContent = 'READY';
 }
@@ -426,12 +439,21 @@ async function runSearchCruise() {
       const r = await callPythonAsync('search_best_cruise', params);
       if (!r.success) throw new Error(r.error || '搜索失败');
       if (!r.feasible) {
-        renderQueryBox('q1Box', `<p class="placeholder">${r.fail_reason || '无可行高度'}</p>`);
+        const maxLdHtml = r.max_ld != null
+          ? `<div class="stat-row">
+              <div class="stat"><div class="k">最大 L/D</div><div class="v">${fmt(r.max_ld, 3)}</div></div>
+              <div class="stat"><div class="k">最大 L/D 高度</div><div class="v amber">${fmt((r.max_ld_alt_m || 0) / 1000, 1)} km</div></div>
+              <div class="stat"><div class="k">推力</div><div class="v">${thrustModeLabel(r.max_ld_thrust_mode)}</div></div>
+            </div>
+            <p class="note">${r.fail_reason || '无可行巡航高度'}（上表为可飞高度上的最大升阻比）</p>`
+          : `<p class="placeholder">${r.fail_reason || '无可行高度'}</p>`;
+        renderQueryBox('q1Box', maxLdHtml);
         return;
       }
       renderQueryBox('q1Box', `
         <div class="stat-row">
           <div class="stat"><div class="k">最佳 L/D</div><div class="v">${fmt(r.ld, 3)}</div></div>
+          <div class="stat"><div class="k">最大 L/D</div><div class="v">${fmt(r.max_ld, 3)}</div></div>
           <div class="stat"><div class="k">巡航高度</div><div class="v amber">${fmt(r.alt_m / 1000, 1)} km</div></div>
           <div class="stat"><div class="k">最大可用推力</div><div class="v">${fmt(r.thrust_avail_kN, 1)} kN</div></div>
           <div class="stat"><div class="k">负载</div><div class="v">${pct(r.load)}</div></div>

@@ -15,10 +15,14 @@ from utils.combat_radius.cruise_search import (
     altitude_grid,
     cruise_point_feasible,
     evaluate_cruise_forces,
+    flyable_forces,
+    max_ld_fields,
     score_cruise_point,
     scored_to_dict,
     search_best_altitude,
     search_max_cruise_mach,
+    search_max_ld_altitude,
+    try_cruise_forces,
 )
 from utils.combat_radius.lift_drag import (
     F22_SUPERCRUISE_MACH,
@@ -222,3 +226,59 @@ def test_supersonic_cruise_score_below_subsonic():
         super15 = search_best_altitude(ctx, 1.5)
         assert sub is not None and super15 is not None
         assert super15.score < sub.score
+
+
+def test_try_cruise_forces_none_on_bad_cycle():
+    """推力循环无解时 try_cruise_forces 返回 None。"""
+    ctx = _f22_ctx()
+    ctx.opr = 0.5
+    assert try_cruise_forces(ctx, 0.8, 12000) is None
+    ctx = _f22_ctx()
+    assert try_cruise_forces(ctx, 0.8, 11800) is not None
+
+
+def test_flyable_forces_military_then_afterburner():
+    """军推可行用军推；军推不够时用加力。"""
+    mil = _f22_csv_ctx()
+    ab = CruiseContext(**{**mil.__dict__, 'tsl_N': 156000.0})
+    at_cruise = flyable_forces(mil, 0.8, 11800, ab)
+    assert at_cruise is not None
+    assert at_cruise.thrust_mode == 'military'
+    at_high = flyable_forces(mil, 2.0, 11000)
+    assert at_high is None
+    at_high_ab = flyable_forces(mil, 2.0, 11000, ab)
+    assert at_high_ab is not None
+    assert at_high_ab.thrust_mode == 'afterburner'
+    with pytest.raises(ValueError, match='推力模式'):
+        flyable_forces(mil, 0.8, 11800, primary_mode='idle')
+
+
+def test_search_max_ld_altitude_cruise_and_ab():
+    """Ma 0.8 最大 L/D 不低于巡航点；Ma 2.0 军推不可飞、加力可飞。"""
+    mil = _f22_csv_ctx()
+    ab = CruiseContext(**{**mil.__dict__, 'tsl_N': 156000.0})
+    cruise = search_best_altitude(mil, 0.8)
+    max_ld = search_max_ld_altitude(mil, 0.8)
+    assert max_ld is not None and cruise is not None
+    assert max_ld.thrust_mode == 'military'
+    assert max_ld.forces.ld >= cruise.ld - 1e-9
+    assert search_max_ld_altitude(mil, 2.0) is None
+    ab_ld = search_max_ld_altitude(mil, 2.0, ab_ctx=ab)
+    assert ab_ld is not None
+    assert ab_ld.thrust_mode == 'afterburner'
+    assert ab_ld.forces.ld > 0
+    with pytest.raises(ValueError, match='马赫数'):
+        search_max_ld_altitude(mil, 0.0)
+
+
+def test_max_ld_fields_none_and_point():
+    """最大升阻比字段在无点和有点时结构一致。"""
+    empty = max_ld_fields(None)
+    assert empty['max_ld'] is None
+    assert empty['max_ld_thrust_mode'] is None
+    mil = _f22_csv_ctx()
+    point = search_max_ld_altitude(mil, 0.8)
+    packed = max_ld_fields(point)
+    assert packed['max_ld'] == pytest.approx(point.forces.ld)
+    assert packed['max_ld_alt_m'] == pytest.approx(point.forces.alt_m)
+    assert packed['max_ld_thrust_mode'] == 'military'
