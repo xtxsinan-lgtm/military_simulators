@@ -83,6 +83,12 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert 'estimate_engine_cycle' in cr_js
     assert '搜索最佳升阻比和巡航高度' in cr_wxml
     assert '混合作战半径' in cr_wxml
+    assert '热效率' in cr_js
+    assert '推进效率' in cr_js
+    assert '总效率' in cr_js
+    assert 'η_th' not in cr_js
+    assert 'η_p' not in cr_js
+    assert 'η_o' not in cr_js
     assert '锚点' not in cr_wxml
     assert 'mach_angle_deg' in cr_js
     assert 'resolveTslKN' in cr_js

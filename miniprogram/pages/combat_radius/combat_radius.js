@@ -347,7 +347,7 @@ Page({
           return;
         }
         this.setData({
-          q1Text: `L/D ${fmt(r.ld, 2)} · 最大 L/D ${fmt(r.max_ld, 2)} · ${fmt(r.alt_m / 1000, 1)} km · 推力 ${fmt(r.thrust_avail_kN, 1)} kN · 负载 ${fmt(100 * r.load, 1)}% · η_th ${fmt(100 * r.eta_th, 1)}% · η_p ${fmt(100 * r.eta_p, 1)}%`,
+          q1Text: `L/D ${fmt(r.ld, 2)} · 最大 L/D ${fmt(r.max_ld, 2)} · ${fmt(r.alt_m / 1000, 1)} km · 推力 ${fmt(r.thrust_avail_kN, 1)} kN · 负载 ${fmt(100 * r.load, 1)}% · 热效率 ${fmt(100 * r.eta_th, 1)}% · 推进效率 ${fmt(100 * r.eta_p, 1)}%`,
           running: false,
         });
       })
@@ -364,7 +364,7 @@ Page({
       .then((r) => {
         if (!r.success) throw new Error(r.error || '计算失败');
         this.setData({
-          q2Text: `L/D ${fmt(r.ld, 2)} · 推力 ${fmt(r.thrust_avail_kN, 1)} kN · 负载 ${fmt(100 * r.load, 1)}% · η_th ${fmt(100 * r.eta_th, 1)}% · η_p ${fmt(100 * r.eta_p, 1)}% · η_o ${fmt(100 * r.eta_o, 1)}%`,
+          q2Text: `L/D ${fmt(r.ld, 2)} · 推力 ${fmt(r.thrust_avail_kN, 1)} kN · 负载 ${fmt(100 * r.load, 1)}% · 热效率 ${fmt(100 * r.eta_th, 1)}% · 推进效率 ${fmt(100 * r.eta_p, 1)}% · 总效率 ${fmt(100 * r.eta_o, 1)}%`,
           running: false,
         });
       })
@@ -388,7 +388,7 @@ Page({
       .then((r) => {
         if (!r.success) throw new Error(r.error || '计算失败');
         this.setData({
-          q3Text: `η_th ${fmt(100 * r.eta_th, 1)}% · η_p ${fmt(100 * r.eta_p, 1)}% · η_o ${fmt(100 * r.eta_o, 1)}%`,
+          q3Text: `热效率 ${fmt(100 * r.eta_th, 1)}% · 推进效率 ${fmt(100 * r.eta_p, 1)}% · 总效率 ${fmt(100 * r.eta_o, 1)}%`,
           running: false,
         });
       })

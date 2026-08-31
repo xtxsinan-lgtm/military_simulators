@@ -14,29 +14,17 @@ from utils.paths import ROOT
 
 def _params_from_csv() -> dict:
     presets = load_presets()
-    a1 = get_preset_by_id(presets, 'F-35C')
-    a2 = get_preset_by_id(presets, 'F-22')
     tgt = get_preset_by_id(presets, 'J-20')
-    return {
-        'anchor1': a1,
-        'ld1_target': a1['ld_known'],
-        'anchor2': a2,
-        'ld2_target': a2['ld_known'],
-        'target': tgt,
-    }
+    return {'target': tgt}
 
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_csv_anchors_predict_j20():
-    """CSV 预设锚点标定后，歼-20 升阻比应落在合理巡航区间。"""
-    presets = load_presets()
-    a1 = get_preset_by_id(presets, 'F-35C')
-    a2 = get_preset_by_id(presets, 'F-22')
+    """统一模型下歼-20 升阻比应落在合理巡航区间。"""
     r = run_combat_radius_json({'action': 'predict_ld', 'params': _params_from_csv()})
     assert r['success'] is True
-    assert r['anchors'][0]['ld'] == pytest.approx(a1['ld_known'], abs=1e-8)
-    assert r['anchors'][1]['ld'] == pytest.approx(a2['ld_known'], abs=1e-8)
-    assert 8.0 < r['target']['ld'] < 11.0
+    assert r['anchors'] == []
+    assert 8.0 < r['target']['ld'] < 12.0
 
 
 def _thrust_params() -> dict:
@@ -312,6 +300,15 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '搜索最佳升阻比和巡航高度' in wxml
     assert '混合作战半径' in wxml
     assert '最大 L/D' in wxml
+    assert '热效率' in js_text
+    assert '推进效率' in js_text
+    assert '总效率' in js_text
+    assert '<th>η_th</th>' not in js_text
+    cr_mp = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
+    assert '热效率' in cr_mp
+    assert '推进效率' in cr_mp
+    assert '总效率' in cr_mp
+    assert 'η_th' not in cr_mp
     assert '锚点' not in wxml
     assert 'search_best_cruise' in js_text
     assert 'estimate_engine_cycle' in js_text
@@ -320,6 +317,10 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '搜索最佳升阻比和巡航高度' in ios
     assert '混合作战半径' in ios
     assert '最大 L/D' in ios
+    assert '热效率' in ios
+    assert '推进效率' in ios
+    assert '总效率' in ios
+    assert 'η_th' not in ios
     assert '锚点' not in ios
     assert 'maxLd' in js_text
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')

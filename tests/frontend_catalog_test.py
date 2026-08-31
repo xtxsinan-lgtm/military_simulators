@@ -116,6 +116,12 @@ def test_docs_combat_radius_page_exists_and_links():
     assert '混合作战半径' in html
     assert '最大 L/D' in html
     assert '选择战机' in html
+    assert '热效率' in js_text
+    assert '推进效率' in js_text
+    assert '总效率' in js_text
+    assert '<th>η_th</th>' not in js_text
+    assert '<th>η_p</th>' not in js_text
+    assert '<th>η_o</th>' not in js_text
     assert '锚点' not in html
     assert 'combat-radius.html' in takeoff.read_text(encoding='utf-8')
     assert 'combat-radius.html' in sat.read_text(encoding='utf-8')

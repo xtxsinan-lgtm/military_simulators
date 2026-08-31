@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 19;
+const APP_VERSION = 20;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -366,7 +366,7 @@ function renderDash(r, sourceLabel) {
       <table>
         <thead><tr>
           <th>点</th><th>Ma</th><th>高度 km</th><th>最佳 L/D</th><th>最大 L/D</th><th>军推 kN</th><th>负载</th>
-          <th>η_th</th><th>η_p</th><th>η_o</th><th>半径 km</th><th>混合作战半径</th><th>kg/km</th>
+          <th>热效率</th><th>推进效率</th><th>总效率</th><th>半径 km</th><th>混合作战半径</th><th>kg/km</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
