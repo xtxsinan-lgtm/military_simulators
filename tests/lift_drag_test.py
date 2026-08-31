@@ -11,6 +11,7 @@ from utils.combat_radius.lift_drag import (
     CDW_KORN_COEF,
     CDW_SS_BODY,
     CDW_SS_LIFT,
+    CDW_SS_LIFT_MACH_CAP,
     CDW_SS_ROUGH_BODY,
     CDW_SS_ROUGH_LIFT,
     CDW_SS_ROUGH_WING,
@@ -69,6 +70,7 @@ from utils.combat_radius.lift_drag import (
     cd_wave_ss_rough_wing_at,
     cd_wave_ss_wing_at,
     cd_wave_transonic_at,
+    lift_wave_mach_factor,
     INLET_CARET_CDW,
     INLET_CARET_WETTED,
     inlet_cdw_vol_mult,
@@ -449,6 +451,29 @@ def test_cd_wave_supersonic_rises_with_cl():
     assert high > low
     assert CDW_SS_LIFT > 0
     assert high - low == pytest.approx(CDW_SS_LIFT * (0.30 ** 2 - 0.08 ** 2) * 0.5)
+
+
+def test_lift_wave_mach_factor_caps_after_ma15():
+    """刚超音速按 (M-1)；Ma 1.5 起封顶，1.76 不再加重。"""
+    assert lift_wave_mach_factor(0.8) == 0.0
+    assert lift_wave_mach_factor(1.0) == 0.0
+    assert lift_wave_mach_factor(1.25) == pytest.approx(0.25)
+    assert lift_wave_mach_factor(1.5) == pytest.approx(CDW_SS_LIFT_MACH_CAP)
+    assert lift_wave_mach_factor(1.76) == pytest.approx(CDW_SS_LIFT_MACH_CAP)
+    assert lift_wave_mach_factor(2.0) == pytest.approx(CDW_SS_LIFT_MACH_CAP)
+    assert CDW_SS_LIFT_MACH_CAP == pytest.approx(0.50)
+
+
+def test_lift_wave_drag_same_at_ma176_as_ma15():
+    """同一 CL 下，Ma 1.76 的升力波阻应与 Ma 1.5 相同（体积项仍随马赫上升）。"""
+    ac = _f22()
+    cl = 0.20
+    lift15 = cd_wave_supersonic(1.5, ac, cl) - cd_wave_supersonic(1.5, ac, 0.0)
+    lift176 = cd_wave_supersonic(1.76, ac, cl) - cd_wave_supersonic(1.76, ac, 0.0)
+    vol15 = cd_wave_supersonic(1.5, ac, 0.0)
+    vol176 = cd_wave_supersonic(1.76, ac, 0.0)
+    assert lift176 == pytest.approx(lift15)
+    assert vol176 > vol15
 
 
 def test_canard_adds_supersonic_wave_drag():

@@ -398,8 +398,8 @@ def test_low_wing_loading_can_cruise_higher_at_mach08():
     assert light.alt_m >= f22.alt_m - 200.0
 
 
-def test_f22_cruise_altitude_rises_until_mach_15_then_drops():
-    """Ma 1.5 以前最佳高度随速度升高；1.76 仍在峰值附近，不掉到 11 km。"""
+def test_f22_cruise_altitude_rises_until_mach_15_then_holds():
+    """Ma 1.5 以前最佳高度随速度升高；超巡带 1.5–1.76 高度不掉。"""
     ctx = _f22_csv_ctx()
     a08 = search_best_altitude(ctx, 0.8)
     a10 = search_best_altitude(ctx, 1.0)
@@ -411,8 +411,7 @@ def test_f22_cruise_altitude_rises_until_mach_15_then_drops():
     assert a08.alt_m < a10.alt_m < a12.alt_m
     assert a12.alt_m <= a14.alt_m + 400.0
     assert a15.alt_m >= a12.alt_m - 400.0
-    assert a176.alt_m >= 13000.0
-    assert a176.alt_m <= a15.alt_m
+    assert a176.alt_m >= a15.alt_m - 200.0
     assert a15.load_raw > a08.load_raw
     assert a176.load_raw >= 0.90
 

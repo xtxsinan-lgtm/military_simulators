@@ -22,11 +22,13 @@ rough 的亚音速惩罚只进 CD0，拆成 FAT_MULT（肥胖）× BUMP_MULT（�
     1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
     2. 跨声速鼓包：阻力发散后在 Ma 1.15 附近高斯见顶，Ma 1.5 前衰减；
     3. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项
-       + 升力波阻 CL²(M-1) + 鸭翼附加 (M-1)²
+       + 升力波阻 CL²·min(M-1, 0.50) + 鸭翼附加 (M-1)²
        + rough 机肥机身/厚翼附加（不作用于光滑隐身机，保住 F-22 超巡）；
     4. 超过马赫锥后的附加波阻（翼尖-机头连线）。
-    体积项按光滑隐身机超音速阻力标定；实用最大巡航按「高度尚未回落」搜索
-    （F-22 约 Ma 1.53），不再把掉高 1.2 km 后的马赫当成超巡。
+    升力波阻在 Ma 1.5 封顶：线性 (M-1) 过估超巡带增长率，否则 1.76 极曲线
+    继续变陡、高度掉下来，每公里油耗比 1.5 高一截。封顶后 F-22 在 1.5–1.76
+    仍贴着峰值高度，kg/km 大约只高 7%。Ma 1.5 的布雷盖惩罚不变。
+    实用最大巡航按「高度尚未回落」搜索（F-22 约 Ma 1.89）。
     允许掉到 11 km 后还能更快。
 
 双三角翼（planform=double_delta 且给出内/外段后掠）按两段前缘分别算
@@ -58,17 +60,18 @@ CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小�
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
 # 超音速波阻：体积/升力项使光滑隐身机超巡可飞；实用最大巡航由高度搜索给出
-# （最佳高度尚未回落，F-22 约 Ma 1.53、歼-20 约 Ma 1.21）。
+# （最佳高度尚未回落，F-22 约 Ma 1.89、歼-20 约 Ma 1.21）。
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
-# 升力项 × CL²(M-1)，避免 19 km 超音速 L/D 仍接近亚音速、布雷盖半径倒挂
-# 体积项下调、升力项加重：峰值附近停住，1.5 又不会爬得过高效
-F22_SUPERCRUISE_MACH = 1.53
+# 升力项 × CL²·min(M-1, 0.50)：Ma 1.5 压住超音速 L/D 避免半径倒挂，
+# 其后不再随马赫加重，否则 1.76 只能掉高、kg/km 陡升。
+F22_SUPERCRUISE_MACH = 1.89
 J20_SUPERCRUISE_MACH = 1.21
 J35_SUPERCRUISE_MACH = 1.07
 J35A_SUPERCRUISE_MACH = 1.12
 CDW_SS_BODY = 0.00450
 CDW_SS_WING = 3.00
 CDW_SS_LIFT = 0.65
+CDW_SS_LIFT_MACH_CAP = 0.50  # 升力波阻马赫因子封顶，对应 Ma 1.5
 CDW_CANARD = 0.004  # 鸭翼附加，乘 (M-1)²；90 kN→Ma 1.5、142 kN 加力→Ma 2.0
 # 肥机身/不平整表面的超音速附加：只作用于 rough，亚音速 CD0 不变。
 # 机身项 × (M-1)²：面积律差、锯齿缝、吸波涂层的型阻/波阻。
@@ -524,12 +527,24 @@ def cd_wave_ss_rough(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     return cdw
 
 
+def lift_wave_mach_factor(mach: float) -> float:
+    """升力波阻的马赫因子：刚超音速按 (M-1)，Ma 1.5 起封顶。
+
+    线性 (M-1) 会让 1.76 的极曲线 k 继续变大，最佳高度掉下来、CL 更低，
+    每公里油耗比 1.5 高一截。封顶后 Ma 1.5 的布雷盖惩罚不变。
+    """
+    if mach <= 1.0:
+        return 0.0
+    return min(mach - 1.0, CDW_SS_LIFT_MACH_CAP)
+
+
 def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加 + rough 超音速附加。
 
     机身/升力/鸭翼项整机计算一次；机翼前缘项双三角按两段面积加权。
     无尾/翼身融合/加莱特进气道只打折体积项，升力波阻与 rough 附加不打折。
-    升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速。
+    升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速；
+    马赫因子在 Ma 1.5 封顶，超巡带不再随速度变陡。
     """
     if mach <= 1.0:
         return 0.0
@@ -546,7 +561,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     if ac.layout == 'canard':
         cdw += CDW_CANARD * dm ** 2
     if CL > 0.0:
-        cdw += CDW_SS_LIFT * (CL ** 2) * dm
+        cdw += CDW_SS_LIFT * (CL ** 2) * lift_wave_mach_factor(mach)
     cdw += cd_wave_ss_rough(mach, ac, CL)
     return cdw
 
