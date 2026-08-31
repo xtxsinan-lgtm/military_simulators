@@ -10,6 +10,7 @@ from utils.combat_radius.lift_drag import (
     CDW_CANARD,
     CDW_KORN_COEF,
     CDW_SS_BODY,
+    CDW_SS_BODY_POST,
     CDW_SS_LIFT,
     CDW_SS_LIFT_MACH_CAP,
     CDW_SS_ROUGH_BODY,
@@ -26,6 +27,7 @@ from utils.combat_radius.lift_drag import (
     CL_AOA_ONSET,
     CF0_REF,
     F22_SUPERCRUISE_MACH,
+    F22_MAX_SPEED_MACH,
     J20_SUPERCRUISE_MACH,
     KAPPA_A,
     KORN_DM_CAP,
@@ -34,6 +36,7 @@ from utils.combat_radius.lift_drag import (
     FAT_MULT,
     BUMP_MULT,
     RHO11,
+    SUPERCRUISE_BAND_HI,
     Aircraft,
     aircraft_from_dict,
     aircraft_mach_angle_rad,
@@ -68,6 +71,7 @@ from utils.combat_radius.lift_drag import (
     predict_ld,
     wetted_area_factor,
     cd_wave_korn_at,
+    cd_wave_ss_body_post,
     cd_wave_ss_rough,
     cd_wave_ss_rough_wing_at,
     cd_wave_ss_wing_at,
@@ -508,6 +512,36 @@ def test_lift_wave_drag_same_at_ma176_as_ma15():
     assert vol176 > vol15
     lift20 = cd_wave_supersonic(2.0, ac, cl) - cd_wave_supersonic(2.0, ac, 0.0)
     assert lift20 > lift176
+
+
+def test_cd_wave_ss_body_post_zero_until_supercruise_then_rises():
+    """超巡带上附加体积波阻为零；Ma 2.25 按 (M-1.76)² 上升。"""
+    assert cd_wave_ss_body_post(1.0) == 0.0
+    assert cd_wave_ss_body_post(SUPERCRUISE_BAND_HI) == 0.0
+    assert cd_wave_ss_body_post(1.5) == 0.0
+    extra = cd_wave_ss_body_post(F22_MAX_SPEED_MACH)
+    dm = F22_MAX_SPEED_MACH - SUPERCRUISE_BAND_HI
+    assert extra == pytest.approx(CDW_SS_BODY_POST * dm ** 2)
+    assert extra > 0.0
+    ac = _f22()
+    vol176 = cd_wave_supersonic(SUPERCRUISE_BAND_HI, ac, 0.0)
+    vol225 = cd_wave_supersonic(F22_MAX_SPEED_MACH, ac, 0.0)
+    vol176_body = CDW_SS_BODY * (SUPERCRUISE_BAND_HI - 1.0) ** 2
+    vol225_body = CDW_SS_BODY * (F22_MAX_SPEED_MACH - 1.0) ** 2
+    # 光滑常规布局：后段体积增量 = 机身 (M-1)² 增量 + 后段项（机翼项取决于前缘）
+    assert vol225 > vol176
+    assert vol225 - vol176 >= (vol225_body - vol176_body) + extra - 1e-9
+    assert F22_MAX_SPEED_MACH == pytest.approx(2.25)
+    assert CDW_SS_BODY_POST == pytest.approx(0.038)
+
+
+def test_body_post_volume_is_discounted_like_other_volume_terms():
+    """后段体积波阻与机身/机翼项一样走无尾折扣。"""
+    conv = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 2.25, 'layout': 'conventional'})
+    tail = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'tailless'})
+    vol_conv = cd_wave_supersonic(2.25, conv, 0.0)
+    vol_tail = cd_wave_supersonic(2.25, tail, 0.0)
+    assert vol_tail == pytest.approx(vol_conv * CDW_TAILLESS)
 
 
 def test_canard_adds_supersonic_wave_drag():

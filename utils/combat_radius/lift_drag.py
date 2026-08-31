@@ -24,12 +24,16 @@ rough 的亚音速惩罚只进 CD0，拆成 FAT_MULT（肥胖）× BUMP_MULT（�
        不跟翼型 Korn Mdd 门控（大后掠 Mdd>1 会把 Ma 1 整段关掉，半径倒挂）；
     3. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项
        + 升力波阻 CL²·lift_wave_mach_factor(M) + 鸭翼附加 (M-1)²
+       + 超巡带之后的附加体积项 (M-1.76)²
        + rough 机肥机身/厚翼附加（不作用于光滑隐身机，保住 F-22 超巡）；
     4. 超过马赫锥后的附加波阻（翼尖-机头连线）。
     升力波阻马赫因子：刚超音速按 (M-1)，Ma 1.5–1.76 封顶，过了 1.76 再加重。
     线性 (M-1) 会让超巡带极曲线继续变陡、高度掉下来；封顶后 1.5–1.76
     仍贴着峰值高度，kg/km 大约只高 7%。Ma 1.5 的布雷盖惩罚不变。
-    超过超巡带后再加重，是为了让能停在峰值的飞机在 1.76 之后开始掉高。
+    超过超巡带后再加重升力项，是为了让能停在峰值的飞机在 1.76 之后开始掉高。
+    加力极速处 CL 已经很小，升力后段几乎不起作用；再加体积项 (M-1.76)²，
+    避免光滑隐身机靠降高把极速估到 Ma 2.36（F-22 公开包线约 2.25）。
+    该项在 1.76 处为零，不改变超巡标定；F-35 极速在 1.6 附近，也不受影响。
     实用最大巡航由 0.01 马赫高度搜索给出，不是把结果钉在 1.76。系数对全机队共用。
     允许掉到 11 km 后还能更快。
 
@@ -68,6 +72,7 @@ COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
 # 1.5–1.76 不再随马赫加重，过了超巡带再加重，使峰值高度在 1.76 后回落。
 SUPERCRUISE_BAND_HI = 1.76  # 超巡带上沿：此后升力波阻再随马赫加重
 F22_SUPERCRUISE_MACH = SUPERCRUISE_BAND_HI
+F22_MAX_SPEED_MACH = 2.25  # 公开加力极速；后段体积波阻按此标定
 J20_SUPERCRUISE_MACH = 1.67
 J35A_SUPERCRUISE_MACH = 1.57
 CDW_SS_BODY = 0.00450
@@ -75,13 +80,18 @@ CDW_SS_WING = 3.00
 CDW_SS_LIFT = 0.65
 CDW_SS_LIFT_MACH_CAP = 0.50  # 升力波阻马赫因子封顶，对应 Ma 1.5
 CDW_SS_LIFT_POST = 2.0  # 超过超巡带后的马赫因子斜率，1.80 相对峰值掉超过一格高度
+# 超巡带之后的附加体积波阻 × (M-1.76)²。加力极速 CL 很小，升力后段压不住
+# 降高冲刺；本项把 F-22 加力从约 Ma 2.36 收到公开包线 2.25，且 1.76 处为零。
+# 系数略低于使 Ma 2.0 军推不可飞的阈值，仪表盘固定点仍可给出布雷盖半径。
+CDW_SS_BODY_POST = 0.038
 CDW_CANARD = 0.004  # 鸭翼附加，乘 (M-1)²；90 kN→Ma 1.5、142 kN 加力→Ma 2.0
 # 肥机身/不平整表面的超音速附加：只作用于 rough，亚音速 CD0 不变。
 # 机身项 × (M-1)²：面积律差、锯齿缝、吸波涂层的型阻/波阻。
 # 厚翼项 × (t/c_n)² (M-1)²：不要求前缘超音速，补上 Ma 1.3–1.8 厚翼体积波阻。
 # 升力项 × CL²(M-1)：粗糙外形升力分布更差。
 # 标定：FAT/BUMP=1 后靠厚翼项把 F-35A 加力收到约 Ma 1.64、C 约 1.54
-# （公开包线 1.6；C 翼面积更大故略慢）；光滑 F-22 极速/超巡不变。
+# （公开包线 1.6；C 翼面积更大故略慢）。光滑 F-22 超巡仍由 1.76 前的项决定；
+# 加力极速另用超巡带之后的体积项收到约 Ma 2.25。
 F35_MAX_SPEED_MACH = 1.6
 CDW_SS_ROUGH_BODY = 0.006
 CDW_SS_ROUGH_WING = 15.0
@@ -563,6 +573,17 @@ def lift_wave_mach_factor(mach: float) -> float:
     return CDW_SS_LIFT_MACH_CAP + CDW_SS_LIFT_POST * (mach - SUPERCRUISE_BAND_HI)
 
 
+def cd_wave_ss_body_post(mach: float) -> float:
+    """超巡带之后的附加体积波阻：(M-1.76)²。
+
+    加力极速处 CL 很小，升力后段压不住降高冲刺；本项把光滑隐身机
+    极速收到公开包线附近。1.76 及以下为零，不改变超巡。
+    """
+    if mach <= SUPERCRUISE_BAND_HI:
+        return 0.0
+    return CDW_SS_BODY_POST * (mach - SUPERCRUISE_BAND_HI) ** 2
+
+
 def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加 + rough 超音速附加。
 
@@ -570,6 +591,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     无尾/翼身融合/加莱特进气道只打折体积项，升力波阻与 rough 附加不打折。
     升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速；
     马赫因子在超巡带封顶，过了 1.76 再加重，峰值高度开始回落。
+    超巡带之后再叠加体积项，收住加力极速（F-22 约 Ma 2.25）。
     """
     if mach <= 1.0:
         return 0.0
@@ -577,7 +599,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     cdw_wing = blend_sweep_quantity(
         ac, lambda sweep: cd_wave_ss_wing_at(mach, sweep, ac.tc),
     )
-    cdw = CDW_SS_BODY * dm ** 2 + cdw_wing
+    cdw = CDW_SS_BODY * dm ** 2 + cdw_wing + cd_wave_ss_body_post(mach)
     if ac.layout == 'tailless':
         cdw *= CDW_TAILLESS
     if ac.bwb:

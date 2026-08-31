@@ -9,6 +9,7 @@ from apps.combat_radius_web import run_combat_radius_json
 from apps.miniprogram_api import handle_request
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.combat_radius.lift_drag import (
+    F22_MAX_SPEED_MACH,
     F35_MAX_SPEED_MACH,
     J20_SUPERCRUISE_MACH,
     J35A_SUPERCRUISE_MACH,
@@ -548,7 +549,7 @@ def test_e2e_combat_radius_f22_max_speed_uses_ab_thrust():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_f35_max_speed_near_mach_16():
-    """F-35A/C 加力极速须贴近公开 Ma 1.6，且 F-22 仍能到 Ma 2+。"""
+    """F-35A/C 加力极速须贴近公开 Ma 1.6，且 F-22 贴近公开 Ma 2.25。"""
     presets = load_presets()
     engines = load_engine_presets()
     for ac_id in ('F-35A', 'F-35C'):
@@ -588,7 +589,7 @@ def test_e2e_combat_radius_f35_max_speed_near_mach_16():
             'max_tsl_kN': f119['max_tsl_kN'],
         },
     })
-    assert r22['max_speed_mach'] > 2.2
+    assert r22['max_speed_mach'] == pytest.approx(F22_MAX_SPEED_MACH, abs=0.08)
 
 
 @pytest.mark.e2e
@@ -630,6 +631,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert f22['points'][-1]['label'] == '最大巡航速度'
     assert f22.get('max_radius_mach') is not None
     assert f22['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
+    assert f22['max_speed']['max_speed_mach'] == pytest.approx(F22_MAX_SPEED_MACH, abs=0.08)
     assert 'split_cruise_note' not in f22
     live = run_preset_dashboard('F-22')
     assert live['success'] is True

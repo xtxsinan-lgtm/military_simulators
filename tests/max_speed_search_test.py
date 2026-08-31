@@ -6,7 +6,7 @@ import pytest
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.combat_radius.cruise_load import combat_mass_kg
 from utils.combat_radius.cruise_search import CruiseContext, THRUST_MARGIN_DEFAULT
-from utils.combat_radius.lift_drag import F35_MAX_SPEED_MACH, aircraft_from_dict, model_coefficients
+from utils.combat_radius.lift_drag import F22_MAX_SPEED_MACH, F35_MAX_SPEED_MACH, aircraft_from_dict, model_coefficients
 from utils.combat_radius.max_speed_search import (
     MACH_SEARCH_HI,
     MACH_SEARCH_LO,
@@ -67,7 +67,7 @@ def _j20_ab_ctx(max_tsl_kn: float) -> CruiseContext:
 
 
 def test_max_speed_thrust_margin_is_full():
-    """加力极速默认按阻力=推力，不沿用军推巡航 92% 裕度。"""
+    """加力极速默认按阻力=推力；不沿用军推巡航 92% 裕度。"""
     assert MAX_SPEED_THRUST_MARGIN == pytest.approx(1.0)
     assert MAX_SPEED_THRUST_MARGIN > THRUST_MARGIN_DEFAULT
 
@@ -197,6 +197,29 @@ def test_f35_afterburner_max_speed_near_published_mach_16():
         assert r['success'] is True and r['feasible'] is True, ac_id
         assert r['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12), ac_id
         assert r['max_speed_mach'] < 1.75, ac_id
+
+
+def test_f22_afterburner_max_speed_near_published_mach_225():
+    """F-22 加力极速应贴近公开 Ma 2.25，而不是靠降高冲到 2.36。"""
+    presets = load_presets()
+    engines = load_engine_presets()
+    tgt = get_preset_by_id(presets, 'F-22')
+    eng = get_preset_by_id(engines, 'f119')
+    r = run_estimate_max_speed_from_params({
+        'target': tgt,
+        'empty_kg': tgt['empty_kg'],
+        'internal_fuel_kg': tgt['internal_fuel_kg'],
+        'n_pilots': tgt['n_pilots'],
+        'missile_mass_kg': tgt['missile_mass_kg'],
+        'n_engines': tgt['n_engines'],
+        'bpr': eng['bpr'],
+        'opr': eng['opr'],
+        't4_K': eng['t4_K'],
+        'max_tsl_kN': eng['max_tsl_kN'],
+    })
+    assert r['success'] is True and r['feasible'] is True
+    assert r['max_speed_mach'] == pytest.approx(F22_MAX_SPEED_MACH, abs=0.08)
+    assert r['max_speed_mach'] < 2.32
 
 
 def test_run_estimate_max_speed_missing_max_thrust_raises():
