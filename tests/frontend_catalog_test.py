@@ -119,6 +119,9 @@ def test_docs_combat_radius_page_exists_and_links():
     assert '选择战机' in html
     assert '实用最大巡航速度' in js_text
     assert '最大巡航速度' in js_text
+    assert 'max_possible_cruise_mach' in js_text
+    assert 'max_cruise_floor_mach' not in js_text
+    assert 'floor_max_cruise' not in js_text
     assert 'max_radius_cruise' in js_text
     assert '最大半径超音速巡航速度' in js_text
     assert 'split_cruise_note' not in js_text

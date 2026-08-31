@@ -119,7 +119,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     labels = {p['id']: p['label'] for p in r['points']}
     assert labels['max_cruise'] == '实用最大巡航速度'
     assert labels['max_radius_cruise'] == '最大半径超音速巡航速度'
-    assert labels['floor_max_cruise'] == '最大巡航速度'
+    assert labels['max_possible_cruise'] == '最大巡航速度'
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
     m12 = next(p for p in r['points'] if p['id'] == 'mach_1_2')
@@ -143,7 +143,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m20['radius_km'] < m175['radius_km']
     prac = next(p for p in r['points'] if p['id'] == 'max_cruise')
     radius_row = next(p for p in r['points'] if p['id'] == 'max_radius_cruise')
-    floor = next(p for p in r['points'] if p['id'] == 'floor_max_cruise')
+    floor = next(p for p in r['points'] if p['id'] == 'max_possible_cruise')
     for extra in (prac, radius_row, floor):
         assert extra['feasible'] is True
         assert extra['alt_m'] is not None
@@ -155,7 +155,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m15['alt_m'] > m08['alt_m']
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
-    assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
+    assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
     assert r['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
     assert 'split_cruise_note' not in r
@@ -447,7 +447,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '总效率' in ios
     assert 'η_th' not in ios
     assert 'p.label' in ios
-    assert 'floor_max_cruise' in ios
+    assert 'max_possible_cruise' in ios
     assert '锚点' not in ios
     assert 'maxLd' in js_text
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')
@@ -643,7 +643,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert j20['max_speed']['max_speed_mach'] > 2.0
     j50 = stored['aircraft']['J-50']
     assert j50['success'] is True
-    assert j50['max_cruise_floor_mach'] > f22['max_cruise_floor_mach']
+    assert j50['max_possible_cruise_mach'] > f22['max_possible_cruise_mach']
     assert j50['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
     j50_m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
     f22_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
@@ -670,14 +670,14 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
         assert stored['aircraft'][aid]['max_cruise_mach'] is None, aid
     for aid, row in stored['aircraft'].items():
         mach = row.get('max_cruise_mach')
-        floor = row.get('max_cruise_floor_mach')
+        floor = row.get('max_possible_cruise_mach')
         if mach is not None:
             assert mach + 1e-9 >= 1.2, aid
             assert floor is not None, aid
             assert floor + 1e-9 >= mach, aid
     fa18c = stored['aircraft']['FA-18C']
     assert fa18c['max_cruise_mach'] is not None
-    assert fa18c['max_cruise_floor_mach'] > fa18c['max_cruise_mach']
+    assert fa18c['max_possible_cruise_mach'] > fa18c['max_cruise_mach']
     fa18c_m12 = next(p for p in fa18c['points'] if p['id'] == 'mach_1_2')
     assert fa18c_m12['feasible'] is False
 

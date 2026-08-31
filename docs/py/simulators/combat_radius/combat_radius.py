@@ -5,7 +5,7 @@
 3. 由空战重量与 L/D 求阻力，再与可用军推得到负载比，估算热/推进/总效率与 TSFC；
 4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度；
    「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；
-   「最大巡航速度」允许掉到 11 km 后再取绝对上限。
+   「最大巡航速度」是 11–20 km 内仍能军推平飞的最大可能巡航马赫。
    若高度峰值与 Ma 1.2 以上作战半径最大的马赫不同，表尾插入「最大半径超音速巡航速度」。
    先按出发/返回重量算瞬时油耗，再把（冗余−降落节省）加到空重上、
    内油减去该值与爬升额外后重新做布雷盖。
@@ -61,7 +61,7 @@ from utils.combat_radius.cruise_search import (
     score_cruise_point,
     scored_to_dict,
     search_best_altitude,
-    search_floor_max_cruise_mach,
+    search_max_possible_cruise_mach,
     search_max_ld_altitude,
     snap_mach,
 )
@@ -104,24 +104,24 @@ from utils.combat_radius.military_thrust import (
 
 PRACTICAL_MAX_CRUISE_ID = 'max_cruise'
 PRACTICAL_MAX_CRUISE_LABEL = '实用最大巡航速度'
-FLOOR_MAX_CRUISE_ID = 'floor_max_cruise'
-FLOOR_MAX_CRUISE_LABEL = '最大巡航速度'
+MAX_POSSIBLE_CRUISE_ID = 'max_possible_cruise'
+MAX_POSSIBLE_CRUISE_LABEL = '最大巡航速度'
 MAX_RADIUS_CRUISE_ID = 'max_radius_cruise'
 MAX_RADIUS_CRUISE_LABEL = '最大半径超音速巡航速度'
 SPLIT_CRUISE_MACH_TOL = 0.005
 NAMED_CRUISE_LIMITS = {
     PRACTICAL_MAX_CRUISE_ID: PRACTICAL_MAX_CRUISE_LABEL,
     MAX_RADIUS_CRUISE_ID: MAX_RADIUS_CRUISE_LABEL,
-    FLOOR_MAX_CRUISE_ID: FLOOR_MAX_CRUISE_LABEL,
+    MAX_POSSIBLE_CRUISE_ID: MAX_POSSIBLE_CRUISE_LABEL,
 }
 
 
 def cruise_limit_specs(
     practical_mach: float | None,
-    floor_mach: float | None,
+    possible_mach: float | None,
     max_radius_mach: float | None = None,
 ) -> list[tuple[str, str, float | None]]:
-    """表尾：始终实用最大巡航，必要时插入最大半径超音速巡航，再最大巡航。"""
+    """表尾：始终实用最大巡航，必要时插入最大半径超音速巡航，再最大可能巡航。"""
     rows: list[tuple[str, str, float | None]] = [
         (PRACTICAL_MAX_CRUISE_ID, NAMED_CRUISE_LIMITS[PRACTICAL_MAX_CRUISE_ID], practical_mach),
     ]
@@ -132,9 +132,9 @@ def cruise_limit_specs(
             max_radius_mach,
         ))
     rows.append((
-        FLOOR_MAX_CRUISE_ID,
-        NAMED_CRUISE_LIMITS[FLOOR_MAX_CRUISE_ID],
-        floor_mach,
+        MAX_POSSIBLE_CRUISE_ID,
+        NAMED_CRUISE_LIMITS[MAX_POSSIBLE_CRUISE_ID],
+        possible_mach,
     ))
     return rows
 
@@ -895,14 +895,14 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
                 float(fuel_adj['mass_final_kg']),
                 prac_lo,
             )
-    floor_mach = search_floor_max_cruise_mach(
+    possible_mach = search_max_possible_cruise_mach(
         ctx, mach_lo, mach_hi, mach_iters, alt_min, alt_max, coarse_m,
     )
-    # 最大巡航不得低于实用最大巡航（跨声速空洞或高度网格差）
-    if max_mach is not None and (floor_mach is None or floor_mach < max_mach):
-        floor_mach = max_mach
-    # 高度峰值与半径最佳马赫不同时，在实用最大巡航与最大巡航之间插入一行
-    for point_id, label, mach in cruise_limit_specs(max_mach, floor_mach, max_radius_mach):
+    # 最大可能巡航不得低于实用最大巡航（跨声速空洞或高度网格差）
+    if max_mach is not None and (possible_mach is None or possible_mach < max_mach):
+        possible_mach = max_mach
+    # 高度峰值与半径最佳马赫不同时，在实用最大巡航与最大可能巡航之间插入一行
+    for point_id, label, mach in cruise_limit_specs(max_mach, possible_mach, max_radius_mach):
         if mach is None:
             points.append(_attach_max_ld_to_point(
                 _infeasible_point(point_id, label, None),
@@ -959,7 +959,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         'mach_angle_deg': mach_angle_deg,
         'mach_cone_limit': m_cone,
         'max_cruise_mach': max_mach,
-        'max_cruise_floor_mach': floor_mach,
+        'max_possible_cruise_mach': possible_mach,
         'max_radius_mach': max_radius_mach,
         'max_radius_km': max_radius_km,
         'points': points,
@@ -1267,12 +1267,12 @@ def main() -> None:
     if result['mach_angle_deg'] is not None:
         max_m = result['max_cruise_mach']
         max_txt = f'{max_m:.3f}' if max_m is not None else '—'
-        floor_m = result.get('max_cruise_floor_mach')
-        floor_txt = f'{floor_m:.3f}' if floor_m is not None else '—'
+        possible_m = result.get('max_possible_cruise_mach')
+        possible_txt = f'{possible_m:.3f}' if possible_m is not None else '—'
         print(
             f'马赫角 {result["mach_angle_deg"]:.1f}° · '
             f'锥限 Ma {result["mach_cone_limit"]:.2f} · '
-            f'实用最大巡航 Ma {max_txt} · 最大巡航 Ma {floor_txt}'
+            f'实用最大巡航 Ma {max_txt} · 最大巡航 Ma {possible_txt}'
         )
     print(
         f'{"速度/马赫":<22} {"高度km":>8} {"L/D":>7} {"η_o%":>7} '

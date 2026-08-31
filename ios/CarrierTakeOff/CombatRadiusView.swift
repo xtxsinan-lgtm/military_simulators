@@ -182,7 +182,7 @@ struct CombatRadiusView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
                 stat("实用最大巡航速度", value: r.max_cruise_mach.map { String(format: "Ma %.3f", $0) } ?? "—", amber: true)
-                stat("最大巡航速度", value: r.max_cruise_floor_mach.map { String(format: "Ma %.3f", $0) } ?? "—")
+                stat("最大巡航速度", value: r.max_possible_cruise_mach.map { String(format: "Ma %.3f", $0) } ?? "—")
                 let vmax = r.max_speed?.feasible == true
                     ? r.max_speed?.max_speed_kmh.map { String(format: "%.0f km/h", $0) } ?? "—"
                     : (r.max_speed?.fail_reason ?? "—")
@@ -224,7 +224,7 @@ struct CombatRadiusView: View {
         let name = p.label.isEmpty
             ? (p.mach.map { String(format: "Ma %.3f", $0) } ?? "—")
             : p.label
-        let named = p.id == "max_cruise" || p.id == "floor_max_cruise" || p.id == "max_radius_cruise"
+        let named = p.id == "max_cruise" || p.id == "max_possible_cruise" || p.id == "max_radius_cruise"
         if named, let mach = p.mach {
             return String(format: "%@ %.3f", name, mach)
         }

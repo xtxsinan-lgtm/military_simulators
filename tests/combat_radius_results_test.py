@@ -74,7 +74,7 @@ def test_sanitize_helpers_round_and_drop_blackbox():
     assert failed['success'] is False
     ok = sanitize_dashboard({
         'success': True, 'name': 'F-22', 'carrier': False,
-        'max_cruise_mach': 1.23456, 'max_cruise_floor_mach': 1.89,
+        'max_cruise_mach': 1.23456, 'max_possible_cruise_mach': 1.89,
         'max_radius_mach': 1.5, 'max_radius_km': 800.12,
         'fuel_kg': 8200, 'fuel_usable_kg': 5000.12,
         'n_engines': 2, 'points': [{'id': 'mach_0_8', 'feasible': True, 'mach': 0.8}],
@@ -82,7 +82,8 @@ def test_sanitize_helpers_round_and_drop_blackbox():
     })
     assert ok['success'] is True
     assert 'Cf0' not in ok
-    assert ok['max_cruise_floor_mach'] == 1.89
+    assert ok['max_possible_cruise_mach'] == 1.89
+    assert 'max_cruise_floor_mach' not in ok
     assert ok['max_radius_mach'] == 1.5
     assert ok['max_radius_km'] == 800.12
     assert 'split_cruise_note' not in ok
@@ -116,15 +117,17 @@ def test_run_preset_dashboard_f22_compact():
     assert 'mach_2_0' in ids
     assert 'max_cruise' in ids
     assert 'max_radius_cruise' in ids
-    assert 'floor_max_cruise' in ids
+    assert 'max_possible_cruise' in ids
+    assert 'floor_max_cruise' not in ids
+    assert 'max_cruise_floor_mach' not in r
     assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
     radius_row = next(p for p in r['points'] if p['id'] == 'max_radius_cruise')
     assert radius_row['label'] == '最大半径超音速巡航速度'
     assert radius_row['mach'] == pytest.approx(1.58, abs=0.03)
-    assert next(p for p in r['points'] if p['id'] == 'floor_max_cruise')['label'] == '最大巡航速度'
+    assert next(p for p in r['points'] if p['id'] == 'max_possible_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
     assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
-    assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
+    assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
     assert r['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
     assert cruise_machs_differ(r['max_cruise_mach'], r['max_radius_mach'])
@@ -160,7 +163,7 @@ def test_run_preset_dashboard_j50_supercruise_above_f22():
     f22 = run_preset_dashboard('F-22')
     j50 = run_preset_dashboard('J-50')
     assert f22['success'] is True and j50['success'] is True
-    assert j50['max_cruise_floor_mach'] > f22['max_cruise_floor_mach']
+    assert j50['max_possible_cruise_mach'] > f22['max_possible_cruise_mach']
     m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
     m15 = next(p for p in j50['points'] if p['id'] == 'mach_1_5')
     f22_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
@@ -205,12 +208,12 @@ def test_run_preset_dashboard_fa18c_floor_above_practical():
     m12 = next(p for p in r['points'] if p['id'] == 'mach_1_2')
     assert m12['feasible'] is False
     assert r['max_cruise_mach'] is not None
-    assert r['max_cruise_floor_mach'] is not None
-    assert r['max_cruise_floor_mach'] + 1e-9 >= r['max_cruise_mach']
-    assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
-    floor_pt = next(p for p in r['points'] if p['id'] == 'floor_max_cruise')
+    assert r['max_possible_cruise_mach'] is not None
+    assert r['max_possible_cruise_mach'] + 1e-9 >= r['max_cruise_mach']
+    assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
+    floor_pt = next(p for p in r['points'] if p['id'] == 'max_possible_cruise')
     assert floor_pt['feasible'] is True
-    assert floor_pt['mach'] == pytest.approx(r['max_cruise_floor_mach'])
+    assert floor_pt['mach'] == pytest.approx(r['max_possible_cruise_mach'])
 
 
 def test_run_preset_dashboard_ws10c_uav_no_practical_supercruise():

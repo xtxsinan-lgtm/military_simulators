@@ -63,7 +63,7 @@ function weightFromPreset(p) {
 /** 分速表第一列：固定马赫只写数字，表尾命名行写中文名称加马赫。 */
 function cruiseSpeedLabel(p) {
   const name = p.label || (p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—');
-  if ((p.id === 'max_cruise' || p.id === 'floor_max_cruise' || p.id === 'max_radius_cruise') && p.mach != null) {
+  if ((p.id === 'max_cruise' || p.id === 'max_possible_cruise' || p.id === 'max_radius_cruise') && p.mach != null) {
     return `${name} ${fmt(p.mach, 3)}`;
   }
   return p.mach != null ? fmt(p.mach, 3) : name;
@@ -123,7 +123,7 @@ Page({
     dashStatusText: 'STANDBY',
     dashOk: false,
     dashMaxCruise: '—',
-    dashFloorCruise: '—',
+    dashMaxPossibleCruise: '—',
     dashVmax: '—',
     dashRows: [],
     resultsMap: {},
@@ -213,7 +213,7 @@ Page({
       dashOk: true,
       dashStatusText: '预计算快照',
       dashMaxCruise: snap.max_cruise_mach != null ? fmt(snap.max_cruise_mach, 3) : '—',
-      dashFloorCruise: snap.max_cruise_floor_mach != null ? fmt(snap.max_cruise_floor_mach, 3) : '—',
+      dashMaxPossibleCruise: snap.max_possible_cruise_mach != null ? fmt(snap.max_possible_cruise_mach, 3) : '—',
       dashVmax: ms.feasible ? `${fmt(ms.max_speed_kmh, 0)} km/h` : (ms.fail_reason || '—'),
       dashRows: dashRowsFrom(snap),
     });
@@ -349,7 +349,7 @@ Page({
           dashOk: true,
           dashStatusText: '现场重算',
           dashMaxCruise: r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—',
-          dashFloorCruise: r.max_cruise_floor_mach != null ? fmt(r.max_cruise_floor_mach, 3) : '—',
+          dashMaxPossibleCruise: r.max_possible_cruise_mach != null ? fmt(r.max_possible_cruise_mach, 3) : '—',
           dashVmax: ms.feasible ? `${fmt(ms.max_speed_kmh, 0)} km/h` : (ms.fail_reason || '—'),
           dashRows: dashRowsFrom(r),
           running: false,

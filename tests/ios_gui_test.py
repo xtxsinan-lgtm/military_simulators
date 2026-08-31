@@ -109,7 +109,8 @@ def test_ios_uses_local_engine_not_http_api():
     assert '实用最大巡航速度' in cr_view
     assert '最大巡航速度' in cr_view
     assert 'func cruiseSpeedLabel' in cr_view
-    assert 'max_cruise_floor_mach' in models
+    assert 'max_possible_cruise_mach' in models
+    assert 'max_cruise_floor_mach' not in models
     assert 'max_radius_mach' in models
     assert 'max_radius_cruise' in cr_view
     assert '最大半径超音速巡航速度' in cr_view

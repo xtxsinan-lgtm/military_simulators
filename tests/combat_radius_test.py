@@ -5,8 +5,8 @@ import json
 
 from apps.combat_radius_web import _opt_bool, _opt_float, run_combat_radius, run_combat_radius_json
 from simulators.combat_radius.combat_radius import (
-    FLOOR_MAX_CRUISE_ID,
-    FLOOR_MAX_CRUISE_LABEL,
+    MAX_POSSIBLE_CRUISE_ID,
+    MAX_POSSIBLE_CRUISE_LABEL,
     MAX_RADIUS_CRUISE_ID,
     MAX_RADIUS_CRUISE_LABEL,
     PRACTICAL_MAX_CRUISE_ID,
@@ -350,13 +350,13 @@ def test_cruise_limit_specs_order_and_labels():
     same = cruise_limit_specs(1.76, 1.92, 1.76)
     assert same == [
         (PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, 1.76),
-        (FLOOR_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_LABEL, 1.92),
+        (MAX_POSSIBLE_CRUISE_ID, MAX_POSSIBLE_CRUISE_LABEL, 1.92),
     ]
     differ = cruise_limit_specs(1.76, 1.92, 1.50)
     assert differ == [
         (PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, 1.76),
         (MAX_RADIUS_CRUISE_ID, MAX_RADIUS_CRUISE_LABEL, 1.50),
-        (FLOOR_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_LABEL, 1.92),
+        (MAX_POSSIBLE_CRUISE_ID, MAX_POSSIBLE_CRUISE_LABEL, 1.92),
     ]
     empty = cruise_limit_specs(None, None)
     assert empty[0][2] is None and empty[-1][2] is None
@@ -372,8 +372,8 @@ def test_format_cruise_speed_label_fixed_and_limits():
         'mach': 1.76,
     }) == '实用最大巡航速度 1.760'
     assert format_cruise_speed_label({
-        'id': FLOOR_MAX_CRUISE_ID,
-        'label': FLOOR_MAX_CRUISE_LABEL,
+        'id': MAX_POSSIBLE_CRUISE_ID,
+        'label': MAX_POSSIBLE_CRUISE_LABEL,
         'mach': 1.92,
     }) == '最大巡航速度 1.920'
     assert format_cruise_speed_label({
@@ -485,14 +485,15 @@ def test_run_estimate_radius_from_params_f22():
     assert ids == [
         'mach_0_8', 'mach_1_0', 'mach_1_2', 'mach_1_35', 'mach_1_5',
         'mach_1_75', 'mach_2_0',
-        PRACTICAL_MAX_CRUISE_ID, MAX_RADIUS_CRUISE_ID, FLOOR_MAX_CRUISE_ID,
+        PRACTICAL_MAX_CRUISE_ID, MAX_RADIUS_CRUISE_ID, MAX_POSSIBLE_CRUISE_ID,
     ]
     labels = {p['id']: p['label'] for p in r['points']}
     assert labels[PRACTICAL_MAX_CRUISE_ID] == PRACTICAL_MAX_CRUISE_LABEL
     assert labels[MAX_RADIUS_CRUISE_ID] == MAX_RADIUS_CRUISE_LABEL
-    assert labels[FLOOR_MAX_CRUISE_ID] == FLOOR_MAX_CRUISE_LABEL
-    assert r['max_cruise_floor_mach'] is not None
-    assert r['max_cruise_floor_mach'] + 1e-9 >= r['max_cruise_mach']
+    assert labels[MAX_POSSIBLE_CRUISE_ID] == MAX_POSSIBLE_CRUISE_LABEL
+    assert r['max_possible_cruise_mach'] is not None
+    assert 'max_cruise_floor_mach' not in r
+    assert r['max_possible_cruise_mach'] + 1e-9 >= r['max_cruise_mach']
     m08 = r['points'][0]
     assert m08['feasible'] is True
     assert m08['radius_km'] > 100
@@ -536,8 +537,8 @@ def test_run_estimate_radius_skips_practical_max_when_hi_below_12():
     assert r['max_radius_mach'] is None
     assert 'split_cruise_note' not in r
     assert MAX_RADIUS_CRUISE_ID not in [p['id'] for p in r['points']]
-    assert r['max_cruise_floor_mach'] is not None
-    assert r['max_cruise_floor_mach'] <= 1.1 + 1e-9
+    assert r['max_possible_cruise_mach'] is not None
+    assert r['max_possible_cruise_mach'] <= 1.1 + 1e-9
 
 
 def test_run_combat_radius_estimate_radius_action():
@@ -579,7 +580,7 @@ def test_main_prints_table(capsys, monkeypatch):
                 'mach': 1.5, 'feasible': False,
             },
             {
-                'id': 'floor_max_cruise', 'label': '最大巡航速度',
+                'id': 'max_possible_cruise', 'label': '最大巡航速度',
                 'mach': 1.9, 'feasible': False,
             },
         ],

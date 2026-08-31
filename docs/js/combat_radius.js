@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 42;
+const APP_VERSION = 43;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -337,7 +337,7 @@ function thrustModeLabel(mode) {
 /** 分速表第一列：固定马赫只写数字，表尾命名行写中文名称加马赫。 */
 function cruiseSpeedLabel(p) {
   const name = p.label || (p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—');
-  if ((p.id === 'max_cruise' || p.id === 'floor_max_cruise' || p.id === 'max_radius_cruise') && p.mach != null) {
+  if ((p.id === 'max_cruise' || p.id === 'max_possible_cruise' || p.id === 'max_radius_cruise') && p.mach != null) {
     return `${name} ${fmt(p.mach, 3)}`;
   }
   return p.mach != null ? fmt(p.mach, 3) : name;
@@ -388,7 +388,7 @@ function renderDash(r, sourceLabel) {
   $('dashBox').innerHTML = `
     <div class="stat-row">
       <div class="stat"><div class="k">实用最大巡航速度</div><div class="v amber">${r.max_cruise_mach != null ? `Ma ${fmt(r.max_cruise_mach, 3)}` : '—'}</div></div>
-      <div class="stat"><div class="k">最大巡航速度</div><div class="v">${r.max_cruise_floor_mach != null ? `Ma ${fmt(r.max_cruise_floor_mach, 3)}` : '—'}</div></div>
+      <div class="stat"><div class="k">最大巡航速度</div><div class="v">${r.max_possible_cruise_mach != null ? `Ma ${fmt(r.max_possible_cruise_mach, 3)}` : '—'}</div></div>
       <div class="stat"><div class="k">极速</div><div class="v">${vmax}</div><div class="sub">${ms.alt_m != null ? `${fmt(ms.alt_m / 1000, 1)} km` : ''}</div></div>
       <div class="stat"><div class="k">可用油</div><div class="v">${fmt(r.fuel_usable_kg, 0)} kg</div><div class="sub">内油 ${fmt(r.fuel_kg, 0)} · ${r.carrier ? '舰载' : '陆基'}</div></div>
     </div>

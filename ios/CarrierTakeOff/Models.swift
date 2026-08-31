@@ -212,7 +212,7 @@ struct CombatRadiusResult: Codable {
     var mach_angle_deg: Double?
     var mach_cone_limit: Double?
     var max_cruise_mach: Double?
-    var max_cruise_floor_mach: Double?
+    var max_possible_cruise_mach: Double?
     var max_radius_mach: Double?
     var max_radius_km: Double?
     var mass_initial_kg: Double?

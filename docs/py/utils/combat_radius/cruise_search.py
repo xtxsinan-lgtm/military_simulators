@@ -7,9 +7,9 @@
 且大迎角附加阻力会压低 L/D，二者合起来把最佳高度压在标定巡航附近；
 跨声速鼓包在 Ma 1.0–1.2 加大阻力，最佳高度可能先掉再恢复。
 「实用最大巡航」只在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度
-（同一峰值平台取最大马赫，已经掉高的点不算）；若允许掉到高度下限，
-军推还能再快一些。跨声速鼓包会使可行性对马赫不单调，最大巡航须取
-最高可行窗口上沿，不能停在空洞前沿。
+（同一峰值平台取最大马赫，已经掉高的点不算）。「最大可能巡航」是
+11–20 km 内仍能军推平飞的最大马赫（从高往低搜最高可行窗口）；
+跨声速鼓包会使可行性对马赫不单调，不能停在空洞前沿。
 """
 from __future__ import annotations
 
@@ -259,7 +259,7 @@ def _require_mach_search_bounds(mach_lo: float, mach_hi: float, iters: int) -> N
         raise ValueError('马赫搜索迭代次数须为正')
 
 
-def search_floor_max_cruise_mach(
+def search_max_possible_cruise_mach(
     ctx: CruiseContext,
     mach_lo: float = MACH_SEARCH_LO,
     mach_hi: float = MACH_SEARCH_HI,
@@ -268,13 +268,12 @@ def search_floor_max_cruise_mach(
     alt_max_m: float = ALT_MAX_M,
     step_m: float = ALT_COARSE_M,
 ) -> float | None:
-    """允许掉到高度下限时，仍满足 92% 推力裕度的最大马赫。
+    """11–20 km 内仍满足 92% 军推裕度的最大马赫（最大可能巡航）。
 
-    比峰值高度段的最大巡航更快。跨声速鼓包会使可行性对马赫不单调
+    比峰值高度段的实用最大巡航更快。跨声速鼓包会使可行性对马赫不单调
     （Ma 1.2 附近可能有空洞、更高马赫又能飞），不能从低马赫往上二分，
-    否则会停在空洞前沿、比实用最大巡航还慢。改为从高往低找最高可行点，
-    再在该点与上一格不可行点之间细化。低马赫在 11 km 可能因大迎角
-    不可飞，不作为失败条件。
+    否则会停在空洞前沿。改为从高往低找最高可行点，再在该点与上一格
+    不可行点之间细化。低马赫在 11 km 可能因大迎角不可飞，不作为失败条件。
     """
     _require_mach_search_bounds(mach_lo, mach_hi, iters)
     if any_feasible_altitude(ctx, mach_hi, alt_min_m, alt_max_m, step_m):
@@ -401,7 +400,7 @@ def search_max_cruise_mach(
 
     默认只在 Ma 1.2 以上按 0.01 马赫扫剖面，避免把跨声速鼓包前的高度峰值
     当成实用最大巡航。取高度仍等于全局最大值的连续平台上沿，不容差掉高。
-    掉到 11 km 后的绝对上限用 search_floor_max_cruise_mach。
+    11–20 km 内的绝对上限用 search_max_possible_cruise_mach。
     """
     _require_mach_search_bounds(mach_lo, mach_hi, iters)
     if peak_drop_m < 0:

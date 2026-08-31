@@ -34,7 +34,7 @@ from utils.combat_radius.cruise_search import (
     scored_to_dict,
     search_best_altitude,
     _require_mach_search_bounds,
-    search_floor_max_cruise_mach,
+    search_max_possible_cruise_mach,
     search_max_cruise_mach,
     search_max_ld_altitude,
     try_cruise_forces,
@@ -204,26 +204,26 @@ def test_search_max_cruise_mach_returns_hi_if_feasible():
     assert m == pytest.approx(0.8)
 
 
-def test_search_floor_max_cruise_mach_faster_than_peak():
-    """掉到高度下限后的上限应高于峰值高度段最大巡航。"""
+def test_search_max_possible_cruise_mach_faster_than_peak():
+    """最大可能巡航应高于峰值高度段的实用最大巡航。"""
     ctx = _f22_csv_ctx()
     peak = search_max_cruise_mach(ctx)
-    floor = search_floor_max_cruise_mach(ctx)
+    floor = search_max_possible_cruise_mach(ctx)
     assert peak is not None and floor is not None
     assert floor > peak
-    assert search_floor_max_cruise_mach(ctx, 0.5, 0.8, iters=3, step_m=3000.0) == pytest.approx(0.8)
+    assert search_max_possible_cruise_mach(ctx, 0.5, 0.8, iters=3, step_m=3000.0) == pytest.approx(0.8)
     dead = _f22_ctx()
     dead.tsl_N = 1.0
-    assert search_floor_max_cruise_mach(dead, 0.5, 0.8, iters=2, step_m=3000.0) is None
+    assert search_max_possible_cruise_mach(dead, 0.5, 0.8, iters=2, step_m=3000.0) is None
     with pytest.raises(ValueError, match='区间'):
-        search_floor_max_cruise_mach(ctx, 1.0, 0.5, iters=2)
+        search_max_possible_cruise_mach(ctx, 1.0, 0.5, iters=2)
 
 
-def test_search_floor_max_cruise_mach_skips_transonic_hole():
+def test_search_max_possible_cruise_mach_skips_transonic_hole():
     """跨声速空洞不能截断最大巡航：须落在空洞之后的超音速窗口上沿。"""
     ctx = _csv_ctx('FA-18C')
     peak = search_max_cruise_mach(ctx)
-    floor = search_floor_max_cruise_mach(ctx)
+    floor = search_max_possible_cruise_mach(ctx)
     assert peak is not None and floor is not None
     assert any_feasible_altitude(ctx, 1.2) is False
     assert any_feasible_altitude(ctx, peak) is True
@@ -275,7 +275,7 @@ def test_f22_max_cruise_mach_anchored_at_supercruise():
     """实用最大巡航取高度真正见顶的最大马赫；掉到 11 km 后还能更快。"""
     ctx = _f22_csv_ctx()
     m = search_max_cruise_mach(ctx)
-    floor = search_floor_max_cruise_mach(ctx)
+    floor = search_max_possible_cruise_mach(ctx)
     assert m == pytest.approx(1.77, abs=0.005)
     assert floor is not None and floor > m + 0.05
     assert any_feasible_altitude(ctx, F22_SUPERCRUISE_MACH) is True
@@ -327,9 +327,9 @@ def test_j20_max_cruise_mach_anchored_below_f22():
 def test_j20_legacy_90kn_military_cruise_near_mach_15():
     """早期 90 kN 军推下，掉高度后上限仍低于现役 105 kN。"""
     legacy = _csv_ctx('J-20', tsl_kn=90.0)
-    m = search_floor_max_cruise_mach(legacy)
+    m = search_max_possible_cruise_mach(legacy)
     assert m == pytest.approx(1.71, abs=0.05)
-    current = search_floor_max_cruise_mach(_csv_ctx('J-20'))
+    current = search_max_possible_cruise_mach(_csv_ctx('J-20'))
     assert current > m
     assert search_max_cruise_mach(legacy) < m
 

@@ -106,7 +106,7 @@ def sanitize_dashboard(result: dict[str, Any]) -> dict[str, Any]:
         'name': result.get('name'),
         'carrier': bool(result.get('carrier')),
         'max_cruise_mach': _round(result.get('max_cruise_mach'), 4),
-        'max_cruise_floor_mach': _round(result.get('max_cruise_floor_mach'), 4),
+        'max_possible_cruise_mach': _round(result.get('max_possible_cruise_mach'), 4),
         'max_radius_mach': _round(result.get('max_radius_mach'), 4),
         'max_radius_km': _round(result.get('max_radius_km'), 2),
         'fuel_kg': _round(result.get('fuel_kg'), 1),

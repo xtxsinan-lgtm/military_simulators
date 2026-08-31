@@ -2818,7 +2818,7 @@ module.exports = {
         "name": "F-35C Lightning II / F135",
         "carrier": true,
         "max_cruise_mach": null,
-        "max_cruise_floor_mach": 1.0075,
+        "max_possible_cruise_mach": 1.0075,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 8960.0,
@@ -3010,7 +3010,7 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.0075,
             "feasible": true,
@@ -3051,7 +3051,7 @@ module.exports = {
         "name": "F-22 Raptor / F119",
         "carrier": false,
         "max_cruise_mach": 1.77,
-        "max_cruise_floor_mach": 2.0756,
+        "max_possible_cruise_mach": 2.0756,
         "max_radius_mach": 1.58,
         "max_radius_km": 818.62,
         "fuel_kg": 8200.0,
@@ -3266,7 +3266,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 2.0756,
             "feasible": true,
@@ -3307,7 +3307,7 @@ module.exports = {
         "name": "F-35A Lightning II / F135",
         "carrier": false,
         "max_cruise_mach": null,
-        "max_cruise_floor_mach": 1.15,
+        "max_possible_cruise_mach": 1.15,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 8300.0,
@@ -3499,7 +3499,7 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.15,
             "feasible": true,
@@ -3540,7 +3540,7 @@ module.exports = {
         "name": "歼-20 / 涡扇15",
         "carrier": false,
         "max_cruise_mach": 1.67,
-        "max_cruise_floor_mach": 1.9227,
+        "max_possible_cruise_mach": 1.9227,
         "max_radius_mach": 1.43,
         "max_radius_km": 1026.13,
         "fuel_kg": 10000.0,
@@ -3755,7 +3755,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.9227,
             "feasible": true,
@@ -3796,7 +3796,7 @@ module.exports = {
         "name": "歼-50 / 涡扇15改进",
         "carrier": false,
         "max_cruise_mach": 1.76,
-        "max_cruise_floor_mach": 2.2028,
+        "max_possible_cruise_mach": 2.2028,
         "max_radius_mach": 1.65,
         "max_radius_km": 1384.25,
         "fuel_kg": 13000.0,
@@ -4011,7 +4011,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 2.2028,
             "feasible": true,
@@ -4052,7 +4052,7 @@ module.exports = {
         "name": "歼-50舰载 / 涡扇15改进",
         "carrier": true,
         "max_cruise_mach": 1.76,
-        "max_cruise_floor_mach": 2.2028,
+        "max_possible_cruise_mach": 2.2028,
         "max_radius_mach": 1.65,
         "max_radius_km": 1297.25,
         "fuel_kg": 13000.0,
@@ -4267,7 +4267,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 2.2028,
             "feasible": true,
@@ -4308,7 +4308,7 @@ module.exports = {
         "name": "歼-36 / 涡扇15改进",
         "carrier": false,
         "max_cruise_mach": 1.76,
-        "max_cruise_floor_mach": 2.3798,
+        "max_possible_cruise_mach": 2.3798,
         "max_radius_mach": 1.75,
         "max_radius_km": 2254.74,
         "fuel_kg": 26500.0,
@@ -4523,7 +4523,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 2.3798,
             "feasible": true,
@@ -4564,7 +4564,7 @@ module.exports = {
         "name": "歼-35 / 涡扇21",
         "carrier": true,
         "max_cruise_mach": null,
-        "max_cruise_floor_mach": 1.0211,
+        "max_possible_cruise_mach": 1.0211,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 8000.0,
@@ -4756,7 +4756,7 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.0211,
             "feasible": true,
@@ -4797,7 +4797,7 @@ module.exports = {
         "name": "歼-35A / 涡扇19",
         "carrier": false,
         "max_cruise_mach": 1.57,
-        "max_cruise_floor_mach": 1.7278,
+        "max_possible_cruise_mach": 1.7278,
         "max_radius_mach": 1.44,
         "max_radius_km": 910.12,
         "fuel_kg": 7200.0,
@@ -5012,7 +5012,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.7278,
             "feasible": true,
@@ -5053,7 +5053,7 @@ module.exports = {
         "name": "53636无人战机 / 涡扇10C",
         "carrier": false,
         "max_cruise_mach": null,
-        "max_cruise_floor_mach": 0.972,
+        "max_possible_cruise_mach": 0.972,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 4740.0,
@@ -5245,7 +5245,7 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 0.972,
             "feasible": true,
@@ -5286,7 +5286,7 @@ module.exports = {
         "name": "53636无人战机舰载版 / 涡扇10C",
         "carrier": true,
         "max_cruise_mach": null,
-        "max_cruise_floor_mach": 0.965,
+        "max_possible_cruise_mach": 0.965,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 4740.0,
@@ -5478,7 +5478,7 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 0.965,
             "feasible": true,
@@ -5519,7 +5519,7 @@ module.exports = {
         "name": "53536无人战机 / 涡扇10C",
         "carrier": false,
         "max_cruise_mach": null,
-        "max_cruise_floor_mach": 0.9742,
+        "max_possible_cruise_mach": 0.9742,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 6900.0,
@@ -5711,7 +5711,7 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 0.9742,
             "feasible": true,
@@ -5752,7 +5752,7 @@ module.exports = {
         "name": "F-35B Lightning II / F135",
         "carrier": true,
         "max_cruise_mach": null,
-        "max_cruise_floor_mach": 1.1307,
+        "max_possible_cruise_mach": 1.1307,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 6400.0,
@@ -5944,7 +5944,7 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.1307,
             "feasible": true,
@@ -5985,7 +5985,7 @@ module.exports = {
         "name": "AV-8B Harrier II / F402-RR-408",
         "carrier": true,
         "max_cruise_mach": 1.21,
-        "max_cruise_floor_mach": 1.3493,
+        "max_possible_cruise_mach": 1.3493,
         "max_radius_mach": 1.2,
         "max_radius_km": 667.82,
         "fuel_kg": 3540.0,
@@ -6200,7 +6200,7 @@ module.exports = {
             "max_ld_thrust_mode": "military"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.3493,
             "feasible": true,
@@ -6241,7 +6241,7 @@ module.exports = {
         "name": "歼-15 / 涡扇10H",
         "carrier": true,
         "max_cruise_mach": 1.58,
-        "max_cruise_floor_mach": 1.7699,
+        "max_possible_cruise_mach": 1.7699,
         "max_radius_mach": 1.42,
         "max_radius_km": 913.04,
         "fuel_kg": 9800.0,
@@ -6456,7 +6456,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.7699,
             "feasible": true,
@@ -6497,7 +6497,7 @@ module.exports = {
         "name": "歼-15T / 涡扇10H",
         "carrier": true,
         "max_cruise_mach": 1.61,
-        "max_cruise_floor_mach": 1.7687,
+        "max_possible_cruise_mach": 1.7687,
         "max_radius_mach": 1.46,
         "max_radius_km": 915.88,
         "fuel_kg": 10000.0,
@@ -6712,7 +6712,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.7687,
             "feasible": true,
@@ -6753,7 +6753,7 @@ module.exports = {
         "name": "MiG-29K / RD-33MK",
         "carrier": true,
         "max_cruise_mach": 1.74,
-        "max_cruise_floor_mach": 1.9101,
+        "max_possible_cruise_mach": 1.9101,
         "max_radius_mach": 1.39,
         "max_radius_km": 649.43,
         "fuel_kg": 4560.0,
@@ -6968,7 +6968,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.9101,
             "feasible": true,
@@ -7009,7 +7009,7 @@ module.exports = {
         "name": "阵风 M / M88-2",
         "carrier": true,
         "max_cruise_mach": null,
-        "max_cruise_floor_mach": 1.0327,
+        "max_possible_cruise_mach": 1.0327,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 4700.0,
@@ -7201,7 +7201,7 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.0327,
             "feasible": true,
@@ -7242,7 +7242,7 @@ module.exports = {
         "name": "F/A-18E Super Hornet / F414-GE-400",
         "carrier": true,
         "max_cruise_mach": 1.49,
-        "max_cruise_floor_mach": 1.6429,
+        "max_possible_cruise_mach": 1.6429,
         "max_radius_mach": 1.41,
         "max_radius_km": 711.25,
         "fuel_kg": 6667.0,
@@ -7457,7 +7457,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.6429,
             "feasible": true,
@@ -7498,7 +7498,7 @@ module.exports = {
         "name": "F/A-18C/D Hornet / F404-GE-402",
         "carrier": true,
         "max_cruise_mach": 1.45,
-        "max_cruise_floor_mach": 1.6176,
+        "max_possible_cruise_mach": 1.6176,
         "max_radius_mach": 1.44,
         "max_radius_km": 650.44,
         "fuel_kg": 4930.0,
@@ -7713,7 +7713,7 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.6176,
             "feasible": true,
@@ -7754,7 +7754,7 @@ module.exports = {
         "name": "F-14 Tomcat / F110-GE-400",
         "carrier": true,
         "max_cruise_mach": null,
-        "max_cruise_floor_mach": 1.0254,
+        "max_possible_cruise_mach": 1.0254,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 7348.0,
@@ -7946,7 +7946,7 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
-            "id": "floor_max_cruise",
+            "id": "max_possible_cruise",
             "label": "最大巡航速度",
             "mach": 1.0254,
             "feasible": true,

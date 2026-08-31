@@ -114,7 +114,7 @@
     <block wx:if="{{dashOk}}">
       <view class="stat-row">
         <view class="stat"><view class="k">实用最大巡航速度</view><view class="v amber">{{dashMaxCruise}}</view></view>
-        <view class="stat"><view class="k">最大巡航速度</view><view class="v">{{dashFloorCruise}}</view></view>
+        <view class="stat"><view class="k">最大巡航速度</view><view class="v">{{dashMaxPossibleCruise}}</view></view>
         <view class="stat"><view class="k">极速</view><view class="v">{{dashVmax}}</view></view>
       </view>
       <view class="tr th">
