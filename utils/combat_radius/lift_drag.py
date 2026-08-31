@@ -19,8 +19,9 @@ rough 的亚音速惩罚只进 CD0，拆成 FAT_MULT（肥胖）× BUMP_MULT（�
 避免只靠加大浸润把加力极速仍推到 Ma 2+（公开包线约 Ma 1.6）。
 
 波阻分四段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
-    1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
-    2. 跨声速鼓包：阻力发散后在 Ma 1.15 附近高斯见顶，Ma 1.5 前衰减；
+    1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画机翼阻力发散附近的小超量；
+    2. 跨声速鼓包：机身阻力上升，从 Ma 0.90 起、在 Ma 1.08 附近见顶；
+       不跟翼型 Korn Mdd 门控（大后掠 Mdd>1 会把 Ma 1 整段关掉，半径倒挂）；
     3. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项
        + 升力波阻 CL²·lift_wave_mach_factor(M) + 鸭翼附加 (M-1)²
        + rough 机肥机身/厚翼附加（不作用于光滑隐身机，保住 F-22 超巡）；
@@ -61,15 +62,15 @@ CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小�
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
 # 超音速波阻：体积/升力项使光滑隐身机超巡可飞；实用最大巡航由高度搜索给出
-# （最佳高度尚未回落；能飞满超巡带的机型约 Ma 1.76，歼-20 约 Ma 1.20）。
+# （最佳高度尚未回落；能飞满超巡带的机型约 Ma 1.76，歼-20 约 Ma 1.70）。
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²·lift_wave_mach_factor：Ma 1.5 压住超音速 L/D 避免半径倒挂，
 # 1.5–1.76 不再随马赫加重，过了超巡带再加重，使峰值高度在 1.76 后回落。
 SUPERCRUISE_BAND_HI = 1.76  # 超巡带上沿：此后升力波阻再随马赫加重
 F22_SUPERCRUISE_MACH = SUPERCRUISE_BAND_HI
-J20_SUPERCRUISE_MACH = 1.20
-J35_SUPERCRUISE_MACH = 1.07
-J35A_SUPERCRUISE_MACH = 1.12
+J20_SUPERCRUISE_MACH = 1.70
+J35_SUPERCRUISE_MACH = 0.95
+J35A_SUPERCRUISE_MACH = 1.00
 CDW_SS_BODY = 0.00450
 CDW_SS_WING = 3.00
 CDW_SS_LIFT = 0.65
@@ -86,10 +87,15 @@ F35_MAX_SPEED_MACH = 1.6
 CDW_SS_ROUGH_BODY = 0.006
 CDW_SS_ROUGH_WING = 15.0
 CDW_SS_ROUGH_LIFT = 0.15
-# 跨声速阻力鼓包：峰值在 Ma 1.15，半宽 0.14，Ma 1.5 时已基本衰减
-CDW_TRANS_AMP = 0.007
-CDW_TRANS_PEAK = 1.15
-CDW_TRANS_WIDTH = 0.14
+# 跨声速阻力鼓包：机身项，不跟翼型 Korn Mdd。
+# 峰值在 Ma 1.08（Ma 1.0 与 1.2 都靠近峰值），左侧较陡、右侧较缓，
+# Ma 0.8 仍为零，Ma 1.5 已基本衰减（保住超巡 L/D）。
+# 幅度须让布雷盖半径 Ma 1 / 1.2 < Ma 0.8，且 1.2 低于 1.35。
+TRANSONIC_ONSET = 0.90
+CDW_TRANS_AMP = 0.018
+CDW_TRANS_PEAK = 1.08
+CDW_TRANS_WIDTH_LO = 0.12
+CDW_TRANS_WIDTH = 0.18
 # 无尾/翼身融合面积律更好，只打折体积波阻（机身+机翼项），升力波阻仍按 CL
 CDW_TAILLESS = 0.72
 CDW_BWB = 0.90
@@ -476,22 +482,32 @@ def cd_wave_korn(CL: float, ac: Aircraft) -> float:
     )
 
 
-def cd_wave_transonic_at(mach: float, CL: float, sweep_deg: float, tc: float) -> float:
-    """单段前缘的跨声速阻力鼓包。"""
-    mdd = drag_divergence_mach_at(CL, sweep_deg, tc)
-    if mach <= mdd:
+def transonic_gaussian(mach: float) -> float:
+    """跨声速鼓包形状（0–1）：机身阻力上升，与翼型 Korn Mdd 无关。
+
+    峰值左侧较陡、右侧较缓，使 Ma 1.0 与 1.2 都靠近峰值、Ma 1.5 已衰减。
+    """
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    if mach <= TRANSONIC_ONSET:
         return 0.0
-    x = (mach - CDW_TRANS_PEAK) / CDW_TRANS_WIDTH
-    return CDW_TRANS_AMP * math.exp(-0.5 * x * x)
+    width = CDW_TRANS_WIDTH_LO if mach < CDW_TRANS_PEAK else CDW_TRANS_WIDTH
+    x = (mach - CDW_TRANS_PEAK) / width
+    return math.exp(-0.5 * x * x)
+
+
+def cd_wave_transonic_at(mach: float, CL: float, sweep_deg: float, tc: float) -> float:
+    """机身跨声速鼓包。CL/后掠/厚度保留签名以兼容双三角加权调用。"""
+    del CL, sweep_deg, tc
+    return CDW_TRANS_AMP * transonic_gaussian(mach)
 
 
 def cd_wave_transonic(mach: float, CL: float, ac: Aircraft) -> float:
-    """跨声速阻力鼓包：超过 Mdd 后在 Ma 1.15 附近见顶，高超音速衰减。"""
+    """跨声速阻力鼓包：Ma 0.90 起、Ma 1.08 附近见顶，超音速衰减。"""
     if mach <= 0:
         raise ValueError('马赫数须为正')
-    return blend_sweep_quantity(
-        ac, lambda sweep: cd_wave_transonic_at(mach, CL, sweep, ac.tc),
-    )
+    del CL, ac
+    return CDW_TRANS_AMP * transonic_gaussian(mach)
 
 
 def cd_wave_ss_wing_at(mach: float, sweep_deg: float, tc: float) -> float:

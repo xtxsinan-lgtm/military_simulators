@@ -5,8 +5,8 @@
 阻力 ≤ 该点最大可用军推 × 推力裕度（默认 92%）。
 目标函数为升阻比 × 总效率：低马赫时爬高会使负载过大、η_o 下降，
 且大迎角附加阻力会压低 L/D，二者合起来把最佳高度压在标定巡航附近；
-跨声速鼓包避免 Ma 1.2 爬得过高。Ma 1.5 以前最佳高度随速度升高。
-「实用最大巡航」取最佳巡航高度尚未从峰值回落时的上限；
+跨声速鼓包在 Ma 1.0–1.2 加大阻力，最佳高度可能先掉再恢复。
+「实用最大巡航」取含全局高度峰值的连续平台上沿，不跨过跨声速掉高后再接上；
 若允许掉到高度下限，军推还能再快一些。
 """
 from __future__ import annotations
@@ -343,6 +343,34 @@ def scan_best_altitude_profile(
     return profile
 
 
+def contiguous_peak_max_mach(
+    machs_alts: list[tuple[float, float]],
+    peak_drop_m: float = PEAK_ALT_DROP_M,
+    mach_hi: float | None = None,
+) -> float | None:
+    """含全局高度峰值的连续平台上的最大马赫。
+
+    不把跨声速掉高后再爬回（仍在容差内）的第二段算进实用最大巡航。
+    machs_alts 须按马赫升序。
+    """
+    if peak_drop_m < 0:
+        raise ValueError('峰值高度回落容差不能为负')
+    if not machs_alts:
+        return None
+    peak_alt = max(alt for _mach, alt in machs_alts)
+    idx = max(range(len(machs_alts)), key=lambda i: machs_alts[i][1])
+    thresh = peak_alt - peak_drop_m
+    lo = hi = idx
+    while lo > 0 and machs_alts[lo - 1][1] >= thresh:
+        lo -= 1
+    while hi + 1 < len(machs_alts) and machs_alts[hi + 1][1] >= thresh:
+        hi += 1
+    mach = machs_alts[hi][0]
+    if mach_hi is not None:
+        mach = min(mach, mach_hi)
+    return mach
+
+
 def search_max_cruise_mach(
     ctx: CruiseContext,
     mach_lo: float = MACH_SEARCH_LO,
@@ -356,11 +384,9 @@ def search_max_cruise_mach(
 ) -> float | None:
     """最佳巡航高度尚未从峰值回落时的最大军推巡航马赫。
 
-    高度峰值按密扫剖面确定；容差只有一格细化高度，避免把已经掉高
-    的马赫（旧 1.2 km 容差）算成实用最大巡航。
-    取剖面上最后一个仍在峰值的点，不再在回落区间里二分往上推：
-    200 m 容差会把「刚开始掉高」的马赫也算进去，光滑隐身机就会
-    越过超巡带上沿（1.76）。掉到 11 km 后的绝对上限用
+    高度峰值按密扫剖面确定；容差只有一格细化高度。
+    只取含全局峰值的连续平台上沿，避免跨声速掉高后再爬回的第二段
+    把实用最大巡航推过跨声速鼓包。掉到 11 km 后的绝对上限用
     search_floor_max_cruise_mach。
     """
     _require_mach_search_bounds(mach_lo, mach_hi, iters)
@@ -370,11 +396,11 @@ def search_max_cruise_mach(
     profile = scan_best_altitude_profile(
         ctx, mach_lo, mach_hi, profile_step, alt_min_m, alt_max_m, step_m, refine_m,
     )
-    if not profile:
-        return None
-    peak_alt = max(point.alt_m for point in profile)
-    near = [point for point in profile if point.alt_m >= peak_alt - peak_drop_m]
-    return min(max(point.mach for point in near), mach_hi)
+    return contiguous_peak_max_mach(
+        [(point.mach, point.alt_m) for point in profile],
+        peak_drop_m,
+        mach_hi,
+    )
 
 
 def try_cruise_forces(ctx: CruiseContext, mach: float, alt_m: float) -> CruiseForces | None:

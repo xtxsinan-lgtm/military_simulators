@@ -17,6 +17,7 @@ from utils.combat_radius.cruise_search import (
     CruiseContext,
     any_feasible_altitude,
     altitude_grid,
+    contiguous_peak_max_mach,
     cruise_point_feasible,
     evaluate_cruise_forces,
     flyable_forces,
@@ -269,6 +270,25 @@ def test_f22_max_cruise_mach_anchored_at_supercruise():
         search_max_cruise_mach(ctx, peak_drop_m=-1.0)
 
 
+def test_contiguous_peak_max_mach_does_not_jump_transonic_hole():
+    """全局峰值在前段时，不能把掉高后再爬回的第二段算进去。"""
+    profile = [
+        (0.8, 12000.0), (1.0, 15000.0), (1.05, 15400.0),
+        (1.2, 14000.0), (1.5, 15200.0), (1.76, 15200.0),
+    ]
+    assert contiguous_peak_max_mach(profile, peak_drop_m=200.0) == pytest.approx(1.05)
+    assert contiguous_peak_max_mach([], peak_drop_m=200.0) is None
+    with pytest.raises(ValueError, match='容差'):
+        contiguous_peak_max_mach(profile, peak_drop_m=-1.0)
+    # 超巡段才是全局峰值时，取该连续平台上沿
+    f22 = [
+        (0.8, 12400.0), (1.0, 15000.0), (1.07, 15800.0),
+        (1.2, 14600.0), (1.5, 16000.0), (1.76, 16600.0), (1.80, 16200.0),
+    ]
+    assert contiguous_peak_max_mach(f22, peak_drop_m=200.0) == pytest.approx(1.76)
+    assert contiguous_peak_max_mach(f22, peak_drop_m=200.0, mach_hi=1.70) == pytest.approx(1.70)
+
+
 def test_j20_max_cruise_mach_anchored_below_f22():
     """涡扇15 105 kN 下，歼-20 实用最大巡航（高度未回落）低于 F-22。"""
     ctx = _csv_ctx('J-20')
@@ -288,6 +308,20 @@ def test_j20_legacy_90kn_military_cruise_near_mach_15():
     current = search_floor_max_cruise_mach(_csv_ctx('J-20'))
     assert current > m
     assert search_max_cruise_mach(legacy) < m
+
+
+def test_transonic_cruise_score_below_subsonic_and_ma135():
+    """Ma 1.0 / 1.2 的 L/D×η_o 须低于 Ma 0.8；1.2 还须低于 1.35。"""
+    for aid in ('F-22', 'J-20', 'J-15'):
+        ctx = _csv_ctx(aid)
+        sub = search_best_altitude(ctx, 0.8)
+        m10 = search_best_altitude(ctx, 1.0)
+        m12 = search_best_altitude(ctx, 1.2)
+        m135 = search_best_altitude(ctx, 1.35)
+        assert None not in (sub, m10, m12, m135), aid
+        assert m10.score < sub.score, aid
+        assert m12.score < sub.score, aid
+        assert m12.score < m135.score, aid
 
 
 def test_supersonic_cruise_score_below_subsonic():
@@ -414,20 +448,19 @@ def test_low_wing_loading_can_cruise_higher_at_mach08():
     assert light.alt_m >= f22.alt_m - 200.0
 
 
-def test_f22_cruise_altitude_rises_until_mach_15_then_holds():
-    """Ma 1.5 以前最佳高度随速度升高；超巡带 1.5–1.76 不掉，其后开始掉。"""
+def test_f22_cruise_altitude_dips_in_transonic_then_holds_supercruise():
+    """Ma 0.8→1.0 爬高；跨声速鼓包使 1.2 掉高；超巡带恢复并在 1.76 后回落。"""
     ctx = _f22_csv_ctx()
     a08 = search_best_altitude(ctx, 0.8)
     a10 = search_best_altitude(ctx, 1.0)
     a12 = search_best_altitude(ctx, 1.2)
-    a14 = search_best_altitude(ctx, 1.4)
     a15 = search_best_altitude(ctx, 1.5)
     a176 = search_best_altitude(ctx, 1.76)
     a180 = search_best_altitude(ctx, 1.80)
-    assert None not in (a08, a10, a12, a14, a15, a176, a180)
-    assert a08.alt_m < a10.alt_m < a12.alt_m
-    assert a12.alt_m <= a14.alt_m + 400.0
-    assert a15.alt_m >= a12.alt_m - 400.0
+    assert None not in (a08, a10, a12, a15, a176, a180)
+    assert a08.alt_m < a10.alt_m
+    assert a12.alt_m < a10.alt_m
+    assert a15.alt_m > a12.alt_m
     assert a176.alt_m >= a15.alt_m - 200.0
     assert a180.alt_m < a176.alt_m - PEAK_ALT_DROP_M + 1e-6
     assert a15.load_raw > a08.load_raw
@@ -435,7 +468,7 @@ def test_f22_cruise_altitude_rises_until_mach_15_then_holds():
 
 
 def test_j35_and_j35a_max_cruise_anchored():
-    """歼-35 / 歼-35A 实用最大巡航分别落在高度尚未回落的锚点。"""
+    """歼-35 / 歼-35A 实用最大巡航停在跨声速鼓包前的高度峰值。"""
     j35 = search_max_cruise_mach(_csv_ctx('J-35'))
     j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
     assert j35 == pytest.approx(J35_SUPERCRUISE_MACH, abs=0.03)

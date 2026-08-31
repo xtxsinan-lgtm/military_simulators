@@ -12,6 +12,8 @@ from utils.combat_radius.lift_drag import (
     F22_SUPERCRUISE_MACH,
     F35_MAX_SPEED_MACH,
     J20_SUPERCRUISE_MACH,
+    J35A_SUPERCRUISE_MACH,
+    J35_SUPERCRUISE_MACH,
 )
 from utils.paths import ROOT
 
@@ -132,6 +134,9 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m10['feasible'] is True
     assert m12['feasible'] is True
     assert m135['feasible'] is True
+    assert m10['radius_km'] < m08['radius_km']
+    assert m12['radius_km'] < m08['radius_km']
+    assert m12['radius_km'] < m135['radius_km']
     assert m15['feasible'] is True
     assert m175['feasible'] is True
     assert m20['feasible'] is True
@@ -183,7 +188,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_j20_supercruise_and_radius_order():
-    """歼-20 实用最大巡航低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
+    """歼-20 实用最大巡航低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.0 / 1.5。"""
     presets = load_presets()
     engines = load_engine_presets()
     j20 = get_preset_by_id(presets, 'J-20')
@@ -212,6 +217,9 @@ def test_e2e_combat_radius_j20_supercruise_and_radius_order():
     assert m175['feasible'] is True
     assert m20['feasible'] is False
     assert m08['radius_km'] == pytest.approx(1350, abs=50)
+    m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
+    assert m10['feasible'] is True
+    assert m10['radius_km'] < m08['radius_km']
     assert m15['radius_km'] < m08['radius_km']
 
 
@@ -631,8 +639,8 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert f35a['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
     j35 = stored['aircraft']['J-35']
     j35a = stored['aircraft']['J-35A']
-    assert j35['max_cruise_mach'] == pytest.approx(1.07, abs=0.03)
-    assert j35a['max_cruise_mach'] == pytest.approx(1.12, abs=0.03)
+    assert j35['max_cruise_mach'] == pytest.approx(J35_SUPERCRUISE_MACH, abs=0.03)
+    assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
 
 
 @pytest.mark.e2e

@@ -133,6 +133,13 @@ def test_run_preset_dashboard_f22_compact():
     assert m15['radius_km'] < next(p for p in r['points'] if p['id'] == 'mach_0_8')['radius_km']
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     assert 11000.0 <= m08['alt_m'] <= 12500.0
+    m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
+    m12 = next(p for p in r['points'] if p['id'] == 'mach_1_2')
+    m135 = next(p for p in r['points'] if p['id'] == 'mach_1_35')
+    assert m10['feasible'] is True and m12['feasible'] is True and m135['feasible'] is True
+    assert m10['radius_km'] < m08['radius_km']
+    assert m12['radius_km'] < m08['radius_km']
+    assert m12['radius_km'] < m135['radius_km']
 
 
 def test_run_preset_dashboard_j50_supercruise_above_f22():
@@ -149,7 +156,7 @@ def test_run_preset_dashboard_j50_supercruise_above_f22():
 
 
 def test_run_preset_dashboard_j20_supercruise_below_f22():
-    """歼-20 实用最大巡航应低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
+    """歼-20 实用最大巡航应低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.0 / 1.5。"""
     r = run_preset_dashboard('J-20')
     assert r['success'] is True
     assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
@@ -162,11 +169,14 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
     assert m175['feasible'] is True
     assert m20['feasible'] is False
     assert m08['radius_km'] == pytest.approx(1350, abs=50)
+    m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
+    assert m10['feasible'] is True
+    assert m10['radius_km'] < m08['radius_km']
     assert m15['radius_km'] < m08['radius_km']
 
 
 def test_run_preset_dashboard_j35_and_j35a_max_cruise():
-    """歼-35 / 歼-35A 实用最大巡航分别约 Ma 1.07 / 1.12。"""
+    """歼-35 / 歼-35A 实用最大巡航分别约 Ma 0.95 / 1.00。"""
     from utils.combat_radius.lift_drag import J35A_SUPERCRUISE_MACH, J35_SUPERCRUISE_MACH
 
     j35 = run_preset_dashboard('J-35')

@@ -19,6 +19,9 @@ from utils.combat_radius.lift_drag import (
     CDW_TAILLESS,
     CDW_TRANS_AMP,
     CDW_TRANS_PEAK,
+    CDW_TRANS_WIDTH,
+    CDW_TRANS_WIDTH_LO,
+    TRANSONIC_ONSET,
     CD_AOA_COEF,
     CL_AOA_ONSET,
     CF0_REF,
@@ -49,6 +52,7 @@ from utils.combat_radius.lift_drag import (
     cd_wave_mach_angle,
     cd_wave_supersonic,
     cd_wave_transonic,
+    transonic_gaussian,
     cl_cruise,
     components,
     drag_divergence_mach,
@@ -358,8 +362,21 @@ def test_cd_wave_supersonic_zero_at_or_below_sonic():
     assert cd_wave_supersonic(1.5, ac) > 0.0
 
 
-def test_cd_wave_transonic_zero_below_mdd_and_peaks_near_115():
-    """鼓包在 Mdd 以下为零，Ma 1.15 附近高于 Ma 1.5，且 Ma 0.8 标定不受影响。"""
+def test_transonic_gaussian_zero_below_onset_and_peaks_at_108():
+    """鼓包在机身起点以下为零，峰值 1.08，Ma 1.5 已衰减，Ma 0.8 不受影响。"""
+    assert transonic_gaussian(0.8) == 0.0
+    assert transonic_gaussian(TRANSONIC_ONSET) == 0.0
+    with pytest.raises(ValueError, match='马赫数'):
+        transonic_gaussian(0.0)
+    assert transonic_gaussian(CDW_TRANS_PEAK) == pytest.approx(1.0)
+    assert transonic_gaussian(1.0) > transonic_gaussian(1.35)
+    assert transonic_gaussian(1.2) > transonic_gaussian(1.35)
+    assert transonic_gaussian(1.5) < 0.15
+    assert CDW_TRANS_WIDTH_LO < CDW_TRANS_WIDTH
+
+
+def test_cd_wave_transonic_zero_below_onset_and_peaks_near_108():
+    """鼓包不跟 Korn Mdd；Ma 1.08 附近高于 Ma 1.5，且 Ma 0.8 标定不受影响。"""
     ac = _f22()
     cl = cl_cruise(ac)
     assert cd_wave_transonic(0.8, cl, ac) == 0.0
@@ -371,6 +388,17 @@ def test_cd_wave_transonic_zero_below_mdd_and_peaks_near_115():
     assert peak == pytest.approx(CDW_TRANS_AMP)
     assert peak > at15 > at176
     assert at15 < 0.4 * CDW_TRANS_AMP
+
+
+def test_cd_wave_transonic_on_at_mach_1_even_if_mdd_above_one():
+    """大后掠 Korn Mdd>1 时，Ma 1 仍须有机身跨声速鼓包，否则半径会倒挂。"""
+    ac = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.0, 'alt_m': 12000})
+    cl = cl_cruise(ac)
+    mdd = drag_divergence_mach(cl, ac)
+    assert mdd > 1.0
+    bump = cd_wave_transonic(1.0, cl, ac)
+    assert bump > 0.01
+    assert cd_wave(cl, ac) >= bump
 
 
 def test_cd_wave_supersonic_falls_with_sweep_and_rises_with_thickness():
@@ -490,7 +518,7 @@ def test_canard_adds_supersonic_wave_drag():
     canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
-    assert J20_SUPERCRUISE_MACH == pytest.approx(1.20)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.70)
 
 
 def test_tailless_and_bwb_discount_volume_wave_drag():
@@ -710,6 +738,7 @@ def test_drag_divergence_and_korn_helpers_match_single_panel():
         cd_wave_korn(cl, ac),
     )
     assert cd_wave_transonic_at(0.8, cl, ac.sweep_deg, ac.tc) == 0.0
+    assert cd_wave_transonic_at(1.0, cl, ac.sweep_deg, ac.tc) > 0.0
 
 
 def test_j36_two_segment_outer_panel_starts_le_wave_earlier():
