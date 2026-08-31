@@ -94,7 +94,7 @@ def test_true_airspeed_invalid_mach():
 
 
 def test_search_max_mach_at_altitude_returns_none_when_infeasible_low():
-    ctx = _f22_ctx(50.0)
+    ctx = _f22_ctx(30.0)
     assert search_max_mach_at_altitude(ctx, 15000.0) is None
 
 

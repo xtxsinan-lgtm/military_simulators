@@ -47,11 +47,22 @@ from utils.combat_radius.lift_drag import (
     cl_cruise,
     components,
     drag_divergence_mach,
+    drag_divergence_mach_at,
+    double_delta_area_weights,
+    double_delta_kink_span_frac,
+    double_delta_panels,
+    blend_sweep_quantity,
+    has_double_delta_sweep,
     mach_angle_rad,
     mach_cone_limit,
+    oswald_e_for_aircraft,
     oswald_e_raw,
+    oswald_sweep_deg,
     predict_ld,
     wetted_area_factor,
+    cd_wave_korn_at,
+    cd_wave_ss_wing_at,
+    cd_wave_transonic_at,
     _as_bool,
     _canopy_from_dict,
     _optional_positive_float,
@@ -336,7 +347,7 @@ def test_canard_adds_supersonic_wave_drag():
     canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
-    assert J20_SUPERCRUISE_MACH == pytest.approx(1.49)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.71)
 
 
 def test_tailless_and_bwb_discount_volume_wave_drag():
@@ -411,8 +422,8 @@ def test_default_ld_anchors_match_f35c_f22():
     assert a1.name == 'F-35C' and a1.rough is True
     assert a2.name == 'F-22' and a2.rough is False
     assert ld2 > ld1
-    assert ld2 == pytest.approx(9.30, abs=0.05)
-    assert ld1 < 9.0  # rough=1.20 相对历史 9.20 锚点再降一截
+    assert ld2 == pytest.approx(11.11, abs=0.05)
+    assert ld1 < 10.0  # rough≈1.33 相对光滑 F-22 再降一截
     cf0, k_e = calibrate_default_anchors()
     assert cf0 == pytest.approx(CF0_REF)
     assert k_e == pytest.approx(K_E_REF)
@@ -420,7 +431,7 @@ def test_default_ld_anchors_match_f35c_f22():
 
 def test_rough_mult_penalizes_f35_vs_smooth():
     """F-35 系列 rough 乘数须明显高于 1，相对光滑机抬高浸润。"""
-    assert ROUGH_MULT == pytest.approx(1.20)
+    assert ROUGH_MULT == pytest.approx(1.328, abs=0.01)
     assert wetted_area_factor(_f35c()) > wetted_area_factor(
         Aircraft(**{**aircraft_to_dict(_f35c()), 'rough': False}),
     )
@@ -471,3 +482,113 @@ def test_lambda_uav_ma15_ld_below_j50_because_cl_is_lower():
     manned = Aircraft(**{**aircraft_to_dict(uav_m), 'canopy': True})
     ld_manned, _ = predict_ld(manned, cf0, k_e)
     assert ld_u > ld_manned
+
+
+def _j36_double_delta() -> Aircraft:
+    """歼-36：双三角内段 67.8°、外段 55.3°。"""
+    return Aircraft(
+        'J-36', AR=2.49, sweep_deg=65.1, wing_loading=0.277,
+        tc=0.043, mach=0.8, alt_m=12000,
+        planform='double_delta', layout='tailless',
+        bwb=True, rough=False,
+        sweep_inner_deg=67.8, sweep_outer_deg=55.3,
+        length_m=18.9, wingspan_m=19.24, mach_angle_deg=27.7,
+    )
+
+
+def test_has_double_delta_sweep_requires_planform_and_both_panels():
+    ac = _j36_double_delta()
+    assert has_double_delta_sweep(ac) is True
+    no_inner = Aircraft(**{**aircraft_to_dict(ac), 'sweep_inner_deg': 0})
+    no_outer = Aircraft(**{**aircraft_to_dict(ac), 'sweep_outer_deg': 0})
+    trap = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'trapezoidal'})
+    assert has_double_delta_sweep(no_inner) is False
+    assert has_double_delta_sweep(no_outer) is False
+    assert has_double_delta_sweep(trap) is False
+    assert has_double_delta_sweep(_f22()) is False
+
+
+def test_double_delta_kink_span_frac_solves_from_ar_or_uses_given():
+    """歼-36 展弦比与两段后掠应解出约 0.40 的折点；显式值优先。"""
+    eta = double_delta_kink_span_frac(67.8, 55.3, 2.49)
+    assert 0.35 < eta < 0.45
+    assert double_delta_kink_span_frac(67.8, 55.3, 2.49, 0.55) == pytest.approx(0.55)
+    from utils.combat_radius.lift_drag import DOUBLE_DELTA_KINK_DEFAULT
+    assert double_delta_kink_span_frac(67.8, 55.3, 0.5) == pytest.approx(DOUBLE_DELTA_KINK_DEFAULT)
+    assert double_delta_kink_span_frac(50.0, 50.0, 2.5) == pytest.approx(DOUBLE_DELTA_KINK_DEFAULT)
+
+
+def test_double_delta_area_weights_inner_dominates_for_j36():
+    eta = double_delta_kink_span_frac(67.8, 55.3, 2.49)
+    w_in, w_out = double_delta_area_weights(67.8, 55.3, eta)
+    assert w_in + w_out == pytest.approx(1.0)
+    assert w_in > w_out
+    assert 0.60 < w_in < 0.75
+    with pytest.raises(ValueError, match='折点'):
+        double_delta_area_weights(67.8, 55.3, 0.0)
+
+
+def test_double_delta_panels_and_oswald_sweep():
+    ac = _j36_double_delta()
+    inner, outer, w_in, w_out = double_delta_panels(ac)
+    assert inner == pytest.approx(67.8)
+    assert outer == pytest.approx(55.3)
+    assert w_in + w_out == pytest.approx(1.0)
+    eq = oswald_sweep_deg(ac)
+    assert eq == pytest.approx(w_in * 67.8 + w_out * 55.3)
+    assert 60.0 < eq < 66.0
+    assert oswald_sweep_deg(_f22()) == pytest.approx(41.3)
+    single = Aircraft(**{**aircraft_to_dict(ac), 'sweep_inner_deg': 0, 'sweep_outer_deg': 0})
+    with pytest.raises(ValueError, match='内段与外段'):
+        double_delta_panels(single)
+
+
+def test_blend_sweep_quantity_and_oswald_e_for_aircraft():
+    ac = _j36_double_delta()
+    assert blend_sweep_quantity(_f22(), lambda s: s) == pytest.approx(41.3)
+    e_blend = oswald_e_for_aircraft(ac)
+    inner, outer, w_in, w_out = double_delta_panels(ac)
+    expect = w_in * oswald_e_raw(ac.AR, inner) + w_out * oswald_e_raw(ac.AR, outer)
+    assert e_blend == pytest.approx(expect)
+    assert e_blend != pytest.approx(oswald_e_raw(ac.AR, ac.sweep_deg))
+
+
+def test_drag_divergence_and_korn_helpers_match_single_panel():
+    ac = _f22()
+    cl = cl_cruise(ac)
+    assert drag_divergence_mach_at(cl, ac.sweep_deg, ac.tc) == pytest.approx(
+        drag_divergence_mach(cl, ac),
+    )
+    assert cd_wave_korn_at(ac.mach, cl, ac.sweep_deg, ac.tc) == pytest.approx(
+        cd_wave_korn(cl, ac),
+    )
+    assert cd_wave_transonic_at(0.8, cl, ac.sweep_deg, ac.tc) == 0.0
+
+
+def test_j36_two_segment_outer_panel_starts_le_wave_earlier():
+    """外段 55.3° 约 Ma 1.76 即超音速前缘；单段 65.1° 要到约 Ma 2.38。"""
+    two = Aircraft(**{**aircraft_to_dict(_j36_double_delta()), 'mach': 1.90, 'alt_m': 11000})
+    one = Aircraft(**{
+        **aircraft_to_dict(two),
+        'sweep_inner_deg': 0, 'sweep_outer_deg': 0, 'sweep_deg': 65.1,
+    })
+    assert cd_wave_ss_wing_at(1.90, 55.3, two.tc) > 0.0
+    assert cd_wave_ss_wing_at(1.90, 67.8, two.tc) == 0.0
+    assert cd_wave_ss_wing_at(1.90, 65.1, two.tc) == 0.0
+    assert cd_wave_supersonic(1.90, two, 0.0) > cd_wave_supersonic(1.90, one, 0.0)
+    assert cd_wave(cl_cruise(two), two) > cd_wave(cl_cruise(one), one)
+
+
+def test_aircraft_from_dict_reads_double_delta_sweeps():
+    ac = aircraft_from_dict({
+        'name': '歼-36', 'AR': 2.49, 'sweep_deg': 65.1, 'wing_loading': 0.277,
+        'tc': 0.043, 'mach': 0.8, 'alt_m': 12000,
+        'planform': 'double_delta', 'layout': 'tailless', 'bwb': 1, 'rough': 0,
+        'sweep_inner_deg': 67.8, 'sweep_outer_deg': 55.3,
+    })
+    assert ac.sweep_inner_deg == pytest.approx(67.8)
+    assert ac.sweep_outer_deg == pytest.approx(55.3)
+    d = aircraft_to_dict(ac)
+    assert d['sweep_inner_deg'] == pytest.approx(67.8)
+    again = aircraft_from_dict(d)
+    assert again.sweep_outer_deg == pytest.approx(55.3)

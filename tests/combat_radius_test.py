@@ -5,7 +5,13 @@ import json
 
 from apps.combat_radius_web import _opt_bool, _opt_float, run_combat_radius, run_combat_radius_json
 from simulators.combat_radius.combat_radius import (
+    FLOOR_MAX_CRUISE_ID,
+    FLOOR_MAX_CRUISE_LABEL,
+    PRACTICAL_MAX_CRUISE_ID,
+    PRACTICAL_MAX_CRUISE_LABEL,
     compact_max_speed,
+    cruise_limit_specs,
+    format_cruise_speed_label,
     ensure_default_anchors,
     format_ld_row,
     main,
@@ -333,13 +339,45 @@ def test_calibrate_from_params_returns_target_and_cf0():
     assert cf0 > 0 and k_e > 0
 
 
+def test_cruise_limit_specs_order_and_labels():
+    """表尾两行须先实用最大巡航、再最大巡航，标签固定。"""
+    rows = cruise_limit_specs(1.76, 1.92)
+    assert rows == [
+        (PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, 1.76),
+        (FLOOR_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_LABEL, 1.92),
+    ]
+    empty = cruise_limit_specs(None, None)
+    assert empty[0][2] is None and empty[1][2] is None
+
+
+def test_format_cruise_speed_label_fixed_and_limits():
+    """固定马赫只显示数字；表尾两行须带中文名称。"""
+    assert format_cruise_speed_label({'id': 'mach_0_8', 'label': 'Ma 0.8', 'mach': 0.8}) == '0.800'
+    assert format_cruise_speed_label({
+        'id': PRACTICAL_MAX_CRUISE_ID,
+        'label': PRACTICAL_MAX_CRUISE_LABEL,
+        'mach': 1.76,
+    }) == '实用最大巡航速度 1.760'
+    assert format_cruise_speed_label({
+        'id': FLOOR_MAX_CRUISE_ID,
+        'label': FLOOR_MAX_CRUISE_LABEL,
+        'mach': 1.92,
+    }) == '最大巡航速度 1.920'
+    assert format_cruise_speed_label({
+        'id': PRACTICAL_MAX_CRUISE_ID,
+        'label': PRACTICAL_MAX_CRUISE_LABEL,
+        'mach': None,
+    }) == PRACTICAL_MAX_CRUISE_LABEL
+    assert format_cruise_speed_label({}) == '—'
+
+
 def test_infeasible_point_shape():
     row = _infeasible_point('mach_1_76', 'Ma 1.76', 1.76)
     assert row['feasible'] is False
     assert row['radius_km'] is None
     assert row['warning'] == 'no_feasible_altitude'
     assert row['fail_reason'] == '无满足 92% 推力裕度的高度'
-    none_mach = _infeasible_point('max_cruise', '最大巡航', None)
+    none_mach = _infeasible_point(PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, None)
     assert none_mach['mach'] is None
 
 
@@ -373,7 +411,15 @@ def test_run_estimate_radius_from_params_f22():
     r = run_estimate_radius_from_params(_radius_params())
     assert r['success'] is True
     ids = [p['id'] for p in r['points']]
-    assert ids == ['mach_0_8', 'mach_1_5', 'mach_1_76', 'mach_2_0', 'max_cruise']
+    assert ids == [
+        'mach_0_8', 'mach_1_5', 'mach_1_76', 'mach_2_0',
+        PRACTICAL_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_ID,
+    ]
+    labels = {p['id']: p['label'] for p in r['points']}
+    assert labels[PRACTICAL_MAX_CRUISE_ID] == PRACTICAL_MAX_CRUISE_LABEL
+    assert labels[FLOOR_MAX_CRUISE_ID] == FLOOR_MAX_CRUISE_LABEL
+    assert r['max_cruise_floor_mach'] is not None
+    assert r['max_cruise_floor_mach'] >= r['max_cruise_mach']
     m08 = r['points'][0]
     assert m08['feasible'] is True
     assert m08['radius_km'] > 100
@@ -406,7 +452,7 @@ def test_run_estimate_radius_from_params_f22():
 def test_run_combat_radius_estimate_radius_action():
     ok = run_combat_radius('estimate_radius', _radius_params())
     assert ok['success'] is True
-    assert len(ok['points']) == 5
+    assert len(ok['points']) == 6
     bad = run_combat_radius_json({'action': 'estimate_radius', 'params': {}})
     assert bad['success'] is False
 
@@ -431,7 +477,14 @@ def test_main_prints_table(capsys, monkeypatch):
                 'thrust_avail_kN': 60.0, 'load': 0.45, 'radius_km': 900.0,
                 'fuel_kg_per_km': 4.5,
             },
-            {'id': 'max_cruise', 'label': '最大巡航', 'mach': 1.6, 'feasible': False},
+            {
+                'id': 'max_cruise', 'label': '实用最大巡航速度',
+                'mach': 1.6, 'feasible': False,
+            },
+            {
+                'id': 'floor_max_cruise', 'label': '最大巡航速度',
+                'mach': 1.9, 'feasible': False,
+            },
         ],
         'note': '布雷盖半径已计入陆基降落冗余 30 min（850 km/h 平飞）。',
     }
@@ -443,7 +496,9 @@ def test_main_prints_table(capsys, monkeypatch):
     main()
     out = capsys.readouterr().out
     assert 'F-22' in out
-    assert 'Ma 0.8' in out
+    assert '0.800' in out
+    assert '实用最大巡航速度' in out
+    assert '最大巡航速度' in out
     assert '92%' in out
     assert '布雷盖' in out
 
@@ -621,7 +676,7 @@ def test_carrier_reserve_reduces_radius_vs_land():
     land = run_estimate_radius_from_params({**_radius_params(), 'carrier': False})
     sea = run_estimate_radius_from_params({**_radius_params(), 'carrier': True})
     assert land['mission_fuel']['reserve_min'] == 30
-    assert sea['mission_fuel']['reserve_min'] == 40
+    assert sea['mission_fuel']['reserve_min'] == 45
     r_land = next(p for p in land['points'] if p['id'] == 'mach_0_8')['radius_km']
     r_sea = next(p for p in sea['points'] if p['id'] == 'mach_0_8')['radius_km']
     assert r_sea < r_land
@@ -650,9 +705,9 @@ def test_ma08_combat_radius_calibration_targets():
     presets = load_presets()
     engines = load_engine_presets()
     cases = [
-        ('F-35C', 'f135', 1265, 50),
-        ('F-22', 'f119', 935, 50),
-        ('J-20', 'ws15', 1210, 50),
+        ('F-35C', 'f135', 1400, 50),
+        ('F-22', 'f119', 1056, 50),
+        ('J-20', 'ws15', 1350, 50),
     ]
     for ac_id, eng_id, target_km, tol_km in cases:
         tgt = get_preset_by_id(presets, ac_id)
@@ -752,7 +807,7 @@ def test_run_search_best_cruise_infeasible_mach():
 def test_run_search_best_cruise_infeasible_has_ab_max_ld():
     """不能军推巡航的马赫仍应给出加力可飞高度上的最大升阻比。"""
     r = run_search_best_cruise_from_params({
-        **_radius_params(), 'mach': 2.0, 'max_tsl_kN': 156.0,
+        **_radius_params(), 'mach': 2.2, 'max_tsl_kN': 156.0,
         'alt_coarse_m': 1000, 'alt_refine_m': 200,
         'mach_search_hi': 2.5,
     })

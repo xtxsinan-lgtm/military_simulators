@@ -11,7 +11,8 @@ if TYPE_CHECKING:
 # 统一机型库：作战半径几何 + 起飞字段；carrier=1 才进入起飞仿真
 AIRCRAFT_CSV_COLUMNS = (
     'id', 'name', 'nation', 'carrier', 'type_label',
-    'AR', 'sweep_deg', 'wing_loading', 'tc', 'mach', 'alt_m',
+    'AR', 'sweep_deg', 'sweep_inner_deg', 'sweep_outer_deg', 'sweep_kink_span_frac',
+    'wing_loading', 'tc', 'mach', 'alt_m',
     'planform', 'layout', 'bwb', 'rough', 'ld_known', 'notes',
     'wing_area_m2', 'mach_angle_deg', 'bvr_missile', 'length_m', 'wingspan_m',
     'empty_kg', 'internal_fuel_kg', 'n_pilots', 'missile_mass_kg', 'n_engines', 'engine_id',
@@ -206,7 +207,10 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
     notes = (row.get('notes') or '').strip()
     if notes:
         item['notes'] = notes
-    for key in ('wing_area_m2', 'mach_angle_deg', 'length_m', 'wingspan_m'):
+    for key in (
+        'wing_area_m2', 'mach_angle_deg', 'length_m', 'wingspan_m',
+        'sweep_inner_deg', 'sweep_outer_deg', 'sweep_kink_span_frac',
+    ):
         value = _parse_optional_float(row.get(key) or '')
         if value is not None:
             item[key] = value

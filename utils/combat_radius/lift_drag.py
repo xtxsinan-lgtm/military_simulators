@@ -12,23 +12,32 @@
 低翼载飞机同一高度 CL 更小，可以飞得更高。
 无座舱无人机去掉风挡浸润；机长只进入马赫锥项（Ma 1.5 通常未触发）。
 F-35 等 rough=True 机型加大浸润（肥机身/表面不平整），相对光滑隐身机降 L/D。
+rough 的亚音速惩罚只进 CD0；超音速另叠加肥机身/锯齿/厚翼体积波阻，
+避免只靠加大浸润把加力极速仍推到 Ma 2+（公开包线约 Ma 1.6）。
 
 波阻分四段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
     1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
     2. 跨声速鼓包：阻力发散后在 Ma 1.15 附近高斯见顶，Ma 1.5 前衰减；
     3. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项
-       + 升力波阻 CL²(M-1) + 鸭翼附加 (M-1)²；
+       + 升力波阻 CL²(M-1) + 鸭翼附加 (M-1)²
+       + rough 机肥机身/厚翼附加（不作用于光滑隐身机，保住 F-22 超巡）；
     4. 超过马赫锥后的附加波阻（翼尖-机头连线）。
-    体积项系数使 F-22 峰值高度段军推最大巡航 = Ma 1.76；
+    体积项系数标定 F-22 峰值高度段军推最大巡航；抬升极曲线后约 Ma 1.87。
     允许掉到 11 km 后还能更快。
 
-(Cf0, k_e) 取绝对值：由历史 F-35C/F-22 升阻比标定闭式解固化，运行时不再读锚点；
-Oswald 修正含在 k_e 中；rough 乘数单独抬高 F-35 等肥电 CD0（相对该闭式解时的 1.08 再加重）。
-仍保留 calibrate() 供对照/单元测试，运行时默认走 model_coefficients()。
+双三角翼（planform=double_delta 且给出内/外段后掠）按两段前缘分别算
+Oswald 与机翼波阻，再按面积加权合成。折点半展站位可由展弦比与两段后掠
+在「后缘近似平直、翼尖尖削」假设下反解；也可显式给出。
+单段 sweep_deg 仍作为其它翼型或未填两段时的回退。
+
+(Cf0, k_e) 取绝对值：历史闭式解再按 s≈1.194 统一抬升（歼-20≈1350 km），
+ROUGH_MULT≈1.33 单独压 F-35（舰载 45 min 下≈1400 km）；运行时不读锚点。
+Oswald 修正含在 k_e 中。仍保留 calibrate() 供对照/单元测试，运行时默认走 model_coefficients()。
 """
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from typing import Any, Literal
 
@@ -44,19 +53,27 @@ KAPPA_A = 0.90  # Korn 方程翼型技术因子，固定为超临界翼型典型
 CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小超量
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
-# 超音速波阻：F-22 峰值高度段军推最大巡航 Ma 1.76（掉高度后更快）；
-# 歼-20 鸭翼按 90 kN→Ma 1.5、142 kN 加力→Ma 2.0 标定
+# 超音速波阻：F-22 峰值高度段军推最大巡航（抬升极曲线后约 Ma 1.87）；
+# 歼-20 鸭翼按早期军推/加力对齐；抬 L/D 后峰值段常数随模型更新
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²(M-1)，避免 19 km 超音速 L/D 仍接近亚音速、布雷盖半径倒挂
-# 体积项下调、升力项加重：1.76 仍能停在峰值附近，1.5 又不会爬得过高效
-F22_SUPERCRUISE_MACH = 1.76
-J20_SUPERCRUISE_MACH = 1.49
-J35_SUPERCRUISE_MACH = 1.08
-J35A_SUPERCRUISE_MACH = 1.13
+# 体积项下调、升力项加重：峰值附近停住，1.5 又不会爬得过高效
+F22_SUPERCRUISE_MACH = 1.87
+J20_SUPERCRUISE_MACH = 1.71
+J35_SUPERCRUISE_MACH = 1.11
+J35A_SUPERCRUISE_MACH = 1.19
 CDW_SS_BODY = 0.00450
 CDW_SS_WING = 3.00
 CDW_SS_LIFT = 0.65
 CDW_CANARD = 0.004  # 鸭翼附加，乘 (M-1)²；90 kN→Ma 1.5、142 kN 加力→Ma 2.0
+# 肥机身/不平整表面的超音速附加：只作用于 rough，亚音速 CD0 不变。
+# 机身项 × (M-1)²：面积律差、锯齿缝、吸波涂层的型阻/波阻。
+# 厚翼项 × (t/c_n)² (M-1)²：不要求前缘超音速，补上 Ma 1.3–1.8 厚翼体积波阻。
+# 升力项 × CL²(M-1)：粗糙外形升力分布更差。
+# 标定：F-35A/C 加力平飞收口到约 Ma 1.6；光滑 F-22 极速/超巡不变。
+CDW_SS_ROUGH_BODY = 0.012
+CDW_SS_ROUGH_WING = 6.5
+CDW_SS_ROUGH_LIFT = 0.85
 # 跨声速阻力鼓包：峰值在 Ma 1.15，半宽 0.14，Ma 1.5 时已基本衰减
 CDW_TRANS_AMP = 0.007
 CDW_TRANS_PEAK = 1.15
@@ -67,14 +84,16 @@ CDW_BWB = 0.90
 # 无座舱浸润折扣：去掉风挡/框与座舱鼓包，机头更圆滑（相对有座舱约 −3%）
 NO_CANOPY_MULT = 0.97
 # 表面不平整 / 肥机身：F-35 等 rough=True，相对光滑隐身机抬高巡航 CD0
-ROUGH_MULT = 1.20
-# 统一极曲线标度：由「rough=1.08 + F-35C/F-22 目标 9.20/9.30」闭式解固化为常数；
-# 运行时不再读锚点。ROUGH_MULT=1.20 只加大 F-35 惩罚，不重新标定 Cf0/k_e。
-CF0_REF = 0.022491719747601783
-K_E_REF = 1.6474719304757923
+# 统一极曲线：在历史闭式解 (Cf0,k_e) 上按尺度 s≈1.194 抬升，使歼-20 Ma0.8≈1350 km；
+# ROUGH_MULT≈1.33 再压 F-35C≈1400 km（舰载留油 45 min）；F-22 约 1056 km。
+ROUGH_MULT = 1.328081314342353
+CF0_REF = 0.018831312446174107
+K_E_REF = 1.9677054936141871
 # 大迎角附加阻力：超过巡航 CL 后 (CL-CL_on)²，使 L/D 在标定高度附近见顶。
 CL_AOA_ONSET = 0.35
 CD_AOA_COEF = 2.0
+# 双三角折点：几何无法闭合时的默认半展站位（内段占半展的比例）
+DOUBLE_DELTA_KINK_DEFAULT = 0.45
 
 PlanformId = Literal[
     'trapezoidal', 'swept', 'delta', 'diamond', 'unswept', 'lambda', 'double_delta',
@@ -117,6 +136,9 @@ class Aircraft:
     wingspan_m: float = 0.0  # 翼展；缺省 0 表示不启用
     mach_angle_deg: float = 0.0  # 翼尖-机头连线与机身轴线夹角（度）；优先于机长/翼展
     canopy: bool = True  # 有座舱风挡；无人机为 False，浸润更小
+    sweep_inner_deg: float = 0.0  # 双三角内段前缘后掠（度）；0 表示未启用两段
+    sweep_outer_deg: float = 0.0  # 双三角外段前缘后掠（度）；0 表示未启用两段
+    sweep_kink_span_frac: float = 0.0  # 折点半展站位 (0,1)；0 表示由几何反解
 
 
 def _as_bool(value: Any, default: bool = False) -> bool:
@@ -169,6 +191,9 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         wingspan_m=_optional_positive_float(data.get('wingspan_m')),
         mach_angle_deg=_optional_positive_float(data.get('mach_angle_deg')),
         canopy=_canopy_from_dict(data),
+        sweep_inner_deg=_optional_positive_float(data.get('sweep_inner_deg')),
+        sweep_outer_deg=_optional_positive_float(data.get('sweep_outer_deg')),
+        sweep_kink_span_frac=_optional_positive_float(data.get('sweep_kink_span_frac')),
     )
 
 
@@ -205,6 +230,90 @@ def oswald_e_raw(AR: float, sweep_deg: float) -> float:
     """Raymer 经验公式：后掠翼的机翼 Oswald 效率因子（未乘 k_e 标定值）。"""
     sweep = math.radians(sweep_deg)
     return 4.61 * (1.0 - 0.045 * AR ** 0.68) * math.cos(sweep) ** 0.15 - 3.1
+
+
+def has_double_delta_sweep(ac: Aircraft) -> bool:
+    """是否启用双三角两段后掠（翼型为 double_delta 且内外段均已给出）。"""
+    return (
+        ac.planform == 'double_delta'
+        and ac.sweep_inner_deg > 0.0
+        and ac.sweep_outer_deg > 0.0
+    )
+
+
+def double_delta_kink_span_frac(
+    inner_deg: float,
+    outer_deg: float,
+    AR: float,
+    kink_span_frac: float = 0.0,
+) -> float:
+    """双三角折点半展站位 η（内段占半展的比例）。
+
+    若给定 kink_span_frac ∈ (0,1) 则用之；
+    否则假定后缘近似平直、翼尖尖削，由展弦比与两段后掠反解：
+        4/AR = tan(Λ_out) + (tan(Λ_in) − tan(Λ_out)) · η²
+    解出的 η 越界则回落到默认 0.45。
+    """
+    if 0.0 < kink_span_frac < 1.0:
+        return kink_span_frac
+    tan_in = math.tan(math.radians(inner_deg))
+    tan_out = math.tan(math.radians(outer_deg))
+    if AR <= 0.0 or abs(tan_in - tan_out) < 1e-9:
+        return DOUBLE_DELTA_KINK_DEFAULT
+    eta2 = (4.0 / AR - tan_out) / (tan_in - tan_out)
+    if eta2 <= 1e-12 or eta2 >= 1.0:
+        return DOUBLE_DELTA_KINK_DEFAULT
+    return math.sqrt(eta2)
+
+
+def double_delta_area_weights(
+    inner_deg: float,
+    outer_deg: float,
+    kink_span_frac: float,
+) -> tuple[float, float]:
+    """尖翼尖、平直后缘假设下的内外段面积权重 (w_in, w_out)。"""
+    eta = kink_span_frac
+    if eta <= 0.0 or eta >= 1.0:
+        raise ValueError('折点半展站位须在 (0, 1) 内')
+    tan_in = math.tan(math.radians(inner_deg))
+    tan_out = math.tan(math.radians(outer_deg))
+    s_in = eta * (eta * tan_in + 2.0 * (1.0 - eta) * tan_out)
+    s_out = (1.0 - eta) ** 2 * tan_out
+    total = s_in + s_out
+    if total <= 1e-12:
+        return 0.5, 0.5
+    return s_in / total, s_out / total
+
+
+def double_delta_panels(ac: Aircraft) -> tuple[float, float, float, float]:
+    """返回 (内段后掠°, 外段后掠°, 内段面积权重, 外段面积权重)。"""
+    if ac.sweep_inner_deg <= 0.0 or ac.sweep_outer_deg <= 0.0:
+        raise ValueError('双三角两段后掠须给出正的内段与外段角度')
+    eta = double_delta_kink_span_frac(
+        ac.sweep_inner_deg, ac.sweep_outer_deg, ac.AR, ac.sweep_kink_span_frac,
+    )
+    w_in, w_out = double_delta_area_weights(
+        ac.sweep_inner_deg, ac.sweep_outer_deg, eta,
+    )
+    return ac.sweep_inner_deg, ac.sweep_outer_deg, w_in, w_out
+
+
+def blend_sweep_quantity(ac: Aircraft, fn: Callable[[float], float]) -> float:
+    """后掠相关标量：双三角按面积加权两段，否则用单段 sweep_deg。"""
+    if has_double_delta_sweep(ac):
+        inner_deg, outer_deg, w_in, w_out = double_delta_panels(ac)
+        return w_in * fn(inner_deg) + w_out * fn(outer_deg)
+    return fn(ac.sweep_deg)
+
+
+def oswald_sweep_deg(ac: Aircraft) -> float:
+    """Oswald / 展示用等效前缘后掠：双三角为面积加权，否则为 sweep_deg。"""
+    return blend_sweep_quantity(ac, lambda sweep: sweep)
+
+
+def oswald_e_for_aircraft(ac: Aircraft) -> float:
+    """机翼 Oswald 效率：双三角按两段 e(Λ) 面积加权。"""
+    return blend_sweep_quantity(ac, lambda sweep: oswald_e_raw(ac.AR, sweep))
 
 
 def wetted_area_factor(ac: Aircraft) -> float:
@@ -262,47 +371,106 @@ def cd_wave_mach_angle(mach: float, phi_rad: float) -> float:
     return CDW_KORN_COEF * excess ** 4 if excess > 0.0 else 0.0
 
 
+def drag_divergence_mach_at(CL: float, sweep_deg: float, tc: float) -> float:
+    """单段前缘的 Korn 阻力发散马赫数 Mdd。"""
+    cos_s = math.cos(math.radians(sweep_deg))
+    return KAPPA_A / cos_s - tc / cos_s - CL / (10.0 * cos_s ** 2)
+
+
 def drag_divergence_mach(CL: float, ac: Aircraft) -> float:
-    """Korn 方程阻力发散马赫数 Mdd。"""
-    sweep = math.radians(ac.sweep_deg)
-    cos_s = math.cos(sweep)
-    return KAPPA_A / cos_s - ac.tc / cos_s - CL / (10.0 * cos_s ** 2)
+    """Korn 方程阻力发散马赫数 Mdd；双三角为两段面积加权。"""
+    return blend_sweep_quantity(
+        ac, lambda sweep: drag_divergence_mach_at(CL, sweep, ac.tc),
+    )
 
 
-def cd_wave_korn(CL: float, ac: Aircraft) -> float:
-    """跨声速 Korn 波阻；超量马赫封顶，避免四次方在超音速爆炸。"""
-    dm = ac.mach - drag_divergence_mach(CL, ac)
+def cd_wave_korn_at(mach: float, CL: float, sweep_deg: float, tc: float) -> float:
+    """单段前缘的封顶 Korn 波阻。"""
+    dm = mach - drag_divergence_mach_at(CL, sweep_deg, tc)
     if dm <= 0.0:
         return 0.0
     return CDW_KORN_COEF * min(dm, KORN_DM_CAP) ** 4
 
 
-def cd_wave_transonic(mach: float, CL: float, ac: Aircraft) -> float:
-    """跨声速阻力鼓包：超过 Mdd 后在 Ma 1.15 附近见顶，高超音速衰减。"""
-    if mach <= 0:
-        raise ValueError('马赫数须为正')
-    mdd = drag_divergence_mach(CL, ac)
+def cd_wave_korn(CL: float, ac: Aircraft) -> float:
+    """跨声速 Korn 波阻；超量马赫封顶，避免四次方在超音速爆炸。
+
+    双三角按两段分别算再面积加权，避免先合成等效后掠再代入非线性 Korn。
+    """
+    return blend_sweep_quantity(
+        ac, lambda sweep: cd_wave_korn_at(ac.mach, CL, sweep, ac.tc),
+    )
+
+
+def cd_wave_transonic_at(mach: float, CL: float, sweep_deg: float, tc: float) -> float:
+    """单段前缘的跨声速阻力鼓包。"""
+    mdd = drag_divergence_mach_at(CL, sweep_deg, tc)
     if mach <= mdd:
         return 0.0
     x = (mach - CDW_TRANS_PEAK) / CDW_TRANS_WIDTH
     return CDW_TRANS_AMP * math.exp(-0.5 * x * x)
 
 
-def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
-    """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加。
+def cd_wave_transonic(mach: float, CL: float, ac: Aircraft) -> float:
+    """跨声速阻力鼓包：超过 Mdd 后在 Ma 1.15 附近见顶，高超音速衰减。"""
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    return blend_sweep_quantity(
+        ac, lambda sweep: cd_wave_transonic_at(mach, CL, sweep, ac.tc),
+    )
 
-    体积项使 F-22 峰值高度段军推最大巡航 = 1.76；鸭翼附加按早期 90 / 142 kN 对齐 Ma 1.5 / 2.0。
-    无尾/翼身融合只打折体积项（面积律更好），升力波阻不打折。
+
+def cd_wave_ss_wing_at(mach: float, sweep_deg: float, tc: float) -> float:
+    """单段前缘的超音速机翼体积波阻。"""
+    cos_s = max(abs(math.cos(math.radians(sweep_deg))), COS_SWEEP_MIN)
+    excess_le = mach * cos_s - 1.0
+    if excess_le <= 0.0:
+        return 0.0
+    return CDW_SS_WING * (tc / cos_s) ** 2 * excess_le ** 2
+
+
+def cd_wave_ss_rough_wing_at(mach: float, sweep_deg: float, tc: float) -> float:
+    """rough 机厚翼超音速体积波阻：M>1 即有，不要求前缘超音速。"""
+    if mach <= 1.0:
+        return 0.0
+    cos_s = max(abs(math.cos(math.radians(sweep_deg))), COS_SWEEP_MIN)
+    dm = mach - 1.0
+    return CDW_SS_ROUGH_WING * (tc / cos_s) ** 2 * dm ** 2
+
+
+def cd_wave_ss_rough(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
+    """肥机身/不平整表面的超音速附加波阻。
+
+    只作用于 rough=True；光滑隐身机为 0，以免破坏 F-22 超巡标定。
+    机身项与厚翼项按体积波阻 (M-1)²；升力项按 CL²(M-1)。
+    双三角厚翼项按两段面积加权。
+    """
+    if not ac.rough or mach <= 1.0:
+        return 0.0
+    dm = mach - 1.0
+    cdw = CDW_SS_ROUGH_BODY * dm ** 2
+    cdw += blend_sweep_quantity(
+        ac, lambda sweep: cd_wave_ss_rough_wing_at(mach, sweep, ac.tc),
+    )
+    if CL > 0.0:
+        cdw += CDW_SS_ROUGH_LIFT * (CL ** 2) * dm
+    return cdw
+
+
+def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
+    """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加 + rough 超音速附加。
+
+    机身/升力/鸭翼项整机计算一次；机翼前缘项双三角按两段面积加权。
+    无尾/翼身融合只打折体积项（面积律更好），升力波阻与 rough 附加不打折。
     升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速。
     """
     if mach <= 1.0:
         return 0.0
-    cos_s = max(abs(math.cos(math.radians(ac.sweep_deg))), COS_SWEEP_MIN)
     dm = mach - 1.0
-    cdw = CDW_SS_BODY * dm ** 2
-    excess_le = mach * cos_s - 1.0
-    if excess_le > 0.0:
-        cdw += CDW_SS_WING * (ac.tc / cos_s) ** 2 * excess_le ** 2
+    cdw_wing = blend_sweep_quantity(
+        ac, lambda sweep: cd_wave_ss_wing_at(mach, sweep, ac.tc),
+    )
+    cdw = CDW_SS_BODY * dm ** 2 + cdw_wing
     if ac.layout == 'tailless':
         cdw *= CDW_TAILLESS
     if ac.bwb:
@@ -311,6 +479,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
         cdw += CDW_CANARD * dm ** 2
     if CL > 0.0:
         cdw += CDW_SS_LIFT * (CL ** 2) * dm
+    cdw += cd_wave_ss_rough(mach, ac, CL)
     return cdw
 
 
@@ -321,7 +490,7 @@ def cd_high_aoa(CL: float) -> float:
 
 
 def cd_wave(CL: float, ac: Aircraft) -> float:
-    """总波阻 = 封顶 Korn + 跨声速鼓包 + 超音速体积/升力/鸭翼项 +（可选）马赫锥外附加。"""
+    """总波阻 = 封顶 Korn + 跨声速鼓包 + 超音速体积/升力/鸭翼/rough 项 +（可选）马赫锥外附加。"""
     cdw = (
         cd_wave_korn(CL, ac)
         + cd_wave_transonic(ac.mach, CL, ac)
@@ -336,7 +505,7 @@ def cd_wave(CL: float, ac: Aircraft) -> float:
 def components(ac: Aircraft) -> dict[str, float]:
     """单机中间量：CL、e_raw、K(=CDi 当 k_e=1)、W(浸润因子)、CDw、CDa。"""
     CL = cl_cruise(ac)
-    e_raw = oswald_e_raw(ac.AR, ac.sweep_deg)
+    e_raw = oswald_e_for_aircraft(ac)
     k_ind = CL ** 2 / (math.pi * ac.AR * e_raw)
     wetted = wetted_area_factor(ac)
     cdw = cd_wave(CL, ac)

@@ -84,6 +84,10 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '搜索最佳升阻比和巡航高度' in cr_wxml
     assert '混合作战半径' in cr_wxml
     assert '速度/马赫' in cr_wxml
+    assert '实用最大巡航速度' in cr_wxml
+    assert '最大巡航速度' in cr_wxml
+    assert 'function cruiseSpeedLabel' in cr_js
+    assert 'function dashRowsFrom' in cr_js
     assert '>点</text>' not in cr_wxml
     assert '>Ma</text>' not in cr_wxml
     assert '热效率' in cr_js
@@ -95,3 +99,6 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '锚点' not in cr_wxml
     assert 'mach_angle_deg' in cr_js
     assert 'resolveTslKN' in cr_js
+    assert 'sweep_inner_deg' in cr_js
+    assert '内段前缘后掠' in cr_wxml
+    assert '外段前缘后掠' in cr_wxml

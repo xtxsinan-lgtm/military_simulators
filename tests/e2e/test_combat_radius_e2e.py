@@ -8,7 +8,7 @@ import pytest
 from apps.combat_radius_web import run_combat_radius_json
 from apps.miniprogram_api import handle_request
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
-from utils.combat_radius.lift_drag import J20_SUPERCRUISE_MACH
+from utils.combat_radius.lift_drag import F22_SUPERCRUISE_MACH, J20_SUPERCRUISE_MACH
 from utils.paths import ROOT
 
 
@@ -105,13 +105,16 @@ def _radius_params() -> dict:
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_f22_breguet_radius():
-    """F-22 + F119 在 Ma 0.8/1.5/1.76 应可行，最大巡航锚定超巡 Ma 1.76。"""
+    """F-22 + F119 在 Ma 0.8/1.5/1.76/2.0 应可行，实用最大巡航锚定超巡。"""
     r = run_combat_radius_json({
         'action': 'estimate_radius',
         'params': {**_radius_params(), 'max_tsl_kN': 156.0},
     })
     assert r['success'] is True
-    assert len(r['points']) == 5
+    assert len(r['points']) == 6
+    labels = {p['id']: p['label'] for p in r['points']}
+    assert labels['max_cruise'] == '实用最大巡航速度'
+    assert labels['floor_max_cruise'] == '最大巡航速度'
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
     m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
@@ -121,14 +124,22 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m08['fuel_kg_per_km'] > 0
     assert m15['feasible'] is True
     assert m176['feasible'] is True
-    assert m20['feasible'] is False
+    assert m20['feasible'] is True
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
-    assert m20['max_ld_thrust_mode'] == 'afterburner'
+    assert m20['radius_km'] < m176['radius_km']
+    prac = next(p for p in r['points'] if p['id'] == 'max_cruise')
+    floor = next(p for p in r['points'] if p['id'] == 'floor_max_cruise')
+    for extra in (prac, floor):
+        assert extra['feasible'] is True
+        assert extra['alt_m'] is not None
+        assert extra['ld'] is not None
+        assert extra['radius_km'] is not None
+        assert extra['fuel_kg_per_km'] is not None
     assert m15['radius_km'] < m08['radius_km']
     assert 11000.0 <= m08['alt_m'] <= 12500.0
     assert m15['alt_m'] > m08['alt_m']
     assert r['mach_cone_limit'] > 1
-    assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.02)
+    assert r['max_cruise_mach'] == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     assert m176['alt_m'] >= 13000.0
     assert m176['radius_km'] > 0.6 * m15['radius_km']
@@ -154,7 +165,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_j20_supercruise_and_radius_order():
-    """歼-20 峰值高度段最大巡航低于 F-22；Ma 0.8 半径约 1210 km，且大于 Ma 1.5。"""
+    """歼-20 峰值高度段最大巡航低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
     presets = load_presets()
     engines = load_engine_presets()
     j20 = get_preset_by_id(presets, 'J-20')
@@ -177,10 +188,12 @@ def test_e2e_combat_radius_j20_supercruise_and_radius_order():
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
     m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
+    m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')
     assert m08['feasible'] is True
     assert m15['feasible'] is True
-    assert m176['feasible'] is False
-    assert m08['radius_km'] == pytest.approx(1210, abs=50)
+    assert m176['feasible'] is True
+    assert m20['feasible'] is False
+    assert m08['radius_km'] == pytest.approx(1350, abs=50)
     assert m15['radius_km'] < m08['radius_km']
 
 
@@ -239,6 +252,8 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     j36 = get_preset_by_id(presets, 'J-36')
     assert j36['n_engines'] == 3
     assert j36['n_pilots'] == 2
+    assert j36['sweep_inner_deg'] == pytest.approx(67.8)
+    assert j36['sweep_outer_deg'] == pytest.approx(55.3)
     f22 = get_preset_by_id(presets, 'F-22')
     p = _params_from_csv()
     p['target'] = uav
@@ -273,6 +288,44 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
 
 
 @pytest.mark.e2e
+def test_e2e_combat_radius_j36_two_segment_sweep_dashboard():
+    """歼-36 双三角两段后掠须进入仪表盘，且超音速波阻高于单段 65.1°。"""
+    from utils.combat_radius.lift_drag import (
+        aircraft_from_dict,
+        cd_wave_supersonic,
+        has_double_delta_sweep,
+    )
+
+    presets = load_presets()
+    j36 = get_preset_by_id(presets, 'J-36')
+    ac = aircraft_from_dict(j36)
+    assert has_double_delta_sweep(ac) is True
+    one = aircraft_from_dict({**j36, 'sweep_inner_deg': 0, 'sweep_outer_deg': 0})
+    assert has_double_delta_sweep(one) is False
+    two_hi = aircraft_from_dict({**j36, 'mach': 1.90, 'alt_m': 11000})
+    one_hi = aircraft_from_dict({**j36, 'mach': 1.90, 'alt_m': 11000, 'sweep_inner_deg': 0, 'sweep_outer_deg': 0})
+    assert cd_wave_supersonic(1.90, two_hi, 0.0) > cd_wave_supersonic(1.90, one_hi, 0.0)
+    r = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': j36}})
+    assert r['success'] is True
+    assert 6.0 < r['target']['ld'] < 12.0
+    dash = run_combat_radius_json({
+        'action': 'aircraft_dashboard',
+        'params': {
+            'target': j36,
+            'empty_kg': j36['empty_kg'],
+            'internal_fuel_kg': j36['internal_fuel_kg'],
+            'n_pilots': j36['n_pilots'],
+            'missile_mass_kg': j36['missile_mass_kg'],
+            'n_engines': j36['n_engines'],
+            'bpr': 0.25, 'opr': 29.0, 't4_K': 1975, 'tsl_kN': 132.4,
+            'max_tsl_kN': 185.0,
+        },
+    })
+    assert dash['success'] is True
+    assert dash.get('points')
+
+
+@pytest.mark.e2e
 def test_e2e_combat_radius_three_channels_exist():
     """HTML / 小程序 / iOS 三端须同时存在作战半径入口。"""
     html = ROOT / 'docs' / 'combat-radius.html'
@@ -290,12 +343,16 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '混合作战半径' in wxml
     assert '最大 L/D' in wxml
     assert '速度/马赫' in wxml
+    assert '实用最大巡航速度' in wxml
+    assert '最大巡航速度' in wxml
     assert '>点</text>' not in wxml
     assert '>Ma</text>' not in wxml
     assert '热效率' in js_text
     assert '推进效率' in js_text
     assert '总效率' in js_text
     assert '<th>速度/马赫</th>' in js_text
+    assert '实用最大巡航速度' in js_text
+    assert 'cruiseSpeedLabel' in js_text
     assert '<th>平均油耗 kg/km</th>' in js_text
     assert '<th>点</th>' not in js_text
     assert '<th>Ma</th>' not in js_text
@@ -312,13 +369,15 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '飞机作战半径估算终端' in ios
     assert '搜索最佳升阻比和巡航高度' in ios
     assert '混合作战半径' in ios
+    assert '实用最大巡航速度' in ios
+    assert 'func cruiseSpeedLabel' in ios
     assert '最大 L/D' in ios
     assert '热效率' in ios
     assert '推进效率' in ios
     assert '总效率' in ios
     assert 'η_th' not in ios
-    assert 'p.label' not in ios
-    assert 'Ma %.3f' not in ios
+    assert 'p.label' in ios
+    assert 'floor_max_cruise' in ios
     assert '锚点' not in ios
     assert 'maxLd' in js_text
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')
@@ -331,6 +390,15 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '舰载机' in html_text
     assert '舰载机' in wxml
     assert '舰载机' in ios
+    assert '内段前缘后掠' in js_text
+    assert '外段前缘后掠' in js_text
+    assert 'tgt_sweep_inner' in js_text
+    assert '内段前缘后掠' in wxml
+    assert '外段前缘后掠' in wxml
+    assert 'sweep_inner_deg' in cr_mp
+    assert '内段前缘后掠' in ios
+    assert '外段前缘后掠' in ios
+    assert 'sweepInnerDeg' in ios_vm
     assert 'fail_reason' in js_text
 
 
@@ -367,7 +435,7 @@ def test_e2e_combat_radius_j15_radius_uses_csv_engine():
     assert m08['feasible'] is True
     assert m08['radius_km'] > 200
     assert r['carrier'] is True
-    assert r['mission_fuel']['reserve_min'] == 40
+    assert r['mission_fuel']['reserve_min'] == 45
     assert r['fuel_usable_kg'] < r['fuel_kg']
 
 
@@ -422,6 +490,9 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert set(stored.get('aircraft', {})) == fleet_ids
     f22 = stored['aircraft']['F-22']
     assert f22['success'] is True
+    assert len(f22['points']) == 6
+    assert f22['points'][-2]['label'] == '实用最大巡航速度'
+    assert f22['points'][-1]['label'] == '最大巡航速度'
     live = run_preset_dashboard('F-22')
     assert live['success'] is True
     live_m08 = next(p for p in live['points'] if p['id'] == 'mach_0_8')
@@ -442,8 +513,8 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert f35c['success'] is True
     j35 = stored['aircraft']['J-35']
     j35a = stored['aircraft']['J-35A']
-    assert j35['max_cruise_mach'] == pytest.approx(1.08, abs=0.03)
-    assert j35a['max_cruise_mach'] == pytest.approx(1.13, abs=0.03)
+    assert j35['max_cruise_mach'] == pytest.approx(1.11, abs=0.03)
+    assert j35a['max_cruise_mach'] == pytest.approx(1.19, abs=0.03)
 
 
 @pytest.mark.e2e
@@ -501,7 +572,7 @@ def test_e2e_search_best_cruise_and_engine_cycle_http():
     assert result['feasible'] is True
     assert result['ld'] > 0
     assert result['max_ld'] is not None and result['max_ld'] >= result['ld'] - 1e-9
-    p['mach'] = 2.0
+    p['mach'] = 2.2
     p['max_tsl_kN'] = 156.0
     status, _, body = handle_request(
         'POST', '/api/combat_radius/simulate',

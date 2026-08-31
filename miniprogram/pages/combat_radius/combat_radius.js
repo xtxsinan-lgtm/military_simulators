@@ -4,6 +4,8 @@ const EMPTY_AC = {
   name: '',
   AR: '',
   sweep_deg: '',
+  sweep_inner_deg: '',
+  sweep_outer_deg: '',
   wing_loading: '',
   tc: '',
   mach: '0.8',
@@ -57,13 +59,23 @@ function weightFromPreset(p) {
   return patch;
 }
 
+/** 分速表第一列：固定马赫只写数字，表尾两行写中文名称加马赫。 */
+function cruiseSpeedLabel(p) {
+  const name = p.label || (p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—');
+  if ((p.id === 'max_cruise' || p.id === 'floor_max_cruise') && p.mach != null) {
+    return `${name} ${fmt(p.mach, 3)}`;
+  }
+  return p.mach != null ? fmt(p.mach, 3) : name;
+}
+
 function dashRowsFrom(r) {
   return (r.points || []).map((p) => {
     const maxLd = p.max_ld != null ? fmt(p.max_ld, 2) : '—';
+    const speed = cruiseSpeedLabel(p);
     if (!p.feasible) {
       return {
         label: p.label,
-        mach: p.mach != null ? fmt(p.mach, 3) : '—',
+        mach: speed,
         maxLd,
         radius: p.fail_reason || '不可行',
         mixed: '—',
@@ -75,7 +87,7 @@ function dashRowsFrom(r) {
       : '不适用';
     return {
       label: p.label,
-      mach: fmt(p.mach, 3),
+      mach: speed,
       maxLd,
       radius: fmt(p.radius_km, 0),
       mixed,
@@ -110,6 +122,7 @@ Page({
     dashStatusText: 'STANDBY',
     dashOk: false,
     dashMaxCruise: '—',
+    dashFloorCruise: '—',
     dashVmax: '—',
     dashRows: [],
     resultsMap: {},
@@ -190,6 +203,7 @@ Page({
       dashOk: true,
       dashStatusText: '预计算快照',
       dashMaxCruise: snap.max_cruise_mach != null ? fmt(snap.max_cruise_mach, 3) : '—',
+      dashFloorCruise: snap.max_cruise_floor_mach != null ? fmt(snap.max_cruise_floor_mach, 3) : '—',
       dashVmax: ms.feasible ? `${fmt(ms.max_speed_kmh, 0)} km/h` : (ms.fail_reason || '—'),
       dashRows: dashRowsFrom(snap),
     });
@@ -266,6 +280,8 @@ Page({
       name: ac.name || '未命名',
       AR: num(ac.AR, 0),
       sweep_deg: num(ac.sweep_deg, 0),
+      sweep_inner_deg: num(ac.sweep_inner_deg, 0),
+      sweep_outer_deg: num(ac.sweep_outer_deg, 0),
       wing_loading: num(ac.wing_loading, 0),
       tc: num(ac.tc, 0),
       mach: 0.8,
@@ -314,6 +330,7 @@ Page({
           dashOk: true,
           dashStatusText: '现场重算',
           dashMaxCruise: r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—',
+          dashFloorCruise: r.max_cruise_floor_mach != null ? fmt(r.max_cruise_floor_mach, 3) : '—',
           dashVmax: ms.feasible ? `${fmt(ms.max_speed_kmh, 0)} km/h` : (ms.fail_reason || '—'),
           dashRows: dashRowsFrom(r),
           running: false,

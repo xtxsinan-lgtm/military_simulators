@@ -84,7 +84,7 @@ def test_altitude_grid_inclusive_and_integer_steps():
 def test_evaluate_cruise_forces_f22_cruise_is_feasible():
     ctx = _f22_ctx()
     f = evaluate_cruise_forces(ctx, 0.8, 11800)
-    assert f.ld == pytest.approx(9.3, abs=0.05)
+    assert f.ld == pytest.approx(11.11, abs=0.05)
     assert f.feasible is True
     assert f.load_raw < 0.92
     assert cruise_point_feasible(ctx, 0.8, 11800) is True
@@ -228,7 +228,7 @@ def _f22_csv_ctx() -> CruiseContext:
 
 
 def test_f22_max_cruise_mach_anchored_at_supercruise():
-    """峰值高度段最大巡航落在 Ma 1.76；掉到 11 km 后还能更快。"""
+    """峰值高度段最大巡航落在超巡常数；掉到 11 km 后还能更快。"""
     ctx = _f22_csv_ctx()
     m = search_max_cruise_mach(ctx)
     floor = search_floor_max_cruise_mach(ctx)
@@ -236,13 +236,13 @@ def test_f22_max_cruise_mach_anchored_at_supercruise():
     assert floor is not None and floor > m + 0.05
     assert any_feasible_altitude(ctx, F22_SUPERCRUISE_MACH) is True
     assert any_feasible_altitude(ctx, 1.5) is True
-    assert any_feasible_altitude(ctx, 2.0) is False
+    assert any_feasible_altitude(ctx, 2.2) is False
     best_15 = search_best_altitude(ctx, 1.5)
-    best_176 = search_best_altitude(ctx, F22_SUPERCRUISE_MACH)
-    assert best_15 is not None and best_176 is not None
+    best_sc = search_best_altitude(ctx, F22_SUPERCRUISE_MACH)
+    assert best_15 is not None and best_sc is not None
     assert best_15.ld > 2.0
     assert best_15.cd_breakdown['CDw'] < 0.05
-    assert best_176.alt_m >= 13000.0
+    assert best_sc.alt_m >= 13000.0
     with pytest.raises(ValueError, match='回落'):
         search_max_cruise_mach(ctx, peak_drop_m=-1.0)
 
@@ -253,15 +253,16 @@ def test_j20_max_cruise_mach_anchored_below_f22():
     m = search_max_cruise_mach(ctx)
     assert m == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
     assert any_feasible_altitude(ctx, 1.5) is True
-    assert any_feasible_altitude(ctx, 1.76) is False
+    assert any_feasible_altitude(ctx, 1.76) is True
+    assert any_feasible_altitude(ctx, 2.0) is False
     assert m < search_max_cruise_mach(_csv_ctx('F-22'))
 
 
 def test_j20_legacy_90kn_military_cruise_near_mach_15():
-    """鸭翼波阻按早期 90 kN 军推对齐掉高度后上限约 Ma 1.5。"""
+    """早期 90 kN 军推下，掉高度后上限仍低于现役 105 kN。"""
     legacy = _csv_ctx('J-20', tsl_kn=90.0)
     m = search_floor_max_cruise_mach(legacy)
-    assert m == pytest.approx(1.5, abs=0.02)
+    assert m == pytest.approx(1.71, abs=0.05)
     current = search_floor_max_cruise_mach(_csv_ctx('J-20'))
     assert current > m
     assert search_max_cruise_mach(legacy) < m
@@ -293,9 +294,9 @@ def test_flyable_forces_military_then_afterburner():
     at_cruise = flyable_forces(mil, 0.8, 11800, ab)
     assert at_cruise is not None
     assert at_cruise.thrust_mode == 'military'
-    at_high = flyable_forces(mil, 2.0, 11000)
+    at_high = flyable_forces(mil, 2.2, 11000)
     assert at_high is None
-    at_high_ab = flyable_forces(mil, 2.0, 11000, ab)
+    at_high_ab = flyable_forces(mil, 2.2, 11000, ab)
     assert at_high_ab is not None
     assert at_high_ab.thrust_mode == 'afterburner'
     with pytest.raises(ValueError, match='推力模式'):
@@ -303,7 +304,7 @@ def test_flyable_forces_military_then_afterburner():
 
 
 def test_search_max_ld_altitude_cruise_and_ab():
-    """Ma 0.8 最大 L/D 不低于巡航点；Ma 2.0 军推不可飞、加力可飞。"""
+    """Ma 0.8 最大 L/D 不低于巡航点；Ma 2.2 军推不可飞、加力可飞。"""
     mil = _f22_csv_ctx()
     ab = CruiseContext(**{**mil.__dict__, 'tsl_N': 156000.0})
     cruise = search_best_altitude(mil, 0.8)
@@ -311,8 +312,8 @@ def test_search_max_ld_altitude_cruise_and_ab():
     assert max_ld is not None and cruise is not None
     assert max_ld.thrust_mode == 'military'
     assert max_ld.forces.ld >= cruise.ld - 1e-9
-    assert search_max_ld_altitude(mil, 2.0) is None
-    ab_ld = search_max_ld_altitude(mil, 2.0, ab_ctx=ab)
+    assert search_max_ld_altitude(mil, 2.2) is None
+    ab_ld = search_max_ld_altitude(mil, 2.2, ab_ctx=ab)
     assert ab_ld is not None
     assert ab_ld.thrust_mode == 'afterburner'
     assert ab_ld.forces.ld > 0
@@ -372,7 +373,7 @@ def test_f22_cruise_altitude_rises_until_mach_15_then_drops():
 
 
 def test_j35_and_j35a_max_cruise_anchored():
-    """歼-35 / 歼-35A 峰值高度段军推最大巡航分别标定到约 Ma 1.08 / 1.13。"""
+    """歼-35 / 歼-35A 峰值高度段军推最大巡航分别标定到约 Ma 1.11 / 1.19。"""
     j35 = search_max_cruise_mach(_csv_ctx('J-35'))
     j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
     assert j35 == pytest.approx(J35_SUPERCRUISE_MACH, abs=0.03)

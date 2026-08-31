@@ -45,7 +45,7 @@ def test_build_combat_radius_config_payload():
     assert 'default_ld1' not in payload['ui']
     assert payload['ui']['default_thrust_alt_m'] == 11000
     assert payload['ui']['default_thrust_mach'] == 1.5
-    assert payload['mission_fuel']['carrier_reserve_min'] == 40
+    assert payload['mission_fuel']['carrier_reserve_min'] == 45
     assert payload['mission_fuel']['land_reserve_min'] == 30
     assert payload['mission_fuel']['climb_extra_km'] == 120
     assert payload['mission_fuel']['descent_save_km'] == 87.5
@@ -92,10 +92,10 @@ def test_inject_combat_radius_config_overrides_disk():
 
 
 def test_mission_fuel_config_defaults():
-    """舰载 40 min / 陆基 30 min，爬升 120 km，降落 87.5 km。"""
+    """舰载 45 min / 陆基 30 min，爬升 120 km，降落 87.5 km。"""
     mf = mission_fuel_config()
     assert mf['reserve_cruise_kph'] == 850
-    assert mf['carrier_reserve_min'] == 40
+    assert mf['carrier_reserve_min'] == 45
     assert mf['land_reserve_min'] == 30
     assert mf['climb_extra_km'] == 120
     assert mf['descent_save_km'] == 87.5

@@ -95,8 +95,12 @@ def test_run_preset_dashboard_f22_compact():
     ids = [p['id'] for p in r['points']]
     assert ids[0] == 'mach_0_8'
     assert 'mach_2_0' in ids
+    assert 'max_cruise' in ids
+    assert 'floor_max_cruise' in ids
+    assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
+    assert next(p for p in r['points'] if p['id'] == 'floor_max_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
-    assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.02)
+    assert r['max_cruise_mach'] == pytest.approx(1.87, abs=0.02)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     ms = r['max_speed']
     assert ms['feasible'] is True
@@ -108,9 +112,9 @@ def test_run_preset_dashboard_f22_compact():
     assert m176['radius_km'] > 0.6 * m15['radius_km']
     assert m15['feasible'] is True
     assert m176['feasible'] is True
-    assert m20['feasible'] is False
+    assert m20['feasible'] is True
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
-    assert m20['max_ld_thrust_mode'] == 'afterburner'
+    assert m20['radius_km'] < m176['radius_km']
     assert m15['radius_km'] < next(p for p in r['points'] if p['id'] == 'mach_0_8')['radius_km']
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     assert 11000.0 <= m08['alt_m'] <= 12500.0
@@ -130,22 +134,24 @@ def test_run_preset_dashboard_j50_supercruise_above_f22():
 
 
 def test_run_preset_dashboard_j20_supercruise_below_f22():
-    """歼-20 峰值高度段最大巡航应低于 F-22；Ma 0.8 半径约 1210 km，且大于 Ma 1.5。"""
+    """歼-20 峰值高度段最大巡航应低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
     r = run_preset_dashboard('J-20')
     assert r['success'] is True
     assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
     m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
+    m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')
     assert m08['feasible'] is True
     assert m15['feasible'] is True
-    assert m176['feasible'] is False
-    assert m08['radius_km'] == pytest.approx(1210, abs=50)
+    assert m176['feasible'] is True
+    assert m20['feasible'] is False
+    assert m08['radius_km'] == pytest.approx(1350, abs=50)
     assert m15['radius_km'] < m08['radius_km']
 
 
 def test_run_preset_dashboard_j35_and_j35a_max_cruise():
-    """歼-35 / 歼-35A 峰值高度段最大巡航分别约 Ma 1.08 / 1.13。"""
+    """歼-35 / 歼-35A 峰值高度段最大巡航分别约 Ma 1.11 / 1.19。"""
     from utils.combat_radius.lift_drag import J35A_SUPERCRUISE_MACH, J35_SUPERCRUISE_MACH
 
     j35 = run_preset_dashboard('J-35')

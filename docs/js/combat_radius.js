@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 22;
+const APP_VERSION = 24;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -85,6 +85,10 @@ function renderAircraftFields() {
       <div class="field"><label>展弦比 AR</label><input id="tgt_AR" type="number" step="0.01" min="0.5"></div>
       <div class="field"><label>前缘后掠角 <span class="unit">°</span></label><input id="tgt_sweep" type="number" step="0.1"></div>
     </div>
+    <div class="pair" id="tgt_dd_sweep_row" hidden>
+      <div class="field"><label>内段前缘后掠 <span class="unit">°</span></label><input id="tgt_sweep_inner" type="number" step="0.1"></div>
+      <div class="field"><label>外段前缘后掠 <span class="unit">°</span></label><input id="tgt_sweep_outer" type="number" step="0.1"></div>
+    </div>
     <div class="pair">
       <div class="field"><label>翼载荷 <span class="unit">t/m²</span></label><input id="tgt_wl" type="number" step="0.001" min="0.01"></div>
       <div class="field"><label>厚弦比 tc</label><input id="tgt_tc" type="number" step="0.001" min="0.01"></div>
@@ -106,6 +110,14 @@ function renderAircraftFields() {
       <label><input type="checkbox" id="tgt_rough"> 表面不平整</label>
     </div>
   `;
+  $('tgt_planform').addEventListener('change', syncDoubleDeltaFields);
+  syncDoubleDeltaFields();
+}
+
+function syncDoubleDeltaFields() {
+  const row = $('tgt_dd_sweep_row');
+  if (!row) return;
+  row.hidden = $('tgt_planform').value !== 'double_delta';
 }
 
 function applyPresetToFields(preset) {
@@ -114,6 +126,8 @@ function applyPresetToFields(preset) {
   $('tgt_name').value = preset.name || '';
   $('tgt_AR').value = preset.AR;
   $('tgt_sweep').value = preset.sweep_deg;
+  $('tgt_sweep_inner').value = preset.sweep_inner_deg != null ? preset.sweep_inner_deg : '';
+  $('tgt_sweep_outer').value = preset.sweep_outer_deg != null ? preset.sweep_outer_deg : '';
   $('tgt_wl').value = preset.wing_loading;
   $('tgt_tc').value = preset.tc;
   $('tgt_planform').value = preset.planform;
@@ -125,6 +139,7 @@ function applyPresetToFields(preset) {
   $('tgt_len').value = preset.length_m != null ? preset.length_m : '';
   $('tgt_span').value = preset.wingspan_m != null ? preset.wingspan_m : '';
   applyWeightFromPreset(preset);
+  syncDoubleDeltaFields();
   applyingPreset = false;
 }
 
@@ -178,6 +193,8 @@ function readAircraft() {
     name: $('tgt_name').value || '未命名',
     AR: Number($('tgt_AR').value),
     sweep_deg: Number($('tgt_sweep').value),
+    sweep_inner_deg: Number($('tgt_sweep_inner').value) || 0,
+    sweep_outer_deg: Number($('tgt_sweep_outer').value) || 0,
     wing_loading: Number($('tgt_wl').value),
     tc: Number($('tgt_tc').value),
     mach: 0.8,
@@ -313,6 +330,15 @@ function thrustModeLabel(mode) {
   return '—';
 }
 
+/** 分速表第一列：固定马赫只写数字，表尾两行写中文名称加马赫。 */
+function cruiseSpeedLabel(p) {
+  const name = p.label || (p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—');
+  if ((p.id === 'max_cruise' || p.id === 'floor_max_cruise') && p.mach != null) {
+    return `${name} ${fmt(p.mach, 3)}`;
+  }
+  return p.mach != null ? fmt(p.mach, 3) : name;
+}
+
 function renderDash(r, sourceLabel) {
   if (!r || !r.success) {
     $('dashBox').innerHTML = `<p class="placeholder">${(r && r.error) || '无法计算该机型仪表盘（例如缺少海平面军推）。填写参数后将自动重算。'}</p>`;
@@ -327,7 +353,7 @@ function renderDash(r, sourceLabel) {
     const maxLd = p.max_ld != null ? fmt(p.max_ld, 2) : '—';
     const maxLdAlt = p.max_ld_alt_m != null ? fmt(p.max_ld_alt_m / 1000, 1) : '—';
     const mode = thrustModeLabel(p.max_ld_thrust_mode);
-    const speed = p.mach != null ? fmt(p.mach, 3) : '—';
+    const speed = cruiseSpeedLabel(p);
     if (!p.feasible) {
       return `<tr>
         <td>${speed}</td>
@@ -357,7 +383,8 @@ function renderDash(r, sourceLabel) {
   }).join('');
   $('dashBox').innerHTML = `
     <div class="stat-row">
-      <div class="stat"><div class="k">最大巡航 Ma</div><div class="v amber">${r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—'}</div></div>
+      <div class="stat"><div class="k">实用最大巡航速度</div><div class="v amber">${r.max_cruise_mach != null ? `Ma ${fmt(r.max_cruise_mach, 3)}` : '—'}</div></div>
+      <div class="stat"><div class="k">最大巡航速度</div><div class="v">${r.max_cruise_floor_mach != null ? `Ma ${fmt(r.max_cruise_floor_mach, 3)}` : '—'}</div></div>
       <div class="stat"><div class="k">极速</div><div class="v">${vmax}</div><div class="sub">${ms.alt_m != null ? `${fmt(ms.alt_m / 1000, 1)} km` : ''}</div></div>
       <div class="stat"><div class="k">可用油</div><div class="v">${fmt(r.fuel_usable_kg, 0)} kg</div><div class="sub">内油 ${fmt(r.fuel_kg, 0)} · ${r.carrier ? '舰载' : '陆基'}</div></div>
     </div>
@@ -370,7 +397,7 @@ function renderDash(r, sourceLabel) {
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高。最大巡航取高度仍接近峰值的上限；若允许掉到 11 km，军推还能再快一些。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按阻力等于全部加力（不留巡航裕度），各马赫取最大升阻比后再取真速最大点。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。</p>
+    <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高。表尾「实用最大巡航速度」是高度仍接近峰值的上限；「最大巡航速度」允许掉到 11 km。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按阻力等于全部加力（不留巡航裕度），各马赫取最大升阻比后再取真速最大点。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。</p>
   `;
   $('dashStatus').textContent = 'READY';
 }

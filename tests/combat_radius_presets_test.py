@@ -56,6 +56,11 @@ def test_load_presets_contains_anchors_and_j20():
     assert j36['n_pilots'] == 2
     assert j36['planform'] == 'double_delta'
     assert j36['bwb'] is True
+    assert j36['sweep_inner_deg'] == pytest.approx(67.8)
+    assert j36['sweep_outer_deg'] == pytest.approx(55.3)
+    ac36 = preset_to_aircraft(j36)
+    assert ac36.sweep_inner_deg == pytest.approx(67.8)
+    assert ac36.sweep_outer_deg == pytest.approx(55.3)
     j15 = get_preset_by_id(presets, 'J-15')
     assert j15 is not None
     assert j15['carrier'] is True

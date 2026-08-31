@@ -6,6 +6,8 @@ struct CombatRadiusAircraftInput {
     var name = ""
     var ar = ""
     var sweepDeg = ""
+    var sweepInnerDeg = ""
+    var sweepOuterDeg = ""
     var wingLoading = ""
     var tc = ""
     var mach = "0.8"
@@ -24,6 +26,8 @@ struct CombatRadiusAircraftInput {
         name = p.name
         ar = String(p.AR)
         sweepDeg = String(p.sweep_deg)
+        sweepInnerDeg = p.sweep_inner_deg.map { String($0) } ?? ""
+        sweepOuterDeg = p.sweep_outer_deg.map { String($0) } ?? ""
         wingLoading = String(p.wing_loading)
         tc = String(p.tc)
         mach = String(p.mach)
@@ -44,6 +48,8 @@ struct CombatRadiusAircraftInput {
             "name": name.isEmpty ? "未命名" : name,
             "AR": Double(ar) ?? 0,
             "sweep_deg": Double(sweepDeg) ?? 0,
+            "sweep_inner_deg": Double(sweepInnerDeg) ?? 0,
+            "sweep_outer_deg": Double(sweepOuterDeg) ?? 0,
             "wing_loading": Double(wingLoading) ?? 0,
             "tc": Double(tc) ?? 0,
             "mach": 0.8,

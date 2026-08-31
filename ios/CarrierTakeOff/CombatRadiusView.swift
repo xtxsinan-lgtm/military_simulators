@@ -155,6 +155,10 @@ struct CombatRadiusView: View {
     private func aircraftEditor(ac: Binding<CombatRadiusAircraftInput>) -> some View {
         field("展弦比 AR", text: ac.ar)
         field("前缘后掠角 (°)", text: ac.sweepDeg)
+        if ac.planform.wrappedValue == "double_delta" {
+            field("内段前缘后掠 (°)", text: ac.sweepInnerDeg)
+            field("外段前缘后掠 (°)", text: ac.sweepOuterDeg)
+        }
         field("翼载荷 (t/m²)", text: ac.wingLoading)
         field("厚弦比 tc", text: ac.tc)
         field("翼面积 (m²)", text: ac.wingAreaM2)
@@ -176,7 +180,8 @@ struct CombatRadiusView: View {
     private func dashPanel(_ r: CombatRadiusResult) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
-                stat("最大巡航 Ma", value: r.max_cruise_mach.map { String(format: "%.3f", $0) } ?? "—", amber: true)
+                stat("实用最大巡航速度", value: r.max_cruise_mach.map { String(format: "Ma %.3f", $0) } ?? "—", amber: true)
+                stat("最大巡航速度", value: r.max_cruise_floor_mach.map { String(format: "Ma %.3f", $0) } ?? "—")
                 let vmax = r.max_speed?.feasible == true
                     ? r.max_speed?.max_speed_kmh.map { String(format: "%.0f km/h", $0) } ?? "—"
                     : (r.max_speed?.fail_reason ?? "—")
@@ -184,7 +189,7 @@ struct CombatRadiusView: View {
             }
             ForEach(r.points ?? []) { p in
                 HStack {
-                    Text(p.mach.map { String(format: "%.3f", $0) } ?? "—")
+                    Text(cruiseSpeedLabel(p))
                         .foregroundStyle(CombatRadiusTheme.green)
                     Spacer()
                     let maxLd = p.max_ld.map { String(format: " L/Dmax %.2f", $0) } ?? ""
@@ -207,10 +212,24 @@ struct CombatRadiusView: View {
                 }
                 .font(.system(size: 11, design: .monospaced))
             }
-            Text("最佳巡航高度使升阻比×总效率最大。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按阻力等于全部加力（不留巡航裕度）。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。")
+            Text("表尾「实用最大巡航速度」是高度仍接近峰值的上限；「最大巡航速度」允许掉到 11 km。最佳巡航高度使升阻比×总效率最大。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按阻力等于全部加力（不留巡航裕度）。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。")
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
         }
+    }
+
+    /// 分速表第一列：固定马赫只写数字，表尾两行写中文名称加马赫。
+    private func cruiseSpeedLabel(_ p: CombatRadiusCruisePoint) -> String {
+        let name = p.label.isEmpty
+            ? (p.mach.map { String(format: "Ma %.3f", $0) } ?? "—")
+            : p.label
+        if (p.id == "max_cruise" || p.id == "floor_max_cruise"), let mach = p.mach {
+            return String(format: "%@ %.3f", name, mach)
+        }
+        if let mach = p.mach, p.id != "max_cruise", p.id != "floor_max_cruise" {
+            return String(format: "%.3f", mach)
+        }
+        return name
     }
 
     private func stat(_ k: String, value: String, sub: String = "", amber: Bool = false) -> some View {
@@ -322,6 +341,7 @@ struct CombatRadiusView: View {
             }
             .pickerStyle(.menu)
             .tint(CombatRadiusTheme.cyan)
+            .onChange(of: selection.wrappedValue) { _, _ in vm.scheduleLiveDash() }
         }
     }
 }

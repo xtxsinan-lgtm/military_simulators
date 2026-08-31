@@ -130,6 +130,9 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var nation: String?
     var AR: Double
     var sweep_deg: Double
+    var sweep_inner_deg: Double?
+    var sweep_outer_deg: Double?
+    var sweep_kink_span_frac: Double?
     var wing_loading: Double
     var tc: Double
     var mach: Double

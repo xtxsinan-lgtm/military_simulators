@@ -5,7 +5,7 @@
   },
   "mission_fuel": {
     "reserve_cruise_kph": 850,
-    "carrier_reserve_min": 40,
+    "carrier_reserve_min": 45,
     "land_reserve_min": 30,
     "climb_extra_km": 120,
     "descent_save_km": 87.5

@@ -4,7 +4,8 @@
 2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推；
 3. 由空战重量与 L/D 求阻力，再与可用军推得到负载比，估算热/推进/总效率与 TSFC；
 4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度；
-   「最大巡航」取高度仍接近峰值的上限；掉到 11 km 后另给绝对上限。
+   「实用最大巡航速度」取高度仍接近峰值的上限；
+   「最大巡航速度」允许掉到 11 km 后再取绝对上限。
    先按出发/返回重量算瞬时油耗，再把（冗余−降落节省）加到空重上、
    内油减去该值与爬升额外后重新做布雷盖。
 """
@@ -92,6 +93,41 @@ from utils.combat_radius.military_thrust import (
     estimate_military_thrust,
     thrust_result_to_dict,
 )
+
+PRACTICAL_MAX_CRUISE_ID = 'max_cruise'
+PRACTICAL_MAX_CRUISE_LABEL = '实用最大巡航速度'
+FLOOR_MAX_CRUISE_ID = 'floor_max_cruise'
+FLOOR_MAX_CRUISE_LABEL = '最大巡航速度'
+
+
+def cruise_limit_specs(
+    practical_mach: float | None,
+    floor_mach: float | None,
+) -> list[tuple[str, str, float | None]]:
+    """表尾两行：实用最大巡航（峰值高度）与最大巡航（可掉到 11 km）。"""
+    return [
+        (PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, practical_mach),
+        (FLOOR_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_LABEL, floor_mach),
+    ]
+
+
+def format_cruise_speed_label(point: dict[str, Any]) -> str:
+    """分速表第一列：固定马赫只写数字，表尾两行写中文名称加马赫。"""
+    pid = point.get('id')
+    label = str(point.get('label') or '')
+    mach = point.get('mach')
+    if pid in (PRACTICAL_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_ID):
+        name = label or (
+            PRACTICAL_MAX_CRUISE_LABEL
+            if pid == PRACTICAL_MAX_CRUISE_ID
+            else FLOOR_MAX_CRUISE_LABEL
+        )
+        if mach is not None:
+            return f'{name} {float(mach):.3f}'
+        return name or '—'
+    if mach is not None:
+        return f'{float(mach):.3f}'
+    return label or '—'
 
 
 def format_ld_row(
@@ -606,7 +642,7 @@ def _attach_mixed_radius(
 def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """串联升阻比、军推与效率，搜索最佳巡航高度并估算作战半径。
 
-    固定评估 Ma 0.8 / 1.5 / 1.76 / 2.0，以及阻力不超过军推 92% 的最大巡航马赫。
+    固定评估 Ma 0.8 / 1.5 / 1.76 / 2.0，表尾再给实用最大巡航与最大巡航两行。
     超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。
     巡航 L/D 仍用一半内油的空战重量。
     先按出发总重与返回总重（干重+冗余）算亚音速瞬时油耗；
@@ -748,14 +784,14 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     floor_mach = search_floor_max_cruise_mach(
         ctx, mach_lo, mach_hi, mach_iters, alt_min, alt_max, coarse_m,
     )
-    if max_mach is None:
-        points.append(_attach_max_ld_to_point(
-            _infeasible_point('max_cruise', '最大巡航', None),
-            ctx, None, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
-        ))
-    else:
-        max_row = pack_point('max_cruise', '最大巡航', max_mach)
-        points.append(max_row)
+    for point_id, label, mach in cruise_limit_specs(max_mach, floor_mach):
+        if mach is None:
+            points.append(_attach_max_ld_to_point(
+                _infeasible_point(point_id, label, None),
+                ctx, None, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
+            ))
+        else:
+            points.append(pack_point(point_id, label, mach))
 
     mach_angle_deg = None
     m_cone = None
@@ -1103,24 +1139,26 @@ def main() -> None:
     if result['mach_angle_deg'] is not None:
         max_m = result['max_cruise_mach']
         max_txt = f'{max_m:.3f}' if max_m is not None else '—'
+        floor_m = result.get('max_cruise_floor_mach')
+        floor_txt = f'{floor_m:.3f}' if floor_m is not None else '—'
         print(
             f'马赫角 {result["mach_angle_deg"]:.1f}° · '
             f'锥限 Ma {result["mach_cone_limit"]:.2f} · '
-            f'最大巡航 Ma {max_txt}'
+            f'实用最大巡航 Ma {max_txt} · 最大巡航 Ma {floor_txt}'
         )
     print(
-        f'{"点":<10} {"Ma":>6} {"高度km":>8} {"L/D":>7} {"η_o%":>7} '
+        f'{"速度/马赫":<22} {"高度km":>8} {"L/D":>7} {"η_o%":>7} '
         f'{"TSFC":>8} {"军推kN":>8} {"负载%":>7} {"半径km":>8} {"kg/km":>7}'
     )
     for p in result['points']:
+        speed = format_cruise_speed_label(p)
         if not p.get('feasible'):
-            mach_txt = f'{p["mach"]:>6.3f}' if p.get('mach') is not None else f'{"—":>6}'
             warn = p.get('warning') or 'no_feasible_altitude'
             reason = p.get('fail_reason') or _radius_fail_reason(warn)
-            print(f'{p["label"]:<10} {mach_txt}  （{reason}）')
+            print(f'{speed:<22}  （{reason}）')
             continue
         print(
-            f'{p["label"]:<10} {p["mach"]:>6.3f} {p["alt_m"]/1000:>8.1f} '
+            f'{speed:<22} {p["alt_m"]/1000:>8.1f} '
             f'{p["ld"]:>7.2f} {100*p["eta_o"]:>7.1f} {p["tsfc_mg_n_s"]:>8.2f} '
             f'{p["thrust_avail_kN"]:>8.1f} {100*p["load"]:>7.1f} '
             f'{p["radius_km"]:>8.0f} {p["fuel_kg_per_km"]:>7.2f}'
