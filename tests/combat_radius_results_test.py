@@ -197,6 +197,14 @@ def test_run_preset_dashboard_j35_and_j35a_max_cruise():
     assert j35a['max_cruise_mach'] >= 1.2
 
 
+def test_run_preset_dashboard_ws10c_uav_no_practical_supercruise():
+    """涡扇10C 90 kN 军推下，无人战机实用最大巡航应为空。"""
+    for aid in ('53636', '53536', '53636N'):
+        r = run_preset_dashboard(aid)
+        assert r['success'] is True, aid
+        assert r['max_cruise_mach'] is None, aid
+
+
 def test_run_preset_dashboard_ab_flyable_machs_have_max_ld():
     """有极速的机型：不超过极速的固定马赫须有最大升阻比。"""
     for aid in ('F-35C', '53636N', 'J-15'):

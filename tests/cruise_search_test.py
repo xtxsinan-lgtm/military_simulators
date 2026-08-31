@@ -554,7 +554,7 @@ def test_scan_best_altitude_profile_endpoints_and_rejects_bad_step():
 
 def test_practical_max_cruise_is_mach_at_peak_altitude():
     """实用最大巡航须等于最佳高度真正见顶的最大马赫，不能用掉高一格的容差往上加。"""
-    for aid in ('F-22', 'J-20', 'J-50', 'J-35A', 'J-15', 'FA-18E', '53636'):
+    for aid in ('F-22', 'J-20', 'J-50', 'J-35A', 'J-15', 'FA-18E'):
         ctx = _csv_ctx(aid)
         prof = scan_best_altitude_profile(ctx, PRACTICAL_MAX_CRUISE_MACH_LO)
         assert prof, aid
@@ -576,6 +576,13 @@ def test_practical_max_cruise_is_mach_at_peak_altitude():
     at = search_best_altitude(_csv_ctx('F-22'), f22)
     assert after is not None and at is not None
     assert after.alt_m < at.alt_m - PEAK_ALT_DROP_M + 1e-6
+
+
+def test_ws10c_uav_has_no_practical_supercruise():
+    """涡扇10C 海平面军推 90 kN 时，无人战机军推飞不到 Ma 1.2。"""
+    for aid in ('53636', '53536', '53636N'):
+        assert search_max_cruise_mach(_csv_ctx(aid)) is None, aid
+        assert any_feasible_altitude(_csv_ctx(aid), 1.2) is False, aid
 
 
 def test_j50_practical_max_from_centi_grid_not_f22_pin():
