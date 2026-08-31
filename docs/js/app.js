@@ -13,7 +13,7 @@ import {
 
 const PYODIDE_VERSION = '0.26.4';
 /** 与 takeoff.html 中 app.js?v= 及 data.json?v= 同步递增，避免 CDN/浏览器缓存旧资源 */
-const APP_VERSION = 25;
+const APP_VERSION = 26;
 let data = null;
 let pyodide = null;
 let pyReady = false;
@@ -385,6 +385,7 @@ function updateAircraftInfo() {
 
   els.aircraftSpecs.innerHTML = `
     <tr><th>最大起飞重量 (MTOW)</th><td>${fmtInt(ac.mtow_kg)} kg</td></tr>
+    <tr><th>空重</th><td>${fmtInt(ac.empty_kg)} kg</td></tr>
     <tr><th>最大内油</th><td>${fmtInt(ac.internal_fuel_kg)} kg</td></tr>
     <tr><th>中距弹型号</th><td>${ac.bvr_missile}</td></tr>
     <tr><th>中距弹重量</th><td>${fmtNum(ac.missile_mass_kg, 1)} kg/枚</td></tr>

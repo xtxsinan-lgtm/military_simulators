@@ -85,11 +85,13 @@ function computeAircraftAero(ac) {
 }
 
 function a2aMassKg(ac) {
+  const nPilots = Number(ac.n_pilots);
+  const pilots = Number.isFinite(nPilots) ? nPilots : 1;
   return (
     ac.empty_kg +
     ac.internal_fuel_kg +
     A2A_MISSILE_COUNT * ac.missile_mass_kg +
-    PILOT_LOAD_KG
+    pilots * PILOT_LOAD_KG
   );
 }
 

@@ -159,6 +159,7 @@ const ac = {{
   empty_kg: {ac.empty_kg},
   internal_fuel_kg: {ac.internal_fuel_kg},
   missile_mass_kg: {ac.missile_mass_kg},
+  n_pilots: {ac.n_pilots},
   mtow_kg: {ac.mtow_kg},
   wingspan_m: {ac.wingspan_m},
   wing_area_m2: {ac.wing_area_m2},
@@ -189,6 +190,7 @@ var ac = {{
   empty_kg: {ac.empty_kg},
   internal_fuel_kg: {ac.internal_fuel_kg},
   missile_mass_kg: {ac.missile_mass_kg},
+  n_pilots: {ac.n_pilots},
   mtow_kg: {ac.mtow_kg},
   wingspan_m: {ac.wingspan_m},
   wing_area_m2: {ac.wing_area_m2},
@@ -216,3 +218,52 @@ JSON.stringify({{
         got = json.loads(proc.stdout.strip())
 
     _assert_parity(got, expected)
+
+
+def _eval_js_a2a(empty_kg, internal_fuel_kg, missile_mass_kg, n_pilots):
+    """用生成的 physics.js 计算空战起飞重量。"""
+    if NODE:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'physics.js'
+            path.write_text(render_cjs(), encoding='utf-8')
+            js = f'''
+const p = require({json.dumps(str(path))});
+const ac = {{
+  empty_kg: {empty_kg},
+  internal_fuel_kg: {internal_fuel_kg},
+  missile_mass_kg: {missile_mass_kg},
+  n_pilots: {n_pilots},
+}};
+console.log(JSON.stringify({{ a2a: p.a2aMassKg(ac) }}));
+'''
+            proc = subprocess.run(
+                [NODE, '-e', js], check=True, capture_output=True, text=True)
+            return json.loads(proc.stdout.strip())['a2a']
+    body = render_physics_body()
+    jxa = body + f'''
+var ac = {{
+  empty_kg: {empty_kg},
+  internal_fuel_kg: {internal_fuel_kg},
+  missile_mass_kg: {missile_mass_kg},
+  n_pilots: {n_pilots},
+}};
+JSON.stringify({{ a2a: a2aMassKg(ac) }});
+'''
+    proc = subprocess.run(
+        [OSASCRIPT, '-l', 'JavaScript', '-e', jxa],
+        check=True, capture_output=True, text=True,
+    )
+    return json.loads(proc.stdout.strip())['a2a']
+
+
+@pytest.mark.skipif(NODE is None and OSASCRIPT is None, reason='需要 node 或 osascript 做 JS 对拍')
+def test_js_a2a_mass_uses_n_pilots():
+    """前端空战重量须按飞行员人数计，无人机为 0、双座为 2。"""
+    uav = load_aircraft_csv(AIRCRAFT_CSV)['53636N']
+    f14 = load_aircraft_csv(AIRCRAFT_CSV)['F-14']
+    assert _eval_js_a2a(
+        uav.empty_kg, uav.internal_fuel_kg, uav.missile_mass_kg, uav.n_pilots,
+    ) == pytest.approx(uav.a2a_mass_kg)
+    assert _eval_js_a2a(
+        f14.empty_kg, f14.internal_fuel_kg, f14.missile_mass_kg, f14.n_pilots,
+    ) == pytest.approx(f14.a2a_mass_kg)

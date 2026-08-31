@@ -322,6 +322,7 @@ Page({
     const isTilt = ac.type_label === 'tiltrotor';
     const specs = [
       { label: '最大起飞重量 (MTOW)', value: `${fmtInt(ac.mtow_kg)} kg` },
+      { label: '空重', value: `${fmtInt(ac.empty_kg)} kg` },
       { label: '最大内油', value: `${fmtInt(ac.internal_fuel_kg)} kg` },
       { label: '中距弹型号', value: ac.bvr_missile },
       { label: '中距弹重量', value: `${fmtNum(ac.missile_mass_kg, 1)} kg/枚` },

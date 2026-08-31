@@ -195,6 +195,7 @@ final class SimulatorViewModel: ObservableObject {
         let isTilt = ac.type_label == "tiltrotor"
         var specs: [SpecItem] = [
             SpecItem(label: "最大起飞重量 (MTOW)", value: "\(Physics.fmtInt(ac.mtow_kg)) kg"),
+            SpecItem(label: "空重", value: "\(Physics.fmtInt(ac.empty_kg)) kg"),
             SpecItem(label: "最大内油", value: "\(Physics.fmtInt(ac.internal_fuel_kg)) kg"),
             SpecItem(label: "中距弹型号", value: ac.bvr_missile),
             SpecItem(label: "中距弹重量", value: "\(Physics.fmtNum(ac.missile_mass_kg, digits: 1)) kg/枚"),

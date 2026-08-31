@@ -140,11 +140,13 @@ function computeAircraftAero(ac) {{
 }}
 
 function a2aMassKg(ac) {{
+  const nPilots = Number(ac.n_pilots);
+  const pilots = Number.isFinite(nPilots) ? nPilots : 1;
   return (
     ac.empty_kg +
     ac.internal_fuel_kg +
     A2A_MISSILE_COUNT * ac.missile_mass_kg +
-    PILOT_LOAD_KG
+    pilots * PILOT_LOAD_KG
   );
 }}
 
@@ -331,7 +333,8 @@ enum Physics {{
     }}
 
     static func a2aMassKg(_ ac: Aircraft) -> Double {{
-        ac.empty_kg + ac.internal_fuel_kg + Double(a2aMissileCount) * ac.missile_mass_kg + pilotLoadKg
+        let nPilots = Double(ac.n_pilots ?? 1)
+        return ac.empty_kg + ac.internal_fuel_kg + Double(a2aMissileCount) * ac.missile_mass_kg + nPilots * pilotLoadKg
     }}
 
     static func maxPayloadKg(_ ac: Aircraft) -> Double {{

@@ -40,6 +40,7 @@ def test_docs_takeoff_terminal_chrome():
     assert 'markResultsStale' in app_js
     assert 'LOCAL PYODIDE' not in html
     assert 'PYODIDE LOCAL' not in html
+    assert '<tr><th>空重</th>' in app_js
 
     ver_js = re.search(r'const APP_VERSION\s*=\s*(\d+)', app_js)
     ver_app = re.search(r'app\.js\?v=(\d+)', html)
@@ -62,6 +63,8 @@ def test_miniprogram_takeoff_terminal_chrome():
     assert 'highlights' in wxml
     assert 'resultStale' in wxml or 'stale-banner' in wxml
     assert 'massRangeHint' in wxml
+    index_js = (ROOT / 'miniprogram' / 'pages' / 'index' / 'index.js').read_text(encoding='utf-8')
+    assert "label: '空重'" in index_js
     for tag in CARD_TAGS:
         assert f'card-tag">{tag}</text>' in wxml or f'>{tag}</text>' in wxml
     assert TAKEOFF_BG in wxss
@@ -85,6 +88,7 @@ def test_ios_takeoff_terminal_chrome():
     assert 'resultStale' in content
     vm = (ROOT / 'ios' / 'CarrierTakeOff' / 'SimulatorViewModel.swift').read_text(encoding='utf-8')
     assert 'validateTakeoffMass' in vm
+    assert 'label: "空重"' in vm
     assert 'LOCAL PYODIDE' not in content
     assert 'PYODIDE LOCAL' not in content
     for tag in CARD_TAGS:
