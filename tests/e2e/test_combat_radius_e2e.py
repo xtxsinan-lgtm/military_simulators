@@ -148,6 +148,12 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert prac['alt_m'] >= m15['alt_m'] - 400.0
     assert m176['alt_m'] >= m15['alt_m'] - 200.0
     assert m176['fuel_kg_per_km'] / m15['fuel_kg_per_km'] < 1.12
+    from utils.combat_radius.cruise_search import PEAK_ALT_DROP_M, search_best_altitude
+    from tests.cruise_search_test import _csv_ctx
+    a176 = search_best_altitude(_csv_ctx('F-22'), 1.76)
+    a180 = search_best_altitude(_csv_ctx('F-22'), 1.80)
+    assert a176 is not None and a180 is not None
+    assert a180.alt_m < a176.alt_m - PEAK_ALT_DROP_M + 1e-6
     assert m176['radius_km'] > 0.6 * m15['radius_km']
     assert r['carrier'] is False
     mf = r['mission_fuel']

@@ -25,7 +25,7 @@ from utils.combat_radius.engine_efficiency import (
     eta_o_after_install,
     tsfc_from_eta_o,
 )
-from utils.combat_radius.lift_drag import Aircraft, predict_ld
+from utils.combat_radius.lift_drag import SUPERCRUISE_BAND_HI, Aircraft, predict_ld
 from utils.combat_radius.military_thrust import ETA_C_DEFAULT, estimate_military_thrust
 
 THRUST_MARGIN_DEFAULT = 0.92
@@ -291,6 +291,37 @@ def search_floor_max_cruise_mach(
     return lo
 
 
+def profile_machs(
+    mach_lo: float,
+    mach_hi: float,
+    step: float = MACH_PROFILE_STEP,
+    extra: tuple[float, ...] | None = None,
+) -> list[float]:
+    """均匀网格加上固定评估点；端点用区间原值，避免 ulp 漂出上界。
+
+    默认钉上 FIXED_MACHS 与超巡带上沿，否则 0.05 网格只有 1.75/1.80，
+    实用最大巡航对不上「1.76 后开始掉高」。
+    """
+    if step <= 0:
+        raise ValueError('马赫步长须为正')
+    if mach_lo <= 0 or mach_hi <= mach_lo:
+        raise ValueError('马赫搜索区间非法')
+    pins = extra if extra is not None else (*FIXED_MACHS, SUPERCRUISE_BAND_HI)
+    n_scan = max(int(round((mach_hi - mach_lo) / step)) + 1, 2)
+    raw = [mach_lo]
+    for i in range(1, n_scan - 1):
+        raw.append(mach_lo + (mach_hi - mach_lo) * i / (n_scan - 1))
+    raw.append(mach_hi)
+    for mach in pins:
+        if mach_lo < mach < mach_hi:
+            raw.append(mach)
+    unique: list[float] = []
+    for mach in sorted(raw):
+        if not unique or abs(mach - unique[-1]) > 1e-9:
+            unique.append(mach)
+    return unique
+
+
 def scan_best_altitude_profile(
     ctx: CruiseContext,
     mach_lo: float = MACH_SEARCH_LO,
@@ -302,20 +333,8 @@ def scan_best_altitude_profile(
     refine_m: float = ALT_REFINE_M,
 ) -> list[CruiseScored]:
     """按马赫步长扫描各点最佳巡航高度，用于找峰值与回落点。"""
-    if step <= 0:
-        raise ValueError('马赫步长须为正')
-    if mach_lo <= 0 or mach_hi <= mach_lo:
-        raise ValueError('马赫搜索区间非法')
-    n_scan = max(int(round((mach_hi - mach_lo) / step)) + 1, 2)
     profile: list[CruiseScored] = []
-    for i in range(n_scan):
-        # 端点用区间原值，避免 (hi-lo)*i/(n-1) 在上界漂出 1 ulp
-        if i == 0:
-            mach = mach_lo
-        elif i == n_scan - 1:
-            mach = mach_hi
-        else:
-            mach = mach_lo + (mach_hi - mach_lo) * i / (n_scan - 1)
+    for mach in profile_machs(mach_lo, mach_hi, step):
         scored = search_best_altitude(
             ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m,
         )
@@ -339,7 +358,10 @@ def search_max_cruise_mach(
 
     高度峰值按密扫剖面确定；容差只有一格细化高度，避免把已经掉高
     的马赫（旧 1.2 km 容差）算成实用最大巡航。
-    掉到 11 km 后的绝对上限用 search_floor_max_cruise_mach。
+    取剖面上最后一个仍在峰值的点，不再在回落区间里二分往上推：
+    200 m 容差会把「刚开始掉高」的马赫也算进去，光滑隐身机就会
+    越过超巡带上沿（1.76）。掉到 11 km 后的绝对上限用
+    search_floor_max_cruise_mach。
     """
     _require_mach_search_bounds(mach_lo, mach_hi, iters)
     if peak_drop_m < 0:
@@ -352,21 +374,7 @@ def search_max_cruise_mach(
         return None
     peak_alt = max(point.alt_m for point in profile)
     near = [point for point in profile if point.alt_m >= peak_alt - peak_drop_m]
-    lo = max(point.mach for point in near)
-    above = [point.mach for point in profile if point.mach > lo]
-    hi = min(above) if above else mach_hi
-    if lo >= hi:
-        return min(lo, mach_hi)
-    for _ in range(iters):
-        mid = (lo + hi) / 2.0
-        scored = search_best_altitude(
-            ctx, mid, alt_min_m, alt_max_m, step_m, refine_m,
-        )
-        if scored is not None and scored.alt_m >= peak_alt - peak_drop_m:
-            lo = mid
-        else:
-            hi = mid
-    return lo
+    return min(max(point.mach for point in near), mach_hi)
 
 
 def try_cruise_forces(ctx: CruiseContext, mach: float, alt_m: float) -> CruiseForces | None:

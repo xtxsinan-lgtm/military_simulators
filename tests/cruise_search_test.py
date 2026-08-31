@@ -21,6 +21,7 @@ from utils.combat_radius.cruise_search import (
     evaluate_cruise_forces,
     flyable_forces,
     max_ld_fields,
+    profile_machs,
     scan_best_altitude_profile,
     score_cruise_point,
     scored_to_dict,
@@ -413,7 +414,7 @@ def test_low_wing_loading_can_cruise_higher_at_mach08():
 
 
 def test_f22_cruise_altitude_rises_until_mach_15_then_holds():
-    """Ma 1.5 以前最佳高度随速度升高；超巡带 1.5–1.76 高度不掉。"""
+    """Ma 1.5 以前最佳高度随速度升高；超巡带 1.5–1.76 不掉，其后开始掉。"""
     ctx = _f22_csv_ctx()
     a08 = search_best_altitude(ctx, 0.8)
     a10 = search_best_altitude(ctx, 1.0)
@@ -421,11 +422,13 @@ def test_f22_cruise_altitude_rises_until_mach_15_then_holds():
     a14 = search_best_altitude(ctx, 1.4)
     a15 = search_best_altitude(ctx, 1.5)
     a176 = search_best_altitude(ctx, 1.76)
-    assert None not in (a08, a10, a12, a14, a15, a176)
+    a180 = search_best_altitude(ctx, 1.80)
+    assert None not in (a08, a10, a12, a14, a15, a176, a180)
     assert a08.alt_m < a10.alt_m < a12.alt_m
     assert a12.alt_m <= a14.alt_m + 400.0
     assert a15.alt_m >= a12.alt_m - 400.0
     assert a176.alt_m >= a15.alt_m - 200.0
+    assert a180.alt_m < a176.alt_m - PEAK_ALT_DROP_M + 1e-6
     assert a15.load_raw > a08.load_raw
     assert a176.load_raw >= 0.90
 
@@ -445,6 +448,19 @@ def test_search_max_cruise_mach_when_low_mach_infeasible():
     assert any_feasible_altitude(ctx, MACH_SEARCH_LO) is False
     m = search_max_cruise_mach(ctx)
     assert m == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
+
+
+def test_profile_machs_includes_supercruise_band_and_rejects_bad_step():
+    """剖面网格须钉上 1.76；端点为区间原值；步长/区间非法时报错。"""
+    machs = profile_machs(0.5, 2.5, step=0.05)
+    assert machs[0] == 0.5
+    assert machs[-1] == 2.5
+    assert 1.76 in machs
+    assert 1.5 in machs
+    with pytest.raises(ValueError, match='步长'):
+        profile_machs(0.8, 1.5, step=0.0)
+    with pytest.raises(ValueError, match='区间'):
+        profile_machs(1.5, 0.8, step=0.1)
 
 
 def test_scan_best_altitude_profile_endpoints_and_rejects_bad_step():
@@ -474,4 +490,8 @@ def test_practical_max_cruise_stays_at_peak_altitude():
         assert at is not None
         assert at.alt_m >= peak - PEAK_ALT_DROP_M - 1e-6
     f22 = search_max_cruise_mach(_csv_ctx('F-22'))
-    assert f22 > 1.76
+    assert f22 == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
+    after = search_best_altitude(_csv_ctx('F-22'), 1.80)
+    at = search_best_altitude(_csv_ctx('F-22'), f22)
+    assert after is not None and at is not None
+    assert after.alt_m < at.alt_m - PEAK_ALT_DROP_M + 1e-6

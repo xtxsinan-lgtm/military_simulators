@@ -454,14 +454,20 @@ def test_cd_wave_supersonic_rises_with_cl():
 
 
 def test_lift_wave_mach_factor_caps_after_ma15():
-    """刚超音速按 (M-1)；Ma 1.5 起封顶，1.76 不再加重。"""
+    """刚超音速按 (M-1)；超巡带封顶，过了 1.76 再加重。"""
+    from utils.combat_radius.lift_drag import CDW_SS_LIFT_POST, SUPERCRUISE_BAND_HI
+
     assert lift_wave_mach_factor(0.8) == 0.0
     assert lift_wave_mach_factor(1.0) == 0.0
     assert lift_wave_mach_factor(1.25) == pytest.approx(0.25)
     assert lift_wave_mach_factor(1.5) == pytest.approx(CDW_SS_LIFT_MACH_CAP)
     assert lift_wave_mach_factor(1.76) == pytest.approx(CDW_SS_LIFT_MACH_CAP)
-    assert lift_wave_mach_factor(2.0) == pytest.approx(CDW_SS_LIFT_MACH_CAP)
+    assert lift_wave_mach_factor(2.0) == pytest.approx(
+        CDW_SS_LIFT_MACH_CAP + CDW_SS_LIFT_POST * (2.0 - SUPERCRUISE_BAND_HI),
+    )
     assert CDW_SS_LIFT_MACH_CAP == pytest.approx(0.50)
+    assert SUPERCRUISE_BAND_HI == pytest.approx(1.76)
+    assert F22_SUPERCRUISE_MACH == pytest.approx(SUPERCRUISE_BAND_HI)
 
 
 def test_lift_wave_drag_same_at_ma176_as_ma15():
@@ -474,6 +480,8 @@ def test_lift_wave_drag_same_at_ma176_as_ma15():
     vol176 = cd_wave_supersonic(1.76, ac, 0.0)
     assert lift176 == pytest.approx(lift15)
     assert vol176 > vol15
+    lift20 = cd_wave_supersonic(2.0, ac, cl) - cd_wave_supersonic(2.0, ac, 0.0)
+    assert lift20 > lift176
 
 
 def test_canard_adds_supersonic_wave_drag():
@@ -482,7 +490,7 @@ def test_canard_adds_supersonic_wave_drag():
     canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
-    assert J20_SUPERCRUISE_MACH == pytest.approx(1.21)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.20)
 
 
 def test_tailless_and_bwb_discount_volume_wave_drag():
