@@ -147,7 +147,7 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
         assert row['t4_K'] == pytest.approx(t4)
     f135 = get_preset_by_id(engines, 'f135')
     assert f135 is not None
-    assert f135['tsfc_install_mult'] == pytest.approx(1.22)
+    assert f135['tsfc_install_mult'] == pytest.approx(1.15)
 
 
 def test_build_combat_radius_engine_presets_payload():

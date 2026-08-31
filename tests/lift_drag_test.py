@@ -560,23 +560,24 @@ def test_calibrate_rejects_unphysical_targets():
 
 
 def test_default_ld_anchors_match_f35c_f22():
-    """参考机：FAT/BUMP=1 后 F-35C 展弦比更高，巡航 L/D 可高于 F-22。"""
+    """参考机：残余机身惩罚后 F-35C 巡航 L/D 仍可略高于 F-22。"""
     a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
     assert a1.name == 'F-35C' and a1.rough is True and a1.inlet == 'dsi'
     assert a2.name == 'F-22' and a2.rough is False and a2.inlet == 'caret'
     assert ld2 == pytest.approx(10.72, abs=0.10)
-    assert ld1 == pytest.approx(11.66, abs=0.15)  # FAT/BUMP=1 后展弦比更高的 F-35C 升阻比可高于 F-22
+    assert ld1 == pytest.approx(10.81, abs=0.15)  # 残余 FAT×BUMP≈1.10 后 F-35C 升阻比仍可略高于 F-22
     cf0, k_e = calibrate_default_anchors()
     assert cf0 == pytest.approx(CF0_REF)
     assert k_e == pytest.approx(K_E_REF)
 
 
 def test_rough_mult_penalizes_f35_vs_smooth():
-    """机身 FAT/BUMP 默认 1.0；F-35 航程短板改由 F135 安装惩罚承担。"""
-    assert FAT_MULT == pytest.approx(1.00, abs=0.01)
-    assert BUMP_MULT == pytest.approx(1.00, abs=0.01)
-    assert wetted_area_factor(_f35c()) == pytest.approx(
-        wetted_area_factor(Aircraft(**{**aircraft_to_dict(_f35c()), 'rough': False})),
+    """机身留残余 FAT>BUMP>1；F-35 浸润须高于光滑对照。"""
+    assert FAT_MULT == pytest.approx(1.06, abs=0.01)
+    assert BUMP_MULT == pytest.approx(1.04, abs=0.01)
+    assert FAT_MULT > BUMP_MULT > 1.0
+    assert wetted_area_factor(_f35c()) > wetted_area_factor(
+        Aircraft(**{**aircraft_to_dict(_f35c()), 'rough': False}),
     )
 
 
