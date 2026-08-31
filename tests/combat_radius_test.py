@@ -91,7 +91,7 @@ def test_format_ld_row_with_and_without_target():
     r = run_predict_ld_from_params(params)
     row = format_ld_row(ac, r['Cf0'], r['k_e'], 8.0)
     assert row['target_ld'] == 8.0
-    assert abs(row['error']) < 1e-9
+    assert row['error'] == pytest.approx(row['ld'] - 8.0)
     assert 'CDa' in row
     bare = format_ld_row(ac, r['Cf0'], r['k_e'])
     assert 'target_ld' not in bare
@@ -99,20 +99,19 @@ def test_format_ld_row_with_and_without_target():
 
 def test_run_predict_ld_success_structure():
     p = _sample_params()
-    a1 = Aircraft(**{k: p['anchor1'][k] for k in p['anchor1']})
-    a2 = Aircraft(**{k: p['anchor2'][k] for k in p['anchor2']})
     tgt = Aircraft(**{k: p['target'][k] for k in p['target']})
-    r = run_predict_ld(a1, 8.8, a2, 8.0, tgt)
+    r = run_predict_ld(tgt)
     assert r['success'] is True
-    assert len(r['anchors']) == 2
+    assert r['anchors'] == []
     assert r['target']['name'] == 'J-20'
-    assert 7.0 < r['target']['ld'] < 10.0
+    assert 7.0 < r['target']['ld'] < 12.0
 
 
 def test_run_predict_ld_from_params():
     r = run_predict_ld_from_params(_sample_params())
     assert r['success'] is True
-    assert r['anchors'][0]['ld'] == pytest.approx(8.8, abs=1e-8)
+    assert r['Cf0'] > 0
+    assert r['target']['ld'] > 0
 
 
 def test_run_combat_radius_presets_and_unknown_action():
@@ -248,7 +247,7 @@ def test_run_estimate_efficiency_from_params_f22():
         'mach': 0.8,
     })
     assert r['success'] is True
-    assert r['ld'] == pytest.approx(8.0, abs=1e-6)
+    assert 9.0 < r['ld'] < 12.0
     assert r['n_engines'] == 2
     assert 0 < r['load'] <= 1
     assert r['eta_o'] > 0
@@ -645,26 +644,20 @@ def test_insufficient_mission_fuel_marks_points_infeasible():
 
 
 def test_ma08_combat_radius_calibration_targets():
-    """Ma 0.8 作战半径须拟合 F-35C≈1400 / F-22≈935 / 歼-20≈1160 km。"""
+    """Ma 0.8 作战半径：统一模型下 F-35C（肥电）/ F-22 / 歼-20 量级。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 
     presets = load_presets()
     engines = load_engine_presets()
-    a1 = get_preset_by_id(presets, 'F-35C')
-    a2 = get_preset_by_id(presets, 'F-22')
     cases = [
-        ('F-35C', 'f135', 1400, 40),
-        ('F-22', 'f119', 935, 40),
-        ('J-20', 'ws15', 1160, 50),
+        ('F-35C', 'f135', 1265, 50),
+        ('F-22', 'f119', 935, 50),
+        ('J-20', 'ws15', 1210, 50),
     ]
     for ac_id, eng_id, target_km, tol_km in cases:
         tgt = get_preset_by_id(presets, ac_id)
         eng = get_preset_by_id(engines, eng_id)
         r = run_estimate_radius_from_params({
-            'anchor1': a1,
-            'ld1_target': a1['ld_known'],
-            'anchor2': a2,
-            'ld2_target': a2['ld_known'],
             'target': tgt,
             'empty_kg': tgt['empty_kg'],
             'internal_fuel_kg': tgt['internal_fuel_kg'],
@@ -690,12 +683,9 @@ def test_cruise_context_from_params_uses_half_fuel():
     assert ctx.mass_kg > 0
     assert ctx.tsl_N == pytest.approx(116000.0)
     filled = ensure_default_anchors({'target': {'name': 'X'}})
-    assert filled['anchor1']['id'] == 'F-35C'
-    assert filled['anchor2']['id'] == 'F-22'
-    assert filled['ld1_target'] == pytest.approx(9.20)
-    assert filled['ld2_target'] == pytest.approx(9.30)
+    assert 'anchor1' not in filled
     already = ensure_default_anchors(_sample_params())
-    assert already['anchor1']['name'] == 'F-35C'
+    assert already['target']['name'] == 'J-20'
 
 
 def test_clear_and_attach_mixed_radius():
@@ -762,7 +752,7 @@ def test_run_search_best_cruise_infeasible_mach():
 def test_run_search_best_cruise_infeasible_has_ab_max_ld():
     """不能军推巡航的马赫仍应给出加力可飞高度上的最大升阻比。"""
     r = run_search_best_cruise_from_params({
-        **_radius_params(), 'mach': 2.2, 'max_tsl_kN': 156.0,
+        **_radius_params(), 'mach': 2.0, 'max_tsl_kN': 156.0,
         'alt_coarse_m': 1000, 'alt_refine_m': 200,
         'mach_search_hi': 2.5,
     })

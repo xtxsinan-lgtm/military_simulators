@@ -19,9 +19,9 @@ from utils.paths import COMBAT_RADIUS_CONFIG_JSON
 def test_load_combat_radius_config_file_exists_and_ui_defaults():
     assert COMBAT_RADIUS_CONFIG_JSON.is_file()
     ui = ui_config()
-    assert ui['default_anchor1_id'] == 'F-35C'
     assert ui['default_target_id'] == 'J-20'
     assert ui['default_engine_id'] == 'f119'
+    assert 'default_anchor1_id' not in ui
     assert ui['default_eta_c'] == 0.87
     assert ui['default_eps'] == 0.83
     assert load_combat_radius_config()['version'] == 3
@@ -41,8 +41,8 @@ def test_planform_and_layout_labels():
 
 def test_build_combat_radius_config_payload():
     payload = build_combat_radius_config_payload()
-    assert payload['ui']['default_ld1'] == 9.20
-    assert payload['ui']['default_ld2'] == 9.30
+    assert payload['ui']['default_target_id'] == 'J-20'
+    assert 'default_ld1' not in payload['ui']
     assert payload['ui']['default_thrust_alt_m'] == 11000
     assert payload['ui']['default_thrust_mach'] == 1.5
     assert payload['mission_fuel']['carrier_reserve_min'] == 40

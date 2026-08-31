@@ -1,7 +1,7 @@
-"""战斗机巡航升阻比 (L/D) 估算。
+"""战斗机巡航升阻比 (L/D) 统一物理估算。
 
-用两个已知 L/D 的锚点机型，闭式线性解标定 (Cf0, k_e)，
-再代入任意第三型机估算其 L/D。
+全机队共用固定 (Cf0, k_e)，由几何/布局/表面直接预测 L/D，
+不再用 F-35C/F-22 的「已知升阻比」做两机闭式标定。
 
 物理框架：
     CD = CD0(摩擦/寄生阻力) + CDi(诱导阻力) + CDa(大迎角附加) + CDw(波阻)
@@ -10,29 +10,21 @@
 大迎角项：超过典型巡航 CL 后诱导/分离阻力按 (CL-CL_on)² 上升，
 避免抛物线极曲线把 L/Dmax 推到 CL≈0.57（Ma 0.8 约 15 km）。
 低翼载飞机同一高度 CL 更小，可以飞得更高。
-锚点标定在 CL≈0.35，此项近似为零，不改变 (Cf0, k_e)。
 无座舱无人机去掉风挡浸润；机长只进入马赫锥项（Ma 1.5 通常未触发）。
+F-35 等 rough=True 机型加大浸润（肥机身/表面不平整），相对光滑隐身机降 L/D。
 
 波阻分四段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
     1. 跨声速 Korn：CDw = 20·min(M-Mdd, 0.10)⁴，只刻画阻力发散附近的小超量；
-    2. 跨声速鼓包：阻力发散后在 Ma 1.15 附近高斯见顶，Ma 1.5 前衰减，
-       避免 Ma 1.2 仍按亚音速 CL_opt 爬到 17 km、导致 1.5 以前高度回落；
+    2. 跨声速鼓包：阻力发散后在 Ma 1.15 附近高斯见顶，Ma 1.5 前衰减；
     3. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项
-       + 升力波阻 CL²(M-1)（高空大 CL 时压低 L/D，避免超音速布雷盖半径超过亚音速）
-       + 鸭翼附加 (M-1)²（按早期 90 kN 军推 / 142 kN 加力对齐 Ma 1.5 / 2.0，
-         涡扇15 105 / 156 kN 下巡航与极速都更高）；
+       + 升力波阻 CL²(M-1) + 鸭翼附加 (M-1)²；
     4. 超过马赫锥后的附加波阻（翼尖-机头连线）。
-    体积项系数使 F-22 军推最大巡航 = Ma 1.76。
+    体积项系数使 F-22 峰值高度段军推最大巡航 = Ma 1.76；
+    允许掉到 11 km 后还能更快。
 
-标定原理（闭式线性解）：
-    CDi = K_raw / k_e，其中 K_raw = CL²/(π·AR·e_raymer)，k_e 未知
-    CD0 = Cf0 · W，其中 W 为浸润面积代理因子，Cf0 未知
-    对每个锚点 i：CL_i / (Cf0·W_i + K_i/k_e + CDw_i + CDa_i) = target_i
-    整理为线性方程组（令 x=Cf0, y=1/k_e）：
-        W_1·x + K_1·y = C_1
-        W_2·x + K_2·y = C_2
-    其中 C_i = CL_i/target_i - CDw_i - CDa_i，用克莱姆法则直接求解，无需迭代。
-    Ma 0.8 下 CDw≈0 且锚点 CDa≈0，(Cf0, k_e) 仍只由亚音速锚点决定。
+(Cf0, k_e) 取绝对值：由历史 F-35C/F-22 升阻比标定闭式解固化，运行时不再读锚点；
+Oswald 修正含在 k_e 中；rough 乘数单独抬高 F-35 等肥电 CD0（相对该闭式解时的 1.08 再加重）。
+仍保留 calibrate() 供对照/单元测试，运行时默认走 model_coefficients()。
 """
 from __future__ import annotations
 
@@ -52,16 +44,18 @@ KAPPA_A = 0.90  # Korn 方程翼型技术因子，固定为超临界翼型典型
 CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小超量
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
-# 超音速波阻：F-22 军推最大巡航 Ma 1.76；歼-20 鸭翼按 90 kN→Ma 1.5、142 kN 加力→Ma 2.0 标定
+# 超音速波阻：F-22 峰值高度段军推最大巡航 Ma 1.76（掉高度后更快）；
+# 歼-20 鸭翼按 90 kN→Ma 1.5、142 kN 加力→Ma 2.0 标定
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²(M-1)，避免 19 km 超音速 L/D 仍接近亚音速、布雷盖半径倒挂
+# 体积项下调、升力项加重：1.76 仍能停在峰值附近，1.5 又不会爬得过高效
 F22_SUPERCRUISE_MACH = 1.76
-J20_SUPERCRUISE_MACH = 1.68
-J35_SUPERCRUISE_MACH = 1.12
-J35A_SUPERCRUISE_MACH = 1.47
-CDW_SS_BODY = 0.00968
-CDW_SS_WING = 6.32
-CDW_SS_LIFT = 0.35
+J20_SUPERCRUISE_MACH = 1.49
+J35_SUPERCRUISE_MACH = 1.08
+J35A_SUPERCRUISE_MACH = 1.13
+CDW_SS_BODY = 0.00450
+CDW_SS_WING = 3.00
+CDW_SS_LIFT = 0.65
 CDW_CANARD = 0.004  # 鸭翼附加，乘 (M-1)²；90 kN→Ma 1.5、142 kN 加力→Ma 2.0
 # 跨声速阻力鼓包：峰值在 Ma 1.15，半宽 0.14，Ma 1.5 时已基本衰减
 CDW_TRANS_AMP = 0.007
@@ -72,8 +66,13 @@ CDW_TAILLESS = 0.72
 CDW_BWB = 0.90
 # 无座舱浸润折扣：去掉风挡/框与座舱鼓包，机头更圆滑（相对有座舱约 −3%）
 NO_CANOPY_MULT = 0.97
+# 表面不平整 / 肥机身：F-35 等 rough=True，相对光滑隐身机抬高巡航 CD0
+ROUGH_MULT = 1.20
+# 统一极曲线标度：由「rough=1.08 + F-35C/F-22 目标 9.20/9.30」闭式解固化为常数；
+# 运行时不再读锚点。ROUGH_MULT=1.20 只加大 F-35 惩罚，不重新标定 Cf0/k_e。
+CF0_REF = 0.022491719747601783
+K_E_REF = 1.6474719304757923
 # 大迎角附加阻力：超过巡航 CL 后 (CL-CL_on)²，使 L/D 在标定高度附近见顶。
-# 起点取 0.35，使 F-35C/F-22 锚点 CDa=0，不扰动 (Cf0, k_e) 与超巡波阻标定。
 CL_AOA_ONSET = 0.35
 CD_AOA_COEF = 2.0
 
@@ -215,12 +214,13 @@ def wetted_area_factor(ac: Aircraft) -> float:
     - 三角翼/双三角/钻石翼/兰姆达翼相比梯形翼浸润面积/参考面积略小；平直翼略大
     - 鸭式布局多一个升力面；无尾布局减少
     - 翼身融合 (bwb) 与表面不平整 (rough) 是两个完全独立的开关
+    - rough 乘 ROUGH_MULT（F-35 等肥机身/表面不平整）
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
     """
     planform_mult = PLANFORM_MULT[ac.planform]
     layout_mult = LAYOUT_MULT[ac.layout]
     bwb_mult = 0.90 if ac.bwb else 1.00
-    rough_mult = 1.08 if ac.rough else 1.00
+    rough_mult = ROUGH_MULT if ac.rough else 1.00
     canopy_mult = 1.0 if ac.canopy else NO_CANOPY_MULT
     thickness_mult = 1.0 + 4.0 * ac.tc
     return thickness_mult * planform_mult * layout_mult * bwb_mult * rough_mult * canopy_mult
@@ -291,7 +291,7 @@ def cd_wave_transonic(mach: float, CL: float, ac: Aircraft) -> float:
 def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加。
 
-    体积项使 F-22 军推最大巡航 = 1.76；鸭翼附加按早期 90 / 142 kN 对齐 Ma 1.5 / 2.0。
+    体积项使 F-22 峰值高度段军推最大巡航 = 1.76；鸭翼附加按早期 90 / 142 kN 对齐 Ma 1.5 / 2.0。
     无尾/翼身融合只打折体积项（面积律更好），升力波阻不打折。
     升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速。
     """
@@ -400,10 +400,16 @@ def parasite_cd0(ac: Aircraft, cf0: float) -> float:
     return cf0 * wetted_area_factor(ac)
 
 
-def default_ld_anchor_aircraft() -> tuple[Aircraft, float, Aircraft, float]:
-    """默认两锚点：F-35C (L/D=9.20) 与 F-22 (L/D=9.30)，几何与机型库一致。
+def model_coefficients() -> tuple[float, float]:
+    """统一物理模型的 (Cf0, k_e)，全机队共用。"""
+    return CF0_REF, K_E_REF
 
-    锚点按 F-35C Ma 0.8 作战半径约 1400 km 抬升全局极曲线；F-22 取略高 L/D。
+
+def default_ld_anchor_aircraft() -> tuple[Aircraft, float, Aircraft, float]:
+    """对照用参考机几何（不再作为运行时标定输入）。
+
+    返回光滑 F-22 与粗糙 F-35C 在 CSV 巡航点的几何，以及模型预测 L/D，
+    便于单元测试核对 rough 惩罚方向。
     """
     f35c = Aircraft(
         'F-35C', AR=2.77, sweep_deg=30.9, wing_loading=0.341,
@@ -417,16 +423,18 @@ def default_ld_anchor_aircraft() -> tuple[Aircraft, float, Aircraft, float]:
         planform='trapezoidal', layout='conventional',
         bwb=False, rough=False,
     )
-    return f35c, 9.20, f22, 9.30
+    cf0, k_e = model_coefficients()
+    ld35, _ = predict_ld(f35c, cf0, k_e)
+    ld22, _ = predict_ld(f22, cf0, k_e)
+    return f35c, ld35, f22, ld22
 
 
 def calibrate_default_anchors() -> tuple[float, float]:
-    """用默认 F-35C / F-22 锚点标定 (Cf0, k_e)。"""
-    a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
-    return calibrate(a1, ld1, a2, ld2)
+    """兼容旧名：返回统一模型系数。"""
+    return model_coefficients()
 
 
 def estimate_takeoff_cd0(ac: Aircraft) -> float:
-    """用默认锚点标定后，估算该机起飞用零升阻力系数。"""
-    cf0, _k_e = calibrate_default_anchors()
+    """用统一模型系数估算该机起飞用零升阻力系数。"""
+    cf0, _k_e = model_coefficients()
     return parasite_cd0(ac, cf0)

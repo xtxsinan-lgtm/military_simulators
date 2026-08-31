@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 21;
+const APP_VERSION = 22;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -370,7 +370,7 @@ function renderDash(r, sourceLabel) {
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高，接近最大巡航时军推不够则回落。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按阻力等于全部加力（不留巡航裕度），各马赫取最大升阻比后再取真速最大点。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。</p>
+    <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高。最大巡航取高度仍接近峰值的上限；若允许掉到 11 km，军推还能再快一些。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点。极速按阻力等于全部加力（不留巡航裕度），各马赫取最大升阻比后再取真速最大点。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。</p>
   `;
   $('dashStatus').textContent = 'READY';
 }

@@ -214,7 +214,7 @@ def test_load_combat_radius_aircraft_csv():
     assert rows[0]['rough'] is True
     f22 = next(r for r in rows if r['id'] == 'F-22')
     j20 = next(r for r in rows if r['id'] == 'J-20')
-    assert j20['ld_known'] == pytest.approx(9.01)
+    assert j20.get('ld_known') is None
     assert j20['wing_area_m2'] == pytest.approx(76.8)
     assert f22['empty_kg'] == 19800
     assert f22['n_engines'] == 2

@@ -1,9 +1,10 @@
 """作战半径仿真核心。
 
-1. 根据几何参数与两锚点标定，估算巡航升阻比；
+1. 用统一物理模型 (Cf0, k_e) 由几何估算巡航升阻比；
 2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推；
 3. 由空战重量与 L/D 求阻力，再与可用军推得到负载比，估算热/推进/总效率与 TSFC；
 4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度；
+   「最大巡航」取高度仍接近峰值的上限；掉到 11 km 后另给绝对上限。
    先按出发/返回重量算瞬时油耗，再把（冗余−降落节省）加到空重上、
    内油减去该值与爬升额外后重新做布雷盖。
 """
@@ -53,6 +54,7 @@ from utils.combat_radius.cruise_search import (
     score_cruise_point,
     scored_to_dict,
     search_best_altitude,
+    search_floor_max_cruise_mach,
     search_max_cruise_mach,
     search_max_ld_altitude,
 )
@@ -70,8 +72,8 @@ from utils.combat_radius.lift_drag import (
     Aircraft,
     aircraft_from_dict,
     aircraft_mach_angle_rad,
-    calibrate,
     mach_cone_limit,
+    model_coefficients,
     predict_ld,
 )
 from utils.combat_radius.max_speed_search import (
@@ -118,23 +120,19 @@ def format_ld_row(
 
 
 def run_predict_ld(
-    anchor1: Aircraft,
-    ld1_target: float,
-    anchor2: Aircraft,
-    ld2_target: float,
     target: Aircraft,
+    cf0: float | None = None,
+    k_e: float | None = None,
 ) -> dict[str, Any]:
-    """标定两锚点并估算目标机型 L/D。"""
-    cf0, k_e = calibrate(anchor1, ld1_target, anchor2, ld2_target)
+    """用统一模型系数估算目标机型 L/D。"""
+    if cf0 is None or k_e is None:
+        cf0, k_e = model_coefficients()
     return {
         'success': True,
         'Cf0': cf0,
         'k_e': k_e,
         'kappa_A': KAPPA_A,
-        'anchors': [
-            format_ld_row(anchor1, cf0, k_e, ld1_target),
-            format_ld_row(anchor2, cf0, k_e, ld2_target),
-        ],
+        'anchors': [],
         'target': format_ld_row(target, cf0, k_e),
     }
 
@@ -148,43 +146,14 @@ def _require_aircraft_params(params: dict[str, Any], key: str) -> dict[str, Any]
 
 
 def run_predict_ld_from_params(params: dict[str, Any]) -> dict[str, Any]:
-    """从 JSON 参数运行升阻比估算。未提供锚点时用配置默认机型。"""
-    params = ensure_default_anchors(params)
-    anchor1 = aircraft_from_dict(_require_aircraft_params(params, 'anchor1'))
-    anchor2 = aircraft_from_dict(_require_aircraft_params(params, 'anchor2'))
+    """从 JSON 参数运行升阻比估算（统一模型，忽略旧锚点字段）。"""
     target = aircraft_from_dict(_require_aircraft_params(params, 'target'))
-    ld1 = float(params.get('ld1_target', params.get('ld1')))
-    ld2 = float(params.get('ld2_target', params.get('ld2')))
-    return run_predict_ld(anchor1, ld1, anchor2, ld2, target)
+    return run_predict_ld(target)
 
 
 def ensure_default_anchors(params: dict[str, Any]) -> dict[str, Any]:
-    """未提供锚点时，用配置默认机型（F-35C / F-22）填入；界面不展示这些黑箱数字。"""
-    out = dict(params)
-    need1 = not isinstance(out.get('anchor1'), dict)
-    need2 = not isinstance(out.get('anchor2'), dict)
-    if not need1 and not need2:
-        return out
-    from utils.combat_radius.combat_radius_config import ui_config
-    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
-
-    ui = ui_config()
-    presets = load_presets()
-    if need1:
-        a1 = get_preset_by_id(presets, str(ui.get('default_anchor1_id', 'F-35C')))
-        if a1 is None:
-            raise ValueError('无法加载默认升阻比标定锚点 1')
-        out['anchor1'] = a1
-        if out.get('ld1_target', out.get('ld1')) in (None, ''):
-            out['ld1_target'] = a1.get('ld_known', ui.get('default_ld1', 9.20))
-    if need2:
-        a2 = get_preset_by_id(presets, str(ui.get('default_anchor2_id', 'F-22')))
-        if a2 is None:
-            raise ValueError('无法加载默认升阻比标定锚点 2')
-        out['anchor2'] = a2
-        if out.get('ld2_target', out.get('ld2')) in (None, ''):
-            out['ld2_target'] = a2.get('ld_known', ui.get('default_ld2', 9.30))
-    return out
+    """兼容旧请求：不再填入升阻比锚点，原样返回。"""
+    return dict(params)
 
 
 def _optional_float(value: Any) -> float | None:
@@ -345,8 +314,8 @@ def _mission_fuel_note(carrier: bool, reserve_min: float, mf: dict[str, Any]) ->
 def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """由 L/D、空战重量与可用军推估算负载比、总效率与 TSFC。
 
-    若提供锚点+待估机几何，则在给定高度/马赫数下重算 L/D；
-    也可直接传入 ld，跳过升阻比标定。未提供锚点时用配置默认机型。
+    若提供待估机几何，则在给定高度/马赫数下用统一模型重算 L/D；
+    也可直接传入 ld，跳过升阻比估算。
     """
     params = ensure_default_anchors(params)
     alt_m = float(params['alt_m'])
@@ -363,14 +332,7 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
         target_raw = dict(_require_aircraft_params(params, 'target'))
         target_raw['mach'] = mach
         target_raw['alt_m'] = alt_m
-        ld_params = {
-            'anchor1': _require_aircraft_params(params, 'anchor1'),
-            'ld1_target': params.get('ld1_target', params.get('ld1')),
-            'anchor2': _require_aircraft_params(params, 'anchor2'),
-            'ld2_target': params.get('ld2_target', params.get('ld2')),
-            'target': target_raw,
-        }
-        ld_info = run_predict_ld_from_params(ld_params)
+        ld_info = run_predict_ld_from_params({'target': target_raw})
         ld = float(ld_info['target']['ld'])
 
     breakdown = combat_mass_breakdown(
@@ -456,17 +418,10 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
 
 
 def _calibrate_from_params(params: dict[str, Any]) -> tuple[Aircraft, float, float]:
-    """从请求标定 (Cf0, k_e)，并返回覆盖了待估机几何的 Aircraft。"""
-    params = ensure_default_anchors(params)
+    """取待估机几何，并返回统一模型 (Cf0, k_e)。"""
     target = aircraft_from_dict(_require_aircraft_params(params, 'target'))
-    ld_info = run_predict_ld_from_params({
-        'anchor1': _require_aircraft_params(params, 'anchor1'),
-        'ld1_target': params.get('ld1_target', params.get('ld1')),
-        'anchor2': _require_aircraft_params(params, 'anchor2'),
-        'ld2_target': params.get('ld2_target', params.get('ld2')),
-        'target': _require_aircraft_params(params, 'target'),
-    })
-    return target, float(ld_info['Cf0']), float(ld_info['k_e'])
+    cf0, k_e = model_coefficients()
+    return target, cf0, k_e
 
 
 def _optional_ab_context(ctx: CruiseContext, params: dict[str, Any]) -> CruiseContext | None:
@@ -790,6 +745,9 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     max_mach = search_max_cruise_mach(
         ctx, mach_lo, mach_hi, mach_iters, alt_min, alt_max, coarse_m,
     )
+    floor_mach = search_floor_max_cruise_mach(
+        ctx, mach_lo, mach_hi, mach_iters, alt_min, alt_max, coarse_m,
+    )
     if max_mach is None:
         points.append(_attach_max_ld_to_point(
             _infeasible_point('max_cruise', '最大巡航', None),
@@ -847,6 +805,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         'mach_angle_deg': mach_angle_deg,
         'mach_cone_limit': m_cone,
         'max_cruise_mach': max_mach,
+        'max_cruise_floor_mach': floor_mach,
         'points': points,
         'mission_fuel': fuel_adj,
         'note': _mission_fuel_note(carrier, reserve_min, mf),
@@ -965,7 +924,7 @@ def compact_max_speed(result: dict[str, Any]) -> dict[str, Any]:
 def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """机型仪表盘：最大巡航、极速、各马赫作战半径与混合作战半径。
 
-    锚点由配置默认填入，不要求前端传入。缺少海平面加力时极速标为不可行。
+    升阻比用统一物理模型；缺少海平面加力时极速标为不可行。
     """
     params = ensure_default_anchors(params)
     radius = run_estimate_radius_from_params(params)
@@ -1105,8 +1064,6 @@ def main() -> None:
     parser = argparse.ArgumentParser(description='飞机作战半径估算（布雷盖 + 任务油量）')
     parser.add_argument('--aircraft', default='F-22', help='待估机型预设 id')
     parser.add_argument('--engine', default='f119', help='发动机预设 id')
-    parser.add_argument('--anchor1', default='F-35C')
-    parser.add_argument('--anchor2', default='F-22')
     args = parser.parse_args()
 
     from utils.combat_radius.combat_radius_presets import (
@@ -1118,10 +1075,8 @@ def main() -> None:
     presets = load_presets()
     engines = load_engine_presets()
     tgt = get_preset_by_id(presets, args.aircraft)
-    a1 = get_preset_by_id(presets, args.anchor1)
-    a2 = get_preset_by_id(presets, args.anchor2)
     eng = get_preset_by_id(engines, args.engine)
-    if tgt is None or a1 is None or a2 is None:
+    if tgt is None:
         raise SystemExit('找不到机型预设')
     if eng is None:
         raise SystemExit('找不到发动机预设')
@@ -1130,10 +1085,6 @@ def main() -> None:
         raise SystemExit(f'发动机 {args.engine} 未填写海平面军推 tsl_kN')
 
     params = {
-        'anchor1': a1,
-        'ld1_target': a1.get('ld_known', 9.20),
-        'anchor2': a2,
-        'ld2_target': a2.get('ld_known', 9.30),
         'target': tgt,
         'empty_kg': tgt['empty_kg'],
         'internal_fuel_kg': tgt['internal_fuel_kg'],

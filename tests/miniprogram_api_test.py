@@ -48,17 +48,13 @@ def test_post_missile_interception_simulate_success():
 
 
 def test_post_combat_radius_simulate_success():
-    """作战半径 API 返回标定系数与待估 L/D。"""
+    """作战半径 API 返回统一模型系数与待估 L/D。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
 
     presets = load_presets()
     payload = {
         'action': 'predict_ld',
         'params': {
-            'anchor1': get_preset_by_id(presets, 'F-35C'),
-            'ld1_target': 8.8,
-            'anchor2': get_preset_by_id(presets, 'F-22'),
-            'ld2_target': 8.0,
             'target': get_preset_by_id(presets, 'J-20'),
         },
     }
@@ -69,7 +65,7 @@ def test_post_combat_radius_simulate_success():
     result = json.loads(body.decode())
     assert result['success'] is True
     assert result['Cf0'] > 0
-    assert 7.0 < result['target']['ld'] < 10.0
+    assert 8.0 < result['target']['ld'] < 12.0
 
 
 def test_post_combat_radius_estimate_thrust_success():
@@ -100,10 +96,6 @@ def test_post_combat_radius_estimate_efficiency_success():
     payload = {
         'action': 'estimate_efficiency',
         'params': {
-            'anchor1': get_preset_by_id(presets, 'F-35C'),
-            'ld1_target': 8.8,
-            'anchor2': f22,
-            'ld2_target': 8.0,
             'target': f22,
             'empty_kg': f22['empty_kg'],
             'internal_fuel_kg': f22['internal_fuel_kg'],
@@ -133,10 +125,6 @@ def test_post_combat_radius_estimate_radius_success():
     payload = {
         'action': 'estimate_radius',
         'params': {
-            'anchor1': get_preset_by_id(presets, 'F-35C'),
-            'ld1_target': 8.8,
-            'anchor2': f22,
-            'ld2_target': 8.0,
             'target': f22,
             'empty_kg': f22['empty_kg'],
             'internal_fuel_kg': f22['internal_fuel_kg'],

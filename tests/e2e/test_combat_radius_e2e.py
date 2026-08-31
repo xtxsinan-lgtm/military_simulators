@@ -77,11 +77,9 @@ def _efficiency_params() -> dict:
 @pytest.mark.e2e
 def test_e2e_combat_radius_f22_efficiency_tsfc():
     """F-22 巡航点负载应低于 1，并给出正的总效率与 TSFC。"""
-    presets = load_presets()
-    a2 = get_preset_by_id(presets, 'F-22')
     r = run_combat_radius_json({'action': 'estimate_efficiency', 'params': _efficiency_params()})
     assert r['success'] is True
-    assert r['ld'] == pytest.approx(a2['ld_known'], abs=1e-6)
+    assert 9.0 < r['ld'] < 12.0
     assert 0 < r['load'] < 1
     assert r['eta_o'] > 0.05
     assert r['tsfc_mg_n_s'] > 0
@@ -131,6 +129,9 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m15['alt_m'] > m08['alt_m']
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.02)
+    assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
+    assert m176['alt_m'] >= 13000.0
+    assert m176['radius_km'] > 0.6 * m15['radius_km']
     assert r['carrier'] is False
     mf = r['mission_fuel']
     assert mf['reserve_min'] == 30
@@ -153,18 +154,14 @@ def test_e2e_combat_radius_f22_breguet_radius():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_j20_supercruise_and_radius_order():
-    """歼-20 最大巡航约 Ma 1.68；Ma 0.8 半径约 1160 km，且大于 Ma 1.5。"""
+    """歼-20 峰值高度段最大巡航低于 F-22；Ma 0.8 半径约 1210 km，且大于 Ma 1.5。"""
     presets = load_presets()
     engines = load_engine_presets()
     j20 = get_preset_by_id(presets, 'J-20')
-    a1 = get_preset_by_id(presets, 'F-35C')
-    a2 = get_preset_by_id(presets, 'F-22')
     eng = get_preset_by_id(engines, 'ws15')
     r = run_combat_radius_json({
         'action': 'estimate_radius',
         'params': {
-            'anchor1': a1, 'ld1_target': a1['ld_known'],
-            'anchor2': a2, 'ld2_target': a2['ld_known'],
             'target': j20,
             'empty_kg': j20['empty_kg'],
             'internal_fuel_kg': j20['internal_fuel_kg'],
@@ -183,7 +180,7 @@ def test_e2e_combat_radius_j20_supercruise_and_radius_order():
     assert m08['feasible'] is True
     assert m15['feasible'] is True
     assert m176['feasible'] is False
-    assert m08['radius_km'] == pytest.approx(1160, abs=50)
+    assert m08['radius_km'] == pytest.approx(1210, abs=50)
     assert m15['radius_km'] < m08['radius_km']
 
 
@@ -214,21 +211,13 @@ def test_e2e_combat_radius_http_api():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_expanded_fleet_predict_ld():
-    """扩充机型（兰姆达翼、无人机、三发双座）须能完成升阻比标定。"""
+    """扩充机型（兰姆达翼、无人机、三发双座）须能完成统一模型升阻比估计。"""
     presets = load_presets()
-    a1 = get_preset_by_id(presets, 'F-35C')
-    a2 = get_preset_by_id(presets, 'F-22')
     for aid in ('J-50', 'J-36', '53636', '53536', 'J-15', 'F-35B'):
         tgt = get_preset_by_id(presets, aid)
         r = run_combat_radius_json({
             'action': 'predict_ld',
-            'params': {
-                'anchor1': a1,
-                'ld1_target': a1['ld_known'],
-                'anchor2': a2,
-                'ld2_target': a2['ld_known'],
-                'target': tgt,
-            },
+            'params': {'target': tgt},
         })
         assert r['success'] is True, aid
         assert 6.0 < r['target']['ld'] < 12.0
@@ -352,8 +341,6 @@ def test_e2e_combat_radius_j15_radius_uses_csv_engine():
 
     presets = load_presets()
     engines = load_engine_presets()
-    a1 = get_preset_by_id(presets, 'F-35C')
-    a2 = get_preset_by_id(presets, 'F-22')
     tgt = get_preset_by_id(presets, 'J-15')
     eng = get_preset_by_id(engines, tgt['engine_id'])
     assert eng is not None
@@ -361,10 +348,6 @@ def test_e2e_combat_radius_j15_radius_uses_csv_engine():
     r = run_combat_radius_json({
         'action': 'estimate_radius',
         'params': {
-            'anchor1': a1,
-            'ld1_target': a1['ld_known'],
-            'anchor2': a2,
-            'ld2_target': a2['ld_known'],
             'target': tgt,
             'empty_kg': tgt['empty_kg'],
             'internal_fuel_kg': tgt['internal_fuel_kg'],
@@ -393,30 +376,22 @@ def test_e2e_combat_radius_f22_max_speed_uses_ab_thrust():
     """F-22 + F119 加力最大速度须可走通 estimate_max_speed。"""
     presets = load_presets()
     engines = load_engine_presets()
-    a1 = get_preset_by_id(presets, 'F-35C')
-    a2 = get_preset_by_id(presets, 'F-22')
     tgt = get_preset_by_id(presets, 'F-22')
     eng = get_preset_by_id(engines, 'f119')
     assert eng['max_tsl_kN'] == 156.0
-    r = run_combat_radius_json({
-        'action': 'estimate_max_speed',
-        'params': {
-            'anchor1': a1,
-            'ld1_target': a1['ld_known'],
-            'anchor2': a2,
-            'ld2_target': a2['ld_known'],
-            'target': tgt,
-            'empty_kg': tgt['empty_kg'],
-            'internal_fuel_kg': tgt['internal_fuel_kg'],
-            'n_pilots': tgt['n_pilots'],
-            'missile_mass_kg': tgt['missile_mass_kg'],
-            'n_engines': tgt['n_engines'],
-            'bpr': eng['bpr'],
-            'opr': eng['opr'],
-            't4_K': eng['t4_K'],
-            'max_tsl_kN': eng['max_tsl_kN'],
-        },
-    })
+    base = {
+        'target': tgt,
+        'empty_kg': tgt['empty_kg'],
+        'internal_fuel_kg': tgt['internal_fuel_kg'],
+        'n_pilots': tgt['n_pilots'],
+        'missile_mass_kg': tgt['missile_mass_kg'],
+        'n_engines': tgt['n_engines'],
+        'bpr': eng['bpr'],
+        'opr': eng['opr'],
+        't4_K': eng['t4_K'],
+        'max_tsl_kN': eng['max_tsl_kN'],
+    }
+    r = run_combat_radius_json({'action': 'estimate_max_speed', 'params': base})
     assert r['success'] is True
     assert r['feasible'] is True
     assert r['max_speed_mach'] > 1.0
@@ -427,23 +402,7 @@ def test_e2e_combat_radius_f22_max_speed_uses_ab_thrust():
     assert r['load'] <= 1.0 + 1e-6
     r92 = run_combat_radius_json({
         'action': 'estimate_max_speed',
-        'params': {
-            'anchor1': a1,
-            'ld1_target': a1['ld_known'],
-            'anchor2': a2,
-            'ld2_target': a2['ld_known'],
-            'target': tgt,
-            'empty_kg': tgt['empty_kg'],
-            'internal_fuel_kg': tgt['internal_fuel_kg'],
-            'n_pilots': tgt['n_pilots'],
-            'missile_mass_kg': tgt['missile_mass_kg'],
-            'n_engines': tgt['n_engines'],
-            'bpr': eng['bpr'],
-            'opr': eng['opr'],
-            't4_K': eng['t4_K'],
-            'max_tsl_kN': eng['max_tsl_kN'],
-            'thrust_margin': 0.92,
-        },
+        'params': {**base, 'thrust_margin': 0.92},
     })
     assert r92['feasible'] is True
     assert r['max_speed_mach'] > r92['max_speed_mach']
@@ -475,7 +434,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert j20['max_speed']['max_speed_mach'] > 2.0
     j50 = stored['aircraft']['J-50']
     assert j50['success'] is True
-    assert j50['max_cruise_mach'] > f22['max_cruise_mach']
+    assert j50['max_cruise_floor_mach'] > f22['max_cruise_floor_mach']
     j50_m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
     f22_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert j50_m08['alt_m'] >= f22_m08['alt_m']
@@ -483,8 +442,8 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert f35c['success'] is True
     j35 = stored['aircraft']['J-35']
     j35a = stored['aircraft']['J-35A']
-    assert j35['max_cruise_mach'] == pytest.approx(1.12, abs=0.03)
-    assert j35a['max_cruise_mach'] == pytest.approx(1.47, abs=0.03)
+    assert j35['max_cruise_mach'] == pytest.approx(1.08, abs=0.03)
+    assert j35a['max_cruise_mach'] == pytest.approx(1.13, abs=0.03)
 
 
 @pytest.mark.e2e

@@ -31,6 +31,5 @@ def test_combat_radius_config_file_exists_and_ui_defaults():
 
     assert COMBAT_RADIUS_CONFIG_JSON.is_file()
     ui = cr_ui()
-    assert ui['default_anchor1_id'] == 'F-35C'
-    assert ui['default_ld1'] == 9.20
+    assert ui['default_target_id'] == 'J-20'
     assert ui['default_engine_id'] == 'f119'

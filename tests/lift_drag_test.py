@@ -17,13 +17,16 @@ from utils.combat_radius.lift_drag import (
     CDW_TRANS_PEAK,
     CD_AOA_COEF,
     CL_AOA_ONSET,
+    CF0_REF,
     F22_SUPERCRUISE_MACH,
     J20_SUPERCRUISE_MACH,
     J35A_SUPERCRUISE_MACH,
     J35_SUPERCRUISE_MACH,
     KAPPA_A,
     KORN_DM_CAP,
+    K_E_REF,
     NO_CANOPY_MULT,
+    ROUGH_MULT,
     RHO11,
     Aircraft,
     aircraft_from_dict,
@@ -204,7 +207,7 @@ def test_wetted_area_factor_independent_switches():
     rough = Aircraft(**{**aircraft_to_dict(base), 'rough': True})
     w0 = wetted_area_factor(base)
     assert wetted_area_factor(bwb) == pytest.approx(w0 * 0.90)
-    assert wetted_area_factor(rough) == pytest.approx(w0 * 1.08)
+    assert wetted_area_factor(rough) == pytest.approx(w0 * ROUGH_MULT)
     no_canopy = Aircraft(**{**aircraft_to_dict(base), 'canopy': False})
     assert wetted_area_factor(no_canopy) == pytest.approx(w0 * NO_CANOPY_MULT)
 
@@ -333,7 +336,7 @@ def test_canard_adds_supersonic_wave_drag():
     canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
-    assert J20_SUPERCRUISE_MACH == pytest.approx(1.68)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.49)
 
 
 def test_tailless_and_bwb_discount_volume_wave_drag():
@@ -403,11 +406,24 @@ def test_calibrate_rejects_unphysical_targets():
 
 
 def test_default_ld_anchors_match_f35c_f22():
+    """参考机：光滑 F-22 的 L/D 应高于 rough 惩罚后的 F-35C；系数取统一模型。"""
     a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
-    assert a1.name == 'F-35C' and ld1 == 9.20
-    assert a2.name == 'F-22' and ld2 == 9.30
+    assert a1.name == 'F-35C' and a1.rough is True
+    assert a2.name == 'F-22' and a2.rough is False
+    assert ld2 > ld1
+    assert ld2 == pytest.approx(9.30, abs=0.05)
+    assert ld1 < 9.0  # rough=1.20 相对历史 9.20 锚点再降一截
     cf0, k_e = calibrate_default_anchors()
-    assert cf0 > 0 and k_e > 0
+    assert cf0 == pytest.approx(CF0_REF)
+    assert k_e == pytest.approx(K_E_REF)
+
+
+def test_rough_mult_penalizes_f35_vs_smooth():
+    """F-35 系列 rough 乘数须明显高于 1，相对光滑机抬高浸润。"""
+    assert ROUGH_MULT == pytest.approx(1.20)
+    assert wetted_area_factor(_f35c()) > wetted_area_factor(
+        Aircraft(**{**aircraft_to_dict(_f35c()), 'rough': False}),
+    )
 
 
 def test_parasite_cd0_and_estimate_takeoff_cd0():

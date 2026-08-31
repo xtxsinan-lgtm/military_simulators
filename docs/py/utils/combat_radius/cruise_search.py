@@ -5,8 +5,9 @@
 阻力 ≤ 该点最大可用军推 × 推力裕度（默认 92%）。
 目标函数为升阻比 × 总效率：低马赫时爬高会使负载过大、η_o 下降，
 且大迎角附加阻力会压低 L/D，二者合起来把最佳高度压在标定巡航附近；
-跨声速鼓包避免 Ma 1.2 爬得过高。Ma 1.5 以前最佳高度随速度升高，
-接近最大巡航时军推不够则回落。
+跨声速鼓包避免 Ma 1.2 爬得过高。Ma 1.5 以前最佳高度随速度升高。
+「最大巡航」取高度仍接近峰值的上限（公开超巡数字）；
+若允许掉到高度下限，军推还能再快一些。
 """
 from __future__ import annotations
 
@@ -35,6 +36,8 @@ SUPERSONIC_MACH = 1.0
 MACH_SEARCH_LO = 0.50
 MACH_SEARCH_HI = 2.50
 MACH_SEARCH_ITERS = 14
+# 相对高度峰值允许回落这么多，仍算「峰值段」最大巡航
+PEAK_ALT_DROP_M = 1200.0
 
 
 @dataclass
@@ -234,7 +237,15 @@ def search_best_altitude(
     return best
 
 
-def search_max_cruise_mach(
+def _require_mach_search_bounds(mach_lo: float, mach_hi: float, iters: int) -> None:
+    """校验马赫搜索区间与迭代次数。"""
+    if mach_lo <= 0 or mach_hi <= mach_lo:
+        raise ValueError('马赫搜索区间非法')
+    if iters < 1:
+        raise ValueError('马赫搜索迭代次数须为正')
+
+
+def search_floor_max_cruise_mach(
     ctx: CruiseContext,
     mach_lo: float = MACH_SEARCH_LO,
     mach_hi: float = MACH_SEARCH_HI,
@@ -243,17 +254,14 @@ def search_max_cruise_mach(
     alt_max_m: float = ALT_MAX_M,
     step_m: float = ALT_COARSE_M,
 ) -> float | None:
-    """二分搜索：存在满足 92% 推力裕度高度的最大马赫数。
+    """允许掉到高度下限时，仍满足 92% 推力裕度的最大马赫。
 
-    搜索区间下界在 11 km 可能因大迎角阻力不可飞，不作为失败条件。
+    比峰值高度段的最大巡航更快；低马赫在 11 km 可能因大迎角不可飞，
+    不作为失败条件。
     """
-    if mach_lo <= 0 or mach_hi <= mach_lo:
-        raise ValueError('马赫搜索区间非法')
-    if iters < 1:
-        raise ValueError('马赫搜索迭代次数须为正')
+    _require_mach_search_bounds(mach_lo, mach_hi, iters)
     if any_feasible_altitude(ctx, mach_hi, alt_min_m, alt_max_m, step_m):
         return mach_hi
-    # 低马赫在 11 km 可能因大迎角阻力不可飞，不要求区间下界可行
     lo = None
     n_probe = max(iters, 8)
     for i in range(n_probe):
@@ -267,6 +275,55 @@ def search_max_cruise_mach(
     for _ in range(iters):
         mid = (lo + hi) / 2.0
         if any_feasible_altitude(ctx, mid, alt_min_m, alt_max_m, step_m):
+            lo = mid
+        else:
+            hi = mid
+    return lo
+
+
+def search_max_cruise_mach(
+    ctx: CruiseContext,
+    mach_lo: float = MACH_SEARCH_LO,
+    mach_hi: float = MACH_SEARCH_HI,
+    iters: int = MACH_SEARCH_ITERS,
+    alt_min_m: float = ALT_MIN_M,
+    alt_max_m: float = ALT_MAX_M,
+    step_m: float = ALT_COARSE_M,
+    peak_drop_m: float = PEAK_ALT_DROP_M,
+) -> float | None:
+    """高度仍接近峰值时的最大军推巡航马赫。
+
+    公开超巡（如 F-22 Ma 1.76）按「高度单调上升到峰值附近」标定；
+    掉到 11 km 后的绝对上限用 search_floor_max_cruise_mach。
+    """
+    _require_mach_search_bounds(mach_lo, mach_hi, iters)
+    if peak_drop_m < 0:
+        raise ValueError('峰值高度回落容差不能为负')
+    refine_m = min(ALT_REFINE_M, step_m)
+    n_scan = max(iters, 8) + 1
+    profile: list[CruiseScored] = []
+    for i in range(n_scan):
+        mach = mach_lo + (mach_hi - mach_lo) * i / (n_scan - 1)
+        scored = search_best_altitude(
+            ctx, mach, alt_min_m, alt_max_m, step_m, refine_m,
+        )
+        if scored is not None:
+            profile.append(scored)
+    if not profile:
+        return None
+    peak_alt = max(point.alt_m for point in profile)
+    near = [point for point in profile if point.alt_m >= peak_alt - peak_drop_m]
+    lo = max(point.mach for point in near)
+    above = [point.mach for point in profile if point.mach > lo]
+    hi = min(above) if above else mach_hi
+    if lo >= hi:
+        return lo
+    for _ in range(iters):
+        mid = (lo + hi) / 2.0
+        scored = search_best_altitude(
+            ctx, mid, alt_min_m, alt_max_m, step_m, refine_m,
+        )
+        if scored is not None and scored.alt_m >= peak_alt - peak_drop_m:
             lo = mid
         else:
             hi = mid

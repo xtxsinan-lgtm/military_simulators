@@ -105,6 +105,7 @@ def sanitize_dashboard(result: dict[str, Any]) -> dict[str, Any]:
         'name': result.get('name'),
         'carrier': bool(result.get('carrier')),
         'max_cruise_mach': _round(result.get('max_cruise_mach'), 4),
+        'max_cruise_floor_mach': _round(result.get('max_cruise_floor_mach'), 4),
         'fuel_kg': _round(result.get('fuel_kg'), 1),
         'fuel_usable_kg': _round(result.get('fuel_usable_kg'), 1),
         'n_engines': result.get('n_engines'),
@@ -141,8 +142,6 @@ def build_combat_radius_results_payload() -> dict[str, Any]:
         aircraft_map[item['id']] = run_preset_dashboard(item['id'])
     return {
         'version': RESULTS_VERSION,
-        'anchor1_id': ui.get('default_anchor1_id'),
-        'anchor2_id': ui.get('default_anchor2_id'),
         'aircraft': aircraft_map,
     }
 
