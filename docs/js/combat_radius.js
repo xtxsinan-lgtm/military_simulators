@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 24;
+const APP_VERSION = 25;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -79,6 +79,7 @@ function optionHtml(map) {
 function renderAircraftFields() {
   const planforms = data.combat_radius_config?.planform_labels || {};
   const layouts = data.combat_radius_config?.layout_labels || {};
+  const inlets = data.combat_radius_config?.inlet_labels || { dsi: 'DSI', caret: '加莱特' };
   $('tgtFields').innerHTML = `
     <div class="field"><label>名称</label><input id="tgt_name" type="text"></div>
     <div class="pair">
@@ -105,6 +106,7 @@ function renderAircraftFields() {
       <div class="field"><label>翼型</label><select id="tgt_planform">${optionHtml(planforms)}</select></div>
       <div class="field"><label>布局</label><select id="tgt_layout">${optionHtml(layouts)}</select></div>
     </div>
+    <div class="field"><label>进气道</label><select id="tgt_inlet">${optionHtml(inlets)}</select></div>
     <div class="check-row">
       <label><input type="checkbox" id="tgt_bwb"> 翼身融合</label>
       <label><input type="checkbox" id="tgt_rough"> 表面不平整</label>
@@ -132,6 +134,7 @@ function applyPresetToFields(preset) {
   $('tgt_tc').value = preset.tc;
   $('tgt_planform').value = preset.planform;
   $('tgt_layout').value = preset.layout;
+  $('tgt_inlet').value = preset.inlet || 'dsi';
   $('tgt_bwb').checked = !!preset.bwb;
   $('tgt_rough').checked = !!preset.rough;
   $('tgt_area').value = preset.wing_area_m2 != null ? preset.wing_area_m2 : '';
@@ -201,6 +204,7 @@ function readAircraft() {
     alt_m: 12000,
     planform: $('tgt_planform').value,
     layout: $('tgt_layout').value,
+    inlet: $('tgt_inlet').value,
     bwb: $('tgt_bwb').checked,
     rough: $('tgt_rough').checked,
     length_m: Number($('tgt_len').value),

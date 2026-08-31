@@ -12,6 +12,7 @@ const EMPTY_AC = {
   alt_m: '12000',
   planform: 'trapezoidal',
   layout: 'conventional',
+  inlet: 'dsi',
   bwb: false,
   rough: false,
   length_m: '',
@@ -137,6 +138,9 @@ Page({
     q3Text: '',
     running: false,
     dryToMaxRatio: 0.7,
+    inletIds: ['dsi', 'caret'],
+    inletNames: ['DSI', '加莱特'],
+    inletIndex: 0,
   },
 
   onShow() {
@@ -157,6 +161,9 @@ Page({
           const i = engines.findIndex((p) => p.id === id);
           return i >= 0 ? i + 1 : 0;
         };
+        const inletLabels = cfg.inlet_labels || { dsi: 'DSI', caret: '加莱特' };
+        const inletIds = Object.keys(inletLabels);
+        const inletNames = inletIds.map((id) => inletLabels[id]);
         const ratioRaw = Number((cfg.engine || {}).dry_to_max_thrust_ratio);
         const dryToMaxRatio = ratioRaw > 0 && ratioRaw <= 1 ? ratioRaw : 0.7;
         const eng = (tgtp && tgtp.engine_id && engines.find((p) => p.id === tgtp.engine_id))
@@ -177,6 +184,9 @@ Page({
           engMaxTsl: eng && eng.max_tsl_kN != null ? String(eng.max_tsl_kN) : '',
           engEta: String(ui.default_eta_c ?? 0.87),
           dryToMaxRatio,
+          inletIds,
+          inletNames,
+          inletIndex: Math.max(0, inletIds.indexOf((tgtp && tgtp.inlet) || 'dsi')),
           resultsMap: (data.combat_radius_results && data.combat_radius_results.aircraft) || {},
           ...weightFromPreset(tgtp),
           statusText: presets.length ? '预设已加载' : '缺少 combat_radius_presets，请运行 build_all.py',
@@ -235,6 +245,13 @@ Page({
     this.scheduleLiveDash();
   },
 
+  onInletPreset(e) {
+    const idx = Number(e.detail.value);
+    const id = this.data.inletIds[idx] || 'dsi';
+    this.setData({ inletIndex: idx, 'tgt.inlet': id });
+    this.scheduleLiveDash();
+  },
+
   onCarrierSwitch(e) {
     this.setData({ wtCarrier: !!e.detail.value });
     this.scheduleLiveDash();
@@ -246,6 +263,7 @@ Page({
     if (idx > 0) {
       const p = this.data.presets[idx - 1];
       patch.tgt = cloneAc(p);
+      patch.inletIndex = Math.max(0, this.data.inletIds.indexOf(p.inlet || 'dsi'));
       Object.assign(patch, weightFromPreset(p));
       if (p.engine_id) {
         const ei = this.data.enginePresets.findIndex((x) => x.id === p.engine_id);
@@ -288,6 +306,7 @@ Page({
       alt_m: 12000,
       planform: ac.planform,
       layout: ac.layout,
+      inlet: ac.inlet || 'dsi',
       bwb: !!ac.bwb,
       rough: !!ac.rough,
       length_m: num(ac.length_m, 0),

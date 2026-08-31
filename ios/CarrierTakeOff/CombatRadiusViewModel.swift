@@ -14,6 +14,7 @@ struct CombatRadiusAircraftInput {
     var altM = "12000"
     var planform = "trapezoidal"
     var layout = "conventional"
+    var inlet = "dsi"
     var bwb = false
     var rough = false
     var lengthM = ""
@@ -34,6 +35,7 @@ struct CombatRadiusAircraftInput {
         altM = String(format: "%.0f", p.alt_m)
         planform = p.planform
         layout = p.layout
+        inlet = p.inlet ?? "dsi"
         bwb = p.bwb
         rough = p.rough
         lengthM = p.length_m.map { String($0) } ?? ""
@@ -56,6 +58,7 @@ struct CombatRadiusAircraftInput {
             "alt_m": 12000.0,
             "planform": planform,
             "layout": layout,
+            "inlet": inlet,
             "bwb": bwb,
             "rough": rough,
             "length_m": Double(lengthM) ?? 0,
@@ -76,6 +79,7 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var selectedTgtId = ""
     @Published var planformOptions: [(String, String)] = [("trapezoidal", "梯形翼")]
     @Published var layoutOptions: [(String, String)] = [("conventional", "常规")]
+    @Published var inletOptions: [(String, String)] = [("dsi", "DSI"), ("caret", "加莱特")]
     @Published var enginePresets: [CombatRadiusEnginePresetItem] = []
     @Published var selectedEngineId = ""
     @Published var engBpr = ""
@@ -125,6 +129,10 @@ final class CombatRadiusViewModel: ObservableObject {
             if let labels = catalog.combat_radius_config?.layout_labels, !labels.isEmpty {
                 let order = ["conventional", "canard", "tailless"]
                 layoutOptions = orderedPairs(labels, preferred: order)
+            }
+            if let labels = catalog.combat_radius_config?.inlet_labels, !labels.isEmpty {
+                let order = ["dsi", "caret"]
+                inletOptions = orderedPairs(labels, preferred: order)
             }
             let ui = catalog.combat_radius_config?.ui
             if let v = ui?.default_eta_c { engEta = String(v) }

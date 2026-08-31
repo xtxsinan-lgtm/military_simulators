@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "engine": {
     "dry_to_max_thrust_ratio": 0.7
   },
@@ -34,5 +34,9 @@
     "conventional": "常规",
     "canard": "鸭翼",
     "tailless": "无尾"
+  },
+  "inlet_labels": {
+    "dsi": "DSI",
+    "caret": "加莱特"
   }
 }

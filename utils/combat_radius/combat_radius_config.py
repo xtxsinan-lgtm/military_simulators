@@ -45,6 +45,11 @@ def layout_labels() -> dict[str, str]:
     return dict(load_combat_radius_config().get('layout_labels', {}))
 
 
+def inlet_labels() -> dict[str, str]:
+    """进气道 id → 中文显示名。"""
+    return dict(load_combat_radius_config().get('inlet_labels', {}))
+
+
 def mission_fuel_config() -> dict[str, Any]:
     """降落冗余、爬升额外与降落节省的默认参数。"""
     return dict(load_combat_radius_config()['mission_fuel'])
@@ -71,6 +76,7 @@ def build_combat_radius_config_payload() -> dict[str, Any]:
         'ui': dict(cfg['ui']),
         'planform_labels': dict(cfg.get('planform_labels', {})),
         'layout_labels': dict(cfg.get('layout_labels', {})),
+        'inlet_labels': dict(cfg.get('inlet_labels', {})),
         'mission_fuel': dict(cfg.get('mission_fuel', {})),
         'engine': dict(cfg.get('engine', {})),
     }

@@ -83,6 +83,7 @@ struct CombatRadiusConfigPayload: Codable {
     var ui: CombatRadiusUiDefaults?
     var planform_labels: [String: String]?
     var layout_labels: [String: String]?
+    var inlet_labels: [String: String]?
     var engine: CombatRadiusEngineConfig?
 }
 
@@ -139,6 +140,7 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var alt_m: Double
     var planform: String
     var layout: String
+    var inlet: String?
     var bwb: Bool
     var rough: Bool
     var ld_known: Double?

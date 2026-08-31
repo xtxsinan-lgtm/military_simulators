@@ -6,7 +6,7 @@ import pytest
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.combat_radius.cruise_load import combat_mass_kg
 from utils.combat_radius.cruise_search import CruiseContext, THRUST_MARGIN_DEFAULT
-from utils.combat_radius.lift_drag import aircraft_from_dict, model_coefficients
+from utils.combat_radius.lift_drag import F35_MAX_SPEED_MACH, aircraft_from_dict, model_coefficients
 from utils.combat_radius.max_speed_search import (
     MACH_SEARCH_HI,
     MACH_SEARCH_LO,
@@ -173,6 +173,30 @@ def test_j20_legacy_142kn_afterburner_near_mach_2():
     assert old is not None and now is not None
     assert old['best']['mach'] >= 2.0
     assert now['best']['mach'] > old['best']['mach']
+
+
+def test_f35_afterburner_max_speed_near_published_mach_16():
+    """F-35A/C 加力极速应贴近公开 Ma 1.6，且明显低于改模型前的 Ma 2+。"""
+    presets = load_presets()
+    engines = load_engine_presets()
+    for ac_id in ('F-35A', 'F-35C'):
+        tgt = get_preset_by_id(presets, ac_id)
+        eng = get_preset_by_id(engines, tgt['engine_id'])
+        r = run_estimate_max_speed_from_params({
+            'target': tgt,
+            'empty_kg': tgt['empty_kg'],
+            'internal_fuel_kg': tgt['internal_fuel_kg'],
+            'n_pilots': tgt['n_pilots'],
+            'missile_mass_kg': tgt['missile_mass_kg'],
+            'n_engines': tgt['n_engines'],
+            'bpr': eng['bpr'],
+            'opr': eng['opr'],
+            't4_K': eng['t4_K'],
+            'max_tsl_kN': eng['max_tsl_kN'],
+        })
+        assert r['success'] is True and r['feasible'] is True, ac_id
+        assert r['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12), ac_id
+        assert r['max_speed_mach'] < 1.75, ac_id
 
 
 def test_run_estimate_max_speed_missing_max_thrust_raises():

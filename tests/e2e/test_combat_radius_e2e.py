@@ -8,7 +8,11 @@ import pytest
 from apps.combat_radius_web import run_combat_radius_json
 from apps.miniprogram_api import handle_request
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
-from utils.combat_radius.lift_drag import F22_SUPERCRUISE_MACH, J20_SUPERCRUISE_MACH
+from utils.combat_radius.lift_drag import (
+    F22_SUPERCRUISE_MACH,
+    F35_MAX_SPEED_MACH,
+    J20_SUPERCRUISE_MACH,
+)
 from utils.paths import ROOT
 
 
@@ -234,6 +238,26 @@ def test_e2e_combat_radius_expanded_fleet_predict_ld():
         })
         assert r['success'] is True, aid
         assert 6.0 < r['target']['ld'] < 12.0
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_inlet_changes_ld():
+    """F-22/歼-36/53636 为加莱特；同一几何换成 DSI 后亚音速 L/D 升高、超音速体积波阻升高。"""
+    presets = load_presets()
+    for aid in ('F-22', 'J-36', '53636', '53636N'):
+        tgt = get_preset_by_id(presets, aid)
+        assert tgt['inlet'] == 'caret', aid
+        caret = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': tgt}})
+        dsi_tgt = dict(tgt)
+        dsi_tgt['inlet'] = 'dsi'
+        dsi = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': dsi_tgt}})
+        assert caret['success'] is True and dsi['success'] is True
+        assert caret['target']['CD0'] > dsi['target']['CD0']
+        assert caret['target']['ld'] < dsi['target']['ld']
+    j20 = get_preset_by_id(presets, 'J-20')
+    assert j20['inlet'] == 'dsi'
+    f35 = get_preset_by_id(presets, 'F-35C')
+    assert f35['inlet'] == 'dsi'
 
 
 @pytest.mark.e2e
@@ -477,6 +501,51 @@ def test_e2e_combat_radius_f22_max_speed_uses_ab_thrust():
 
 
 @pytest.mark.e2e
+def test_e2e_combat_radius_f35_max_speed_near_mach_16():
+    """F-35A/C 加力极速须贴近公开 Ma 1.6，且 F-22 仍能到 Ma 2+。"""
+    presets = load_presets()
+    engines = load_engine_presets()
+    for ac_id in ('F-35A', 'F-35C'):
+        tgt = get_preset_by_id(presets, ac_id)
+        eng = get_preset_by_id(engines, tgt['engine_id'])
+        r = run_combat_radius_json({
+            'action': 'estimate_max_speed',
+            'params': {
+                'target': tgt,
+                'empty_kg': tgt['empty_kg'],
+                'internal_fuel_kg': tgt['internal_fuel_kg'],
+                'n_pilots': tgt['n_pilots'],
+                'missile_mass_kg': tgt['missile_mass_kg'],
+                'n_engines': tgt['n_engines'],
+                'bpr': eng['bpr'],
+                'opr': eng['opr'],
+                't4_K': eng['t4_K'],
+                'max_tsl_kN': eng['max_tsl_kN'],
+            },
+        })
+        assert r['success'] is True and r['feasible'] is True, ac_id
+        assert r['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12), ac_id
+    f22 = get_preset_by_id(presets, 'F-22')
+    f119 = get_preset_by_id(engines, 'f119')
+    r22 = run_combat_radius_json({
+        'action': 'estimate_max_speed',
+        'params': {
+            'target': f22,
+            'empty_kg': f22['empty_kg'],
+            'internal_fuel_kg': f22['internal_fuel_kg'],
+            'n_pilots': f22['n_pilots'],
+            'missile_mass_kg': f22['missile_mass_kg'],
+            'n_engines': f22['n_engines'],
+            'bpr': f119['bpr'],
+            'opr': f119['opr'],
+            't4_K': f119['t4_K'],
+            'max_tsl_kN': f119['max_tsl_kN'],
+        },
+    })
+    assert r22['max_speed_mach'] > 2.2
+
+
+@pytest.mark.e2e
 def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     """预计算快照须覆盖全部机型，且 F-22 与现场计算一致。"""
     from utils.combat_radius.combat_radius_results import (
@@ -511,6 +580,10 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert j50_m08['alt_m'] >= f22_m08['alt_m']
     f35c = stored['aircraft']['F-35C']
     assert f35c['success'] is True
+    assert f35c['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
+    f35a = stored['aircraft']['F-35A']
+    assert f35a['success'] is True
+    assert f35a['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
     j35 = stored['aircraft']['J-35']
     j35a = stored['aircraft']['J-35A']
     assert j35['max_cruise_mach'] == pytest.approx(1.11, abs=0.03)

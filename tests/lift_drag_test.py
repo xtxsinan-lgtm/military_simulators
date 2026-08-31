@@ -11,6 +11,9 @@ from utils.combat_radius.lift_drag import (
     CDW_KORN_COEF,
     CDW_SS_BODY,
     CDW_SS_LIFT,
+    CDW_SS_ROUGH_BODY,
+    CDW_SS_ROUGH_LIFT,
+    CDW_SS_ROUGH_WING,
     CDW_SS_WING,
     CDW_TAILLESS,
     CDW_TRANS_AMP,
@@ -61,8 +64,15 @@ from utils.combat_radius.lift_drag import (
     predict_ld,
     wetted_area_factor,
     cd_wave_korn_at,
+    cd_wave_ss_rough,
+    cd_wave_ss_rough_wing_at,
     cd_wave_ss_wing_at,
     cd_wave_transonic_at,
+    INLET_CARET_CDW,
+    INLET_CARET_WETTED,
+    inlet_cdw_vol_mult,
+    inlet_wetted_mult,
+    parse_inlet,
     _as_bool,
     _canopy_from_dict,
     _optional_positive_float,
@@ -121,10 +131,59 @@ def test_aircraft_from_dict_and_to_dict_roundtrip():
     assert d['mach_angle_deg'] == pytest.approx(21.7)
     assert d['bwb'] is False
     assert d['rough'] is False
+    assert d['inlet'] == 'dsi'
     again = aircraft_from_dict(d)
     assert again.AR == pytest.approx(2.32)
     assert again.length_m == pytest.approx(0.0)
     assert again.wingspan_m == pytest.approx(0.0)
+    caret = aircraft_from_dict({**d, 'inlet': '加莱特'})
+    assert caret.inlet == 'caret'
+
+
+def test_parse_inlet_aliases_and_default():
+    """空值视为 DSI；加莱特/caret/garrett 归一为 caret。"""
+    assert parse_inlet(None) == 'dsi'
+    assert parse_inlet('') == 'dsi'
+    assert parse_inlet('DSI') == 'dsi'
+    assert parse_inlet('caret') == 'caret'
+    assert parse_inlet('Garrett') == 'caret'
+    assert parse_inlet('加莱特进气道') == 'caret'
+    with pytest.raises(ValueError, match='未知进气道'):
+        parse_inlet('pitot')
+
+
+def test_inlet_wetted_and_cdw_multipliers():
+    """加莱特抬高浸润、压低超音速体积波阻；非法 id 报错。"""
+    assert inlet_wetted_mult('dsi') == pytest.approx(1.0)
+    assert inlet_wetted_mult('caret') == pytest.approx(INLET_CARET_WETTED)
+    assert inlet_cdw_vol_mult('dsi') == pytest.approx(1.0)
+    assert inlet_cdw_vol_mult('caret') == pytest.approx(INLET_CARET_CDW)
+    assert INLET_CARET_WETTED > 1.0
+    assert 0.5 < INLET_CARET_CDW < 1.0
+    with pytest.raises(ValueError, match='未知进气道'):
+        inlet_wetted_mult('pitot')
+    with pytest.raises(ValueError, match='未知进气道'):
+        inlet_cdw_vol_mult('pitot')
+
+
+def test_caret_inlet_raises_cd0_and_lowers_volume_wave_drag():
+    """同一几何：加莱特亚音速 L/D 略降，超音速体积波阻低于 DSI。"""
+    dsi = _f22()
+    caret = Aircraft(**{**aircraft_to_dict(dsi), 'inlet': 'caret'})
+    assert wetted_area_factor(caret) == pytest.approx(
+        wetted_area_factor(dsi) * INLET_CARET_WETTED,
+    )
+    cf0, k_e = calibrate_default_anchors()
+    ld_dsi, d_dsi = predict_ld(dsi, cf0, k_e)
+    ld_caret, d_caret = predict_ld(caret, cf0, k_e)
+    assert d_caret['CD0'] > d_dsi['CD0']
+    assert ld_caret < ld_dsi
+    vol_dsi = cd_wave_supersonic(1.7, dsi, 0.0)
+    vol_caret = cd_wave_supersonic(1.7, caret, 0.0)
+    assert vol_caret == pytest.approx(vol_dsi * INLET_CARET_CDW)
+    lift_dsi = cd_wave_supersonic(1.7, dsi, 0.25) - vol_dsi
+    lift_caret = cd_wave_supersonic(1.7, caret, 0.25) - vol_caret
+    assert lift_caret == pytest.approx(lift_dsi)
 
 
 def test_optional_positive_float_blank_and_numeric():
@@ -321,6 +380,56 @@ def test_cd_wave_supersonic_falls_with_sweep_and_rises_with_thickness():
     assert CDW_SS_BODY > 0 and CDW_SS_WING > 0
 
 
+def test_cd_wave_ss_rough_zero_when_smooth_or_subsonic():
+    """光滑机或亚音速时 rough 超音速附加应为 0。"""
+    f22 = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.6})
+    f35 = Aircraft(**{**aircraft_to_dict(_f35c()), 'mach': 0.8})
+    assert cd_wave_ss_rough(1.6, f22, 0.10) == 0.0
+    assert cd_wave_ss_rough(0.8, f35, 0.20) == 0.0
+    assert cd_wave_ss_rough(1.0, f35, 0.20) == 0.0
+    assert cd_wave_ss_rough_wing_at(0.9, 30.9, 0.051) == 0.0
+
+
+def test_cd_wave_ss_rough_wing_rises_with_thickness_and_normal_tc():
+    """厚翼体积项随 t/c 与法向厚弦比上升；Ma 1.6 即有、不要求前缘超音速。"""
+    thin = cd_wave_ss_rough_wing_at(1.6, 33.7, 0.04)
+    thick = cd_wave_ss_rough_wing_at(1.6, 33.7, 0.06)
+    more_sweep = cd_wave_ss_rough_wing_at(1.6, 50.0, 0.06)
+    assert thick > thin > 0.0
+    assert more_sweep > thick
+    expect = CDW_SS_ROUGH_WING * (0.06 / math.cos(math.radians(33.7))) ** 2 * 0.6 ** 2
+    assert thick == pytest.approx(expect)
+    assert CDW_SS_ROUGH_BODY > 0 and CDW_SS_ROUGH_WING > 0 and CDW_SS_ROUGH_LIFT >= 0
+
+
+def test_cd_wave_ss_rough_adds_body_wing_and_lift():
+    """F-35 在 Ma 1.6 的 rough 附加 = 机身 + 厚翼 + 升力三项之和。"""
+    ac = Aircraft(**{**aircraft_to_dict(_f35c()), 'mach': 1.6, 'alt_m': 11000})
+    cl = 0.08
+    got = cd_wave_ss_rough(1.6, ac, cl)
+    body = CDW_SS_ROUGH_BODY * 0.6 ** 2
+    wing = cd_wave_ss_rough_wing_at(1.6, ac.sweep_deg, ac.tc)
+    lift = CDW_SS_ROUGH_LIFT * cl ** 2 * 0.6
+    assert got == pytest.approx(body + wing + lift)
+    assert got > cd_wave_ss_rough(1.6, ac, 0.0)
+
+
+def test_rough_raises_f35_supersonic_cdw_not_f22():
+    """Ma 1.6 时 F-35 波阻须明显高于关掉 rough 的孪生几何；F-22 不受该项。"""
+    f35 = Aircraft(**{**aircraft_to_dict(_f35c()), 'mach': 1.6, 'alt_m': 11000})
+    smooth = Aircraft(**{**aircraft_to_dict(f35), 'rough': False})
+    f22 = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.6, 'alt_m': 11000})
+    cl35 = cl_cruise(f35)
+    cl22 = cl_cruise(f22)
+    assert cd_wave_supersonic(1.6, f35, cl35) > cd_wave_supersonic(1.6, smooth, cl35)
+    assert cd_wave_ss_rough(1.6, f35, cl35) == pytest.approx(
+        cd_wave_supersonic(1.6, f35, cl35) - cd_wave_supersonic(1.6, smooth, cl35),
+    )
+    assert cd_wave_ss_rough(1.6, f22, cl22) == 0.0
+    # 亚音速巡航点不受超音速 rough 项影响
+    assert cd_wave(cl_cruise(_f35c()), _f35c()) == 0.0
+
+
 def test_supersonic_total_cdw_is_order_one_hundredth():
     """F-22 超巡点总波阻应为百分位量级，不能再出现 CDw>1。"""
     ac = Aircraft(**{
@@ -417,12 +526,12 @@ def test_calibrate_rejects_unphysical_targets():
 
 
 def test_default_ld_anchors_match_f35c_f22():
-    """参考机：光滑 F-22 的 L/D 应高于 rough 惩罚后的 F-35C；系数取统一模型。"""
+    """参考机：光滑加莱特 F-22 的 L/D 应高于 rough+DSI 的 F-35C；系数取统一模型。"""
     a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
-    assert a1.name == 'F-35C' and a1.rough is True
-    assert a2.name == 'F-22' and a2.rough is False
+    assert a1.name == 'F-35C' and a1.rough is True and a1.inlet == 'dsi'
+    assert a2.name == 'F-22' and a2.rough is False and a2.inlet == 'caret'
     assert ld2 > ld1
-    assert ld2 == pytest.approx(11.11, abs=0.05)
+    assert ld2 == pytest.approx(10.72, abs=0.10)
     assert ld1 < 10.0  # rough≈1.33 相对光滑 F-22 再降一截
     cf0, k_e = calibrate_default_anchors()
     assert cf0 == pytest.approx(CF0_REF)
@@ -459,7 +568,7 @@ def test_predict_ld_j20_between_anchors():
 def test_lambda_uav_ma15_ld_below_j50_because_cl_is_lower():
     """同为兰姆达无尾时，53636 翼载更低 → Ma 1.5 的 CL 更小，L/D 仍低于歼-50。
 
-    无座舱只削 CD0；构型项（翼型/布局/粗糙度）与歼-50 相同，不是 L/D 差距来源。
+    无座舱削 CD0；53636 为加莱特、歼-50 为 DSI，进气道不是 L/D 差距的主因。
     """
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets, preset_to_aircraft
 
@@ -469,6 +578,7 @@ def test_lambda_uav_ma15_ld_below_j50_because_cl_is_lower():
     assert uav.planform == j50.planform == 'lambda'
     assert uav.layout == j50.layout == 'tailless'
     assert uav.rough is False and j50.rough is False
+    assert uav.inlet == 'caret' and j50.inlet == 'dsi'
     assert uav.canopy is False and j50.canopy is True
     assert uav.wing_loading < j50.wing_loading
     cf0, k_e = calibrate_default_anchors()
@@ -477,8 +587,10 @@ def test_lambda_uav_ma15_ld_below_j50_because_cl_is_lower():
     ld_u, d_u = predict_ld(uav_m, cf0, k_e)
     ld_j, d_j = predict_ld(j50_m, cf0, k_e)
     assert d_u['CL'] < d_j['CL']
-    assert d_u['CD0'] < d_j['CD0']
     assert ld_u < ld_j
+    dsi_twin = Aircraft(**{**aircraft_to_dict(uav_m), 'inlet': 'dsi'})
+    _, d_dsi = predict_ld(dsi_twin, cf0, k_e)
+    assert d_u['CD0'] > d_dsi['CD0']
     manned = Aircraft(**{**aircraft_to_dict(uav_m), 'canopy': True})
     ld_manned, _ = predict_ld(manned, cf0, k_e)
     assert ld_u > ld_manned

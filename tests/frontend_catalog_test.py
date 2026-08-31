@@ -43,6 +43,7 @@ def test_build_catalog_payload_modes():
     assert 'combat_radius_results' in payload
     assert payload['combat_radius_config']['mission_fuel']['carrier_reserve_min'] == 45
     assert payload['combat_radius_config']['engine']['dry_to_max_thrust_ratio'] == 0.7
+    assert payload['combat_radius_config']['inlet_labels']['caret'] == '加莱特'
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-50' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-15' for p in payload['combat_radius_presets'])

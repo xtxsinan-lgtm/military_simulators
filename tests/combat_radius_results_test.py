@@ -36,6 +36,7 @@ def test_dashboard_params_from_preset_f22():
     assert p['tsl_kN'] == 116.0
     assert p['n_engines'] == 2
     assert p['carrier'] is False
+    assert p['target']['inlet'] == 'caret'
 
 
 def test_sanitize_helpers_round_and_drop_blackbox():

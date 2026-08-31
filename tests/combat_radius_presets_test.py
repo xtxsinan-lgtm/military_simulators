@@ -67,6 +67,11 @@ def test_load_presets_contains_anchors_and_j20():
     assert j15['engine_id'] == 'ws10h'
     f22 = get_preset_by_id(presets, 'F-22')
     assert f22['carrier'] is False
+    assert f22['inlet'] == 'caret'
+    assert j36['inlet'] == 'caret'
+    assert uav['inlet'] == 'caret'
+    assert j20['inlet'] == 'dsi'
+    assert f35['inlet'] == 'dsi'
 
 
 def test_get_preset_by_id_missing_returns_none():

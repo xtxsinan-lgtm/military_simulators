@@ -68,7 +68,7 @@ def _valid_land_row(**over: str) -> dict[str, str]:
         'type_label': 'conventional',
         'AR': '2.5', 'sweep_deg': '30', 'wing_loading': '0.3', 'tc': '0.05',
         'mach': '0.8', 'alt_m': '12000', 'planform': 'trapezoidal',
-        'layout': 'conventional', 'bwb': '0', 'rough': '0',
+        'layout': 'conventional', 'bwb': '0', 'rough': '0', 'inlet': 'dsi',
         'wing_area_m2': '60', 'wingspan_m': '13',
         'empty_kg': '15000', 'internal_fuel_kg': '8000',
         'n_pilots': '1', 'missile_mass_kg': '150', 'n_engines': '1',
@@ -212,8 +212,11 @@ def test_load_combat_radius_aircraft_csv():
     assert rows[0]['carrier'] is True
     assert next(r for r in rows if r['id'] == 'F-22')['carrier'] is False
     assert rows[0]['rough'] is True
+    assert rows[0]['inlet'] == 'dsi'
     f22 = next(r for r in rows if r['id'] == 'F-22')
     j20 = next(r for r in rows if r['id'] == 'J-20')
+    assert f22['inlet'] == 'caret'
+    assert j20['inlet'] == 'dsi'
     assert j20.get('ld_known') is None
     assert j20['wing_area_m2'] == pytest.approx(76.8)
     assert f22['empty_kg'] == 19800
@@ -224,10 +227,14 @@ def test_load_combat_radius_aircraft_csv():
     assert rows[0]['n_engines'] == 1
     uav = next(r for r in rows if r['id'] == '53636')
     assert uav['n_pilots'] == 0
+    assert uav['inlet'] == 'caret'
+    uav_n = next(r for r in rows if r['id'] == '53636N')
+    assert uav_n['inlet'] == 'caret'
     j36 = next(r for r in rows if r['id'] == 'J-36')
     assert j36['n_engines'] == 3
     assert j36['n_pilots'] == 2
     assert j36['planform'] == 'double_delta'
+    assert j36['inlet'] == 'caret'
     assert j36['sweep_inner_deg'] == pytest.approx(67.8)
     assert j36['sweep_outer_deg'] == pytest.approx(55.3)
     j35 = next(r for r in rows if r['id'] == 'J-35')
@@ -252,6 +259,14 @@ def test_combat_radius_csv_unknown_planform_raises(tmp_path):
     path = tmp_path / 'cr.csv'
     path.write_text(_unified_csv_text([_valid_land_row(planform='hex')]), encoding='utf-8')
     with pytest.raises(ValueError, match='planform'):
+        load_combat_radius_aircraft_csv(path)
+
+
+def test_combat_radius_csv_unknown_inlet_raises(tmp_path):
+    """未知进气道须在加载时拒绝，避免 silently 当成 DSI。"""
+    path = tmp_path / 'cr.csv'
+    path.write_text(_unified_csv_text([_valid_land_row(inlet='pitot')]), encoding='utf-8')
+    with pytest.raises(ValueError, match='进气道'):
         load_combat_radius_aircraft_csv(path)
 
 

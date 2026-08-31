@@ -13,7 +13,7 @@ AIRCRAFT_CSV_COLUMNS = (
     'id', 'name', 'nation', 'carrier', 'type_label',
     'AR', 'sweep_deg', 'sweep_inner_deg', 'sweep_outer_deg', 'sweep_kink_span_frac',
     'wing_loading', 'tc', 'mach', 'alt_m',
-    'planform', 'layout', 'bwb', 'rough', 'ld_known', 'notes',
+    'planform', 'layout', 'bwb', 'rough', 'inlet', 'ld_known', 'notes',
     'wing_area_m2', 'mach_angle_deg', 'bvr_missile', 'length_m', 'wingspan_m',
     'empty_kg', 'internal_fuel_kg', 'n_pilots', 'missile_mass_kg', 'n_engines', 'engine_id',
     'mtow_kg', 'max_payload_kg', 'wing_height_m', 'cd0',
@@ -171,7 +171,7 @@ def _read_unified_aircraft_rows(path: Path) -> list[dict[str, str]]:
 
 def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[str, Any]:
     """统一库一行 → 作战半径预设字典。"""
-    from utils.combat_radius.lift_drag import LAYOUT_MULT, PLANFORM_MULT
+    from utils.combat_radius.lift_drag import LAYOUT_MULT, PLANFORM_MULT, parse_inlet
 
     item_id = (row.get('id') or '').strip()
     planform = (row.get('planform') or '').strip()
@@ -180,6 +180,10 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
         raise ValueError(f'{csv_path} 记录 {item_id} 未知 planform={planform!r}')
     if layout not in LAYOUT_MULT:
         raise ValueError(f'{csv_path} 记录 {item_id} 未知 layout={layout!r}')
+    try:
+        inlet = parse_inlet(row.get('inlet'))
+    except ValueError as exc:
+        raise ValueError(f'{csv_path} 记录 {item_id} {exc}') from exc
     item: dict[str, Any] = {
         'id': item_id,
         'name': (row.get('name') or '').strip(),
@@ -195,6 +199,7 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
         'layout': layout,
         'bwb': _parse_bool(row.get('bwb') or '0'),
         'rough': _parse_bool(row.get('rough') or '0'),
+        'inlet': inlet,
         'empty_kg': _parse_float(row.get('empty_kg') or '', 'empty_kg'),
         'internal_fuel_kg': _parse_float(row.get('internal_fuel_kg') or '', 'internal_fuel_kg'),
         'n_pilots': _parse_int(row.get('n_pilots') or '', 'n_pilots'),

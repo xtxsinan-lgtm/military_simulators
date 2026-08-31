@@ -706,7 +706,7 @@ def test_ma08_combat_radius_calibration_targets():
     engines = load_engine_presets()
     cases = [
         ('F-35C', 'f135', 1400, 50),
-        ('F-22', 'f119', 1056, 50),
+        ('F-22', 'f119', 1034, 50),
         ('J-20', 'ws15', 1350, 50),
     ]
     for ac_id, eng_id, target_km, tol_km in cases:

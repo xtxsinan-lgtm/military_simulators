@@ -102,3 +102,6 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert 'sweep_inner_deg' in cr_js
     assert '内段前缘后掠' in cr_wxml
     assert '外段前缘后掠' in cr_wxml
+    assert 'onInletPreset' in cr_js
+    assert '进气道' in cr_wxml
+    assert "inlet: ac.inlet || 'dsi'" in cr_js
