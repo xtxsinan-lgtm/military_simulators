@@ -8,7 +8,8 @@
 跨声速鼓包在 Ma 1.0–1.2 加大阻力，最佳高度可能先掉再恢复。
 「实用最大巡航」只在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度
 （同一峰值平台取最大马赫，已经掉高的点不算）；若允许掉到高度下限，
-军推还能再快一些。
+军推还能再快一些。跨声速鼓包会使可行性对马赫不单调，最大巡航须取
+最高可行窗口上沿，不能停在空洞前沿。
 """
 from __future__ import annotations
 
@@ -269,22 +270,26 @@ def search_floor_max_cruise_mach(
 ) -> float | None:
     """允许掉到高度下限时，仍满足 92% 推力裕度的最大马赫。
 
-    比峰值高度段的最大巡航更快；低马赫在 11 km 可能因大迎角不可飞，
-    不作为失败条件。
+    比峰值高度段的最大巡航更快。跨声速鼓包会使可行性对马赫不单调
+    （Ma 1.2 附近可能有空洞、更高马赫又能飞），不能从低马赫往上二分，
+    否则会停在空洞前沿、比实用最大巡航还慢。改为从高往低找最高可行点，
+    再在该点与上一格不可行点之间细化。低马赫在 11 km 可能因大迎角
+    不可飞，不作为失败条件。
     """
     _require_mach_search_bounds(mach_lo, mach_hi, iters)
     if any_feasible_altitude(ctx, mach_hi, alt_min_m, alt_max_m, step_m):
         return mach_hi
     lo = None
+    hi = mach_hi
     n_probe = max(iters, 8)
-    for i in range(n_probe):
-        mach = mach_lo + (mach_hi - mach_lo) * i / n_probe
+    for i in range(1, n_probe + 1):
+        mach = mach_hi - (mach_hi - mach_lo) * i / n_probe
         if any_feasible_altitude(ctx, mach, alt_min_m, alt_max_m, step_m):
             lo = mach
             break
+        hi = mach
     if lo is None:
         return None
-    hi = mach_hi
     for _ in range(iters):
         mid = (lo + hi) / 2.0
         if any_feasible_altitude(ctx, mid, alt_min_m, alt_max_m, step_m):

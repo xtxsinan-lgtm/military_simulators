@@ -111,9 +111,11 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'func cruiseSpeedLabel' in cr_view
     assert 'max_cruise_floor_mach' in models
     assert 'max_radius_mach' in models
-    assert 'split_cruise_note' in models
-    assert 'split_cruise_note' in cr_view
-    assert '表下会并排' in cr_view
+    assert 'max_radius_cruise' in cr_view
+    assert '最大半径超音速巡航速度' in cr_view
+    assert 'split_cruise_note' not in models
+    assert 'split_cruise_note' not in cr_view
+    assert '表下会并排' not in cr_view
     assert 'CombatRadiusEngineConfig' in models
     assert 'inlet_labels' in models
     assert 'var inlet' in cr_vm

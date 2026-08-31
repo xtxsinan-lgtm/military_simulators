@@ -119,8 +119,10 @@ def test_docs_combat_radius_page_exists_and_links():
     assert '选择战机' in html
     assert '实用最大巡航速度' in js_text
     assert '最大巡航速度' in js_text
-    assert 'split_cruise_note' in js_text
-    assert '表下会并排' in js_text
+    assert 'max_radius_cruise' in js_text
+    assert '最大半径超音速巡航速度' in js_text
+    assert 'split_cruise_note' not in js_text
+    assert '表下会并排' not in js_text
     assert '热效率' in js_text
     assert '推进效率' in js_text
     assert '总效率' in js_text
@@ -134,6 +136,7 @@ def test_docs_combat_radius_page_exists_and_links():
     assert '<th>kg/km</th>' not in js_text
     assert '锚点' not in html
     assert 'Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0' in html
+    assert '表尾多一行最大半径超音速巡航速度' in html
     assert 'combat-radius.html' in takeoff.read_text(encoding='utf-8')
     assert 'combat-radius.html' in sat.read_text(encoding='utf-8')
     ver_js = re.search(r'const APP_VERSION\s*=\s*(\d+)', js_text)

@@ -7,12 +7,13 @@ from apps.combat_radius_web import _opt_bool, _opt_float, run_combat_radius, run
 from simulators.combat_radius.combat_radius import (
     FLOOR_MAX_CRUISE_ID,
     FLOOR_MAX_CRUISE_LABEL,
+    MAX_RADIUS_CRUISE_ID,
+    MAX_RADIUS_CRUISE_LABEL,
     PRACTICAL_MAX_CRUISE_ID,
     PRACTICAL_MAX_CRUISE_LABEL,
     compact_max_speed,
     cruise_limit_specs,
     format_cruise_speed_label,
-    format_split_cruise_note,
     cruise_machs_differ,
     max_radius_mach_from_profile,
     radius_m_from_scored,
@@ -345,18 +346,25 @@ def test_calibrate_from_params_returns_target_and_cf0():
 
 
 def test_cruise_limit_specs_order_and_labels():
-    """表尾两行须先实用最大巡航、再最大巡航，标签固定。"""
-    rows = cruise_limit_specs(1.76, 1.92)
-    assert rows == [
+    """表尾先实用最大巡航；马赫不同时插入最大半径超音速巡航，再最大巡航。"""
+    same = cruise_limit_specs(1.76, 1.92, 1.76)
+    assert same == [
         (PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, 1.76),
         (FLOOR_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_LABEL, 1.92),
     ]
+    differ = cruise_limit_specs(1.76, 1.92, 1.50)
+    assert differ == [
+        (PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, 1.76),
+        (MAX_RADIUS_CRUISE_ID, MAX_RADIUS_CRUISE_LABEL, 1.50),
+        (FLOOR_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_LABEL, 1.92),
+    ]
     empty = cruise_limit_specs(None, None)
-    assert empty[0][2] is None and empty[1][2] is None
+    assert empty[0][2] is None and empty[-1][2] is None
+    assert len(empty) == 2
 
 
 def test_format_cruise_speed_label_fixed_and_limits():
-    """固定马赫只显示数字；表尾两行须带中文名称。"""
+    """固定马赫只显示数字；表尾命名行须带中文名称。"""
     assert format_cruise_speed_label({'id': 'mach_0_8', 'label': 'Ma 0.8', 'mach': 0.8}) == '0.800'
     assert format_cruise_speed_label({
         'id': PRACTICAL_MAX_CRUISE_ID,
@@ -368,6 +376,11 @@ def test_format_cruise_speed_label_fixed_and_limits():
         'label': FLOOR_MAX_CRUISE_LABEL,
         'mach': 1.92,
     }) == '最大巡航速度 1.920'
+    assert format_cruise_speed_label({
+        'id': MAX_RADIUS_CRUISE_ID,
+        'label': MAX_RADIUS_CRUISE_LABEL,
+        'mach': 1.58,
+    }) == '最大半径超音速巡航速度 1.580'
     assert format_cruise_speed_label({
         'id': PRACTICAL_MAX_CRUISE_ID,
         'label': PRACTICAL_MAX_CRUISE_LABEL,
@@ -429,18 +442,6 @@ def test_max_radius_mach_from_profile_picks_higher_radius():
     assert empty_m is None and empty_km is None
 
 
-def test_format_split_cruise_note_only_when_differ():
-    """仅当高度峰值与最大半径马赫不一致时给出表下说明。"""
-    assert format_split_cruise_note(1.77, 1.77) is None
-    note = format_split_cruise_note(1.77, 1.50, 799.0)
-    assert note is not None
-    assert '实用最大巡航速度 Ma 1.770' in note
-    assert 'Ma 1.2 以上最大作战半径 Ma 1.500（799 km）' in note
-    none_note = format_split_cruise_note(None, 1.50, 400.0)
-    assert none_note is not None
-    assert '实用最大巡航速度 —' in none_note
-
-
 def test_infeasible_point_shape():
     row = _infeasible_point('mach_1_75', 'Ma 1.75', 1.75)
     assert row['feasible'] is False
@@ -484,10 +485,11 @@ def test_run_estimate_radius_from_params_f22():
     assert ids == [
         'mach_0_8', 'mach_1_0', 'mach_1_2', 'mach_1_35', 'mach_1_5',
         'mach_1_75', 'mach_2_0',
-        PRACTICAL_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_ID,
+        PRACTICAL_MAX_CRUISE_ID, MAX_RADIUS_CRUISE_ID, FLOOR_MAX_CRUISE_ID,
     ]
     labels = {p['id']: p['label'] for p in r['points']}
     assert labels[PRACTICAL_MAX_CRUISE_ID] == PRACTICAL_MAX_CRUISE_LABEL
+    assert labels[MAX_RADIUS_CRUISE_ID] == MAX_RADIUS_CRUISE_LABEL
     assert labels[FLOOR_MAX_CRUISE_ID] == FLOOR_MAX_CRUISE_LABEL
     assert r['max_cruise_floor_mach'] is not None
     assert r['max_cruise_floor_mach'] + 1e-9 >= r['max_cruise_mach']
@@ -501,8 +503,7 @@ def test_run_estimate_radius_from_params_f22():
     assert r['max_cruise_mach'] + 1e-9 >= 1.2
     assert r['max_radius_mach'] is not None
     assert cruise_machs_differ(r['max_cruise_mach'], r['max_radius_mach'])
-    assert r['split_cruise_note']
-    assert '最大作战半径' in r['split_cruise_note']
+    assert 'split_cruise_note' not in r
     assert r['mass_initial_kg'] > r['mass_cruise_kg'] > r['mass_final_kg']
     assert r['mass_initial_kg'] == pytest.approx(
         r['mass_takeoff_kg'] - r['mission_fuel']['climb_extra_kg'],
@@ -533,7 +534,8 @@ def test_run_estimate_radius_skips_practical_max_when_hi_below_12():
     assert r['success'] is True
     assert r['max_cruise_mach'] is None
     assert r['max_radius_mach'] is None
-    assert r['split_cruise_note'] is None
+    assert 'split_cruise_note' not in r
+    assert MAX_RADIUS_CRUISE_ID not in [p['id'] for p in r['points']]
     assert r['max_cruise_floor_mach'] is not None
     assert r['max_cruise_floor_mach'] <= 1.1 + 1e-9
 
@@ -541,7 +543,7 @@ def test_run_estimate_radius_skips_practical_max_when_hi_below_12():
 def test_run_combat_radius_estimate_radius_action():
     ok = run_combat_radius('estimate_radius', _radius_params())
     assert ok['success'] is True
-    assert len(ok['points']) == 9
+    assert len(ok['points']) == 10
     bad = run_combat_radius_json({'action': 'estimate_radius', 'params': {}})
     assert bad['success'] is False
 
@@ -561,7 +563,6 @@ def test_main_prints_table(capsys, monkeypatch):
         'max_cruise_mach': 1.6,
         'max_radius_mach': 1.5,
         'max_radius_km': 800.0,
-        'split_cruise_note': '实用最大巡航速度 Ma 1.600；Ma 1.2 以上最大作战半径 Ma 1.500（800 km）。高度峰值与布雷盖半径的最佳马赫不同。',
         'points': [
             {
                 'id': 'mach_0_8', 'label': 'Ma 0.8', 'mach': 0.8, 'feasible': True,
@@ -572,6 +573,10 @@ def test_main_prints_table(capsys, monkeypatch):
             {
                 'id': 'max_cruise', 'label': '实用最大巡航速度',
                 'mach': 1.6, 'feasible': False,
+            },
+            {
+                'id': 'max_radius_cruise', 'label': '最大半径超音速巡航速度',
+                'mach': 1.5, 'feasible': False,
             },
             {
                 'id': 'floor_max_cruise', 'label': '最大巡航速度',
@@ -590,8 +595,8 @@ def test_main_prints_table(capsys, monkeypatch):
     assert 'F-22' in out
     assert '0.800' in out
     assert '实用最大巡航速度' in out
+    assert '最大半径超音速巡航速度' in out
     assert '最大巡航速度' in out
-    assert '最大作战半径' in out
     assert '92%' in out
     assert '布雷盖' in out
 

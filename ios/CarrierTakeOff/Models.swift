@@ -215,7 +215,6 @@ struct CombatRadiusResult: Codable {
     var max_cruise_floor_mach: Double?
     var max_radius_mach: Double?
     var max_radius_km: Double?
-    var split_cruise_note: String?
     var mass_initial_kg: Double?
     var mass_final_kg: Double?
     var mass_takeoff_kg: Double?
@@ -431,6 +430,7 @@ struct Aircraft: Codable, Identifiable, Hashable {
     var mtow_kg: Double
     var empty_kg: Double
     var internal_fuel_kg: Double
+    var n_pilots: Int?
     var max_payload_kg: Double
     var bvr_missile: String
     var missile_mass_kg: Double

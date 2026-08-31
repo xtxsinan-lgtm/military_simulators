@@ -117,7 +117,6 @@ tr.target td{ color:var(--green); }
 .scroll-x{ overflow-x:auto; }
 
 .note{ font-size:10.5px; color:var(--text-dim); line-height:1.6; margin-top:10px; }
-.note.split{ color:var(--amber); }
 .footer{ text-align:center; font-size:9px; color:var(--text-dim); letter-spacing:1px; margin-top:20px; opacity:0.6;}
 .placeholder{ color:var(--text-dim); font-size:12px; padding:30px 6px; text-align:center; }
 .bar-wrap{ display:flex; align-items:center; gap:8px; }

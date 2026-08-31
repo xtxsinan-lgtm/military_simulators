@@ -25,7 +25,19 @@ def test_max_payload_kg_user_specified_chinese_types():
     assert aircraft['J-35'].max_payload_kg == 8000
     assert aircraft['J-35'].empty_kg == 14000
     assert aircraft['J-50N'].empty_kg == 20800
+    assert aircraft['J-50N'].internal_fuel_kg == 13000
+    assert aircraft['J-50N'].mtow_kg == 41000
     assert 'J-50' not in aircraft
+
+
+def test_j50n_a2a_mass_full_internal_fuel_four_missiles():
+    """4 枚中距弹满内油空战起飞重量 = 空重 + 内油 + 4×弹 + 飞行员。"""
+    ac = load_aircraft_csv(AIRCRAFT_CSV)['J-50N']
+    assert ac.a2a_mass_kg == pytest.approx(
+        20800 + 13000 + A2A_MISSILE_COUNT * ac.missile_mass_kg + ac.n_pilots * PILOT_LOAD_KG
+    )
+    assert ac.a2a_mass_kg == pytest.approx(34740)
+    assert ac.a2a_mass_kg < ac.mtow_kg
 
 
 def test_uav_carrier_a2a_mass_zero_pilots():

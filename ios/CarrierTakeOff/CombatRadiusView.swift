@@ -213,26 +213,22 @@ struct CombatRadiusView: View {
                 }
                 .font(.system(size: 11, design: .monospaced))
             }
-            if let split = r.split_cruise_note, !split.isEmpty {
-                Text(split)
-                    .font(.system(size: 10, design: .monospaced))
-                    .foregroundStyle(CombatRadiusTheme.amber)
-            }
-            Text("表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，表下会并排给出。最佳巡航高度使升阻比×总效率最大。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力，高度可到海平面。极速按阻力等于全部加力（不留巡航裕度）。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。")
+            Text("表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，再插一行「最大半径超音速巡航速度」。最佳巡航高度使升阻比×总效率最大。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力，高度可到海平面。极速按阻力等于全部加力（不留巡航裕度）。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。")
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
         }
     }
 
-    /// 分速表第一列：固定马赫只写数字，表尾两行写中文名称加马赫。
+    /// 分速表第一列：固定马赫只写数字，表尾命名行写中文名称加马赫。
     private func cruiseSpeedLabel(_ p: CombatRadiusCruisePoint) -> String {
         let name = p.label.isEmpty
             ? (p.mach.map { String(format: "Ma %.3f", $0) } ?? "—")
             : p.label
-        if (p.id == "max_cruise" || p.id == "floor_max_cruise"), let mach = p.mach {
+        let named = p.id == "max_cruise" || p.id == "floor_max_cruise" || p.id == "max_radius_cruise"
+        if named, let mach = p.mach {
             return String(format: "%@ %.3f", name, mach)
         }
-        if let mach = p.mach, p.id != "max_cruise", p.id != "floor_max_cruise" {
+        if let mach = p.mach, !named {
             return String(format: "%.3f", mach)
         }
         return name

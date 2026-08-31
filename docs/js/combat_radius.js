@@ -334,10 +334,10 @@ function thrustModeLabel(mode) {
   return '—';
 }
 
-/** 分速表第一列：固定马赫只写数字，表尾两行写中文名称加马赫。 */
+/** 分速表第一列：固定马赫只写数字，表尾命名行写中文名称加马赫。 */
 function cruiseSpeedLabel(p) {
   const name = p.label || (p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—');
-  if ((p.id === 'max_cruise' || p.id === 'floor_max_cruise') && p.mach != null) {
+  if ((p.id === 'max_cruise' || p.id === 'floor_max_cruise' || p.id === 'max_radius_cruise') && p.mach != null) {
     return `${name} ${fmt(p.mach, 3)}`;
   }
   return p.mach != null ? fmt(p.mach, 3) : name;
@@ -401,8 +401,7 @@ function renderDash(r, sourceLabel) {
         <tbody>${rows}</tbody>
       </table>
     </div>
-    ${r.split_cruise_note ? `<p class="note split">${r.split_cruise_note}</p>` : ''}
-    <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高。表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，表下会并排给出。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力（不留巡航裕度），高度可到海平面。极速按阻力等于全部加力，各马赫取最大升阻比后再取真速最大点。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。</p>
+    <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高。表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，再插一行「最大半径超音速巡航速度」。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力（不留巡航裕度），高度可到海平面。极速按阻力等于全部加力，各马赫取最大升阻比后再取真速最大点。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。</p>
   `;
   $('dashStatus').textContent = 'READY';
 }

@@ -219,6 +219,20 @@ def test_search_floor_max_cruise_mach_faster_than_peak():
         search_floor_max_cruise_mach(ctx, 1.0, 0.5, iters=2)
 
 
+def test_search_floor_max_cruise_mach_skips_transonic_hole():
+    """跨声速空洞不能截断最大巡航：须落在空洞之后的超音速窗口上沿。"""
+    ctx = _csv_ctx('FA-18C')
+    peak = search_max_cruise_mach(ctx)
+    floor = search_floor_max_cruise_mach(ctx)
+    assert peak is not None and floor is not None
+    assert any_feasible_altitude(ctx, 1.2) is False
+    assert any_feasible_altitude(ctx, peak) is True
+    assert any_feasible_altitude(ctx, floor) is True
+    assert floor + 1e-9 >= peak
+    assert floor > 1.4
+    assert search_best_altitude(ctx, 1.2) is None
+
+
 def test_fixed_machs_include_two_and_supersonic_threshold():
     assert FIXED_MACHS == (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0)
     assert SUPERSONIC_MACH == 1.0
@@ -592,7 +606,7 @@ def test_j50_practical_max_from_centi_grid_not_f22_pin():
     j50n = search_max_cruise_mach(_csv_ctx('J-50N'))
     assert f22 == pytest.approx(1.77, abs=0.005)
     assert j50 == pytest.approx(1.76, abs=0.005)
-    assert j50n == pytest.approx(1.77, abs=0.005)
+    assert j50n == pytest.approx(1.76, abs=0.005)
     a_f22 = search_best_altitude(_csv_ctx('F-22'), f22)
     a_j50 = search_best_altitude(_csv_ctx('J-50'), j50)
     assert a_f22 is not None and a_j50 is not None

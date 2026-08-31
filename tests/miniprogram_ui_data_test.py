@@ -86,9 +86,11 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '速度/马赫' in cr_wxml
     assert '实用最大巡航速度' in cr_wxml
     assert '最大巡航速度' in cr_wxml
-    assert 'dashSplitNote' in cr_wxml
-    assert 'dashSplitNote' in cr_js
-    assert '表下会并排' in cr_wxml
+    assert 'max_radius_cruise' in cr_js
+    assert '最大半径超音速巡航速度' in cr_wxml
+    assert 'dashSplitNote' not in cr_wxml
+    assert 'dashSplitNote' not in cr_js
+    assert '表下会并排' not in cr_wxml
     assert 'function cruiseSpeedLabel' in cr_js
     assert 'function dashRowsFrom' in cr_js
     assert '>点</text>' not in cr_wxml

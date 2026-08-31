@@ -115,9 +115,10 @@ def test_e2e_combat_radius_f22_breguet_radius():
         'params': {**_radius_params(), 'max_tsl_kN': 156.0},
     })
     assert r['success'] is True
-    assert len(r['points']) == 9
+    assert len(r['points']) == 10
     labels = {p['id']: p['label'] for p in r['points']}
     assert labels['max_cruise'] == '实用最大巡航速度'
+    assert labels['max_radius_cruise'] == '最大半径超音速巡航速度'
     assert labels['floor_max_cruise'] == '最大巡航速度'
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
@@ -141,8 +142,9 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
     assert m20['radius_km'] < m175['radius_km']
     prac = next(p for p in r['points'] if p['id'] == 'max_cruise')
+    radius_row = next(p for p in r['points'] if p['id'] == 'max_radius_cruise')
     floor = next(p for p in r['points'] if p['id'] == 'floor_max_cruise')
-    for extra in (prac, floor):
+    for extra in (prac, radius_row, floor):
         assert extra['feasible'] is True
         assert extra['alt_m'] is not None
         assert extra['ld'] is not None
@@ -156,8 +158,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
     assert r['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
-    assert r['split_cruise_note']
-    assert '最大作战半径' in r['split_cruise_note']
+    assert 'split_cruise_note' not in r
     assert prac['alt_m'] >= m15['alt_m'] - 400.0
     assert m175['alt_m'] >= m15['alt_m'] - 200.0
     assert m175['fuel_kg_per_km'] / m15['fuel_kg_per_km'] < 1.12
@@ -398,9 +399,10 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '最大巡航速度' in wxml
     assert 'Ma 1.2 以上' in wxml
     assert '达到最大值时的速度' in wxml
-    assert 'dashSplitNote' in wxml
+    assert 'dashSplitNote' not in wxml
     assert '作战半径最大' in wxml
-    assert '表下会并排' in wxml
+    assert '最大半径超音速巡航速度' in wxml
+    assert '表下会并排' not in wxml
     assert '>点</text>' not in wxml
     assert '>Ma</text>' not in wxml
     assert '热效率' in js_text
@@ -410,9 +412,10 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '实用最大巡航速度' in js_text
     assert 'Ma 1.2 以上' in js_text
     assert '达到最大值时的速度' in js_text
-    assert 'split_cruise_note' in js_text
+    assert 'split_cruise_note' not in js_text
     assert '作战半径最大' in js_text
-    assert '表下会并排' in js_text
+    assert '最大半径超音速巡航速度' in js_text
+    assert '表下会并排' not in js_text
     assert 'cruiseSpeedLabel' in js_text
     assert '<th>平均油耗 kg/km</th>' in js_text
     assert '<th>点</th>' not in js_text
@@ -433,9 +436,10 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '实用最大巡航速度' in ios
     assert 'Ma 1.2 以上' in ios
     assert '达到最大值时的速度' in ios
-    assert 'split_cruise_note' in ios
+    assert 'split_cruise_note' not in ios
     assert '作战半径最大' in ios
-    assert '表下会并排' in ios
+    assert '最大半径超音速巡航速度' in ios
+    assert '表下会并排' not in ios
     assert 'func cruiseSpeedLabel' in ios
     assert '最大 L/D' in ios
     assert '热效率' in ios
@@ -621,12 +625,12 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert set(stored.get('aircraft', {})) == fleet_ids
     f22 = stored['aircraft']['F-22']
     assert f22['success'] is True
-    assert len(f22['points']) == 9
-    assert f22['points'][-2]['label'] == '实用最大巡航速度'
+    assert len(f22['points']) == 10
+    assert f22['points'][-2]['label'] == '最大半径超音速巡航速度'
     assert f22['points'][-1]['label'] == '最大巡航速度'
     assert f22.get('max_radius_mach') is not None
     assert f22['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
-    assert f22.get('split_cruise_note')
+    assert 'split_cruise_note' not in f22
     live = run_preset_dashboard('F-22')
     assert live['success'] is True
     live_m08 = next(p for p in live['points'] if p['id'] == 'mach_0_8')
@@ -666,8 +670,16 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
         assert stored['aircraft'][aid]['max_cruise_mach'] is None, aid
     for aid, row in stored['aircraft'].items():
         mach = row.get('max_cruise_mach')
+        floor = row.get('max_cruise_floor_mach')
         if mach is not None:
             assert mach + 1e-9 >= 1.2, aid
+            assert floor is not None, aid
+            assert floor + 1e-9 >= mach, aid
+    fa18c = stored['aircraft']['FA-18C']
+    assert fa18c['max_cruise_mach'] is not None
+    assert fa18c['max_cruise_floor_mach'] > fa18c['max_cruise_mach']
+    fa18c_m12 = next(p for p in fa18c['points'] if p['id'] == 'mach_1_2')
+    assert fa18c_m12['feasible'] is False
 
 
 @pytest.mark.e2e

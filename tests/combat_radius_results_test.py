@@ -76,7 +76,6 @@ def test_sanitize_helpers_round_and_drop_blackbox():
         'success': True, 'name': 'F-22', 'carrier': False,
         'max_cruise_mach': 1.23456, 'max_cruise_floor_mach': 1.89,
         'max_radius_mach': 1.5, 'max_radius_km': 800.12,
-        'split_cruise_note': '实用最大巡航速度 Ma 1.235；Ma 1.2 以上最大作战半径 Ma 1.500（800 km）。高度峰值与布雷盖半径的最佳马赫不同。',
         'fuel_kg': 8200, 'fuel_usable_kg': 5000.12,
         'n_engines': 2, 'points': [{'id': 'mach_0_8', 'feasible': True, 'mach': 0.8}],
         'max_speed': {'feasible': True, 'max_speed_mach': 2.0},
@@ -86,7 +85,7 @@ def test_sanitize_helpers_round_and_drop_blackbox():
     assert ok['max_cruise_floor_mach'] == 1.89
     assert ok['max_radius_mach'] == 1.5
     assert ok['max_radius_km'] == 800.12
-    assert '高度峰值' in (ok.get('split_cruise_note') or '')
+    assert 'split_cruise_note' not in ok
 
 
 def test_run_preset_dashboard_missing_engine():
@@ -116,8 +115,12 @@ def test_run_preset_dashboard_f22_compact():
     assert 'mach_1_75' in ids
     assert 'mach_2_0' in ids
     assert 'max_cruise' in ids
+    assert 'max_radius_cruise' in ids
     assert 'floor_max_cruise' in ids
     assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
+    radius_row = next(p for p in r['points'] if p['id'] == 'max_radius_cruise')
+    assert radius_row['label'] == '最大半径超音速巡航速度'
+    assert radius_row['mach'] == pytest.approx(1.58, abs=0.03)
     assert next(p for p in r['points'] if p['id'] == 'floor_max_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
     assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
@@ -125,9 +128,7 @@ def test_run_preset_dashboard_f22_compact():
     assert r['max_radius_mach'] is not None
     assert r['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
     assert cruise_machs_differ(r['max_cruise_mach'], r['max_radius_mach'])
-    assert r['split_cruise_note']
-    assert '实用最大巡航速度' in r['split_cruise_note']
-    assert '最大作战半径' in r['split_cruise_note']
+    assert 'split_cruise_note' not in r
     ms = r['max_speed']
     assert ms['feasible'] is True
     assert ms['load'] == pytest.approx(1.0, abs=0.08)
@@ -195,6 +196,21 @@ def test_run_preset_dashboard_j35_and_j35a_max_cruise():
     assert j35['max_cruise_mach'] is None
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
     assert j35a['max_cruise_mach'] >= 1.2
+
+
+def test_run_preset_dashboard_fa18c_floor_above_practical():
+    """F/A-18C 跨声速不可飞，最大巡航仍须高于实用最大巡航。"""
+    r = run_preset_dashboard('FA-18C')
+    assert r['success'] is True
+    m12 = next(p for p in r['points'] if p['id'] == 'mach_1_2')
+    assert m12['feasible'] is False
+    assert r['max_cruise_mach'] is not None
+    assert r['max_cruise_floor_mach'] is not None
+    assert r['max_cruise_floor_mach'] + 1e-9 >= r['max_cruise_mach']
+    assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
+    floor_pt = next(p for p in r['points'] if p['id'] == 'floor_max_cruise')
+    assert floor_pt['feasible'] is True
+    assert floor_pt['mach'] == pytest.approx(r['max_cruise_floor_mach'])
 
 
 def test_run_preset_dashboard_ws10c_uav_no_practical_supercruise():

@@ -35,7 +35,6 @@ page {
 }
 .btn[disabled] { opacity: 0.55; }
 .note { color: #7b8e92; font-size: 20rpx; line-height: 1.6; margin-top: 12rpx; }
-.note.split { color: #ffb020; }
 .stat-row { display: flex; gap: 12rpx; flex-wrap: wrap; margin-bottom: 20rpx; }
 .stat { flex: 1; min-width: 180rpx; background: #0e161b; border: 1px solid #1c2b30; padding: 16rpx; }
 .stat .k { color: #7b8e92; font-size: 18rpx; }

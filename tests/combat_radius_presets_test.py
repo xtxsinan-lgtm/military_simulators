@@ -43,6 +43,12 @@ def test_load_presets_contains_anchors_and_j20():
     j50 = get_preset_by_id(presets, 'J-50')
     assert j50 is not None
     assert j50['planform'] == 'lambda'
+    j50n = get_preset_by_id(presets, 'J-50N')
+    assert j50n is not None
+    assert j50['empty_kg'] == j50n['empty_kg'] == 20800
+    assert j50['internal_fuel_kg'] == j50n['internal_fuel_kg'] == 13000
+    assert j50['missile_mass_kg'] == j50n['missile_mass_kg'] == 210
+    assert j50['n_pilots'] == j50n['n_pilots'] == 1
     uav = get_preset_by_id(presets, '53636')
     assert uav is not None
     assert uav['n_pilots'] == 0
