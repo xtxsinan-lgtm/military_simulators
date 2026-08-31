@@ -18,7 +18,7 @@ from utils.combat_radius.combat_radius_results import (
     write_combat_radius_results,
     _round,
 )
-from utils.combat_radius.lift_drag import J20_SUPERCRUISE_MACH
+from utils.combat_radius.lift_drag import F22_SUPERCRUISE_MACH, J20_SUPERCRUISE_MACH
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.paths import COMBAT_RADIUS_RESULTS_JSON
 
@@ -101,7 +101,7 @@ def test_run_preset_dashboard_f22_compact():
     assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
     assert next(p for p in r['points'] if p['id'] == 'floor_max_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
-    assert r['max_cruise_mach'] == pytest.approx(1.53, abs=0.02)
+    assert r['max_cruise_mach'] == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     ms = r['max_speed']
     assert ms['feasible'] is True
@@ -109,7 +109,8 @@ def test_run_preset_dashboard_f22_compact():
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
     m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
     m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')
-    assert m176['alt_m'] >= 13000.0
+    assert m176['alt_m'] >= m15['alt_m'] - 200.0
+    assert m176['fuel_kg_per_km'] / m15['fuel_kg_per_km'] < 1.12
     assert m176['radius_km'] > 0.6 * m15['radius_km']
     assert m15['feasible'] is True
     assert m176['feasible'] is True
