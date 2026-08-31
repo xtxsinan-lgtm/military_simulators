@@ -300,9 +300,16 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '搜索最佳升阻比和巡航高度' in wxml
     assert '混合作战半径' in wxml
     assert '最大 L/D' in wxml
+    assert '速度/马赫' in wxml
+    assert '>点</text>' not in wxml
+    assert '>Ma</text>' not in wxml
     assert '热效率' in js_text
     assert '推进效率' in js_text
     assert '总效率' in js_text
+    assert '<th>速度/马赫</th>' in js_text
+    assert '<th>平均油耗 kg/km</th>' in js_text
+    assert '<th>点</th>' not in js_text
+    assert '<th>Ma</th>' not in js_text
     assert '<th>η_th</th>' not in js_text
     cr_mp = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
     assert '热效率' in cr_mp
@@ -321,6 +328,8 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '推进效率' in ios
     assert '总效率' in ios
     assert 'η_th' not in ios
+    assert 'p.label' not in ios
+    assert 'Ma %.3f' not in ios
     assert '锚点' not in ios
     assert 'maxLd' in js_text
     assert 'runCombatRadius' in (ROOT / 'ios' / 'CarrierTakeOff' / 'LocalSimulatorEngine.swift').read_text(encoding='utf-8')

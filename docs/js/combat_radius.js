@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 20;
+const APP_VERSION = 21;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -327,22 +327,21 @@ function renderDash(r, sourceLabel) {
     const maxLd = p.max_ld != null ? fmt(p.max_ld, 2) : '—';
     const maxLdAlt = p.max_ld_alt_m != null ? fmt(p.max_ld_alt_m / 1000, 1) : '—';
     const mode = thrustModeLabel(p.max_ld_thrust_mode);
+    const speed = p.mach != null ? fmt(p.mach, 3) : '—';
     if (!p.feasible) {
       return `<tr>
-        <td>${p.label || ''}</td>
-        <td>${p.mach != null ? fmt(p.mach, 3) : '—'}</td>
+        <td>${speed}</td>
         <td>${maxLdAlt}</td>
         <td>—</td>
         <td>${maxLd}</td>
-        <td colspan="7">${mode}可飞 · ${p.fail_reason || '无满足 92% 推力裕度的高度'}</td>
+        <td colspan="8">${mode}可飞 · ${p.fail_reason || '无满足 92% 推力裕度的高度'}</td>
       </tr>`;
     }
     const mixed = p.mach != null && p.mach > 1
       ? (p.mixed_radius_km != null ? fmt(p.mixed_radius_km, 0) : '—')
       : '不适用';
     return `<tr class="target">
-      <td>${p.label || ''}</td>
-      <td>${fmt(p.mach, 3)}</td>
+      <td>${speed}</td>
       <td>${fmt((p.alt_m || 0) / 1000, 1)}</td>
       <td>${fmt(p.ld, 2)}</td>
       <td>${maxLd}</td>
@@ -365,8 +364,8 @@ function renderDash(r, sourceLabel) {
     <div class="scroll-x">
       <table>
         <thead><tr>
-          <th>点</th><th>Ma</th><th>高度 km</th><th>最佳 L/D</th><th>最大 L/D</th><th>军推 kN</th><th>负载</th>
-          <th>热效率</th><th>推进效率</th><th>总效率</th><th>半径 km</th><th>混合作战半径</th><th>kg/km</th>
+          <th>速度/马赫</th><th>高度 km</th><th>最佳 L/D</th><th>最大 L/D</th><th>军推 kN</th><th>负载</th>
+          <th>热效率</th><th>推进效率</th><th>总效率</th><th>半径 km</th><th>混合作战半径</th><th>平均油耗 kg/km</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>

@@ -184,7 +184,7 @@ struct CombatRadiusView: View {
             }
             ForEach(r.points ?? []) { p in
                 HStack {
-                    Text(p.label)
+                    Text(p.mach.map { String(format: "%.3f", $0) } ?? "—")
                         .foregroundStyle(CombatRadiusTheme.green)
                     Spacer()
                     let maxLd = p.max_ld.map { String(format: " L/Dmax %.2f", $0) } ?? ""
@@ -198,7 +198,7 @@ struct CombatRadiusView: View {
                             }
                             return " 混合不适用"
                         }()
-                        Text(String(format: "Ma %.3f  %.0f km%@%@", p.mach ?? 0, km, mixed, maxLd))
+                        Text(String(format: "%.0f km%@%@", km, mixed, maxLd))
                             .foregroundStyle(CombatRadiusTheme.text)
                     } else {
                         Text((p.fail_reason ?? "无 92% 裕度高度") + maxLd)

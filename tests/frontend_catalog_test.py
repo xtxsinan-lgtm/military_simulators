@@ -122,6 +122,11 @@ def test_docs_combat_radius_page_exists_and_links():
     assert '<th>η_th</th>' not in js_text
     assert '<th>η_p</th>' not in js_text
     assert '<th>η_o</th>' not in js_text
+    assert '<th>速度/马赫</th>' in js_text
+    assert '<th>平均油耗 kg/km</th>' in js_text
+    assert '<th>点</th>' not in js_text
+    assert '<th>Ma</th>' not in js_text
+    assert '<th>kg/km</th>' not in js_text
     assert '锚点' not in html
     assert 'combat-radius.html' in takeoff.read_text(encoding='utf-8')
     assert 'combat-radius.html' in sat.read_text(encoding='utf-8')

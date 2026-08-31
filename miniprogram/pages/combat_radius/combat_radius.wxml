@@ -103,11 +103,10 @@
         <view class="stat"><view class="k">极速</view><view class="v">{{dashVmax}}</view></view>
       </view>
       <view class="tr th">
-        <text class="th">点</text><text class="th">Ma</text><text class="th">最大L/D</text><text class="th">半径km</text><text class="th">混合km</text>
+        <text class="th">速度/马赫</text><text class="th">最大L/D</text><text class="th">半径km</text><text class="th">混合km</text>
       </view>
       <view class="tr" wx:for="{{dashRows}}" wx:key="label">
-        <text class="td {{item.ok ? 'target' : ''}}">{{item.label}}</text>
-        <text class="td">{{item.mach}}</text>
+        <text class="td {{item.ok ? 'target' : ''}}">{{item.mach}}</text>
         <text class="td">{{item.maxLd}}</text>
         <text class="td">{{item.radius}}</text>
         <text class="td">{{item.mixed}}</text>
