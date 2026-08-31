@@ -643,13 +643,6 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     j35a = stored['aircraft']['J-35A']
     assert j35['max_cruise_mach'] is None
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
-    for aid in ('53636', '53536', '53636N'):
-        uav = stored['aircraft'][aid]
-        assert uav['max_cruise_mach'] is not None, aid
-        assert uav['max_cruise_mach'] > j35a['max_cruise_mach'], aid
-        assert uav['max_cruise_mach'] >= 1.7, aid
-        uav_m15 = next(p for p in uav['points'] if p['id'] == 'mach_1_5')
-        assert uav_m15['feasible'] is True, aid
     for aid, row in stored['aircraft'].items():
         mach = row.get('max_cruise_mach')
         if mach is not None:

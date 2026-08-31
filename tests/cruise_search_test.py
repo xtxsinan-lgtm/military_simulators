@@ -490,17 +490,6 @@ def test_j35_and_j35a_max_cruise_anchored():
     assert j35a >= PRACTICAL_MAX_CRUISE_MACH_LO
 
 
-def test_uav_max_cruise_above_j35a():
-    """53636/53536 换低涵道比发动机后，实用最大巡航应高于歼-35A。"""
-    j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
-    for aid in ('53636', '53536', '53636N'):
-        m = search_max_cruise_mach(_csv_ctx(aid))
-        assert m is not None, aid
-        assert m > j35a, aid
-        assert m >= 1.7, aid
-        assert any_feasible_altitude(_csv_ctx(aid), 1.5) is True, aid
-
-
 def test_search_max_cruise_mach_when_low_mach_infeasible():
     """Ma 0.5 在 11 km 会因大迎角阻力不可飞，仍应搜到 F-22 超巡锚点。"""
     ctx = _f22_csv_ctx()

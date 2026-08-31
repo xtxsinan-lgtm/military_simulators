@@ -228,10 +228,10 @@ def test_load_combat_radius_aircraft_csv():
     uav = next(r for r in rows if r['id'] == '53636')
     assert uav['n_pilots'] == 0
     assert uav['inlet'] == 'caret'
-    assert uav['engine_id'] == 'ws15i'
+    assert uav['engine_id'] == 'ws10c'
     uav_n = next(r for r in rows if r['id'] == '53636N')
     assert uav_n['inlet'] == 'caret'
-    assert uav_n['engine_id'] == 'ws15i'
+    assert uav_n['engine_id'] == 'ws10c'
     j36 = next(r for r in rows if r['id'] == 'J-36')
     assert j36['n_engines'] == 3
     assert j36['n_pilots'] == 2
@@ -248,7 +248,7 @@ def test_load_combat_radius_aircraft_csv():
     uav535 = next(r for r in rows if r['id'] == '53536')
     assert uav535['length_m'] == pytest.approx(16.7)
     assert uav535['bwb'] is True
-    assert uav535['engine_id'] == 'ws15i'
+    assert uav535['engine_id'] == 'ws10c'
     assert j36['bwb'] is True
 
 

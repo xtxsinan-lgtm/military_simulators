@@ -185,21 +185,6 @@ def test_run_preset_dashboard_j35_and_j35a_max_cruise():
     assert j35a['max_cruise_mach'] >= 1.2
 
 
-def test_run_preset_dashboard_uav_supercruise_above_j35a():
-    """低涵道比涡扇15改进下，无人战机超巡应强于歼-35A。"""
-    j35a = run_preset_dashboard('J-35A')
-    assert j35a['success'] is True
-    for aid in ('53636', '53536', '53636N'):
-        r = run_preset_dashboard(aid)
-        assert r['success'] is True, aid
-        assert r['max_cruise_mach'] is not None, aid
-        assert r['max_cruise_mach'] > j35a['max_cruise_mach'], aid
-        assert r['max_cruise_mach'] >= 1.7, aid
-        m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
-        assert m15['feasible'] is True, aid
-        assert m15['alt_m'] >= 16000, aid
-
-
 def test_run_preset_dashboard_ab_flyable_machs_have_max_ld():
     """有极速的机型：不超过极速的固定马赫须有最大升阻比。"""
     for aid in ('F-35C', '53636N', 'J-15'):
