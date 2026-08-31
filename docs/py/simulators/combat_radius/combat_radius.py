@@ -44,21 +44,25 @@ from utils.combat_radius.cruise_search import (
     ALT_MIN_M,
     ALT_REFINE_M,
     FIXED_MACHS,
+    MACH_PROFILE_STEP,
     MACH_SEARCH_HI,
     MACH_SEARCH_ITERS,
     MACH_SEARCH_LO,
     PRACTICAL_MAX_CRUISE_MACH_LO,
     THRUST_MARGIN_DEFAULT,
     CruiseContext,
+    CruiseScored,
     SUPERSONIC_MACH,
+    contiguous_peak_max_mach,
     evaluate_cruise_forces,
     max_ld_fields,
+    scan_best_altitude_profile,
     score_cruise_point,
     scored_to_dict,
     search_best_altitude,
     search_floor_max_cruise_mach,
-    search_max_cruise_mach,
     search_max_ld_altitude,
+    snap_mach,
 )
 from utils.combat_radius.engine_efficiency import (
     ACC_FRAC_DEFAULT,
@@ -101,6 +105,8 @@ PRACTICAL_MAX_CRUISE_ID = 'max_cruise'
 PRACTICAL_MAX_CRUISE_LABEL = '实用最大巡航速度'
 FLOOR_MAX_CRUISE_ID = 'floor_max_cruise'
 FLOOR_MAX_CRUISE_LABEL = '最大巡航速度'
+MAX_RADIUS_ABOVE_12_LABEL = 'Ma 1.2 以上最大作战半径'
+SPLIT_CRUISE_MACH_TOL = 0.005
 
 
 def cruise_limit_specs(
@@ -112,6 +118,82 @@ def cruise_limit_specs(
         (PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, practical_mach),
         (FLOOR_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_LABEL, floor_mach),
     ]
+
+
+def cruise_machs_differ(
+    a: float | None,
+    b: float | None,
+    tol: float = SPLIT_CRUISE_MACH_TOL,
+) -> bool:
+    """两个巡航马赫是否视为不同，用于决定是否在表下并排显示。"""
+    if tol < 0:
+        raise ValueError('马赫容差不能为负')
+    if a is None and b is None:
+        return False
+    if a is None or b is None:
+        return True
+    return abs(float(a) - float(b)) > tol
+
+
+def radius_m_from_scored(
+    scored: CruiseScored,
+    mass_initial_kg: float,
+    mass_final_kg: float,
+) -> float | None:
+    """由巡航评分点算布雷盖作战半径（米）；缺 TSFC 或油量不够则 None。"""
+    if scored.tsfc_kg_n_s is None or scored.v0 <= 0 or scored.ld <= 0:
+        return None
+    try:
+        return combat_radius_m(
+            scored.v0, scored.tsfc_kg_n_s, scored.ld,
+            mass_initial_kg, mass_final_kg,
+        )
+    except ValueError:
+        return None
+
+
+def max_radius_mach_from_profile(
+    profile: list[CruiseScored],
+    mass_initial_kg: float,
+    mass_final_kg: float,
+    mach_lo: float = PRACTICAL_MAX_CRUISE_MACH_LO,
+) -> tuple[float | None, float | None]:
+    """在剖面上取 Ma≥mach_lo 且布雷盖半径最大的 (马赫, 半径km)。"""
+    best_mach: float | None = None
+    best_radius_m: float | None = None
+    for point in profile:
+        if point.mach + 1e-9 < mach_lo:
+            continue
+        radius_m = radius_m_from_scored(point, mass_initial_kg, mass_final_kg)
+        if radius_m is None:
+            continue
+        if best_radius_m is None or radius_m > best_radius_m:
+            best_radius_m = radius_m
+            best_mach = point.mach
+    if best_mach is None or best_radius_m is None:
+        return None, None
+    return snap_mach(best_mach, MACH_PROFILE_STEP), best_radius_m / 1000.0
+
+
+def format_split_cruise_note(
+    max_cruise_mach: float | None,
+    max_radius_mach: float | None,
+    max_radius_km: float | None = None,
+) -> str | None:
+    """高度峰值与 Ma 1.2 以上最大半径马赫不一致时，生成表下说明。"""
+    if not cruise_machs_differ(max_cruise_mach, max_radius_mach):
+        return None
+    if max_cruise_mach is None:
+        left = f'{PRACTICAL_MAX_CRUISE_LABEL} —'
+    else:
+        left = f'{PRACTICAL_MAX_CRUISE_LABEL} Ma {float(max_cruise_mach):.3f}'
+    if max_radius_mach is None:
+        right = f'{MAX_RADIUS_ABOVE_12_LABEL} —'
+    else:
+        right = f'{MAX_RADIUS_ABOVE_12_LABEL} Ma {float(max_radius_mach):.3f}'
+        if max_radius_km is not None:
+            right += f'（{float(max_radius_km):.0f} km）'
+    return f'{left}；{right}。高度峰值与布雷盖半径的最佳马赫不同。'
 
 
 def format_cruise_speed_label(point: dict[str, Any]) -> str:
@@ -653,6 +735,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """串联升阻比、军推与效率，搜索最佳巡航高度并估算作战半径。
 
     固定评估 Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0，表尾再给实用最大巡航与最大巡航两行。
+    若 Ma 1.2 以上作战半径最大的马赫与实用最大巡航（高度峰值）不同，表下并排给出。
     超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。
     巡航 L/D 仍用一半内油的空战重量。
     先按出发总重与返回总重（干重+冗余）算亚音速瞬时油耗；
@@ -789,13 +872,36 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         point_id = f'mach_{str(mach).replace(".", "_")}'
         points.append(pack_point(point_id, label, mach))
 
-    # 实用最大巡航按高度极值搜，下界至少 Ma 1.2，取高度真正见顶的速度
+    # 实用最大巡航按高度极值搜；同时在同一剖面上找 Ma 1.2 以上半径最大点
     prac_lo = max(mach_lo, PRACTICAL_MAX_CRUISE_MACH_LO)
     max_mach = None
+    max_radius_mach = None
+    max_radius_km = None
     if prac_lo < mach_hi:
-        max_mach = search_max_cruise_mach(
-            ctx, prac_lo, mach_hi, mach_iters, alt_min, alt_max, coarse_m,
+        refine_search = min(ALT_REFINE_M, coarse_m)
+        profile = scan_best_altitude_profile(
+            ctx, prac_lo, mach_hi, MACH_PROFILE_STEP,
+            alt_min, alt_max, coarse_m, refine_search,
         )
+        found = contiguous_peak_max_mach(
+            [(point.mach, point.alt_m) for point in profile],
+            0.0,
+            mach_hi,
+        )
+        if found is not None:
+            max_mach = snap_mach(found, MACH_PROFILE_STEP)
+        if (
+            fuel_adj is not None
+            and float(fuel_adj['usable_fuel_kg']) > 0
+            and float(fuel_adj['mass_final_kg']) > 0
+        ):
+            max_radius_mach, max_radius_km = max_radius_mach_from_profile(
+                profile,
+                float(fuel_adj['mass_initial_kg']),
+                float(fuel_adj['mass_final_kg']),
+                prac_lo,
+            )
+    split_note = format_split_cruise_note(max_mach, max_radius_mach, max_radius_km)
     floor_mach = search_floor_max_cruise_mach(
         ctx, mach_lo, mach_hi, mach_iters, alt_min, alt_max, coarse_m,
     )
@@ -857,6 +963,9 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         'mach_cone_limit': m_cone,
         'max_cruise_mach': max_mach,
         'max_cruise_floor_mach': floor_mach,
+        'max_radius_mach': max_radius_mach,
+        'max_radius_km': max_radius_km,
+        'split_cruise_note': split_note,
         'points': points,
         'mission_fuel': fuel_adj,
         'note': _mission_fuel_note(carrier, reserve_min, mf),
@@ -1169,6 +1278,9 @@ def main() -> None:
             f'锥限 Ma {result["mach_cone_limit"]:.2f} · '
             f'实用最大巡航 Ma {max_txt} · 最大巡航 Ma {floor_txt}'
         )
+        split = result.get('split_cruise_note')
+        if split:
+            print(split)
     print(
         f'{"速度/马赫":<22} {"高度km":>8} {"L/D":>7} {"η_o%":>7} '
         f'{"TSFC":>8} {"军推kN":>8} {"负载%":>7} {"半径km":>8} {"kg/km":>7}'

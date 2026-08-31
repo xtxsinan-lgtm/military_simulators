@@ -12,6 +12,10 @@ from simulators.combat_radius.combat_radius import (
     compact_max_speed,
     cruise_limit_specs,
     format_cruise_speed_label,
+    format_split_cruise_note,
+    cruise_machs_differ,
+    max_radius_mach_from_profile,
+    radius_m_from_scored,
     ensure_default_anchors,
     format_ld_row,
     main,
@@ -372,6 +376,71 @@ def test_format_cruise_speed_label_fixed_and_limits():
     assert format_cruise_speed_label({}) == '—'
 
 
+def test_cruise_machs_differ_and_rejects_negative_tol():
+    """同值视为相同；一侧为空或差值超过容差则不同。"""
+    assert cruise_machs_differ(1.77, 1.77) is False
+    assert cruise_machs_differ(1.77, 1.773) is False
+    assert cruise_machs_differ(1.77, 1.50) is True
+    assert cruise_machs_differ(None, None) is False
+    assert cruise_machs_differ(1.77, None) is True
+    with pytest.raises(ValueError, match='容差'):
+        cruise_machs_differ(1.0, 1.1, tol=-0.01)
+
+
+def test_radius_m_from_scored_none_without_tsfc():
+    """缺 TSFC 或油量不够时半径为 None。"""
+    from utils.combat_radius.cruise_search import CruiseScored
+
+    scored = CruiseScored(
+        mach=1.5, alt_m=15000, ld=7.0, drag_N=30000, thrust_avail_N=60000,
+        load_raw=0.5, feasible=True, cd_breakdown={},
+        v0=400.0, tsfc_kg_n_s=None,
+    )
+    assert radius_m_from_scored(scored, 28000, 20000) is None
+    scored.tsfc_kg_n_s = 3e-5
+    scored.v0 = 0.0
+    assert radius_m_from_scored(scored, 28000, 20000) is None
+    scored.v0 = 400.0
+    scored.ld = 7.0
+    assert radius_m_from_scored(scored, 20000, 28000) is None
+
+
+def test_max_radius_mach_from_profile_picks_higher_radius():
+    """剖面须取布雷盖半径更大的马赫，忽略 Ma 1.2 以下。"""
+    from utils.combat_radius.cruise_search import CruiseScored
+
+    def scored(mach: float, ld: float, v0: float, tsfc: float) -> CruiseScored:
+        return CruiseScored(
+            mach=mach, alt_m=15000, ld=ld, drag_N=30000, thrust_avail_N=60000,
+            load_raw=0.5, feasible=True, cd_breakdown={},
+            v0=v0, tsfc_kg_n_s=tsfc, eta_o=0.2, score=ld * 0.2,
+        )
+
+    slow = scored(1.20, 6.0, 350.0, 4e-5)
+    mid = scored(1.50, 7.5, 450.0, 3e-5)
+    fast = scored(1.77, 6.5, 520.0, 3.5e-5)
+    below = scored(0.80, 10.0, 240.0, 2e-5)
+    mach, km = max_radius_mach_from_profile(
+        [below, slow, mid, fast], 28000.0, 20000.0,
+    )
+    assert mach == pytest.approx(1.50, abs=0.005)
+    assert km is not None and km > 0
+    empty_m, empty_km = max_radius_mach_from_profile([], 28000.0, 20000.0)
+    assert empty_m is None and empty_km is None
+
+
+def test_format_split_cruise_note_only_when_differ():
+    """仅当高度峰值与最大半径马赫不一致时给出表下说明。"""
+    assert format_split_cruise_note(1.77, 1.77) is None
+    note = format_split_cruise_note(1.77, 1.50, 799.0)
+    assert note is not None
+    assert '实用最大巡航速度 Ma 1.770' in note
+    assert 'Ma 1.2 以上最大作战半径 Ma 1.500（799 km）' in note
+    none_note = format_split_cruise_note(None, 1.50, 400.0)
+    assert none_note is not None
+    assert '实用最大巡航速度 —' in none_note
+
+
 def test_infeasible_point_shape():
     row = _infeasible_point('mach_1_75', 'Ma 1.75', 1.75)
     assert row['feasible'] is False
@@ -430,6 +499,10 @@ def test_run_estimate_radius_from_params_f22():
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] is not None
     assert r['max_cruise_mach'] + 1e-9 >= 1.2
+    assert r['max_radius_mach'] is not None
+    assert cruise_machs_differ(r['max_cruise_mach'], r['max_radius_mach'])
+    assert r['split_cruise_note']
+    assert '最大作战半径' in r['split_cruise_note']
     assert r['mass_initial_kg'] > r['mass_cruise_kg'] > r['mass_final_kg']
     assert r['mass_initial_kg'] == pytest.approx(
         r['mass_takeoff_kg'] - r['mission_fuel']['climb_extra_kg'],
@@ -459,6 +532,8 @@ def test_run_estimate_radius_skips_practical_max_when_hi_below_12():
     r = run_estimate_radius_from_params(p)
     assert r['success'] is True
     assert r['max_cruise_mach'] is None
+    assert r['max_radius_mach'] is None
+    assert r['split_cruise_note'] is None
     assert r['max_cruise_floor_mach'] is not None
     assert r['max_cruise_floor_mach'] <= 1.1 + 1e-9
 
@@ -484,6 +559,9 @@ def test_main_prints_table(capsys, monkeypatch):
         'mach_angle_deg': 20.0,
         'mach_cone_limit': 2.9,
         'max_cruise_mach': 1.6,
+        'max_radius_mach': 1.5,
+        'max_radius_km': 800.0,
+        'split_cruise_note': '实用最大巡航速度 Ma 1.600；Ma 1.2 以上最大作战半径 Ma 1.500（800 km）。高度峰值与布雷盖半径的最佳马赫不同。',
         'points': [
             {
                 'id': 'mach_0_8', 'label': 'Ma 0.8', 'mach': 0.8, 'feasible': True,
@@ -513,6 +591,7 @@ def test_main_prints_table(capsys, monkeypatch):
     assert '0.800' in out
     assert '实用最大巡航速度' in out
     assert '最大巡航速度' in out
+    assert '最大作战半径' in out
     assert '92%' in out
     assert '布雷盖' in out
 

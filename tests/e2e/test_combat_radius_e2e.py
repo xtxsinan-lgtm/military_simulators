@@ -154,6 +154,10 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
+    assert r['max_radius_mach'] is not None
+    assert r['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
+    assert r['split_cruise_note']
+    assert '最大作战半径' in r['split_cruise_note']
     assert prac['alt_m'] >= m15['alt_m'] - 400.0
     assert m175['alt_m'] >= m15['alt_m'] - 200.0
     assert m175['fuel_kg_per_km'] / m15['fuel_kg_per_km'] < 1.12
@@ -394,6 +398,9 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '最大巡航速度' in wxml
     assert 'Ma 1.2 以上' in wxml
     assert '达到最大值时的速度' in wxml
+    assert 'dashSplitNote' in wxml
+    assert '作战半径最大' in wxml
+    assert '表下会并排' in wxml
     assert '>点</text>' not in wxml
     assert '>Ma</text>' not in wxml
     assert '热效率' in js_text
@@ -403,6 +410,9 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '实用最大巡航速度' in js_text
     assert 'Ma 1.2 以上' in js_text
     assert '达到最大值时的速度' in js_text
+    assert 'split_cruise_note' in js_text
+    assert '作战半径最大' in js_text
+    assert '表下会并排' in js_text
     assert 'cruiseSpeedLabel' in js_text
     assert '<th>平均油耗 kg/km</th>' in js_text
     assert '<th>点</th>' not in js_text
@@ -423,6 +433,9 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '实用最大巡航速度' in ios
     assert 'Ma 1.2 以上' in ios
     assert '达到最大值时的速度' in ios
+    assert 'split_cruise_note' in ios
+    assert '作战半径最大' in ios
+    assert '表下会并排' in ios
     assert 'func cruiseSpeedLabel' in ios
     assert '最大 L/D' in ios
     assert '热效率' in ios
@@ -611,6 +624,9 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert len(f22['points']) == 9
     assert f22['points'][-2]['label'] == '实用最大巡航速度'
     assert f22['points'][-1]['label'] == '最大巡航速度'
+    assert f22.get('max_radius_mach') is not None
+    assert f22['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
+    assert f22.get('split_cruise_note')
     live = run_preset_dashboard('F-22')
     assert live['success'] is True
     live_m08 = next(p for p in live['points'] if p['id'] == 'mach_0_8')

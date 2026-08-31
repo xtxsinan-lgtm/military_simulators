@@ -18,6 +18,7 @@ from utils.combat_radius.combat_radius_results import (
     write_combat_radius_results,
     _round,
 )
+from simulators.combat_radius.combat_radius import cruise_machs_differ
 from utils.combat_radius.lift_drag import J20_SUPERCRUISE_MACH, J35A_SUPERCRUISE_MACH
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.paths import COMBAT_RADIUS_RESULTS_JSON
@@ -74,6 +75,8 @@ def test_sanitize_helpers_round_and_drop_blackbox():
     ok = sanitize_dashboard({
         'success': True, 'name': 'F-22', 'carrier': False,
         'max_cruise_mach': 1.23456, 'max_cruise_floor_mach': 1.89,
+        'max_radius_mach': 1.5, 'max_radius_km': 800.12,
+        'split_cruise_note': '实用最大巡航速度 Ma 1.235；Ma 1.2 以上最大作战半径 Ma 1.500（800 km）。高度峰值与布雷盖半径的最佳马赫不同。',
         'fuel_kg': 8200, 'fuel_usable_kg': 5000.12,
         'n_engines': 2, 'points': [{'id': 'mach_0_8', 'feasible': True, 'mach': 0.8}],
         'max_speed': {'feasible': True, 'max_speed_mach': 2.0},
@@ -81,6 +84,9 @@ def test_sanitize_helpers_round_and_drop_blackbox():
     assert ok['success'] is True
     assert 'Cf0' not in ok
     assert ok['max_cruise_floor_mach'] == 1.89
+    assert ok['max_radius_mach'] == 1.5
+    assert ok['max_radius_km'] == 800.12
+    assert '高度峰值' in (ok.get('split_cruise_note') or '')
 
 
 def test_run_preset_dashboard_missing_engine():
@@ -116,6 +122,12 @@ def test_run_preset_dashboard_f22_compact():
     assert 'max_speed' in r
     assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
+    assert r['max_radius_mach'] is not None
+    assert r['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
+    assert cruise_machs_differ(r['max_cruise_mach'], r['max_radius_mach'])
+    assert r['split_cruise_note']
+    assert '实用最大巡航速度' in r['split_cruise_note']
+    assert '最大作战半径' in r['split_cruise_note']
     ms = r['max_speed']
     assert ms['feasible'] is True
     assert ms['load'] == pytest.approx(1.0, abs=0.08)

@@ -125,6 +125,7 @@ Page({
     dashMaxCruise: '—',
     dashFloorCruise: '—',
     dashVmax: '—',
+    dashSplitNote: '',
     dashRows: [],
     resultsMap: {},
     q1Mach: '0.9',
@@ -205,6 +206,7 @@ Page({
         dashOk: false,
         dashStatusText: (snap && snap.error) || '无预计算快照。填写军推后将自动重算。',
         dashRows: [],
+        dashSplitNote: '',
       });
       return;
     }
@@ -215,6 +217,7 @@ Page({
       dashMaxCruise: snap.max_cruise_mach != null ? fmt(snap.max_cruise_mach, 3) : '—',
       dashFloorCruise: snap.max_cruise_floor_mach != null ? fmt(snap.max_cruise_floor_mach, 3) : '—',
       dashVmax: ms.feasible ? `${fmt(ms.max_speed_kmh, 0)} km/h` : (ms.fail_reason || '—'),
+      dashSplitNote: snap.split_cruise_note || '',
       dashRows: dashRowsFrom(snap),
     });
   },
@@ -351,6 +354,7 @@ Page({
           dashMaxCruise: r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—',
           dashFloorCruise: r.max_cruise_floor_mach != null ? fmt(r.max_cruise_floor_mach, 3) : '—',
           dashVmax: ms.feasible ? `${fmt(ms.max_speed_kmh, 0)} km/h` : (ms.fail_reason || '—'),
+          dashSplitNote: r.split_cruise_note || '',
           dashRows: dashRowsFrom(r),
           running: false,
         });
