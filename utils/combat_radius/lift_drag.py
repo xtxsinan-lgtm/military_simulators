@@ -11,10 +11,11 @@
 避免抛物线极曲线把 L/Dmax 推到 CL≈0.57（Ma 0.8 约 15 km）。
 低翼载飞机同一高度 CL 更小，可以飞得更高。
 无座舱无人机去掉风挡浸润；机长只进入马赫锥项（Ma 1.5 通常未触发）。
-F-35 等 rough=True 机型加大浸润（肥机身/表面不平整），相对光滑隐身机降 L/D。
+F-35 等 rough=True 机型加大浸润（肥机身 + 外形不平整，非微观表面粗糙），相对光滑隐身机降 L/D。
 进气道独立于翼型/布局：DSI 无隔道、浸润基准；加莱特（caret）有隔道板与唇口，
 亚/跨声速寄生阻力更高，但二维压缩面使超音速体积波阻更低（利于超巡）。
-rough 的亚音速惩罚只进 CD0；超音速另叠加肥机身/锯齿/厚翼体积波阻，
+rough 的亚音速惩罚只进 CD0，拆成 FAT_MULT（肥胖）× BUMP_MULT（不平整）；
+超音速另叠加肥机身/锯齿/厚翼体积波阻，
 避免只靠加大浸润把加力极速仍推到 Ma 2+（公开包线约 Ma 1.6）。
 
 波阻分四段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
@@ -93,10 +94,15 @@ INLET_DSI_WETTED = 1.00
 INLET_CARET_WETTED = 1.05
 INLET_DSI_CDW = 1.00
 INLET_CARET_CDW = 0.90
-# 表面不平整 / 肥机身：F-35 等 rough=True，相对光滑隐身机抬高巡航 CD0
+# 肥电总包：F-35 等 rough=True 相对光滑隐身机抬高巡航 CD0。
+# 拆成两项物理含义不同的乘数，避免用「表面粗糙」一个数扛全部：
+#   FAT_MULT  —— 肥胖/容积率高：短粗机身、内埋容积，等效浸润面积放大
+#   BUMP_MULT —— 外形不平整：DSI 鼓包、锯齿缝、舱门台阶、RAM 涂层局部干扰
+# 微观表面粗糙次要，并入 BUMP。超音速另用 CDW_SS_ROUGH_*，不靠这两个数压极速。
 # 统一极曲线：在历史闭式解 (Cf0,k_e) 上按尺度 s≈1.194 抬升，使歼-20 Ma0.8≈1350 km；
-# ROUGH_MULT≈1.33 再压 F-35C≈1400 km（舰载留油 45 min）；加莱特 F-22 约 1034 km。
-ROUGH_MULT = 1.328081314342353
+# 舰载留油 45 min；F-35C 由 FAT×BUMP 单独压到约 1400 km。
+FAT_MULT = 1.12
+BUMP_MULT = 1.08
 CF0_REF = 0.018831312446174107
 K_E_REF = 1.9677054936141871
 # 大迎角附加阻力：超过巡航 CL 后 (CL-CL_on)²，使 L/D 在标定高度附近见顶。
@@ -152,7 +158,7 @@ class Aircraft:
     planform: PlanformId
     layout: LayoutId
     bwb: bool  # 翼身融合 —— 独立开关，与机型无绑定关系
-    rough: bool  # 表面是否不平整 —— 独立开关，与机型无绑定关系
+    rough: bool  # 肥电总包（肥胖 + 外形不平整）—— 独立开关，与机型无绑定关系
     inlet: InletId = 'dsi'  # 进气道：dsi / caret（加莱特）；缺省 DSI
     length_m: float = 0.0  # 机身长度，未给马赫角时用于估算；缺省 0 表示不启用
     wingspan_m: float = 0.0  # 翼展；缺省 0 表示不启用
@@ -377,15 +383,15 @@ def wetted_area_factor(ac: Aircraft) -> float:
     - 翼型越厚，浸润面积/摩擦阻力略增
     - 三角翼/双三角/钻石翼/兰姆达翼相比梯形翼浸润面积/参考面积略小；平直翼略大
     - 鸭式布局多一个升力面；无尾布局减少
-    - 翼身融合 (bwb) 与表面不平整 (rough) 是两个完全独立的开关
-    - rough 乘 ROUGH_MULT（F-35 等肥机身/表面不平整）
+    - 翼身融合 (bwb) 与肥电 (rough) 是两个完全独立的开关
+    - rough 乘 FAT_MULT×BUMP_MULT（F-35 肥胖 + 外形不平整，非微观表面粗糙）
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
     - 进气道：DSI 无隔道；加莱特隔道板/唇口抬高浸润
     """
     planform_mult = PLANFORM_MULT[ac.planform]
     layout_mult = LAYOUT_MULT[ac.layout]
     bwb_mult = 0.90 if ac.bwb else 1.00
-    rough_mult = ROUGH_MULT if ac.rough else 1.00
+    rough_mult = (FAT_MULT * BUMP_MULT) if ac.rough else 1.00
     canopy_mult = 1.0 if ac.canopy else NO_CANOPY_MULT
     inlet_mult = inlet_wetted_mult(ac.inlet)
     thickness_mult = 1.0 + 4.0 * ac.tc

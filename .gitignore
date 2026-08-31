@@ -1,3 +1,13 @@
 
 # Xcode user state
 **/xcuserdata/
+
+# macOS
+.DS_Store
+
+# Editor / workspace
+military_simulators.code-workspace
+
+# Local survey artifacts (not source)
+carrier_takeoff_survey_results.backup.txt
+carrier_takeoff_survey_run.log

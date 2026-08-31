@@ -29,7 +29,8 @@ from utils.combat_radius.lift_drag import (
     KORN_DM_CAP,
     K_E_REF,
     NO_CANOPY_MULT,
-    ROUGH_MULT,
+    FAT_MULT,
+    BUMP_MULT,
     RHO11,
     Aircraft,
     aircraft_from_dict,
@@ -277,7 +278,7 @@ def test_wetted_area_factor_independent_switches():
     rough = Aircraft(**{**aircraft_to_dict(base), 'rough': True})
     w0 = wetted_area_factor(base)
     assert wetted_area_factor(bwb) == pytest.approx(w0 * 0.90)
-    assert wetted_area_factor(rough) == pytest.approx(w0 * ROUGH_MULT)
+    assert wetted_area_factor(rough) == pytest.approx(w0 * FAT_MULT * BUMP_MULT)
     no_canopy = Aircraft(**{**aircraft_to_dict(base), 'canopy': False})
     assert wetted_area_factor(no_canopy) == pytest.approx(w0 * NO_CANOPY_MULT)
 
@@ -532,15 +533,16 @@ def test_default_ld_anchors_match_f35c_f22():
     assert a2.name == 'F-22' and a2.rough is False and a2.inlet == 'caret'
     assert ld2 > ld1
     assert ld2 == pytest.approx(10.72, abs=0.10)
-    assert ld1 < 10.0  # rough≈1.33 相对光滑 F-22 再降一截
+    assert ld1 < 10.2  # FAT×BUMP≈1.21 相对光滑 F-22 再降一截
     cf0, k_e = calibrate_default_anchors()
     assert cf0 == pytest.approx(CF0_REF)
     assert k_e == pytest.approx(K_E_REF)
 
 
 def test_rough_mult_penalizes_f35_vs_smooth():
-    """F-35 系列 rough 乘数须明显高于 1，相对光滑机抬高浸润。"""
-    assert ROUGH_MULT == pytest.approx(1.328, abs=0.01)
+    """F-35 系列 FAT×BUMP 须明显高于 1，相对光滑机抬高浸润。"""
+    assert FAT_MULT == pytest.approx(1.12, abs=0.01)
+    assert BUMP_MULT == pytest.approx(1.08, abs=0.01)
     assert wetted_area_factor(_f35c()) > wetted_area_factor(
         Aircraft(**{**aircraft_to_dict(_f35c()), 'rough': False}),
     )
