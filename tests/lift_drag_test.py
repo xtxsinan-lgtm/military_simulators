@@ -27,8 +27,6 @@ from utils.combat_radius.lift_drag import (
     CF0_REF,
     F22_SUPERCRUISE_MACH,
     J20_SUPERCRUISE_MACH,
-    J35A_SUPERCRUISE_MACH,
-    J35_SUPERCRUISE_MACH,
     KAPPA_A,
     KORN_DM_CAP,
     K_E_REF,

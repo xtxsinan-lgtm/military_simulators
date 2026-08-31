@@ -176,15 +176,15 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
 
 
 def test_run_preset_dashboard_j35_and_j35a_max_cruise():
-    """歼-35 / 歼-35A 实用最大巡航分别约 Ma 0.95 / 1.00。"""
-    from utils.combat_radius.lift_drag import J35A_SUPERCRUISE_MACH, J35_SUPERCRUISE_MACH
+    """歼-35 军推飞不到 Ma 1.2；歼-35A 实用最大巡航约 Ma 1.60。"""
+    from utils.combat_radius.lift_drag import J35A_SUPERCRUISE_MACH
 
     j35 = run_preset_dashboard('J-35')
     j35a = run_preset_dashboard('J-35A')
     assert j35['success'] is True and j35a['success'] is True
-    assert j35['max_cruise_mach'] == pytest.approx(J35_SUPERCRUISE_MACH, abs=0.03)
+    assert j35['max_cruise_mach'] is None
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
-    assert j35a['max_cruise_mach'] > j35['max_cruise_mach']
+    assert j35a['max_cruise_mach'] >= 1.2
 
 
 def test_run_preset_dashboard_ab_flyable_machs_have_max_ld():

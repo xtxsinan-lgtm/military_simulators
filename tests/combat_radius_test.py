@@ -429,6 +429,7 @@ def test_run_estimate_radius_from_params_f22():
     assert r['mach_angle_deg'] is not None
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] is not None
+    assert r['max_cruise_mach'] + 1e-9 >= 1.2
     assert r['mass_initial_kg'] > r['mass_cruise_kg'] > r['mass_final_kg']
     assert r['mass_initial_kg'] == pytest.approx(
         r['mass_takeoff_kg'] - r['mission_fuel']['climb_extra_kg'],
@@ -449,6 +450,17 @@ def test_run_estimate_radius_from_params_f22():
         m08['V0'], m08['tsfc_kg_n_s'], m08['ld'],
         r['mass_initial_kg'], r['mass_final_kg'],
     ))
+
+
+def test_run_estimate_radius_skips_practical_max_when_hi_below_12():
+    """搜索上界低于 Ma 1.2 时，实用最大巡航为空，最大巡航仍可搜。"""
+    p = _radius_params()
+    p['mach_search_hi'] = 1.1
+    r = run_estimate_radius_from_params(p)
+    assert r['success'] is True
+    assert r['max_cruise_mach'] is None
+    assert r['max_cruise_floor_mach'] is not None
+    assert r['max_cruise_floor_mach'] <= 1.1 + 1e-9
 
 
 def test_run_combat_radius_estimate_radius_action():

@@ -61,16 +61,15 @@ KAPPA_A = 0.90  # Korn 方程翼型技术因子，固定为超临界翼型典型
 CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小超量
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
-# 超音速波阻：体积/升力项使光滑隐身机超巡可飞；实用最大巡航由高度搜索给出
-# （最佳高度尚未回落；能飞满超巡带的机型约 Ma 1.76，歼-20 约 Ma 1.70）。
+# 超音速波阻：体积/升力项使光滑隐身机超巡可飞；实用最大巡航由 Ma 1.2 以上
+# 高度极值搜索给出（最佳高度尚未回落；能飞满超巡带的机型约 Ma 1.76，歼-20 约 Ma 1.70）。
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²·lift_wave_mach_factor：Ma 1.5 压住超音速 L/D 避免半径倒挂，
 # 1.5–1.76 不再随马赫加重，过了超巡带再加重，使峰值高度在 1.76 后回落。
 SUPERCRUISE_BAND_HI = 1.76  # 超巡带上沿：此后升力波阻再随马赫加重
 F22_SUPERCRUISE_MACH = SUPERCRUISE_BAND_HI
 J20_SUPERCRUISE_MACH = 1.70
-J35_SUPERCRUISE_MACH = 0.95
-J35A_SUPERCRUISE_MACH = 1.00
+J35A_SUPERCRUISE_MACH = 1.60
 CDW_SS_BODY = 0.00450
 CDW_SS_WING = 3.00
 CDW_SS_LIFT = 0.65

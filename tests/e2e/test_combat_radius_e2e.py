@@ -13,7 +13,6 @@ from utils.combat_radius.lift_drag import (
     F35_MAX_SPEED_MACH,
     J20_SUPERCRUISE_MACH,
     J35A_SUPERCRUISE_MACH,
-    J35_SUPERCRUISE_MACH,
 )
 from utils.paths import ROOT
 
@@ -394,6 +393,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '速度/马赫' in wxml
     assert '实用最大巡航速度' in wxml
     assert '最大巡航速度' in wxml
+    assert 'Ma 1.2 以上' in wxml
     assert '>点</text>' not in wxml
     assert '>Ma</text>' not in wxml
     assert '热效率' in js_text
@@ -401,6 +401,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '总效率' in js_text
     assert '<th>速度/马赫</th>' in js_text
     assert '实用最大巡航速度' in js_text
+    assert 'Ma 1.2 以上' in js_text
     assert 'cruiseSpeedLabel' in js_text
     assert '<th>平均油耗 kg/km</th>' in js_text
     assert '<th>点</th>' not in js_text
@@ -419,6 +420,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '搜索最佳升阻比和巡航高度' in ios
     assert '混合作战半径' in ios
     assert '实用最大巡航速度' in ios
+    assert 'Ma 1.2 以上' in ios
     assert 'func cruiseSpeedLabel' in ios
     assert '最大 L/D' in ios
     assert '热效率' in ios
@@ -639,8 +641,12 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert f35a['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
     j35 = stored['aircraft']['J-35']
     j35a = stored['aircraft']['J-35A']
-    assert j35['max_cruise_mach'] == pytest.approx(J35_SUPERCRUISE_MACH, abs=0.03)
+    assert j35['max_cruise_mach'] is None
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
+    for aid, row in stored['aircraft'].items():
+        mach = row.get('max_cruise_mach')
+        if mach is not None:
+            assert mach + 1e-9 >= 1.2, aid
 
 
 @pytest.mark.e2e

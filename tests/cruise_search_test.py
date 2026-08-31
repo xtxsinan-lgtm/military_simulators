@@ -1,6 +1,8 @@
 """巡航高度 / 最大马赫搜索单元测试。"""
 from __future__ import annotations
 
+import inspect
+
 import pytest
 
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
@@ -13,6 +15,7 @@ from utils.combat_radius.cruise_search import (
     MACH_PROFILE_STEP,
     MACH_SEARCH_LO,
     PEAK_ALT_DROP_M,
+    PRACTICAL_MAX_CRUISE_MACH_LO,
     SUPERSONIC_MACH,
     CruiseContext,
     any_feasible_altitude,
@@ -40,7 +43,6 @@ from utils.combat_radius.lift_drag import (
     F22_SUPERCRUISE_MACH,
     J20_SUPERCRUISE_MACH,
     J35A_SUPERCRUISE_MACH,
-    J35_SUPERCRUISE_MACH,
     Aircraft,
     aircraft_from_dict,
     model_coefficients,
@@ -218,6 +220,8 @@ def test_fixed_machs_include_two_and_supersonic_threshold():
     assert FIXED_MACHS == (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0)
     assert SUPERSONIC_MACH == 1.0
     assert SUPERSONIC_MACH in FIXED_MACHS
+    assert PRACTICAL_MAX_CRUISE_MACH_LO == pytest.approx(1.2)
+    assert PRACTICAL_MAX_CRUISE_MACH_LO in FIXED_MACHS
 
 
 def _csv_ctx(aircraft_id: str, tsl_kn: float | None = None) -> CruiseContext:
@@ -467,13 +471,20 @@ def test_f22_cruise_altitude_dips_in_transonic_then_holds_supercruise():
     assert a176.load_raw >= 0.90
 
 
+def test_search_max_cruise_mach_default_lo_is_mach_12():
+    """实用最大巡航默认马赫下界须为 1.2。"""
+    default_lo = inspect.signature(search_max_cruise_mach).parameters['mach_lo'].default
+    assert default_lo == pytest.approx(PRACTICAL_MAX_CRUISE_MACH_LO)
+    assert default_lo == pytest.approx(1.2)
+
+
 def test_j35_and_j35a_max_cruise_anchored():
-    """歼-35 / 歼-35A 实用最大巡航停在跨声速鼓包前的高度峰值。"""
+    """歼-35 军推飞不到 Ma 1.2；歼-35A 实用最大巡航落在超巡高度峰值。"""
     j35 = search_max_cruise_mach(_csv_ctx('J-35'))
     j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
-    assert j35 == pytest.approx(J35_SUPERCRUISE_MACH, abs=0.03)
+    assert j35 is None
     assert j35a == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
-    assert j35a > j35
+    assert j35a >= PRACTICAL_MAX_CRUISE_MACH_LO
 
 
 def test_search_max_cruise_mach_when_low_mach_infeasible():
@@ -514,14 +525,15 @@ def test_scan_best_altitude_profile_endpoints_and_rejects_bad_step():
 
 
 def test_practical_max_cruise_stays_at_peak_altitude():
-    """实用最大巡航须停在最佳高度峰值，不能在已经掉高后再往上加马赫。"""
-    for aid in ('F-22', 'J-20', 'J-50', 'F-35C', 'J-35'):
+    """实用最大巡航须停在 Ma 1.2 以上的最佳高度峰值，不能在已经掉高后再往上加马赫。"""
+    for aid in ('F-22', 'J-20', 'J-50', 'J-35A'):
         ctx = _csv_ctx(aid)
-        prof = scan_best_altitude_profile(ctx)
+        prof = scan_best_altitude_profile(ctx, PRACTICAL_MAX_CRUISE_MACH_LO)
         assert prof
         peak = max(point.alt_m for point in prof)
         mach = search_max_cruise_mach(ctx)
         assert mach is not None
+        assert mach + 1e-9 >= PRACTICAL_MAX_CRUISE_MACH_LO
         at = search_best_altitude(ctx, mach)
         assert at is not None
         assert at.alt_m >= peak - PEAK_ALT_DROP_M - 1e-6
@@ -531,3 +543,14 @@ def test_practical_max_cruise_stays_at_peak_altitude():
     at = search_best_altitude(_csv_ctx('F-22'), f22)
     assert after is not None and at is not None
     assert after.alt_m < at.alt_m - PEAK_ALT_DROP_M + 1e-6
+
+
+def test_search_max_cruise_mach_skips_transonic_peak():
+    """从 0.5 搜会停在跨声速高度峰值；默认 Ma 1.2 下界则跳过该峰值。"""
+    ctx = _csv_ctx('J-35')
+    transonic = search_max_cruise_mach(ctx, 0.5, 2.5)
+    assert transonic is not None
+    assert transonic < PRACTICAL_MAX_CRUISE_MACH_LO
+    assert search_max_cruise_mach(ctx) is None
+    f35c = search_max_cruise_mach(_csv_ctx('F-35C'))
+    assert f35c is None

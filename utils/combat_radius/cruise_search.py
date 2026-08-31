@@ -6,8 +6,8 @@
 目标函数为升阻比 × 总效率：低马赫时爬高会使负载过大、η_o 下降，
 且大迎角附加阻力会压低 L/D，二者合起来把最佳高度压在标定巡航附近；
 跨声速鼓包在 Ma 1.0–1.2 加大阻力，最佳高度可能先掉再恢复。
-「实用最大巡航」取含全局高度峰值的连续平台上沿，不跨过跨声速掉高后再接上；
-若允许掉到高度下限，军推还能再快一些。
+「实用最大巡航」只在 Ma 1.2 以上取含全局高度峰值的连续平台上沿，
+不把跨声速鼓包前的高度峰值算进去；若允许掉到高度下限，军推还能再快一些。
 """
 from __future__ import annotations
 
@@ -36,6 +36,8 @@ ALT_REFINE_M = 200.0
 FIXED_MACHS = (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0)
 SUPERSONIC_MACH = 1.0
 MACH_SEARCH_LO = 0.50
+# 实用最大巡航按高度极值搜索时，只看 Ma 1.2 以上（跳过跨声速鼓包前的峰值）
+PRACTICAL_MAX_CRUISE_MACH_LO = 1.2
 MACH_SEARCH_HI = 2.50
 MACH_SEARCH_ITERS = 14
 # 马赫剖面步长：过疏会错过高度峰值，把「尚未回落」判到已经掉高之后
@@ -373,7 +375,7 @@ def contiguous_peak_max_mach(
 
 def search_max_cruise_mach(
     ctx: CruiseContext,
-    mach_lo: float = MACH_SEARCH_LO,
+    mach_lo: float = PRACTICAL_MAX_CRUISE_MACH_LO,
     mach_hi: float = MACH_SEARCH_HI,
     iters: int = MACH_SEARCH_ITERS,
     alt_min_m: float = ALT_MIN_M,
@@ -384,9 +386,9 @@ def search_max_cruise_mach(
 ) -> float | None:
     """最佳巡航高度尚未从峰值回落时的最大军推巡航马赫。
 
-    高度峰值按密扫剖面确定；容差只有一格细化高度。
-    只取含全局峰值的连续平台上沿，避免跨声速掉高后再爬回的第二段
-    把实用最大巡航推过跨声速鼓包。掉到 11 km 后的绝对上限用
+    默认只在 Ma 1.2 以上扫剖面，避免把跨声速鼓包前的高度峰值
+    当成实用最大巡航。高度峰值按密扫剖面确定；容差只有一格细化高度。
+    只取含全局峰值的连续平台上沿。掉到 11 km 后的绝对上限用
     search_floor_max_cruise_mach。
     """
     _require_mach_search_bounds(mach_lo, mach_hi, iters)
