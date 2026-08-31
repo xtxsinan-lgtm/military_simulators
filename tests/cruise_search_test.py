@@ -214,8 +214,9 @@ def test_search_floor_max_cruise_mach_faster_than_peak():
 
 
 def test_fixed_machs_include_two_and_supersonic_threshold():
-    assert FIXED_MACHS == (0.8, 1.5, 1.76, 2.0)
+    assert FIXED_MACHS == (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0)
     assert SUPERSONIC_MACH == 1.0
+    assert SUPERSONIC_MACH in FIXED_MACHS
 
 
 def _csv_ctx(aircraft_id: str, tsl_kn: float | None = None) -> CruiseContext:
@@ -451,12 +452,14 @@ def test_search_max_cruise_mach_when_low_mach_infeasible():
 
 
 def test_profile_machs_includes_supercruise_band_and_rejects_bad_step():
-    """剖面网格须钉上 1.76；端点为区间原值；步长/区间非法时报错。"""
+    """剖面网格须钉上固定评估点与超巡带上沿；端点为区间原值；步长/区间非法时报错。"""
     machs = profile_machs(0.5, 2.5, step=0.05)
     assert machs[0] == 0.5
     assert machs[-1] == 2.5
     assert 1.76 in machs
     assert 1.5 in machs
+    for pin in FIXED_MACHS:
+        assert pin in machs
     with pytest.raises(ValueError, match='步长'):
         profile_machs(0.8, 1.5, step=0.0)
     with pytest.raises(ValueError, match='区间'):

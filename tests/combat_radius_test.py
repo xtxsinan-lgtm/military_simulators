@@ -373,7 +373,7 @@ def test_format_cruise_speed_label_fixed_and_limits():
 
 
 def test_infeasible_point_shape():
-    row = _infeasible_point('mach_1_76', 'Ma 1.76', 1.76)
+    row = _infeasible_point('mach_1_75', 'Ma 1.75', 1.75)
     assert row['feasible'] is False
     assert row['radius_km'] is None
     assert row['warning'] == 'no_feasible_altitude'
@@ -413,7 +413,8 @@ def test_run_estimate_radius_from_params_f22():
     assert r['success'] is True
     ids = [p['id'] for p in r['points']]
     assert ids == [
-        'mach_0_8', 'mach_1_5', 'mach_1_76', 'mach_2_0',
+        'mach_0_8', 'mach_1_0', 'mach_1_2', 'mach_1_35', 'mach_1_5',
+        'mach_1_75', 'mach_2_0',
         PRACTICAL_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_ID,
     ]
     labels = {p['id']: p['label'] for p in r['points']}
@@ -453,7 +454,7 @@ def test_run_estimate_radius_from_params_f22():
 def test_run_combat_radius_estimate_radius_action():
     ok = run_combat_radius('estimate_radius', _radius_params())
     assert ok['success'] is True
-    assert len(ok['points']) == 6
+    assert len(ok['points']) == 9
     bad = run_combat_radius_json({'action': 'estimate_radius', 'params': {}})
     assert bad['success'] is False
 
@@ -887,6 +888,16 @@ def test_run_aircraft_dashboard_from_params_f22():
     assert m08['mixed_radius_km'] is None
     assert m08['max_ld'] is not None and m08['max_ld'] > 0
     assert m08['max_ld_thrust_mode'] == 'military'
+    m10 = next(pt for pt in dash['points'] if pt['id'] == 'mach_1_0')
+    assert m10['feasible'] is True
+    assert m10['mixed_radius_km'] is None
+    m12 = next(pt for pt in dash['points'] if pt['id'] == 'mach_1_2')
+    assert m12['feasible'] is True
+    assert m12['mixed_radius_km'] is not None and m12['mixed_radius_km'] > 0
+    m135 = next(pt for pt in dash['points'] if pt['id'] == 'mach_1_35')
+    assert m135['feasible'] is True
+    m175 = next(pt for pt in dash['points'] if pt['id'] == 'mach_1_75')
+    assert m175['feasible'] is True
     m20 = next(pt for pt in dash['points'] if pt['id'] == 'mach_2_0')
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
     assert dash['max_speed']['feasible'] is True

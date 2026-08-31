@@ -104,6 +104,10 @@ def test_run_preset_dashboard_f22_compact():
     assert 'Cf0' not in r
     ids = [p['id'] for p in r['points']]
     assert ids[0] == 'mach_0_8'
+    assert 'mach_1_0' in ids
+    assert 'mach_1_2' in ids
+    assert 'mach_1_35' in ids
+    assert 'mach_1_75' in ids
     assert 'mach_2_0' in ids
     assert 'max_cruise' in ids
     assert 'floor_max_cruise' in ids
@@ -116,16 +120,16 @@ def test_run_preset_dashboard_f22_compact():
     assert ms['feasible'] is True
     assert ms['load'] == pytest.approx(1.0, abs=0.08)
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
-    m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
+    m175 = next(p for p in r['points'] if p['id'] == 'mach_1_75')
     m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')
-    assert m176['alt_m'] >= m15['alt_m'] - 200.0
-    assert m176['fuel_kg_per_km'] / m15['fuel_kg_per_km'] < 1.12
-    assert m176['radius_km'] > 0.6 * m15['radius_km']
+    assert m175['alt_m'] >= m15['alt_m'] - 200.0
+    assert m175['fuel_kg_per_km'] / m15['fuel_kg_per_km'] < 1.12
+    assert m175['radius_km'] > 0.6 * m15['radius_km']
     assert m15['feasible'] is True
-    assert m176['feasible'] is True
+    assert m175['feasible'] is True
     assert m20['feasible'] is True
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
-    assert m20['radius_km'] < m176['radius_km']
+    assert m20['radius_km'] < m175['radius_km']
     assert m15['radius_km'] < next(p for p in r['points'] if p['id'] == 'mach_0_8')['radius_km']
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     assert 11000.0 <= m08['alt_m'] <= 12500.0
@@ -151,11 +155,11 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
     assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
-    m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
+    m175 = next(p for p in r['points'] if p['id'] == 'mach_1_75')
     m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')
     assert m08['feasible'] is True
     assert m15['feasible'] is True
-    assert m176['feasible'] is True
+    assert m175['feasible'] is True
     assert m20['feasible'] is False
     assert m08['radius_km'] == pytest.approx(1350, abs=50)
     assert m15['radius_km'] < m08['radius_km']

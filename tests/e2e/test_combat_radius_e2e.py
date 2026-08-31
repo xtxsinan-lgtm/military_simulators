@@ -109,28 +109,34 @@ def _radius_params() -> dict:
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_f22_breguet_radius():
-    """F-22 + F119 在 Ma 0.8/1.5/1.76/2.0 应可行，实用最大巡航锚定超巡。"""
+    """F-22 + F119 在固定评估马赫应可行，实用最大巡航锚定超巡。"""
     r = run_combat_radius_json({
         'action': 'estimate_radius',
         'params': {**_radius_params(), 'max_tsl_kN': 156.0},
     })
     assert r['success'] is True
-    assert len(r['points']) == 6
+    assert len(r['points']) == 9
     labels = {p['id']: p['label'] for p in r['points']}
     assert labels['max_cruise'] == '实用最大巡航速度'
     assert labels['floor_max_cruise'] == '最大巡航速度'
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
+    m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
+    m12 = next(p for p in r['points'] if p['id'] == 'mach_1_2')
+    m135 = next(p for p in r['points'] if p['id'] == 'mach_1_35')
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
-    m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
+    m175 = next(p for p in r['points'] if p['id'] == 'mach_1_75')
     m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')
     assert m08['feasible'] is True
     assert m08['radius_km'] > 200
     assert m08['fuel_kg_per_km'] > 0
+    assert m10['feasible'] is True
+    assert m12['feasible'] is True
+    assert m135['feasible'] is True
     assert m15['feasible'] is True
-    assert m176['feasible'] is True
+    assert m175['feasible'] is True
     assert m20['feasible'] is True
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
-    assert m20['radius_km'] < m176['radius_km']
+    assert m20['radius_km'] < m175['radius_km']
     prac = next(p for p in r['points'] if p['id'] == 'max_cruise')
     floor = next(p for p in r['points'] if p['id'] == 'floor_max_cruise')
     for extra in (prac, floor):
@@ -146,15 +152,15 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert r['max_cruise_mach'] == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     assert prac['alt_m'] >= m15['alt_m'] - 400.0
-    assert m176['alt_m'] >= m15['alt_m'] - 200.0
-    assert m176['fuel_kg_per_km'] / m15['fuel_kg_per_km'] < 1.12
+    assert m175['alt_m'] >= m15['alt_m'] - 200.0
+    assert m175['fuel_kg_per_km'] / m15['fuel_kg_per_km'] < 1.12
     from utils.combat_radius.cruise_search import PEAK_ALT_DROP_M, search_best_altitude
     from tests.cruise_search_test import _csv_ctx
     a176 = search_best_altitude(_csv_ctx('F-22'), 1.76)
     a180 = search_best_altitude(_csv_ctx('F-22'), 1.80)
     assert a176 is not None and a180 is not None
     assert a180.alt_m < a176.alt_m - PEAK_ALT_DROP_M + 1e-6
-    assert m176['radius_km'] > 0.6 * m15['radius_km']
+    assert m175['radius_km'] > 0.6 * m15['radius_km']
     assert r['carrier'] is False
     mf = r['mission_fuel']
     assert mf['reserve_min'] == 30
@@ -199,11 +205,11 @@ def test_e2e_combat_radius_j20_supercruise_and_radius_order():
     assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
-    m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
+    m175 = next(p for p in r['points'] if p['id'] == 'mach_1_75')
     m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')
     assert m08['feasible'] is True
     assert m15['feasible'] is True
-    assert m176['feasible'] is True
+    assert m175['feasible'] is True
     assert m20['feasible'] is False
     assert m08['radius_km'] == pytest.approx(1350, abs=50)
     assert m15['radius_km'] < m08['radius_km']
@@ -371,6 +377,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert 'run_combat_radius_json' in js_text
     assert 'aircraft_dashboard' in js_text
     assert 'combat_radius.js' in html_text
+    assert 'Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0' in html_text
     wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in wxml
     assert '搜索最佳升阻比和巡航高度' in wxml
@@ -589,7 +596,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert set(stored.get('aircraft', {})) == fleet_ids
     f22 = stored['aircraft']['F-22']
     assert f22['success'] is True
-    assert len(f22['points']) == 6
+    assert len(f22['points']) == 9
     assert f22['points'][-2]['label'] == '实用最大巡航速度'
     assert f22['points'][-1]['label'] == '最大巡航速度'
     live = run_preset_dashboard('F-22')
