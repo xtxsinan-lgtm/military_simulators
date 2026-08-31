@@ -47,6 +47,7 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav is not None
     assert uav['n_pilots'] == 0
     assert uav['length_m'] == pytest.approx(14.6)
+    assert uav['engine_id'] == 'ws15i'
     ac_uav = preset_to_aircraft(uav)
     assert ac_uav.canopy is False
     assert ac_uav.mach_angle_deg == pytest.approx(22.9)
@@ -60,6 +61,7 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav535 is not None
     assert uav535['planform'] == 'diamond'
     assert uav535['bwb'] is True
+    assert uav535['engine_id'] == 'ws15i'
     assert j36['sweep_inner_deg'] == pytest.approx(67.8)
     assert j36['sweep_outer_deg'] == pytest.approx(55.3)
     ac36 = preset_to_aircraft(j36)
@@ -74,6 +76,10 @@ def test_load_presets_contains_anchors_and_j20():
     assert f22['inlet'] == 'caret'
     assert j36['inlet'] == 'caret'
     assert uav['inlet'] == 'caret'
+    uav_n = get_preset_by_id(presets, '53636N')
+    assert uav_n is not None
+    assert uav_n['engine_id'] == 'ws15i'
+    assert uav_n['inlet'] == 'caret'
     assert j20['inlet'] == 'dsi'
     assert f35['inlet'] == 'dsi'
 
