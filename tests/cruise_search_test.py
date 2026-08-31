@@ -258,11 +258,11 @@ def _f22_csv_ctx() -> CruiseContext:
 
 
 def test_f22_max_cruise_mach_anchored_at_supercruise():
-    """实用最大巡航按 0.01 网格取高度尚未回落的上沿；掉到 11 km 后还能更快。"""
+    """实用最大巡航取高度真正见顶的最大马赫；掉到 11 km 后还能更快。"""
     ctx = _f22_csv_ctx()
     m = search_max_cruise_mach(ctx)
     floor = search_floor_max_cruise_mach(ctx)
-    assert m == pytest.approx(1.79, abs=0.005)
+    assert m == pytest.approx(1.77, abs=0.005)
     assert floor is not None and floor > m + 0.05
     assert any_feasible_altitude(ctx, F22_SUPERCRUISE_MACH) is True
     assert any_feasible_altitude(ctx, 1.5) is True
@@ -283,17 +283,20 @@ def test_contiguous_peak_max_mach_does_not_jump_transonic_hole():
         (0.8, 12000.0), (1.0, 15000.0), (1.05, 15400.0),
         (1.2, 14000.0), (1.5, 15200.0), (1.76, 15200.0),
     ]
-    assert contiguous_peak_max_mach(profile, peak_drop_m=200.0) == pytest.approx(1.05)
+    assert contiguous_peak_max_mach(profile) == pytest.approx(1.05)
+    assert inspect.signature(contiguous_peak_max_mach).parameters['peak_drop_m'].default == pytest.approx(0.0)
     assert contiguous_peak_max_mach([], peak_drop_m=200.0) is None
     with pytest.raises(ValueError, match='容差'):
         contiguous_peak_max_mach(profile, peak_drop_m=-1.0)
-    # 超巡段才是全局峰值时，取该连续平台上沿
+    # 超巡段才是全局峰值时，取高度真正见顶的最大马赫，不把已掉一格的点算进去
     f22 = [
         (0.8, 12400.0), (1.0, 15000.0), (1.07, 15800.0),
-        (1.2, 14600.0), (1.5, 16000.0), (1.76, 16600.0), (1.80, 16200.0),
+        (1.2, 14600.0), (1.5, 16000.0), (1.76, 16600.0), (1.77, 16600.0),
+        (1.79, 16400.0), (1.80, 16200.0),
     ]
-    assert contiguous_peak_max_mach(f22, peak_drop_m=200.0) == pytest.approx(1.76)
-    assert contiguous_peak_max_mach(f22, peak_drop_m=200.0, mach_hi=1.70) == pytest.approx(1.70)
+    assert contiguous_peak_max_mach(f22) == pytest.approx(1.77)
+    assert contiguous_peak_max_mach(f22, peak_drop_m=200.0) == pytest.approx(1.79)
+    assert contiguous_peak_max_mach(f22, mach_hi=1.70) == pytest.approx(1.70)
 
 
 def test_j20_max_cruise_mach_anchored_below_f22():
@@ -475,10 +478,12 @@ def test_f22_cruise_altitude_dips_in_transonic_then_holds_supercruise():
 
 
 def test_search_max_cruise_mach_default_lo_is_mach_12():
-    """实用最大巡航默认马赫下界须为 1.2。"""
-    default_lo = inspect.signature(search_max_cruise_mach).parameters['mach_lo'].default
+    """实用最大巡航默认马赫下界须为 1.2，高度容差默认为 0（真正见顶）。"""
+    params = inspect.signature(search_max_cruise_mach).parameters
+    default_lo = params['mach_lo'].default
     assert default_lo == pytest.approx(PRACTICAL_MAX_CRUISE_MACH_LO)
     assert default_lo == pytest.approx(1.2)
+    assert params['peak_drop_m'].default == pytest.approx(0.0)
 
 
 def test_j35_and_j35a_max_cruise_anchored():
@@ -495,7 +500,7 @@ def test_search_max_cruise_mach_when_low_mach_infeasible():
     ctx = _f22_csv_ctx()
     assert any_feasible_altitude(ctx, MACH_SEARCH_LO) is False
     m = search_max_cruise_mach(ctx)
-    assert m == pytest.approx(1.79, abs=0.005)
+    assert m == pytest.approx(1.77, abs=0.005)
 
 
 def test_snap_mach_quantizes_and_rejects_bad_step():
@@ -547,21 +552,26 @@ def test_scan_best_altitude_profile_endpoints_and_rejects_bad_step():
         scan_best_altitude_profile(ctx, 1.5, 0.8, step=0.1)
 
 
-def test_practical_max_cruise_stays_at_peak_altitude():
-    """实用最大巡航须停在 Ma 1.2 以上的最佳高度峰值，不能在已经掉高后再往上加马赫。"""
-    for aid in ('F-22', 'J-20', 'J-50', 'J-35A'):
+def test_practical_max_cruise_is_mach_at_peak_altitude():
+    """实用最大巡航须等于最佳高度真正见顶的最大马赫，不能用掉高一格的容差往上加。"""
+    for aid in ('F-22', 'J-20', 'J-50', 'J-35A', 'J-15', 'FA-18E', '53636'):
         ctx = _csv_ctx(aid)
         prof = scan_best_altitude_profile(ctx, PRACTICAL_MAX_CRUISE_MACH_LO)
-        assert prof
+        assert prof, aid
         peak = max(point.alt_m for point in prof)
+        idx = next(i for i, point in enumerate(prof) if point.alt_m == peak)
+        hi = idx
+        while hi + 1 < len(prof) and prof[hi + 1].alt_m == peak:
+            hi += 1
         mach = search_max_cruise_mach(ctx)
-        assert mach is not None
-        assert mach + 1e-9 >= PRACTICAL_MAX_CRUISE_MACH_LO
+        assert mach == pytest.approx(prof[hi].mach), aid
         at = search_best_altitude(ctx, mach)
         assert at is not None
-        assert at.alt_m >= peak - PEAK_ALT_DROP_M - 1e-6
+        assert at.alt_m == pytest.approx(peak)
+        if hi + 1 < len(prof):
+            assert prof[hi + 1].alt_m < peak, aid
     f22 = search_max_cruise_mach(_csv_ctx('F-22'))
-    assert f22 == pytest.approx(1.79, abs=0.005)
+    assert f22 == pytest.approx(1.77, abs=0.005)
     after = search_best_altitude(_csv_ctx('F-22'), 1.80)
     at = search_best_altitude(_csv_ctx('F-22'), f22)
     assert after is not None and at is not None
@@ -569,13 +579,13 @@ def test_practical_max_cruise_stays_at_peak_altitude():
 
 
 def test_j50_practical_max_from_centi_grid_not_f22_pin():
-    """歼-50 按 0.01 网格搜高度平台，不是钉在 F-22 的 1.76。"""
+    """歼-50 按自身高度峰值取马赫，不是钉在 F-22。"""
     f22 = search_max_cruise_mach(_csv_ctx('F-22'))
     j50 = search_max_cruise_mach(_csv_ctx('J-50'))
     j50n = search_max_cruise_mach(_csv_ctx('J-50N'))
-    assert f22 == pytest.approx(1.79, abs=0.005)
-    assert j50 == pytest.approx(1.79, abs=0.005)
-    assert j50n == pytest.approx(1.79, abs=0.005)
+    assert f22 == pytest.approx(1.77, abs=0.005)
+    assert j50 == pytest.approx(1.76, abs=0.005)
+    assert j50n == pytest.approx(1.77, abs=0.005)
     a_f22 = search_best_altitude(_csv_ctx('F-22'), f22)
     a_j50 = search_best_altitude(_csv_ctx('J-50'), j50)
     assert a_f22 is not None and a_j50 is not None

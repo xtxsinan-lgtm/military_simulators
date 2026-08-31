@@ -62,14 +62,14 @@ CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小�
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
 # 超音速波阻：体积/升力项使光滑隐身机超巡可飞；实用最大巡航由 Ma 1.2 以上
-# 高度极值搜索给出（0.01 马赫网格；能飞满超巡带的机型约 Ma 1.79，歼-20 约 Ma 1.73）。
+# 高度极值搜索给出（0.01 马赫网格；取高度真正见顶的马赫，F-22 约 1.77，歼-20 约 1.67）。
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²·lift_wave_mach_factor：Ma 1.5 压住超音速 L/D 避免半径倒挂，
 # 1.5–1.76 不再随马赫加重，过了超巡带再加重，使峰值高度在 1.76 后回落。
 SUPERCRUISE_BAND_HI = 1.76  # 超巡带上沿：此后升力波阻再随马赫加重
 F22_SUPERCRUISE_MACH = SUPERCRUISE_BAND_HI
-J20_SUPERCRUISE_MACH = 1.73
-J35A_SUPERCRUISE_MACH = 1.61
+J20_SUPERCRUISE_MACH = 1.67
+J35A_SUPERCRUISE_MACH = 1.57
 CDW_SS_BODY = 0.00450
 CDW_SS_WING = 3.00
 CDW_SS_LIFT = 0.65

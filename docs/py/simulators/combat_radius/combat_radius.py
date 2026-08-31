@@ -4,7 +4,7 @@
 2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推；
 3. 由空战重量与 L/D 求阻力，再与可用军推得到负载比，估算热/推进/总效率与 TSFC；
 4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度；
-   「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度尚未从峰值回落时的上限；
+   「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；
    「最大巡航速度」允许掉到 11 km 后再取绝对上限。
    先按出发/返回重量算瞬时油耗，再把（冗余−降落节省）加到空重上、
    内油减去该值与爬升额外后重新做布雷盖。
@@ -107,7 +107,7 @@ def cruise_limit_specs(
     practical_mach: float | None,
     floor_mach: float | None,
 ) -> list[tuple[str, str, float | None]]:
-    """表尾两行：实用最大巡航（Ma 1.2 以上高度尚未回落）与最大巡航（可掉到 11 km）。"""
+    """表尾两行：实用最大巡航（Ma 1.2 以上高度最大值对应速度）与最大巡航（可掉到 11 km）。"""
     return [
         (PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, practical_mach),
         (FLOOR_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_LABEL, floor_mach),
@@ -789,7 +789,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         point_id = f'mach_{str(mach).replace(".", "_")}'
         points.append(pack_point(point_id, label, mach))
 
-    # 实用最大巡航按高度极值搜，下界至少 Ma 1.2，不把跨声速峰值算进去
+    # 实用最大巡航按高度极值搜，下界至少 Ma 1.2，取高度真正见顶的速度
     prac_lo = max(mach_lo, PRACTICAL_MAX_CRUISE_MACH_LO)
     max_mach = None
     if prac_lo < mach_hi:

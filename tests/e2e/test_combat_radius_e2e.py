@@ -152,7 +152,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert 11000.0 <= m08['alt_m'] <= 12500.0
     assert m15['alt_m'] > m08['alt_m']
     assert r['mach_cone_limit'] > 1
-    assert r['max_cruise_mach'] == pytest.approx(1.79, abs=0.005)
+    assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     assert prac['alt_m'] >= m15['alt_m'] - 400.0
     assert m175['alt_m'] >= m15['alt_m'] - 200.0
@@ -393,6 +393,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '实用最大巡航速度' in wxml
     assert '最大巡航速度' in wxml
     assert 'Ma 1.2 以上' in wxml
+    assert '达到最大值时的速度' in wxml
     assert '>点</text>' not in wxml
     assert '>Ma</text>' not in wxml
     assert '热效率' in js_text
@@ -401,6 +402,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '<th>速度/马赫</th>' in js_text
     assert '实用最大巡航速度' in js_text
     assert 'Ma 1.2 以上' in js_text
+    assert '达到最大值时的速度' in js_text
     assert 'cruiseSpeedLabel' in js_text
     assert '<th>平均油耗 kg/km</th>' in js_text
     assert '<th>点</th>' not in js_text
@@ -420,6 +422,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '混合作战半径' in ios
     assert '实用最大巡航速度' in ios
     assert 'Ma 1.2 以上' in ios
+    assert '达到最大值时的速度' in ios
     assert 'func cruiseSpeedLabel' in ios
     assert '最大 L/D' in ios
     assert '热效率' in ios
@@ -621,7 +624,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     j50 = stored['aircraft']['J-50']
     assert j50['success'] is True
     assert j50['max_cruise_floor_mach'] > f22['max_cruise_floor_mach']
-    assert j50['max_cruise_mach'] == pytest.approx(1.79, abs=0.005)
+    assert j50['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
     j50_m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
     f22_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert j50_m08['alt_m'] >= f22_m08['alt_m']

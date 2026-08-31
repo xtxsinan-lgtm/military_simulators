@@ -114,7 +114,7 @@ def test_run_preset_dashboard_f22_compact():
     assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
     assert next(p for p in r['points'] if p['id'] == 'floor_max_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
-    assert r['max_cruise_mach'] == pytest.approx(1.79, abs=0.005)
+    assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     ms = r['max_speed']
     assert ms['feasible'] is True
@@ -176,7 +176,7 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
 
 
 def test_run_preset_dashboard_j35_and_j35a_max_cruise():
-    """歼-35 军推飞不到 Ma 1.2；歼-35A 实用最大巡航约 Ma 1.61。"""
+    """歼-35 军推飞不到 Ma 1.2；歼-35A 实用最大巡航约 Ma 1.57。"""
     j35 = run_preset_dashboard('J-35')
     j35a = run_preset_dashboard('J-35A')
     assert j35['success'] is True and j35a['success'] is True

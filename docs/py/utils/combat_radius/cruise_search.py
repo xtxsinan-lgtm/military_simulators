@@ -6,8 +6,9 @@
 目标函数为升阻比 × 总效率：低马赫时爬高会使负载过大、η_o 下降，
 且大迎角附加阻力会压低 L/D，二者合起来把最佳高度压在标定巡航附近；
 跨声速鼓包在 Ma 1.0–1.2 加大阻力，最佳高度可能先掉再恢复。
-「实用最大巡航」只在 Ma 1.2 以上取含全局高度峰值的连续平台上沿，
-不把跨声速鼓包前的高度峰值算进去；若允许掉到高度下限，军推还能再快一些。
+「实用最大巡航」只在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度
+（同一峰值平台取最大马赫，已经掉高的点不算）；若允许掉到高度下限，
+军推还能再快一些。
 """
 from __future__ import annotations
 
@@ -42,7 +43,7 @@ MACH_SEARCH_HI = 2.50
 MACH_SEARCH_ITERS = 14
 # 马赫剖面步长：实用最大巡航按 0.01 均匀网格扫高度峰值，不靠 1.76 钉子补点
 MACH_PROFILE_STEP = 0.01
-# 与高度细化网格一致：最佳高度尚未从峰值回落（一格容差，抗网格抖动）
+# 高度细化一格：用于判定「已经从峰值掉高」，不作为实用最大巡航的搜索容差
 PEAK_ALT_DROP_M = ALT_REFINE_M
 
 
@@ -354,13 +355,13 @@ def scan_best_altitude_profile(
 
 def contiguous_peak_max_mach(
     machs_alts: list[tuple[float, float]],
-    peak_drop_m: float = PEAK_ALT_DROP_M,
+    peak_drop_m: float = 0.0,
     mach_hi: float | None = None,
 ) -> float | None:
-    """含全局高度峰值的连续平台上的最大马赫。
+    """最佳巡航高度达到全局最大值时的最大马赫。
 
-    不把跨声速掉高后再爬回（仍在容差内）的第二段算进实用最大巡航。
-    machs_alts 须按马赫升序。
+    默认不容差：已经掉高（即使只掉一格）的点不算进实用最大巡航。
+    不把跨声速掉高后再爬回的第二段算进去。machs_alts 须按马赫升序。
     """
     if peak_drop_m < 0:
         raise ValueError('峰值高度回落容差不能为负')
@@ -388,15 +389,14 @@ def search_max_cruise_mach(
     alt_min_m: float = ALT_MIN_M,
     alt_max_m: float = ALT_MAX_M,
     step_m: float = ALT_COARSE_M,
-    peak_drop_m: float = PEAK_ALT_DROP_M,
+    peak_drop_m: float = 0.0,
     profile_step: float = MACH_PROFILE_STEP,
 ) -> float | None:
-    """最佳巡航高度尚未从峰值回落时的最大军推巡航马赫。
+    """最佳巡航高度达到最大值时的军推巡航马赫（同一峰值平台取最大马赫）。
 
     默认只在 Ma 1.2 以上按 0.01 马赫扫剖面，避免把跨声速鼓包前的高度峰值
-    当成实用最大巡航。高度峰值按密扫剖面确定；容差只有一格细化高度。
-    只取含全局峰值的连续平台上沿。掉到 11 km 后的绝对上限用
-    search_floor_max_cruise_mach。
+    当成实用最大巡航。取高度仍等于全局最大值的连续平台上沿，不容差掉高。
+    掉到 11 km 后的绝对上限用 search_floor_max_cruise_mach。
     """
     _require_mach_search_bounds(mach_lo, mach_hi, iters)
     if peak_drop_m < 0:
