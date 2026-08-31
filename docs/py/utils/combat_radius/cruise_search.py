@@ -40,8 +40,8 @@ MACH_SEARCH_LO = 0.50
 PRACTICAL_MAX_CRUISE_MACH_LO = 1.2
 MACH_SEARCH_HI = 2.50
 MACH_SEARCH_ITERS = 14
-# 马赫剖面步长：过疏会错过高度峰值，把「尚未回落」判到已经掉高之后
-MACH_PROFILE_STEP = 0.05
+# 马赫剖面步长：实用最大巡航按 0.01 均匀网格扫高度峰值，不靠 1.76 钉子补点
+MACH_PROFILE_STEP = 0.01
 # 与高度细化网格一致：最佳高度尚未从峰值回落（一格容差，抗网格抖动）
 PEAK_ALT_DROP_M = ALT_REFINE_M
 
@@ -293,27 +293,34 @@ def search_floor_max_cruise_mach(
     return lo
 
 
+def snap_mach(mach: float, step: float) -> float:
+    """把马赫收到步长网格，去掉 1.609999 这类二进制残渣。"""
+    if step <= 0:
+        raise ValueError('马赫步长须为正')
+    return round(round(mach / step) * step, 10)
+
+
 def profile_machs(
     mach_lo: float,
     mach_hi: float,
     step: float = MACH_PROFILE_STEP,
     extra: tuple[float, ...] | None = None,
 ) -> list[float]:
-    """均匀网格加上固定评估点；端点用区间原值，避免 ulp 漂出上界。
+    """闭区间 [lo, hi] 上按固定步长生成马赫网格，再并入额外钉子。
 
-    默认钉上 FIXED_MACHS 与超巡带上沿，否则 0.05 网格只有 1.75/1.80，
-    实用最大巡航对不上「1.76 后开始掉高」。
+    步长用整数格点（与高度网格相同），保证 0.01 时 1.21、1.76、1.77
+    都会扫到，而不是靠插值点数碰巧落到 1.76。
     """
     if step <= 0:
         raise ValueError('马赫步长须为正')
     if mach_lo <= 0 or mach_hi <= mach_lo:
         raise ValueError('马赫搜索区间非法')
-    pins = extra if extra is not None else (*FIXED_MACHS, SUPERCRUISE_BAND_HI)
-    n_scan = max(int(round((mach_hi - mach_lo) / step)) + 1, 2)
+    n_steps = int(round((mach_hi - mach_lo) / step))
     raw = [mach_lo]
-    for i in range(1, n_scan - 1):
-        raw.append(mach_lo + (mach_hi - mach_lo) * i / (n_scan - 1))
+    for i in range(1, n_steps):
+        raw.append(snap_mach(mach_lo + i * step, step))
     raw.append(mach_hi)
+    pins = extra if extra is not None else (*FIXED_MACHS, SUPERCRUISE_BAND_HI)
     for mach in pins:
         if mach_lo < mach < mach_hi:
             raw.append(mach)
@@ -386,7 +393,7 @@ def search_max_cruise_mach(
 ) -> float | None:
     """最佳巡航高度尚未从峰值回落时的最大军推巡航马赫。
 
-    默认只在 Ma 1.2 以上扫剖面，避免把跨声速鼓包前的高度峰值
+    默认只在 Ma 1.2 以上按 0.01 马赫扫剖面，避免把跨声速鼓包前的高度峰值
     当成实用最大巡航。高度峰值按密扫剖面确定；容差只有一格细化高度。
     只取含全局峰值的连续平台上沿。掉到 11 km 后的绝对上限用
     search_floor_max_cruise_mach。
@@ -398,11 +405,14 @@ def search_max_cruise_mach(
     profile = scan_best_altitude_profile(
         ctx, mach_lo, mach_hi, profile_step, alt_min_m, alt_max_m, step_m, refine_m,
     )
-    return contiguous_peak_max_mach(
+    found = contiguous_peak_max_mach(
         [(point.mach, point.alt_m) for point in profile],
         peak_drop_m,
         mach_hi,
     )
+    if found is None:
+        return None
+    return snap_mach(found, profile_step)
 
 
 def try_cruise_forces(ctx: CruiseContext, mach: float, alt_m: float) -> CruiseForces | None:

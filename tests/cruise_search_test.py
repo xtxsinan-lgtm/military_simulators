@@ -30,6 +30,9 @@ from utils.combat_radius.cruise_search import (
     score_cruise_point,
     scored_to_dict,
     search_best_altitude,
+    snap_mach,
+    scored_to_dict,
+    search_best_altitude,
     _require_mach_search_bounds,
     search_floor_max_cruise_mach,
     search_max_cruise_mach,
@@ -255,11 +258,11 @@ def _f22_csv_ctx() -> CruiseContext:
 
 
 def test_f22_max_cruise_mach_anchored_at_supercruise():
-    """实用最大巡航落在高度尚未回落的超巡常数；掉到 11 km 后还能更快。"""
+    """实用最大巡航按 0.01 网格取高度尚未回落的上沿；掉到 11 km 后还能更快。"""
     ctx = _f22_csv_ctx()
     m = search_max_cruise_mach(ctx)
     floor = search_floor_max_cruise_mach(ctx)
-    assert m == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
+    assert m == pytest.approx(1.79, abs=0.005)
     assert floor is not None and floor > m + 0.05
     assert any_feasible_altitude(ctx, F22_SUPERCRUISE_MACH) is True
     assert any_feasible_altitude(ctx, 1.5) is True
@@ -487,16 +490,47 @@ def test_j35_and_j35a_max_cruise_anchored():
     assert j35a >= PRACTICAL_MAX_CRUISE_MACH_LO
 
 
+def test_uav_max_cruise_above_j35a():
+    """53636/53536 换低涵道比发动机后，实用最大巡航应高于歼-35A。"""
+    j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
+    for aid in ('53636', '53536', '53636N'):
+        m = search_max_cruise_mach(_csv_ctx(aid))
+        assert m is not None, aid
+        assert m > j35a, aid
+        assert m >= 1.7, aid
+        assert any_feasible_altitude(_csv_ctx(aid), 1.5) is True, aid
+
+
 def test_search_max_cruise_mach_when_low_mach_infeasible():
     """Ma 0.5 在 11 km 会因大迎角阻力不可飞，仍应搜到 F-22 超巡锚点。"""
     ctx = _f22_csv_ctx()
     assert any_feasible_altitude(ctx, MACH_SEARCH_LO) is False
     m = search_max_cruise_mach(ctx)
-    assert m == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
+    assert m == pytest.approx(1.79, abs=0.005)
+
+
+def test_snap_mach_quantizes_and_rejects_bad_step():
+    """马赫须收到步长网格；步长非法时报错。"""
+    assert snap_mach(1.6099999999999999, 0.01) == pytest.approx(1.61)
+    assert snap_mach(1.76, 0.01) == pytest.approx(1.76)
+    with pytest.raises(ValueError, match='步长'):
+        snap_mach(1.2, 0.0)
+
+
+def test_profile_machs_centi_step_hits_every_point_without_pins():
+    """0.01 网格须扫到 1.21 / 1.76 / 1.77，不靠超巡钉子补点。"""
+    machs = profile_machs(1.2, 2.5, step=0.01, extra=())
+    assert machs[0] == pytest.approx(1.2)
+    assert machs[-1] == pytest.approx(2.5)
+    assert len(machs) == 131
+    for target in (1.21, 1.76, 1.77, 1.79):
+        assert any(abs(m - target) < 1e-9 for m in machs), target
+    diffs = [round(machs[i + 1] - machs[i], 10) for i in range(len(machs) - 1)]
+    assert set(diffs) == {0.01}
 
 
 def test_profile_machs_includes_supercruise_band_and_rejects_bad_step():
-    """剖面网格须钉上固定评估点与超巡带上沿；端点为区间原值；步长/区间非法时报错。"""
+    """粗步长仍可钉上固定评估点与超巡带上沿；端点为区间原值；步长/区间非法时报错。"""
     machs = profile_machs(0.5, 2.5, step=0.05)
     assert machs[0] == 0.5
     assert machs[-1] == 2.5
@@ -511,12 +545,12 @@ def test_profile_machs_includes_supercruise_band_and_rejects_bad_step():
 
 
 def test_scan_best_altitude_profile_endpoints_and_rejects_bad_step():
-    """剖面须包含区间端点；步长/区间非法时报错。"""
+    """剖面须包含区间端点；默认步长 0.01；步长/区间非法时报错。"""
     ctx = _f22_csv_ctx()
     prof = scan_best_altitude_profile(ctx, 0.8, 1.5, step=0.1)
     assert prof[0].mach == 0.8
     assert prof[-1].mach == 1.5
-    assert MACH_PROFILE_STEP == pytest.approx(0.05)
+    assert MACH_PROFILE_STEP == pytest.approx(0.01)
     assert PEAK_ALT_DROP_M == pytest.approx(ALT_REFINE_M)
     with pytest.raises(ValueError, match='步长'):
         scan_best_altitude_profile(ctx, 0.8, 1.5, step=0.0)
@@ -538,11 +572,25 @@ def test_practical_max_cruise_stays_at_peak_altitude():
         assert at is not None
         assert at.alt_m >= peak - PEAK_ALT_DROP_M - 1e-6
     f22 = search_max_cruise_mach(_csv_ctx('F-22'))
-    assert f22 == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
+    assert f22 == pytest.approx(1.79, abs=0.005)
     after = search_best_altitude(_csv_ctx('F-22'), 1.80)
     at = search_best_altitude(_csv_ctx('F-22'), f22)
     assert after is not None and at is not None
     assert after.alt_m < at.alt_m - PEAK_ALT_DROP_M + 1e-6
+
+
+def test_j50_practical_max_from_centi_grid_not_f22_pin():
+    """歼-50 按 0.01 网格搜高度平台，不是钉在 F-22 的 1.76。"""
+    f22 = search_max_cruise_mach(_csv_ctx('F-22'))
+    j50 = search_max_cruise_mach(_csv_ctx('J-50'))
+    j50n = search_max_cruise_mach(_csv_ctx('J-50N'))
+    assert f22 == pytest.approx(1.79, abs=0.005)
+    assert j50 == pytest.approx(1.79, abs=0.005)
+    assert j50n == pytest.approx(1.79, abs=0.005)
+    a_f22 = search_best_altitude(_csv_ctx('F-22'), f22)
+    a_j50 = search_best_altitude(_csv_ctx('J-50'), j50)
+    assert a_f22 is not None and a_j50 is not None
+    assert a_j50.alt_m > a_f22.alt_m + 500.0
 
 
 def test_search_max_cruise_mach_skips_transonic_peak():

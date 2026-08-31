@@ -18,7 +18,7 @@ from utils.combat_radius.combat_radius_results import (
     write_combat_radius_results,
     _round,
 )
-from utils.combat_radius.lift_drag import F22_SUPERCRUISE_MACH, J20_SUPERCRUISE_MACH
+from utils.combat_radius.lift_drag import J20_SUPERCRUISE_MACH, J35A_SUPERCRUISE_MACH
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.paths import COMBAT_RADIUS_RESULTS_JSON
 
@@ -114,7 +114,7 @@ def test_run_preset_dashboard_f22_compact():
     assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
     assert next(p for p in r['points'] if p['id'] == 'floor_max_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
-    assert r['max_cruise_mach'] == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
+    assert r['max_cruise_mach'] == pytest.approx(1.79, abs=0.005)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     ms = r['max_speed']
     assert ms['feasible'] is True
@@ -176,15 +176,28 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
 
 
 def test_run_preset_dashboard_j35_and_j35a_max_cruise():
-    """歼-35 军推飞不到 Ma 1.2；歼-35A 实用最大巡航约 Ma 1.60。"""
-    from utils.combat_radius.lift_drag import J35A_SUPERCRUISE_MACH
-
+    """歼-35 军推飞不到 Ma 1.2；歼-35A 实用最大巡航约 Ma 1.61。"""
     j35 = run_preset_dashboard('J-35')
     j35a = run_preset_dashboard('J-35A')
     assert j35['success'] is True and j35a['success'] is True
     assert j35['max_cruise_mach'] is None
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
     assert j35a['max_cruise_mach'] >= 1.2
+
+
+def test_run_preset_dashboard_uav_supercruise_above_j35a():
+    """低涵道比涡扇15改进下，无人战机超巡应强于歼-35A。"""
+    j35a = run_preset_dashboard('J-35A')
+    assert j35a['success'] is True
+    for aid in ('53636', '53536', '53636N'):
+        r = run_preset_dashboard(aid)
+        assert r['success'] is True, aid
+        assert r['max_cruise_mach'] is not None, aid
+        assert r['max_cruise_mach'] > j35a['max_cruise_mach'], aid
+        assert r['max_cruise_mach'] >= 1.7, aid
+        m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
+        assert m15['feasible'] is True, aid
+        assert m15['alt_m'] >= 16000, aid
 
 
 def test_run_preset_dashboard_ab_flyable_machs_have_max_ld():

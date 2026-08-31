@@ -9,7 +9,6 @@ from apps.combat_radius_web import run_combat_radius_json
 from apps.miniprogram_api import handle_request
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.combat_radius.lift_drag import (
-    F22_SUPERCRUISE_MACH,
     F35_MAX_SPEED_MACH,
     J20_SUPERCRUISE_MACH,
     J35A_SUPERCRUISE_MACH,
@@ -153,7 +152,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert 11000.0 <= m08['alt_m'] <= 12500.0
     assert m15['alt_m'] > m08['alt_m']
     assert r['mach_cone_limit'] > 1
-    assert r['max_cruise_mach'] == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
+    assert r['max_cruise_mach'] == pytest.approx(1.79, abs=0.005)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     assert prac['alt_m'] >= m15['alt_m'] - 400.0
     assert m175['alt_m'] >= m15['alt_m'] - 200.0
@@ -622,6 +621,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     j50 = stored['aircraft']['J-50']
     assert j50['success'] is True
     assert j50['max_cruise_floor_mach'] > f22['max_cruise_floor_mach']
+    assert j50['max_cruise_mach'] == pytest.approx(1.79, abs=0.005)
     j50_m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
     f22_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert j50_m08['alt_m'] >= f22_m08['alt_m']
@@ -643,6 +643,13 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     j35a = stored['aircraft']['J-35A']
     assert j35['max_cruise_mach'] is None
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
+    for aid in ('53636', '53536', '53636N'):
+        uav = stored['aircraft'][aid]
+        assert uav['max_cruise_mach'] is not None, aid
+        assert uav['max_cruise_mach'] > j35a['max_cruise_mach'], aid
+        assert uav['max_cruise_mach'] >= 1.7, aid
+        uav_m15 = next(p for p in uav['points'] if p['id'] == 'mach_1_5')
+        assert uav_m15['feasible'] is True, aid
     for aid, row in stored['aircraft'].items():
         mach = row.get('max_cruise_mach')
         if mach is not None:
