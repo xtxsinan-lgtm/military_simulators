@@ -457,7 +457,7 @@ def test_canard_adds_supersonic_wave_drag():
     canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
-    assert J20_SUPERCRUISE_MACH == pytest.approx(1.71)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.21)
 
 
 def test_tailless_and_bwb_discount_volume_wave_drag():

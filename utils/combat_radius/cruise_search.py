@@ -6,7 +6,7 @@
 目标函数为升阻比 × 总效率：低马赫时爬高会使负载过大、η_o 下降，
 且大迎角附加阻力会压低 L/D，二者合起来把最佳高度压在标定巡航附近；
 跨声速鼓包避免 Ma 1.2 爬得过高。Ma 1.5 以前最佳高度随速度升高。
-「最大巡航」取高度仍接近峰值的上限（公开超巡数字）；
+「实用最大巡航」取最佳巡航高度尚未从峰值回落时的上限；
 若允许掉到高度下限，军推还能再快一些。
 """
 from __future__ import annotations
@@ -36,8 +36,10 @@ SUPERSONIC_MACH = 1.0
 MACH_SEARCH_LO = 0.50
 MACH_SEARCH_HI = 2.50
 MACH_SEARCH_ITERS = 14
-# 相对高度峰值允许回落这么多，仍算「峰值段」最大巡航
-PEAK_ALT_DROP_M = 1200.0
+# 马赫剖面步长：过疏会错过高度峰值，把「尚未回落」判到已经掉高之后
+MACH_PROFILE_STEP = 0.05
+# 与高度细化网格一致：最佳高度尚未从峰值回落（一格容差，抗网格抖动）
+PEAK_ALT_DROP_M = ALT_REFINE_M
 
 
 @dataclass
@@ -281,6 +283,33 @@ def search_floor_max_cruise_mach(
     return lo
 
 
+def scan_best_altitude_profile(
+    ctx: CruiseContext,
+    mach_lo: float = MACH_SEARCH_LO,
+    mach_hi: float = MACH_SEARCH_HI,
+    step: float = MACH_PROFILE_STEP,
+    alt_min_m: float = ALT_MIN_M,
+    alt_max_m: float = ALT_MAX_M,
+    coarse_m: float = ALT_COARSE_M,
+    refine_m: float = ALT_REFINE_M,
+) -> list[CruiseScored]:
+    """按马赫步长扫描各点最佳巡航高度，用于找峰值与回落点。"""
+    if step <= 0:
+        raise ValueError('马赫步长须为正')
+    if mach_lo <= 0 or mach_hi <= mach_lo:
+        raise ValueError('马赫搜索区间非法')
+    n_scan = max(int(round((mach_hi - mach_lo) / step)) + 1, 2)
+    profile: list[CruiseScored] = []
+    for i in range(n_scan):
+        mach = mach_lo + (mach_hi - mach_lo) * i / (n_scan - 1)
+        scored = search_best_altitude(
+            ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m,
+        )
+        if scored is not None:
+            profile.append(scored)
+    return profile
+
+
 def search_max_cruise_mach(
     ctx: CruiseContext,
     mach_lo: float = MACH_SEARCH_LO,
@@ -290,25 +319,21 @@ def search_max_cruise_mach(
     alt_max_m: float = ALT_MAX_M,
     step_m: float = ALT_COARSE_M,
     peak_drop_m: float = PEAK_ALT_DROP_M,
+    profile_step: float = MACH_PROFILE_STEP,
 ) -> float | None:
-    """高度仍接近峰值时的最大军推巡航马赫。
+    """最佳巡航高度尚未从峰值回落时的最大军推巡航马赫。
 
-    公开超巡（如 F-22 Ma 1.76）按「高度单调上升到峰值附近」标定；
+    高度峰值按密扫剖面确定；容差只有一格细化高度，避免把已经掉高
+    的马赫（旧 1.2 km 容差）算成实用最大巡航。
     掉到 11 km 后的绝对上限用 search_floor_max_cruise_mach。
     """
     _require_mach_search_bounds(mach_lo, mach_hi, iters)
     if peak_drop_m < 0:
         raise ValueError('峰值高度回落容差不能为负')
     refine_m = min(ALT_REFINE_M, step_m)
-    n_scan = max(iters, 8) + 1
-    profile: list[CruiseScored] = []
-    for i in range(n_scan):
-        mach = mach_lo + (mach_hi - mach_lo) * i / (n_scan - 1)
-        scored = search_best_altitude(
-            ctx, mach, alt_min_m, alt_max_m, step_m, refine_m,
-        )
-        if scored is not None:
-            profile.append(scored)
+    profile = scan_best_altitude_profile(
+        ctx, mach_lo, mach_hi, profile_step, alt_min_m, alt_max_m, step_m, refine_m,
+    )
     if not profile:
         return None
     peak_alt = max(point.alt_m for point in profile)
@@ -358,22 +383,17 @@ def flyable_forces(
     return None
 
 
-def search_max_ld_altitude(
+def _search_max_ld_on_band(
     ctx: CruiseContext,
     mach: float,
-    alt_min_m: float = ALT_MIN_M,
-    alt_max_m: float = ALT_MAX_M,
-    coarse_m: float = ALT_COARSE_M,
-    refine_m: float = ALT_REFINE_M,
-    ab_ctx: CruiseContext | None = None,
-    primary_mode: str = 'military',
+    alt_min_m: float,
+    alt_max_m: float,
+    coarse_m: float,
+    refine_m: float,
+    ab_ctx: CruiseContext | None,
+    primary_mode: str,
 ) -> MaxLdPoint | None:
-    """在给定马赫下，于可飞高度中取升阻比最大点。
-
-    可飞 = 阻力不超过该点可用推力 × 裕度。军推不够时可用加力。
-    """
-    if mach <= 0:
-        raise ValueError('马赫数须为正')
+    """在单一高度带上粗搜再细化，取可飞点中升阻比最大者。"""
     best: MaxLdPoint | None = None
     for alt in altitude_grid(alt_min_m, alt_max_m, coarse_m):
         point = flyable_forces(ctx, mach, alt, ab_ctx, primary_mode)
@@ -392,6 +412,41 @@ def search_max_ld_altitude(
         if point.forces.ld > best.forces.ld:
             best = point
     return best
+
+
+def search_max_ld_altitude(
+    ctx: CruiseContext,
+    mach: float,
+    alt_min_m: float = ALT_MIN_M,
+    alt_max_m: float = ALT_MAX_M,
+    coarse_m: float = ALT_COARSE_M,
+    refine_m: float = ALT_REFINE_M,
+    ab_ctx: CruiseContext | None = None,
+    primary_mode: str = 'military',
+    ab_alt_min_m: float | None = None,
+    ab_alt_max_m: float | None = None,
+) -> MaxLdPoint | None:
+    """在给定马赫下，于可飞高度中取升阻比最大点。
+
+    可飞 = 阻力不超过该点可用推力 × 裕度。军推不够时可用加力。
+    巡航高度带找不到时，再在加力极速高度带（可到海平面）上搜。
+    """
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    best = _search_max_ld_on_band(
+        ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m, ab_ctx, primary_mode,
+    )
+    if best is not None:
+        return best
+    if ab_ctx is None:
+        return None
+    ab_lo = alt_min_m if ab_alt_min_m is None else ab_alt_min_m
+    ab_hi = alt_max_m if ab_alt_max_m is None else ab_alt_max_m
+    if ab_lo >= alt_min_m - 1e-9 and ab_hi <= alt_max_m + 1e-9:
+        return None
+    return _search_max_ld_on_band(
+        ab_ctx, mach, ab_lo, ab_hi, coarse_m, refine_m, None, 'afterburner',
+    )
 
 
 def max_ld_fields(point: MaxLdPoint | None) -> dict[str, Any]:

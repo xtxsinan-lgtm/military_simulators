@@ -4,7 +4,7 @@
 2. 根据发动机涵道比/总压比/T4/海平面军推，估算给定高度与马赫数下的可用军推；
 3. 由空战重量与 L/D 求阻力，再与可用军推得到负载比，估算热/推进/总效率与 TSFC；
 4. 在给定马赫下搜索 L/D×η_o 最大且阻力不超过军推 92% 的高度；
-   「实用最大巡航速度」取高度仍接近峰值的上限；
+   「实用最大巡航速度」取最佳巡航高度尚未从峰值回落时的上限；
    「最大巡航速度」允许掉到 11 km 后再取绝对上限。
    先按出发/返回重量算瞬时油耗，再把（冗余−降落节省）加到空重上、
    内油减去该值与爬升额外后重新做布雷盖。
@@ -104,7 +104,7 @@ def cruise_limit_specs(
     practical_mach: float | None,
     floor_mach: float | None,
 ) -> list[tuple[str, str, float | None]]:
-    """表尾两行：实用最大巡航（峰值高度）与最大巡航（可掉到 11 km）。"""
+    """表尾两行：实用最大巡航（高度尚未回落）与最大巡航（可掉到 11 km）。"""
     return [
         (PRACTICAL_MAX_CRUISE_ID, PRACTICAL_MAX_CRUISE_LABEL, practical_mach),
         (FLOOR_MAX_CRUISE_ID, FLOOR_MAX_CRUISE_LABEL, floor_mach),
@@ -461,14 +461,14 @@ def _calibrate_from_params(params: dict[str, Any]) -> tuple[Aircraft, float, flo
 
 
 def _optional_ab_context(ctx: CruiseContext, params: dict[str, Any]) -> CruiseContext | None:
-    """若请求带了海平面加力，构造加力搜索上下文。"""
+    """若请求带了海平面加力，构造加力搜索上下文（100% 推力，与极速同一包线）。"""
     try:
         tsl_n = parse_max_sea_level_thrust_n(params)
     except (TypeError, ValueError):
         return None
     if tsl_n <= 0:
         return None
-    return replace(ctx, tsl_N=tsl_n)
+    return replace(ctx, tsl_N=tsl_n, thrust_margin=MAX_SPEED_THRUST_MARGIN)
 
 
 def _attach_max_ld_to_point(
@@ -481,13 +481,18 @@ def _attach_max_ld_to_point(
     coarse_m: float,
     refine_m: float,
 ) -> dict[str, Any]:
-    """给巡航点补上可飞高度中的最大升阻比（军推优先，不足则加力）。"""
+    """给巡航点补上可飞高度中的最大升阻比（军推优先，不足则加力）。
+
+    加力可飞与极速同一包线：全部加力、高度可到海平面。
+    """
     if mach is None or mach <= 0:
         row.update(max_ld_fields(None))
         return row
     try:
         point = search_max_ld_altitude(
             ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m, ab_ctx=ab_ctx,
+            ab_alt_min_m=MAX_SPEED_ALT_MIN_M,
+            ab_alt_max_m=MAX_SPEED_ALT_MAX_M,
         )
     except ValueError:
         point = None
@@ -1027,7 +1032,8 @@ def _cruise_context_from_params(params: dict[str, Any]) -> tuple[CruiseContext, 
 def run_search_best_cruise_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """给定马赫，搜索 L/D×η_o 最大且满足推力裕度的巡航高度。
 
-    无论能否军推巡航，都附带可飞高度（开加力也可以）上的最大升阻比。
+    无论能否军推巡航，都附带可飞高度上的最大升阻比。
+    加力可飞与极速同一包线：全部加力、高度可到海平面。
     """
     mach = float(params['mach'])
     if mach <= 0:

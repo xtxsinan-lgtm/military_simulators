@@ -145,6 +145,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
+    assert prac['alt_m'] >= m15['alt_m'] - 400.0
     assert m176['alt_m'] >= 13000.0
     assert m176['radius_km'] > 0.6 * m15['radius_km']
     assert r['carrier'] is False
@@ -169,7 +170,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_j20_supercruise_and_radius_order():
-    """歼-20 峰值高度段最大巡航低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
+    """歼-20 实用最大巡航低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
     presets = load_presets()
     engines = load_engine_presets()
     j20 = get_preset_by_id(presets, 'J-20')
@@ -269,6 +270,8 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     assert uav['length_m'] == pytest.approx(14.6)
     uav535 = get_preset_by_id(presets, '53536')
     assert uav535['length_m'] == pytest.approx(16.7)
+    assert uav535['bwb'] is True
+    assert uav535['planform'] == 'diamond'
     j35 = get_preset_by_id(presets, 'J-35')
     j35a = get_preset_by_id(presets, 'J-35A')
     assert j35['length_m'] == pytest.approx(17.7)
@@ -581,13 +584,21 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     f35c = stored['aircraft']['F-35C']
     assert f35c['success'] is True
     assert f35c['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
+    f35c_m15 = next(p for p in f35c['points'] if p['id'] == 'mach_1_5')
+    assert f35c_m15['max_ld'] is not None and f35c_m15['max_ld'] > 0
+    j15 = stored['aircraft']['J-15']
+    assert j15['success'] is True
+    assert j15['max_speed']['feasible'] is True
+    assert j15['max_speed']['max_speed_mach'] > 1.0
+    av8 = stored['aircraft']['AV-8B']
+    assert av8['max_speed']['feasible'] is False
     f35a = stored['aircraft']['F-35A']
     assert f35a['success'] is True
     assert f35a['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
     j35 = stored['aircraft']['J-35']
     j35a = stored['aircraft']['J-35A']
-    assert j35['max_cruise_mach'] == pytest.approx(1.11, abs=0.03)
-    assert j35a['max_cruise_mach'] == pytest.approx(1.19, abs=0.03)
+    assert j35['max_cruise_mach'] == pytest.approx(1.07, abs=0.03)
+    assert j35a['max_cruise_mach'] == pytest.approx(1.12, abs=0.03)
 
 
 @pytest.mark.e2e

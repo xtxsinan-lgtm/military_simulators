@@ -45,6 +45,7 @@ from simulators.combat_radius.combat_radius import (
     _subsonic_scored_for_burn,
 )
 from utils.combat_radius.lift_drag import Aircraft
+from utils.combat_radius.max_speed_search import MAX_SPEED_THRUST_MARGIN
 import pytest
 
 
@@ -824,6 +825,7 @@ def test_optional_ab_context_and_attach_max_ld():
     ab = _optional_ab_context(ctx, {**_radius_params(), 'max_tsl_kN': 156.0})
     assert ab is not None
     assert ab.tsl_N == pytest.approx(156000.0)
+    assert ab.thrust_margin == pytest.approx(MAX_SPEED_THRUST_MARGIN)
     empty = _attach_max_ld_to_point(
         {}, ctx, None, ab, 11000, 20000, 3000, 1500,
     )
@@ -876,6 +878,27 @@ def test_run_aircraft_dashboard_from_params_f22():
     supers = [pt for pt in dash['points'] if pt.get('feasible') and (pt.get('mach') or 0) > 1]
     if supers:
         assert any(pt.get('mixed_radius_km') for pt in supers)
+
+
+def test_run_aircraft_dashboard_f35c_ab_flyable_has_max_ld():
+    """F-35C 加力可飞的 Ma 1.5 须有最大升阻比。"""
+    from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+
+    ac = get_preset_by_id(load_presets(), 'F-35C')
+    eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
+    dash = run_aircraft_dashboard_from_params(dashboard_params_from_preset(ac, eng))
+    assert dash['success'] is True
+    vmax = dash['max_speed']['max_speed_mach']
+    assert vmax is not None and vmax > 1.4
+    m15 = next(pt for pt in dash['points'] if pt['id'] == 'mach_1_5')
+    assert m15['max_ld'] is not None and m15['max_ld'] > 0
+    assert m15['max_ld_thrust_mode'] == 'afterburner'
+    for pt in dash['points']:
+        mach = pt.get('mach')
+        if mach is None or mach > vmax + 1e-9:
+            continue
+        assert pt['max_ld'] is not None and pt['max_ld'] > 0, pt['id']
 
 
 def test_run_combat_radius_new_actions():

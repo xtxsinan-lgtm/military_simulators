@@ -8,8 +8,11 @@ from utils.combat_radius.cruise_load import combat_mass_kg
 from utils.combat_radius.cruise_search import (
     ALT_MAX_M,
     ALT_MIN_M,
+    ALT_REFINE_M,
     FIXED_MACHS,
+    MACH_PROFILE_STEP,
     MACH_SEARCH_LO,
+    PEAK_ALT_DROP_M,
     SUPERSONIC_MACH,
     CruiseContext,
     any_feasible_altitude,
@@ -18,6 +21,7 @@ from utils.combat_radius.cruise_search import (
     evaluate_cruise_forces,
     flyable_forces,
     max_ld_fields,
+    scan_best_altitude_profile,
     score_cruise_point,
     scored_to_dict,
     search_best_altitude,
@@ -26,7 +30,10 @@ from utils.combat_radius.cruise_search import (
     search_max_cruise_mach,
     search_max_ld_altitude,
     try_cruise_forces,
+    _search_max_ld_on_band,
+    THRUST_MARGIN_DEFAULT,
 )
+from utils.combat_radius.max_speed_search import MAX_SPEED_THRUST_MARGIN
 from utils.combat_radius.lift_drag import (
     F22_SUPERCRUISE_MACH,
     J20_SUPERCRUISE_MACH,
@@ -228,7 +235,7 @@ def _f22_csv_ctx() -> CruiseContext:
 
 
 def test_f22_max_cruise_mach_anchored_at_supercruise():
-    """峰值高度段最大巡航落在超巡常数；掉到 11 km 后还能更快。"""
+    """实用最大巡航落在高度尚未回落的超巡常数；掉到 11 km 后还能更快。"""
     ctx = _f22_csv_ctx()
     m = search_max_cruise_mach(ctx)
     floor = search_floor_max_cruise_mach(ctx)
@@ -248,7 +255,7 @@ def test_f22_max_cruise_mach_anchored_at_supercruise():
 
 
 def test_j20_max_cruise_mach_anchored_below_f22():
-    """涡扇15 105 kN 下，歼-20 峰值高度段最大巡航低于 F-22。"""
+    """涡扇15 105 kN 下，歼-20 实用最大巡航（高度未回落）低于 F-22。"""
     ctx = _csv_ctx('J-20')
     m = search_max_cruise_mach(ctx)
     assert m == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
@@ -303,6 +310,22 @@ def test_flyable_forces_military_then_afterburner():
         flyable_forces(mil, 0.8, 11800, primary_mode='idle')
 
 
+def test_search_max_ld_on_band_picks_highest_ld():
+    """单一高度带上须返回可飞点中升阻比最大者。"""
+    mil = _f22_csv_ctx()
+    found = _search_max_ld_on_band(
+        mil, 0.8, ALT_MIN_M, ALT_MAX_M, 2000.0, 1000.0, None, 'military',
+    )
+    assert found is not None
+    assert found.thrust_mode == 'military'
+    assert found.forces.ld > 0
+    dead = _f22_csv_ctx()
+    dead.tsl_N = 1.0
+    assert _search_max_ld_on_band(
+        dead, 0.8, ALT_MIN_M, ALT_MAX_M, 3000.0, 1500.0, None, 'military',
+    ) is None
+
+
 def test_search_max_ld_altitude_cruise_and_ab():
     """Ma 0.8 最大 L/D 不低于巡航点；Ma 2.2 军推不可飞、加力可飞。"""
     mil = _f22_csv_ctx()
@@ -319,6 +342,28 @@ def test_search_max_ld_altitude_cruise_and_ab():
     assert ab_ld.forces.ld > 0
     with pytest.raises(ValueError, match='马赫数'):
         search_max_ld_altitude(mil, 0.0)
+
+
+def test_search_max_ld_altitude_ab_full_thrust_and_sea_level_fallback():
+    """加力按全部推力；巡航高度带不够时落到海平面包线。"""
+    mil = _csv_ctx('F-35C')
+    ab92 = CruiseContext(
+        **{**mil.__dict__, 'tsl_N': 191000.0, 'thrust_margin': THRUST_MARGIN_DEFAULT},
+    )
+    ab100 = CruiseContext(
+        **{**mil.__dict__, 'tsl_N': 191000.0, 'thrust_margin': MAX_SPEED_THRUST_MARGIN},
+    )
+    assert search_max_ld_altitude(mil, 1.5, ab_ctx=ab92) is None
+    full = search_max_ld_altitude(mil, 1.5, ab_ctx=ab100)
+    assert full is not None
+    assert full.thrust_mode == 'afterburner'
+    assert full.forces.ld > 0
+    low_only = search_max_ld_altitude(
+        mil, 1.5, alt_min_m=18000.0, alt_max_m=20000.0, ab_ctx=ab100,
+        ab_alt_min_m=0.0, ab_alt_max_m=20000.0,
+    )
+    assert low_only is not None
+    assert low_only.thrust_mode == 'afterburner'
 
 
 def test_max_ld_fields_none_and_point():
@@ -373,7 +418,7 @@ def test_f22_cruise_altitude_rises_until_mach_15_then_drops():
 
 
 def test_j35_and_j35a_max_cruise_anchored():
-    """歼-35 / 歼-35A 峰值高度段军推最大巡航分别标定到约 Ma 1.11 / 1.19。"""
+    """歼-35 / 歼-35A 实用最大巡航分别落在高度尚未回落的锚点。"""
     j35 = search_max_cruise_mach(_csv_ctx('J-35'))
     j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
     assert j35 == pytest.approx(J35_SUPERCRUISE_MACH, abs=0.03)
@@ -387,3 +432,33 @@ def test_search_max_cruise_mach_when_low_mach_infeasible():
     assert any_feasible_altitude(ctx, MACH_SEARCH_LO) is False
     m = search_max_cruise_mach(ctx)
     assert m == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
+
+
+def test_scan_best_altitude_profile_endpoints_and_rejects_bad_step():
+    """剖面须包含区间端点；步长/区间非法时报错。"""
+    ctx = _f22_csv_ctx()
+    prof = scan_best_altitude_profile(ctx, 0.8, 1.5, step=0.1)
+    assert prof[0].mach == pytest.approx(0.8)
+    assert prof[-1].mach == pytest.approx(1.5)
+    assert MACH_PROFILE_STEP == pytest.approx(0.05)
+    assert PEAK_ALT_DROP_M == pytest.approx(ALT_REFINE_M)
+    with pytest.raises(ValueError, match='步长'):
+        scan_best_altitude_profile(ctx, 0.8, 1.5, step=0.0)
+    with pytest.raises(ValueError, match='区间'):
+        scan_best_altitude_profile(ctx, 1.5, 0.8, step=0.1)
+
+
+def test_practical_max_cruise_stays_at_peak_altitude():
+    """实用最大巡航须停在最佳高度峰值，不能在已经掉高后再往上加马赫。"""
+    for aid in ('F-22', 'J-20', 'J-50', 'F-35C', 'J-35'):
+        ctx = _csv_ctx(aid)
+        prof = scan_best_altitude_profile(ctx)
+        assert prof
+        peak = max(point.alt_m for point in prof)
+        mach = search_max_cruise_mach(ctx)
+        assert mach is not None
+        at = search_best_altitude(ctx, mach)
+        assert at is not None
+        assert at.alt_m >= peak - PEAK_ALT_DROP_M - 1e-6
+    f22 = search_max_cruise_mach(_csv_ctx('F-22'))
+    assert f22 < 1.70

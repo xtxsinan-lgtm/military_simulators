@@ -25,7 +25,8 @@ rough 的亚音速惩罚只进 CD0，拆成 FAT_MULT（肥胖）× BUMP_MULT（�
        + 升力波阻 CL²(M-1) + 鸭翼附加 (M-1)²
        + rough 机肥机身/厚翼附加（不作用于光滑隐身机，保住 F-22 超巡）；
     4. 超过马赫锥后的附加波阻（翼尖-机头连线）。
-    体积项系数标定 F-22 峰值高度段军推最大巡航；抬升极曲线后约 Ma 1.87。
+    体积项按光滑隐身机超音速阻力标定；实用最大巡航按「高度尚未回落」搜索
+    （F-22 约 Ma 1.53），不再把掉高 1.2 km 后的马赫当成超巡。
     允许掉到 11 km 后还能更快。
 
 双三角翼（planform=double_delta 且给出内/外段后掠）按两段前缘分别算
@@ -56,15 +57,15 @@ KAPPA_A = 0.90  # Korn 方程翼型技术因子，固定为超临界翼型典型
 CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小超量
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
-# 超音速波阻：F-22 峰值高度段军推最大巡航（抬升极曲线后约 Ma 1.87）；
-# 歼-20 鸭翼按早期军推/加力对齐；抬 L/D 后峰值段常数随模型更新
+# 超音速波阻：体积/升力项使光滑隐身机超巡可飞；实用最大巡航由高度搜索给出
+# （最佳高度尚未回落，F-22 约 Ma 1.53、歼-20 约 Ma 1.21）。
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²(M-1)，避免 19 km 超音速 L/D 仍接近亚音速、布雷盖半径倒挂
 # 体积项下调、升力项加重：峰值附近停住，1.5 又不会爬得过高效
-F22_SUPERCRUISE_MACH = 1.87
-J20_SUPERCRUISE_MACH = 1.71
-J35_SUPERCRUISE_MACH = 1.11
-J35A_SUPERCRUISE_MACH = 1.19
+F22_SUPERCRUISE_MACH = 1.53
+J20_SUPERCRUISE_MACH = 1.21
+J35_SUPERCRUISE_MACH = 1.07
+J35A_SUPERCRUISE_MACH = 1.12
 CDW_SS_BODY = 0.00450
 CDW_SS_WING = 3.00
 CDW_SS_LIFT = 0.65

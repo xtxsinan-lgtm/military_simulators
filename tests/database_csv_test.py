@@ -245,6 +245,8 @@ def test_load_combat_radius_aircraft_csv():
     assert uav['length_m'] == pytest.approx(14.6)
     uav535 = next(r for r in rows if r['id'] == '53536')
     assert uav535['length_m'] == pytest.approx(16.7)
+    assert uav535['bwb'] is True
+    assert j36['bwb'] is True
 
 
 def test_parse_int_accepts_int_and_float_text():
@@ -302,6 +304,13 @@ def test_load_combat_radius_engine_csv():
     assert by_id['f135']['t4_K'] == 2260.0
     assert by_id['f414']['bpr'] == pytest.approx(0.40)
     assert by_id['ws10h']['tsl_kN'] == 89.0
+    assert by_id['ws10h']['max_tsl_kN'] == pytest.approx(125.5)
+    assert by_id['f414']['max_tsl_kN'] == pytest.approx(97.9)
+    assert by_id['f404']['max_tsl_kN'] == pytest.approx(78.3)
+    assert by_id['f110']['max_tsl_kN'] == pytest.approx(125.5)
+    assert by_id['rd33mk']['max_tsl_kN'] == pytest.approx(88.2)
+    assert by_id['m88']['max_tsl_kN'] == pytest.approx(75.0)
+    assert 'max_tsl_kN' not in by_id['f402']
 
 
 def test_combat_radius_csv_missing_nation_raises(tmp_path):

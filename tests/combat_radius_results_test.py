@@ -101,7 +101,7 @@ def test_run_preset_dashboard_f22_compact():
     assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
     assert next(p for p in r['points'] if p['id'] == 'floor_max_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
-    assert r['max_cruise_mach'] == pytest.approx(1.87, abs=0.02)
+    assert r['max_cruise_mach'] == pytest.approx(1.53, abs=0.02)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     ms = r['max_speed']
     assert ms['feasible'] is True
@@ -135,7 +135,7 @@ def test_run_preset_dashboard_j50_supercruise_above_f22():
 
 
 def test_run_preset_dashboard_j20_supercruise_below_f22():
-    """歼-20 峰值高度段最大巡航应低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
+    """歼-20 实用最大巡航应低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.5。"""
     r = run_preset_dashboard('J-20')
     assert r['success'] is True
     assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
@@ -152,7 +152,7 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
 
 
 def test_run_preset_dashboard_j35_and_j35a_max_cruise():
-    """歼-35 / 歼-35A 峰值高度段最大巡航分别约 Ma 1.11 / 1.19。"""
+    """歼-35 / 歼-35A 实用最大巡航分别约 Ma 1.07 / 1.12。"""
     from utils.combat_radius.lift_drag import J35A_SUPERCRUISE_MACH, J35_SUPERCRUISE_MACH
 
     j35 = run_preset_dashboard('J-35')
@@ -161,6 +161,29 @@ def test_run_preset_dashboard_j35_and_j35a_max_cruise():
     assert j35['max_cruise_mach'] == pytest.approx(J35_SUPERCRUISE_MACH, abs=0.03)
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
     assert j35a['max_cruise_mach'] > j35['max_cruise_mach']
+
+
+def test_run_preset_dashboard_ab_flyable_machs_have_max_ld():
+    """有极速的机型：不超过极速的固定马赫须有最大升阻比。"""
+    for aid in ('F-35C', '53636N', 'J-15'):
+        r = run_preset_dashboard(aid)
+        assert r['success'] is True, aid
+        vmax = (r.get('max_speed') or {}).get('max_speed_mach')
+        assert vmax is not None and vmax > 0, aid
+        for p in r['points']:
+            mach = p.get('mach')
+            if mach is None or float(mach) > float(vmax) + 1e-9:
+                continue
+            assert p.get('max_ld') is not None and p['max_ld'] > 0, (aid, p['id'], mach, vmax)
+
+
+def test_run_preset_dashboard_harrier_has_no_afterburner_max_speed():
+    """鹞式无加力，极速应标为缺少加力推力。"""
+    r = run_preset_dashboard('AV-8B')
+    assert r['success'] is True
+    ms = r.get('max_speed') or {}
+    assert ms.get('feasible') is False
+    assert ms.get('max_speed_mach') is None
 
 
 def test_load_combat_radius_results_missing_file(tmp_path):
