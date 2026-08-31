@@ -20,7 +20,9 @@ from utils.combat_radius.engine_efficiency import (
     EPS_DEFAULT,
     ETAN_DEFAULT,
     T4IDLE_DEFAULT,
+    TSFC_INSTALL_MULT_DEFAULT,
     compute_engine_efficiency,
+    eta_o_after_install,
     tsfc_from_eta_o,
 )
 from utils.combat_radius.lift_drag import Aircraft, predict_ld
@@ -63,6 +65,7 @@ class CruiseContext:
     acc_frac: float = ACC_FRAC_DEFAULT
     t4idle: float = T4IDLE_DEFAULT
     thrust_margin: float = THRUST_MARGIN_DEFAULT
+    tsfc_install_mult: float = TSFC_INSTALL_MULT_DEFAULT
 
 
 @dataclass
@@ -161,9 +164,14 @@ def score_cruise_point(ctx: CruiseContext, forces: CruiseForces) -> CruiseScored
         acc_frac=ctx.acc_frac,
     )
     tsfc: dict[str, float] | None = None
-    if eff.valid and eff.eta_o > 0 and eff.V0 > 0:
-        tsfc = tsfc_from_eta_o(eff.V0, eff.eta_o)
-    score = forces.ld * eff.eta_o if (eff.valid and eff.eta_o > 0) else -1.0
+    eta_o = 0.0
+    if eff.valid and eff.eta_o > 0:
+        eta_o = eta_o_after_install(eff.eta_o, ctx.tsfc_install_mult)
+        if eff.V0 > 0:
+            tsfc = tsfc_from_eta_o(
+                eff.V0, eff.eta_o, install_mult=ctx.tsfc_install_mult,
+            )
+    score = forces.ld * eta_o if eta_o > 0 else -1.0
     warning = None if eff.valid else (eff.warning or 'cycle_infeasible')
     return CruiseScored(
         mach=forces.mach,
@@ -177,7 +185,7 @@ def score_cruise_point(ctx: CruiseContext, forces: CruiseForces) -> CruiseScored
         load=load,
         eta_th=eff.eta_th if eff.valid else 0.0,
         eta_p=eff.eta_p if eff.valid else 0.0,
-        eta_o=eff.eta_o if eff.valid else 0.0,
+        eta_o=eta_o,
         v0=eff.V0 if eff.valid else 0.0,
         tsfc_kg_n_s=None if tsfc is None else tsfc['tsfc_kg_n_s'],
         tsfc_mg_n_s=None if tsfc is None else tsfc['tsfc_mg_n_s'],
@@ -301,7 +309,13 @@ def scan_best_altitude_profile(
     n_scan = max(int(round((mach_hi - mach_lo) / step)) + 1, 2)
     profile: list[CruiseScored] = []
     for i in range(n_scan):
-        mach = mach_lo + (mach_hi - mach_lo) * i / (n_scan - 1)
+        # 端点用区间原值，避免 (hi-lo)*i/(n-1) 在上界漂出 1 ulp
+        if i == 0:
+            mach = mach_lo
+        elif i == n_scan - 1:
+            mach = mach_hi
+        else:
+            mach = mach_lo + (mach_hi - mach_lo) * i / (n_scan - 1)
         scored = search_best_altitude(
             ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m,
         )
@@ -342,7 +356,7 @@ def search_max_cruise_mach(
     above = [point.mach for point in profile if point.mach > lo]
     hi = min(above) if above else mach_hi
     if lo >= hi:
-        return lo
+        return min(lo, mach_hi)
     for _ in range(iters):
         mid = (lo + hi) / 2.0
         scored = search_best_altitude(

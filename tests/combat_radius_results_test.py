@@ -37,6 +37,15 @@ def test_dashboard_params_from_preset_f22():
     assert p['n_engines'] == 2
     assert p['carrier'] is False
     assert p['target']['inlet'] == 'caret'
+    assert p['tsfc_install_mult'] == pytest.approx(1.0)
+
+
+def test_dashboard_params_from_preset_f35c_install():
+    """F-35C 仪表盘须带上 F135 安装 TSFC 惩罚。"""
+    ac = get_preset_by_id(load_presets(), 'F-35C')
+    eng = get_preset_by_id(load_engine_presets(), 'f135')
+    p = dashboard_params_from_preset(ac, eng)
+    assert p['tsfc_install_mult'] == pytest.approx(1.22)
 
 
 def test_sanitize_helpers_round_and_drop_blackbox():

@@ -66,6 +66,8 @@ from utils.combat_radius.engine_efficiency import (
     T4IDLE_DEFAULT,
     compute_engine_efficiency,
     engine_result_to_dict,
+    eta_o_after_install,
+    parse_tsfc_install_mult,
     tsfc_from_eta_o,
 )
 from utils.combat_radius.lift_drag import (
@@ -439,8 +441,10 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
         warnings.append(eff.warning)
     payload['warning'] = ','.join(warnings) if warnings else None
 
+    install_mult = parse_tsfc_install_mult(params.get('tsfc_install_mult'))
     if eff.eta_o > 0 and eff.V0 > 0:
-        payload.update(tsfc_from_eta_o(eff.V0, eff.eta_o))
+        payload.update(tsfc_from_eta_o(eff.V0, eff.eta_o, install_mult=install_mult))
+        payload['eta_o'] = eta_o_after_install(eff.eta_o, install_mult)
     else:
         payload['tsfc_kg_n_s'] = None
         payload['tsfc_mg_n_s'] = None
@@ -707,6 +711,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
         t4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
         thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
+        tsfc_install_mult=parse_tsfc_install_mult(params.get('tsfc_install_mult')),
     )
 
     alt_min = float(params['alt_min_m']) if params.get('alt_min_m') not in (None, '') else ALT_MIN_M
@@ -888,6 +893,7 @@ def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]
         eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
         fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
         thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else MAX_SPEED_THRUST_MARGIN,
+        tsfc_install_mult=parse_tsfc_install_mult(params.get('tsfc_install_mult')),
     )
 
     alt_min = float(params['alt_min_m']) if params.get('alt_min_m') not in (None, '') else MAX_SPEED_ALT_MIN_M
@@ -1025,6 +1031,7 @@ def _cruise_context_from_params(params: dict[str, Any]) -> tuple[CruiseContext, 
         acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
         t4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
         thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
+        tsfc_install_mult=parse_tsfc_install_mult(params.get('tsfc_install_mult')),
     )
     return ctx, target
 
@@ -1098,6 +1105,10 @@ def run_estimate_engine_cycle_from_params(params: dict[str, Any]) -> dict[str, A
     payload['success'] = True
     payload['load'] = load
     payload['name'] = str(params.get('name') or '')
+    install_mult = parse_tsfc_install_mult(params.get('tsfc_install_mult'))
+    if eff.eta_o > 0 and eff.V0 > 0:
+        payload.update(tsfc_from_eta_o(eff.V0, eff.eta_o, install_mult=install_mult))
+        payload['eta_o'] = eta_o_after_install(eff.eta_o, install_mult)
     return payload
 
 
@@ -1138,6 +1149,7 @@ def main() -> None:
         'opr': eng['opr'],
         't4_K': eng['t4_K'],
         'tsl_kN': tsl_kn,
+        'tsfc_install_mult': eng.get('tsfc_install_mult', 1.0),
         'name': f'{tgt["name"]} / {eng["name"]}',
     }
     result = run_estimate_radius_from_params(params)

@@ -302,6 +302,8 @@ def test_load_combat_radius_engine_csv():
     assert by_id['ws21']['max_tsl_kN'] == 95.0
     assert by_id['ws21']['tsl_kN'] == pytest.approx(66.2)
     assert by_id['f135']['t4_K'] == 2260.0
+    assert by_id['f135']['tsfc_install_mult'] == pytest.approx(1.22)
+    assert by_id['f119']['tsfc_install_mult'] == pytest.approx(1.0)
     assert by_id['f414']['bpr'] == pytest.approx(0.40)
     assert by_id['ws10h']['tsl_kN'] == 89.0
     assert by_id['ws10h']['max_tsl_kN'] == pytest.approx(125.5)
@@ -324,7 +326,7 @@ def test_combat_radius_engine_csv_missing_nation_raises(tmp_path):
     path = tmp_path / 'eng.csv'
     path.write_text(
         ','.join(COMBAT_RADIUS_ENGINE_CSV_COLUMNS) + '\n'
-        'x,涡扇,,0.3,26,1800,100,测\n',
+        'x,涡扇,,0.3,26,1800,100,,1,测\n',
         encoding='utf-8',
     )
     with pytest.raises(ValueError, match='nation'):
@@ -349,6 +351,17 @@ def test_combat_radius_engine_csv_empty_raises(tmp_path):
     path = tmp_path / 'eng.csv'
     path.write_text(','.join(COMBAT_RADIUS_ENGINE_CSV_COLUMNS) + '\n', encoding='utf-8')
     with pytest.raises(ValueError, match='未读到'):
+        load_combat_radius_engine_csv(path)
+
+
+def test_combat_radius_engine_csv_invalid_install_mult_raises(tmp_path):
+    path = tmp_path / 'eng.csv'
+    path.write_text(
+        ','.join(COMBAT_RADIUS_ENGINE_CSV_COLUMNS) + '\n'
+        'x,涡扇,中国,0.3,26,1800,100,,0,测\n',
+        encoding='utf-8',
+    )
+    with pytest.raises(ValueError, match='tsfc_install_mult'):
         load_combat_radius_engine_csv(path)
 
 

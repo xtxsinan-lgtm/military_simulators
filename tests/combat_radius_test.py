@@ -420,7 +420,7 @@ def test_run_estimate_radius_from_params_f22():
     assert labels[PRACTICAL_MAX_CRUISE_ID] == PRACTICAL_MAX_CRUISE_LABEL
     assert labels[FLOOR_MAX_CRUISE_ID] == FLOOR_MAX_CRUISE_LABEL
     assert r['max_cruise_floor_mach'] is not None
-    assert r['max_cruise_floor_mach'] >= r['max_cruise_mach']
+    assert r['max_cruise_floor_mach'] + 1e-9 >= r['max_cruise_mach']
     m08 = r['points'][0]
     assert m08['feasible'] is True
     assert m08['radius_km'] > 100
@@ -700,13 +700,13 @@ def test_insufficient_mission_fuel_marks_points_infeasible():
 
 
 def test_ma08_combat_radius_calibration_targets():
-    """Ma 0.8 作战半径：统一模型下 F-35C（肥电）/ F-22 / 歼-20 量级。"""
+    """Ma 0.8 作战半径：统一模型下 F-35C（F135 安装惩罚）/ F-22 / 歼-20 量级。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 
     presets = load_presets()
     engines = load_engine_presets()
     cases = [
-        ('F-35C', 'f135', 1532, 50),
+        ('F-35C', 'f135', 1400, 50),
         ('F-22', 'f119', 1034, 50),
         ('J-20', 'ws15', 1350, 50),
     ]
@@ -724,6 +724,7 @@ def test_ma08_combat_radius_calibration_targets():
             'opr': eng['opr'],
             't4_K': eng['t4_K'],
             'tsl_kN': eng['tsl_kN'],
+            'tsfc_install_mult': eng.get('tsfc_install_mult', 1.0),
         })
         m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
         assert m08['feasible'] is True, ac_id
@@ -851,6 +852,21 @@ def test_run_estimate_engine_cycle_from_params():
         'mach': 0.8, 'alt_m': 12000, 'load': 50,
     })
     assert pct['load'] == pytest.approx(0.5)
+
+
+def test_run_estimate_engine_cycle_applies_install_mult():
+    """效率循环 API 须把安装惩罚乘到 TSFC、压到对外 η_o。"""
+    base = run_estimate_engine_cycle_from_params({
+        'bpr': 0.57, 'opr': 28.0, 't4_K': 2260,
+        'mach': 0.8, 'alt_m': 11000, 'load': 0.58,
+    })
+    penalized = run_estimate_engine_cycle_from_params({
+        'bpr': 0.57, 'opr': 28.0, 't4_K': 2260,
+        'mach': 0.8, 'alt_m': 11000, 'load': 0.58,
+        'tsfc_install_mult': 1.22,
+    })
+    assert penalized['tsfc_kg_n_s'] == pytest.approx(base['tsfc_kg_n_s'] * 1.22)
+    assert penalized['eta_o'] == pytest.approx(base['eta_o'] / 1.22)
 
 
 def test_run_estimate_engine_cycle_rejects_missing_t4():

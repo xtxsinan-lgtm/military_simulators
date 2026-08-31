@@ -50,7 +50,8 @@ MISSILE_INTERCEPTION_RADAR_CATEGORIES = ('aew', 'ship')
 MISSILE_INTERCEPTION_CATEGORIES = ('asm', 'aew', 'ship', 'sam')
 
 COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
-    'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'max_tsl_kN', 'notes',
+    'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'max_tsl_kN',
+    'tsfc_install_mult', 'notes',
 )
 
 def _cell_str(value: Any) -> str:
@@ -479,6 +480,11 @@ def load_combat_radius_engine_csv(path: str | Path | None = None) -> list[dict[s
             max_tsl = _parse_optional_float(row.get('max_tsl_kN') or '')
             if max_tsl is not None:
                 item['max_tsl_kN'] = max_tsl
+            raw_install = (row.get('tsfc_install_mult') or '').strip()
+            install_mult = float(raw_install) if raw_install else 1.0
+            if install_mult <= 0:
+                raise ValueError(f'{csv_path} {item_id}: tsfc_install_mult 须为正')
+            item['tsfc_install_mult'] = install_mult
             notes = (row.get('notes') or '').strip()
             if notes:
                 item['notes'] = notes

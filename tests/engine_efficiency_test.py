@@ -6,16 +6,20 @@ import math
 import pytest
 
 from utils.combat_radius.engine_efficiency import (
+    F135_TSFC_INSTALL_MULT,
     FUEL_LHV_J_KG,
     G0,
+    TSFC_INSTALL_MULT_DEFAULT,
     _find_valid_floor,
     compute_engine_efficiency,
     cycle_for_t4,
     engine_result_to_dict,
+    eta_o_after_install,
     find_optimal_load,
     fpr_default,
     isa,
     opr_default,
+    parse_tsfc_install_mult,
     solve_t4_for_thrust,
     tsfc_from_eta_o,
 )
@@ -130,3 +134,23 @@ def test_tsfc_from_eta_o_identity():
         tsfc_from_eta_o(-1.0, 0.2)
     with pytest.raises(ValueError, match='热值'):
         tsfc_from_eta_o(240.0, 0.2, fuel_lhv_j_kg=0.0)
+    with pytest.raises(ValueError, match='安装'):
+        tsfc_from_eta_o(240.0, 0.2, install_mult=0.0)
+
+
+def test_parse_tsfc_install_mult_and_eta_o_after_install():
+    """缺省 1.0；F135 推荐 1.22；惩罚须压低对外 η_o、抬高 TSFC。"""
+    assert parse_tsfc_install_mult(None) == TSFC_INSTALL_MULT_DEFAULT
+    assert parse_tsfc_install_mult('') == TSFC_INSTALL_MULT_DEFAULT
+    assert parse_tsfc_install_mult(1.22) == pytest.approx(F135_TSFC_INSTALL_MULT)
+    with pytest.raises(ValueError, match='安装'):
+        parse_tsfc_install_mult(0.0)
+    eta = 0.192
+    assert eta_o_after_install(eta, 1.0) == pytest.approx(eta)
+    assert eta_o_after_install(eta, 1.22) == pytest.approx(eta / 1.22)
+    base = tsfc_from_eta_o(240.0, eta)
+    penalized = tsfc_from_eta_o(240.0, eta, install_mult=1.22)
+    assert penalized['tsfc_kg_n_s'] == pytest.approx(base['tsfc_kg_n_s'] * 1.22)
+    assert penalized['tsfc_install_mult'] == pytest.approx(1.22)
+    with pytest.raises(ValueError, match='安装'):
+        eta_o_after_install(0.2, 0.0)

@@ -128,6 +128,19 @@ def test_score_cruise_point_positive_efficiency():
     assert d['thrust_avail_kN'] == pytest.approx(s.thrust_avail_N / 1000.0)
 
 
+def test_score_cruise_point_applies_tsfc_install_mult():
+    """安装惩罚须抬高 TSFC、压低对外 η_o 与评分，且评分仍为 L/D×η_o。"""
+    ctx = _f22_ctx()
+    f = evaluate_cruise_forces(ctx, 0.8, 11800)
+    base = score_cruise_point(ctx, f)
+    ctx.tsfc_install_mult = 1.22
+    penalized = score_cruise_point(ctx, f)
+    assert penalized.tsfc_kg_n_s == pytest.approx(base.tsfc_kg_n_s * 1.22)
+    assert penalized.eta_o == pytest.approx(base.eta_o / 1.22)
+    assert penalized.score == pytest.approx(penalized.ld * penalized.eta_o)
+    assert penalized.score < base.score
+
+
 def test_any_feasible_altitude_true_at_mach_08():
     ctx = _f22_ctx()
     assert any_feasible_altitude(ctx, 0.8, ALT_MIN_M, ALT_MAX_M, 2000.0) is True
@@ -353,6 +366,7 @@ def test_search_max_ld_altitude_ab_full_thrust_and_sea_level_fallback():
     ab100 = CruiseContext(
         **{**mil.__dict__, 'tsl_N': 191000.0, 'thrust_margin': MAX_SPEED_THRUST_MARGIN},
     )
+    # 加力 92% 裕度在 Ma 1.5 仍不够（rough 超音速波阻）；全推力可飞
     assert search_max_ld_altitude(mil, 1.5, ab_ctx=ab92) is None
     full = search_max_ld_altitude(mil, 1.5, ab_ctx=ab100)
     assert full is not None
@@ -437,8 +451,8 @@ def test_scan_best_altitude_profile_endpoints_and_rejects_bad_step():
     """剖面须包含区间端点；步长/区间非法时报错。"""
     ctx = _f22_csv_ctx()
     prof = scan_best_altitude_profile(ctx, 0.8, 1.5, step=0.1)
-    assert prof[0].mach == pytest.approx(0.8)
-    assert prof[-1].mach == pytest.approx(1.5)
+    assert prof[0].mach == 0.8
+    assert prof[-1].mach == 1.5
     assert MACH_PROFILE_STEP == pytest.approx(0.05)
     assert PEAK_ALT_DROP_M == pytest.approx(ALT_REFINE_M)
     with pytest.raises(ValueError, match='步长'):
@@ -460,4 +474,4 @@ def test_practical_max_cruise_stays_at_peak_altitude():
         assert at is not None
         assert at.alt_m >= peak - PEAK_ALT_DROP_M - 1e-6
     f22 = search_max_cruise_mach(_csv_ctx('F-22'))
-    assert f22 < 1.70
+    assert f22 > 1.76

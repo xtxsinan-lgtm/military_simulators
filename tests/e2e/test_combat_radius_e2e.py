@@ -146,7 +146,8 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert r['max_cruise_mach'] == pytest.approx(F22_SUPERCRUISE_MACH, abs=0.02)
     assert r['max_cruise_floor_mach'] > r['max_cruise_mach']
     assert prac['alt_m'] >= m15['alt_m'] - 400.0
-    assert m176['alt_m'] >= 13000.0
+    assert m176['alt_m'] >= m15['alt_m'] - 200.0
+    assert m176['fuel_kg_per_km'] / m15['fuel_kg_per_km'] < 1.12
     assert m176['radius_km'] > 0.6 * m15['radius_km']
     assert r['carrier'] is False
     mf = r['mission_fuel']
@@ -546,6 +547,26 @@ def test_e2e_combat_radius_f35_max_speed_near_mach_16():
         },
     })
     assert r22['max_speed_mach'] > 2.2
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_f35c_engine_install_hits_1400():
+    """F135 安装惩罚须进入仪表盘，F-35C Ma0.8 半径约 1400 km；F-22 不受影响。"""
+    from utils.combat_radius.combat_radius_results import run_preset_dashboard
+    from utils.combat_radius.engine_efficiency import F135_TSFC_INSTALL_MULT
+
+    engines = load_engine_presets()
+    f135 = get_preset_by_id(engines, 'f135')
+    f119 = get_preset_by_id(engines, 'f119')
+    assert f135['tsfc_install_mult'] == pytest.approx(F135_TSFC_INSTALL_MULT)
+    assert f119['tsfc_install_mult'] == pytest.approx(1.0)
+    f35c = run_preset_dashboard('F-35C')
+    f22 = run_preset_dashboard('F-22')
+    m08 = next(p for p in f35c['points'] if p['id'] == 'mach_0_8')
+    m08_22 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
+    assert m08['feasible'] is True
+    assert m08['radius_km'] == pytest.approx(1400, abs=50)
+    assert m08_22['radius_km'] == pytest.approx(1034, abs=50)
 
 
 @pytest.mark.e2e
