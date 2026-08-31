@@ -413,6 +413,30 @@ def test_e2e_combat_radius_f22_max_speed_uses_ab_thrust():
     assert r['max_speed_kmh'] > 1200
     assert r['ld'] > 0
     assert 'profile' in r
+    assert r['thrust_margin'] == pytest.approx(1.0)
+    assert r['load'] <= 1.0 + 1e-6
+    r92 = run_combat_radius_json({
+        'action': 'estimate_max_speed',
+        'params': {
+            'anchor1': a1,
+            'ld1_target': a1['ld_known'],
+            'anchor2': a2,
+            'ld2_target': a2['ld_known'],
+            'target': tgt,
+            'empty_kg': tgt['empty_kg'],
+            'internal_fuel_kg': tgt['internal_fuel_kg'],
+            'n_pilots': tgt['n_pilots'],
+            'missile_mass_kg': tgt['missile_mass_kg'],
+            'n_engines': tgt['n_engines'],
+            'bpr': eng['bpr'],
+            'opr': eng['opr'],
+            't4_K': eng['t4_K'],
+            'max_tsl_kN': eng['max_tsl_kN'],
+            'thrust_margin': 0.92,
+        },
+    })
+    assert r92['feasible'] is True
+    assert r['max_speed_mach'] > r92['max_speed_mach']
 
 
 @pytest.mark.e2e

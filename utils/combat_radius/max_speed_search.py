@@ -1,6 +1,6 @@
 """加力最大速度搜索：各马赫在可飞高度上取最大升阻比，再取真速最大点。
 
-约束：平飞阻力 ≤ 该高度加力可用推力 × 推力裕度（默认 92%）。
+约束：平飞阻力 ≤ 该高度全部加力可用推力（默认 100%，不留巡航裕度）。
 每个马赫只在能飞的高度里选升阻比最大的点（阻力最小），再比较真速。
 推力由海平面加力标定经理想循环外推；空战重量与作战半径巡航一致。
 """
@@ -28,6 +28,8 @@ MACH_SEARCH_ITERS = 16
 MACH_COARSE = 0.10
 MACH_REFINE = 0.02
 KTS_PER_MPS = 1.94384
+# 加力极速是推阻拉平，不留军推巡航用的 8% 裕度
+MAX_SPEED_THRUST_MARGIN = 1.0
 
 
 def true_airspeed_mps(mach: float, alt_m: float) -> float:
@@ -42,7 +44,7 @@ def true_airspeed_mps(mach: float, alt_m: float) -> float:
 
 
 def _point_feasible(ctx: CruiseContext, mach: float, alt_m: float) -> bool:
-    """该高度/马赫是否满足加力推力裕度；推力模型无解视为不可行。"""
+    """该高度/马赫是否满足加力推阻平衡；推力模型无解视为不可行。"""
     try:
         return evaluate_cruise_forces(ctx, mach, alt_m).feasible
     except ValueError:
@@ -72,7 +74,7 @@ def search_max_mach_at_altitude(
     mach_hi: float = MACH_SEARCH_HI,
     iters: int = MACH_SEARCH_ITERS,
 ) -> float | None:
-    """在固定高度上二分搜索满足推力裕度的最大马赫数。"""
+    """在固定高度上二分搜索满足加力推阻平衡的最大马赫数。"""
     if mach_lo <= 0 or mach_hi <= mach_lo:
         raise ValueError('马赫搜索区间非法')
     if iters < 1:

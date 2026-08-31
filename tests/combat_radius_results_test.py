@@ -95,6 +95,9 @@ def test_run_preset_dashboard_f22_compact():
     assert 'mach_2_0' in ids
     assert 'max_speed' in r
     assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.02)
+    ms = r['max_speed']
+    assert ms['feasible'] is True
+    assert ms['load'] == pytest.approx(1.0, abs=0.08)
     m15 = next(p for p in r['points'] if p['id'] == 'mach_1_5')
     m176 = next(p for p in r['points'] if p['id'] == 'mach_1_76')
     m20 = next(p for p in r['points'] if p['id'] == 'mach_2_0')

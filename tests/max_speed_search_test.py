@@ -9,6 +9,7 @@ from utils.combat_radius.lift_drag import calibrate, aircraft_from_dict
 from utils.combat_radius.max_speed_search import (
     MACH_SEARCH_HI,
     MACH_SEARCH_LO,
+    MAX_SPEED_THRUST_MARGIN,
     _max_ld_row_at_mach,
     search_global_max_speed,
     search_max_mach_at_altitude,
@@ -35,8 +36,25 @@ def _f22_ctx(max_tsl_kn: float) -> CruiseContext:
         t4_K=1922.0,
         tsl_N=max_tsl_kn * 1000.0,
         eta_c=ETA_C_DEFAULT,
-        thrust_margin=THRUST_MARGIN_DEFAULT,
+        thrust_margin=MAX_SPEED_THRUST_MARGIN,
     )
+
+
+def test_max_speed_thrust_margin_is_full():
+    """加力极速默认按阻力=推力，不沿用军推巡航 92% 裕度。"""
+    assert MAX_SPEED_THRUST_MARGIN == pytest.approx(1.0)
+    assert MAX_SPEED_THRUST_MARGIN > THRUST_MARGIN_DEFAULT
+
+
+def test_full_afterburner_allows_higher_mach_than_cruise_margin():
+    """同一高度上，100% 加力比 92% 裕度能飞更高马赫。"""
+    ctx92 = _f22_ctx(156.0)
+    ctx92.thrust_margin = THRUST_MARGIN_DEFAULT
+    ctx100 = _f22_ctx(156.0)
+    m92 = search_max_mach_at_altitude(ctx92, 11000.0)
+    m100 = search_max_mach_at_altitude(ctx100, 11000.0)
+    assert m92 is not None and m100 is not None
+    assert m100 > m92
 
 
 def test_true_airspeed_mps_sea_level():
@@ -122,6 +140,9 @@ def test_run_estimate_max_speed_from_params():
     assert r['feasible'] is True
     assert r['max_speed_mach'] > 1.0
     assert r['max_tsl_kN'] == 156.0
+    assert r['thrust_margin'] == pytest.approx(MAX_SPEED_THRUST_MARGIN)
+    assert r['load'] <= 1.0 + 1e-6
+    assert r['load'] > THRUST_MARGIN_DEFAULT
 
 
 def test_run_estimate_max_speed_missing_max_thrust_raises():

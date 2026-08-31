@@ -82,6 +82,7 @@ from utils.combat_radius.max_speed_search import (
     MACH_SEARCH_HI as MAX_SPEED_MACH_HI,
     MACH_SEARCH_ITERS as MAX_SPEED_MACH_ITERS,
     MACH_SEARCH_LO as MAX_SPEED_MACH_LO,
+    MAX_SPEED_THRUST_MARGIN,
     search_global_max_speed,
 )
 from utils.combat_radius.military_thrust import (
@@ -855,7 +856,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
 def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """加力平飞最大速度：各马赫在可飞高度上取最大升阻比，再取真速最大点。
 
-    使用海平面加力最大推力标定，约束为阻力 ≤ 可用加力 × 92%。
+    使用海平面加力最大推力标定，约束为阻力 = 全部可用加力（不留巡航裕度）。
     空战重量 = 空重 + 一半内油 + 飞行员 + 挂弹；不计作战半径与任务油量。
     """
     n_engines = _optional_int(params.get('n_engines'), 1)
@@ -886,7 +887,7 @@ def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]
         tsl_N=parse_max_sea_level_thrust_n(params),
         eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
         fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
-        thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
+        thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else MAX_SPEED_THRUST_MARGIN,
     )
 
     alt_min = float(params['alt_min_m']) if params.get('alt_min_m') not in (None, '') else MAX_SPEED_ALT_MIN_M
@@ -911,13 +912,13 @@ def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]
             'max_tsl_kN': parse_max_sea_level_thrust_n(params) / 1000.0,
             'thrust_margin': ctx.thrust_margin,
             'feasible': False,
-            'fail_reason': '全高度包线内无法满足 92% 加力推力裕度',
+            'fail_reason': '全高度包线内无法满足加力推阻平衡（阻力=推力）',
             'max_speed_mach': None,
             'max_speed_kmh': None,
             'max_speed_kts': None,
             'alt_m': None,
             'profile': [],
-            'note': '加力最大速度：各马赫在可飞高度上取最大升阻比，再取真速最大点；不计作战半径。',
+            'note': '加力最大速度：阻力等于全部可用加力（不留巡航裕度）；各马赫取最大升阻比后再取真速最大点；不计作战半径。',
         }
 
     best = result['best']
@@ -940,7 +941,7 @@ def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]
         'thrust_avail_kN': best['thrust_avail_kN'],
         'load': best['load'],
         'profile': result['profile'],
-        'note': '加力最大速度：各马赫在可飞高度上取最大升阻比，再取真速最大点；不计作战半径。',
+        'note': '加力最大速度：阻力等于全部可用加力（不留巡航裕度）；各马赫取最大升阻比后再取真速最大点；不计作战半径。',
     }
 
 

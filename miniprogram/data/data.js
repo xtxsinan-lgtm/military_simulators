@@ -2903,13 +2903,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.7,
-          "max_speed_kmh": 1805.7,
-          "max_speed_kts": 975.0,
-          "alt_m": 11800.0,
-          "ld": 1.9337,
-          "load": 0.9171,
-          "thrust_avail_kN": 115.709
+          "max_speed_mach": 1.8,
+          "max_speed_kmh": 1911.9,
+          "max_speed_kts": 1032.3,
+          "alt_m": 11400.0,
+          "ld": 1.5169,
+          "load": 0.9978,
+          "thrust_avail_kN": 135.564
         }
       },
       "F-22": {
@@ -3041,13 +3041,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.04,
-          "max_speed_kmh": 2166.8,
-          "max_speed_kts": 1170.0,
-          "alt_m": 11000.0,
-          "ld": 0.9608,
-          "load": 0.9196,
-          "thrust_avail_kN": 273.521
+          "max_speed_mach": 2.1,
+          "max_speed_kmh": 2230.5,
+          "max_speed_kts": 1204.4,
+          "alt_m": 12800.0,
+          "ld": 1.1263,
+          "load": 0.9981,
+          "thrust_avail_kN": 214.977
         }
       },
       "F-35A": {
@@ -3179,13 +3179,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.02,
-          "max_speed_kmh": 2145.5,
-          "max_speed_kts": 1158.5,
-          "alt_m": 11800.0,
-          "ld": 1.2435,
-          "load": 0.9195,
-          "thrust_avail_kN": 156.046
+          "max_speed_mach": 2.1,
+          "max_speed_kmh": 2230.5,
+          "max_speed_kts": 1204.4,
+          "alt_m": 12000.0,
+          "ld": 1.1009,
+          "load": 0.9987,
+          "thrust_avail_kN": 162.29
         }
       },
       "J-20": {
@@ -3317,13 +3317,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.88,
-          "max_speed_kmh": 1996.8,
-          "max_speed_kts": 1078.2,
-          "alt_m": 13000.0,
-          "ld": 1.4794,
-          "load": 0.9191,
-          "thrust_avail_kN": 172.652
+          "max_speed_mach": 1.96,
+          "max_speed_kmh": 2081.8,
+          "max_speed_kts": 1124.1,
+          "alt_m": 11200.0,
+          "ld": 0.9653,
+          "load": 0.9988,
+          "thrust_avail_kN": 243.498
         }
       },
       "J-50": {
@@ -3455,13 +3455,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.22,
-          "max_speed_kmh": 2358.0,
-          "max_speed_kts": 1273.2,
-          "alt_m": 12400.0,
-          "ld": 0.9887,
-          "load": 0.9192,
-          "thrust_avail_kN": 296.084
+          "max_speed_mach": 2.28,
+          "max_speed_kmh": 2421.7,
+          "max_speed_kts": 1307.6,
+          "alt_m": 12200.0,
+          "ld": 0.8512,
+          "load": 0.9997,
+          "thrust_avail_kN": 316.25
         }
       },
       "J-50N": {
@@ -3593,13 +3593,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.2,
-          "max_speed_kmh": 2336.7,
-          "max_speed_kts": 1261.7,
-          "alt_m": 11400.0,
-          "ld": 0.8799,
-          "load": 0.9191,
-          "thrust_avail_kN": 342.467
+          "max_speed_mach": 2.26,
+          "max_speed_kmh": 2400.5,
+          "max_speed_kts": 1296.1,
+          "alt_m": 12600.0,
+          "ld": 0.9439,
+          "load": 0.9992,
+          "thrust_avail_kN": 293.648
         }
       },
       "J-36": {
@@ -3731,13 +3731,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.4,
-          "max_speed_kmh": 2549.2,
-          "max_speed_kts": 1376.4,
-          "alt_m": 15200.0,
-          "ld": 1.393,
-          "load": 0.9177,
-          "thrust_avail_kN": 312.907
+          "max_speed_mach": 2.44,
+          "max_speed_kmh": 2591.7,
+          "max_speed_kts": 1399.4,
+          "alt_m": 13800.0,
+          "ld": 1.0109,
+          "load": 0.9991,
+          "thrust_avail_kN": 396.088
         }
       },
       "J-35": {
@@ -3869,13 +3869,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.64,
-          "max_speed_kmh": 1741.9,
-          "max_speed_kts": 940.6,
-          "alt_m": 11000.0,
-          "ld": 1.9673,
-          "load": 0.9193,
-          "thrust_avail_kN": 102.7
+          "max_speed_mach": 1.7,
+          "max_speed_kmh": 1805.7,
+          "max_speed_kts": 975.0,
+          "alt_m": 12400.0,
+          "ld": 2.1664,
+          "load": 0.9991,
+          "thrust_avail_kN": 85.808
         }
       },
       "J-35A": {
@@ -4007,13 +4007,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.0,
-          "max_speed_kmh": 2124.3,
-          "max_speed_kts": 1147.0,
-          "alt_m": 12400.0,
-          "ld": 1.3527,
-          "load": 0.9191,
-          "thrust_avail_kN": 138.363
+          "max_speed_mach": 2.06,
+          "max_speed_kmh": 2188.0,
+          "max_speed_kts": 1181.4,
+          "alt_m": 13000.0,
+          "ld": 1.3268,
+          "load": 0.9995,
+          "thrust_avail_kN": 129.706
         }
       },
       "53636": {
@@ -4145,13 +4145,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.76,
-          "max_speed_kmh": 1869.4,
-          "max_speed_kts": 1009.4,
+          "max_speed_mach": 1.86,
+          "max_speed_kmh": 1975.6,
+          "max_speed_kts": 1066.7,
           "alt_m": 11400.0,
-          "ld": 1.3221,
-          "load": 0.9193,
-          "thrust_avail_kN": 84.797
+          "ld": 1.134,
+          "load": 1.0,
+          "thrust_avail_kN": 90.89
         }
       },
       "53636N": {
@@ -4283,13 +4283,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.72,
-          "max_speed_kmh": 1826.9,
-          "max_speed_kts": 986.4,
-          "alt_m": 11800.0,
-          "ld": 1.4922,
-          "load": 0.9187,
-          "thrust_avail_kN": 77.331
+          "max_speed_mach": 1.82,
+          "max_speed_kmh": 1933.1,
+          "max_speed_kts": 1043.8,
+          "alt_m": 12400.0,
+          "ld": 1.4035,
+          "load": 0.9997,
+          "thrust_avail_kN": 75.551
         }
       },
       "53536": {
@@ -4421,13 +4421,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 1.66,
-          "max_speed_kmh": 1763.2,
-          "max_speed_kts": 952.0,
-          "alt_m": 11400.0,
-          "ld": 1.557,
-          "load": 0.9188,
-          "thrust_avail_kN": 78.763
+          "max_speed_mach": 1.76,
+          "max_speed_kmh": 1869.4,
+          "max_speed_kts": 1009.4,
+          "alt_m": 12000.0,
+          "ld": 1.4607,
+          "load": 1.0,
+          "thrust_avail_kN": 77.141
         }
       },
       "F-35B": {
@@ -4559,13 +4559,13 @@ module.exports = {
           "success": true,
           "feasible": true,
           "fail_reason": null,
-          "max_speed_mach": 2.02,
-          "max_speed_kmh": 2145.5,
-          "max_speed_kts": 1158.5,
-          "alt_m": 11400.0,
-          "ld": 1.1943,
-          "load": 0.9186,
-          "thrust_avail_kN": 166.208
+          "max_speed_mach": 2.1,
+          "max_speed_kmh": 2230.5,
+          "max_speed_kts": 1204.4,
+          "alt_m": 11600.0,
+          "ld": 1.0572,
+          "load": 0.9979,
+          "thrust_avail_kN": 172.858
         }
       },
       "AV-8B": {
