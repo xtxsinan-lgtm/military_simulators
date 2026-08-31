@@ -2048,7 +2048,7 @@ module.exports = {
       "n_engines": 2,
       "ld_known": 9.01,
       "notes": "陆基；Ma0.8 空战重量巡航 L/D 由 F-35C/F-22 锚点预测；2×涡扇15",
-      "wing_area_m2": 73.0,
+      "wing_area_m2": 76.8,
       "mach_angle_deg": 21.7,
       "length_m": 21.2,
       "wingspan_m": 13.01,
