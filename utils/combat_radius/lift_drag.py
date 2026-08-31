@@ -19,7 +19,8 @@
        避免 Ma 1.2 仍按亚音速 CL_opt 爬到 17 km、导致 1.5 以前高度回落；
     3. 超音速体积波阻：机身面积律 (M-1)² + 超音速前缘机翼项
        + 升力波阻 CL²(M-1)（高空大 CL 时压低 L/D，避免超音速布雷盖半径超过亚音速）
-       + 鸭翼附加 (M-1)²（歼-20 在涡扇15军推 112 kN 下约 Ma 1.63）；
+       + 鸭翼附加 (M-1)²（按早期 90 kN 军推 / 142 kN 加力对齐 Ma 1.5 / 2.0，
+         涡扇15 105 / 156 kN 下巡航与极速都更高）；
     4. 超过马赫锥后的附加波阻（翼尖-机头连线）。
     体积项系数使 F-22 军推最大巡航 = Ma 1.76。
 
@@ -51,17 +52,17 @@ KAPPA_A = 0.90  # Korn 方程翼型技术因子，固定为超临界翼型典型
 CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小超量
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
-# 超音速波阻：F-22 军推最大巡航 Ma 1.76；歼-20（鸭翼 + 涡扇15 112 kN）约 Ma 1.63
+# 超音速波阻：F-22 军推最大巡航 Ma 1.76；歼-20 鸭翼按 90 kN→Ma 1.5、142 kN 加力→Ma 2.0 标定
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²(M-1)，避免 19 km 超音速 L/D 仍接近亚音速、布雷盖半径倒挂
 F22_SUPERCRUISE_MACH = 1.76
-J20_SUPERCRUISE_MACH = 1.63
+J20_SUPERCRUISE_MACH = 1.68
 J35_SUPERCRUISE_MACH = 1.12
 J35A_SUPERCRUISE_MACH = 1.47
 CDW_SS_BODY = 0.00968
 CDW_SS_WING = 6.32
 CDW_SS_LIFT = 0.35
-CDW_CANARD = 0.0149  # 鸭翼附加，乘 (M-1)²
+CDW_CANARD = 0.004  # 鸭翼附加，乘 (M-1)²；90 kN→Ma 1.5、142 kN 加力→Ma 2.0
 # 跨声速阻力鼓包：峰值在 Ma 1.15，半宽 0.14，Ma 1.5 时已基本衰减
 CDW_TRANS_AMP = 0.007
 CDW_TRANS_PEAK = 1.15
@@ -290,7 +291,7 @@ def cd_wave_transonic(mach: float, CL: float, ac: Aircraft) -> float:
 def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加。
 
-    体积项使 F-22 军推最大巡航 = 1.76；鸭翼附加使歼-20 在 112 kN 军推下 ≈ 1.63。
+    体积项使 F-22 军推最大巡航 = 1.76；鸭翼附加按早期 90 / 142 kN 对齐 Ma 1.5 / 2.0。
     无尾/翼身融合只打折体积项（面积律更好），升力波阻不打折。
     升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速。
     """

@@ -171,7 +171,7 @@ def test_fixed_machs_include_two_and_supersonic_threshold():
     assert SUPERSONIC_MACH == 1.0
 
 
-def _csv_ctx(aircraft_id: str) -> CruiseContext:
+def _csv_ctx(aircraft_id: str, tsl_kn: float | None = None) -> CruiseContext:
     """与仪表盘一致：CSV 几何、亚音速锚点 L/D、绑定发动机军推。"""
     presets = load_presets()
     engines = load_engine_presets()
@@ -186,6 +186,7 @@ def _csv_ctx(aircraft_id: str) -> CruiseContext:
         ac['empty_kg'], ac['internal_fuel_kg'], ac.get('n_pilots') or 0,
         ac.get('missile_mass_kg') or 0, 4,
     )
+    thrust_kn = float(eng['tsl_kN']) if tsl_kn is None else tsl_kn
     return CruiseContext(
         target=aircraft_from_dict(ac),
         cf0=cf0,
@@ -195,7 +196,7 @@ def _csv_ctx(aircraft_id: str) -> CruiseContext:
         bpr=eng['bpr'],
         opr=eng['opr'],
         t4_K=eng['t4_K'],
-        tsl_N=float(eng['tsl_kN']) * 1000.0,
+        tsl_N=thrust_kn * 1000.0,
     )
 
 
@@ -219,12 +220,20 @@ def test_f22_max_cruise_mach_anchored_at_supercruise():
 
 
 def test_j20_max_cruise_mach_anchored_below_f22():
-    """鸭翼附加波阻须使歼-20 军推最大巡航落在 Ma 1.63 附近，低于 F-22。"""
+    """涡扇15 105 kN 军推下，歼-20 最大巡航约 Ma 1.68，仍低于 F-22。"""
     ctx = _csv_ctx('J-20')
     m = search_max_cruise_mach(ctx)
     assert m == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
     assert any_feasible_altitude(ctx, 1.5) is True
     assert any_feasible_altitude(ctx, 1.76) is False
+
+
+def test_j20_legacy_90kn_military_cruise_near_mach_15():
+    """鸭翼波阻按早期 90 kN 军推对齐最大巡航约 Ma 1.5。"""
+    m = search_max_cruise_mach(_csv_ctx('J-20', tsl_kn=90.0))
+    assert m == pytest.approx(1.5, abs=0.02)
+    current = search_max_cruise_mach(_csv_ctx('J-20'))
+    assert current > m
 
 
 def test_supersonic_cruise_score_below_subsonic():

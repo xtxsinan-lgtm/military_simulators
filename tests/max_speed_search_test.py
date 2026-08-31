@@ -4,6 +4,7 @@ from __future__ import annotations
 import pytest
 
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+from utils.combat_radius.cruise_load import combat_mass_kg
 from utils.combat_radius.cruise_search import CruiseContext, THRUST_MARGIN_DEFAULT
 from utils.combat_radius.lift_drag import calibrate, aircraft_from_dict
 from utils.combat_radius.max_speed_search import (
@@ -34,6 +35,37 @@ def _f22_ctx(max_tsl_kn: float) -> CruiseContext:
         bpr=0.30,
         opr=26.0,
         t4_K=1922.0,
+        tsl_N=max_tsl_kn * 1000.0,
+        eta_c=ETA_C_DEFAULT,
+        thrust_margin=MAX_SPEED_THRUST_MARGIN,
+    )
+
+
+def _j20_ab_ctx(max_tsl_kn: float) -> CruiseContext:
+    """歼-20 加力极速上下文：CSV 几何与亚音速锚点，加力可覆盖。"""
+    presets = load_presets()
+    engines = load_engine_presets()
+    a1 = aircraft_from_dict(get_preset_by_id(presets, 'F-35C'))
+    a2 = aircraft_from_dict(get_preset_by_id(presets, 'F-22'))
+    tgt_p = get_preset_by_id(presets, 'J-20')
+    tgt = aircraft_from_dict(tgt_p)
+    eng = get_preset_by_id(engines, 'ws15')
+    p35 = get_preset_by_id(presets, 'F-35C')
+    p22 = get_preset_by_id(presets, 'F-22')
+    cf0, k_e = calibrate(a1, p35['ld_known'], a2, p22['ld_known'])
+    mass = combat_mass_kg(
+        tgt_p['empty_kg'], tgt_p['internal_fuel_kg'], tgt_p['n_pilots'],
+        tgt_p['missile_mass_kg'],
+    )
+    return CruiseContext(
+        target=tgt,
+        cf0=cf0,
+        k_e=k_e,
+        mass_kg=mass,
+        n_engines=int(tgt_p['n_engines']),
+        bpr=eng['bpr'],
+        opr=eng['opr'],
+        t4_K=eng['t4_K'],
         tsl_N=max_tsl_kn * 1000.0,
         eta_c=ETA_C_DEFAULT,
         thrust_margin=MAX_SPEED_THRUST_MARGIN,
@@ -143,6 +175,16 @@ def test_run_estimate_max_speed_from_params():
     assert r['thrust_margin'] == pytest.approx(MAX_SPEED_THRUST_MARGIN)
     assert r['load'] <= 1.0 + 1e-6
     assert r['load'] > THRUST_MARGIN_DEFAULT
+    assert r['max_speed_mach'] > 2.0
+
+
+def test_j20_legacy_142kn_afterburner_near_mach_2():
+    """鸭翼波阻按早期 142 kN 加力对齐极速约 Ma 2.0。"""
+    old = search_global_max_speed(_j20_ab_ctx(142.0))
+    now = search_global_max_speed(_j20_ab_ctx(156.0))
+    assert old is not None and now is not None
+    assert old['best']['mach'] == pytest.approx(2.0, abs=0.05)
+    assert now['best']['mach'] > old['best']['mach']
 
 
 def test_run_estimate_max_speed_missing_max_thrust_raises():

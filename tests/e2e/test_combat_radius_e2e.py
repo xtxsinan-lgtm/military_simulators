@@ -165,7 +165,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_j20_supercruise_and_radius_order():
-    """歼-20 最大巡航约 Ma 1.63；Ma 0.8 半径约 1160 km，且大于 Ma 1.5。"""
+    """歼-20 最大巡航约 Ma 1.68；Ma 0.8 半径约 1160 km，且大于 Ma 1.5。"""
     presets = load_presets()
     engines = load_engine_presets()
     j20 = get_preset_by_id(presets, 'J-20')
@@ -462,6 +462,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     j20 = stored['aircraft']['J-20']
     assert j20['success'] is True
     assert j20['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
+    assert j20['max_speed']['max_speed_mach'] > 2.0
     j50 = stored['aircraft']['J-50']
     assert j50['success'] is True
     assert j50['max_cruise_mach'] > f22['max_cruise_mach']

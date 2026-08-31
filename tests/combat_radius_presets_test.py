@@ -104,7 +104,7 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
     assert f119['tsl_kN'] == 116.0
     ws15 = get_preset_by_id(engines, 'ws15')
     assert ws15 is not None
-    assert ws15['tsl_kN'] == 112.0
+    assert ws15['tsl_kN'] == 105.0
     assert ws15['max_tsl_kN'] == 156.0
     ws15i = get_preset_by_id(engines, 'ws15i')
     assert ws15i is not None
