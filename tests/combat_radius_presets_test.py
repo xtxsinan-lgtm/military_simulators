@@ -134,9 +134,9 @@ def test_ng6_medium_sixth_gen_presets():
     b = get_preset_by_id(presets, 'NG6B')
     a = get_preset_by_id(presets, 'NG6A')
     assert c is not None and b is not None and a is not None
-    assert c['name'] == '弹射型中型六代机'
-    assert b['name'] == '垂起型中型六代机'
-    assert a['name'] == '陆基型中型六代机'
+    assert c['name'] == '中型六代机弹射型'
+    assert b['name'] == '中型六代机垂起型'
+    assert a['name'] == '中型六代机空军型'
     assert c['planform'] == b['planform'] == a['planform'] == 'lambda'
     assert c['layout'] == 'pelican'
     assert b['layout'] == 'medium_htail'

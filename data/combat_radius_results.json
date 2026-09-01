@@ -3301,7 +3301,7 @@
     },
     "NG6C": {
       "success": true,
-      "name": "弹射型中型六代机 / 涡扇15改进",
+      "name": "中型六代机弹射型 / 涡扇15改进",
       "carrier": true,
       "max_cruise_mach": 1.76,
       "max_possible_cruise_mach": 1.9725,
@@ -3560,7 +3560,7 @@
     },
     "NG6B": {
       "success": true,
-      "name": "垂起型中型六代机 / F135-PW-600",
+      "name": "中型六代机垂起型 / F135-PW-600",
       "carrier": true,
       "max_cruise_mach": 1.77,
       "max_possible_cruise_mach": 1.9556,
@@ -3819,7 +3819,7 @@
     },
     "NG6A": {
       "success": true,
-      "name": "陆基型中型六代机 / 涡扇15改进",
+      "name": "中型六代机空军型 / 涡扇15改进",
       "carrier": false,
       "max_cruise_mach": 1.77,
       "max_possible_cruise_mach": 2.0148,
