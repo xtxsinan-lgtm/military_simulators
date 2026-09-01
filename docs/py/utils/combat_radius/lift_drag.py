@@ -139,11 +139,14 @@ INLET_CARET_CDW = 0.90
 #   BUMP_FORM_MULT      —— 外形不平整对形状/型阻：DSI 鼓包、台阶分离，只乘 CD0、不进浸润
 # 微观表面粗糙次要，并入摩擦 BUMP。超音速另用 CDW_SS_ROUGH_*，不靠这些数压极速。
 # 统一极曲线：分段几何浸润后半径偏高，只抬高 Cf0（k_e 保持历史值以免超巡带崩掉），
-# 使歼-20 Ma0.8≈1350 km（F-22 随之约 1070 km，F-35C 约 1340 km）。
-# F-35 航程短板：摩擦/形状 BUMP + F135 的 +22% TSFC（STOVL 低压轴榨功导致
+# 使歼-20 Ma0.8≈1350 km（F-22 随之约 1070 km）。
+# F-35 航程短板主要是 F135 的 +22% TSFC（STOVL 低压轴榨功导致
 # 循环不能按巡航油耗最优，不是进气道安装惩罚，见 engine_efficiency）。
-BUMP_FRICTION_MULT = 1.02
-BUMP_FORM_MULT = 1.02
+# 不平整只留很轻的亚音速惩罚：摩擦约 +0.6%，形状约 +0.1%（原先各 +2% 过重）。
+# 升力面按上下两面后，即便 BUMP=1，F-35C Ma0.8 也只到约 1382 km；
+# 轻惩罚后约 1376 km，贴近 1400。
+BUMP_FRICTION_MULT = 1.006
+BUMP_FORM_MULT = 1.001
 BUMP_MULT = BUMP_FRICTION_MULT  # 兼容旧名：不平整摩擦项
 CF0_REF = 0.02406282097479411
 K_E_REF = 1.9677054936141871

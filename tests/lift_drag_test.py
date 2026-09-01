@@ -945,7 +945,7 @@ def test_default_ld_anchors_match_f35c_f22():
     assert a1.name == 'F-35C' and a1.rough is True and a1.inlet == 'dsi'
     assert a2.name == 'F-22' and a2.rough is False and a2.inlet == 'caret'
     assert ld2 == pytest.approx(8.90, abs=0.10)
-    assert ld1 == pytest.approx(9.31, abs=0.10)
+    assert ld1 == pytest.approx(9.56, abs=0.10)
     assert ld1 > ld2
     cf0, k_e = calibrate_default_anchors()
     assert cf0 == pytest.approx(CF0_REF)
@@ -965,9 +965,9 @@ def test_rough_form_cd0_mult():
 
 
 def test_rough_mult_penalizes_f35_vs_smooth():
-    """几何浸润已含肥胖；rough 只留摩擦/形状 BUMP>1，浸润高于光滑对照。"""
-    assert BUMP_FRICTION_MULT == pytest.approx(1.02, abs=0.005)
-    assert BUMP_FORM_MULT == pytest.approx(1.02, abs=0.005)
+    """几何浸润已含肥胖；rough 只留很轻的摩擦/形状 BUMP>1，浸润高于光滑对照。"""
+    assert BUMP_FRICTION_MULT == pytest.approx(1.006, abs=0.0005)
+    assert BUMP_FORM_MULT == pytest.approx(1.001, abs=0.0005)
     assert BUMP_MULT == pytest.approx(BUMP_FRICTION_MULT)
     assert BUMP_FRICTION_MULT > 1.0
     assert BUMP_FORM_MULT > 1.0
