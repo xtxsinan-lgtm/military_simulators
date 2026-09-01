@@ -129,6 +129,7 @@ class AircraftSpec:
 
     @property
     def a2a_mass_kg(self) -> float:
+        """正常起飞重量：空重 + 满内油 + 飞行员×0.1 t + 4 枚中距弹。"""
         return (self.empty_kg + self.internal_fuel_kg
                 + A2A_MISSILE_COUNT * self.missile_mass_kg
                 + self.n_pilots * PILOT_LOAD_KG)

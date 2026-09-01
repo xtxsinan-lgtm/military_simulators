@@ -29,6 +29,13 @@ def test_e2e_ng6_catalog_and_combat_radius():
         r = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': tgt}})
         assert r['success'] is True, aid
         assert 6.0 < r['target']['ld'] < 12.0, aid
+        from utils.combat_radius.cruise_load import wing_loading_t_m2
+        assert tgt['wing_loading'] == pytest.approx(wing_loading_t_m2(
+            tgt['empty_kg'], tgt['internal_fuel_kg'], tgt['wing_area_m2'],
+            tgt['n_pilots'], tgt['missile_mass_kg'],
+        ), abs=1e-6), aid
+
+    assert aircraft['NG6C'].a2a_mass_kg == pytest.approx(12700 + 8500 + 100 + 840)
 
     assert 'NG6C' in takeoff_ids and 'NG6B' in takeoff_ids
     assert 'NG6A' not in takeoff_ids

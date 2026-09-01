@@ -127,6 +127,16 @@ def test_ng6_medium_sixth_gen_presets():
     assert b['type_label'] == 'v/stol'
     assert c['tc'] == pytest.approx(0.043)
     assert b['tc'] == a['tc'] == pytest.approx(0.047)
+    from utils.combat_radius.cruise_load import wing_loading_t_m2
+    assert c['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        12700, 8500, 66.6, 1, 210,
+    ), abs=1e-6)
+    assert b['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        12900, 7900, 55.9, 1, 210,
+    ), abs=1e-6)
+    assert a['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        11400, 8200, 55.9, 1, 210,
+    ), abs=1e-6)
 
 
 def test_get_preset_by_id_missing_returns_none():

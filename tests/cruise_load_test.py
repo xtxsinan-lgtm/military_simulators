@@ -48,6 +48,26 @@ def test_combat_mass_breakdown_sums_to_total():
     assert d['pilots_kg'] == pytest.approx(200)
 
 
+def test_wing_loading_t_m2_is_combat_mass_over_area():
+    """翼载荷 =（空重+半油+飞行员+4弹）吨 / 翼面积。"""
+    from utils.combat_radius.cruise_load import apply_combat_wing_loading, wing_loading_t_m2
+
+    wl = wing_loading_t_m2(
+        empty_kg=12700, internal_fuel_kg=8500, wing_area_m2=66.6,
+        n_pilots=1, missile_mass_kg=210, n_missiles=4,
+    )
+    assert wl == pytest.approx((12700 + 4250 + 100 + 840) / 1000 / 66.6)
+    with pytest.raises(ValueError, match='翼面积'):
+        wing_loading_t_m2(10000, 4000, 0.0)
+    patched = apply_combat_wing_loading(
+        {'wing_area_m2': 66.6, 'wing_loading': 0.5},
+        12700, 8500, 1, 210, 4,
+    )
+    assert patched['wing_loading'] == pytest.approx(wl)
+    skipped = apply_combat_wing_loading({'wing_loading': 0.5}, 12700, 8500)
+    assert skipped['wing_loading'] == pytest.approx(0.5)
+
+
 def test_cruise_drag_n_is_weight_over_ld():
     drag = cruise_drag_n(10000.0, 8.0)
     assert drag == pytest.approx(10000.0 * G0 / 8.0)

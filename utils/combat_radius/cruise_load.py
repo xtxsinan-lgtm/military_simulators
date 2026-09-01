@@ -5,6 +5,8 @@
 """
 from __future__ import annotations
 
+from typing import Any
+
 G0 = 9.80665
 PILOT_MASS_KG = 100.0  # 0.1 吨 / 人
 N_MISSILES_DEFAULT = 4
@@ -35,6 +37,54 @@ def combat_mass_kg(
         + n_pilots * pilot_mass_kg
         + n_missiles * missile_mass_kg
     )
+
+
+def wing_loading_t_m2(
+    empty_kg: float,
+    internal_fuel_kg: float,
+    wing_area_m2: float,
+    n_pilots: float = 1.0,
+    missile_mass_kg: float = 0.0,
+    n_missiles: float = N_MISSILES_DEFAULT,
+    fuel_fraction: float = FUEL_FRACTION_DEFAULT,
+    pilot_mass_kg: float = PILOT_MASS_KG,
+) -> float:
+    """空战翼载荷 (t/m²) = 空战重量 / 翼面积。
+
+    默认半油 + 飞行员×0.1 t + 4 枚中距弹；起飞满油重量见 AircraftSpec.a2a_mass_kg。
+    """
+    if wing_area_m2 <= 0:
+        raise ValueError('翼面积须为正才能计算翼载荷')
+    mass_t = combat_mass_kg(
+        empty_kg, internal_fuel_kg, n_pilots, missile_mass_kg, n_missiles,
+        fuel_fraction, pilot_mass_kg,
+    ) / 1000.0
+    return mass_t / wing_area_m2
+
+
+def apply_combat_wing_loading(
+    target: dict[str, Any],
+    empty_kg: float,
+    internal_fuel_kg: float,
+    n_pilots: float = 1.0,
+    missile_mass_kg: float = 0.0,
+    n_missiles: float = N_MISSILES_DEFAULT,
+    fuel_fraction: float = FUEL_FRACTION_DEFAULT,
+    pilot_mass_kg: float = PILOT_MASS_KG,
+) -> dict[str, Any]:
+    """有翼面积时用空战重量覆盖 wing_loading，使升阻比与布雷盖用同一重量。"""
+    out = dict(target)
+    area = out.get('wing_area_m2')
+    if area in (None, ''):
+        return out
+    area_f = float(area)
+    if area_f <= 0:
+        return out
+    out['wing_loading'] = wing_loading_t_m2(
+        empty_kg, internal_fuel_kg, area_f, n_pilots, missile_mass_kg,
+        n_missiles, fuel_fraction, pilot_mass_kg,
+    )
+    return out
 
 
 def combat_mass_breakdown(
