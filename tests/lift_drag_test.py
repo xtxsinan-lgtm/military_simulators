@@ -37,6 +37,11 @@ from utils.combat_radius.lift_drag import (
     KAPPA_A,
     KORN_DM_CAP,
     K_E_REF,
+    FUSE_BODY_AREA_MAX,
+    FUSE_BODY_AREA_MIN,
+    FUSE_REF_HEIGHT_M,
+    FUSE_REF_WIDTH_M,
+    FUSE_WETTED_FRAC,
     NO_CANOPY_MULT,
     FAT_MULT,
     BUMP_MULT,
@@ -74,6 +79,10 @@ from utils.combat_radius.lift_drag import (
     oswald_e_raw,
     oswald_sweep_deg,
     predict_ld,
+    fuse_body_area_factor,
+    fuse_section_area_m2,
+    fuse_wetted_factor,
+    ellipse_perimeter_m,
     wetted_area_factor,
     cd_wave_korn_at,
     cd_wave_ss_body_post,
@@ -89,6 +98,7 @@ from utils.combat_radius.lift_drag import (
     parse_inlet,
     _as_bool,
     _canopy_from_dict,
+    _fuse_section_dims,
     _optional_positive_float,
 )
 
@@ -150,6 +160,8 @@ def test_aircraft_from_dict_and_to_dict_roundtrip():
     assert again.AR == pytest.approx(2.32)
     assert again.length_m == pytest.approx(0.0)
     assert again.wingspan_m == pytest.approx(0.0)
+    assert again.fuse_width_m == pytest.approx(0.0)
+    assert again.fuse_height_m == pytest.approx(0.0)
     caret = aircraft_from_dict({**d, 'inlet': '加莱特'})
     assert caret.inlet == 'caret'
 
@@ -349,6 +361,123 @@ def test_wetted_area_factor_planform_and_layout():
         < wetted_area_factor(medium_htail)
         < w_trap
     )
+
+
+def test_ellipse_perimeter_m_circle_and_rejects_nonpositive():
+    """圆截面周长为 2πr；宽高须为正。"""
+    assert ellipse_perimeter_m(2.0, 2.0) == pytest.approx(2.0 * math.pi)
+    with pytest.raises(ValueError, match='机身宽高'):
+        ellipse_perimeter_m(0.0, 1.0)
+    with pytest.raises(ValueError, match='机身宽高'):
+        ellipse_perimeter_m(1.0, -0.5)
+
+
+def test_fuse_section_area_m2_ellipse_and_rejects_nonpositive():
+    """椭圆面积 πwh/4；圆退化为 πr²。"""
+    assert fuse_section_area_m2(2.0, 2.0) == pytest.approx(math.pi)
+    assert fuse_section_area_m2(3.5, 1.82) == pytest.approx(math.pi * 3.5 * 1.82 / 4.0)
+    with pytest.raises(ValueError, match='机身宽高'):
+        fuse_section_area_m2(0.0, 1.82)
+
+
+def test_fuse_section_dims_requires_both_positive():
+    """宽或高缺省则视为未建模。"""
+    assert _fuse_section_dims(_f22()) is None
+    only_w = Aircraft(**{**aircraft_to_dict(_f22()), 'fuse_width_m': 3.5})
+    assert _fuse_section_dims(only_w) is None
+    both = Aircraft(**{**aircraft_to_dict(_f22()), 'fuse_width_m': 3.5, 'fuse_height_m': 1.82})
+    assert _fuse_section_dims(both) == (3.5, 1.82)
+
+
+def test_fuse_wetted_factor_ref_is_one_missing_is_one():
+    """F-35 参考截面浸润乘数为 1；缺截面不改。"""
+    assert fuse_wetted_factor(_f22()) == pytest.approx(1.0)
+    ref = Aircraft(**{
+        **aircraft_to_dict(_f35c()),
+        'fuse_width_m': FUSE_REF_WIDTH_M, 'fuse_height_m': FUSE_REF_HEIGHT_M,
+    })
+    assert fuse_wetted_factor(ref) == pytest.approx(1.0)
+    slim = Aircraft(**{**aircraft_to_dict(_f22()), 'fuse_width_m': 2.71, 'fuse_height_m': 1.29})
+    fat = Aircraft(**{**aircraft_to_dict(_f22()), 'fuse_width_m': 4.7, 'fuse_height_m': 2.3})
+    assert fuse_wetted_factor(slim) < 1.0
+    assert fuse_wetted_factor(fat) > 1.0
+    p_slim = ellipse_perimeter_m(2.71, 1.29)
+    p_ref = ellipse_perimeter_m(FUSE_REF_WIDTH_M, FUSE_REF_HEIGHT_M)
+    assert fuse_wetted_factor(slim) == pytest.approx(
+        (1.0 - FUSE_WETTED_FRAC) + FUSE_WETTED_FRAC * (p_slim / p_ref),
+    )
+
+
+def test_fuse_body_area_factor_clamps_and_defaults():
+    """截面积比钳位；缺截面为 1；参考截面为 1。"""
+    assert fuse_body_area_factor(_f22()) == pytest.approx(1.0)
+    ref = Aircraft(**{
+        **aircraft_to_dict(_f35c()),
+        'fuse_width_m': FUSE_REF_WIDTH_M, 'fuse_height_m': FUSE_REF_HEIGHT_M,
+    })
+    assert fuse_body_area_factor(ref) == pytest.approx(1.0)
+    uav = Aircraft(**{**aircraft_to_dict(_f22()), 'fuse_width_m': 2.71, 'fuse_height_m': 1.29})
+    assert fuse_body_area_factor(uav) == pytest.approx(FUSE_BODY_AREA_MIN)
+    j36 = Aircraft(**{**aircraft_to_dict(_f22()), 'fuse_width_m': 4.7, 'fuse_height_m': 2.3})
+    raw = (4.7 * 2.3) / (FUSE_REF_WIDTH_M * FUSE_REF_HEIGHT_M)
+    assert raw > FUSE_BODY_AREA_MAX
+    assert fuse_body_area_factor(j36) == pytest.approx(FUSE_BODY_AREA_MAX)
+    mid = Aircraft(**{**aircraft_to_dict(_f22()), 'fuse_width_m': 3.21, 'fuse_height_m': 1.53})
+    expected = (3.21 * 1.53) / (FUSE_REF_WIDTH_M * FUSE_REF_HEIGHT_M)
+    assert FUSE_BODY_AREA_MIN < expected < FUSE_BODY_AREA_MAX
+    assert fuse_body_area_factor(mid) == pytest.approx(expected)
+
+
+def test_wetted_area_factor_scales_with_fuse_section():
+    """机身截面只乘浸润份额，不改变其它开关。"""
+    base = _f22()
+    slim = Aircraft(**{**aircraft_to_dict(base), 'fuse_width_m': 2.71, 'fuse_height_m': 1.29})
+    assert wetted_area_factor(slim) == pytest.approx(
+        wetted_area_factor(base) * fuse_wetted_factor(slim),
+    )
+
+
+def test_cd_wave_transonic_scales_with_fuse_area():
+    """跨声速鼓包按截面积比缩放；亚音速仍为零。"""
+    base = _f22()
+    slim = Aircraft(**{**aircraft_to_dict(base), 'fuse_width_m': 2.71, 'fuse_height_m': 1.29})
+    cl = cl_cruise(base)
+    assert cd_wave_transonic(0.8, cl, slim) == 0.0
+    peak_base = cd_wave_transonic(CDW_TRANS_PEAK, cl, base)
+    peak_slim = cd_wave_transonic(CDW_TRANS_PEAK, cl, slim)
+    assert peak_slim == pytest.approx(peak_base * fuse_body_area_factor(slim))
+
+
+def test_cd_wave_supersonic_scales_body_not_lift():
+    """超音速机身体积项乘截面；升力波阻不乘。"""
+    base = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.5})
+    slim = Aircraft(**{**aircraft_to_dict(base), 'fuse_width_m': 2.71, 'fuse_height_m': 1.29})
+    scale = fuse_body_area_factor(slim)
+    body_base = cd_wave_supersonic(1.5, base, 0.0)
+    body_slim = cd_wave_supersonic(1.5, slim, 0.0)
+    dm = 0.5
+    cdw_wing = body_base - CDW_SS_BODY * dm ** 2
+    assert body_slim == pytest.approx(CDW_SS_BODY * dm ** 2 * scale + cdw_wing)
+    d_lift_base = cd_wave_supersonic(1.5, base, 0.30) - cd_wave_supersonic(1.5, base, 0.0)
+    d_lift_slim = cd_wave_supersonic(1.5, slim, 0.30) - cd_wave_supersonic(1.5, slim, 0.0)
+    assert d_lift_slim == pytest.approx(d_lift_base)
+    # 超巡带后附加体积项不乘截面
+    dm_hi = F22_MAX_SPEED_MACH - 1.0
+    hi_base = cd_wave_supersonic(F22_MAX_SPEED_MACH, base, 0.0)
+    hi_slim = cd_wave_supersonic(F22_MAX_SPEED_MACH, slim, 0.0)
+    assert hi_slim == pytest.approx(hi_base + CDW_SS_BODY * dm_hi ** 2 * (scale - 1.0))
+
+
+def test_cd_wave_ss_rough_body_scales_with_fuse_area():
+    """rough 机身体积附加随截面缩放；厚翼项不乘。"""
+    base = Aircraft(**{**aircraft_to_dict(_f35c()), 'mach': 1.6})
+    slim = Aircraft(**{**aircraft_to_dict(base), 'fuse_width_m': 2.71, 'fuse_height_m': 1.29})
+    scale = fuse_body_area_factor(slim)
+    dm = 0.6
+    d_base = cd_wave_ss_rough(1.6, base, 0.0)
+    d_slim = cd_wave_ss_rough(1.6, slim, 0.0)
+    wing_term = d_base - CDW_SS_ROUGH_BODY * dm ** 2
+    assert d_slim == pytest.approx(CDW_SS_ROUGH_BODY * dm ** 2 * scale + wing_term)
 
 
 def test_cd_wave_zero_at_cruise_mach():

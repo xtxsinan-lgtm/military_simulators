@@ -175,6 +175,8 @@ struct CombatRadiusView: View {
         field("马赫角 (°)", text: ac.machAngleDeg)
         field("机身长度 (m)", text: ac.lengthM)
         field("翼展 (m)", text: ac.wingspanM)
+        field("机身宽 (m)", text: ac.fuseWidthM)
+        field("机身高 (m)", text: ac.fuseHeightM)
         pickerRow("翼型", selection: ac.planform, options: vm.planformOptions)
         pickerRow("布局", selection: ac.layout, options: vm.layoutOptions)
         pickerRow("进气道", selection: ac.inlet, options: vm.inletOptions)

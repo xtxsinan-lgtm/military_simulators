@@ -11,6 +11,9 @@
 避免抛物线极曲线把 L/Dmax 推到 CL≈0.57（Ma 0.8 约 15 km）。
 低翼载飞机同一高度 CL 更小，可以飞得更高。
 无座舱无人机去掉风挡浸润；机长只进入马赫锥项（Ma 1.5 通常未触发）。
+机身截面（宽×高）按椭圆计周长与面积：浸润按周长相对 F-35/中六参考截面缩放机身份额，
+跨声速鼓包与超音速机身体积波阻按截面积比缩放（钳位）；机翼/升力波阻不乘截面。
+缺宽高时乘数为 1，旧测试用 Aircraft() 行为不变。
 F-35 等 rough=True 机型加大浸润（肥机身 + 外形不平整，非微观表面粗糙），相对光滑隐身机降 L/D。
 进气道独立于翼型/布局：DSI 无隔道、浸润基准；加莱特（caret）有隔道板与唇口，
 亚/跨声速寄生阻力更高，但二维压缩面使超音速体积波阻更低（利于超巡）。
@@ -110,6 +113,14 @@ CDW_TAILLESS = 0.72
 CDW_BWB = 0.90
 # 无座舱浸润折扣：去掉风挡/框与座舱鼓包，机头更圆滑（相对有座舱约 −3%）
 NO_CANOPY_MULT = 0.97
+# 机身截面参考：F-35 / 中型六代 3.5 m × 1.82 m（用户给定；其余机型按同类估算）
+FUSE_REF_WIDTH_M = 3.5
+FUSE_REF_HEIGHT_M = 1.82
+# 浸润只按周长比缩放机身贡献（不乘机长）；缺截面时乘数为 1
+FUSE_WETTED_FRAC = 0.35
+# 跨声速鼓包 + 超音速机身体积波阻按截面积比缩放，钳位避免极端机身主导
+FUSE_BODY_AREA_MIN = 0.55
+FUSE_BODY_AREA_MAX = 1.55
 # 进气道：DSI 无附面层隔道，浸润取基准；加莱特有隔道板/唇口，寄生阻力↑
 # 超音速体积波阻：加莱特二维压缩面更干净，相对 DSI 鼓包打折（只乘体积项）
 INLET_DSI_WETTED = 1.00
@@ -200,6 +211,8 @@ class Aircraft:
     inlet: InletId = 'dsi'  # 进气道：dsi / caret（加莱特）；缺省 DSI
     length_m: float = 0.0  # 机身长度，未给马赫角时用于估算；缺省 0 表示不启用
     wingspan_m: float = 0.0  # 翼展；缺省 0 表示不启用
+    fuse_width_m: float = 0.0  # 机身最大宽度 m；缺省 0 表示不按截面缩放
+    fuse_height_m: float = 0.0  # 机身最大高度 m；缺省 0 表示不按截面缩放
     mach_angle_deg: float = 0.0  # 翼尖-机头连线与机身轴线夹角（度）；优先于机长/翼展
     canopy: bool = True  # 有座舱风挡；无人机为 False，浸润更小
     sweep_inner_deg: float = 0.0  # 双三角内段前缘后掠（度）；0 表示未启用两段
@@ -288,6 +301,8 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         inlet=inlet,
         length_m=_optional_positive_float(data.get('length_m')),
         wingspan_m=_optional_positive_float(data.get('wingspan_m')),
+        fuse_width_m=_optional_positive_float(data.get('fuse_width_m')),
+        fuse_height_m=_optional_positive_float(data.get('fuse_height_m')),
         mach_angle_deg=_optional_positive_float(data.get('mach_angle_deg')),
         canopy=_canopy_from_dict(data),
         sweep_inner_deg=_optional_positive_float(data.get('sweep_inner_deg')),
@@ -415,6 +430,52 @@ def oswald_e_for_aircraft(ac: Aircraft) -> float:
     return blend_sweep_quantity(ac, lambda sweep: oswald_e_raw(ac.AR, sweep))
 
 
+def ellipse_perimeter_m(width_m: float, height_m: float) -> float:
+    """椭圆周长（Ramanujan 第一近似）；圆截面退化为 2πr。"""
+    if width_m <= 0 or height_m <= 0:
+        raise ValueError('机身宽高须为正才能计算椭圆周长')
+    a = width_m / 2.0
+    b = height_m / 2.0
+    return math.pi * (3.0 * (a + b) - math.sqrt((3.0 * a + b) * (a + 3.0 * b)))
+
+
+def fuse_section_area_m2(width_m: float, height_m: float) -> float:
+    """椭圆截面积 πwh/4。"""
+    if width_m <= 0 or height_m <= 0:
+        raise ValueError('机身宽高须为正才能计算截面积')
+    return math.pi * width_m * height_m / 4.0
+
+
+def _fuse_section_dims(ac: Aircraft) -> tuple[float, float] | None:
+    """有效机身截面；宽或高缺省则视为未建模。"""
+    if ac.fuse_width_m > 0.0 and ac.fuse_height_m > 0.0:
+        return ac.fuse_width_m, ac.fuse_height_m
+    return None
+
+
+def fuse_wetted_factor(ac: Aircraft) -> float:
+    """机身周长相对 F-35 参考的浸润乘数；缺截面时为 1。
+
+    只缩放机身贡献份额 FUSE_WETTED_FRAC，不乘机长（避免把细长机身当成更肥）。
+    """
+    dims = _fuse_section_dims(ac)
+    if dims is None:
+        return 1.0
+    p = ellipse_perimeter_m(*dims)
+    p_ref = ellipse_perimeter_m(FUSE_REF_WIDTH_M, FUSE_REF_HEIGHT_M)
+    return (1.0 - FUSE_WETTED_FRAC) + FUSE_WETTED_FRAC * (p / p_ref)
+
+
+def fuse_body_area_factor(ac: Aircraft) -> float:
+    """机身截面积相对 F-35 参考的体积波阻乘数；缺截面时为 1，并钳位。"""
+    dims = _fuse_section_dims(ac)
+    if dims is None:
+        return 1.0
+    area = fuse_section_area_m2(*dims)
+    area_ref = fuse_section_area_m2(FUSE_REF_WIDTH_M, FUSE_REF_HEIGHT_M)
+    return min(FUSE_BODY_AREA_MAX, max(FUSE_BODY_AREA_MIN, area / area_ref))
+
+
 def wetted_area_factor(ac: Aircraft) -> float:
     """浸润面积/参考面积的相对因子。
 
@@ -425,6 +486,7 @@ def wetted_area_factor(ac: Aircraft) -> float:
     - rough 乘 FAT_MULT×BUMP_MULT（F-35 肥胖 + 外形不平整，非微观表面粗糙）
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
     - 进气道：DSI 无隔道；加莱特隔道板/唇口抬高浸润
+    - 机身截面：按椭圆周长相对 F-35 参考缩放机身份额；缺宽高则不改
     """
     planform_mult = PLANFORM_MULT[ac.planform]
     layout_mult = LAYOUT_MULT[ac.layout]
@@ -433,9 +495,10 @@ def wetted_area_factor(ac: Aircraft) -> float:
     canopy_mult = 1.0 if ac.canopy else NO_CANOPY_MULT
     inlet_mult = inlet_wetted_mult(ac.inlet)
     thickness_mult = 1.0 + 4.0 * ac.tc
+    fuse_mult = fuse_wetted_factor(ac)
     return (
         thickness_mult * planform_mult * layout_mult
-        * bwb_mult * rough_mult * canopy_mult * inlet_mult
+        * bwb_mult * rough_mult * canopy_mult * inlet_mult * fuse_mult
     )
 
 
@@ -527,11 +590,14 @@ def cd_wave_transonic_at(mach: float, CL: float, sweep_deg: float, tc: float) ->
 
 
 def cd_wave_transonic(mach: float, CL: float, ac: Aircraft) -> float:
-    """跨声速阻力鼓包：Ma 0.90 起、Ma 1.08 附近见顶，超音速衰减。"""
+    """跨声速阻力鼓包：Ma 0.90 起、Ma 1.08 附近见顶，超音速衰减。
+
+    幅度按机身截面积相对 F-35 参考缩放；缺截面时与原先常数鼓包相同。
+    """
     if mach <= 0:
         raise ValueError('马赫数须为正')
-    del CL, ac
-    return CDW_TRANS_AMP * transonic_gaussian(mach)
+    del CL
+    return CDW_TRANS_AMP * transonic_gaussian(mach) * fuse_body_area_factor(ac)
 
 
 def cd_wave_ss_wing_at(mach: float, sweep_deg: float, tc: float) -> float:
@@ -562,7 +628,7 @@ def cd_wave_ss_rough(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     if not ac.rough or mach <= 1.0:
         return 0.0
     dm = mach - 1.0
-    cdw = CDW_SS_ROUGH_BODY * dm ** 2
+    cdw = CDW_SS_ROUGH_BODY * dm ** 2 * fuse_body_area_factor(ac)
     cdw += blend_sweep_quantity(
         ac, lambda sweep: cd_wave_ss_rough_wing_at(mach, sweep, ac.tc),
     )
@@ -604,6 +670,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
 
     机身/升力/鸭翼项整机计算一次；机翼前缘项双三角按两段面积加权。
     无尾/Pelican/小·中等平尾/翼身融合/加莱特进气道只打折体积项，升力波阻与 rough 附加不打折。
+    机身项（(M-1)²）再乘截面积相对 F-35 参考的因子；超巡带后附加与机翼/升力波阻不乘。
     升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速；
     马赫因子在超巡带封顶，过了 1.76 再加重，峰值高度开始回落。
     超巡带之后再叠加体积项，收住加力极速（F-22 约 Ma 2.25）。
@@ -611,10 +678,12 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     if mach <= 1.0:
         return 0.0
     dm = mach - 1.0
+    body_scale = fuse_body_area_factor(ac)
     cdw_wing = blend_sweep_quantity(
         ac, lambda sweep: cd_wave_ss_wing_at(mach, sweep, ac.tc),
     )
-    cdw = CDW_SS_BODY * dm ** 2 + cdw_wing + cd_wave_ss_body_post(mach)
+    # 机身 (M-1)² 按截面缩放；超巡带后附加项是全机队极速标定，不乘截面
+    cdw = CDW_SS_BODY * dm ** 2 * body_scale + cdw_wing + cd_wave_ss_body_post(mach)
     cdw *= LAYOUT_CDW_VOL[ac.layout]
     if ac.bwb:
         cdw *= CDW_BWB

@@ -154,6 +154,8 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var carrier: Bool?
     var length_m: Double?
     var wingspan_m: Double?
+    var fuse_width_m: Double?
+    var fuse_height_m: Double?
     var mach_angle_deg: Double?
     var wing_area_m2: Double?
     var bvr_missile: String?

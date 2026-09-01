@@ -248,14 +248,22 @@ def test_load_combat_radius_aircraft_csv():
     assert j36['inlet'] == 'caret'
     assert j36['sweep_inner_deg'] == pytest.approx(67.8)
     assert j36['sweep_outer_deg'] == pytest.approx(55.3)
+    assert j36['fuse_width_m'] == pytest.approx(4.7)
+    assert j36['fuse_height_m'] == pytest.approx(2.3)
     j35 = next(r for r in rows if r['id'] == 'J-35')
     assert j35['length_m'] == pytest.approx(17.7)
+    assert j35['fuse_width_m'] == pytest.approx(3.76)
+    assert j35['fuse_height_m'] == pytest.approx(1.59)
     assert j35['carrier'] is True
     j35a = next(r for r in rows if r['id'] == 'J-35A')
     assert j35a['length_m'] == pytest.approx(17.7)
     assert uav['length_m'] == pytest.approx(14.6)
+    assert uav['fuse_width_m'] == pytest.approx(2.71)
+    assert uav['fuse_height_m'] == pytest.approx(1.29)
     uav535 = next(r for r in rows if r['id'] == '53536')
     assert uav535['length_m'] == pytest.approx(16.7)
+    assert uav535['fuse_width_m'] == pytest.approx(3.21)
+    assert uav535['fuse_height_m'] == pytest.approx(1.53)
     assert uav535['bwb'] is True
     assert uav535['engine_id'] == 'ws10c'
     assert j36['bwb'] is True
@@ -397,6 +405,8 @@ def test_unified_csv_shared_between_takeoff_and_combat_radius():
 
     assert COMBAT_RADIUS_AIRCRAFT_CSV == takeoff_path
     assert COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS == AIRCRAFT_CSV_COLUMNS
+    assert 'fuse_width_m' in AIRCRAFT_CSV_COLUMNS
+    assert 'fuse_height_m' in AIRCRAFT_CSV_COLUMNS
 
 
 def test_read_unified_aircraft_rows_and_item(tmp_path):

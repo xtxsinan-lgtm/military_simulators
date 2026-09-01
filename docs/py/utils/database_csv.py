@@ -15,6 +15,7 @@ AIRCRAFT_CSV_COLUMNS = (
     'wing_loading', 'tc', 'mach', 'alt_m',
     'planform', 'layout', 'bwb', 'rough', 'inlet', 'ld_known', 'notes',
     'wing_area_m2', 'mach_angle_deg', 'bvr_missile', 'length_m', 'wingspan_m',
+    'fuse_width_m', 'fuse_height_m',
     'empty_kg', 'internal_fuel_kg', 'n_pilots', 'missile_mass_kg', 'n_engines', 'engine_id',
     'mtow_kg', 'max_payload_kg', 'wing_height_m', 'cd0',
     't_max_sl_n', 't_main_stovl_sl_n', 't_liftfan_sl_n', 't_rollposts_sl_n',
@@ -215,6 +216,7 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
         item['notes'] = notes
     for key in (
         'wing_area_m2', 'mach_angle_deg', 'length_m', 'wingspan_m',
+        'fuse_width_m', 'fuse_height_m',
         'sweep_inner_deg', 'sweep_outer_deg', 'sweep_kink_span_frac',
     ):
         value = _parse_optional_float(row.get(key) or '')

@@ -53,6 +53,22 @@
       <input class="input" type="digit" value="{{tgt.mach_angle_deg}}" data-key="mach_angle_deg" bindinput="onAcField"/>
     </view>
     <view class="field">
+      <view class="field-label"><text>机身长度</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.length_m}}" data-key="length_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>翼展</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.wingspan_m}}" data-key="wingspan_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>机身宽</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.fuse_width_m}}" data-key="fuse_width_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>机身高</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.fuse_height_m}}" data-key="fuse_height_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
       <view class="field-label"><text>空重</text><text class="unit">kg</text></view>
       <input class="input" type="digit" value="{{wtEmpty}}" data-key="wtEmpty" bindinput="onField"/>
     </view>

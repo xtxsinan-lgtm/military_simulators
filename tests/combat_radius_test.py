@@ -1023,9 +1023,22 @@ def test_run_aircraft_dashboard_from_params_f22():
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
     assert dash['max_speed']['feasible'] is True
     assert dash['max_speed']['ld'] is not None
+    assert dash['fuse_width_m'] == pytest.approx(0.0)
+    assert dash['fuse_height_m'] == pytest.approx(0.0)
     supers = [pt for pt in dash['points'] if pt.get('feasible') and (pt.get('mach') or 0) > 1]
     if supers:
         assert any(pt.get('mixed_radius_km') for pt in supers)
+
+
+def test_run_aircraft_dashboard_echoes_fuse_section():
+    """仪表盘回传机身截面；缺省为 0。"""
+    p = _radius_params()
+    p['max_tsl_kN'] = 156.0
+    p['target'] = {**p['target'], 'fuse_width_m': 2.71, 'fuse_height_m': 1.29}
+    dash = run_aircraft_dashboard_from_params(p)
+    assert dash['success'] is True
+    assert dash['fuse_width_m'] == pytest.approx(2.71)
+    assert dash['fuse_height_m'] == pytest.approx(1.29)
 
 
 def test_run_aircraft_dashboard_from_params_reflects_modified_aircraft_and_engine():

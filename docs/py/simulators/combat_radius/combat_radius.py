@@ -970,6 +970,8 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         'n_missiles': n_missiles,
         'length_m': target.length_m,
         'wingspan_m': target.wingspan_m,
+        'fuse_width_m': target.fuse_width_m,
+        'fuse_height_m': target.fuse_height_m,
         'mach_angle_deg': mach_angle_deg,
         'mach_cone_limit': m_cone,
         'max_cruise_mach': max_mach,

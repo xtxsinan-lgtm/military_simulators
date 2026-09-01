@@ -105,6 +105,10 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert 'η_o' not in cr_js
     assert '锚点' not in cr_wxml
     assert 'mach_angle_deg' in cr_js
+    assert 'fuse_width_m' in cr_js
+    assert 'fuse_height_m' in cr_js
+    assert '机身宽' in cr_wxml
+    assert '机身高' in cr_wxml
     assert 'resolveTslKN' in cr_js
     assert 'sweep_inner_deg' in cr_js
     assert '内段前缘后掠' in cr_wxml

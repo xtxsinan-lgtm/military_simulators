@@ -19,6 +19,8 @@ struct CombatRadiusAircraftInput {
     var rough = false
     var lengthM = ""
     var wingspanM = ""
+    var fuseWidthM = ""
+    var fuseHeightM = ""
     var machAngleDeg = ""
     var wingAreaM2 = ""
     var typeLabel = ""
@@ -41,6 +43,8 @@ struct CombatRadiusAircraftInput {
         rough = p.rough
         lengthM = p.length_m.map { String($0) } ?? ""
         wingspanM = p.wingspan_m.map { String($0) } ?? ""
+        fuseWidthM = p.fuse_width_m.map { String($0) } ?? ""
+        fuseHeightM = p.fuse_height_m.map { String($0) } ?? ""
         machAngleDeg = p.mach_angle_deg.map { String($0) } ?? ""
         wingAreaM2 = p.wing_area_m2.map { String($0) } ?? ""
         typeLabel = p.type_label ?? ""
@@ -65,6 +69,8 @@ struct CombatRadiusAircraftInput {
             "rough": rough,
             "length_m": Double(lengthM) ?? 0,
             "wingspan_m": Double(wingspanM) ?? 0,
+            "fuse_width_m": Double(fuseWidthM) ?? 0,
+            "fuse_height_m": Double(fuseHeightM) ?? 0,
             "mach_angle_deg": Double(machAngleDeg) ?? 0,
             "wing_area_m2": Double(wingAreaM2) ?? 0,
             "type_label": typeLabel,

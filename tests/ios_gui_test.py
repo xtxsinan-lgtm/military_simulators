@@ -102,6 +102,9 @@ def test_ios_uses_local_engine_not_http_api():
     models = (IOS_ROOT / 'Models.swift').read_text(encoding='utf-8')
     assert 'combat_radius_results' in models
     assert 'sweep_inner_deg' in models
+    assert 'fuse_width_m' in models
+    assert 'fuse_height_m' in models
+    assert 'fuseWidthM' in cr_vm
     assert 'combat_radius_engine_presets' in models
     assert 'mixed_radius_km' in models
     assert 'CombatRadiusCruisePoint' in models
@@ -110,6 +113,8 @@ def test_ios_uses_local_engine_not_http_api():
     assert '实用最大巡航速度' in cr_view
     assert '最大巡航速度' in cr_view
     assert '计算作战半径' in cr_view
+    assert '机身宽' in cr_view
+    assert '机身高' in cr_view
     assert 'func cruiseSpeedLabel' in cr_view
     assert 'max_possible_cruise_mach' in models
     assert 'max_cruise_floor_mach' not in models

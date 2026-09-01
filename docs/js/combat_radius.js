@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 50;
+const APP_VERSION = 51;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -104,6 +104,10 @@ function renderAircraftFields() {
       <div class="field"><label>翼展 <span class="unit">m</span></label><input id="tgt_span" type="number" step="0.01" min="0"></div>
     </div>
     <div class="pair">
+      <div class="field"><label>机身宽 <span class="unit">m</span></label><input id="tgt_fuse_w" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>机身高 <span class="unit">m</span></label><input id="tgt_fuse_h" type="number" step="0.01" min="0"></div>
+    </div>
+    <div class="pair">
       <div class="field"><label>翼型</label><select id="tgt_planform">${optionHtml(planforms)}</select></div>
       <div class="field"><label>布局</label><select id="tgt_layout">${optionHtml(layouts)}</select></div>
     </div>
@@ -143,6 +147,8 @@ function applyPresetToFields(preset) {
   $('tgt_mach_angle').value = preset.mach_angle_deg != null ? preset.mach_angle_deg : '';
   $('tgt_len').value = preset.length_m != null ? preset.length_m : '';
   $('tgt_span').value = preset.wingspan_m != null ? preset.wingspan_m : '';
+  $('tgt_fuse_w').value = preset.fuse_width_m != null ? preset.fuse_width_m : '';
+  $('tgt_fuse_h').value = preset.fuse_height_m != null ? preset.fuse_height_m : '';
   if ($('tgt_type_label')) $('tgt_type_label').value = preset.type_label || '';
   applyWeightFromPreset(preset);
   syncDoubleDeltaFields();
@@ -212,6 +218,8 @@ function readAircraft() {
     rough: $('tgt_rough').checked,
     length_m: Number($('tgt_len').value),
     wingspan_m: Number($('tgt_span').value),
+    fuse_width_m: Number($('tgt_fuse_w').value),
+    fuse_height_m: Number($('tgt_fuse_h').value),
     mach_angle_deg: Number($('tgt_mach_angle').value),
     wing_area_m2: Number($('tgt_area').value),
     type_label: $('tgt_type_label') ? $('tgt_type_label').value : '',

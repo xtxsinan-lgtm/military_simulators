@@ -153,6 +153,9 @@ def test_docs_combat_radius_page_exists_and_links():
     assert ver_js.group(1) == ver_html.group(1) == ver_css.group(1)
     assert 'resolveTslKN' in js_text
     assert 'tgt_sweep_inner' in js_text
+    assert 'tgt_fuse_w' in js_text
+    assert 'tgt_fuse_h' in js_text
+    assert 'fuse_width_m' in js_text
     assert 'syncDoubleDeltaFields' in js_text
     assert "e.target.id === 'tgtPreset'" in js_text
     assert js_text.count("e.target.id === 'tgtPreset'") >= 2

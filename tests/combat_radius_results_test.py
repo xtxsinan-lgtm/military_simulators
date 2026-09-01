@@ -129,7 +129,7 @@ def test_run_preset_dashboard_f22_compact():
     assert radius_row['mach'] == pytest.approx(1.58, abs=0.03)
     assert next(p for p in r['points'] if p['id'] == 'max_possible_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
-    assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
+    assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
     assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
     assert r['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
@@ -146,9 +146,8 @@ def test_run_preset_dashboard_f22_compact():
     assert m175['radius_km'] > 0.6 * m15['radius_km']
     assert m15['feasible'] is True
     assert m175['feasible'] is True
-    assert m20['feasible'] is True
+    assert m20['feasible'] is False
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
-    assert m20['radius_km'] < m175['radius_km']
     assert m15['radius_km'] < next(p for p in r['points'] if p['id'] == 'mach_0_8')['radius_km']
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
     assert 11000.0 <= m08['alt_m'] <= 12500.0
@@ -205,12 +204,12 @@ def test_run_preset_dashboard_j35_and_j35a_max_cruise():
 
 
 def test_run_preset_dashboard_fa18c_floor_above_practical():
-    """F/A-18C 跨声速不可飞，最大巡航仍须高于实用最大巡航。"""
+    """F/A-18C 细机身穿过跨声速后实用最大巡航落在 Ma 1.2 门槛，最大巡航仍更高。"""
     r = run_preset_dashboard('FA-18C')
     assert r['success'] is True
     m12 = next(p for p in r['points'] if p['id'] == 'mach_1_2')
-    assert m12['feasible'] is False
-    assert r['max_cruise_mach'] is not None
+    assert m12['feasible'] is True
+    assert r['max_cruise_mach'] == pytest.approx(1.2, abs=0.005)
     assert r['max_possible_cruise_mach'] is not None
     assert r['max_possible_cruise_mach'] + 1e-9 >= r['max_cruise_mach']
     assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
@@ -219,9 +218,14 @@ def test_run_preset_dashboard_fa18c_floor_above_practical():
     assert floor_pt['mach'] == pytest.approx(r['max_possible_cruise_mach'])
 
 
-def test_run_preset_dashboard_ws10c_uav_no_practical_supercruise():
-    """涡扇10C 90 kN 军推下，无人战机实用最大巡航应为空。"""
-    for aid in ('53636', '53536', '53636N'):
+def test_run_preset_dashboard_ws10c_uav_slim_fuse_supercruise():
+    """细机身让陆基 53636 越过跨声速鼓包后超巡；53536 与舰载型仍无实用超巡。"""
+    slim = run_preset_dashboard('53636')
+    assert slim['success'] is True
+    assert slim['max_cruise_mach'] == pytest.approx(1.46, abs=0.02)
+    m12 = next(p for p in slim['points'] if p['id'] == 'mach_1_2')
+    assert m12['feasible'] is False
+    for aid in ('53536', '53636N'):
         r = run_preset_dashboard(aid)
         assert r['success'] is True, aid
         assert r['max_cruise_mach'] is None, aid
