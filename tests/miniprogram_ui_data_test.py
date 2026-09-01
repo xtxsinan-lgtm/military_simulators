@@ -82,6 +82,8 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert 'aircraft_dashboard' in cr_js
     assert 'estimate_engine_cycle' in cr_js
     assert '搜索最佳升阻比和巡航高度' in cr_wxml
+    assert '计算作战半径' in cr_wxml
+    assert 'onRunDash' in cr_js
     assert '混合作战半径' in cr_wxml
     assert '速度/马赫' in cr_wxml
     assert '实用最大巡航速度' in cr_wxml

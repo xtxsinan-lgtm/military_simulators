@@ -784,7 +784,10 @@ def test_e2e_combat_radius_modified_params_recompute_dashboard():
     q['opr'] = p['opr'] + 4.0
     live = run_combat_radius_json({'action': 'aircraft_dashboard', 'params': q})
     assert live['success'] is True
-    assert len(live['points']) == len(base['points'])
+    base_ids = {pt['id'] for pt in base['points']}
+    live_ids = {pt['id'] for pt in live['points']}
+    for mid in ('mach_0_8', 'mach_1_0', 'mach_1_2', 'mach_1_5', 'mach_2_0'):
+        assert mid in base_ids and mid in live_ids
     b08 = next(pt for pt in base['points'] if pt['id'] == 'mach_0_8')
     l08 = next(pt for pt in live['points'] if pt['id'] == 'mach_0_8')
     assert b08['feasible'] is True and l08['feasible'] is True

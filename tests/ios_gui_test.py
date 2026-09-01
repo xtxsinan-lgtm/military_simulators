@@ -94,6 +94,7 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'search_best_cruise' in cr_vm
     assert 'estimate_engine_cycle' in cr_vm
     assert 'func applyAircraft()' in cr_vm
+    assert 'func requestLiveDash()' in cr_vm
     assert 'sweepInnerDeg' in cr_vm
     assert 'sweep_inner_deg' in cr_vm
     assert 'dryToMaxRatio' in cr_vm
@@ -108,6 +109,7 @@ def test_ios_uses_local_engine_not_http_api():
     cr_view = (IOS_ROOT / 'CombatRadiusView.swift').read_text(encoding='utf-8')
     assert '实用最大巡航速度' in cr_view
     assert '最大巡航速度' in cr_view
+    assert '计算作战半径' in cr_view
     assert 'func cruiseSpeedLabel' in cr_view
     assert 'max_possible_cruise_mach' in models
     assert 'max_cruise_floor_mach' not in models

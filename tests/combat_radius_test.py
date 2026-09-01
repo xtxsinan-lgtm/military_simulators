@@ -1004,6 +1004,27 @@ def test_run_aircraft_dashboard_from_params_f22():
         assert any(pt.get('mixed_radius_km') for pt in supers)
 
 
+def test_run_aircraft_dashboard_from_params_reflects_modified_aircraft_and_engine():
+    """改空重与军推后，各速度作战半径须相对原参数重算（前端「计算作战半径」）。"""
+    p = _radius_params()
+    p['max_tsl_kN'] = 156.0
+    base = run_aircraft_dashboard_from_params(p)
+    q = dict(p)
+    q['empty_kg'] = p['empty_kg'] * 1.2
+    q['tsl_kN'] = p['tsl_kN'] * 0.8
+    q['opr'] = p['opr'] + 4.0
+    live = run_aircraft_dashboard_from_params(q)
+    assert live['success'] is True
+    base_ids = {pt['id'] for pt in base['points']}
+    live_ids = {pt['id'] for pt in live['points']}
+    for mid in ('mach_0_8', 'mach_1_0', 'mach_1_2', 'mach_1_5', 'mach_2_0'):
+        assert mid in base_ids and mid in live_ids
+    b08 = next(pt for pt in base['points'] if pt['id'] == 'mach_0_8')
+    l08 = next(pt for pt in live['points'] if pt['id'] == 'mach_0_8')
+    assert b08['feasible'] is True and l08['feasible'] is True
+    assert l08['radius_km'] != b08['radius_km']
+
+
 def test_run_aircraft_dashboard_f35c_ab_flyable_has_max_ld():
     """F-35C 加力可飞的 Ma 1.5 须有最大升阻比。"""
     from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
