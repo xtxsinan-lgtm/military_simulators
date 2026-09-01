@@ -12,7 +12,7 @@
 低翼载飞机同一高度 CL 更小，可以飞得更高。
 无座舱无人机去掉风挡浸润；机长只进入马赫锥项（Ma 1.5 通常未触发）。
 有完整分段几何时，浸润按机头锥（圆锥侧面积）+ 机头（圆台侧面积）+ 机身盒段（长方体表面积）
-+ 主翼 + 鸭翼/平尾 + 腹鳍，再除以参考翼面积，并相对 F-35A 的 S_wet/S_ref 归一化；
++ 升力面平面面积×上下两面（主翼、鸭翼/平尾、腹鳍），再除以参考翼面积，并相对 F-35A 的 S_wet/S_ref 归一化；
 缺分段几何时回退为机身截面椭圆周长相对 F-35/中六参考缩放机身份额。
 跨声速鼓包与超音速机身体积波阻仍按截面积比缩放（钳位）；机翼/升力波阻不乘截面。
 缺宽高时乘数为 1，旧测试用 Aircraft() 行为不变。
@@ -51,6 +51,7 @@ Oswald 与机翼波阻，再按面积加权合成。折点半展站位可由展�
 
 (Cf0, k_e) 取绝对值：历史闭式解在分段几何浸润引入后半径偏高，
 再按 s≈1.278 只抬高 Cf0、k_e 不变（歼-20 Ma 0.8≈1350 km）；
+升力面按上下两面计入浸润后相对 F-35A 归一化，歼-20 半径仍贴 1350；
 F-35 只用摩擦/形状 BUMP（肥胖已含在几何浸润里）；运行时不读锚点。
 Oswald 修正含在 k_e 中。仍保留 calibrate() 供对照/单元测试，运行时默认走 model_coefficients()。
 """
@@ -74,14 +75,14 @@ CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小�
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
 # 超音速波阻：体积/升力项使光滑隐身机超巡可飞；实用最大巡航由 Ma 1.2 以上
-# 高度极值搜索给出（0.01 马赫网格；取高度真正见顶的马赫，F-22 约 1.77、歼-20 约 1.70）。
+# 高度极值搜索给出（0.01 马赫网格；取高度真正见顶的马赫，F-22 约 1.76、歼-20 约 1.68）。
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²·lift_wave_mach_factor：Ma 1.5 压住超音速 L/D 避免半径倒挂，
 # 1.5–1.76 不再随马赫加重，过了超巡带再加重，使峰值高度在 1.76 后回落。
 SUPERCRUISE_BAND_HI = 1.76  # 超巡带上沿：此后升力波阻再随马赫加重
 F22_SUPERCRUISE_MACH = SUPERCRUISE_BAND_HI
 F22_MAX_SPEED_MACH = 2.25  # 公开加力极速；后段体积波阻按此标定
-J20_SUPERCRUISE_MACH = 1.70  # 抬高 Cf0 后高度峰值回落；F-22 仍贴 1.77
+J20_SUPERCRUISE_MACH = 1.68  # 升力面按上下两面后高度峰值略回落；F-22 仍贴 1.76
 J35A_SUPERCRUISE_MACH = 1.49
 CDW_SS_BODY = 0.00450
 CDW_SS_WING = 3.00
@@ -138,7 +139,7 @@ INLET_CARET_CDW = 0.90
 #   BUMP_FORM_MULT      —— 外形不平整对形状/型阻：DSI 鼓包、台阶分离，只乘 CD0、不进浸润
 # 微观表面粗糙次要，并入摩擦 BUMP。超音速另用 CDW_SS_ROUGH_*，不靠这些数压极速。
 # 统一极曲线：分段几何浸润后半径偏高，只抬高 Cf0（k_e 保持历史值以免超巡带崩掉），
-# 使歼-20 Ma0.8≈1350 km（F-22 随之约 1100 km，F-35C 约 1400 km）。
+# 使歼-20 Ma0.8≈1350 km（F-22 随之约 1070 km，F-35C 约 1340 km）。
 # F-35 航程短板：摩擦/形状 BUMP + F135 的 +22% TSFC（STOVL 低压轴榨功导致
 # 循环不能按巡航油耗最优，不是进气道安装惩罚，见 engine_efficiency）。
 BUMP_FRICTION_MULT = 1.02
@@ -225,9 +226,9 @@ class Aircraft:
     nose_length_m: float = 0.0  # 机头（锥后至盒段）长度 m；圆台高
     nose_root_diameter_m: float = 0.0  # 机头根部直径 m（圆台大端）
     fuse_body_length_m: float = 0.0  # 机身盒段长度 m（不含锥与机头）
-    main_wing_area_m2: float = 0.0  # 暴露主翼面积 m²（非参考翼面积）
-    canard_htail_area_m2: float = 0.0  # 鸭翼或平尾双侧面积 m²（单侧×2 入库）
-    ventral_fin_area_m2: float = 0.0  # 腹鳍双侧面积 m²（单侧×2 入库）
+    main_wing_area_m2: float = 0.0  # 暴露主翼平面面积 m²（非参考翼面积；浸润时×上下两面）
+    canard_htail_area_m2: float = 0.0  # 鸭翼或平尾左右两件平面面积 m²（单侧×2 入库；浸润再×上下两面）
+    ventral_fin_area_m2: float = 0.0  # 腹鳍左右两件平面面积 m²（单侧×2 入库；浸润再×上下两面）
     wing_area_m2: float = 0.0  # 气动参考翼面积 S_ref m²；浸润比分母
     mach_angle_deg: float = 0.0  # 翼尖-机头连线与机身轴线夹角（度）；优先于机长/翼展
     canopy: bool = True  # 有座舱风挡；无人机为 False，浸润更小
@@ -471,6 +472,9 @@ def fuse_section_area_m2(width_m: float, height_m: float) -> float:
     return math.pi * width_m * height_m / 4.0
 
 
+# 升力面浸润按上下两面；CSV 存的是单面平面面积（鸭翼/腹鳍已含左右两件）
+LIFTING_WETTED_SIDES = 2.0
+
 # 分段浸润所需字段：机头锥 + 机头圆台 + 盒段 + 主翼 + 参考翼面积
 GEOMETRIC_WETTED_REQUIRED: tuple[str, ...] = (
     'nose_cone_length_m', 'nose_cone_diameter_m', 'nose_length_m',
@@ -547,12 +551,16 @@ def fuselage_geometric_wetted_m2(ac: Aircraft) -> float:
 
 
 def lifting_planform_wetted_m2(ac: Aircraft) -> float:
-    """升力面浸润：主翼 + 鸭翼/平尾（双侧）+ 腹鳍（双侧）。"""
-    return ac.main_wing_area_m2 + ac.canard_htail_area_m2 + ac.ventral_fin_area_m2
+    """升力面浸润：主翼 + 鸭翼/平尾 + 腹鳍，均按上下两面。
+
+    CSV 中主翼是暴露平面面积；鸭翼/平尾与腹鳍是左右两件的平面面积之和。
+    """
+    planform = ac.main_wing_area_m2 + ac.canard_htail_area_m2 + ac.ventral_fin_area_m2
+    return LIFTING_WETTED_SIDES * planform
 
 
 def geometric_wetted_area_m2(ac: Aircraft) -> float:
-    """全机几何浸润面积 = 机身分段 + 升力面。"""
+    """全机几何浸润面积 = 机身分段表面积 + 升力面上下两面。"""
     if not has_geometric_wetted(ac):
         raise ValueError('缺少完整分段几何，无法计算浸润面积')
     return fuselage_geometric_wetted_m2(ac) + lifting_planform_wetted_m2(ac)
@@ -569,7 +577,7 @@ def _f35a_wetted_ratio_ref() -> float:
         cone_lateral_area_m2(1.06, 1.02)
         + frustum_lateral_area_m2(3.26, 1.02, 1.90)
         + box_surface_area_m2(9.66, 3.40, 1.97)
-        + 24.48 + 11.12
+        + LIFTING_WETTED_SIDES * (24.48 + 11.12)
     )
     return s_wet / 42.74
 
@@ -634,7 +642,7 @@ def wetted_area_factor(ac: Aircraft) -> float:
     - rough 乘 BUMP_FRICTION_MULT（不平整摩擦；形状阻力另乘 CD0；无肥胖乘数）
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
     - 进气道：DSI 无隔道；加莱特隔道板/唇口抬高浸润
-    - 有分段几何时：圆锥+圆台+长方体+升力面相对 F-35A 的 S_wet/S_ref 归一化
+    - 有分段几何时：圆锥+圆台+长方体+升力面上下两面，相对 F-35A 的 S_wet/S_ref 归一化
     - 无分段几何时：按椭圆周长相对 F-35 参考缩放机身份额；缺宽高则不改
     """
     planform_mult = PLANFORM_MULT[ac.planform]

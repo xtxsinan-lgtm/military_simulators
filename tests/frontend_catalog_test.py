@@ -119,6 +119,8 @@ def test_docs_combat_radius_page_exists_and_links():
     assert '搜索最佳升阻比和巡航高度' in html
     assert '计算作战半径' in html
     assert 'data-run-dash' in html
+    assert html.count('data-run-dash') == 1
+    assert html.count('▶ 计算作战半径') == 1
     assert '混合作战半径' in html
     assert '最大 L/D' in html
     assert '选择战机' in html

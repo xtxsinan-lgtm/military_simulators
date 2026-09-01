@@ -97,6 +97,7 @@ from utils.combat_radius.lift_drag import (
     fuselage_geometric_wetted_m2,
     lifting_planform_wetted_m2,
     WETTED_RATIO_REF,
+    LIFTING_WETTED_SIDES,
     cd_wave_korn_at,
     cd_wave_ss_body_post,
     cd_wave_ss_rough,
@@ -463,15 +464,27 @@ def test_geometric_wetted_f35a_is_ratio_ref():
     assert geometric_wetted_ratio(ac) == pytest.approx(WETTED_RATIO_REF)
     assert fuse_wetted_factor(ac) == pytest.approx(1.0)
     s_wet = geometric_wetted_area_m2(ac)
+    lifting = LIFTING_WETTED_SIDES * (24.48 + 11.12)
     expected = (
         cone_lateral_area_m2(1.06, 1.02)
         + frustum_lateral_area_m2(3.26, 1.02, 1.90)
         + box_surface_area_m2(9.66, 3.40, 1.97)
-        + 24.48 + 11.12
+        + lifting
     )
     assert s_wet == pytest.approx(expected)
-    assert fuselage_geometric_wetted_m2(ac) == pytest.approx(expected - 24.48 - 11.12)
-    assert lifting_planform_wetted_m2(ac) == pytest.approx(24.48 + 11.12)
+    assert fuselage_geometric_wetted_m2(ac) == pytest.approx(expected - lifting)
+    assert lifting_planform_wetted_m2(ac) == pytest.approx(lifting)
+
+
+def test_lifting_planform_wetted_counts_both_sides():
+    """升力面浸润须按平面面积×上下两面，再与机身表面积相加。"""
+    ac = _f35a_wetted()
+    planform = ac.main_wing_area_m2 + ac.canard_htail_area_m2 + ac.ventral_fin_area_m2
+    assert LIFTING_WETTED_SIDES == pytest.approx(2.0)
+    assert lifting_planform_wetted_m2(ac) == pytest.approx(2.0 * planform)
+    assert geometric_wetted_area_m2(ac) == pytest.approx(
+        fuselage_geometric_wetted_m2(ac) + 2.0 * planform,
+    )
     missing = Aircraft(**{**aircraft_to_dict(ac), 'main_wing_area_m2': 0.0})
     assert has_geometric_wetted(missing) is False
     with pytest.raises(ValueError, match='分段几何'):
@@ -829,7 +842,7 @@ def test_canard_adds_supersonic_wave_drag():
     canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
-    assert J20_SUPERCRUISE_MACH == pytest.approx(1.70)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.68)
 
 
 def test_tailless_and_bwb_discount_volume_wave_drag():

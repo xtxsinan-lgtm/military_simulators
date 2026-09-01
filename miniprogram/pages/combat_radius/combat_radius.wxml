@@ -89,15 +89,15 @@
       <input class="input" type="digit" value="{{tgt.fuse_body_length_m}}" data-key="fuse_body_length_m" bindinput="onAcField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>主翼面积</text><text class="unit">m²</text></view>
+      <view class="field-label"><text>主翼面积（单面）</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{tgt.main_wing_area_m2}}" data-key="main_wing_area_m2" bindinput="onAcField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>平尾/鸭翼面积</text><text class="unit">m²</text></view>
+      <view class="field-label"><text>平尾/鸭翼面积（单面）</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{tgt.canard_htail_area_m2}}" data-key="canard_htail_area_m2" bindinput="onAcField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>腹鳍面积</text><text class="unit">m²</text></view>
+      <view class="field-label"><text>腹鳍面积（单面）</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{tgt.ventral_fin_area_m2}}" data-key="ventral_fin_area_m2" bindinput="onAcField"/>
     </view>
     <view class="field">
@@ -160,7 +160,6 @@
   <view class="panel">
     <view class="panel-head">包线与作战半径 · DASHBOARD</view>
     <view class="note">{{dashStatusText}}</view>
-    <view class="btn" bindtap="onRunDash">▶ 计算作战半径</view>
     <block wx:if="{{dashOk}}">
       <view class="stat-row">
         <view class="stat"><view class="k">实用最大巡航速度</view><view class="v amber">{{dashMaxCruise}}</view></view>

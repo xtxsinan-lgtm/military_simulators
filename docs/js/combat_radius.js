@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 55;
+const APP_VERSION = 57;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -152,11 +152,11 @@ function renderAircraftFields() {
     </div>
     <div class="pair">
       <div class="field"><label>机身盒段长度 <span class="unit">m</span></label><input id="tgt_fuse_body_l" type="number" step="0.01" min="0"></div>
-      <div class="field"><label>主翼面积 <span class="unit">m²</span></label><input id="tgt_main_wing" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>主翼面积（单面） <span class="unit">m²</span></label><input id="tgt_main_wing" type="number" step="0.01" min="0"></div>
     </div>
     <div class="pair">
-      <div class="field"><label>平尾/鸭翼面积 <span class="unit">m²</span></label><input id="tgt_htail" type="number" step="0.01" min="0"></div>
-      <div class="field"><label>腹鳍面积 <span class="unit">m²</span></label><input id="tgt_ventral" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>平尾/鸭翼面积（单面） <span class="unit">m²</span></label><input id="tgt_htail" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>腹鳍面积（单面） <span class="unit">m²</span></label><input id="tgt_ventral" type="number" step="0.01" min="0"></div>
     </div>
     <div class="pair">
       <div class="field"><label>翼型</label><select id="tgt_planform">${optionHtml(planforms)}</select></div>

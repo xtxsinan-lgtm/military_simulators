@@ -275,7 +275,7 @@ def test_f22_max_cruise_mach_anchored_at_supercruise():
     ctx = _f22_csv_ctx()
     m = search_max_cruise_mach(ctx)
     floor = search_max_possible_cruise_mach(ctx)
-    assert m == pytest.approx(1.77, abs=0.005)
+    assert m == pytest.approx(1.76, abs=0.005)
     assert floor is not None and floor > m + 0.05
     assert any_feasible_altitude(ctx, F22_SUPERCRUISE_MACH) is True
     assert any_feasible_altitude(ctx, 1.5) is True
@@ -517,7 +517,7 @@ def test_search_max_cruise_mach_when_low_mach_infeasible():
     ctx = _f22_csv_ctx()
     assert any_feasible_altitude(ctx, MACH_SEARCH_LO) is False
     m = search_max_cruise_mach(ctx)
-    assert m == pytest.approx(1.77, abs=0.005)
+    assert m == pytest.approx(1.76, abs=0.005)
 
 
 def test_snap_mach_quantizes_and_rejects_bad_step():
@@ -588,7 +588,7 @@ def test_practical_max_cruise_is_mach_at_peak_altitude():
         if hi + 1 < len(prof):
             assert prof[hi + 1].alt_m < peak, aid
     f22 = search_max_cruise_mach(_csv_ctx('F-22'))
-    assert f22 == pytest.approx(1.77, abs=0.005)
+    assert f22 == pytest.approx(1.76, abs=0.005)
     after = search_best_altitude(_csv_ctx('F-22'), 1.80)
     at = search_best_altitude(_csv_ctx('F-22'), f22)
     assert after is not None and at is not None
@@ -610,9 +610,9 @@ def test_j50_practical_max_from_centi_grid_not_f22_pin():
     f22 = search_max_cruise_mach(_csv_ctx('F-22'))
     j50 = search_max_cruise_mach(_csv_ctx('J-50'))
     j50n = search_max_cruise_mach(_csv_ctx('J-50N'))
-    assert f22 == pytest.approx(1.77, abs=0.005)
-    assert j50 == pytest.approx(1.77, abs=0.005)
-    assert j50n == pytest.approx(1.77, abs=0.005)
+    assert f22 == pytest.approx(1.76, abs=0.005)
+    assert j50 == pytest.approx(1.76, abs=0.005)
+    assert j50n == pytest.approx(1.76, abs=0.005)
     a_f22 = search_best_altitude(_csv_ctx('F-22'), f22)
     a_j50 = search_best_altitude(_csv_ctx('J-50'), j50)
     assert a_f22 is not None and a_j50 is not None

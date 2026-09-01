@@ -83,6 +83,8 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert 'estimate_engine_cycle' in cr_js
     assert '搜索最佳升阻比和巡航高度' in cr_wxml
     assert '计算作战半径' in cr_wxml
+    assert cr_wxml.count('bindtap="onRunDash"') == 1
+    assert cr_wxml.count('▶ 计算作战半径') == 1
     assert 'onRunDash' in cr_js
     assert '混合作战半径' in cr_wxml
     assert '速度/马赫' in cr_wxml

@@ -154,7 +154,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert 11000.0 <= m08['alt_m'] <= 12500.0
     assert m15['alt_m'] > m08['alt_m']
     assert r['mach_cone_limit'] > 1
-    assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
+    assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
     assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
     assert r['max_radius_mach'] == pytest.approx(1.63, abs=0.03)
@@ -271,7 +271,10 @@ def test_e2e_combat_radius_geometric_wetted_and_fleet_filter():
     from utils.combat_radius.lift_drag import (
         aircraft_from_dict,
         fuse_wetted_factor,
+        fuselage_geometric_wetted_m2,
+        geometric_wetted_area_m2,
         has_geometric_wetted,
+        lifting_planform_wetted_m2,
     )
 
     presets = load_presets()
@@ -281,6 +284,11 @@ def test_e2e_combat_radius_geometric_wetted_and_fleet_filter():
     ac = aircraft_from_dict(f35a)
     assert has_geometric_wetted(ac) is True
     assert fuse_wetted_factor(ac) == pytest.approx(1.0)
+    planform = ac.main_wing_area_m2 + ac.canard_htail_area_m2 + ac.ventral_fin_area_m2
+    assert lifting_planform_wetted_m2(ac) == pytest.approx(2.0 * planform)
+    assert geometric_wetted_area_m2(ac) == pytest.approx(
+        fuselage_geometric_wetted_m2(ac) + 2.0 * planform,
+    )
     r = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': f35a}})
     assert r['success'] is True
     assert 6.0 < r['target']['ld'] < 18.0
@@ -431,6 +439,10 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '飞机作战半径估算终端' in wxml
     assert '搜索最佳升阻比和巡航高度' in wxml
     assert '计算作战半径' in wxml
+    assert html_text.count('data-run-dash') == 1
+    assert html_text.count('▶ 计算作战半径') == 1
+    assert wxml.count('bindtap="onRunDash"') == 1
+    assert wxml.count('▶ 计算作战半径') == 1
     assert 'function requestLiveDash' in js_text
     assert 'onRunDash' in (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
     assert '混合作战半径' in wxml
@@ -474,6 +486,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '飞机作战半径估算终端' in ios
     assert '搜索最佳升阻比和巡航高度' in ios
     assert '计算作战半径' in ios
+    assert ios.count('▶ 计算作战半径') == 1
     assert '混合作战半径' in ios
     assert '实用最大巡航速度' in ios
     assert 'Ma 1.2 以上' in ios
@@ -677,7 +690,7 @@ def test_e2e_combat_radius_f35_max_speed_near_mach_16():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_f35c_engine_install_applied():
-    """F135 循环油耗乘数须进入仪表盘，F-35C Ma0.8 半径约 1400 km；F-22 不受影响。"""
+    """F135 循环油耗乘数须进入仪表盘，F-35C Ma0.8 半径约 1340 km；F-22 不受影响。"""
     from utils.combat_radius.combat_radius_results import run_preset_dashboard
     from utils.combat_radius.engine_efficiency import F135_TSFC_INSTALL_MULT
 
@@ -691,8 +704,8 @@ def test_e2e_combat_radius_f35c_engine_install_applied():
     m08 = next(p for p in f35c['points'] if p['id'] == 'mach_0_8')
     m08_22 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert m08['feasible'] is True
-    assert m08['radius_km'] == pytest.approx(1400, abs=50)
-    assert m08_22['radius_km'] == pytest.approx(1092, abs=50)
+    assert m08['radius_km'] == pytest.approx(1339, abs=50)
+    assert m08_22['radius_km'] == pytest.approx(1073, abs=50)
 
 
 @pytest.mark.e2e
@@ -767,7 +780,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     j50 = stored['aircraft']['J-50']
     assert j50['success'] is True
     assert j50['max_possible_cruise_mach'] > f22['max_possible_cruise_mach']
-    assert j50['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
+    assert j50['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
     j50_m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
     f22_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert j50_m08['alt_m'] >= f22_m08['alt_m']

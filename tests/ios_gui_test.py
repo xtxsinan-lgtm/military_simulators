@@ -117,6 +117,7 @@ def test_ios_uses_local_engine_not_http_api():
     assert '实用最大巡航速度' in cr_view
     assert '最大巡航速度' in cr_view
     assert '计算作战半径' in cr_view
+    assert cr_view.count('▶ 计算作战半径') == 1
     assert '机身宽' in cr_view
     assert '机身高' in cr_view
     assert '机头锥长度' in cr_view

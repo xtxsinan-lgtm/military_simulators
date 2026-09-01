@@ -50,11 +50,6 @@ struct CombatRadiusView: View {
                     Text(vm.dashSource)
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
-                    Button(vm.running ? "计算中…" : "▶ 计算作战半径") {
-                        Task { await vm.requestLiveDash() }
-                    }
-                    .buttonStyle(CombatRadiusPrimaryButton())
-                    .disabled(vm.running)
                     if let r = vm.dashboard, r.success {
                         dashPanel(r)
                     } else if let r = vm.dashboard, let err = r.error {
@@ -182,9 +177,9 @@ struct CombatRadiusView: View {
         field("机头长度 (m)", text: ac.noseLengthM)
         field("机头根部直径 (m)", text: ac.noseRootDiameterM)
         field("机身盒段长度 (m)", text: ac.fuseBodyLengthM)
-        field("主翼面积 (m²)", text: ac.mainWingAreaM2)
-        field("平尾/鸭翼面积 (m²)", text: ac.canardHtailAreaM2)
-        field("腹鳍面积 (m²)", text: ac.ventralFinAreaM2)
+        field("主翼面积（单面）(m²)", text: ac.mainWingAreaM2)
+        field("平尾/鸭翼面积（单面）(m²)", text: ac.canardHtailAreaM2)
+        field("腹鳍面积（单面）(m²)", text: ac.ventralFinAreaM2)
         pickerRow("翼型", selection: ac.planform, options: vm.planformOptions)
         pickerRow("布局", selection: ac.layout, options: vm.layoutOptions)
         pickerRow("进气道", selection: ac.inlet, options: vm.inletOptions)

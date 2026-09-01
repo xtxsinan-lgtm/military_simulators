@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=55">
+<link rel="stylesheet" href="css/combat_radius.css?v=57">
 </head>
 <body>
 <div class="scanline"></div>
@@ -73,7 +73,7 @@
         <label>附件功提取比例</label>
         <input type="number" id="effAcc" step="0.01" min="0" max="0.5" value="0.16">
       </div>
-      <button class="run" id="dashBtnInput" data-run-dash>▶ 计算作战半径</button>
+      <button class="run" id="dashBtn" data-run-dash>▶ 计算作战半径</button>
     </div>
   </div>
 
@@ -81,7 +81,6 @@
     <div class="panel">
       <div class="panel-head"><span>包线与作战半径</span><span class="tag">DASHBOARD</span></div>
       <div id="dashStatus" class="clock">STANDBY</div>
-      <button class="run" id="dashBtn" data-run-dash>▶ 计算作战半径</button>
       <div id="dashBox" class="placeholder">选择战机后自动加载预计算结果…</div>
     </div>
   </div>
@@ -122,6 +121,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预计算快照 + Pyodide 按需计算 · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=55"></script>
+<script type="module" src="js/combat_radius.js?v=57"></script>
 </body>
 </html>
