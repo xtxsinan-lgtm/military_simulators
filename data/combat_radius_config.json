@@ -33,7 +33,9 @@
   "layout_labels": {
     "conventional": "常规",
     "canard": "鸭翼",
-    "tailless": "无尾"
+    "tailless": "无尾",
+    "pelican": "Pelican尾",
+    "small_htail": "小平尾"
   },
   "inlet_labels": {
     "dsi": "DSI",

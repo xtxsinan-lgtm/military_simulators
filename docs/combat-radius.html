@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=44">
+<link rel="stylesheet" href="css/combat_radius.css?v=46">
 </head>
 <body>
 <div class="scanline"></div>
@@ -26,7 +26,7 @@
   <div class="stack">
     <div class="panel">
       <div class="panel-head"><span>选择战机</span><span class="tag">INPUT</span></div>
-      <p class="note">选择战机后自动显示极速，以及 Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0 的作战半径；表尾再给实用最大巡航速度与最大巡航速度；若高度峰值与半径最佳马赫不同，表尾多一行最大半径超音速巡航速度。不能巡航的速度仍给出可飞高度上的最大 L/D；加力可飞按全部加力、高度可到海平面。极速按各马赫最大升阻比计算。超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。</p>
+      <p class="note">选择战机后自动显示预计算的极速，以及 Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0 的作战半径；表尾再给实用最大巡航速度与最大巡航速度；若高度峰值与半径最佳马赫不同，表尾多一行最大半径超音速巡航速度。修改任意机型或发动机参数后，点「计算作战半径」按当前参数重算各速度下的整张表（也会在停止输入后自动重算）。不能巡航的速度仍给出可飞高度上的最大 L/D；加力可飞按全部加力、高度可到海平面。极速按各马赫最大升阻比计算。超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。</p>
       <div class="field">
         <label>机型</label>
         <select id="tgtPreset"></select>
@@ -73,6 +73,7 @@
         <label>附件功提取比例</label>
         <input type="number" id="effAcc" step="0.01" min="0" max="0.5" value="0.16">
       </div>
+      <button class="run" id="dashBtnInput" data-run-dash>▶ 计算作战半径</button>
     </div>
   </div>
 
@@ -80,6 +81,7 @@
     <div class="panel">
       <div class="panel-head"><span>包线与作战半径</span><span class="tag">DASHBOARD</span></div>
       <div id="dashStatus" class="clock">STANDBY</div>
+      <button class="run" id="dashBtn" data-run-dash>▶ 计算作战半径</button>
       <div id="dashBox" class="placeholder">选择战机后自动加载预计算结果…</div>
     </div>
   </div>
@@ -120,6 +122,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预计算快照 + Pyodide 按需计算 · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=44"></script>
+<script type="module" src="js/combat_radius.js?v=46"></script>
 </body>
 </html>

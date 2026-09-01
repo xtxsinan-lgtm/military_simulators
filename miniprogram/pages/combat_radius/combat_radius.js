@@ -203,7 +203,7 @@ Page({
     if (!snap || !snap.success) {
       this.setData({
         dashOk: false,
-        dashStatusText: (snap && snap.error) || '无预计算快照。填写军推后将自动重算。',
+        dashStatusText: (snap && snap.error) || '无预计算快照。填写军推后点「计算作战半径」。',
         dashRows: [],
       });
       return;
@@ -292,6 +292,12 @@ Page({
     this._dashTimer = setTimeout(() => this.runLiveDash(), 600);
   },
 
+  /** 立即按当前机型/发动机参数重算各速度仪表盘（对应「计算作战半径」）。 */
+  onRunDash() {
+    if (this._dashTimer) clearTimeout(this._dashTimer);
+    this.runLiveDash();
+  },
+
   toAircraft() {
     const ac = this.data.tgt;
     return {
@@ -339,7 +345,11 @@ Page({
   },
 
   runLiveDash() {
-    if (this.data.running) return;
+    if (this.data.running) {
+      this._dashPending = true;
+      return;
+    }
+    this._dashPending = false;
     this.setData({ running: true, dashStatusText: '重算中…' });
     api.runCombatRadiusSimulation({ action: 'aircraft_dashboard', params: this.dashboardParams() })
       .then((r) => {
@@ -354,6 +364,7 @@ Page({
           dashRows: dashRowsFrom(r),
           running: false,
         });
+        if (this._dashPending) this.runLiveDash();
       })
       .catch((e) => {
         this.setData({
@@ -361,6 +372,7 @@ Page({
           dashStatusText: String(e.message || e),
           running: false,
         });
+        if (this._dashPending) this.runLiveDash();
       });
   },
 

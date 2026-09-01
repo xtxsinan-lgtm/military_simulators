@@ -13,7 +13,7 @@ struct CombatRadiusView: View {
                     .foregroundStyle(CombatRadiusTheme.green)
 
                 panel(title: "选择战机", tag: "INPUT") {
-                    Text("选择机型后自动填充参数并加载预计算结果，无需再点按钮。修改参数后会自动重算。")
+                    Text("选择机型后自动填充参数并加载预计算结果。修改任意机型或发动机参数后，点「计算作战半径」按当前参数重算各速度下的整张表（也会在停止输入后自动重算）。")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
                     presetPicker("机型", selection: $vm.selectedTgtId) { vm.applyAircraft() }
@@ -39,12 +39,22 @@ struct CombatRadiusView: View {
                     field("涡轮前温度 T4 (K)", text: $vm.engT4)
                     field("海平面军推 (kN)", text: $vm.engTsl)
                     field("海平面加力 (kN)", text: $vm.engMaxTsl)
+                    Button(vm.running ? "计算中…" : "▶ 计算作战半径") {
+                        Task { await vm.requestLiveDash() }
+                    }
+                    .buttonStyle(CombatRadiusPrimaryButton())
+                    .disabled(vm.running)
                 }
 
                 panel(title: "包线与作战半径", tag: "DASHBOARD") {
                     Text(vm.dashSource)
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
+                    Button(vm.running ? "计算中…" : "▶ 计算作战半径") {
+                        Task { await vm.requestLiveDash() }
+                    }
+                    .buttonStyle(CombatRadiusPrimaryButton())
+                    .disabled(vm.running)
                     if let r = vm.dashboard, r.success {
                         dashPanel(r)
                     } else if let r = vm.dashboard, let err = r.error {

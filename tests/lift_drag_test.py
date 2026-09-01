@@ -18,6 +18,10 @@ from utils.combat_radius.lift_drag import (
     CDW_SS_ROUGH_WING,
     CDW_SS_WING,
     CDW_TAILLESS,
+    CDW_PELICAN,
+    CDW_SMALL_HTAIL,
+    LAYOUT_CDW_VOL,
+    LAYOUT_MULT,
     CDW_TRANS_AMP,
     CDW_TRANS_PEAK,
     CDW_TRANS_WIDTH,
@@ -316,6 +320,8 @@ def test_wetted_area_factor_planform_and_layout():
     unswept = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'unswept'})
     canard = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'canard'})
     tailless = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'tailless'})
+    pelican = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'pelican'})
+    small_htail = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'small_htail'})
     assert wetted_area_factor(delta) < w_trap
     assert wetted_area_factor(diamond) < wetted_area_factor(delta)
     assert wetted_area_factor(lam) == pytest.approx(wetted_area_factor(diamond))
@@ -324,6 +330,7 @@ def test_wetted_area_factor_planform_and_layout():
     assert wetted_area_factor(unswept) > w_trap
     assert wetted_area_factor(canard) > w_trap
     assert wetted_area_factor(tailless) < w_trap
+    assert wetted_area_factor(tailless) < wetted_area_factor(pelican) < wetted_area_factor(small_htail) < w_trap
 
 
 def test_cd_wave_zero_at_cruise_mach():
@@ -568,6 +575,26 @@ def test_tailless_and_bwb_discount_volume_wave_drag():
     assert lift_tail == pytest.approx(lift_conv)
     assert 0.5 < CDW_TAILLESS < 1.0
     assert 0.5 < CDW_BWB < 1.0
+
+
+def test_pelican_and_small_htail_discount_volume_between_tailless_and_conventional():
+    """Pelican 尾 / 小平尾体积波阻折扣介于无尾与常规之间，升力波阻不变。"""
+    conv = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.5, 'layout': 'conventional', 'bwb': False})
+    pel = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'pelican'})
+    ht = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'small_htail'})
+    tail = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'tailless'})
+    vol_conv = cd_wave_supersonic(1.5, conv, 0.0)
+    vol_pel = cd_wave_supersonic(1.5, pel, 0.0)
+    vol_ht = cd_wave_supersonic(1.5, ht, 0.0)
+    vol_tail = cd_wave_supersonic(1.5, tail, 0.0)
+    assert vol_pel == pytest.approx(vol_conv * CDW_PELICAN)
+    assert vol_ht == pytest.approx(vol_conv * CDW_SMALL_HTAIL)
+    assert vol_tail < vol_pel < vol_ht < vol_conv
+    lift_conv = cd_wave_supersonic(1.5, conv, 0.25) - vol_conv
+    lift_pel = cd_wave_supersonic(1.5, pel, 0.25) - vol_pel
+    assert lift_pel == pytest.approx(lift_conv)
+    assert LAYOUT_CDW_VOL['tailless'] == pytest.approx(CDW_TAILLESS)
+    assert LAYOUT_MULT['pelican'] < LAYOUT_MULT['small_htail'] < LAYOUT_MULT['conventional']
 
 
 def test_components_keys_and_signs():

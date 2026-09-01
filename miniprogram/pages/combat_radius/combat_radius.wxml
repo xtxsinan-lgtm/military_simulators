@@ -7,7 +7,7 @@
 
   <view class="panel">
     <view class="panel-head">选择战机 · INPUT</view>
-    <view class="note">选择机型后自动填充参数并加载预计算结果，无需再点按钮。修改参数后会自动重算。</view>
+    <view class="note">选择机型后自动填充参数并加载预计算结果。修改任意机型或发动机参数后，点「计算作战半径」按当前参数重算各速度下的整张表（也会在停止输入后自动重算）。</view>
     <view class="field">
       <view class="field-label"><text>机型</text></view>
       <picker mode="selector" range="{{presetNames}}" value="{{tgtPresetIndex}}" bindchange="onAircraftPreset">
@@ -106,11 +106,13 @@
       <view class="field-label"><text>海平面加力</text><text class="unit">kN</text></view>
       <input class="input" type="digit" value="{{engMaxTsl}}" data-key="engMaxTsl" bindinput="onField"/>
     </view>
+    <view class="btn" bindtap="onRunDash">▶ 计算作战半径</view>
   </view>
 
   <view class="panel">
     <view class="panel-head">包线与作战半径 · DASHBOARD</view>
     <view class="note">{{dashStatusText}}</view>
+    <view class="btn" bindtap="onRunDash">▶ 计算作战半径</view>
     <block wx:if="{{dashOk}}">
       <view class="stat-row">
         <view class="stat"><view class="k">实用最大巡航速度</view><view class="v amber">{{dashMaxCruise}}</view></view>

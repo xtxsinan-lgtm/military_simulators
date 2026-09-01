@@ -27,7 +27,13 @@ def test_max_payload_kg_user_specified_chinese_types():
     assert aircraft['J-50N'].empty_kg == 20800
     assert aircraft['J-50N'].internal_fuel_kg == 13000
     assert aircraft['J-50N'].mtow_kg == 41000
+    assert aircraft['NG6C'].mtow_kg == 29000
+    assert aircraft['NG6C'].max_payload_kg == 8000
+    assert aircraft['NG6B'].mtow_kg == 27000
+    assert aircraft['NG6B'].max_payload_kg == 6800
+    assert aircraft['NG6B'].is_vtol is True
     assert 'J-50' not in aircraft
+    assert 'NG6A' not in aircraft
 
 
 def test_j50n_a2a_mass_full_internal_fuel_four_missiles():

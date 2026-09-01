@@ -72,9 +72,9 @@ def test_filter_carriers_ski_jump_mode(carriers):
 
 def test_filter_aircraft_short_takeoff(aircraft):
     ac = filter_aircraft_for_mode('short_takeoff', list(aircraft.values()))
-    assert len(ac) == 2
+    assert len(ac) == 3
     ids = {a.id for a in ac}
-    assert ids == {'F-35B', 'AV-8B'}
+    assert ids == {'F-35B', 'AV-8B', 'NG6B'}
 
 
 def test_filter_aircraft_tiltrotor_and_ski_jump_excludes_tiltrotor(aircraft):

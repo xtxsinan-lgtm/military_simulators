@@ -137,7 +137,7 @@ DOUBLE_DELTA_KINK_DEFAULT = 0.45
 PlanformId = Literal[
     'trapezoidal', 'swept', 'delta', 'diamond', 'unswept', 'lambda', 'double_delta',
 ]
-LayoutId = Literal['conventional', 'canard', 'tailless']
+LayoutId = Literal['conventional', 'canard', 'tailless', 'pelican', 'small_htail']
 InletId = Literal['dsi', 'caret']
 
 # 浸润面积/参考面积的相对因子（绝对量级由 Cf0 吸收，这里只保留相对趋势）
@@ -154,6 +154,18 @@ LAYOUT_MULT: dict[str, float] = {
     'conventional': 1.00,  # 常规
     'canard': 1.05,  # 鸭式：多一个升力面，浸润/干扰阻力↑
     'tailless': 0.93,  # 无尾：浸润面积↓
+    'pelican': 0.96,  # Pelican 尾：一对全动面，浸润介于无尾与常规之间
+    'small_htail': 0.97,  # 小平尾：小面积平尾，浸润略高于无尾
+}
+# 超音速体积波阻布局折扣（升力波阻不打折；鸭翼另加 CDW_CANARD）
+CDW_PELICAN = 0.82  # Pelican / V 尾：面积律好于常规、差于无尾
+CDW_SMALL_HTAIL = 0.90  # 小平尾仍有尾部容积
+LAYOUT_CDW_VOL: dict[str, float] = {
+    'conventional': 1.00,
+    'canard': 1.00,
+    'tailless': CDW_TAILLESS,
+    'pelican': CDW_PELICAN,
+    'small_htail': CDW_SMALL_HTAIL,
 }
 # 进气道浸润乘数（绝对量级由 Cf0 吸收，这里只保留相对趋势）
 INLET_WETTED_MULT: dict[str, float] = {
@@ -405,7 +417,7 @@ def wetted_area_factor(ac: Aircraft) -> float:
 
     - 翼型越厚，浸润面积/摩擦阻力略增
     - 三角翼/双三角/钻石翼/兰姆达翼相比梯形翼浸润面积/参考面积略小；平直翼略大
-    - 鸭式布局多一个升力面；无尾布局减少
+    - 鸭式布局多一个升力面；无尾布局减少；Pelican 尾 / 小平尾介于二者之间
     - 翼身融合 (bwb) 与肥电 (rough) 是两个完全独立的开关
     - rough 乘 FAT_MULT×BUMP_MULT（F-35 肥胖 + 外形不平整，非微观表面粗糙）
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
@@ -588,7 +600,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加 + rough 超音速附加。
 
     机身/升力/鸭翼项整机计算一次；机翼前缘项双三角按两段面积加权。
-    无尾/翼身融合/加莱特进气道只打折体积项，升力波阻与 rough 附加不打折。
+    无尾/Pelican/小平尾/翼身融合/加莱特进气道只打折体积项，升力波阻与 rough 附加不打折。
     升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速；
     马赫因子在超巡带封顶，过了 1.76 再加重，峰值高度开始回落。
     超巡带之后再叠加体积项，收住加力极速（F-22 约 Ma 2.25）。
@@ -600,8 +612,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
         ac, lambda sweep: cd_wave_ss_wing_at(mach, sweep, ac.tc),
     )
     cdw = CDW_SS_BODY * dm ** 2 + cdw_wing + cd_wave_ss_body_post(mach)
-    if ac.layout == 'tailless':
-        cdw *= CDW_TAILLESS
+    cdw *= LAYOUT_CDW_VOL[ac.layout]
     if ac.bwb:
         cdw *= CDW_BWB
     cdw *= inlet_cdw_vol_mult(ac.inlet)

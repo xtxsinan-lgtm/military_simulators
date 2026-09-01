@@ -110,6 +110,8 @@ final class CombatRadiusViewModel: ObservableObject {
     private var liveTask: Task<Void, Never>?
     private var applying = false
     private var dryToMaxRatio = 0.7
+    /// 计算进行中又改了参数时，结束后再跑一轮
+    private var dashPending = false
 
     init() {
         loadPresets()
@@ -224,7 +226,7 @@ final class CombatRadiusViewModel: ObservableObject {
             dashSource = "预计算快照"
         } else {
             dashboard = resultsMap[selectedTgtId]
-            dashSource = resultsMap[selectedTgtId]?.error ?? "无预计算快照"
+            dashSource = resultsMap[selectedTgtId]?.error ?? "无预计算快照。填写军推后点「计算作战半径」。"
         }
     }
 
@@ -264,10 +266,27 @@ final class CombatRadiusViewModel: ObservableObject {
         return params
     }
 
+    /// 立即按当前机型/发动机参数重算各速度仪表盘（对应「计算作战半径」）。
+    func requestLiveDash() async {
+        liveTask?.cancel()
+        await runDashboard()
+    }
+
     func runDashboard() async {
+        if running {
+            dashPending = true
+            return
+        }
+        dashPending = false
         running = true
         dashSource = "重算中…"
-        defer { running = false }
+        defer {
+            running = false
+            if dashPending {
+                dashPending = false
+                Task { await self.runDashboard() }
+            }
+        }
         do {
             let r = try await LocalSimulatorEngine.shared.runCombatRadius(payload: [
                 "action": "aircraft_dashboard",

@@ -256,7 +256,7 @@ def test_e2e_combat_radius_http_api():
 def test_e2e_combat_radius_expanded_fleet_predict_ld():
     """扩充机型（兰姆达翼、无人机、三发双座）须能完成统一模型升阻比估计。"""
     presets = load_presets()
-    for aid in ('J-50', 'J-36', '53636', '53536', 'J-15', 'F-35B'):
+    for aid in ('J-50', 'J-36', '53636', '53536', 'J-15', 'F-35B', 'NG6C', 'NG6B', 'NG6A'):
         tgt = get_preset_by_id(presets, aid)
         r = run_combat_radius_json({
             'action': 'predict_ld',
@@ -393,6 +393,9 @@ def test_e2e_combat_radius_three_channels_exist():
     wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in wxml
     assert '搜索最佳升阻比和巡航高度' in wxml
+    assert '计算作战半径' in wxml
+    assert 'function requestLiveDash' in js_text
+    assert 'onRunDash' in (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
     assert '混合作战半径' in wxml
     assert '最大 L/D' in wxml
     assert '速度/马赫' in wxml
@@ -433,6 +436,7 @@ def test_e2e_combat_radius_three_channels_exist():
     ios = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusView.swift').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in ios
     assert '搜索最佳升阻比和巡航高度' in ios
+    assert '计算作战半径' in ios
     assert '混合作战半径' in ios
     assert '实用最大巡航速度' in ios
     assert 'Ma 1.2 以上' in ios
@@ -458,6 +462,7 @@ def test_e2e_combat_radius_three_channels_exist():
     ios_vm = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
     assert 'engine_id' in ios_vm
     assert 'wtCarrier' in ios_vm
+    assert 'func requestLiveDash' in ios_vm
     assert '舰载机' in html_text
     assert '舰载机' in wxml
     assert '舰载机' in ios
@@ -764,3 +769,31 @@ def test_e2e_search_best_cruise_and_engine_cycle_http():
     cycle = json.loads(body.decode())
     assert cycle['success'] is True
     assert cycle['eta_o'] > 0
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_modified_params_recompute_dashboard():
+    """改机型/发动机参数后，aircraft_dashboard 须重算各速度结果（对应「计算作战半径」）。"""
+    p = _radius_params()
+    p['max_tsl_kN'] = 156.0
+    base = run_combat_radius_json({'action': 'aircraft_dashboard', 'params': p})
+    assert base['success'] is True
+    q = dict(p)
+    q['empty_kg'] = p['empty_kg'] * 1.2
+    q['tsl_kN'] = p['tsl_kN'] * 0.8
+    q['opr'] = p['opr'] + 4.0
+    live = run_combat_radius_json({'action': 'aircraft_dashboard', 'params': q})
+    assert live['success'] is True
+    assert len(live['points']) == len(base['points'])
+    b08 = next(pt for pt in base['points'] if pt['id'] == 'mach_0_8')
+    l08 = next(pt for pt in live['points'] if pt['id'] == 'mach_0_8')
+    assert b08['feasible'] is True and l08['feasible'] is True
+    assert l08['radius_km'] != b08['radius_km']
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate',
+        json.dumps({'action': 'aircraft_dashboard', 'params': q}).encode(),
+    )
+    assert status == 200
+    http = json.loads(body.decode())
+    assert http['success'] is True
+    assert http['points'][0]['id'] == live['points'][0]['id']

@@ -114,6 +114,8 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'estimate_efficiency' in js_text
     assert 'engine_efficiency.py' in js_text
     assert '搜索最佳升阻比和巡航高度' in html
+    assert '计算作战半径' in html
+    assert 'data-run-dash' in html
     assert '混合作战半径' in html
     assert '最大 L/D' in html
     assert '选择战机' in html
@@ -152,6 +154,9 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'syncDoubleDeltaFields' in js_text
     assert "e.target.id === 'tgtPreset'" in js_text
     assert js_text.count("e.target.id === 'tgtPreset'") >= 2
+    assert 'function requestLiveDash' in js_text
+    assert 'data-run-dash' in js_text
+    assert '计算作战半径' in js_text
 
 
 def test_pyodide_bundles_combat_radius_modules():
@@ -229,8 +234,11 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     takeoff_ids = {a['id'] for a in payload['aircraft']}
     assert 'F-35C' in takeoff_ids
     assert 'J-50N' in takeoff_ids
+    assert 'NG6C' in takeoff_ids
+    assert 'NG6B' in takeoff_ids
     assert 'F-22' not in takeoff_ids
     assert 'J-50' not in takeoff_ids
+    assert 'NG6A' not in takeoff_ids
     assert any(p['id'] == 'f119' for p in payload['combat_radius_engine_presets'])
     assert len(payload['aircraft']) >= 1
     assert len(payload['carriers']) >= 1

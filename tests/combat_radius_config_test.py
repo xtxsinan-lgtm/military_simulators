@@ -38,9 +38,14 @@ def test_planform_and_layout_labels():
     ly = layout_labels()
     assert ly['canard'] == '鸭翼'
     assert ly['tailless'] == '无尾'
+    assert ly['pelican'] == 'Pelican尾'
+    assert ly['small_htail'] == '小平尾'
     inn = inlet_labels()
     assert inn['dsi'] == 'DSI'
     assert inn['caret'] == '加莱特'
+    from utils.combat_radius.lift_drag import LAYOUT_MULT, PLANFORM_MULT
+    assert set(pf) == set(PLANFORM_MULT)
+    assert set(ly) == set(LAYOUT_MULT)
 
 
 def test_build_combat_radius_config_payload():

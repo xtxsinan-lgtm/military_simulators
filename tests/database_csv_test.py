@@ -45,10 +45,17 @@ def test_load_aircraft_csv_count():
     assert 'J-50N' in aircraft
     assert 'J-35' in aircraft
     assert '53636N' in aircraft
+    assert 'NG6C' in aircraft
+    assert 'NG6B' in aircraft
+    assert aircraft['NG6C'].type_label == 'conventional'
+    assert aircraft['NG6B'].type_label == 'v/stol'
+    assert aircraft['NG6C'].t_max_sl_n == pytest.approx(185000)
+    assert aircraft['NG6B'].t_liftfan_sl_n == pytest.approx(83260)
     assert 'F-22' not in aircraft
     assert 'J-20' not in aircraft
     assert 'J-50' not in aircraft
     assert 'F-35A' not in aircraft
+    assert 'NG6A' not in aircraft
     assert all(ac.cd0 > 0 for ac in aircraft.values())
 
 

@@ -1,9 +1,10 @@
 /**
- * 作战半径 Web 前端：选择战机加载预计算仪表盘；改参数后自动重算；下方三个按需查询走 Pyodide。
+ * 作战半径 Web 前端：选择战机加载预计算仪表盘；改机型/发动机参数后点「计算作战半径」
+ * 按当前参数重算各速度整表（停止输入后也会自动重算）；下方三个按需查询走 Pyodide。
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 44;
+const APP_VERSION = 46;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -345,7 +346,7 @@ function cruiseSpeedLabel(p) {
 
 function renderDash(r, sourceLabel) {
   if (!r || !r.success) {
-    $('dashBox').innerHTML = `<p class="placeholder">${(r && r.error) || '无法计算该机型仪表盘（例如缺少海平面军推）。填写参数后将自动重算。'}</p>`;
+    $('dashBox').innerHTML = `<p class="placeholder">${(r && r.error) || '无法计算该机型仪表盘（例如缺少海平面军推）。填写参数后点「计算作战半径」。'}</p>`;
     $('dashStatus').textContent = 'UNAVAILABLE';
     return;
   }
@@ -411,27 +412,54 @@ function showSnapshot() {
   const id = $('tgtPreset').value;
   const snap = id ? snapshotFor(id) : null;
   if (!snap) {
-    $('dashBox').innerHTML = '<p class="placeholder">无预计算快照。填写海平面军推后将自动计算。</p>';
+    $('dashBox').innerHTML = '<p class="placeholder">无预计算快照。填写海平面军推后点「计算作战半径」。</p>';
     $('dashStatus').textContent = 'NO SNAPSHOT';
     return;
   }
   renderDash(snap, '预计算快照 ·');
 }
 
-function scheduleLiveDash() {
+/** 同步「计算作战半径」按钮的禁用与文案。 */
+function setDashButtonsRunning(on) {
+  document.querySelectorAll('[data-run-dash]').forEach((btn) => {
+    btn.disabled = on;
+    btn.textContent = on ? '计算中…' : '▶ 计算作战半径';
+  });
+}
+
+function markParamsDirty() {
   if (applyingPreset) return;
   dirty = true;
-  $('dashStatus').textContent = 'PARAMS CHANGED';
+  if ($('dashStatus').textContent !== 'RUNNING') {
+    $('dashStatus').textContent = 'PARAMS CHANGED';
+  }
+}
+
+function scheduleLiveDash() {
+  markParamsDirty();
   clearTimeout(dashTimer);
   dashTimer = setTimeout(() => {
     runLiveDash();
   }, 600);
 }
 
+/** 立即按当前机型/发动机参数重算各速度仪表盘（对应「计算作战半径」）。 */
+function requestLiveDash() {
+  markParamsDirty();
+  clearTimeout(dashTimer);
+  return runLiveDash();
+}
+
 async function runLiveDash() {
-  if (runLock) return;
+  if (applyingPreset) return;
+  if (runLock) {
+    dirty = true;
+    return;
+  }
   runLock = true;
+  dirty = false;
   $('dashStatus').textContent = 'RUNNING';
+  setDashButtonsRunning(true);
   try {
     await initPyodide();
     const result = await callPythonAsync('aircraft_dashboard', readDashboardParams());
@@ -442,6 +470,12 @@ async function runLiveDash() {
     $('dashStatus').textContent = 'ERROR';
   } finally {
     runLock = false;
+    setDashButtonsRunning(false);
+    if (dirty) {
+      setTimeout(() => {
+        runLiveDash();
+      }, 0);
+    }
   }
 }
 
@@ -457,6 +491,11 @@ async function withLock(fn) {
     await fn();
   } finally {
     runLock = false;
+    if (dirty) {
+      setTimeout(() => {
+        runLiveDash();
+      }, 0);
+    }
   }
 }
 
@@ -599,6 +638,9 @@ async function main() {
     });
     applyUiDefaults();
     bindLiveInputs();
+    document.querySelectorAll('[data-run-dash]').forEach((btn) => {
+      btn.addEventListener('click', () => requestLiveDash());
+    });
     $('q1Btn').addEventListener('click', () => runSearchCruise());
     $('q2Btn').addEventListener('click', () => runPoint());
     $('q3Btn').addEventListener('click', () => runEngineCycle());

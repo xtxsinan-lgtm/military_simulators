@@ -22,6 +22,7 @@ EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
     'J-35', 'J-35A', '53636', '53636N', '53536',
     'F-35B', 'AV-8B', 'J-15', 'J-15T', 'MiG-29K', 'Rafale-M',
     'FA-18E', 'FA-18C', 'F-14', 'MV-22',
+    'NG6C', 'NG6B', 'NG6A',
 ]
 
 
@@ -88,6 +89,44 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav_n['inlet'] == 'caret'
     assert j20['inlet'] == 'dsi'
     assert f35['inlet'] == 'dsi'
+
+
+def test_ng6_medium_sixth_gen_presets():
+    """中型六代机三型：兰姆达翼、Pelican/小平尾、对应发动机。"""
+    presets = load_presets()
+    c = get_preset_by_id(presets, 'NG6C')
+    b = get_preset_by_id(presets, 'NG6B')
+    a = get_preset_by_id(presets, 'NG6A')
+    assert c is not None and b is not None and a is not None
+    assert c['name'] == '弹射型中型六代机'
+    assert b['name'] == '垂起型中型六代机'
+    assert a['name'] == '陆基型中型六代机'
+    assert c['planform'] == b['planform'] == a['planform'] == 'lambda'
+    assert c['layout'] == 'pelican'
+    assert b['layout'] == a['layout'] == 'small_htail'
+    assert c['engine_id'] == a['engine_id'] == 'ws15i'
+    assert b['engine_id'] == 'f135'
+    assert c['n_engines'] == b['n_engines'] == a['n_engines'] == 1
+    assert c['carrier'] is True
+    assert b['carrier'] is True
+    assert a['carrier'] is False
+    assert c['length_m'] == b['length_m'] == a['length_m'] == pytest.approx(17.7)
+    assert c['wingspan_m'] == pytest.approx(13.3)
+    assert b['wingspan_m'] == a['wingspan_m'] == pytest.approx(12.1)
+    assert c['wing_area_m2'] == pytest.approx(66.6)
+    assert b['wing_area_m2'] == a['wing_area_m2'] == pytest.approx(55.9)
+    assert c['empty_kg'] == pytest.approx(12700)
+    assert b['empty_kg'] == pytest.approx(12900)
+    assert a['empty_kg'] == pytest.approx(11400)
+    assert c['internal_fuel_kg'] == pytest.approx(8500)
+    assert b['internal_fuel_kg'] == pytest.approx(7900)
+    assert a['internal_fuel_kg'] == pytest.approx(8200)
+    assert c['sweep_deg'] == b['sweep_deg'] == a['sweep_deg'] == pytest.approx(49.0)
+    assert c['mach_angle_deg'] == pytest.approx(28.6)
+    assert c['type_label'] == 'conventional'
+    assert b['type_label'] == 'v/stol'
+    assert c['tc'] == pytest.approx(0.043)
+    assert b['tc'] == a['tc'] == pytest.approx(0.047)
 
 
 def test_get_preset_by_id_missing_returns_none():
