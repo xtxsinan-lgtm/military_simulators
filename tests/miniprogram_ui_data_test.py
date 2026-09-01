@@ -107,8 +107,14 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert 'mach_angle_deg' in cr_js
     assert 'fuse_width_m' in cr_js
     assert 'fuse_height_m' in cr_js
+    assert 'nose_cone_length_m' in cr_js
+    assert 'main_wing_area_m2' in cr_js
+    assert 'canard_htail_area_m2' in cr_js
     assert '机身宽' in cr_wxml
     assert '机身高' in cr_wxml
+    assert '机头锥长度' in cr_wxml
+    assert '平尾/鸭翼面积' in cr_wxml
+    assert '腹鳍面积' in cr_wxml
     assert 'resolveTslKN' in cr_js
     assert 'sweep_inner_deg' in cr_js
     assert '内段前缘后掠' in cr_wxml

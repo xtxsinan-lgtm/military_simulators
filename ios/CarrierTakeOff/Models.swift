@@ -156,6 +156,14 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var wingspan_m: Double?
     var fuse_width_m: Double?
     var fuse_height_m: Double?
+    var nose_cone_length_m: Double?
+    var nose_cone_diameter_m: Double?
+    var nose_length_m: Double?
+    var nose_root_diameter_m: Double?
+    var fuse_body_length_m: Double?
+    var main_wing_area_m2: Double?
+    var canard_htail_area_m2: Double?
+    var ventral_fin_area_m2: Double?
     var mach_angle_deg: Double?
     var wing_area_m2: Double?
     var bvr_missile: String?

@@ -84,6 +84,16 @@ from utils.combat_radius.lift_drag import (
     fuse_wetted_factor,
     ellipse_perimeter_m,
     wetted_area_factor,
+    cone_lateral_area_m2,
+    frustum_lateral_area_m2,
+    box_surface_area_m2,
+    has_geometric_wetted,
+    has_geometric_wetted_dict,
+    geometric_wetted_area_m2,
+    geometric_wetted_ratio,
+    fuselage_geometric_wetted_m2,
+    lifting_planform_wetted_m2,
+    WETTED_RATIO_REF,
     cd_wave_korn_at,
     cd_wave_ss_body_post,
     cd_wave_ss_rough,
@@ -408,6 +418,118 @@ def test_fuse_wetted_factor_ref_is_one_missing_is_one():
     )
 
 
+def _f35a_wetted() -> Aircraft:
+    """F-35A 分段浸润几何（与 CSV / 归一化基准一致）。"""
+    return Aircraft(**{
+        **aircraft_to_dict(_f35c()),
+        'name': 'F-35A',
+        'tc': 0.06,
+        'wing_loading': 0.432,
+        'nose_cone_length_m': 1.06,
+        'nose_cone_diameter_m': 1.02,
+        'nose_length_m': 3.26,
+        'nose_root_diameter_m': 1.90,
+        'fuse_body_length_m': 9.66,
+        'fuse_width_m': 3.40,
+        'fuse_height_m': 1.97,
+        'main_wing_area_m2': 24.48,
+        'canard_htail_area_m2': 11.12,
+        'ventral_fin_area_m2': 0.0,
+        'wing_area_m2': 42.74,
+    })
+
+
+def test_cone_frustum_box_surface_formulas():
+    """圆锥/圆台/长方体表面积公式：单位圆、圆柱退化、单位立方。"""
+    assert cone_lateral_area_m2(1.0, 2.0) == pytest.approx(math.pi * math.sqrt(2.0))
+    assert frustum_lateral_area_m2(1.0, 2.0, 2.0) == pytest.approx(2.0 * math.pi)
+    assert box_surface_area_m2(1.0, 1.0, 1.0) == pytest.approx(6.0)
+    with pytest.raises(ValueError, match='机头锥'):
+        cone_lateral_area_m2(0.0, 1.0)
+    with pytest.raises(ValueError, match='圆台'):
+        frustum_lateral_area_m2(1.0, 0.0, 1.0)
+    with pytest.raises(ValueError, match='盒段'):
+        box_surface_area_m2(1.0, 1.0, 0.0)
+
+
+def test_geometric_wetted_f35a_is_ratio_ref():
+    """F-35A 分段浸润比等于归一化基准，机身浸润乘数为 1。"""
+    ac = _f35a_wetted()
+    assert has_geometric_wetted(ac) is True
+    assert has_geometric_wetted_dict(aircraft_to_dict(ac)) is True
+    assert geometric_wetted_ratio(ac) == pytest.approx(WETTED_RATIO_REF)
+    assert fuse_wetted_factor(ac) == pytest.approx(1.0)
+    s_wet = geometric_wetted_area_m2(ac)
+    expected = (
+        cone_lateral_area_m2(1.06, 1.02)
+        + frustum_lateral_area_m2(3.26, 1.02, 1.90)
+        + box_surface_area_m2(9.66, 3.40, 1.97)
+        + 24.48 + 11.12
+    )
+    assert s_wet == pytest.approx(expected)
+    assert fuselage_geometric_wetted_m2(ac) == pytest.approx(expected - 24.48 - 11.12)
+    assert lifting_planform_wetted_m2(ac) == pytest.approx(24.48 + 11.12)
+    missing = Aircraft(**{**aircraft_to_dict(ac), 'main_wing_area_m2': 0.0})
+    assert has_geometric_wetted(missing) is False
+    with pytest.raises(ValueError, match='分段几何'):
+        geometric_wetted_area_m2(missing)
+
+
+def test_geometric_wetted_larger_wing_lowers_ratio():
+    """同机身更大主翼 → S_wet/S_ref 更小，浸润乘数低于 F-35A。"""
+    a = _f35a_wetted()
+    c = Aircraft(**{
+        **aircraft_to_dict(a),
+        'name': 'F-35C',
+        'main_wing_area_m2': 38.84,
+        'canard_htail_area_m2': 13.04,
+        'wing_area_m2': 62.06,
+    })
+    assert geometric_wetted_ratio(c) < geometric_wetted_ratio(a)
+    assert fuse_wetted_factor(c) < 1.0
+    j20 = Aircraft(**{
+        **aircraft_to_dict(_j20()),
+        'nose_cone_length_m': 1.54,
+        'nose_cone_diameter_m': 1.24,
+        'nose_length_m': 4.37,
+        'nose_root_diameter_m': 1.29,
+        'fuse_body_length_m': 13.87,
+        'fuse_width_m': 3.80,
+        'fuse_height_m': 1.88,
+        'main_wing_area_m2': 32.93,
+        'canard_htail_area_m2': 6.90,
+        'ventral_fin_area_m2': 6.38,
+        'wing_area_m2': 76.8,
+    })
+    assert j20.ventral_fin_area_m2 == pytest.approx(3.19 * 2)
+    assert has_geometric_wetted(j20) is True
+    assert geometric_wetted_area_m2(j20) > geometric_wetted_area_m2(a)
+
+
+def test_has_geometric_wetted_dict_requires_all_fields():
+    """缺任一必填分段字段则不算作战半径几何机型。"""
+    d = aircraft_to_dict(_f35a_wetted())
+    assert has_geometric_wetted_dict(d) is True
+    d['nose_cone_length_m'] = 0
+    assert has_geometric_wetted_dict(d) is False
+    assert has_geometric_wetted_dict({}) is False
+
+
+def test_csv_presets_use_geometric_wetted_and_exclude_j15():
+    """CSV 作战半径机型走分段浸润；歼-15 不在列表。"""
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets, preset_to_aircraft
+
+    presets = load_presets()
+    assert get_preset_by_id(presets, 'J-15') is None
+    f35a = preset_to_aircraft(get_preset_by_id(presets, 'F-35A'))
+    assert has_geometric_wetted(f35a) is True
+    assert fuse_wetted_factor(f35a) == pytest.approx(1.0)
+    f35c = preset_to_aircraft(get_preset_by_id(presets, 'F-35C'))
+    assert fuse_wetted_factor(f35c) < fuse_wetted_factor(f35a)
+    j20 = preset_to_aircraft(get_preset_by_id(presets, 'J-20'))
+    assert j20.ventral_fin_area_m2 == pytest.approx(6.38)
+
+
 def test_fuse_body_area_factor_clamps_and_defaults():
     """截面积比钳位；缺截面为 1；参考截面为 1。"""
     assert fuse_body_area_factor(_f22()) == pytest.approx(1.0)
@@ -704,7 +826,7 @@ def test_canard_adds_supersonic_wave_drag():
     canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
-    assert J20_SUPERCRUISE_MACH == pytest.approx(1.67)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.77)
 
 
 def test_tailless_and_bwb_discount_volume_wave_drag():

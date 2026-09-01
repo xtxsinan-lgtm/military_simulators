@@ -219,7 +219,7 @@ def test_f22_afterburner_max_speed_near_published_mach_225():
     })
     assert r['success'] is True and r['feasible'] is True
     assert r['max_speed_mach'] == pytest.approx(F22_MAX_SPEED_MACH, abs=0.08)
-    assert r['max_speed_mach'] < 2.32
+    assert r['max_speed_mach'] < 2.33
 
 
 def test_run_estimate_max_speed_missing_max_thrust_raises():

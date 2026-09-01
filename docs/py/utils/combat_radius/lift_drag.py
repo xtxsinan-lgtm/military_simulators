@@ -11,8 +11,10 @@
 避免抛物线极曲线把 L/Dmax 推到 CL≈0.57（Ma 0.8 约 15 km）。
 低翼载飞机同一高度 CL 更小，可以飞得更高。
 无座舱无人机去掉风挡浸润；机长只进入马赫锥项（Ma 1.5 通常未触发）。
-机身截面（宽×高）按椭圆计周长与面积：浸润按周长相对 F-35/中六参考截面缩放机身份额，
-跨声速鼓包与超音速机身体积波阻按截面积比缩放（钳位）；机翼/升力波阻不乘截面。
+有完整分段几何时，浸润按机头锥（圆锥侧面积）+ 机头（圆台侧面积）+ 机身盒段（长方体表面积）
++ 主翼 + 鸭翼/平尾 + 腹鳍，再除以参考翼面积，并相对 F-35A 的 S_wet/S_ref 归一化；
+缺分段几何时回退为机身截面椭圆周长相对 F-35/中六参考缩放机身份额。
+跨声速鼓包与超音速机身体积波阻仍按截面积比缩放（钳位）；机翼/升力波阻不乘截面。
 缺宽高时乘数为 1，旧测试用 Aircraft() 行为不变。
 F-35 等 rough=True 机型加大浸润（肥机身 + 外形不平整，非微观表面粗糙），相对光滑隐身机降 L/D。
 进气道独立于翼型/布局：DSI 无隔道、浸润基准；加莱特（caret）有隔道板与唇口，
@@ -69,15 +71,15 @@ CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小�
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
 # 超音速波阻：体积/升力项使光滑隐身机超巡可飞；实用最大巡航由 Ma 1.2 以上
-# 高度极值搜索给出（0.01 马赫网格；取高度真正见顶的马赫，F-22 约 1.77，歼-20 约 1.67）。
+# 高度极值搜索给出（0.01 马赫网格；取高度真正见顶的马赫，F-22 / 歼-20 约 1.77）。
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²·lift_wave_mach_factor：Ma 1.5 压住超音速 L/D 避免半径倒挂，
 # 1.5–1.76 不再随马赫加重，过了超巡带再加重，使峰值高度在 1.76 后回落。
 SUPERCRUISE_BAND_HI = 1.76  # 超巡带上沿：此后升力波阻再随马赫加重
 F22_SUPERCRUISE_MACH = SUPERCRUISE_BAND_HI
 F22_MAX_SPEED_MACH = 2.25  # 公开加力极速；后段体积波阻按此标定
-J20_SUPERCRUISE_MACH = 1.67
-J35A_SUPERCRUISE_MACH = 1.57
+J20_SUPERCRUISE_MACH = 1.77
+J35A_SUPERCRUISE_MACH = 1.63
 CDW_SS_BODY = 0.00450
 CDW_SS_WING = 3.00
 CDW_SS_LIFT = 0.65
@@ -213,6 +215,15 @@ class Aircraft:
     wingspan_m: float = 0.0  # 翼展；缺省 0 表示不启用
     fuse_width_m: float = 0.0  # 机身最大宽度 m；缺省 0 表示不按截面缩放
     fuse_height_m: float = 0.0  # 机身最大高度 m；缺省 0 表示不按截面缩放
+    nose_cone_length_m: float = 0.0  # 机头锥长度 m；与直径一起算圆锥侧面积
+    nose_cone_diameter_m: float = 0.0  # 机头锥底部直径 m
+    nose_length_m: float = 0.0  # 机头（锥后至盒段）长度 m；圆台高
+    nose_root_diameter_m: float = 0.0  # 机头根部直径 m（圆台大端）
+    fuse_body_length_m: float = 0.0  # 机身盒段长度 m（不含锥与机头）
+    main_wing_area_m2: float = 0.0  # 暴露主翼面积 m²（非参考翼面积）
+    canard_htail_area_m2: float = 0.0  # 鸭翼或平尾双侧面积 m²（单侧×2 入库）
+    ventral_fin_area_m2: float = 0.0  # 腹鳍双侧面积 m²（单侧×2 入库）
+    wing_area_m2: float = 0.0  # 气动参考翼面积 S_ref m²；浸润比分母
     mach_angle_deg: float = 0.0  # 翼尖-机头连线与机身轴线夹角（度）；优先于机长/翼展
     canopy: bool = True  # 有座舱风挡；无人机为 False，浸润更小
     sweep_inner_deg: float = 0.0  # 双三角内段前缘后掠（度）；0 表示未启用两段
@@ -303,6 +314,15 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         wingspan_m=_optional_positive_float(data.get('wingspan_m')),
         fuse_width_m=_optional_positive_float(data.get('fuse_width_m')),
         fuse_height_m=_optional_positive_float(data.get('fuse_height_m')),
+        nose_cone_length_m=_optional_positive_float(data.get('nose_cone_length_m')),
+        nose_cone_diameter_m=_optional_positive_float(data.get('nose_cone_diameter_m')),
+        nose_length_m=_optional_positive_float(data.get('nose_length_m')),
+        nose_root_diameter_m=_optional_positive_float(data.get('nose_root_diameter_m')),
+        fuse_body_length_m=_optional_positive_float(data.get('fuse_body_length_m')),
+        main_wing_area_m2=_optional_positive_float(data.get('main_wing_area_m2')),
+        canard_htail_area_m2=_optional_positive_float(data.get('canard_htail_area_m2')),
+        ventral_fin_area_m2=_optional_positive_float(data.get('ventral_fin_area_m2')),
+        wing_area_m2=_optional_positive_float(data.get('wing_area_m2')),
         mach_angle_deg=_optional_positive_float(data.get('mach_angle_deg')),
         canopy=_canopy_from_dict(data),
         sweep_inner_deg=_optional_positive_float(data.get('sweep_inner_deg')),
@@ -446,6 +466,112 @@ def fuse_section_area_m2(width_m: float, height_m: float) -> float:
     return math.pi * width_m * height_m / 4.0
 
 
+# 分段浸润所需字段：机头锥 + 机头圆台 + 盒段 + 主翼 + 参考翼面积
+GEOMETRIC_WETTED_REQUIRED: tuple[str, ...] = (
+    'nose_cone_length_m', 'nose_cone_diameter_m', 'nose_length_m',
+    'nose_root_diameter_m', 'fuse_body_length_m', 'fuse_width_m',
+    'fuse_height_m', 'main_wing_area_m2', 'wing_area_m2',
+)
+
+
+def cone_lateral_area_m2(length_m: float, diameter_m: float) -> float:
+    """正圆锥侧面积 π r ℓ，ℓ 为母线长 sqrt(r²+h²)；不含底面。"""
+    if length_m <= 0 or diameter_m <= 0:
+        raise ValueError('机头锥长度与直径须为正')
+    radius = diameter_m / 2.0
+    slant = math.hypot(radius, length_m)
+    return math.pi * radius * slant
+
+
+def frustum_lateral_area_m2(
+    length_m: float,
+    diameter_front_m: float,
+    diameter_rear_m: float,
+) -> float:
+    """正圆台侧面积 π (r1+r2) ℓ；两端直径相等时退化为圆柱侧面积。"""
+    if length_m <= 0 or diameter_front_m <= 0 or diameter_rear_m <= 0:
+        raise ValueError('机头圆台长度与两端直径须为正')
+    r1 = diameter_front_m / 2.0
+    r2 = diameter_rear_m / 2.0
+    slant = math.hypot(r1 - r2, length_m)
+    return math.pi * (r1 + r2) * slant
+
+
+def box_surface_area_m2(length_m: float, width_m: float, height_m: float) -> float:
+    """长方体表面积 2(lw + lh + wh)。"""
+    if length_m <= 0 or width_m <= 0 or height_m <= 0:
+        raise ValueError('机身盒段长宽高须为正')
+    return 2.0 * (length_m * width_m + length_m * height_m + width_m * height_m)
+
+
+def has_geometric_wetted(ac: Aircraft) -> bool:
+    """是否具备完整分段几何，可用圆锥+圆台+长方体+升力面算浸润。"""
+    return (
+        ac.nose_cone_length_m > 0.0
+        and ac.nose_cone_diameter_m > 0.0
+        and ac.nose_length_m > 0.0
+        and ac.nose_root_diameter_m > 0.0
+        and ac.fuse_body_length_m > 0.0
+        and ac.fuse_width_m > 0.0
+        and ac.fuse_height_m > 0.0
+        and ac.main_wing_area_m2 > 0.0
+        and ac.wing_area_m2 > 0.0
+    )
+
+
+def has_geometric_wetted_dict(data: dict[str, Any]) -> bool:
+    """字典版：作战半径机型筛选（须填充分段浸润字段）。"""
+    for key in GEOMETRIC_WETTED_REQUIRED:
+        raw = data.get(key)
+        if raw in (None, ''):
+            return False
+        if float(raw) <= 0.0:
+            return False
+    return True
+
+
+def fuselage_geometric_wetted_m2(ac: Aircraft) -> float:
+    """机身分段浸润：圆锥侧面积 + 圆台侧面积 + 长方体表面积。"""
+    return (
+        cone_lateral_area_m2(ac.nose_cone_length_m, ac.nose_cone_diameter_m)
+        + frustum_lateral_area_m2(
+            ac.nose_length_m, ac.nose_cone_diameter_m, ac.nose_root_diameter_m,
+        )
+        + box_surface_area_m2(ac.fuse_body_length_m, ac.fuse_width_m, ac.fuse_height_m)
+    )
+
+
+def lifting_planform_wetted_m2(ac: Aircraft) -> float:
+    """升力面浸润：主翼 + 鸭翼/平尾（双侧）+ 腹鳍（双侧）。"""
+    return ac.main_wing_area_m2 + ac.canard_htail_area_m2 + ac.ventral_fin_area_m2
+
+
+def geometric_wetted_area_m2(ac: Aircraft) -> float:
+    """全机几何浸润面积 = 机身分段 + 升力面。"""
+    if not has_geometric_wetted(ac):
+        raise ValueError('缺少完整分段几何，无法计算浸润面积')
+    return fuselage_geometric_wetted_m2(ac) + lifting_planform_wetted_m2(ac)
+
+
+def geometric_wetted_ratio(ac: Aircraft) -> float:
+    """几何浸润面积与参考翼面积之比 S_wet / S_ref。"""
+    return geometric_wetted_area_m2(ac) / ac.wing_area_m2
+
+
+def _f35a_wetted_ratio_ref() -> float:
+    """F-35A 分段浸润 / 参考翼面积，用作有几何时的归一化基准。"""
+    s_wet = (
+        cone_lateral_area_m2(1.06, 1.02)
+        + frustum_lateral_area_m2(3.26, 1.02, 1.90)
+        + box_surface_area_m2(9.66, 3.40, 1.97)
+        + 24.48 + 11.12
+    )
+    return s_wet / 42.74
+
+
+WETTED_RATIO_REF = _f35a_wetted_ratio_ref()
+
+
 def _fuse_section_dims(ac: Aircraft) -> tuple[float, float] | None:
     """有效机身截面；宽或高缺省则视为未建模。"""
     if ac.fuse_width_m > 0.0 and ac.fuse_height_m > 0.0:
@@ -454,10 +580,13 @@ def _fuse_section_dims(ac: Aircraft) -> tuple[float, float] | None:
 
 
 def fuse_wetted_factor(ac: Aircraft) -> float:
-    """机身周长相对 F-35 参考的浸润乘数；缺截面时为 1。
+    """机身/浸润相对乘数。
 
-    只缩放机身贡献份额 FUSE_WETTED_FRAC，不乘机长（避免把细长机身当成更肥）。
+    有完整分段几何时：S_wet/S_ref 相对 F-35A 基准归一化（参考机上为 1）。
+    否则按椭圆周长相对 F-35 参考缩放机身份额 FUSE_WETTED_FRAC；缺截面为 1。
     """
+    if has_geometric_wetted(ac):
+        return geometric_wetted_ratio(ac) / WETTED_RATIO_REF
     dims = _fuse_section_dims(ac)
     if dims is None:
         return 1.0
@@ -486,7 +615,8 @@ def wetted_area_factor(ac: Aircraft) -> float:
     - rough 乘 FAT_MULT×BUMP_MULT（F-35 肥胖 + 外形不平整，非微观表面粗糙）
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
     - 进气道：DSI 无隔道；加莱特隔道板/唇口抬高浸润
-    - 机身截面：按椭圆周长相对 F-35 参考缩放机身份额；缺宽高则不改
+    - 有分段几何时：圆锥+圆台+长方体+升力面相对 F-35A 的 S_wet/S_ref 归一化
+    - 无分段几何时：按椭圆周长相对 F-35 参考缩放机身份额；缺宽高则不改
     """
     planform_mult = PLANFORM_MULT[ac.planform]
     layout_mult = LAYOUT_MULT[ac.layout]

@@ -47,6 +47,10 @@ def reset_takeoff_module_defaults(mod) -> None:
             float(mode['ski_jump_angle_deg']),
             lip_height_m=float(lip) if lip is not None else None,
         )
+    # STOVL 仿真会改写尾流参数，快照前须回到 F-35B 默认
+    if hasattr(mod, 'apply_exhaust_plume_params'):
+        from utils.takeoff.exhaust_plume import default_exhaust_plume_params
+        mod.apply_exhaust_plume_params(default_exhaust_plume_params())
 
 
 def snap_flat() -> dict[str, Any]:

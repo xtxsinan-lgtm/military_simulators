@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 51;
+const APP_VERSION = 52;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -108,6 +108,22 @@ function renderAircraftFields() {
       <div class="field"><label>机身高 <span class="unit">m</span></label><input id="tgt_fuse_h" type="number" step="0.01" min="0"></div>
     </div>
     <div class="pair">
+      <div class="field"><label>机头锥长度 <span class="unit">m</span></label><input id="tgt_nose_cone_l" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>机头锥直径 <span class="unit">m</span></label><input id="tgt_nose_cone_d" type="number" step="0.01" min="0"></div>
+    </div>
+    <div class="pair">
+      <div class="field"><label>机头长度 <span class="unit">m</span></label><input id="tgt_nose_l" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>机头根部直径 <span class="unit">m</span></label><input id="tgt_nose_root_d" type="number" step="0.01" min="0"></div>
+    </div>
+    <div class="pair">
+      <div class="field"><label>机身盒段长度 <span class="unit">m</span></label><input id="tgt_fuse_body_l" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>主翼面积 <span class="unit">m²</span></label><input id="tgt_main_wing" type="number" step="0.01" min="0"></div>
+    </div>
+    <div class="pair">
+      <div class="field"><label>平尾/鸭翼面积 <span class="unit">m²</span></label><input id="tgt_htail" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>腹鳍面积 <span class="unit">m²</span></label><input id="tgt_ventral" type="number" step="0.01" min="0"></div>
+    </div>
+    <div class="pair">
       <div class="field"><label>翼型</label><select id="tgt_planform">${optionHtml(planforms)}</select></div>
       <div class="field"><label>布局</label><select id="tgt_layout">${optionHtml(layouts)}</select></div>
     </div>
@@ -149,6 +165,14 @@ function applyPresetToFields(preset) {
   $('tgt_span').value = preset.wingspan_m != null ? preset.wingspan_m : '';
   $('tgt_fuse_w').value = preset.fuse_width_m != null ? preset.fuse_width_m : '';
   $('tgt_fuse_h').value = preset.fuse_height_m != null ? preset.fuse_height_m : '';
+  $('tgt_nose_cone_l').value = preset.nose_cone_length_m != null ? preset.nose_cone_length_m : '';
+  $('tgt_nose_cone_d').value = preset.nose_cone_diameter_m != null ? preset.nose_cone_diameter_m : '';
+  $('tgt_nose_l').value = preset.nose_length_m != null ? preset.nose_length_m : '';
+  $('tgt_nose_root_d').value = preset.nose_root_diameter_m != null ? preset.nose_root_diameter_m : '';
+  $('tgt_fuse_body_l').value = preset.fuse_body_length_m != null ? preset.fuse_body_length_m : '';
+  $('tgt_main_wing').value = preset.main_wing_area_m2 != null ? preset.main_wing_area_m2 : '';
+  $('tgt_htail').value = preset.canard_htail_area_m2 != null ? preset.canard_htail_area_m2 : '';
+  $('tgt_ventral').value = preset.ventral_fin_area_m2 != null ? preset.ventral_fin_area_m2 : '';
   if ($('tgt_type_label')) $('tgt_type_label').value = preset.type_label || '';
   applyWeightFromPreset(preset);
   syncDoubleDeltaFields();
@@ -220,6 +244,14 @@ function readAircraft() {
     wingspan_m: Number($('tgt_span').value),
     fuse_width_m: Number($('tgt_fuse_w').value),
     fuse_height_m: Number($('tgt_fuse_h').value),
+    nose_cone_length_m: Number($('tgt_nose_cone_l').value),
+    nose_cone_diameter_m: Number($('tgt_nose_cone_d').value),
+    nose_length_m: Number($('tgt_nose_l').value),
+    nose_root_diameter_m: Number($('tgt_nose_root_d').value),
+    fuse_body_length_m: Number($('tgt_fuse_body_l').value),
+    main_wing_area_m2: Number($('tgt_main_wing').value),
+    canard_htail_area_m2: Number($('tgt_htail').value),
+    ventral_fin_area_m2: Number($('tgt_ventral').value),
     mach_angle_deg: Number($('tgt_mach_angle').value),
     wing_area_m2: Number($('tgt_area').value),
     type_label: $('tgt_type_label') ? $('tgt_type_label').value : '',

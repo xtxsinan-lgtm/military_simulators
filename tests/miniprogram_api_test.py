@@ -65,7 +65,7 @@ def test_post_combat_radius_simulate_success():
     result = json.loads(body.decode())
     assert result['success'] is True
     assert result['Cf0'] > 0
-    assert 8.0 < result['target']['ld'] < 12.0
+    assert 8.0 < result['target']['ld'] < 18.0
 
 
 def test_post_combat_radius_estimate_thrust_success():

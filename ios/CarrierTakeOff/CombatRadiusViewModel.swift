@@ -21,6 +21,14 @@ struct CombatRadiusAircraftInput {
     var wingspanM = ""
     var fuseWidthM = ""
     var fuseHeightM = ""
+    var noseConeLengthM = ""
+    var noseConeDiameterM = ""
+    var noseLengthM = ""
+    var noseRootDiameterM = ""
+    var fuseBodyLengthM = ""
+    var mainWingAreaM2 = ""
+    var canardHtailAreaM2 = ""
+    var ventralFinAreaM2 = ""
     var machAngleDeg = ""
     var wingAreaM2 = ""
     var typeLabel = ""
@@ -45,6 +53,14 @@ struct CombatRadiusAircraftInput {
         wingspanM = p.wingspan_m.map { String($0) } ?? ""
         fuseWidthM = p.fuse_width_m.map { String($0) } ?? ""
         fuseHeightM = p.fuse_height_m.map { String($0) } ?? ""
+        noseConeLengthM = p.nose_cone_length_m.map { String($0) } ?? ""
+        noseConeDiameterM = p.nose_cone_diameter_m.map { String($0) } ?? ""
+        noseLengthM = p.nose_length_m.map { String($0) } ?? ""
+        noseRootDiameterM = p.nose_root_diameter_m.map { String($0) } ?? ""
+        fuseBodyLengthM = p.fuse_body_length_m.map { String($0) } ?? ""
+        mainWingAreaM2 = p.main_wing_area_m2.map { String($0) } ?? ""
+        canardHtailAreaM2 = p.canard_htail_area_m2.map { String($0) } ?? ""
+        ventralFinAreaM2 = p.ventral_fin_area_m2.map { String($0) } ?? ""
         machAngleDeg = p.mach_angle_deg.map { String($0) } ?? ""
         wingAreaM2 = p.wing_area_m2.map { String($0) } ?? ""
         typeLabel = p.type_label ?? ""
@@ -71,6 +87,14 @@ struct CombatRadiusAircraftInput {
             "wingspan_m": Double(wingspanM) ?? 0,
             "fuse_width_m": Double(fuseWidthM) ?? 0,
             "fuse_height_m": Double(fuseHeightM) ?? 0,
+            "nose_cone_length_m": Double(noseConeLengthM) ?? 0,
+            "nose_cone_diameter_m": Double(noseConeDiameterM) ?? 0,
+            "nose_length_m": Double(noseLengthM) ?? 0,
+            "nose_root_diameter_m": Double(noseRootDiameterM) ?? 0,
+            "fuse_body_length_m": Double(fuseBodyLengthM) ?? 0,
+            "main_wing_area_m2": Double(mainWingAreaM2) ?? 0,
+            "canard_htail_area_m2": Double(canardHtailAreaM2) ?? 0,
+            "ventral_fin_area_m2": Double(ventralFinAreaM2) ?? 0,
             "mach_angle_deg": Double(machAngleDeg) ?? 0,
             "wing_area_m2": Double(wingAreaM2) ?? 0,
             "type_label": typeLabel,

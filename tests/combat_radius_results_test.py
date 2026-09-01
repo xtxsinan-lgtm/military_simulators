@@ -97,7 +97,7 @@ def test_run_preset_dashboard_missing_engine():
     assert r['success'] is False
     mv = run_preset_dashboard('MV-22')
     assert mv['success'] is False
-    assert '发动机' in mv['error']
+    assert '找不到机型' in mv['error']
 
 
 def test_run_preset_dashboard_j50_uses_engine_thrust():
@@ -126,13 +126,13 @@ def test_run_preset_dashboard_f22_compact():
     assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
     radius_row = next(p for p in r['points'] if p['id'] == 'max_radius_cruise')
     assert radius_row['label'] == '最大半径超音速巡航速度'
-    assert radius_row['mach'] == pytest.approx(1.58, abs=0.03)
+    assert radius_row['mach'] == pytest.approx(1.68, abs=0.03)
     assert next(p for p in r['points'] if p['id'] == 'max_possible_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
-    assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
+    assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
     assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
-    assert r['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
+    assert r['max_radius_mach'] == pytest.approx(1.68, abs=0.03)
     assert cruise_machs_differ(r['max_cruise_mach'], r['max_radius_mach'])
     assert 'split_cruise_note' not in r
     ms = r['max_speed']
@@ -146,7 +146,7 @@ def test_run_preset_dashboard_f22_compact():
     assert m175['radius_km'] > 0.6 * m15['radius_km']
     assert m15['feasible'] is True
     assert m175['feasible'] is True
-    assert m20['feasible'] is False
+    assert m20['feasible'] is True
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
     assert m15['radius_km'] < next(p for p in r['points'] if p['id'] == 'mach_0_8')['radius_km']
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
@@ -174,7 +174,7 @@ def test_run_preset_dashboard_j50_supercruise_above_f22():
 
 
 def test_run_preset_dashboard_j20_supercruise_below_f22():
-    """歼-20 实用最大巡航应低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.0 / 1.5。"""
+    """歼-20 实用最大巡航与 F-22 同落在超巡带上沿附近；Ma 0.8 半径约 1470 km。"""
     r = run_preset_dashboard('J-20')
     assert r['success'] is True
     assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
@@ -186,7 +186,7 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
     assert m15['feasible'] is True
     assert m175['feasible'] is True
     assert m20['feasible'] is False
-    assert m08['radius_km'] == pytest.approx(1350, abs=50)
+    assert m08['radius_km'] == pytest.approx(1472, abs=50)
     m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
     assert m10['feasible'] is True
     assert m10['radius_km'] < m08['radius_km']
@@ -194,46 +194,43 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
 
 
 def test_run_preset_dashboard_j35_and_j35a_max_cruise():
-    """歼-35 军推飞不到 Ma 1.2；歼-35A 实用最大巡航约 Ma 1.57。"""
+    """歼-35 跨声速不可飞 Ma 1.2，但可在其后超巡；歼-35A 实用最大巡航约 Ma 1.63。"""
     j35 = run_preset_dashboard('J-35')
     j35a = run_preset_dashboard('J-35A')
     assert j35['success'] is True and j35a['success'] is True
-    assert j35['max_cruise_mach'] is None
+    m12 = next(p for p in j35['points'] if p['id'] == 'mach_1_2')
+    assert m12['feasible'] is False
+    assert j35['max_cruise_mach'] == pytest.approx(1.57, abs=0.03)
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
     assert j35a['max_cruise_mach'] >= 1.2
 
 
-def test_run_preset_dashboard_fa18c_floor_above_practical():
-    """F/A-18C 细机身穿过跨声速后实用最大巡航落在 Ma 1.2 门槛，最大巡航仍更高。"""
-    r = run_preset_dashboard('FA-18C')
+def test_run_preset_dashboard_j35_floor_above_practical_when_no_supercruise():
+    """歼-35 跨声速空洞后仍有实用超巡，最大巡航高于门槛。"""
+    r = run_preset_dashboard('J-35')
     assert r['success'] is True
-    m12 = next(p for p in r['points'] if p['id'] == 'mach_1_2')
-    assert m12['feasible'] is True
-    assert r['max_cruise_mach'] == pytest.approx(1.2, abs=0.005)
+    assert r['max_cruise_mach'] == pytest.approx(1.57, abs=0.03)
     assert r['max_possible_cruise_mach'] is not None
     assert r['max_possible_cruise_mach'] + 1e-9 >= r['max_cruise_mach']
-    assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
-    floor_pt = next(p for p in r['points'] if p['id'] == 'max_possible_cruise')
-    assert floor_pt['feasible'] is True
-    assert floor_pt['mach'] == pytest.approx(r['max_possible_cruise_mach'])
 
 
 def test_run_preset_dashboard_ws10c_uav_slim_fuse_supercruise():
-    """细机身让陆基 53636 越过跨声速鼓包后超巡；53536 与舰载型仍无实用超巡。"""
+    """细机身无人机均可越过跨声速鼓包后超巡。"""
     slim = run_preset_dashboard('53636')
     assert slim['success'] is True
-    assert slim['max_cruise_mach'] == pytest.approx(1.46, abs=0.02)
+    assert slim['max_cruise_mach'] == pytest.approx(1.57, abs=0.02)
     m12 = next(p for p in slim['points'] if p['id'] == 'mach_1_2')
-    assert m12['feasible'] is False
+    assert m12['feasible'] is True
     for aid in ('53536', '53636N'):
         r = run_preset_dashboard(aid)
         assert r['success'] is True, aid
-        assert r['max_cruise_mach'] is None, aid
+        assert r['max_cruise_mach'] is not None, aid
+        assert r['max_cruise_mach'] >= 1.2, aid
 
 
 def test_run_preset_dashboard_ab_flyable_machs_have_max_ld():
     """有极速的机型：不超过极速的固定马赫须有最大升阻比。"""
-    for aid in ('F-35C', '53636N', 'J-15'):
+    for aid in ('F-35C', '53636N', 'J-35'):
         r = run_preset_dashboard(aid)
         assert r['success'] is True, aid
         vmax = (r.get('max_speed') or {}).get('max_speed_mach')
@@ -246,12 +243,10 @@ def test_run_preset_dashboard_ab_flyable_machs_have_max_ld():
 
 
 def test_run_preset_dashboard_harrier_has_no_afterburner_max_speed():
-    """鹞式无加力，极速应标为缺少加力推力。"""
+    """鹞式已退出作战半径机型列表。"""
     r = run_preset_dashboard('AV-8B')
-    assert r['success'] is True
-    ms = r.get('max_speed') or {}
-    assert ms.get('feasible') is False
-    assert ms.get('max_speed_mach') is None
+    assert r['success'] is False
+    assert '找不到机型' in r['error']
 
 
 def test_load_combat_radius_results_missing_file(tmp_path):

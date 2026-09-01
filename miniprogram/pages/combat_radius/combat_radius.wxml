@@ -69,6 +69,38 @@
       <input class="input" type="digit" value="{{tgt.fuse_height_m}}" data-key="fuse_height_m" bindinput="onAcField"/>
     </view>
     <view class="field">
+      <view class="field-label"><text>机头锥长度</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.nose_cone_length_m}}" data-key="nose_cone_length_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>机头锥直径</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.nose_cone_diameter_m}}" data-key="nose_cone_diameter_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>机头长度</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.nose_length_m}}" data-key="nose_length_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>机头根部直径</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.nose_root_diameter_m}}" data-key="nose_root_diameter_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>机身盒段长度</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{tgt.fuse_body_length_m}}" data-key="fuse_body_length_m" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>主翼面积</text><text class="unit">m²</text></view>
+      <input class="input" type="digit" value="{{tgt.main_wing_area_m2}}" data-key="main_wing_area_m2" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>平尾/鸭翼面积</text><text class="unit">m²</text></view>
+      <input class="input" type="digit" value="{{tgt.canard_htail_area_m2}}" data-key="canard_htail_area_m2" bindinput="onAcField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>腹鳍面积</text><text class="unit">m²</text></view>
+      <input class="input" type="digit" value="{{tgt.ventral_fin_area_m2}}" data-key="ventral_fin_area_m2" bindinput="onAcField"/>
+    </view>
+    <view class="field">
       <view class="field-label"><text>空重</text><text class="unit">kg</text></view>
       <input class="input" type="digit" value="{{wtEmpty}}" data-key="wtEmpty" bindinput="onField"/>
     </view>

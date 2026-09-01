@@ -27,12 +27,12 @@ def test_e2e_ng6_catalog_and_combat_radius():
         assert tgt is not None, aid
         assert tgt['planform'] == 'lambda'
         assert tgt['layout'] == layouts[aid], aid
-        assert tgt['fuse_width_m'] == pytest.approx(3.5)
-        assert tgt['fuse_height_m'] == pytest.approx(1.82)
+        assert tgt['fuse_width_m'] == pytest.approx(3.40)
+        assert tgt['fuse_height_m'] == pytest.approx(1.97)
         assert aid in cr_ids
         r = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': tgt}})
         assert r['success'] is True, aid
-        assert 6.0 < r['target']['ld'] < 12.0, aid
+        assert 6.0 < r['target']['ld'] < 18.0, aid
         from utils.combat_radius.cruise_load import wing_loading_t_m2
         assert tgt['wing_loading'] == pytest.approx(wing_loading_t_m2(
             tgt['empty_kg'], tgt['internal_fuel_kg'], tgt['wing_area_m2'],

@@ -84,6 +84,19 @@ def _valid_land_row(**over: str) -> dict[str, str]:
     return base
 
 
+def _wetted_fields(**over: str) -> dict[str, str]:
+    """测试用分段浸润几何（使该行进入作战半径机型列表）。"""
+    base = {
+        'nose_cone_length_m': '1.06', 'nose_cone_diameter_m': '1.02',
+        'nose_length_m': '3.26', 'nose_root_diameter_m': '1.90',
+        'fuse_body_length_m': '9.66', 'fuse_width_m': '3.40', 'fuse_height_m': '1.97',
+        'main_wing_area_m2': '24.48', 'canard_htail_area_m2': '11.12',
+        'wing_area_m2': '42.74',
+    }
+    base.update(over)
+    return base
+
+
 def test_load_carriers_csv_count():
     """起飞仿真：CSV 中的航母型号应全部可加载。"""
     carriers = load_carriers_csv(CARRIERS_CSV)
@@ -207,17 +220,22 @@ def test_missile_interception_radar_csv_missing_nation_raises(tmp_path):
 
 
 def test_load_combat_radius_aircraft_csv():
-    """作战半径机型 CSV 须含锚点与扩充机型，且列齐全。"""
+    """作战半径机型须含分段浸润几何，且不含歼-15 等起飞专用机。"""
     rows = load_combat_radius_aircraft_csv(COMBAT_RADIUS_AIRCRAFT_CSV)
     ids = [r['id'] for r in rows]
-    assert ids[:12] == [
+    assert ids == [
         'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
         'J-35', 'J-35A', '53636', '53636N', '53536',
+        'F-35B',
+        'NG6C', 'NG6B', 'NG6A',
     ]
-    assert 'J-15' in ids
-    assert 'F-35B' in ids
+    assert 'J-15' not in ids
+    assert 'AV-8B' not in ids
+    assert 'FA-18C' not in ids
     f35b = next(r for r in rows if r['id'] == 'F-35B')
     assert f35b['engine_id'] == 'f135b'
+    assert f35b['canard_htail_area_m2'] == pytest.approx(5.56 * 2)
+    assert f35b['main_wing_area_m2'] == pytest.approx(24.48)
     assert rows[0]['carrier'] is True
     assert next(r for r in rows if r['id'] == 'F-22')['carrier'] is False
     assert rows[0]['rough'] is True
@@ -228,11 +246,16 @@ def test_load_combat_radius_aircraft_csv():
     assert j20['inlet'] == 'dsi'
     assert j20.get('ld_known') is None
     assert j20['wing_area_m2'] == pytest.approx(76.8)
+    assert j20['ventral_fin_area_m2'] == pytest.approx(3.19 * 2)
+    assert j20['canard_htail_area_m2'] == pytest.approx(3.45 * 2)
     assert f22['empty_kg'] == 19800
     assert f22['n_engines'] == 2
     assert f22['engine_id'] == 'f119'
     assert f22['mach_angle_deg'] == pytest.approx(28.5)
     assert f22['wing_area_m2'] == pytest.approx(78.0)
+    assert f22['fuse_width_m'] == pytest.approx(4.0)
+    assert f22['fuse_height_m'] == pytest.approx(1.8)
+    assert f22['canard_htail_area_m2'] == pytest.approx(7.6 * 2)
     assert rows[0]['n_engines'] == 1
     uav = next(r for r in rows if r['id'] == '53636')
     assert uav['n_pilots'] == 0
@@ -248,22 +271,32 @@ def test_load_combat_radius_aircraft_csv():
     assert j36['inlet'] == 'caret'
     assert j36['sweep_inner_deg'] == pytest.approx(67.8)
     assert j36['sweep_outer_deg'] == pytest.approx(55.3)
-    assert j36['fuse_width_m'] == pytest.approx(4.7)
-    assert j36['fuse_height_m'] == pytest.approx(2.3)
+    assert j36['fuse_width_m'] == pytest.approx(6.1)
+    assert j36['fuse_height_m'] == pytest.approx(2.4)
     j35 = next(r for r in rows if r['id'] == 'J-35')
     assert j35['length_m'] == pytest.approx(17.7)
-    assert j35['fuse_width_m'] == pytest.approx(3.76)
-    assert j35['fuse_height_m'] == pytest.approx(1.59)
+    assert j35['fuse_width_m'] == pytest.approx(3.70)
+    assert j35['fuse_height_m'] == pytest.approx(1.48)
     assert j35['carrier'] is True
     j35a = next(r for r in rows if r['id'] == 'J-35A')
     assert j35a['length_m'] == pytest.approx(17.7)
-    assert uav['length_m'] == pytest.approx(14.6)
-    assert uav['fuse_width_m'] == pytest.approx(2.71)
-    assert uav['fuse_height_m'] == pytest.approx(1.29)
+    assert uav['length_m'] == pytest.approx(14.7)
+    assert uav['wingspan_m'] == pytest.approx(10.2)
+    assert uav['wing_area_m2'] == pytest.approx(47.8)
+    assert uav['sweep_deg'] == pytest.approx(56.1)
+    assert uav['mach_angle_deg'] == pytest.approx(23.1)
+    assert uav['empty_kg'] == pytest.approx(7300)
+    assert uav['fuse_width_m'] == pytest.approx(2.26)
+    assert uav['fuse_height_m'] == pytest.approx(1.62)
     uav535 = next(r for r in rows if r['id'] == '53536')
     assert uav535['length_m'] == pytest.approx(16.7)
-    assert uav535['fuse_width_m'] == pytest.approx(3.21)
-    assert uav535['fuse_height_m'] == pytest.approx(1.53)
+    assert uav535['wingspan_m'] == pytest.approx(9.11)
+    assert uav535['wing_area_m2'] == pytest.approx(51.56)
+    assert uav535['sweep_deg'] == pytest.approx(52.3)
+    assert uav535['mach_angle_deg'] == pytest.approx(21.6)
+    assert uav535['empty_kg'] == pytest.approx(7800)
+    assert uav535['fuse_width_m'] == pytest.approx(2.36)
+    assert uav535['fuse_height_m'] == pytest.approx(1.61)
     assert uav535['bwb'] is True
     assert uav535['engine_id'] == 'ws10c'
     assert j36['bwb'] is True
@@ -295,6 +328,14 @@ def test_combat_radius_csv_unknown_inlet_raises(tmp_path):
 def test_combat_radius_csv_empty_raises(tmp_path):
     path = tmp_path / 'cr.csv'
     path.write_text(_unified_csv_text([]), encoding='utf-8')
+    with pytest.raises(ValueError, match='未读到'):
+        load_combat_radius_aircraft_csv(path)
+
+
+def test_load_combat_radius_aircraft_csv_skips_rows_without_wetted_geom(tmp_path):
+    """无分段浸润几何的机型不进入作战半径列表。"""
+    path = tmp_path / 'cr.csv'
+    path.write_text(_unified_csv_text([_valid_land_row()]), encoding='utf-8')
     with pytest.raises(ValueError, match='未读到'):
         load_combat_radius_aircraft_csv(path)
 
@@ -362,15 +403,17 @@ def test_combat_radius_engine_csv_missing_nation_raises(tmp_path):
 
 def test_takeoff_cd0_matches_lift_drag_estimate():
     """舰载机 CD0 须与作战半径升阻比模型一致（CSV 留空时）。"""
-    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
     from utils.combat_radius.lift_drag import aircraft_from_dict, estimate_takeoff_cd0
 
     aircraft = load_aircraft_csv(AIRCRAFT_CSV)
-    j15_cr = get_preset_by_id(load_presets(), 'J-15')
+    rows = _read_unified_aircraft_rows(AIRCRAFT_CSV)
+    j15_row = next(r for r in rows if r['id'].strip() == 'J-15')
+    j15_cr = _combat_radius_item_from_row(j15_row, AIRCRAFT_CSV)
     expected = estimate_takeoff_cd0(aircraft_from_dict(j15_cr))
     assert aircraft['J-15'].cd0 == pytest.approx(expected)
+    f35c = next(r for r in load_combat_radius_aircraft_csv(COMBAT_RADIUS_AIRCRAFT_CSV) if r['id'] == 'F-35C')
     assert aircraft['F-35C'].cd0 == pytest.approx(
-        estimate_takeoff_cd0(aircraft_from_dict(get_preset_by_id(load_presets(), 'F-35C')))
+        estimate_takeoff_cd0(aircraft_from_dict(f35c))
     )
 
 
@@ -407,6 +450,10 @@ def test_unified_csv_shared_between_takeoff_and_combat_radius():
     assert COMBAT_RADIUS_AIRCRAFT_CSV_COLUMNS == AIRCRAFT_CSV_COLUMNS
     assert 'fuse_width_m' in AIRCRAFT_CSV_COLUMNS
     assert 'fuse_height_m' in AIRCRAFT_CSV_COLUMNS
+    assert 'nose_cone_length_m' in AIRCRAFT_CSV_COLUMNS
+    assert 'main_wing_area_m2' in AIRCRAFT_CSV_COLUMNS
+    assert 'canard_htail_area_m2' in AIRCRAFT_CSV_COLUMNS
+    assert 'ventral_fin_area_m2' in AIRCRAFT_CSV_COLUMNS
 
 
 def test_read_unified_aircraft_rows_and_item(tmp_path):
@@ -472,6 +519,7 @@ def test_export_aircraft_csv_preserves_geometry(tmp_path):
             id='C1', name='舰载测试', carrier='1',
             mtow_kg='20000', max_payload_kg='4000', wing_height_m='2.0',
             t_max_sl_n='120000', AR='2.7',
+            **_wetted_fields(),
         ),
     ]), encoding='utf-8')
     aircraft = load_aircraft_csv(src)

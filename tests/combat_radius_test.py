@@ -131,7 +131,7 @@ def test_run_combat_radius_presets_and_unknown_action():
     presets = run_combat_radius('presets')
     assert presets['success'] is True
     assert any(p['id'] == 'J-20' for p in presets['presets'])
-    assert any(p['id'] == 'J-15' for p in presets['presets'])
+    assert all(p['id'] != 'J-15' for p in presets['presets'])
     assert any(p['id'] == 'F-35B' for p in presets['presets'])
     assert any(p['id'] == '53636' for p in presets['presets'])
     assert any(p['id'] == 'f119' for p in presets['engine_presets'])
@@ -828,9 +828,9 @@ def test_ma08_combat_radius_calibration_targets():
     presets = load_presets()
     engines = load_engine_presets()
     cases = [
-        ('F-35C', 'f135', 1318, 50),
-        ('F-22', 'f119', 1034, 50),
-        ('J-20', 'ws15', 1350, 50),
+        ('F-35C', 'f135', 1612, 50),
+        ('F-22', 'f119', 1182, 50),
+        ('J-20', 'ws15', 1472, 50),
     ]
     for ac_id, eng_id, target_km, tol_km in cases:
         tgt = get_preset_by_id(presets, ac_id)

@@ -16,6 +16,8 @@ AIRCRAFT_CSV_COLUMNS = (
     'planform', 'layout', 'bwb', 'rough', 'inlet', 'ld_known', 'notes',
     'wing_area_m2', 'mach_angle_deg', 'bvr_missile', 'length_m', 'wingspan_m',
     'fuse_width_m', 'fuse_height_m',
+    'nose_cone_length_m', 'nose_cone_diameter_m', 'nose_length_m', 'nose_root_diameter_m',
+    'fuse_body_length_m', 'main_wing_area_m2', 'canard_htail_area_m2', 'ventral_fin_area_m2',
     'empty_kg', 'internal_fuel_kg', 'n_pilots', 'missile_mass_kg', 'n_engines', 'engine_id',
     'mtow_kg', 'max_payload_kg', 'wing_height_m', 'cd0',
     't_max_sl_n', 't_main_stovl_sl_n', 't_liftfan_sl_n', 't_rollposts_sl_n',
@@ -217,6 +219,8 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
     for key in (
         'wing_area_m2', 'mach_angle_deg', 'length_m', 'wingspan_m',
         'fuse_width_m', 'fuse_height_m',
+        'nose_cone_length_m', 'nose_cone_diameter_m', 'nose_length_m', 'nose_root_diameter_m',
+        'fuse_body_length_m', 'main_wing_area_m2', 'canard_htail_area_m2', 'ventral_fin_area_m2',
         'sweep_inner_deg', 'sweep_outer_deg', 'sweep_kink_span_frac',
     ):
         value = _parse_optional_float(row.get(key) or '')
@@ -440,11 +444,13 @@ def load_missile_interception_presets_csv(
 
 
 def load_combat_radius_aircraft_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
-    """从统一机型库加载作战半径预设（含陆基与舰载）。"""
+    """从统一机型库加载作战半径预设（仅含完整分段浸润几何的机型）。"""
+    from utils.combat_radius.lift_drag import has_geometric_wetted_dict
     from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV
 
     csv_path = Path(path) if path is not None else COMBAT_RADIUS_AIRCRAFT_CSV
     items = [_combat_radius_item_from_row(row, csv_path) for row in _read_unified_aircraft_rows(csv_path)]
+    items = [item for item in items if has_geometric_wetted_dict(item)]
     if not items:
         raise ValueError(f'{csv_path} 未读到有效作战半径机型记录')
     return items

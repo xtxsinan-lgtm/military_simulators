@@ -46,7 +46,7 @@ def test_build_catalog_payload_modes():
     assert payload['combat_radius_config']['inlet_labels']['caret'] == '加莱特'
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-50' for p in payload['combat_radius_presets'])
-    assert any(p['id'] == 'J-15' for p in payload['combat_radius_presets'])
+    assert all(p['id'] != 'J-15' for p in payload['combat_radius_presets'])
     assert any(p['id'] == '53636' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'f119' for p in payload['combat_radius_engine_presets'])
     assert any(p['id'] == 'f135' for p in payload['combat_radius_engine_presets'])
@@ -155,6 +155,10 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'tgt_sweep_inner' in js_text
     assert 'tgt_fuse_w' in js_text
     assert 'tgt_fuse_h' in js_text
+    assert 'tgt_nose_cone_l' in js_text
+    assert 'tgt_main_wing' in js_text
+    assert 'canard_htail_area_m2' in js_text
+    assert 'ventral_fin_area_m2' in js_text
     assert 'fuse_width_m' in js_text
     assert 'syncDoubleDeltaFields' in js_text
     assert "e.target.id === 'tgtPreset'" in js_text
@@ -232,9 +236,11 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     csv_data = load_missile_interception_presets_csv()
     assert [x['id'] for x in payload['missile_interception_presets']['asm']] == [x['id'] for x in csv_data['asm']]
     assert [x['id'] for x in payload['missile_interception_presets']['aew']] == [x['id'] for x in csv_data['aew']]
-    assert [p['id'] for p in payload['combat_radius_presets']][:12] == [
+    assert [p['id'] for p in payload['combat_radius_presets']] == [
         'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
         'J-35', 'J-35A', '53636', '53636N', '53536',
+        'F-35B',
+        'NG6C', 'NG6B', 'NG6A',
     ]
     takeoff_ids = {a['id'] for a in payload['aircraft']}
     assert 'F-35C' in takeoff_ids

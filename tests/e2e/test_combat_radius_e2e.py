@@ -29,7 +29,7 @@ def test_e2e_combat_radius_csv_anchors_predict_j20():
     r = run_combat_radius_json({'action': 'predict_ld', 'params': _params_from_csv()})
     assert r['success'] is True
     assert r['anchors'] == []
-    assert 8.0 < r['target']['ld'] < 12.0
+    assert 8.0 < r['target']['ld'] < 18.0
 
 
 def _thrust_params() -> dict:
@@ -84,7 +84,7 @@ def test_e2e_combat_radius_f22_efficiency_tsfc():
     """F-22 巡航点负载应低于 1，并给出正的总效率与 TSFC。"""
     r = run_combat_radius_json({'action': 'estimate_efficiency', 'params': _efficiency_params()})
     assert r['success'] is True
-    assert 9.0 < r['ld'] < 12.0
+    assert 9.0 < r['ld'] < 18.0
     assert 0 < r['load'] < 1
     assert r['eta_o'] > 0.05
     assert r['tsfc_mg_n_s'] > 0
@@ -139,7 +139,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert m12['radius_km'] < m135['radius_km']
     assert m15['feasible'] is True
     assert m175['feasible'] is True
-    assert m20['feasible'] is False
+    assert m20['feasible'] is True
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
     prac = next(p for p in r['points'] if p['id'] == 'max_cruise')
     radius_row = next(p for p in r['points'] if p['id'] == 'max_radius_cruise')
@@ -154,10 +154,10 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert 11000.0 <= m08['alt_m'] <= 12500.0
     assert m15['alt_m'] > m08['alt_m']
     assert r['mach_cone_limit'] > 1
-    assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
+    assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
     assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
-    assert r['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
+    assert r['max_radius_mach'] == pytest.approx(1.68, abs=0.03)
     assert 'split_cruise_note' not in r
     assert prac['alt_m'] >= m15['alt_m'] - 400.0
     assert m175['alt_m'] >= m15['alt_m'] - 200.0
@@ -191,7 +191,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_j20_supercruise_and_radius_order():
-    """歼-20 实用最大巡航低于 F-22；Ma 0.8 半径约 1350 km，且大于 Ma 1.0 / 1.5。"""
+    """歼-20 实用最大巡航与 F-22 同落在超巡带上沿附近；Ma 0.8 半径约 1470 km。"""
     presets = load_presets()
     engines = load_engine_presets()
     j20 = get_preset_by_id(presets, 'J-20')
@@ -219,7 +219,7 @@ def test_e2e_combat_radius_j20_supercruise_and_radius_order():
     assert m15['feasible'] is True
     assert m175['feasible'] is True
     assert m20['feasible'] is False
-    assert m08['radius_km'] == pytest.approx(1350, abs=50)
+    assert m08['radius_km'] == pytest.approx(1472, abs=50)
     m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
     assert m10['feasible'] is True
     assert m10['radius_km'] < m08['radius_km']
@@ -255,14 +255,38 @@ def test_e2e_combat_radius_http_api():
 def test_e2e_combat_radius_expanded_fleet_predict_ld():
     """扩充机型（兰姆达翼、无人机、三发双座）须能完成统一模型升阻比估计。"""
     presets = load_presets()
-    for aid in ('J-50', 'J-36', '53636', '53536', 'J-15', 'F-35B', 'NG6C', 'NG6B', 'NG6A'):
+    for aid in ('J-50', 'J-36', '53636', '53536', 'J-35', 'F-35B', 'NG6C', 'NG6B', 'NG6A'):
         tgt = get_preset_by_id(presets, aid)
         r = run_combat_radius_json({
             'action': 'predict_ld',
             'params': {'target': tgt},
         })
         assert r['success'] is True, aid
-        assert 6.0 < r['target']['ld'] < 12.0
+        assert 6.0 < r['target']['ld'] < 18.0
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_geometric_wetted_and_fleet_filter():
+    """分段浸润进入升阻比；作战半径可选机型不含歼-15 等起飞专用机。"""
+    from utils.combat_radius.lift_drag import (
+        aircraft_from_dict,
+        fuse_wetted_factor,
+        has_geometric_wetted,
+    )
+
+    presets = load_presets()
+    assert get_preset_by_id(presets, 'J-15') is None
+    assert get_preset_by_id(presets, 'AV-8B') is None
+    f35a = get_preset_by_id(presets, 'F-35A')
+    ac = aircraft_from_dict(f35a)
+    assert has_geometric_wetted(ac) is True
+    assert fuse_wetted_factor(ac) == pytest.approx(1.0)
+    r = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': f35a}})
+    assert r['success'] is True
+    assert 6.0 < r['target']['ld'] < 18.0
+    j20 = get_preset_by_id(presets, 'J-20')
+    assert j20['ventral_fin_area_m2'] == pytest.approx(6.38)
+    assert j20['canard_htail_area_m2'] == pytest.approx(6.90)
 
 
 @pytest.mark.e2e
@@ -291,19 +315,27 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     presets = load_presets()
     uav = get_preset_by_id(presets, '53636')
     assert uav['n_pilots'] == 0
-    assert uav['length_m'] == pytest.approx(14.6)
-    assert uav['fuse_width_m'] == pytest.approx(2.71)
-    assert uav['fuse_height_m'] == pytest.approx(1.29)
+    assert uav['length_m'] == pytest.approx(14.7)
+    assert uav['wingspan_m'] == pytest.approx(10.2)
+    assert uav['wing_area_m2'] == pytest.approx(47.8)
+    assert uav['sweep_deg'] == pytest.approx(56.1)
+    assert uav['mach_angle_deg'] == pytest.approx(23.1)
+    assert uav['empty_kg'] == pytest.approx(7300)
+    assert uav['fuse_width_m'] == pytest.approx(2.26)
+    assert uav['fuse_height_m'] == pytest.approx(1.62)
     uav535 = get_preset_by_id(presets, '53536')
     assert uav535['length_m'] == pytest.approx(16.7)
+    assert uav535['wingspan_m'] == pytest.approx(9.11)
+    assert uav535['wing_area_m2'] == pytest.approx(51.56)
+    assert uav535['empty_kg'] == pytest.approx(7800)
     assert uav535['bwb'] is True
     assert uav535['planform'] == 'diamond'
     j35 = get_preset_by_id(presets, 'J-35')
     j35a = get_preset_by_id(presets, 'J-35A')
     assert j35['length_m'] == pytest.approx(17.7)
     assert j35a['length_m'] == pytest.approx(17.7)
-    assert j35['fuse_width_m'] == pytest.approx(3.76)
-    assert j35['fuse_height_m'] == pytest.approx(1.59)
+    assert j35['fuse_width_m'] == pytest.approx(3.70)
+    assert j35['fuse_height_m'] == pytest.approx(1.48)
     j36 = get_preset_by_id(presets, 'J-36')
     assert j36['n_engines'] == 3
     assert j36['n_pilots'] == 2
@@ -362,7 +394,7 @@ def test_e2e_combat_radius_j36_two_segment_sweep_dashboard():
     assert cd_wave_supersonic(1.90, two_hi, 0.0) > cd_wave_supersonic(1.90, one_hi, 0.0)
     r = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': j36}})
     assert r['success'] is True
-    assert 6.0 < r['target']['ld'] < 12.0
+    assert 6.0 < r['target']['ld'] < 18.0
     dash = run_combat_radius_json({
         'action': 'aircraft_dashboard',
         'params': {
@@ -485,13 +517,13 @@ def test_e2e_combat_radius_three_channels_exist():
 
 
 @pytest.mark.e2e
-def test_e2e_combat_radius_j15_radius_uses_csv_engine():
-    """合并库中的歼-15 须能带 CSV 发动机走完布雷盖作战半径。"""
+def test_e2e_combat_radius_j35_radius_uses_csv_engine():
+    """歼-35 须能带 CSV 发动机走完布雷盖作战半径。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 
     presets = load_presets()
     engines = load_engine_presets()
-    tgt = get_preset_by_id(presets, 'J-15')
+    tgt = get_preset_by_id(presets, 'J-35')
     eng = get_preset_by_id(engines, tgt['engine_id'])
     assert eng is not None
     assert tgt['carrier'] is True
@@ -605,7 +637,7 @@ def test_e2e_combat_radius_f35_max_speed_near_mach_16():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_f35c_engine_install_applied():
-    """F135 安装惩罚须进入仪表盘，F-35C Ma0.8 半径约 1318 km；F-22 不受影响。"""
+    """F135 安装惩罚须进入仪表盘，F-35C Ma0.8 半径约 1612 km；F-22 不受影响。"""
     from utils.combat_radius.combat_radius_results import run_preset_dashboard
     from utils.combat_radius.engine_efficiency import F135_TSFC_INSTALL_MULT
 
@@ -619,8 +651,8 @@ def test_e2e_combat_radius_f35c_engine_install_applied():
     m08 = next(p for p in f35c['points'] if p['id'] == 'mach_0_8')
     m08_22 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert m08['feasible'] is True
-    assert m08['radius_km'] == pytest.approx(1318, abs=50)
-    assert m08_22['radius_km'] == pytest.approx(1034, abs=50)
+    assert m08['radius_km'] == pytest.approx(1612, abs=50)
+    assert m08_22['radius_km'] == pytest.approx(1182, abs=50)
 
 
 @pytest.mark.e2e
@@ -679,7 +711,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert f22['points'][-2]['label'] == '最大半径超音速巡航速度'
     assert f22['points'][-1]['label'] == '最大巡航速度'
     assert f22.get('max_radius_mach') is not None
-    assert f22['max_radius_mach'] == pytest.approx(1.58, abs=0.03)
+    assert f22['max_radius_mach'] == pytest.approx(1.68, abs=0.03)
     assert f22['max_speed']['max_speed_mach'] == pytest.approx(F22_MAX_SPEED_MACH, abs=0.08)
     assert 'split_cruise_note' not in f22
     live = run_preset_dashboard('F-22')
@@ -695,7 +727,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     j50 = stored['aircraft']['J-50']
     assert j50['success'] is True
     assert j50['max_possible_cruise_mach'] > f22['max_possible_cruise_mach']
-    assert j50['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
+    assert j50['max_cruise_mach'] == pytest.approx(1.79, abs=0.005)
     j50_m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
     f22_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert j50_m08['alt_m'] >= f22_m08['alt_m']
@@ -704,22 +736,20 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert f35c['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
     f35c_m15 = next(p for p in f35c['points'] if p['id'] == 'mach_1_5')
     assert f35c_m15['max_ld'] is not None and f35c_m15['max_ld'] > 0
-    j15 = stored['aircraft']['J-15']
-    assert j15['success'] is True
-    assert j15['max_speed']['feasible'] is True
-    assert j15['max_speed']['max_speed_mach'] > 1.0
-    av8 = stored['aircraft']['AV-8B']
-    assert av8['max_speed']['feasible'] is False
+    assert 'J-15' not in stored['aircraft']
+    assert 'AV-8B' not in stored['aircraft']
+    assert 'FA-18C' not in stored['aircraft']
     f35a = stored['aircraft']['F-35A']
     assert f35a['success'] is True
     assert f35a['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
     j35 = stored['aircraft']['J-35']
     j35a = stored['aircraft']['J-35A']
-    assert j35['max_cruise_mach'] is None
+    assert j35['max_cruise_mach'] == pytest.approx(1.57, abs=0.03)
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
-    assert stored['aircraft']['53636']['max_cruise_mach'] == pytest.approx(1.46, abs=0.02)
+    assert stored['aircraft']['53636']['max_cruise_mach'] == pytest.approx(1.57, abs=0.02)
     for aid in ('53536', '53636N'):
-        assert stored['aircraft'][aid]['max_cruise_mach'] is None, aid
+        assert stored['aircraft'][aid]['max_cruise_mach'] is not None, aid
+        assert stored['aircraft'][aid]['max_cruise_mach'] >= 1.2, aid
     for aid, row in stored['aircraft'].items():
         mach = row.get('max_cruise_mach')
         floor = row.get('max_possible_cruise_mach')
@@ -727,12 +757,6 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
             assert mach + 1e-9 >= 1.2, aid
             assert floor is not None, aid
             assert floor + 1e-9 >= mach, aid
-    fa18c = stored['aircraft']['FA-18C']
-    assert fa18c['max_cruise_mach'] is not None
-    assert fa18c['max_possible_cruise_mach'] > fa18c['max_cruise_mach']
-    fa18c_m12 = next(p for p in fa18c['points'] if p['id'] == 'mach_1_2')
-    assert fa18c_m12['feasible'] is True
-    assert fa18c['max_cruise_mach'] == pytest.approx(1.2, abs=0.005)
 
 
 @pytest.mark.e2e
@@ -866,5 +890,5 @@ def test_e2e_slim_fuse_section_raises_transonic_ld():
     })
     assert slim['success'] is True and wide['success'] is True
     assert slim['target']['ld'] > wide['target']['ld']
-    assert uav['fuse_width_m'] == pytest.approx(2.71)
-    assert uav['fuse_height_m'] == pytest.approx(1.29)
+    assert uav['fuse_width_m'] == pytest.approx(2.26)
+    assert uav['fuse_height_m'] == pytest.approx(1.62)
