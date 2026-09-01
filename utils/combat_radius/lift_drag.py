@@ -16,11 +16,13 @@
 缺分段几何时回退为机身截面椭圆周长相对 F-35/中六参考缩放机身份额。
 跨声速鼓包与超音速机身体积波阻仍按截面积比缩放（钳位）；机翼/升力波阻不乘截面。
 缺宽高时乘数为 1，旧测试用 Aircraft() 行为不变。
-F-35 等 rough=True 机型加大浸润（肥机身 + 外形不平整，非微观表面粗糙），相对光滑隐身机降 L/D。
+F-35 等 rough=True 机型：浸润已由分段几何直接给出，不再另加肥胖乘数。
+不平整仍惩罚摩擦（放大浸润）与形状阻力（乘在 CD0 上），相对光滑隐身机降 L/D。
 进气道独立于翼型/布局：DSI 无隔道、浸润基准；加莱特（caret）有隔道板与唇口，
 亚/跨声速寄生阻力更高，但二维压缩面使超音速体积波阻更低（利于超巡）。
-rough 的亚音速惩罚只进 CD0，拆成 FAT_MULT（肥胖）× BUMP_MULT（不平整）；
-超音速另叠加肥机身/锯齿/厚翼体积波阻，
+rough 的亚音速惩罚只进 CD0：BUMP_FRICTION_MULT 放大浸润（不平整对摩擦阻力），
+BUMP_FORM_MULT 乘在 CD0 上（不平整对形状/型阻，不进浸润面积）；
+超音速另叠加锯齿/厚翼体积波阻，
 避免只靠加大浸润把加力极速仍推到 Ma 2+（公开包线约 Ma 1.6）。
 
 波阻分四段，避免把跨声速 Korn 四次方直接外推到超音速（否则 Ma 1.5+ 的 CDw 会到 O(1)，L/D 崩掉）：
@@ -47,8 +49,9 @@ Oswald 与机翼波阻，再按面积加权合成。折点半展站位可由展�
 在「后缘近似平直、翼尖尖削」假设下反解；也可显式给出。
 单段 sweep_deg 仍作为其它翼型或未填两段时的回退。
 
-(Cf0, k_e) 取绝对值：历史闭式解再按 s≈1.194 统一抬升（歼-20≈1350 km），
-F-35 用 FAT×BUMP 加大浸润（肥胖为主、不平整为辅）；运行时不读锚点。
+(Cf0, k_e) 取绝对值：历史闭式解在分段几何浸润引入后半径偏高，
+再按 s≈1.278 只抬高 Cf0、k_e 不变（歼-20 Ma 0.8≈1350 km）；
+F-35 只用摩擦/形状 BUMP（肥胖已含在几何浸润里）；运行时不读锚点。
 Oswald 修正含在 k_e 中。仍保留 calibrate() 供对照/单元测试，运行时默认走 model_coefficients()。
 """
 from __future__ import annotations
@@ -71,15 +74,15 @@ CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小�
 KORN_DM_CAP = 0.10  # Korn 超量马赫封顶；再大则交给超音速项，避免 (M-Mdd)⁴ 爆炸
 COS_SWEEP_MIN = 0.20  # 后掠余弦下限，避免 90° 前缘时翼项发散
 # 超音速波阻：体积/升力项使光滑隐身机超巡可飞；实用最大巡航由 Ma 1.2 以上
-# 高度极值搜索给出（0.01 马赫网格；取高度真正见顶的马赫，F-22 / 歼-20 约 1.77）。
+# 高度极值搜索给出（0.01 马赫网格；取高度真正见顶的马赫，F-22 约 1.77、歼-20 约 1.70）。
 # 机身项 × (M-1)²；机翼项 × (t/c_n)² · max(M·cosΛ-1, 0)²
 # 升力项 × CL²·lift_wave_mach_factor：Ma 1.5 压住超音速 L/D 避免半径倒挂，
 # 1.5–1.76 不再随马赫加重，过了超巡带再加重，使峰值高度在 1.76 后回落。
 SUPERCRUISE_BAND_HI = 1.76  # 超巡带上沿：此后升力波阻再随马赫加重
 F22_SUPERCRUISE_MACH = SUPERCRUISE_BAND_HI
 F22_MAX_SPEED_MACH = 2.25  # 公开加力极速；后段体积波阻按此标定
-J20_SUPERCRUISE_MACH = 1.77
-J35A_SUPERCRUISE_MACH = 1.63
+J20_SUPERCRUISE_MACH = 1.70  # 抬高 Cf0 后高度峰值回落；F-22 仍贴 1.77
+J35A_SUPERCRUISE_MACH = 1.49
 CDW_SS_BODY = 0.00450
 CDW_SS_WING = 3.00
 CDW_SS_LIFT = 0.65
@@ -94,7 +97,7 @@ CDW_CANARD = 0.004  # 鸭翼附加，乘 (M-1)²；90 kN→Ma 1.5、142 kN 加�
 # 机身项 × (M-1)²：面积律差、锯齿缝、吸波涂层的型阻/波阻。
 # 厚翼项 × (t/c_n)² (M-1)²：不要求前缘超音速，补上 Ma 1.3–1.8 厚翼体积波阻。
 # 升力项 × CL²(M-1)：粗糙外形升力分布更差。
-# 标定：FAT/BUMP=1 后靠厚翼项把 F-35A 加力收到约 Ma 1.64、C 约 1.54
+# 标定：亚音速肥胖乘数取消后，靠厚翼项把 F-35A 加力收到约 Ma 1.64、C 约 1.54
 # （公开包线 1.6；C 翼面积更大故略慢）。光滑 F-22 超巡仍由 1.76 前的项决定；
 # 加力极速另用超巡带之后的体积项收到约 Ma 2.25。
 F35_MAX_SPEED_MACH = 1.6
@@ -129,17 +132,19 @@ INLET_DSI_WETTED = 1.00
 INLET_CARET_WETTED = 1.05
 INLET_DSI_CDW = 1.00
 INLET_CARET_CDW = 0.90
-# 肥电总包：F-35 等 rough=True 相对光滑隐身机抬高巡航 CD0。
-# 拆成两项物理含义不同的乘数，避免用「表面粗糙」一个数扛全部：
-#   FAT_MULT  —— 肥胖/容积率高：短粗机身、内埋容积，等效浸润面积放大
-#   BUMP_MULT —— 外形不平整：DSI 鼓包、锯齿缝、舱门台阶、RAM 涂层局部干扰
-# 微观表面粗糙次要，并入 BUMP。超音速另用 CDW_SS_ROUGH_*，不靠这两个数压极速。
-# 统一极曲线：在历史闭式解 (Cf0,k_e) 上按尺度 s≈1.194 抬升，使歼-20 Ma0.8≈1350 km。
-# F-35 航程短板拆成两块：机身 FAT（肥胖为主）× 较小的 BUMP（不平整），
-# 发动机安装 F135 tsfc_install_mult=1.22（对齐公开军推 TSFC 相对 F100 约 +22%）。
-FAT_MULT = 1.06
-BUMP_MULT = 1.02
-CF0_REF = 0.018831312446174107
+# rough=True：分段几何已给出肥胖机身的浸润，亚音速不再另乘肥胖因子。
+# 不平整仍分两项，避免用「表面粗糙」一个数扛全部：
+#   BUMP_FRICTION_MULT  —— 外形不平整对摩擦阻力：锯齿缝、舱门台阶、RAM 局部干扰，放大浸润
+#   BUMP_FORM_MULT      —— 外形不平整对形状/型阻：DSI 鼓包、台阶分离，只乘 CD0、不进浸润
+# 微观表面粗糙次要，并入摩擦 BUMP。超音速另用 CDW_SS_ROUGH_*，不靠这些数压极速。
+# 统一极曲线：分段几何浸润后半径偏高，只抬高 Cf0（k_e 保持历史值以免超巡带崩掉），
+# 使歼-20 Ma0.8≈1350 km（F-22 随之约 1100 km，F-35C 约 1400 km）。
+# F-35 航程短板：摩擦/形状 BUMP + F135 的 +22% TSFC（STOVL 低压轴榨功导致
+# 循环不能按巡航油耗最优，不是进气道安装惩罚，见 engine_efficiency）。
+BUMP_FRICTION_MULT = 1.02
+BUMP_FORM_MULT = 1.02
+BUMP_MULT = BUMP_FRICTION_MULT  # 兼容旧名：不平整摩擦项
+CF0_REF = 0.02406282097479411
 K_E_REF = 1.9677054936141871
 # 大迎角附加阻力：超过巡航 CL 后 (CL-CL_on)²，使 L/D 在标定高度附近见顶。
 CL_AOA_ONSET = 0.35
@@ -209,7 +214,7 @@ class Aircraft:
     planform: PlanformId
     layout: LayoutId
     bwb: bool  # 翼身融合 —— 独立开关，与机型无绑定关系
-    rough: bool  # 肥电总包（肥胖 + 外形不平整）—— 独立开关，与机型无绑定关系
+    rough: bool  # 表面不平整（摩擦 + 形状阻力）—— 独立开关；肥胖已含在几何浸润里
     inlet: InletId = 'dsi'  # 进气道：dsi / caret（加莱特）；缺省 DSI
     length_m: float = 0.0  # 机身长度，未给马赫角时用于估算；缺省 0 表示不启用
     wingspan_m: float = 0.0  # 翼展；缺省 0 表示不启用
@@ -605,14 +610,28 @@ def fuse_body_area_factor(ac: Aircraft) -> float:
     return min(FUSE_BODY_AREA_MAX, max(FUSE_BODY_AREA_MIN, area / area_ref))
 
 
+def rough_wetted_mult(ac: Aircraft) -> float:
+    """rough 机浸润摩擦乘数：表面不平整对摩擦阻力（肥胖已含在几何浸润里）。"""
+    if not ac.rough:
+        return 1.0
+    return BUMP_FRICTION_MULT
+
+
+def rough_form_cd0_mult(ac: Aircraft) -> float:
+    """rough 机形状阻力乘数：表面不平整对型阻/形状阻力，只乘 CD0。"""
+    if not ac.rough:
+        return 1.0
+    return BUMP_FORM_MULT
+
+
 def wetted_area_factor(ac: Aircraft) -> float:
     """浸润面积/参考面积的相对因子。
 
     - 翼型越厚，浸润面积/摩擦阻力略增
     - 三角翼/双三角/钻石翼/兰姆达翼相比梯形翼浸润面积/参考面积略小；平直翼略大
     - 鸭式布局多一个升力面；无尾布局减少；Pelican 尾 / 小·中等平尾介于二者之间
-    - 翼身融合 (bwb) 与肥电 (rough) 是两个完全独立的开关
-    - rough 乘 FAT_MULT×BUMP_MULT（F-35 肥胖 + 外形不平整，非微观表面粗糙）
+    - 翼身融合 (bwb) 与表面不平整 (rough) 是两个完全独立的开关
+    - rough 乘 BUMP_FRICTION_MULT（不平整摩擦；形状阻力另乘 CD0；无肥胖乘数）
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
     - 进气道：DSI 无隔道；加莱特隔道板/唇口抬高浸润
     - 有分段几何时：圆锥+圆台+长方体+升力面相对 F-35A 的 S_wet/S_ref 归一化
@@ -621,7 +640,7 @@ def wetted_area_factor(ac: Aircraft) -> float:
     planform_mult = PLANFORM_MULT[ac.planform]
     layout_mult = LAYOUT_MULT[ac.layout]
     bwb_mult = 0.90 if ac.bwb else 1.00
-    rough_mult = (FAT_MULT * BUMP_MULT) if ac.rough else 1.00
+    rough_mult = rough_wetted_mult(ac)
     canopy_mult = 1.0 if ac.canopy else NO_CANOPY_MULT
     inlet_mult = inlet_wetted_mult(ac.inlet)
     thickness_mult = 1.0 + 4.0 * ac.tc
@@ -846,14 +865,15 @@ def cd_wave(CL: float, ac: Aircraft) -> float:
 
 
 def components(ac: Aircraft) -> dict[str, float]:
-    """单机中间量：CL、e_raw、K(=CDi 当 k_e=1)、W(浸润因子)、CDw、CDa。"""
+    """单机中间量：CL、e_raw、K(=CDi 当 k_e=1)、W(浸润因子)、F_form(形状阻力乘数)、CDw、CDa。"""
     CL = cl_cruise(ac)
     e_raw = oswald_e_for_aircraft(ac)
     k_ind = CL ** 2 / (math.pi * ac.AR * e_raw)
     wetted = wetted_area_factor(ac)
+    f_form = rough_form_cd0_mult(ac)
     cdw = cd_wave(CL, ac)
     cda = cd_high_aoa(CL)
-    return dict(CL=CL, e_raw=e_raw, K=k_ind, W=wetted, CDw=cdw, CDa=cda)
+    return dict(CL=CL, e_raw=e_raw, K=k_ind, W=wetted, F_form=f_form, CDw=cdw, CDa=cda)
 
 
 def calibrate(
@@ -865,16 +885,18 @@ def calibrate(
     """用两个已知 L/D 的锚点解出 (Cf0, k_e)。"""
     c1 = components(anchor1)
     c2 = components(anchor2)
+    w1 = c1['W'] * c1['F_form']
+    w2 = c2['W'] * c2['F_form']
 
     c_rhs1 = c1['CL'] / ld1_target - c1['CDw'] - c1['CDa']
     c_rhs2 = c2['CL'] / ld2_target - c2['CDw'] - c2['CDa']
 
-    det = c1['W'] * c2['K'] - c2['W'] * c1['K']
+    det = w1 * c2['K'] - w2 * c1['K']
     if abs(det) < 1e-12:
         raise ValueError('两锚点参数过于接近/退化，方程组奇异，无法唯一标定')
 
     cf0 = (c_rhs1 * c2['K'] - c_rhs2 * c1['K']) / det  # x = Cf0
-    y_inv_ke = (c1['W'] * c_rhs2 - c2['W'] * c_rhs1) / det  # y = 1/k_e
+    y_inv_ke = (w1 * c_rhs2 - w2 * c_rhs1) / det  # y = 1/k_e
     k_e = 1.0 / y_inv_ke
 
     if cf0 <= 0 or k_e <= 0:
@@ -889,7 +911,7 @@ def predict_ld(ac: Aircraft, cf0: float, k_e: float) -> tuple[float, dict[str, f
     """用标定好的 (Cf0, k_e) 计算任意机型的 L/D 及阻力分解。"""
     c = components(ac)
     cdi = c['K'] / k_e
-    cd0 = cf0 * c['W']
+    cd0 = cf0 * c['W'] * c['F_form']
     cdw = c['CDw']
     cda = c['CDa']
     cd = cd0 + cdi + cdw + cda
@@ -906,10 +928,13 @@ def predict_ld(ac: Aircraft, cf0: float, k_e: float) -> tuple[float, dict[str, f
 
 
 def parasite_cd0(ac: Aircraft, cf0: float) -> float:
-    """由标定 Cf0 与浸润因子估算零升阻力系数 CD0（起飞可用）。"""
+    """由标定 Cf0 与浸润因子估算零升阻力系数 CD0（起飞可用）。
+
+    rough 机另乘形状阻力乘数（不平整对型阻），与摩擦项（浸润）分开。
+    """
     if cf0 <= 0:
         raise ValueError('Cf0 须为正才能估算 CD0')
-    return cf0 * wetted_area_factor(ac)
+    return cf0 * wetted_area_factor(ac) * rough_form_cd0_mult(ac)
 
 
 def model_coefficients() -> tuple[float, float]:

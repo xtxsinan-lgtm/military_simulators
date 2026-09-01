@@ -23,10 +23,11 @@ EXPI = (GAMMA - 1) / GAMMA  # = 1/3.5
 G0 = 9.80665
 # Jet A-1 低热值，用于 η_o = T·V / (ṁ_f·Q) ⇒ TSFC = V / (η_o·Q)
 FUEL_LHV_J_KG = 43.15e6
-# 安装 TSFC 乘数：布雷顿循环看不到进气道/宽风扇巡航损失。
-# F135-PW-100 / PW-600 为 STOVL 家族加宽风扇、加大核心，公开军推 TSFC（约 0.89）
-# 比 F100（0.73）还高约 22%，而循环却把 F135 排成最省油。安装惩罚取 1.22
-# 把这段公开差距交给发动机；机身只留 FAT（肥胖）和较小的 BUMP（不平整）。
+# 循环外 TSFC 乘数（字段名仍为 tsfc_install_mult，避免改 API）。
+# 这不是进气道/短舱安装损失。F135-PW-100 / PW-600 为 STOVL 家族：低压轴须预留
+# 升力风扇榨功，循环不能按巡航油耗最优设计；公开军推 TSFC（约 0.89）比 F100（0.73）
+# 高约 22%，而布雷顿模型仍把 F135 排成最省油。乘数 1.22 把这段设计差距交给发动机。
+# 机身不平整另用摩擦/形状 BUMP；肥胖已含在几何浸润里，与本乘数无关。
 # PW-100 与 PW-600 循环参数相同，仅海平面军推/加力不同。
 TSFC_INSTALL_MULT_DEFAULT = 1.0
 F135_TSFC_INSTALL_MULT = 1.22
@@ -333,12 +334,12 @@ def find_optimal_load(
 
 
 def parse_tsfc_install_mult(raw: Any) -> float:
-    """解析安装 TSFC 乘数；空/缺省为 1.0。"""
+    """解析循环外 TSFC 乘数；空/缺省为 1.0。字段名沿用 tsfc_install_mult。"""
     if raw in (None, ''):
         return TSFC_INSTALL_MULT_DEFAULT
     val = float(raw)
     if val <= 0:
-        raise ValueError('安装 TSFC 惩罚须为正')
+        raise ValueError('TSFC 乘数须为正')
     return val
 
 
@@ -346,9 +347,9 @@ def eta_o_after_install(
     eta_o: float,
     install_mult: float = TSFC_INSTALL_MULT_DEFAULT,
 ) -> float:
-    """把循环总效率换成含安装损失的对外效率（η_o / 乘数）。"""
+    """把循环总效率换成含循环外 TSFC 乘数的对外效率（η_o / 乘数）。"""
     if install_mult <= 0:
-        raise ValueError('安装 TSFC 惩罚须为正')
+        raise ValueError('TSFC 乘数须为正')
     if eta_o < 0:
         raise ValueError('总效率不能为负')
     return eta_o / install_mult
@@ -363,7 +364,8 @@ def tsfc_from_eta_o(
     """由巡航速度与总效率求推力燃油消耗率。
 
     η_o = T·V / (ṁ_f·Q) ⇒ TSFC = ṁ_f / T = V / (η_o·Q)。
-    install_mult 再乘到 TSFC 上，表示循环外的进气道/宽风扇巡航损失。
+    install_mult 再乘到 TSFC 上：F135 为 STOVL 低压轴榨功导致的循环非油耗最优，
+    不是进气道安装损失。
     返回 SI 值 kg/(N·s)、mg/(N·s) 以及常用的 lb/(lbf·h)。
     """
     if eta_o <= 0:
@@ -373,7 +375,7 @@ def tsfc_from_eta_o(
     if fuel_lhv_j_kg <= 0:
         raise ValueError('燃油热值须为正')
     if install_mult <= 0:
-        raise ValueError('安装 TSFC 惩罚须为正')
+        raise ValueError('TSFC 乘数须为正')
     tsfc_si = v0 / (eta_o * fuel_lhv_j_kg) * install_mult
     return {
         'tsfc_kg_n_s': tsfc_si,

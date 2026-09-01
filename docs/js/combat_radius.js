@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 54;
+const APP_VERSION = 55;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -165,7 +165,7 @@ function renderAircraftFields() {
     <div class="field"><label>进气道</label><select id="tgt_inlet">${optionHtml(inlets)}</select></div>
     <div class="check-row">
       <label><input type="checkbox" id="tgt_bwb"> 翼身融合</label>
-      <label><input type="checkbox" id="tgt_rough"> 表面不平整</label>
+      <label><input type="checkbox" id="tgt_rough"> 表面不平整（摩擦+形状阻力）</label>
     </div>
     <input id="tgt_type_label" type="hidden">
   `;

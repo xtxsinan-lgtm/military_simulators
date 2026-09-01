@@ -822,15 +822,15 @@ def test_insufficient_mission_fuel_marks_points_infeasible():
 
 
 def test_ma08_combat_radius_calibration_targets():
-    """Ma 0.8 作战半径：统一模型下 F-35C（F135 安装惩罚）/ F-22 / 歼-20 量级。"""
+    """Ma 0.8 作战半径：歼-20≈1350、F-22≈1100、F-35C≈1400（含 F135 循环油耗乘数）。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 
     presets = load_presets()
     engines = load_engine_presets()
     cases = [
-        ('F-35C', 'f135', 1612, 50),
-        ('F-22', 'f119', 1182, 50),
-        ('J-20', 'ws15', 1472, 50),
+        ('F-35C', 'f135', 1400, 50),
+        ('F-22', 'f119', 1092, 50),
+        ('J-20', 'ws15', 1350, 50),
     ]
     for ac_id, eng_id, target_km, tol_km in cases:
         tgt = get_preset_by_id(presets, ac_id)
@@ -931,7 +931,7 @@ def test_run_search_best_cruise_infeasible_mach():
 def test_run_search_best_cruise_infeasible_has_ab_max_ld():
     """不能军推巡航的马赫仍应给出加力可飞高度上的最大升阻比。"""
     r = run_search_best_cruise_from_params({
-        **_radius_params(), 'mach': 2.2, 'max_tsl_kN': 156.0,
+        **_radius_params(), 'mach': 2.15, 'max_tsl_kN': 156.0,
         'alt_coarse_m': 1000, 'alt_refine_m': 200,
         'mach_search_hi': 2.5,
     })
@@ -977,7 +977,7 @@ def test_run_estimate_engine_cycle_from_params():
 
 
 def test_run_estimate_engine_cycle_applies_install_mult():
-    """效率循环 API 须把安装惩罚乘到 TSFC、压到对外 η_o。"""
+    """效率循环 API 须把循环外 TSFC 乘数乘到 TSFC、压到对外 η_o。"""
     base = run_estimate_engine_cycle_from_params({
         'bpr': 0.57, 'opr': 28.0, 't4_K': 2260,
         'mach': 0.8, 'alt_m': 11000, 'load': 0.58,

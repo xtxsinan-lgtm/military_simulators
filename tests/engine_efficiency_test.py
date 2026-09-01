@@ -134,16 +134,16 @@ def test_tsfc_from_eta_o_identity():
         tsfc_from_eta_o(-1.0, 0.2)
     with pytest.raises(ValueError, match='热值'):
         tsfc_from_eta_o(240.0, 0.2, fuel_lhv_j_kg=0.0)
-    with pytest.raises(ValueError, match='安装'):
+    with pytest.raises(ValueError, match='TSFC 乘数'):
         tsfc_from_eta_o(240.0, 0.2, install_mult=0.0)
 
 
 def test_parse_tsfc_install_mult_and_eta_o_after_install():
-    """缺省 1.0；F135 推荐 1.22；惩罚须压低对外 η_o、抬高 TSFC。"""
+    """缺省 1.0；F135 推荐 1.22；循环外乘数须压低对外 η_o、抬高 TSFC。"""
     assert parse_tsfc_install_mult(None) == TSFC_INSTALL_MULT_DEFAULT
     assert parse_tsfc_install_mult('') == TSFC_INSTALL_MULT_DEFAULT
     assert parse_tsfc_install_mult(1.22) == pytest.approx(F135_TSFC_INSTALL_MULT)
-    with pytest.raises(ValueError, match='安装'):
+    with pytest.raises(ValueError, match='TSFC 乘数'):
         parse_tsfc_install_mult(0.0)
     eta = 0.192
     assert eta_o_after_install(eta, 1.0) == pytest.approx(eta)
@@ -152,5 +152,5 @@ def test_parse_tsfc_install_mult_and_eta_o_after_install():
     penalized = tsfc_from_eta_o(240.0, eta, install_mult=F135_TSFC_INSTALL_MULT)
     assert penalized['tsfc_kg_n_s'] == pytest.approx(base['tsfc_kg_n_s'] * F135_TSFC_INSTALL_MULT)
     assert penalized['tsfc_install_mult'] == pytest.approx(F135_TSFC_INSTALL_MULT)
-    with pytest.raises(ValueError, match='安装'):
+    with pytest.raises(ValueError, match='TSFC 乘数'):
         eta_o_after_install(0.2, 0.0)

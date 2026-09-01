@@ -192,7 +192,7 @@ struct CombatRadiusView: View {
             .font(.system(size: 12, design: .monospaced))
             .foregroundStyle(CombatRadiusTheme.text)
             .tint(CombatRadiusTheme.green)
-        Toggle("表面不平整", isOn: ac.rough)
+        Toggle("表面不平整（摩擦+形状阻力）", isOn: ac.rough)
             .font(.system(size: 12, design: .monospaced))
             .foregroundStyle(CombatRadiusTheme.text)
             .tint(CombatRadiusTheme.amber)

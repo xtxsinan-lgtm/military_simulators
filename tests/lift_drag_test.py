@@ -43,7 +43,8 @@ from utils.combat_radius.lift_drag import (
     FUSE_REF_WIDTH_M,
     FUSE_WETTED_FRAC,
     NO_CANOPY_MULT,
-    FAT_MULT,
+    BUMP_FRICTION_MULT,
+    BUMP_FORM_MULT,
     BUMP_MULT,
     RHO11,
     SUPERCRUISE_BAND_HI,
@@ -84,6 +85,8 @@ from utils.combat_radius.lift_drag import (
     fuse_wetted_factor,
     ellipse_perimeter_m,
     wetted_area_factor,
+    rough_wetted_mult,
+    rough_form_cd0_mult,
     cone_lateral_area_m2,
     frustum_lateral_area_m2,
     box_surface_area_m2,
@@ -323,7 +326,7 @@ def test_wetted_area_factor_independent_switches():
     rough = Aircraft(**{**aircraft_to_dict(base), 'rough': True})
     w0 = wetted_area_factor(base)
     assert wetted_area_factor(bwb) == pytest.approx(w0 * 0.90)
-    assert wetted_area_factor(rough) == pytest.approx(w0 * FAT_MULT * BUMP_MULT)
+    assert wetted_area_factor(rough) == pytest.approx(w0 * BUMP_FRICTION_MULT)
     no_canopy = Aircraft(**{**aircraft_to_dict(base), 'canopy': False})
     assert wetted_area_factor(no_canopy) == pytest.approx(w0 * NO_CANOPY_MULT)
 
@@ -826,7 +829,7 @@ def test_canard_adds_supersonic_wave_drag():
     canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
-    assert J20_SUPERCRUISE_MACH == pytest.approx(1.77)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.70)
 
 
 def test_tailless_and_bwb_discount_volume_wave_drag():
@@ -876,7 +879,7 @@ def test_pelican_and_small_htail_discount_volume_between_tailless_and_convention
 
 def test_components_keys_and_signs():
     c = components(_j20())
-    assert set(c) == {'CL', 'e_raw', 'K', 'W', 'CDw', 'CDa'}
+    assert set(c) == {'CL', 'e_raw', 'K', 'W', 'F_form', 'CDw', 'CDa'}
     assert c['CL'] > 0 and c['K'] > 0 and c['W'] > 0
     assert c['CDw'] >= 0
     assert c['CDa'] >= 0
@@ -924,33 +927,55 @@ def test_calibrate_rejects_unphysical_targets():
 
 
 def test_default_ld_anchors_match_f35c_f22():
-    """参考机：残余机身惩罚后 F-35C 巡航 L/D 仍可略高于 F-22。"""
+    """参考机 CSV 巡航点：F-35C 升阻比仍可略高于 F-22（翼面积更大）。"""
     a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
     assert a1.name == 'F-35C' and a1.rough is True and a1.inlet == 'dsi'
     assert a2.name == 'F-22' and a2.rough is False and a2.inlet == 'caret'
-    assert ld2 == pytest.approx(10.72, abs=0.10)
-    assert ld1 == pytest.approx(10.98, abs=0.10)  # FAT×较小 BUMP 后 F-35C 升阻比仍可略高于 F-22
+    assert ld2 == pytest.approx(8.90, abs=0.10)
+    assert ld1 == pytest.approx(9.31, abs=0.10)
+    assert ld1 > ld2
     cf0, k_e = calibrate_default_anchors()
     assert cf0 == pytest.approx(CF0_REF)
     assert k_e == pytest.approx(K_E_REF)
 
 
+def test_rough_wetted_mult():
+    """不平整只放大浸润摩擦；光滑机为 1。"""
+    assert rough_wetted_mult(_f35c()) == pytest.approx(BUMP_FRICTION_MULT)
+    assert rough_wetted_mult(_f22()) == pytest.approx(1.0)
+
+
+def test_rough_form_cd0_mult():
+    """不平整形状阻力只乘 CD0；光滑机为 1。"""
+    assert rough_form_cd0_mult(_f35c()) == pytest.approx(BUMP_FORM_MULT)
+    assert rough_form_cd0_mult(_f22()) == pytest.approx(1.0)
+
+
 def test_rough_mult_penalizes_f35_vs_smooth():
-    """机身留残余 FAT>BUMP>1；F-35 浸润须高于光滑对照。"""
-    assert FAT_MULT == pytest.approx(1.06, abs=0.01)
-    assert BUMP_MULT == pytest.approx(1.02, abs=0.005)
-    assert FAT_MULT > BUMP_MULT > 1.0
-    assert wetted_area_factor(_f35c()) > wetted_area_factor(
-        Aircraft(**{**aircraft_to_dict(_f35c()), 'rough': False}),
+    """几何浸润已含肥胖；rough 只留摩擦/形状 BUMP>1，浸润高于光滑对照。"""
+    assert BUMP_FRICTION_MULT == pytest.approx(1.02, abs=0.005)
+    assert BUMP_FORM_MULT == pytest.approx(1.02, abs=0.005)
+    assert BUMP_MULT == pytest.approx(BUMP_FRICTION_MULT)
+    assert BUMP_FRICTION_MULT > 1.0
+    assert BUMP_FORM_MULT > 1.0
+    smooth = Aircraft(**{**aircraft_to_dict(_f35c()), 'rough': False})
+    assert wetted_area_factor(_f35c()) == pytest.approx(
+        wetted_area_factor(smooth) * BUMP_FRICTION_MULT,
     )
 
 
 def test_parasite_cd0_and_estimate_takeoff_cd0():
-    """起飞 CD0 应由浸润因子与默认锚点 Cf0 给出，且为正的小量。"""
+    """起飞 CD0 应由浸润因子、形状阻力乘数与默认锚点 Cf0 给出。"""
     ac = _f35c()
     cf0, _k_e = calibrate_default_anchors()
     cd0 = parasite_cd0(ac, cf0)
-    assert cd0 == pytest.approx(cf0 * wetted_area_factor(ac))
+    assert cd0 == pytest.approx(
+        cf0 * wetted_area_factor(ac) * rough_form_cd0_mult(ac),
+    )
+    smooth = Aircraft(**{**aircraft_to_dict(ac), 'rough': False})
+    assert parasite_cd0(ac, cf0) == pytest.approx(
+        parasite_cd0(smooth, cf0) * BUMP_FRICTION_MULT * BUMP_FORM_MULT,
+    )
     assert 0.01 < estimate_takeoff_cd0(ac) < 0.08
     with pytest.raises(ValueError, match='Cf0'):
         parasite_cd0(ac, 0.0)

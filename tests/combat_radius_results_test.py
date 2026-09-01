@@ -42,7 +42,7 @@ def test_dashboard_params_from_preset_f22():
 
 
 def test_dashboard_params_from_preset_f35c_install():
-    """F-35C 仪表盘须带上 F135 安装 TSFC 惩罚。"""
+    """F-35C 仪表盘须带上 F135 循环外 TSFC 乘数（低压轴榨功，非安装惩罚）。"""
     ac = get_preset_by_id(load_presets(), 'F-35C')
     eng = get_preset_by_id(load_engine_presets(), 'f135')
     p = dashboard_params_from_preset(ac, eng)
@@ -126,13 +126,13 @@ def test_run_preset_dashboard_f22_compact():
     assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
     radius_row = next(p for p in r['points'] if p['id'] == 'max_radius_cruise')
     assert radius_row['label'] == '最大半径超音速巡航速度'
-    assert radius_row['mach'] == pytest.approx(1.68, abs=0.03)
+    assert radius_row['mach'] == pytest.approx(1.63, abs=0.03)
     assert next(p for p in r['points'] if p['id'] == 'max_possible_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
     assert r['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
     assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
-    assert r['max_radius_mach'] == pytest.approx(1.68, abs=0.03)
+    assert r['max_radius_mach'] == pytest.approx(1.63, abs=0.03)
     assert cruise_machs_differ(r['max_cruise_mach'], r['max_radius_mach'])
     assert 'split_cruise_note' not in r
     ms = r['max_speed']
@@ -174,7 +174,7 @@ def test_run_preset_dashboard_j50_supercruise_above_f22():
 
 
 def test_run_preset_dashboard_j20_supercruise_below_f22():
-    """歼-20 实用最大巡航与 F-22 同落在超巡带上沿附近；Ma 0.8 半径约 1470 km。"""
+    """歼-20 实用最大巡航与 F-22 同落在超巡带上沿附近；Ma 0.8 半径约 1350 km。"""
     r = run_preset_dashboard('J-20')
     assert r['success'] is True
     assert r['max_cruise_mach'] == pytest.approx(J20_SUPERCRUISE_MACH, abs=0.02)
@@ -186,7 +186,7 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
     assert m15['feasible'] is True
     assert m175['feasible'] is True
     assert m20['feasible'] is False
-    assert m08['radius_km'] == pytest.approx(1472, abs=50)
+    assert m08['radius_km'] == pytest.approx(1350, abs=50)
     m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
     assert m10['feasible'] is True
     assert m10['radius_km'] < m08['radius_km']
@@ -194,24 +194,23 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
 
 
 def test_run_preset_dashboard_j35_and_j35a_max_cruise():
-    """歼-35 跨声速不可飞 Ma 1.2，但可在其后超巡；歼-35A 实用最大巡航约 Ma 1.63。"""
+    """歼-35 军推穿不过跨声速空洞；歼-35A 仍可在其后超巡。"""
     j35 = run_preset_dashboard('J-35')
     j35a = run_preset_dashboard('J-35A')
     assert j35['success'] is True and j35a['success'] is True
     m12 = next(p for p in j35['points'] if p['id'] == 'mach_1_2')
     assert m12['feasible'] is False
-    assert j35['max_cruise_mach'] == pytest.approx(1.57, abs=0.03)
+    assert j35['max_cruise_mach'] is None
     assert j35a['max_cruise_mach'] == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
     assert j35a['max_cruise_mach'] >= 1.2
 
 
 def test_run_preset_dashboard_j35_floor_above_practical_when_no_supercruise():
-    """歼-35 跨声速空洞后仍有实用超巡，最大巡航高于门槛。"""
+    """歼-35 穿不过跨声速空洞：无实用超巡，最大可能巡航停在空洞前。"""
     r = run_preset_dashboard('J-35')
     assert r['success'] is True
-    assert r['max_cruise_mach'] == pytest.approx(1.57, abs=0.03)
-    assert r['max_possible_cruise_mach'] is not None
-    assert r['max_possible_cruise_mach'] + 1e-9 >= r['max_cruise_mach']
+    assert r['max_cruise_mach'] is None
+    assert r['max_possible_cruise_mach'] == pytest.approx(1.05, abs=0.03)
 
 
 def test_run_preset_dashboard_ws10c_uav_slim_fuse_supercruise():
