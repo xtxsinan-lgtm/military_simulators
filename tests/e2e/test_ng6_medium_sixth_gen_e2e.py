@@ -21,10 +21,12 @@ def test_e2e_ng6_catalog_and_combat_radius():
     takeoff_ids = {a['id'] for a in catalog['aircraft']}
     cr_ids = {p['id'] for p in catalog['combat_radius_presets']}
 
+    layouts = {'NG6C': 'pelican', 'NG6B': 'medium_htail', 'NG6A': 'small_htail'}
     for aid in ('NG6C', 'NG6B', 'NG6A'):
         tgt = get_preset_by_id(presets, aid)
         assert tgt is not None, aid
         assert tgt['planform'] == 'lambda'
+        assert tgt['layout'] == layouts[aid], aid
         assert aid in cr_ids
         r = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': tgt}})
         assert r['success'] is True, aid
@@ -44,6 +46,20 @@ def test_e2e_ng6_catalog_and_combat_radius():
     assert aircraft['NG6C'].t_max_sl_n == pytest.approx(185000)
     assert aircraft['NG6B'].is_vtol is True
     assert get_preset_by_id(presets, 'NG6B')['engine_id'] == 'f135b'
+    ng6b_tgt = get_preset_by_id(presets, 'NG6B')
+    ng6b_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': ng6b_tgt}})
+    small_tgt = dict(ng6b_tgt)
+    small_tgt['layout'] = 'small_htail'
+    small_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': small_tgt}})
+    assert ng6b_ld['success'] is True and small_ld['success'] is True
+    assert ng6b_ld['target']['ld'] < small_ld['target']['ld']
+    ng6c_tgt = get_preset_by_id(presets, 'NG6C')
+    ng6c_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': ng6c_tgt}})
+    old_pel = dict(ng6c_tgt)
+    old_pel['layout'] = 'small_htail'
+    old_pel_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': old_pel}})
+    assert ng6c_ld['success'] is True and old_pel_ld['success'] is True
+    assert ng6c_ld['target']['ld'] < old_pel_ld['target']['ld']
     from utils.combat_radius.combat_radius_results import run_preset_dashboard
     ng6c = run_preset_dashboard('NG6C')
     ng6b = run_preset_dashboard('NG6B')

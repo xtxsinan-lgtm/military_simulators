@@ -95,7 +95,7 @@ def test_load_presets_contains_anchors_and_j20():
 
 
 def test_ng6_medium_sixth_gen_presets():
-    """中型六代机三型：兰姆达翼、Pelican/小平尾、对应发动机。"""
+    """中型六代机三型：兰姆达翼、中等 Pelican/中等平尾/小平尾、对应发动机。"""
     presets = load_presets()
     c = get_preset_by_id(presets, 'NG6C')
     b = get_preset_by_id(presets, 'NG6B')
@@ -106,7 +106,11 @@ def test_ng6_medium_sixth_gen_presets():
     assert a['name'] == '陆基型中型六代机'
     assert c['planform'] == b['planform'] == a['planform'] == 'lambda'
     assert c['layout'] == 'pelican'
-    assert b['layout'] == a['layout'] == 'small_htail'
+    assert b['layout'] == 'medium_htail'
+    assert a['layout'] == 'small_htail'
+    assert '11 m²' in c['notes'] and 'Pelican' in c['notes']
+    assert '8 m²' in b['notes'] and '中等平尾' in b['notes']
+    assert '5.5 m²' in a['notes']
     assert c['engine_id'] == a['engine_id'] == 'ws15i'
     assert b['engine_id'] == 'f135b'
     assert c['n_engines'] == b['n_engines'] == a['n_engines'] == 1

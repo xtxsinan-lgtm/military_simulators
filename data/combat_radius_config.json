@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "engine": {
     "dry_to_max_thrust_ratio": 0.7
   },
@@ -35,7 +35,8 @@
     "canard": "鸭翼",
     "tailless": "无尾",
     "pelican": "Pelican尾",
-    "small_htail": "小平尾"
+    "small_htail": "小平尾",
+    "medium_htail": "中等平尾"
   },
   "inlet_labels": {
     "dsi": "DSI",
