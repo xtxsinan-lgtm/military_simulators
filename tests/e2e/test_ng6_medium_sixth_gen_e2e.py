@@ -41,6 +41,7 @@ def test_e2e_ng6_catalog_and_combat_radius():
     assert 'NG6A' not in takeoff_ids
     assert aircraft['NG6C'].t_max_sl_n == pytest.approx(185000)
     assert aircraft['NG6B'].is_vtol is True
+    assert get_preset_by_id(presets, 'NG6B')['engine_id'] == 'f135b'
     stovl_ids = {a.id for a in filter_aircraft_for_mode('short_takeoff', list(aircraft.values()))}
     assert 'NG6B' in stovl_ids
     ski_ids = {a.id for a in filter_aircraft_for_mode('ski_jump', list(aircraft.values()))}

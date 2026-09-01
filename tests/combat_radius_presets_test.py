@@ -36,6 +36,9 @@ def test_load_presets_contains_anchors_and_j20():
     assert 'ld_known' not in f35
     assert f35['n_engines'] == 1
     assert f35['engine_id'] == 'f135'
+    f35b = get_preset_by_id(presets, 'F-35B')
+    assert f35b is not None
+    assert f35b['engine_id'] == 'f135b'
     j20 = get_preset_by_id(presets, 'J-20')
     assert j20 is not None
     assert j20['planform'] == 'trapezoidal'
@@ -105,7 +108,7 @@ def test_ng6_medium_sixth_gen_presets():
     assert c['layout'] == 'pelican'
     assert b['layout'] == a['layout'] == 'small_htail'
     assert c['engine_id'] == a['engine_id'] == 'ws15i'
-    assert b['engine_id'] == 'f135'
+    assert b['engine_id'] == 'f135b'
     assert c['n_engines'] == b['n_engines'] == a['n_engines'] == 1
     assert c['carrier'] is True
     assert b['carrier'] is True
@@ -192,6 +195,7 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
         'ws21': (0.68, 26.0, 1650.0),
         'f119': (0.30, 26.0, 1922.0),
         'f135': (0.57, 28.0, 2260.0),
+        'f135b': (0.57, 28.0, 2260.0),
         'ws10h': (0.60, 30.0, 1800.0),
         'f414': (0.40, 30.0, 1850.0),
         'f404': (0.34, 26.0, 1700.0),
@@ -208,7 +212,19 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
         assert row['t4_K'] == pytest.approx(t4)
     f135 = get_preset_by_id(engines, 'f135')
     assert f135 is not None
+    assert f135['name'] == 'F135-PW-100'
+    assert f135['tsl_kN'] == pytest.approx(125.0)
+    assert f135['max_tsl_kN'] == pytest.approx(191.0)
     assert f135['tsfc_install_mult'] == pytest.approx(1.22)
+    f135b = get_preset_by_id(engines, 'f135b')
+    assert f135b is not None
+    assert f135b['name'] == 'F135-PW-600'
+    assert f135b['bpr'] == pytest.approx(f135['bpr'])
+    assert f135b['opr'] == pytest.approx(f135['opr'])
+    assert f135b['t4_K'] == pytest.approx(f135['t4_K'])
+    assert f135b['tsfc_install_mult'] == pytest.approx(1.22)
+    assert f135b['tsl_kN'] == pytest.approx(120.0)
+    assert f135b['max_tsl_kN'] == pytest.approx(182.0)
 
 
 def test_build_combat_radius_engine_presets_payload():

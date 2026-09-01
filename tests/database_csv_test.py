@@ -216,6 +216,8 @@ def test_load_combat_radius_aircraft_csv():
     ]
     assert 'J-15' in ids
     assert 'F-35B' in ids
+    f35b = next(r for r in rows if r['id'] == 'F-35B')
+    assert f35b['engine_id'] == 'f135b'
     assert rows[0]['carrier'] is True
     assert next(r for r in rows if r['id'] == 'F-22')['carrier'] is False
     assert rows[0]['rough'] is True
@@ -301,6 +303,13 @@ def test_load_combat_radius_engine_csv():
     assert by_id['f119']['tsl_kN'] == 116.0
     assert by_id['f119']['max_tsl_kN'] == 156.0
     assert by_id['f135']['max_tsl_kN'] == 191.0
+    assert by_id['f135']['tsl_kN'] == pytest.approx(125.0)
+    assert by_id['f135b']['tsl_kN'] == pytest.approx(120.0)
+    assert by_id['f135b']['max_tsl_kN'] == pytest.approx(182.0)
+    assert by_id['f135b']['bpr'] == pytest.approx(by_id['f135']['bpr'])
+    assert by_id['f135b']['opr'] == pytest.approx(by_id['f135']['opr'])
+    assert by_id['f135b']['t4_K'] == pytest.approx(by_id['f135']['t4_K'])
+    assert by_id['f135b']['tsfc_install_mult'] == pytest.approx(1.22)
     assert by_id['ws15']['max_tsl_kN'] == 156.0
     assert by_id['ws15']['tsl_kN'] == 105.0
     assert by_id['ws15i']['max_tsl_kN'] == 185.0

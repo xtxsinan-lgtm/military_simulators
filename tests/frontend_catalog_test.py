@@ -49,6 +49,8 @@ def test_build_catalog_payload_modes():
     assert any(p['id'] == 'J-15' for p in payload['combat_radius_presets'])
     assert any(p['id'] == '53636' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'f119' for p in payload['combat_radius_engine_presets'])
+    assert any(p['id'] == 'f135' for p in payload['combat_radius_engine_presets'])
+    assert any(p['id'] == 'f135b' for p in payload['combat_radius_engine_presets'])
     assert payload['takeoff_config']['shared']['mu'] == 0.025
     assert 'A' in payload['takeoff_config']['stovl_strategy_descriptions']
     assert set(payload['takeoff_config']['modes']) == set(payload['modes'])
@@ -240,6 +242,8 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     assert 'J-50' not in takeoff_ids
     assert 'NG6A' not in takeoff_ids
     assert any(p['id'] == 'f119' for p in payload['combat_radius_engine_presets'])
+    assert any(p['id'] == 'f135' for p in payload['combat_radius_engine_presets'])
+    assert any(p['id'] == 'f135b' for p in payload['combat_radius_engine_presets'])
     assert len(payload['aircraft']) >= 1
     assert len(payload['carriers']) >= 1
 

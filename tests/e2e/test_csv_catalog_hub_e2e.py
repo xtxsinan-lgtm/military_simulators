@@ -43,6 +43,7 @@ def test_e2e_catalog_auto_detects_csv_models():
     takeoff_ids = {a['id'] for a in api['aircraft']}
     assert 'F-35C' in takeoff_ids and 'F-22' not in takeoff_ids
     assert any(p['id'] == 'f119' for p in api['combat_radius_engine_presets'])
+    assert any(p['id'] == 'f135b' for p in api['combat_radius_engine_presets'])
 
 
 @pytest.mark.e2e

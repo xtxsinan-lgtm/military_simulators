@@ -618,6 +618,39 @@ def test_e2e_combat_radius_f35c_engine_install_applied():
 
 
 @pytest.mark.e2e
+def test_e2e_f135_pw600_split_from_pw100():
+    """垂起型 F135-PW-600 须与 PW-100 分型号：循环相同、海平面军推/加力更低。"""
+    from utils.combat_radius.combat_radius_results import run_preset_dashboard
+    from utils.combat_radius.engine_efficiency import F135_TSFC_INSTALL_MULT
+
+    engines = load_engine_presets()
+    pw100 = get_preset_by_id(engines, 'f135')
+    pw600 = get_preset_by_id(engines, 'f135b')
+    assert pw100 is not None and pw600 is not None
+    assert pw100['bpr'] == pytest.approx(pw600['bpr'])
+    assert pw100['opr'] == pytest.approx(pw600['opr'])
+    assert pw100['t4_K'] == pytest.approx(pw600['t4_K'])
+    assert pw100['tsfc_install_mult'] == pytest.approx(F135_TSFC_INSTALL_MULT)
+    assert pw600['tsfc_install_mult'] == pytest.approx(F135_TSFC_INSTALL_MULT)
+    assert pw100['tsl_kN'] == pytest.approx(125.0)
+    assert pw100['max_tsl_kN'] == pytest.approx(191.0)
+    assert pw600['tsl_kN'] == pytest.approx(120.0)
+    assert pw600['max_tsl_kN'] == pytest.approx(182.0)
+    presets = load_presets()
+    assert get_preset_by_id(presets, 'F-35A')['engine_id'] == 'f135'
+    assert get_preset_by_id(presets, 'F-35C')['engine_id'] == 'f135'
+    assert get_preset_by_id(presets, 'F-35B')['engine_id'] == 'f135b'
+    assert get_preset_by_id(presets, 'NG6B')['engine_id'] == 'f135b'
+    ng6b = run_preset_dashboard('NG6B')
+    f35b = run_preset_dashboard('F-35B')
+    assert ng6b['success'] is True and f35b['success'] is True
+    assert 'F135-PW-600' in ng6b['name']
+    assert 'F135-PW-600' in f35b['name']
+    f35c = run_preset_dashboard('F-35C')
+    assert 'F135-PW-100' in f35c['name']
+
+
+@pytest.mark.e2e
 def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     """预计算快照须覆盖全部机型，且 F-22 与现场计算一致。"""
     from utils.combat_radius.combat_radius_results import (
