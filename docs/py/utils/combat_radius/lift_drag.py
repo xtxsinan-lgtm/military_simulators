@@ -43,7 +43,7 @@ Oswald 与机翼波阻，再按面积加权合成。折点半展站位可由展�
 单段 sweep_deg 仍作为其它翼型或未填两段时的回退。
 
 (Cf0, k_e) 取绝对值：历史闭式解再按 s≈1.194 统一抬升（歼-20≈1350 km），
-ROUGH_MULT≈1.33 单独压 F-35（舰载 45 min 下≈1400 km）；运行时不读锚点。
+F-35 用 FAT×BUMP 加大浸润（肥胖为主、不平整为辅）；运行时不读锚点。
 Oswald 修正含在 k_e 中。仍保留 calibrate() 供对照/单元测试，运行时默认走 model_coefficients()。
 """
 from __future__ import annotations
@@ -122,10 +122,10 @@ INLET_CARET_CDW = 0.90
 #   BUMP_MULT —— 外形不平整：DSI 鼓包、锯齿缝、舱门台阶、RAM 涂层局部干扰
 # 微观表面粗糙次要，并入 BUMP。超音速另用 CDW_SS_ROUGH_*，不靠这两个数压极速。
 # 统一极曲线：在历史闭式解 (Cf0,k_e) 上按尺度 s≈1.194 抬升，使歼-20 Ma0.8≈1350 km。
-# F-35 航程短板拆成两块：机身残余 FAT×BUMP≈1.10（肥胖为主、不平整为辅），
-# 发动机安装 F135 tsfc_install_mult=1.15（宽风扇/大核心）。二者合计压到约 1400 km。
+# F-35 航程短板拆成两块：机身 FAT（肥胖为主）× 较小的 BUMP（不平整），
+# 发动机安装 F135 tsfc_install_mult=1.22（对齐公开军推 TSFC 相对 F100 约 +22%）。
 FAT_MULT = 1.06
-BUMP_MULT = 1.04
+BUMP_MULT = 1.02
 CF0_REF = 0.018831312446174107
 K_E_REF = 1.9677054936141871
 # 大迎角附加阻力：超过巡航 CL 后 (CL-CL_on)²，使 L/D 在标定高度附近见顶。

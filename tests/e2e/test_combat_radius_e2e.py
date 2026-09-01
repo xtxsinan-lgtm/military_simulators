@@ -598,8 +598,8 @@ def test_e2e_combat_radius_f35_max_speed_near_mach_16():
 
 
 @pytest.mark.e2e
-def test_e2e_combat_radius_f35c_engine_install_hits_1400():
-    """F135 安装惩罚须进入仪表盘，F-35C Ma0.8 半径约 1400 km；F-22 不受影响。"""
+def test_e2e_combat_radius_f35c_engine_install_applied():
+    """F135 安装惩罚须进入仪表盘，F-35C Ma0.8 半径约 1318 km；F-22 不受影响。"""
     from utils.combat_radius.combat_radius_results import run_preset_dashboard
     from utils.combat_radius.engine_efficiency import F135_TSFC_INSTALL_MULT
 
@@ -613,7 +613,7 @@ def test_e2e_combat_radius_f35c_engine_install_hits_1400():
     m08 = next(p for p in f35c['points'] if p['id'] == 'mach_0_8')
     m08_22 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert m08['feasible'] is True
-    assert m08['radius_km'] == pytest.approx(1400, abs=50)
+    assert m08['radius_km'] == pytest.approx(1318, abs=50)
     assert m08_22['radius_km'] == pytest.approx(1034, abs=50)
 
 

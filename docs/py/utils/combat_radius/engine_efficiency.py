@@ -25,9 +25,10 @@ G0 = 9.80665
 FUEL_LHV_J_KG = 43.15e6
 # 安装 TSFC 乘数：布雷顿循环看不到进气道/宽风扇巡航损失。
 # F135 为 STOVL 加宽风扇、加大核心，公开军推 TSFC（约 0.89）比 F100（0.73）还高约 22%，
-# 而循环却把 F135 排成最省油。机身已留 FAT×BUMP≈1.10 残余后，1.15 把 F-35C Ma0.8 压到约 1400 km。
+# 而循环却把 F135 排成最省油。安装惩罚取 1.22 把这段公开差距交给发动机；
+# 机身只留 FAT（肥胖）和较小的 BUMP（不平整）。
 TSFC_INSTALL_MULT_DEFAULT = 1.0
-F135_TSFC_INSTALL_MULT = 1.15
+F135_TSFC_INSTALL_MULT = 1.22
 T4MAX_DEFAULT = 1850.0
 T4IDLE_DEFAULT = 900.0
 EPS_DEFAULT = 0.83
