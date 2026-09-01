@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 52;
+const APP_VERSION = 54;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -69,6 +69,41 @@ function fillSelect(selectEl, presets, placeholder) {
   selectEl.innerHTML =
     `<option value="">${placeholder}</option>` +
     presets.map((p) => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+/** 按国别再按名称字母序（与 Python sort_presets_by_nation_then_name 一致）。 */
+function sortPresetsByNationThenName(presets) {
+  return (presets || []).slice().sort((a, b) => {
+    const na = (a.nation || '').trim().toLowerCase();
+    const nb = (b.nation || '').trim().toLowerCase();
+    if (na !== nb) return na < nb ? -1 : 1;
+    const ma = (a.name || '').trim().toLowerCase();
+    const mb = (b.name || '').trim().toLowerCase();
+    if (ma !== mb) return ma < mb ? -1 : 1;
+    const ia = (a.id || '').trim().toLowerCase();
+    const ib = (b.id || '').trim().toLowerCase();
+    if (ia === ib) return 0;
+    return ia < ib ? -1 : 1;
+  });
+}
+
+/** 机型选择器：按国别分组（optgroup），组内按名称字母序。 */
+function fillAircraftSelect(selectEl, presets, placeholder) {
+  const groups = [];
+  sortPresetsByNationThenName(presets).forEach((p) => {
+    const nation = (p.nation || '').trim() || '其他';
+    if (!groups.length || groups[groups.length - 1].nation !== nation) {
+      groups.push({ nation, items: [p] });
+    } else {
+      groups[groups.length - 1].items.push(p);
+    }
+  });
+  const grouped = groups.map((g) => (
+    `<optgroup label="${g.nation}">` +
+    g.items.map((p) => `<option value="${p.id}">${p.name}</option>`).join('') +
+    '</optgroup>'
+  )).join('');
+  selectEl.innerHTML = `<option value="">${placeholder}</option>` + grouped;
 }
 
 function optionHtml(map) {
@@ -667,7 +702,7 @@ async function main() {
     renderAircraftFields();
     const presets = data.combat_radius_presets || [];
     const engines = data.combat_radius_engine_presets || [];
-    fillSelect($('tgtPreset'), presets, '— 选择战机 —');
+    fillAircraftSelect($('tgtPreset'), presets, '— 选择战机 —');
     fillSelect($('engPreset'), engines, '— 自定义 / 手动输入 —');
     $('tgtPreset').addEventListener('change', () => {
       const p = presets.find((x) => x.id === $('tgtPreset').value);

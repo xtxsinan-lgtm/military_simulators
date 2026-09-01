@@ -75,6 +75,10 @@ header{
   outline:none;
 }
 .field input:focus, .field select:focus{ border-color:var(--green); }
+.field select optgroup{
+  color:var(--cyan); font-style:normal; font-weight:bold;
+}
+.field select option{ color:var(--text); font-weight:normal; }
 .field input[type="checkbox"]{ width:auto; }
 .check-row{
   display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--text-dim);

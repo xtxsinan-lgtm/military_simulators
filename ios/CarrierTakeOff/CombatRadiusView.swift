@@ -325,7 +325,7 @@ struct CombatRadiusView: View {
             Picker(label, selection: selection) {
                 Text("— 选择战机 —").tag("")
                 ForEach(vm.presets) { p in
-                    Text(p.name).tag(p.id)
+                    Text(p.selectLabel).tag(p.id)
                 }
             }
             .pickerStyle(.menu)

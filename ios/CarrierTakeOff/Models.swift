@@ -168,6 +168,25 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var wing_area_m2: Double?
     var bvr_missile: String?
     var type_label: String?
+
+    /// 选择器显示名：有国别时为「国别 · 名称」
+    var selectLabel: String {
+        let n = (nation ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return n.isEmpty ? name : "\(n) · \(name)"
+    }
+
+    /// 按国别再按名称字母序（与 Python sort_presets_by_nation_then_name 一致）
+    static func sortedByNationThenName(_ items: [CombatRadiusPresetItem]) -> [CombatRadiusPresetItem] {
+        items.sorted { a, b in
+            let na = (a.nation ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            let nb = (b.nation ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if na != nb { return na < nb }
+            let ma = a.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            let mb = b.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if ma != mb { return ma < mb }
+            return a.id.lowercased() < b.id.lowercased()
+        }
+    }
 }
 
 /// 作战半径发动机预设（海平面军推 tsl_kN 可缺省，需手动填写）

@@ -7,6 +7,7 @@ import pytest
 
 from apps.miniprogram_api import handle_request
 from scripts.frontend_catalog import SIMULATORS, build_catalog_payload
+from utils.combat_radius.combat_radius_presets import load_presets, sort_presets_by_nation_then_name
 from utils.database_csv import (
     load_aircraft_csv,
     load_carriers_csv,
@@ -37,10 +38,7 @@ def test_e2e_catalog_auto_detects_csv_models():
     assert api['simulators'] == SIMULATORS
     assert len(api['missile_interception_presets']['sam']) == len(sat['sam'])
     assert [p['id'] for p in api['combat_radius_presets']] == [
-        'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
-        'J-35', 'J-35A', '53636', '53636N', '53536',
-        'F-35B',
-        'NG6C', 'NG6B', 'NG6A',
+        p['id'] for p in sort_presets_by_nation_then_name(load_presets())
     ]
     takeoff_ids = {a['id'] for a in api['aircraft']}
     assert 'F-35C' in takeoff_ids and 'F-22' not in takeoff_ids

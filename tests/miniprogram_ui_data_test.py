@@ -117,6 +117,9 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '腹鳍面积' in cr_wxml
     assert 'resolveTslKN' in cr_js
     assert 'sweep_inner_deg' in cr_js
+    assert 'function sortPresetsByNationThenName' in cr_js
+    assert 'function presetSelectLabel' in cr_js
+    assert 'sortPresetsByNationThenName(data.combat_radius_presets' in cr_js
     assert '内段前缘后掠' in cr_wxml
     assert '外段前缘后掠' in cr_wxml
     assert 'onInletPreset' in cr_js

@@ -154,7 +154,9 @@ final class CombatRadiusViewModel: ObservableObject {
     func loadPresets() {
         do {
             let catalog = try CatalogStore.loadBundledCatalog()
-            presets = catalog.combat_radius_presets ?? []
+            presets = CombatRadiusPresetItem.sortedByNationThenName(
+                catalog.combat_radius_presets ?? []
+            )
             enginePresets = catalog.combat_radius_engine_presets ?? []
             resultsMap = catalog.combat_radius_results?.aircraft ?? [:]
             if let labels = catalog.combat_radius_config?.planform_labels, !labels.isEmpty {

@@ -4,6 +4,7 @@ from __future__ import annotations
 import pytest
 
 from utils.combat_radius.combat_radius_presets import (
+    _preset_sort_key,
     build_combat_radius_engine_presets_payload,
     build_combat_radius_presets_payload,
     clear_injected_combat_radius_presets,
@@ -11,8 +12,10 @@ from utils.combat_radius.combat_radius_presets import (
     inject_combat_radius_presets,
     load_engine_presets,
     load_presets,
+    preset_select_label,
     preset_to_aircraft,
     preset_to_aircraft_dict,
+    sort_presets_by_nation_then_name,
 )
 from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV, COMBAT_RADIUS_ENGINE_CSV
 
@@ -60,10 +63,11 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav['wing_area_m2'] == pytest.approx(47.8)
     assert uav['sweep_deg'] == pytest.approx(56.1)
     assert uav['empty_kg'] == pytest.approx(7300)
+    assert uav['internal_fuel_kg'] == pytest.approx(4500)
     from utils.combat_radius.cruise_load import wing_loading_t_m2
     assert uav['AR'] == pytest.approx(10.2 ** 2 / 47.8, abs=0.005)
     assert uav['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        7300, 4740, 47.8, 0, 210,
+        7300, 4500, 47.8, 0, 210,
     ), abs=1e-6)
     assert uav['fuse_width_m'] == pytest.approx(2.26)
     assert uav['fuse_height_m'] == pytest.approx(1.62)
@@ -88,9 +92,10 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav535['sweep_deg'] == pytest.approx(52.3)
     assert uav535['mach_angle_deg'] == pytest.approx(21.6)
     assert uav535['empty_kg'] == pytest.approx(7800)
+    assert uav535['internal_fuel_kg'] == pytest.approx(5160)
     assert uav535['AR'] == pytest.approx(9.11 ** 2 / 51.56, abs=0.005)
     assert uav535['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        7800, 6900, 51.56, 0, 210,
+        7800, 5160, 51.56, 0, 210,
     ), abs=1e-6)
     assert j36['sweep_inner_deg'] == pytest.approx(67.8)
     assert j36['sweep_outer_deg'] == pytest.approx(55.3)
@@ -113,9 +118,10 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav_n['sweep_deg'] == pytest.approx(uav['sweep_deg'])
     assert uav_n['mach_angle_deg'] == pytest.approx(uav['mach_angle_deg'])
     assert uav_n['empty_kg'] == pytest.approx(7600)
+    assert uav_n['internal_fuel_kg'] == pytest.approx(4500)
     assert uav_n['AR'] == pytest.approx(uav['AR'])
     assert uav_n['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        7600, 4740, 47.8, 0, 210,
+        7600, 4500, 47.8, 0, 210,
     ), abs=1e-6)
     assert j20['inlet'] == 'dsi'
     assert f35['inlet'] == 'dsi'
@@ -135,9 +141,9 @@ def test_ng6_medium_sixth_gen_presets():
     assert c['layout'] == 'pelican'
     assert b['layout'] == 'medium_htail'
     assert a['layout'] == 'small_htail'
-    assert '11 m²' in c['notes'] and 'Pelican' in c['notes']
-    assert '8 m²' in b['notes'] and '中等平尾' in b['notes']
-    assert '5.5 m²' in a['notes']
+    assert '5.6 m²' in c['notes'] and 'Pelican' in c['notes']
+    assert '5.6 m²' in b['notes'] and '中等平尾' in b['notes']
+    assert '5.6 m²' in a['notes'] and '小平尾' in a['notes']
     assert c['engine_id'] == a['engine_id'] == 'ws15i'
     assert b['engine_id'] == 'f135b'
     assert c['n_engines'] == b['n_engines'] == a['n_engines'] == 1
@@ -151,14 +157,16 @@ def test_ng6_medium_sixth_gen_presets():
     assert c['fuse_height_m'] == b['fuse_height_m'] == a['fuse_height_m'] == pytest.approx(1.97)
     assert c['main_wing_area_m2'] == pytest.approx(34.9)
     assert b['main_wing_area_m2'] == a['main_wing_area_m2'] == pytest.approx(29.0)
+    assert c['canard_htail_area_m2'] == pytest.approx(5.6 * 2)
+    assert b['canard_htail_area_m2'] == a['canard_htail_area_m2'] == pytest.approx(5.6 * 2)
     assert c['wing_area_m2'] == pytest.approx(66.6)
     assert b['wing_area_m2'] == a['wing_area_m2'] == pytest.approx(55.9)
     assert c['empty_kg'] == pytest.approx(12700)
     assert b['empty_kg'] == pytest.approx(12900)
     assert a['empty_kg'] == pytest.approx(11400)
-    assert c['internal_fuel_kg'] == pytest.approx(7700)
-    assert b['internal_fuel_kg'] == pytest.approx(7420)
-    assert a['internal_fuel_kg'] == pytest.approx(7510)
+    assert c['internal_fuel_kg'] == pytest.approx(7860)
+    assert b['internal_fuel_kg'] == pytest.approx(7440)
+    assert a['internal_fuel_kg'] == pytest.approx(7730)
     assert c['sweep_deg'] == b['sweep_deg'] == a['sweep_deg'] == pytest.approx(49.0)
     assert c['mach_angle_deg'] == pytest.approx(28.6)
     assert c['type_label'] == 'conventional'
@@ -167,13 +175,13 @@ def test_ng6_medium_sixth_gen_presets():
     assert b['tc'] == a['tc'] == pytest.approx(0.047)
     from utils.combat_radius.cruise_load import wing_loading_t_m2
     assert c['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        12700, 7700, 66.6, 1, 210,
+        12700, 7860, 66.6, 1, 210,
     ), abs=1e-6)
     assert b['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        12900, 7420, 55.9, 1, 210,
+        12900, 7440, 55.9, 1, 210,
     ), abs=1e-6)
     assert a['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        11400, 7510, 55.9, 1, 210,
+        11400, 7730, 55.9, 1, 210,
     ), abs=1e-6)
 
 
@@ -201,8 +209,38 @@ def test_preset_to_aircraft_and_dict():
 
 def test_build_combat_radius_presets_payload():
     payload = build_combat_radius_presets_payload()
-    assert payload[0]['id'] == 'F-35C'
+    assert payload == sort_presets_by_nation_then_name(load_presets())
     assert COMBAT_RADIUS_AIRCRAFT_CSV.is_file()
+
+
+def test_preset_sort_key():
+    """排序键为（国别, 名称, id）且大小写不敏感。"""
+    assert _preset_sort_key({'nation': '美国', 'name': 'F-22', 'id': 'F-22'}) == (
+        '美国', 'f-22', 'f-22',
+    )
+    assert _preset_sort_key({'nation': ' 中国 ', 'name': '歼-20', 'id': 'J-20'})[0] == '中国'
+    assert _preset_sort_key({}) == ('', '', '')
+
+
+def test_sort_presets_by_nation_then_name():
+    """先按国别（中 < 美），同国别再按名称字母序；不修改入参。"""
+    raw = [
+        {'id': 'F-35C', 'name': 'F-35C Lightning II', 'nation': '美国'},
+        {'id': 'J-20', 'name': '歼-20', 'nation': '中国'},
+        {'id': 'F-22', 'name': 'F-22 Raptor', 'nation': '美国'},
+        {'id': '53536', 'name': '53536无人战机', 'nation': '中国'},
+    ]
+    snapshot = [dict(item) for item in raw]
+    ids = [p['id'] for p in sort_presets_by_nation_then_name(raw)]
+    assert ids == ['53536', 'J-20', 'F-22', 'F-35C']
+    assert raw == snapshot
+
+
+def test_preset_select_label():
+    """有国别时显示「国别 · 名称」，缺国别则仅名称。"""
+    assert preset_select_label({'name': '歼-20', 'nation': '中国'}) == '中国 · 歼-20'
+    assert preset_select_label({'name': 'F-22', 'nation': '  '}) == 'F-22'
+    assert preset_select_label({'name': '自定义'}) == '自定义'
 
 
 def test_load_presets_missing_file_returns_empty(tmp_path):

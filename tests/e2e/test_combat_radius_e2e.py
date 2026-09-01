@@ -321,6 +321,7 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     assert uav['sweep_deg'] == pytest.approx(56.1)
     assert uav['mach_angle_deg'] == pytest.approx(23.1)
     assert uav['empty_kg'] == pytest.approx(7300)
+    assert uav['internal_fuel_kg'] == pytest.approx(4500)
     assert uav['fuse_width_m'] == pytest.approx(2.26)
     assert uav['fuse_height_m'] == pytest.approx(1.62)
     uav535 = get_preset_by_id(presets, '53536')
@@ -328,6 +329,7 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     assert uav535['wingspan_m'] == pytest.approx(9.11)
     assert uav535['wing_area_m2'] == pytest.approx(51.56)
     assert uav535['empty_kg'] == pytest.approx(7800)
+    assert uav535['internal_fuel_kg'] == pytest.approx(5160)
     assert uav535['bwb'] is True
     assert uav535['planform'] == 'diamond'
     j35 = get_preset_by_id(presets, 'J-35')
@@ -514,6 +516,44 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '外段前缘后掠' in ios
     assert 'sweepInnerDeg' in ios_vm
     assert 'fail_reason' in js_text
+    assert 'function sortPresetsByNationThenName' in js_text
+    assert 'function fillAircraftSelect' in js_text
+    assert 'optgroup' in js_text
+    assert 'function sortPresetsByNationThenName' in cr_mp
+    assert 'function presetSelectLabel' in cr_mp
+    assert 'selectLabel' in ios
+    assert 'sortedByNationThenName' in ios_vm
+
+
+@pytest.mark.e2e
+def test_e2e_combat_radius_aircraft_list_sorted_by_nation_then_name():
+    """catalog / API 机型列表须按国别再按名称字母序，供三端选择器共用。"""
+    from utils.combat_radius.combat_radius_presets import (
+        build_combat_radius_presets_payload,
+        load_presets,
+        preset_select_label,
+        sort_presets_by_nation_then_name,
+    )
+    from utils.database_csv import load_aircraft_csv, load_carriers_csv
+    from scripts.frontend_catalog import build_catalog_payload
+    from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV
+
+    expected = sort_presets_by_nation_then_name(load_presets())
+    payload = build_catalog_payload(
+        load_aircraft_csv(AIRCRAFT_CSV),
+        load_carriers_csv(CARRIERS_CSV),
+    )
+    ids = [p['id'] for p in payload['combat_radius_presets']]
+    assert ids == [p['id'] for p in expected]
+    assert ids == [p['id'] for p in build_combat_radius_presets_payload()]
+    assert ids.index('J-20') < ids.index('F-22')
+    assert ids.index('F-22') < ids.index('F-35A') < ids.index('F-35C')
+    first = expected[0]
+    assert preset_select_label(first).startswith(f'{first["nation"]} · ')
+    status, _, body = handle_request('GET', '/api/data', None)
+    assert status == 200
+    api = json.loads(body.decode())
+    assert [p['id'] for p in api['combat_radius_presets']] == ids
 
 
 @pytest.mark.e2e

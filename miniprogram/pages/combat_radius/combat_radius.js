@@ -1,5 +1,27 @@
 const api = require('../../utils/api.js');
 
+/** 按国别再按名称字母序（与 Python sort_presets_by_nation_then_name 一致）。 */
+function sortPresetsByNationThenName(presets) {
+  return (presets || []).slice().sort((a, b) => {
+    const na = (a.nation || '').trim().toLowerCase();
+    const nb = (b.nation || '').trim().toLowerCase();
+    if (na !== nb) return na < nb ? -1 : 1;
+    const ma = (a.name || '').trim().toLowerCase();
+    const mb = (b.name || '').trim().toLowerCase();
+    if (ma !== mb) return ma < mb ? -1 : 1;
+    const ia = (a.id || '').trim().toLowerCase();
+    const ib = (b.id || '').trim().toLowerCase();
+    if (ia === ib) return 0;
+    return ia < ib ? -1 : 1;
+  });
+}
+
+/** 选择器显示名：有国别时为「国别 · 名称」。 */
+function presetSelectLabel(p) {
+  const nation = (p.nation || '').trim();
+  return nation ? `${nation} · ${p.name}` : p.name;
+}
+
 const EMPTY_AC = {
   name: '',
   AR: '',
@@ -157,10 +179,10 @@ Page({
   onShow() {
     api.loadSimulatorData()
       .then((data) => {
-        const presets = data.combat_radius_presets || [];
+        const presets = sortPresetsByNationThenName(data.combat_radius_presets || []);
         const cfg = data.combat_radius_config || {};
         const ui = cfg.ui || {};
-        const presetNames = ['— 选择战机 —'].concat(presets.map((p) => p.name));
+        const presetNames = ['— 选择战机 —'].concat(presets.map(presetSelectLabel));
         const engines = data.combat_radius_engine_presets || [];
         const engineNames = ['— 自定义 —'].concat(engines.map((p) => p.name));
         const tgtp = presets.find((p) => p.id === ui.default_target_id) || presets[0];

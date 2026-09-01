@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from scripts.frontend_catalog import MODES, aircraft_to_dict, build_catalog_payload, carrier_to_dict
 from scripts.generate_frontend_physics import render_cjs, render_esm, _load_constants
+from utils.combat_radius.combat_radius_presets import load_presets, sort_presets_by_nation_then_name
 from utils.database_csv import load_aircraft_csv, load_carriers_csv
 from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV
 
@@ -166,6 +167,10 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'function requestLiveDash' in js_text
     assert 'data-run-dash' in js_text
     assert '计算作战半径' in js_text
+    assert 'function sortPresetsByNationThenName' in js_text
+    assert 'function fillAircraftSelect' in js_text
+    assert '<optgroup label="' in js_text
+    assert "fillAircraftSelect($('tgtPreset')" in js_text
 
 
 def test_pyodide_bundles_combat_radius_modules():
@@ -237,10 +242,7 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     assert [x['id'] for x in payload['missile_interception_presets']['asm']] == [x['id'] for x in csv_data['asm']]
     assert [x['id'] for x in payload['missile_interception_presets']['aew']] == [x['id'] for x in csv_data['aew']]
     assert [p['id'] for p in payload['combat_radius_presets']] == [
-        'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
-        'J-35', 'J-35A', '53636', '53636N', '53536',
-        'F-35B',
-        'NG6C', 'NG6B', 'NG6A',
+        p['id'] for p in sort_presets_by_nation_then_name(load_presets())
     ]
     takeoff_ids = {a['id'] for a in payload['aircraft']}
     assert 'F-35C' in takeoff_ids

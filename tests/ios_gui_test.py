@@ -135,6 +135,9 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'inlet_labels' in models
     assert 'var inlet' in cr_vm
     assert '进气道' in cr_view
+    assert 'selectLabel' in cr_view
+    assert 'sortedByNationThenName' in models
+    assert 'var selectLabel' in models
 
 
 def test_ios_project_yml_exists():

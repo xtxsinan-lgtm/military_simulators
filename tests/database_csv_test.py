@@ -229,6 +229,9 @@ def test_load_combat_radius_aircraft_csv():
         'F-35B',
         'NG6C', 'NG6B', 'NG6A',
     ]
+    for aid in ('NG6C', 'NG6B', 'NG6A'):
+        ng6 = next(r for r in rows if r['id'] == aid)
+        assert ng6['canard_htail_area_m2'] == pytest.approx(5.6 * 2), aid
     assert 'J-15' not in ids
     assert 'AV-8B' not in ids
     assert 'FA-18C' not in ids
@@ -264,6 +267,7 @@ def test_load_combat_radius_aircraft_csv():
     uav_n = next(r for r in rows if r['id'] == '53636N')
     assert uav_n['inlet'] == 'caret'
     assert uav_n['engine_id'] == 'ws10c'
+    assert uav_n['internal_fuel_kg'] == pytest.approx(4500)
     j36 = next(r for r in rows if r['id'] == 'J-36')
     assert j36['n_engines'] == 3
     assert j36['n_pilots'] == 2
@@ -286,6 +290,7 @@ def test_load_combat_radius_aircraft_csv():
     assert uav['sweep_deg'] == pytest.approx(56.1)
     assert uav['mach_angle_deg'] == pytest.approx(23.1)
     assert uav['empty_kg'] == pytest.approx(7300)
+    assert uav['internal_fuel_kg'] == pytest.approx(4500)
     assert uav['fuse_width_m'] == pytest.approx(2.26)
     assert uav['fuse_height_m'] == pytest.approx(1.62)
     uav535 = next(r for r in rows if r['id'] == '53536')
@@ -295,6 +300,7 @@ def test_load_combat_radius_aircraft_csv():
     assert uav535['sweep_deg'] == pytest.approx(52.3)
     assert uav535['mach_angle_deg'] == pytest.approx(21.6)
     assert uav535['empty_kg'] == pytest.approx(7800)
+    assert uav535['internal_fuel_kg'] == pytest.approx(5160)
     assert uav535['fuse_width_m'] == pytest.approx(2.36)
     assert uav535['fuse_height_m'] == pytest.approx(1.61)
     assert uav535['bwb'] is True
