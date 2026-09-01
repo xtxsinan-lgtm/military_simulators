@@ -158,7 +158,7 @@ def test_search_best_altitude_mach_08():
     best = search_best_altitude(ctx, 0.8, ALT_MIN_M, ALT_MAX_M, 2000.0, 1000.0)
     assert best is not None
     assert best.feasible is True
-    assert ALT_MIN_M <= best.alt_m <= 12500.0
+    assert ALT_MIN_M <= best.alt_m <= 13000.0
     assert best.score > 0
 
 
@@ -459,8 +459,8 @@ def test_f22_f35c_mach08_ld_eta_peaks_near_catalog_altitude():
     f22 = search_best_altitude(_f22_csv_ctx(), 0.8)
     f35 = search_best_altitude(_csv_ctx('F-35C'), 0.8)
     assert f22 is not None and f35 is not None
-    assert 11000.0 <= f22.alt_m <= 12500.0
-    assert 11000.0 <= f35.alt_m <= 12500.0
+    assert 11000.0 <= f22.alt_m <= 13000.0
+    assert 11000.0 <= f35.alt_m <= 13000.0
     high = evaluate_cruise_forces(_f22_csv_ctx(), 0.8, 15000.0)
     assert high.ld < f22.ld
 

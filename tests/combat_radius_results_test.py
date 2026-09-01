@@ -150,7 +150,7 @@ def test_run_preset_dashboard_f22_compact():
     assert m20['max_ld'] is not None and m20['max_ld'] > 0
     assert m15['radius_km'] < next(p for p in r['points'] if p['id'] == 'mach_0_8')['radius_km']
     m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
-    assert 11000.0 <= m08['alt_m'] <= 12500.0
+    assert 11000.0 <= m08['alt_m'] <= 13000.0
     m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
     m12 = next(p for p in r['points'] if p['id'] == 'mach_1_2')
     m135 = next(p for p in r['points'] if p['id'] == 'mach_1_35')

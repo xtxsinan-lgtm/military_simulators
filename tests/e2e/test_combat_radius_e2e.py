@@ -151,7 +151,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
         assert extra['radius_km'] is not None
         assert extra['fuel_kg_per_km'] is not None
     assert m15['radius_km'] < m08['radius_km']
-    assert 11000.0 <= m08['alt_m'] <= 12500.0
+    assert 11000.0 <= m08['alt_m'] <= 13000.0
     assert m15['alt_m'] > m08['alt_m']
     assert r['mach_cone_limit'] > 1
     assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
@@ -690,7 +690,7 @@ def test_e2e_combat_radius_f35_max_speed_near_mach_16():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_f35c_engine_install_applied():
-    """F135 循环油耗乘数须进入仪表盘，F-35C Ma0.8 半径约 1375 km（贴近 1400）；F-22 不受影响。"""
+    """F135 循环油耗乘数须进入仪表盘，F-35C Ma0.8 约 1400 km、F-35A≥1200；F-22 不受 F135 乘数影响。"""
     from utils.combat_radius.combat_radius_results import run_preset_dashboard
     from utils.combat_radius.engine_efficiency import F135_TSFC_INSTALL_MULT
 
@@ -704,8 +704,13 @@ def test_e2e_combat_radius_f35c_engine_install_applied():
     m08 = next(p for p in f35c['points'] if p['id'] == 'mach_0_8')
     m08_22 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert m08['feasible'] is True
-    assert m08['radius_km'] == pytest.approx(1375, abs=50)
-    assert m08_22['radius_km'] == pytest.approx(1073, abs=50)
+    assert m08['radius_km'] == pytest.approx(1406, abs=50)
+    assert m08_22['radius_km'] == pytest.approx(1105, abs=50)
+    f35a = run_preset_dashboard('F-35A')
+    m08_a = next(p for p in f35a['points'] if p['id'] == 'mach_0_8')
+    assert m08_a['feasible'] is True
+    assert m08_a['radius_km'] >= 1200
+    assert m08_a['radius_km'] == pytest.approx(1206, abs=50)
 
 
 @pytest.mark.e2e

@@ -906,6 +906,10 @@ def test_cd_high_aoa_zero_near_cruise_cl_and_rises():
     assert cd_high_aoa(cl_cruise(_f22())) == 0.0
     assert cd_high_aoa(0.50) == pytest.approx(CD_AOA_COEF * (0.50 - CL_AOA_ONSET) ** 2)
     assert cd_high_aoa(0.58) > cd_high_aoa(0.45)
+    # F-35A 11 km 巡航 CL≈0.42：只留轻惩罚，不得按大迎角把半径打到公开值以下
+    assert CL_AOA_ONSET == pytest.approx(0.36)
+    assert CD_AOA_COEF == pytest.approx(1.6)
+    assert 0.0 < cd_high_aoa(0.42) < 0.006
 
 
 def test_f22_ma08_ld_peaks_near_catalog_not_15km():
