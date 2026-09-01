@@ -80,3 +80,27 @@ def build_combat_radius_config_payload() -> dict[str, Any]:
         'mission_fuel': dict(cfg.get('mission_fuel', {})),
         'engine': dict(cfg.get('engine', {})),
     }
+
+
+# 垂起 / 倾转不走舰载弹射那套 45 min 余油（虽挂在航母上，但按陆基 30 min）
+LAND_RESERVE_TYPE_LABELS = frozenset({'v/stol', 'tiltrotor'})
+
+
+def uses_land_fuel_reserve(type_label: str | None) -> bool:
+    """垂起与倾转旋翼按陆基余油，不走舰载 45 min。"""
+    return str(type_label or '').strip().lower() in LAND_RESERVE_TYPE_LABELS
+
+
+def reserve_min_for_mission(carrier: bool, type_label: str | None = None) -> float:
+    """弹射/滑跃舰载 45 min；陆基、垂起、倾转 30 min。"""
+    mf = mission_fuel_config()
+    if uses_land_fuel_reserve(type_label) or not carrier:
+        return float(mf['land_reserve_min'])
+    return float(mf['carrier_reserve_min'])
+
+
+def reserve_kind_label(carrier: bool, type_label: str | None = None) -> str:
+    """任务油量说明里的余油类别。"""
+    if uses_land_fuel_reserve(type_label):
+        return '垂起'
+    return '舰载' if carrier else '陆基'

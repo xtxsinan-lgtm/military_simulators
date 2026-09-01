@@ -33,6 +33,7 @@ def dashboard_params_from_preset(
         'n_missiles': N_MISSILES_DEFAULT,
         'n_engines': aircraft.get('n_engines', 1),
         'carrier': bool(aircraft.get('carrier', False)),
+        'type_label': aircraft.get('type_label'),
         'bpr': engine['bpr'],
         'opr': engine['opr'],
         't4_K': engine['t4_K'],
@@ -101,6 +102,7 @@ def sanitize_dashboard(result: dict[str, Any]) -> dict[str, Any]:
             'success': False,
             'error': result.get('error') or '仪表盘计算失败',
         }
+    mf = result.get('mission_fuel') or {}
     return {
         'success': True,
         'name': result.get('name'),
@@ -112,6 +114,9 @@ def sanitize_dashboard(result: dict[str, Any]) -> dict[str, Any]:
         'fuel_kg': _round(result.get('fuel_kg'), 1),
         'fuel_usable_kg': _round(result.get('fuel_usable_kg'), 1),
         'n_engines': result.get('n_engines'),
+        'mission_fuel': {
+            'reserve_min': _round(mf.get('reserve_min'), 1),
+        } if mf else None,
         'points': [sanitize_cruise_point(p) for p in (result.get('points') or [])],
         'max_speed': sanitize_max_speed(result.get('max_speed')),
     }

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=49">
+<link rel="stylesheet" href="css/combat_radius.css?v=50">
 </head>
 <body>
 <div class="scanline"></div>
@@ -46,7 +46,7 @@
         <div class="field"><label>发动机台数</label><input type="number" id="wtEngines" step="1" min="1" value="1"></div>
       </div>
       <div class="check-row">
-        <label><input type="checkbox" id="wtCarrier"> 舰载机（降落冗余 40 min / 陆基 30 min）</label>
+        <label><input type="checkbox" id="wtCarrier"> 舰载弹射 45 min；垂起与陆基 30 min</label>
       </div>
       <div class="section-label amber">▸ 发动机</div>
       <div class="field">
@@ -122,6 +122,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预计算快照 + Pyodide 按需计算 · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=49"></script>
+<script type="module" src="js/combat_radius.js?v=50"></script>
 </body>
 </html>

@@ -2984,6 +2984,9 @@ module.exports = {
         "fuel_kg": 8960.0,
         "fuel_usable_kg": 7275.4,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -3217,6 +3220,9 @@ module.exports = {
         "fuel_kg": 8200.0,
         "fuel_usable_kg": 6771.6,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -3473,6 +3479,9 @@ module.exports = {
         "fuel_kg": 8300.0,
         "fuel_usable_kg": 7072.4,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -3706,6 +3715,9 @@ module.exports = {
         "fuel_kg": 10000.0,
         "fuel_usable_kg": 8629.4,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -3962,6 +3974,9 @@ module.exports = {
         "fuel_kg": 13000.0,
         "fuel_usable_kg": 11631.4,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -4218,6 +4233,9 @@ module.exports = {
         "fuel_kg": 13000.0,
         "fuel_usable_kg": 11033.8,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -4474,6 +4492,9 @@ module.exports = {
         "fuel_kg": 26500.0,
         "fuel_usable_kg": 24439.2,
         "n_engines": 3,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -4730,6 +4751,9 @@ module.exports = {
         "fuel_kg": 8000.0,
         "fuel_usable_kg": 6707.3,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -4963,6 +4987,9 @@ module.exports = {
         "fuel_kg": 7200.0,
         "fuel_usable_kg": 6292.9,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -5219,6 +5246,9 @@ module.exports = {
         "fuel_kg": 4740.0,
         "fuel_usable_kg": 4293.1,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -5452,6 +5482,9 @@ module.exports = {
         "fuel_kg": 4740.0,
         "fuel_usable_kg": 4080.8,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -5685,6 +5718,9 @@ module.exports = {
         "fuel_kg": 6900.0,
         "fuel_usable_kg": 6450.9,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -5916,8 +5952,11 @@ module.exports = {
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 6400.0,
-        "fuel_usable_kg": 4484.7,
+        "fuel_usable_kg": 5097.3,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -5933,8 +5972,8 @@ module.exports = {
             "eta_p": 0.501623,
             "eta_o": 0.156695,
             "score": 1.428445,
-            "radius_km": 739.88,
-            "fuel_kg_per_km": 3.031,
+            "radius_km": 855.95,
+            "fuel_kg_per_km": 2.978,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": 34.909,
@@ -5956,8 +5995,8 @@ module.exports = {
             "eta_p": 0.463156,
             "eta_o": 0.182438,
             "score": 1.380109,
-            "radius_km": 714.84,
-            "fuel_kg_per_km": 3.137,
+            "radius_km": 826.99,
+            "fuel_kg_per_km": 3.082,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": 37.479,
@@ -6117,10 +6156,10 @@ module.exports = {
             "eta_p": 0.438764,
             "eta_o": 0.189187,
             "score": 0.786363,
-            "radius_km": 407.3,
-            "fuel_kg_per_km": 5.505,
-            "mixed_radius_km": 525.38,
-            "mixed_fuel_kg_per_km": 4.268,
+            "radius_km": 471.2,
+            "fuel_kg_per_km": 5.409,
+            "mixed_radius_km": 607.81,
+            "mixed_fuel_kg_per_km": 4.193,
             "tsfc_mg_n_s": 39.906,
             "max_ld": 5.5461,
             "max_ld_alt_m": 14200.0,
@@ -6147,10 +6186,13 @@ module.exports = {
         "max_cruise_mach": 1.2,
         "max_possible_cruise_mach": 1.3539,
         "max_radius_mach": 1.2,
-        "max_radius_km": 684.67,
+        "max_radius_km": 796.35,
         "fuel_kg": 3540.0,
-        "fuel_usable_kg": 2470.7,
+        "fuel_usable_kg": 2813.5,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -6166,8 +6208,8 @@ module.exports = {
             "eta_p": 0.819626,
             "eta_o": 0.132386,
             "score": 1.206363,
-            "radius_km": 723.99,
-            "fuel_kg_per_km": 1.706,
+            "radius_km": 842.07,
+            "fuel_kg_per_km": 1.671,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": 41.319,
@@ -6189,8 +6231,8 @@ module.exports = {
             "eta_p": 0.770967,
             "eta_o": 0.196024,
             "score": 1.46581,
-            "radius_km": 879.69,
-            "fuel_kg_per_km": 1.404,
+            "radius_km": 1023.17,
+            "fuel_kg_per_km": 1.375,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": 34.881,
@@ -6212,10 +6254,10 @@ module.exports = {
             "eta_p": 0.690072,
             "eta_o": 0.254489,
             "score": 1.140856,
-            "radius_km": 684.67,
-            "fuel_kg_per_km": 1.804,
-            "mixed_radius_km": 703.78,
-            "mixed_fuel_kg_per_km": 1.755,
+            "radius_km": 796.35,
+            "fuel_kg_per_km": 1.767,
+            "mixed_radius_km": 818.57,
+            "mixed_fuel_kg_per_km": 1.719,
             "tsfc_mg_n_s": 32.242,
             "max_ld": 4.4829,
             "max_ld_alt_m": 14600.0,
@@ -6235,10 +6277,10 @@ module.exports = {
             "eta_p": 0.742283,
             "eta_o": 0.268106,
             "score": 0.633875,
-            "radius_km": 380.41,
-            "fuel_kg_per_km": 3.247,
-            "mixed_radius_km": 498.76,
-            "mixed_fuel_kg_per_km": 2.477,
+            "radius_km": 442.46,
+            "fuel_kg_per_km": 3.179,
+            "mixed_radius_km": 580.11,
+            "mixed_fuel_kg_per_km": 2.425,
             "tsfc_mg_n_s": 34.429,
             "max_ld": 2.3643,
             "max_ld_alt_m": 11200.0,
@@ -6327,10 +6369,10 @@ module.exports = {
             "eta_p": 0.690072,
             "eta_o": 0.254489,
             "score": 1.140856,
-            "radius_km": 684.67,
-            "fuel_kg_per_km": 1.804,
-            "mixed_radius_km": 703.78,
-            "mixed_fuel_kg_per_km": 1.755,
+            "radius_km": 796.35,
+            "fuel_kg_per_km": 1.767,
+            "mixed_radius_km": 818.57,
+            "mixed_fuel_kg_per_km": 1.719,
             "tsfc_mg_n_s": 32.242,
             "max_ld": 4.4829,
             "max_ld_alt_m": 14600.0,
@@ -6350,10 +6392,10 @@ module.exports = {
             "eta_p": 0.743536,
             "eta_o": 0.268398,
             "score": 0.613006,
-            "radius_km": 367.89,
-            "fuel_kg_per_km": 3.358,
-            "mixed_radius_km": 487.87,
-            "mixed_fuel_kg_per_km": 2.532,
+            "radius_km": 427.89,
+            "fuel_kg_per_km": 3.288,
+            "mixed_radius_km": 567.44,
+            "mixed_fuel_kg_per_km": 2.479,
             "tsfc_mg_n_s": 34.491,
             "max_ld": 2.2839,
             "max_ld_alt_m": 11000.0,
@@ -6384,6 +6426,9 @@ module.exports = {
         "fuel_kg": 9800.0,
         "fuel_usable_kg": 8061.0,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -6640,6 +6685,9 @@ module.exports = {
         "fuel_kg": 10000.0,
         "fuel_usable_kg": 8228.8,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -6896,6 +6944,9 @@ module.exports = {
         "fuel_kg": 4560.0,
         "fuel_usable_kg": 3249.6,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -7152,6 +7203,9 @@ module.exports = {
         "fuel_kg": 4700.0,
         "fuel_usable_kg": 3620.7,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -7385,6 +7439,9 @@ module.exports = {
         "fuel_kg": 6667.0,
         "fuel_usable_kg": 5323.0,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -7641,6 +7698,9 @@ module.exports = {
         "fuel_kg": 4930.0,
         "fuel_usable_kg": 3878.7,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -7897,6 +7957,9 @@ module.exports = {
         "fuel_kg": 7348.0,
         "fuel_usable_kg": 5506.8,
         "n_engines": 2,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -8134,6 +8197,9 @@ module.exports = {
         "fuel_kg": 8500.0,
         "fuel_usable_kg": 7359.3,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 45.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -8386,10 +8452,13 @@ module.exports = {
         "max_cruise_mach": 1.73,
         "max_possible_cruise_mach": 1.8721,
         "max_radius_mach": 1.58,
-        "max_radius_km": 812.28,
+        "max_radius_km": 875.97,
         "fuel_kg": 7900.0,
-        "fuel_usable_kg": 6535.5,
+        "fuel_usable_kg": 6954.2,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",
@@ -8405,8 +8474,8 @@ module.exports = {
             "eta_p": 0.54631,
             "eta_o": 0.153029,
             "score": 1.812465,
-            "radius_km": 1452.04,
-            "fuel_kg_per_km": 2.25,
+            "radius_km": 1565.88,
+            "fuel_kg_per_km": 2.221,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": 35.745,
@@ -8428,8 +8497,8 @@ module.exports = {
             "eta_p": 0.412976,
             "eta_o": 0.175009,
             "score": 1.404694,
-            "radius_km": 1125.36,
-            "fuel_kg_per_km": 2.904,
+            "radius_km": 1213.59,
+            "fuel_kg_per_km": 2.865,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": 39.07,
@@ -8474,10 +8543,10 @@ module.exports = {
             "eta_p": 0.5107,
             "eta_o": 0.223761,
             "score": 0.900779,
-            "radius_km": 721.65,
-            "fuel_kg_per_km": 4.528,
-            "mixed_radius_km": 964.13,
-            "mixed_fuel_kg_per_km": 3.389,
+            "radius_km": 778.23,
+            "fuel_kg_per_km": 4.468,
+            "mixed_radius_km": 1039.72,
+            "mixed_fuel_kg_per_km": 3.344,
             "tsfc_mg_n_s": 41.253,
             "max_ld": 5.3403,
             "max_ld_alt_m": 17400.0,
@@ -8497,10 +8566,10 @@ module.exports = {
             "eta_p": 0.552414,
             "eta_o": 0.243177,
             "score": 0.967834,
-            "radius_km": 775.37,
-            "fuel_kg_per_km": 4.214,
-            "mixed_radius_km": 1010.92,
-            "mixed_fuel_kg_per_km": 3.232,
+            "radius_km": 836.16,
+            "fuel_kg_per_km": 4.158,
+            "mixed_radius_km": 1090.18,
+            "mixed_fuel_kg_per_km": 3.189,
             "tsfc_mg_n_s": 42.177,
             "max_ld": 5.0143,
             "max_ld_alt_m": 17600.0,
@@ -8520,10 +8589,10 @@ module.exports = {
             "eta_p": 0.618194,
             "eta_o": 0.271542,
             "score": 0.902487,
-            "radius_km": 723.02,
-            "fuel_kg_per_km": 4.52,
-            "mixed_radius_km": 965.35,
-            "mixed_fuel_kg_per_km": 3.385,
+            "radius_km": 779.7,
+            "fuel_kg_per_km": 4.46,
+            "mixed_radius_km": 1041.04,
+            "mixed_fuel_kg_per_km": 3.34,
             "tsfc_mg_n_s": 44.066,
             "max_ld": 4.9601,
             "max_ld_alt_m": 19200.0,
@@ -8566,10 +8635,10 @@ module.exports = {
             "eta_p": 0.611449,
             "eta_o": 0.269434,
             "score": 0.93707,
-            "radius_km": 750.72,
-            "fuel_kg_per_km": 4.353,
-            "mixed_radius_km": 989.74,
-            "mixed_fuel_kg_per_km": 3.302,
+            "radius_km": 809.58,
+            "fuel_kg_per_km": 4.295,
+            "mixed_radius_km": 1067.34,
+            "mixed_fuel_kg_per_km": 3.258,
             "tsfc_mg_n_s": 43.903,
             "max_ld": 4.9843,
             "max_ld_alt_m": 19200.0,
@@ -8589,10 +8658,10 @@ module.exports = {
             "eta_p": 0.5712,
             "eta_o": 0.252616,
             "score": 1.013908,
-            "radius_km": 812.28,
-            "fuel_kg_per_km": 4.023,
-            "mixed_radius_km": 1041.78,
-            "mixed_fuel_kg_per_km": 3.137,
+            "radius_km": 875.97,
+            "fuel_kg_per_km": 3.969,
+            "mixed_radius_km": 1123.46,
+            "mixed_fuel_kg_per_km": 3.095,
             "tsfc_mg_n_s": 42.766,
             "max_ld": 5.0584,
             "max_ld_alt_m": 18200.0,
@@ -8612,10 +8681,10 @@ module.exports = {
             "eta_p": 0.649374,
             "eta_o": 0.283126,
             "score": 0.552986,
-            "radius_km": 443.02,
-            "fuel_kg_per_km": 7.376,
-            "mixed_radius_km": 678.9,
-            "mixed_fuel_kg_per_km": 4.813,
+            "radius_km": 477.75,
+            "fuel_kg_per_km": 7.278,
+            "mixed_radius_km": 732.13,
+            "mixed_fuel_kg_per_km": 4.749,
             "tsfc_mg_n_s": 45.211,
             "max_ld": 4.0793,
             "max_ld_alt_m": 18800.0,
@@ -8646,6 +8715,9 @@ module.exports = {
         "fuel_kg": 8200.0,
         "fuel_usable_kg": 7414.6,
         "n_engines": 1,
+        "mission_fuel": {
+          "reserve_min": 30.0
+        },
         "points": [
           {
             "id": "mach_0_8",

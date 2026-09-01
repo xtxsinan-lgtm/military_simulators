@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 49;
+const APP_VERSION = 50;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -112,6 +112,7 @@ function renderAircraftFields() {
       <label><input type="checkbox" id="tgt_bwb"> 翼身融合</label>
       <label><input type="checkbox" id="tgt_rough"> 表面不平整</label>
     </div>
+    <input id="tgt_type_label" type="hidden">
   `;
   $('tgt_planform').addEventListener('change', syncDoubleDeltaFields);
   syncDoubleDeltaFields();
@@ -142,6 +143,7 @@ function applyPresetToFields(preset) {
   $('tgt_mach_angle').value = preset.mach_angle_deg != null ? preset.mach_angle_deg : '';
   $('tgt_len').value = preset.length_m != null ? preset.length_m : '';
   $('tgt_span').value = preset.wingspan_m != null ? preset.wingspan_m : '';
+  if ($('tgt_type_label')) $('tgt_type_label').value = preset.type_label || '';
   applyWeightFromPreset(preset);
   syncDoubleDeltaFields();
   applyingPreset = false;
@@ -212,6 +214,7 @@ function readAircraft() {
     wingspan_m: Number($('tgt_span').value),
     mach_angle_deg: Number($('tgt_mach_angle').value),
     wing_area_m2: Number($('tgt_area').value),
+    type_label: $('tgt_type_label') ? $('tgt_type_label').value : '',
   };
 }
 
@@ -391,7 +394,7 @@ function renderDash(r, sourceLabel) {
       <div class="stat"><div class="k">实用最大巡航速度</div><div class="v amber">${r.max_cruise_mach != null ? `Ma ${fmt(r.max_cruise_mach, 3)}` : '—'}</div></div>
       <div class="stat"><div class="k">最大巡航速度</div><div class="v">${r.max_possible_cruise_mach != null ? `Ma ${fmt(r.max_possible_cruise_mach, 3)}` : '—'}</div></div>
       <div class="stat"><div class="k">极速</div><div class="v">${vmax}</div><div class="sub">${ms.alt_m != null ? `${fmt(ms.alt_m / 1000, 1)} km` : ''}</div></div>
-      <div class="stat"><div class="k">可用油</div><div class="v">${fmt(r.fuel_usable_kg, 0)} kg</div><div class="sub">内油 ${fmt(r.fuel_kg, 0)} · ${r.carrier ? '舰载' : '陆基'}</div></div>
+      <div class="stat"><div class="k">可用油</div><div class="v">${fmt(r.fuel_usable_kg, 0)} kg</div><div class="sub">内油 ${fmt(r.fuel_kg, 0)} · ${r.mission_fuel && r.mission_fuel.reserve_min != null ? `${r.mission_fuel.reserve_min} min 余油` : (r.carrier ? '舰载' : '陆基')}</div></div>
     </div>
     <div class="scroll-x">
       <table>

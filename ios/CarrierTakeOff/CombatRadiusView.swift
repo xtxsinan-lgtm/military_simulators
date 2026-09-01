@@ -24,7 +24,7 @@ struct CombatRadiusView: View {
                     field("单枚中距弹 (kg)", text: $vm.wtMissile)
                     field("挂弹数", text: $vm.wtNMissiles)
                     field("发动机台数", text: $vm.wtEngines)
-                    Toggle("舰载机（降落冗余 40 min / 陆基 30 min）", isOn: $vm.wtCarrier)
+                    Toggle("舰载弹射 45 min；垂起与陆基 30 min", isOn: $vm.wtCarrier)
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.text)
                         .tint(CombatRadiusTheme.green)

@@ -12,7 +12,10 @@ from utils.combat_radius.combat_radius_config import (
     load_combat_radius_config,
     mission_fuel_config,
     planform_labels,
+    reserve_kind_label,
+    reserve_min_for_mission,
     ui_config,
+    uses_land_fuel_reserve,
 )
 from utils.paths import COMBAT_RADIUS_CONFIG_JSON
 
@@ -109,6 +112,21 @@ def test_mission_fuel_config_defaults():
     assert mf['land_reserve_min'] == 30
     assert mf['climb_extra_km'] == 120
     assert mf['descent_save_km'] == 87.5
+
+
+def test_reserve_min_for_mission_stovl_uses_land():
+    """垂起/倾转即使舰载也按 30 min；弹射舰载 45 min。"""
+    assert uses_land_fuel_reserve('v/stol') is True
+    assert uses_land_fuel_reserve('tiltrotor') is True
+    assert uses_land_fuel_reserve('conventional') is False
+    assert uses_land_fuel_reserve(None) is False
+    assert reserve_min_for_mission(True, 'conventional') == pytest.approx(45)
+    assert reserve_min_for_mission(True, 'v/stol') == pytest.approx(30)
+    assert reserve_min_for_mission(True, 'tiltrotor') == pytest.approx(30)
+    assert reserve_min_for_mission(False, 'conventional') == pytest.approx(30)
+    assert reserve_kind_label(True, 'v/stol') == '垂起'
+    assert reserve_kind_label(True, 'conventional') == '舰载'
+    assert reserve_kind_label(False, None) == '陆基'
 
 
 def test_dry_to_max_thrust_ratio_default_and_invalid_inject():

@@ -73,7 +73,7 @@ def test_instantaneous_fuel_kg_per_km_matches_breguet_derivative():
 
 
 def test_reserve_loiter_km_carrier_and_land():
-    """舰载 40 min、陆基 30 min，均按 850 km/h。"""
+    """舰载 45 min、陆基 30 min，均按 850 km/h。"""
     assert reserve_loiter_km(40, 850) == pytest.approx(850 * 40 / 60)
     assert reserve_loiter_km(30, 850) == pytest.approx(425.0)
     with pytest.raises(ValueError, match='冗余时间'):

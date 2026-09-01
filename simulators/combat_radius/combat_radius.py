@@ -31,7 +31,12 @@ from utils.combat_radius.breguet import (
     mission_fuel_budget,
     mixed_combat_radius_m,
 )
-from utils.combat_radius.combat_radius_config import dry_to_max_thrust_ratio, mission_fuel_config
+from utils.combat_radius.combat_radius_config import (
+    dry_to_max_thrust_ratio,
+    mission_fuel_config,
+    reserve_kind_label,
+    reserve_min_for_mission,
+)
 from utils.combat_radius.cruise_load import (
     N_MISSILES_DEFAULT,
     clamp_load,
@@ -380,6 +385,17 @@ def _parse_carrier(params: dict[str, Any]) -> bool:
     return False
 
 
+def _parse_type_label(params: dict[str, Any]) -> str | None:
+    """起降类型：优先顶层 type_label，其次待估机预设。"""
+    raw = params.get('type_label')
+    if raw not in (None, ''):
+        return str(raw)
+    target = params.get('target')
+    if isinstance(target, dict) and target.get('type_label') not in (None, ''):
+        return str(target['type_label'])
+    return None
+
+
 def _subsonic_scored_for_burn(
     ctx: CruiseContext,
     alt_min_m: float,
@@ -413,9 +429,8 @@ def _subsonic_scored_for_burn(
     return None
 
 
-def _mission_fuel_note(carrier: bool, reserve_min: float, mf: dict[str, Any]) -> str:
+def _mission_fuel_note(kind: str, reserve_min: float, mf: dict[str, Any]) -> str:
     """作战半径说明：先算出发/返回瞬时油耗，再按修正质量做布雷盖。"""
-    kind = '舰载' if carrier else '陆基'
     return (
         f'先按出发/返回重量算瞬时油耗（已含{kind}降落冗余 {reserve_min:g} min'
         f'，{float(mf["reserve_cruise_kph"]):g} km/h 平飞）；'
@@ -733,7 +748,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     超音速点额外给出混合作战半径（去程该马赫、返程 Ma 0.8）。
     巡航 L/D 仍用一半内油的空战重量。
     先按出发总重与返回总重（干重+冗余）算亚音速瞬时油耗；
-    冗余为舰载 40 min / 陆基 30 min、850 km/h 平飞。
+    冗余为弹射/滑跃舰载 45 min，陆基与垂起/倾转 30 min，850 km/h 平飞。
     出发瞬时 × 120 km 为爬升额外，返回瞬时 × 87.5 km 为降落节省。
     布雷盖终点 = 空重 +（冗余 − 降落节省），可用油 = 内油 − 该值 − 爬升额外。
     超音速点仍用同一套亚音速任务油量。
@@ -802,10 +817,9 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     ab_ctx = _optional_ab_context(ctx, params)
 
     carrier = _parse_carrier(params)
+    type_label = _parse_type_label(params)
     mf = mission_fuel_config()
-    reserve_min = (
-        float(mf['carrier_reserve_min']) if carrier else float(mf['land_reserve_min'])
-    )
+    reserve_min = reserve_min_for_mission(carrier, type_label)
     subsonic = _subsonic_scored_for_burn(ctx, alt_min, alt_max, coarse_m, refine_m)
     fuel_adj: dict[str, Any] | None = None
     if (
@@ -964,7 +978,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         'max_radius_km': max_radius_km,
         'points': points,
         'mission_fuel': fuel_adj,
-        'note': _mission_fuel_note(carrier, reserve_min, mf),
+        'note': _mission_fuel_note(reserve_kind_label(carrier, type_label), reserve_min, mf),
     }
 
 

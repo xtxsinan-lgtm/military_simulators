@@ -47,6 +47,7 @@ def test_dashboard_params_from_preset_f35c_install():
     eng = get_preset_by_id(load_engine_presets(), 'f135')
     p = dashboard_params_from_preset(ac, eng)
     assert p['tsfc_install_mult'] == pytest.approx(1.22)
+    assert p['type_label'] == 'conventional'
 
 
 def test_sanitize_helpers_round_and_drop_blackbox():
@@ -79,7 +80,9 @@ def test_sanitize_helpers_round_and_drop_blackbox():
         'fuel_kg': 8200, 'fuel_usable_kg': 5000.12,
         'n_engines': 2, 'points': [{'id': 'mach_0_8', 'feasible': True, 'mach': 0.8}],
         'max_speed': {'feasible': True, 'max_speed_mach': 2.0},
+        'mission_fuel': {'reserve_min': 30},
     })
+    assert ok['mission_fuel']['reserve_min'] == 30
     assert ok['success'] is True
     assert 'Cf0' not in ok
     assert ok['max_possible_cruise_mach'] == 1.89

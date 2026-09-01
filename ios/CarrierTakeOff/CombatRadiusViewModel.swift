@@ -21,6 +21,7 @@ struct CombatRadiusAircraftInput {
     var wingspanM = ""
     var machAngleDeg = ""
     var wingAreaM2 = ""
+    var typeLabel = ""
 
     /// 填入预设几何
     mutating func apply(_ p: CombatRadiusPresetItem) {
@@ -42,6 +43,7 @@ struct CombatRadiusAircraftInput {
         wingspanM = p.wingspan_m.map { String($0) } ?? ""
         machAngleDeg = p.mach_angle_deg.map { String($0) } ?? ""
         wingAreaM2 = p.wing_area_m2.map { String($0) } ?? ""
+        typeLabel = p.type_label ?? ""
     }
 
     /// 转为 Python API 机型字典
@@ -65,6 +67,7 @@ struct CombatRadiusAircraftInput {
             "wingspan_m": Double(wingspanM) ?? 0,
             "mach_angle_deg": Double(machAngleDeg) ?? 0,
             "wing_area_m2": Double(wingAreaM2) ?? 0,
+            "type_label": typeLabel,
         ]
     }
 }

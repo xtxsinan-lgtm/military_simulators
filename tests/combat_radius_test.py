@@ -44,6 +44,7 @@ from simulators.combat_radius.combat_radius import (
     _optional_float,
     _optional_int,
     _parse_carrier,
+    _parse_type_label,
     _positive_thrust_value,
     _radius_fail_reason,
     _require_aircraft_params,
@@ -640,6 +641,10 @@ def test_as_bool_and_parse_carrier():
     assert _parse_carrier({'target': {'carrier': True}}) is True
     assert _parse_carrier({}) is False
     assert _parse_carrier({'carrier': '0', 'target': {'carrier': True}}) is False
+    assert _parse_type_label({'type_label': 'v/stol'}) == 'v/stol'
+    assert _parse_type_label({'target': {'type_label': 'tiltrotor'}}) == 'tiltrotor'
+    assert _parse_type_label({}) is None
+    assert _parse_type_label({'type_label': 'conventional', 'target': {'type_label': 'v/stol'}}) == 'conventional'
 
 
 def test_radius_fail_reason_and_mission_note():
@@ -649,10 +654,15 @@ def test_radius_fail_reason_and_mission_note():
     assert 'TSFC' in _radius_fail_reason('tsfc_unavailable')
     assert '92%' in _radius_fail_reason('no_feasible_altitude')
     note = _mission_fuel_note(
-        True, 40,
+        '舰载', 45,
         {'reserve_cruise_kph': 850, 'climb_extra_km': 120, 'descent_save_km': 87.5},
     )
-    assert '舰载' in note and '40' in note and '120' in note
+    assert '舰载' in note and '45' in note and '120' in note
+    stovl_note = _mission_fuel_note(
+        '垂起', 30,
+        {'reserve_cruise_kph': 850, 'climb_extra_km': 120, 'descent_save_km': 87.5},
+    )
+    assert '垂起' in stovl_note and '30' in stovl_note
 
 
 def test_failed_radius_point_keeps_aero():
@@ -771,7 +781,7 @@ def test_subsonic_burn_unavailable_marks_points(monkeypatch):
 
 
 def test_carrier_reserve_reduces_radius_vs_land():
-    """同样气动下舰载 40 min 冗余比陆基 30 min 更短。"""
+    """同样气动下舰载 45 min 冗余比陆基 30 min 更短。"""
     land = run_estimate_radius_from_params({**_radius_params(), 'carrier': False})
     sea = run_estimate_radius_from_params({**_radius_params(), 'carrier': True})
     assert land['mission_fuel']['reserve_min'] == 30
@@ -783,6 +793,20 @@ def test_carrier_reserve_reduces_radius_vs_land():
     m08 = next(p for p in sea['points'] if p['id'] == 'mach_0_8')
     if m15.get('feasible'):
         assert m15['radius_km'] != m08['radius_km']
+
+
+def test_stovl_carrier_uses_land_reserve():
+    """垂起虽 carrier=True，余油须按陆基 30 min，半径长于弹射 45 min。"""
+    base = {**_radius_params(), 'carrier': True}
+    catobar = run_estimate_radius_from_params({**base, 'type_label': 'conventional'})
+    stovl = run_estimate_radius_from_params({**base, 'type_label': 'v/stol'})
+    assert catobar['carrier'] is True and stovl['carrier'] is True
+    assert catobar['mission_fuel']['reserve_min'] == 45
+    assert stovl['mission_fuel']['reserve_min'] == 30
+    assert '垂起' in stovl['note']
+    r_c = next(p for p in catobar['points'] if p['id'] == 'mach_0_8')['radius_km']
+    r_b = next(p for p in stovl['points'] if p['id'] == 'mach_0_8')['radius_km']
+    assert r_b > r_c
 
 
 def test_insufficient_mission_fuel_marks_points_infeasible():

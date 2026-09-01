@@ -19,6 +19,7 @@ const EMPTY_AC = {
   wingspan_m: '',
   mach_angle_deg: '',
   wing_area_m2: '',
+  type_label: 'conventional',
 };
 
 function num(v, d) {
@@ -319,6 +320,7 @@ Page({
       wingspan_m: num(ac.wingspan_m, 0),
       mach_angle_deg: num(ac.mach_angle_deg, 0),
       wing_area_m2: num(ac.wing_area_m2, 0),
+      type_label: ac.type_label || 'conventional',
     };
   },
 

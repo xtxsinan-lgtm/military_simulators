@@ -77,7 +77,7 @@
       <input class="input" type="number" value="{{wtEngines}}" data-key="wtEngines" bindinput="onField"/>
     </view>
     <view class="check-row">
-      <label><switch checked="{{wtCarrier}}" bindchange="onCarrierSwitch"/> 舰载机（降落冗余 40 min / 陆基 30 min）</label>
+      <label><switch checked="{{wtCarrier}}" bindchange="onCarrierSwitch"/> 舰载弹射 45 min；垂起与陆基 30 min</label>
     </view>
     <view class="section cyan">▸ 发动机</view>
     <view class="field">

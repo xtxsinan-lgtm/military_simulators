@@ -42,6 +42,13 @@ def test_e2e_ng6_catalog_and_combat_radius():
     assert aircraft['NG6C'].t_max_sl_n == pytest.approx(185000)
     assert aircraft['NG6B'].is_vtol is True
     assert get_preset_by_id(presets, 'NG6B')['engine_id'] == 'f135b'
+    from utils.combat_radius.combat_radius_results import run_preset_dashboard
+    ng6c = run_preset_dashboard('NG6C')
+    ng6b = run_preset_dashboard('NG6B')
+    ng6a = run_preset_dashboard('NG6A')
+    assert ng6c['mission_fuel']['reserve_min'] == 45
+    assert ng6b['mission_fuel']['reserve_min'] == 30
+    assert ng6a['mission_fuel']['reserve_min'] == 30
     stovl_ids = {a.id for a in filter_aircraft_for_mode('short_takeoff', list(aircraft.values()))}
     assert 'NG6B' in stovl_ids
     ski_ids = {a.id for a in filter_aircraft_for_mode('ski_jump', list(aircraft.values()))}

@@ -157,6 +157,7 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var mach_angle_deg: Double?
     var wing_area_m2: Double?
     var bvr_missile: String?
+    var type_label: String?
 }
 
 /// 作战半径发动机预设（海平面军推 tsl_kN 可缺省，需手动填写）

@@ -463,9 +463,12 @@ def test_e2e_combat_radius_three_channels_exist():
     assert 'engine_id' in ios_vm
     assert 'wtCarrier' in ios_vm
     assert 'func requestLiveDash' in ios_vm
-    assert '舰载机' in html_text
-    assert '舰载机' in wxml
-    assert '舰载机' in ios
+    assert '舰载弹射' in html_text
+    assert '舰载弹射' in wxml
+    assert '舰载弹射' in ios
+    assert 'tgt_type_label' in js_text
+    assert 'type_label' in cr_mp
+    assert 'typeLabel' in ios_vm
     assert '内段前缘后掠' in js_text
     assert '外段前缘后掠' in js_text
     assert 'tgt_sweep_inner' in js_text
@@ -648,6 +651,11 @@ def test_e2e_f135_pw600_split_from_pw100():
     assert 'F135-PW-600' in f35b['name']
     f35c = run_preset_dashboard('F-35C')
     assert 'F135-PW-100' in f35c['name']
+    f35b_mf = f35b['mission_fuel']
+    ng6b_mf = ng6b['mission_fuel']
+    assert f35b_mf['reserve_min'] == 30
+    assert ng6b_mf['reserve_min'] == 30
+    assert f35c['mission_fuel']['reserve_min'] == 45
 
 
 @pytest.mark.e2e
