@@ -46,6 +46,8 @@ def test_e2e_f35c_carrier_ski_jump_and_land_excluded():
     ids = {a['id'] for a in catalog['aircraft']}
     assert 'F-35C' in ids
     assert 'J-50N' in ids
+    assert 'J-10C' in ids
+    assert 'J-20' in ids
     assert 'F-22' not in ids
     ac = next(a for a in catalog['aircraft'] if a['id'] == 'F-35C')
     carrier = next(c for c in catalog['carriers'] if c['id'] == 'SHANDONG')

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from utils.specs import AircraftSpec, CarrierSpec
 
-# 统一机型库：作战半径几何 + 起飞字段；carrier=1 才进入起飞仿真
+# 统一机型库：作战半径几何 + 起飞字段；填写 mtow_kg 才进入起飞仿真（陆基机也可做滑跃假设）
 AIRCRAFT_CSV_COLUMNS = (
     'id', 'name', 'nation', 'carrier', 'type_label',
     'AR', 'sweep_deg', 'sweep_inner_deg', 'sweep_outer_deg', 'sweep_kink_span_frac',
@@ -245,15 +245,23 @@ def _estimate_cd0_for_item(item: dict[str, Any]) -> float:
     return estimate_takeoff_cd0(aircraft_from_dict(item))
 
 
+def _row_has_takeoff_spec(row: dict[str, str]) -> bool:
+    """是否具备起飞仿真必填字段（填写最大起飞重量即视为可上舰仿真）。"""
+    return _parse_optional_float(row.get('mtow_kg') or '') is not None
+
+
 def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
-    """加载统一机型库中的舰载机（carrier=1），供起飞仿真使用。"""
+    """加载统一机型库中填写了起飞字段的机型，供起飞仿真使用。
+
+    陆基机（carrier=0）只要填了 mtow_kg 等起飞字段，也可进入滑跃/短距仿真。
+    """
     from utils.specs import AircraftSpec
 
     csv_path = Path(path)
     rows = _read_unified_aircraft_rows(csv_path)
     aircraft: dict[str, AircraftSpec] = {}
     for row in rows:
-        if not _parse_bool(row.get('carrier') or '0'):
+        if not _row_has_takeoff_spec(row):
             continue
         ac_id = row['id'].strip()
         cr_item = _combat_radius_item_from_row(row, csv_path)
@@ -261,7 +269,7 @@ def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
         cd0 = cd0_override if cd0_override is not None else _estimate_cd0_for_item(cr_item)
         type_label = (row.get('type_label') or '').strip()
         if not type_label:
-            raise ValueError(f'{csv_path} 舰载机 {ac_id} 缺少 type_label')
+            raise ValueError(f'{csv_path} 起飞机型 {ac_id} 缺少 type_label')
         aircraft[ac_id] = AircraftSpec(
             id=ac_id,
             name=row['name'].strip(),
@@ -291,7 +299,7 @@ def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
             notes=(row.get('notes') or '').strip(),
         )
     if not aircraft:
-        raise ValueError(f'{csv_path} 未读到有效舰载机记录（须 carrier=1）')
+        raise ValueError(f'{csv_path} 未读到有效起飞仿真记录（须填写 mtow_kg）')
     return aircraft
 
 

@@ -251,6 +251,8 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     assert 'J-50N' in takeoff_ids
     assert 'NG6C' in takeoff_ids
     assert 'NG6B' in takeoff_ids
+    assert 'J-10C' in takeoff_ids
+    assert 'J-20' in takeoff_ids
     assert 'F-22' not in takeoff_ids
     assert 'J-50' not in takeoff_ids
     assert 'NG6A' not in takeoff_ids

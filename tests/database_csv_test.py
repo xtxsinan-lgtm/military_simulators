@@ -12,6 +12,7 @@ from utils.database_csv import (
     _parse_int,
     _parse_optional_float,
     _read_unified_aircraft_rows,
+    _row_has_takeoff_spec,
     export_aircraft_csv,
     list_model_ids_from_missile_interception_csv,
     load_aircraft_csv,
@@ -33,7 +34,7 @@ from utils.paths import (
 
 
 def test_load_aircraft_csv_count():
-    """起飞仿真只加载 carrier=1 的舰载机。"""
+    """起飞仿真加载填写了 mtow_kg 的机型（含陆基歼-10C / 歼-20 滑跃假设）。"""
     aircraft = load_aircraft_csv(AIRCRAFT_CSV)
     assert 'F-35B' in aircraft
     assert 'AV-8B' in aircraft
@@ -47,16 +48,26 @@ def test_load_aircraft_csv_count():
     assert '53636N' in aircraft
     assert 'NG6C' in aircraft
     assert 'NG6B' in aircraft
+    assert 'J-10C' in aircraft
+    assert 'J-20' in aircraft
     assert aircraft['NG6C'].type_label == 'conventional'
     assert aircraft['NG6B'].type_label == 'v/stol'
     assert aircraft['NG6C'].t_max_sl_n == pytest.approx(185000)
     assert aircraft['NG6B'].t_liftfan_sl_n == pytest.approx(83260)
+    assert aircraft['J-10C'].t_max_sl_n == pytest.approx(144000)
+    assert aircraft['J-20'].t_max_sl_n == pytest.approx(312000)
     assert 'F-22' not in aircraft
-    assert 'J-20' not in aircraft
     assert 'J-50' not in aircraft
     assert 'F-35A' not in aircraft
     assert 'NG6A' not in aircraft
     assert all(ac.cd0 > 0 for ac in aircraft.values())
+
+
+def test_row_has_takeoff_spec_requires_mtow():
+    """只有填写最大起飞重量的行才进入起飞仿真。"""
+    assert _row_has_takeoff_spec({'mtow_kg': '19277'}) is True
+    assert _row_has_takeoff_spec({'mtow_kg': ''}) is False
+    assert _row_has_takeoff_spec({}) is False
 
 
 def _unified_csv_text(data_rows: list[dict[str, str]]) -> str:
@@ -224,7 +235,7 @@ def test_load_combat_radius_aircraft_csv():
     rows = load_combat_radius_aircraft_csv(COMBAT_RADIUS_AIRCRAFT_CSV)
     ids = [r['id'] for r in rows]
     assert ids == [
-        'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
+        'F-35C', 'F-22', 'F-35A', 'J-20', 'J-10C', 'J-50', 'J-50N', 'J-36',
         'J-35', 'J-35A', '53636', '53636N', '53536',
         'F-35B',
         'NG6C', 'NG6B', 'NG6A',
@@ -248,7 +259,16 @@ def test_load_combat_radius_aircraft_csv():
     assert f22['inlet'] == 'caret'
     assert j20['inlet'] == 'dsi'
     assert j20.get('ld_known') is None
+    assert j20['carrier'] is False
     assert j20['wing_area_m2'] == pytest.approx(76.8)
+    j10c = next(r for r in rows if r['id'] == 'J-10C')
+    assert j10c['carrier'] is False
+    assert j10c['planform'] == 'delta'
+    assert j10c['layout'] == 'canard'
+    assert j10c['engine_id'] == 'ws10b'
+    assert j10c['wing_area_m2'] == pytest.approx(37.0)
+    assert j10c['empty_kg'] == pytest.approx(9750)
+    assert j10c['internal_fuel_kg'] == pytest.approx(3860)
     assert j20['ventral_fin_area_m2'] == pytest.approx(3.19 * 2)
     assert j20['canard_htail_area_m2'] == pytest.approx(3.45 * 2)
     assert f22['empty_kg'] == 19800
@@ -371,6 +391,8 @@ def test_load_combat_radius_engine_csv():
     assert by_id['ws15i']['tsl_kN'] == pytest.approx(13.5 * 9.80665, abs=0.05)
     assert by_id['ws10c']['max_tsl_kN'] == 145.0
     assert by_id['ws10c']['tsl_kN'] == pytest.approx(90.0)
+    assert by_id['ws10b']['max_tsl_kN'] == pytest.approx(144.0)
+    assert by_id['ws10b']['tsl_kN'] == pytest.approx(89.17)
     assert by_id['ws19']['max_tsl_kN'] == 118.0
     assert by_id['ws19']['tsl_kN'] == pytest.approx(66.2)
     assert by_id['ws21']['max_tsl_kN'] == 95.0
@@ -489,8 +511,22 @@ def test_read_unified_aircraft_rows_missing_header_and_columns(tmp_path):
 def test_load_aircraft_csv_skips_land_only_file(tmp_path):
     path = tmp_path / 'land.csv'
     path.write_text(_unified_csv_text([_valid_land_row()]), encoding='utf-8')
-    with pytest.raises(ValueError, match='舰载机'):
+    with pytest.raises(ValueError, match='起飞仿真'):
         load_aircraft_csv(path)
+
+
+def test_load_aircraft_csv_includes_land_with_takeoff_fields(tmp_path):
+    """陆基机只要填写起飞字段即可进入滑跃仿真。"""
+    path = tmp_path / 'land_to.csv'
+    row = _valid_land_row(
+        id='L1', name='陆基滑跃测试', carrier='0',
+        mtow_kg='19000', max_payload_kg='5000', wing_height_m='1.7',
+        t_max_sl_n='140000',
+    )
+    path.write_text(_unified_csv_text([row]), encoding='utf-8')
+    ac = load_aircraft_csv(path)['L1']
+    assert ac.mtow_kg == pytest.approx(19000)
+    assert ac.t_max_sl_n == pytest.approx(140000)
 
 
 def test_load_aircraft_csv_estimates_cd0_for_carrier(tmp_path):

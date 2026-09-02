@@ -21,7 +21,7 @@ from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV, COMBAT_RADIUS_ENGINE_CSV
 
 # 作战半径仅含分段浸润几何机型（起飞专用的歼-15 等不入选）
 EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
-    'F-35C', 'F-22', 'F-35A', 'J-20', 'J-50', 'J-50N', 'J-36',
+    'F-35C', 'F-22', 'F-35A', 'J-20', 'J-10C', 'J-50', 'J-50N', 'J-36',
     'J-35', 'J-35A', '53636', '53636N', '53536',
     'F-35B',
     'NG6C', 'NG6B', 'NG6A',
@@ -125,6 +125,33 @@ def test_load_presets_contains_anchors_and_j20():
     ), abs=1e-6)
     assert j20['inlet'] == 'dsi'
     assert f35['inlet'] == 'dsi'
+
+
+def test_j10c_preset_canard_delta_ws10b():
+    """歼-10C：三角翼鸭式、涡扇10B、陆基；几何来自公开资料。"""
+    from utils.combat_radius.cruise_load import wing_loading_t_m2
+
+    j10c = get_preset_by_id(load_presets(), 'J-10C')
+    assert j10c is not None
+    assert j10c['name'] == '歼-10C'
+    assert j10c['carrier'] is False
+    assert j10c['planform'] == 'delta'
+    assert j10c['layout'] == 'canard'
+    assert j10c['inlet'] == 'dsi'
+    assert j10c['engine_id'] == 'ws10b'
+    assert j10c['n_engines'] == 1
+    assert j10c['wing_area_m2'] == pytest.approx(37.0)
+    assert j10c['length_m'] == pytest.approx(16.9)
+    assert j10c['wingspan_m'] == pytest.approx(9.8)
+    assert j10c['empty_kg'] == pytest.approx(9750)
+    assert j10c['internal_fuel_kg'] == pytest.approx(3860)
+    assert j10c['AR'] == pytest.approx(9.8 ** 2 / 37.0, abs=0.005)
+    assert j10c['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        9750, 3860, 37.0, 1, 210,
+    ), abs=1e-6)
+    assert j10c['canard_htail_area_m2'] == pytest.approx(4.9)
+    ac = preset_to_aircraft(j10c)
+    assert ac.mach_angle_deg == pytest.approx(16.2)
 
 
 def test_ng6_medium_sixth_gen_presets():
@@ -269,6 +296,7 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
         'ws15i': (0.25, 29.0, 1975.0),
         'ws19': (0.50, 35.0, 1850.0),
         'ws10c': (0.60, 30.0, 1800.0),
+        'ws10b': (0.60, 30.0, 1800.0),
         'ws21': (0.68, 26.0, 1650.0),
         'f119': (0.30, 26.0, 1922.0),
         'f135': (0.57, 28.0, 2260.0),

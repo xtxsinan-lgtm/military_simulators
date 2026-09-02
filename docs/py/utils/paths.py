@@ -13,7 +13,7 @@ MISSILE_INTERCEPTION_RADAR_CSV = DATA_DIR / 'missile_interception_radar_database
 BASELINE_JSON = DATA_DIR / 'baseline_before.json'
 TAKEOFF_CONFIG_JSON = DATA_DIR / 'takeoff_config.json'
 MISSILE_INTERCEPTION_CONFIG_JSON = DATA_DIR / 'missile_interception_config.json'
-# 作战半径与起飞共用同一机型库；起飞加载器只取 carrier=1
+# 作战半径与起飞共用同一机型库；起飞加载器只取填写了 mtow_kg 的机型
 COMBAT_RADIUS_AIRCRAFT_CSV = AIRCRAFT_CSV
 COMBAT_RADIUS_ENGINE_CSV = DATA_DIR / 'aircraft_engine_database.csv'
 COMBAT_RADIUS_CONFIG_JSON = DATA_DIR / 'combat_radius_config.json'
