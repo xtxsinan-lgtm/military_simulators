@@ -17,6 +17,8 @@ def test_max_payload_flows_to_catalog_and_simulation_payload():
     catalog = build_catalog_payload(aircraft, carriers)
     j15 = next(a for a in catalog['aircraft'] if a['id'] == 'J-15')
     assert j15['max_payload_kg'] == 6500
+    j15t = next(a for a in catalog['aircraft'] if a['id'] == 'J-15T')
+    assert j15t['mtow_kg'] == pytest.approx(36500)
 
     carrier = next(c for c in catalog['carriers'] if c['id'] == 'SHANDONG')
     ac = next(a for a in catalog['aircraft'] if a['id'] == 'J-15')
@@ -85,7 +87,7 @@ def test_e2e_j50n_takeoff_weights_match_combat_radius():
     land = get_preset_by_id(load_presets(), 'J-50')
     assert takeoff['empty_kg'] == cr['empty_kg'] == land['empty_kg'] == 20800
     assert takeoff['internal_fuel_kg'] == cr['internal_fuel_kg'] == 13000
-    assert takeoff['mtow_kg'] == 41000
+    assert takeoff['mtow_kg'] == pytest.approx(41800)
     spec = aircraft_from_dict(takeoff)
     expected_a2a = (
         20800 + 13000 + A2A_MISSILE_COUNT * spec.missile_mass_kg

@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 32,
+  "version": 33,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -176,7 +176,7 @@ module.exports = {
       "id": "J-50N",
       "name": "歼-50舰载",
       "type_label": "conventional",
-      "mtow_kg": 41000.0,
+      "mtow_kg": 41800.0,
       "empty_kg": 20800.0,
       "internal_fuel_kg": 13000.0,
       "max_payload_kg": 9200.0,
@@ -198,7 +198,7 @@ module.exports = {
       "prop_diameter_m": null,
       "nacelle_blockage_frac": null,
       "n_pilots": 1,
-      "notes": "舰载型；几何同歼-50；DSI 进气道；空重/内油与陆基歼-50 同源；MTOW 41 t；推力按双发涡扇15改进加力约 181 kN×2 估计",
+      "notes": "舰载型；几何同歼-50；DSI 进气道；空重/内油与陆基歼-50 同源；MTOW 41.8 t；推力按双发涡扇15改进加力约 181 kN×2 估计",
       "layout": "tailless",
       "canard_htail_area_m2": null
     },
@@ -356,7 +356,7 @@ module.exports = {
       "id": "J-15T",
       "name": "歼-15T",
       "type_label": "conventional",
-      "mtow_kg": 35900.0,
+      "mtow_kg": 36500.0,
       "empty_kg": 17800.0,
       "internal_fuel_kg": 10000.0,
       "max_payload_kg": 8000.0,
@@ -378,7 +378,7 @@ module.exports = {
       "prop_diameter_m": null,
       "nacelle_blockage_frac": null,
       "n_pilots": 1,
-      "notes": "弹射型，滑跃舰上仍按 STOBAR 仿真；几何同歼-15；机身截面为估算",
+      "notes": "弹射型，滑跃舰上仍按 STOBAR 仿真；几何同歼-15；MTOW 36.5 t；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null
     },
@@ -3024,7 +3024,7 @@ module.exports = {
       "n_pilots": 1,
       "missile_mass_kg": 210.0,
       "n_engines": 2,
-      "notes": "舰载型；几何同歼-50；DSI 进气道；空重/内油与陆基歼-50 同源；MTOW 41 t；推力按双发涡扇15改进加力约 181 kN×2 估计",
+      "notes": "舰载型；几何同歼-50；DSI 进气道；空重/内油与陆基歼-50 同源；MTOW 41.8 t；推力按双发涡扇15改进加力约 181 kN×2 估计",
       "wing_area_m2": 106.0,
       "mach_angle_deg": 28.6,
       "length_m": 18.0,

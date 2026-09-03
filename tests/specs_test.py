@@ -23,11 +23,12 @@ def test_max_payload_kg_user_specified_chinese_types():
     aircraft = load_aircraft_csv(AIRCRAFT_CSV)
     assert aircraft['J-15'].max_payload_kg == 6500
     assert aircraft['J-15T'].max_payload_kg == 8000
+    assert aircraft['J-15T'].mtow_kg == pytest.approx(36500)
     assert aircraft['J-35'].max_payload_kg == 8000
     assert aircraft['J-35'].empty_kg == 14000
     assert aircraft['J-50N'].empty_kg == 20800
     assert aircraft['J-50N'].internal_fuel_kg == 13000
-    assert aircraft['J-50N'].mtow_kg == 41000
+    assert aircraft['J-50N'].mtow_kg == pytest.approx(41800)
     assert aircraft['NG6C'].mtow_kg == 29000
     assert aircraft['NG6C'].max_payload_kg == 8000
     assert aircraft['NG6B'].mtow_kg == 27000
