@@ -18,7 +18,9 @@ def test_max_payload_flows_to_catalog_and_simulation_payload():
     j15 = next(a for a in catalog['aircraft'] if a['id'] == 'J-15')
     assert j15['max_payload_kg'] == 6500
     j15t = next(a for a in catalog['aircraft'] if a['id'] == 'J-15T')
-    assert j15t['mtow_kg'] == pytest.approx(36500)
+    assert j15t['empty_kg'] == pytest.approx(18200)
+    assert j15t['internal_fuel_kg'] == pytest.approx(10000)
+    assert j15t['mtow_kg'] == pytest.approx(36300)
 
     carrier = next(c for c in catalog['carriers'] if c['id'] == 'SHANDONG')
     ac = next(a for a in catalog['aircraft'] if a['id'] == 'J-15')

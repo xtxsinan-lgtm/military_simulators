@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 33,
+  "version": 34,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -356,8 +356,8 @@ module.exports = {
       "id": "J-15T",
       "name": "歼-15T",
       "type_label": "conventional",
-      "mtow_kg": 36500.0,
-      "empty_kg": 17800.0,
+      "mtow_kg": 36300.0,
+      "empty_kg": 18200.0,
       "internal_fuel_kg": 10000.0,
       "max_payload_kg": 8000.0,
       "bvr_missile": "PL-15",
@@ -378,7 +378,7 @@ module.exports = {
       "prop_diameter_m": null,
       "nacelle_blockage_frac": null,
       "n_pilots": 1,
-      "notes": "弹射型，滑跃舰上仍按 STOBAR 仿真；几何同歼-15；MTOW 36.5 t；机身截面为估算",
+      "notes": "弹射型，滑跃舰上仍按 STOBAR 仿真；几何同歼-15；空重 18.2 t、内油 10 t、MTOW 36.3 t；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null
     },

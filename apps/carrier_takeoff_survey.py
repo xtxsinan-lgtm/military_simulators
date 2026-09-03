@@ -77,7 +77,7 @@ AIRCRAFT: dict[str, AircraftSpec] = {
     ),
     'J-15T': AircraftSpec(
         id='J-15T', name='歼-15T', type_label='conventional',
-        mtow_kg=36500, empty_kg=17800, internal_fuel_kg=10000, max_payload_kg=8000,
+        mtow_kg=36300, empty_kg=18200, internal_fuel_kg=10000, max_payload_kg=8000,
         bvr_missile='PL-15', missile_mass_kg=210.0,
         sweep_le_deg=42, wingspan_m=14.7, wing_area_m2=67.84, wing_height_m=2.55,
         cd0=0.0475, t_max_sl_n=264000,
