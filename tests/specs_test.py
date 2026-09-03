@@ -79,6 +79,15 @@ def test_max_payload_kg_wikipedia_sourced_types():
     assert aircraft['C-2'].max_payload_kg == 4536
     assert aircraft['A-3'].max_payload_kg == 5440
     assert aircraft['A-5'].max_payload_kg == 2000
+    assert aircraft['F-35A'].max_payload_kg == 8160
+    assert aircraft['F-15'].max_payload_kg == 7300
+    assert aircraft['F-16'].max_payload_kg == 7800
+    assert aircraft['Typhoon'].max_payload_kg == 9000
+    assert aircraft['Gripen-CD'].max_payload_kg == 5300
+    assert aircraft['Gripen-EF'].max_payload_kg == 7200
+    assert aircraft['F-CK-1'].max_payload_kg == 3600
+    assert aircraft['FC-1'].max_payload_kg == 3600
+    assert aircraft['Tejas'].max_payload_kg == 3500
 
 
 def test_carrier_deck_wind_defaults_to_max_speed():
@@ -166,6 +175,34 @@ def test_usn_legacy_carrier_specs_from_public_sources():
     assert c2.shaft_power_sl_w == pytest.approx(6860440)
     assert c2.prop_diameter_m == pytest.approx(4.11)
     assert c2.nacelle_blockage_frac == pytest.approx(0.08)
+
+
+def test_land_fighters_ski_jump_specs_from_public_sources():
+    """歼-10C / 歼-20 / F-35A 及新加入的陆基战斗机可上滑跃机库。"""
+    from utils.specs import is_conventional_aircraft
+
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)
+    expected = {
+        'J-10C': dict(mtow=19277, thrust=144000, span=9.8, area=37.0),
+        'J-20': dict(mtow=37000, thrust=312000, span=13.01, area=76.8),
+        'F-35A': dict(mtow=31751, thrust=191000, span=10.7, area=42.74),
+        'F-15': dict(mtow=30844, thrust=211400, span=13.06, area=56.5),
+        'F-16': dict(mtow=19187, thrust=131200, span=9.96, area=28.0),
+        'Typhoon': dict(mtow=23500, thrust=180000, span=10.95, area=51.2),
+        'Gripen-CD': dict(mtow=14000, thrust=80500, span=8.4, area=30.0),
+        'Gripen-EF': dict(mtow=16500, thrust=98000, span=8.6, area=31.0),
+        'F-CK-1': dict(mtow=12247, thrust=84200, span=9.0, area=24.2),
+        'FC-1': dict(mtow=13500, thrust=91200, span=9.44, area=24.43),
+        'Tejas': dict(mtow=13500, thrust=85000, span=8.20, area=38.4),
+    }
+    for aid, exp in expected.items():
+        ac = aircraft[aid]
+        assert is_conventional_aircraft(ac) is True, aid
+        assert ac.mtow_kg == pytest.approx(exp['mtow'])
+        assert ac.t_max_sl_n == pytest.approx(exp['thrust'])
+        assert ac.wingspan_m == pytest.approx(exp['span'])
+        assert ac.wing_area_m2 == pytest.approx(exp['area'])
+        assert ac.a2a_mass_kg < ac.mtow_kg, aid
 
 
 def test_simulation_uses_plume_model_only_vtol_short_modes():
