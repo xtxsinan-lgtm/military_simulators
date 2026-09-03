@@ -50,6 +50,12 @@ def test_load_aircraft_csv_count():
     assert 'NG6B' in aircraft
     assert 'J-10C' in aircraft
     assert 'J-20' in aircraft
+    assert 'A-6' in aircraft
+    assert 'A-7' in aircraft
+    assert 'S-3' in aircraft
+    assert 'C-2' in aircraft
+    assert 'A-3' in aircraft
+    assert 'A-5' in aircraft
     assert aircraft['NG6C'].type_label == 'conventional'
     assert aircraft['NG6B'].type_label == 'v/stol'
     assert aircraft['NG6C'].t_max_sl_n == pytest.approx(185000)
@@ -409,6 +415,15 @@ def test_load_combat_radius_engine_csv():
     assert by_id['rd33mk']['max_tsl_kN'] == pytest.approx(88.2)
     assert by_id['m88']['max_tsl_kN'] == pytest.approx(75.0)
     assert 'max_tsl_kN' not in by_id['f402']
+    assert by_id['j52']['max_tsl_kN'] == pytest.approx(41.4)
+    assert by_id['tf41']['bpr'] == pytest.approx(0.77)
+    assert by_id['tf41']['max_tsl_kN'] == pytest.approx(66.7)
+    assert by_id['tf34']['bpr'] == pytest.approx(6.20)
+    assert by_id['tf34']['tsl_kN'] == pytest.approx(41.3)
+    assert by_id['j57']['tsl_kN'] == pytest.approx(46.7)
+    assert by_id['j57']['max_tsl_kN'] == pytest.approx(55.2)
+    assert by_id['j79']['tsl_kN'] == pytest.approx(48.5)
+    assert by_id['j79']['max_tsl_kN'] == pytest.approx(75.6)
 
 
 def test_combat_radius_csv_missing_nation_raises(tmp_path):

@@ -73,6 +73,12 @@ def test_max_payload_kg_wikipedia_sourced_types():
     assert aircraft['FA-18E'].max_payload_kg == 8050
     assert aircraft['FA-18C'].max_payload_kg == 6215
     assert aircraft['F-14'].max_payload_kg == 6700
+    assert aircraft['A-6'].max_payload_kg == 8170
+    assert aircraft['A-7'].max_payload_kg == 6800
+    assert aircraft['S-3'].max_payload_kg == 1800
+    assert aircraft['C-2'].max_payload_kg == 4536
+    assert aircraft['A-3'].max_payload_kg == 5440
+    assert aircraft['A-5'].max_payload_kg == 2000
 
 
 def test_carrier_deck_wind_defaults_to_max_speed():
@@ -116,6 +122,50 @@ def test_mv22_tiltrotor_spec_from_wikipedia():
     assert ac.nacelle_blockage_frac == pytest.approx(0.10)
     assert ac.t_liftfan_sl_n is None
     assert ac.t_rollposts_sl_n is None
+
+
+def test_usn_legacy_carrier_specs_from_public_sources():
+    """A-6/A-7/S-3/C-2/A-3/A-5 起飞机库字段与公开资料一致。"""
+    from utils.specs import is_conventional_aircraft
+    from utils.takeoff.propeller_thrust import (
+        DEFAULT_FIGURE_OF_MERIT,
+        calc_prop_disk_area_m2,
+        calc_propeller_thrust_n,
+    )
+    from utils.takeoff.takeoff_physics import calc_sea_level_density_kg_m3
+
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)
+    expected = {
+        'A-6': dict(empty_kg=12093, fuel=7230, mtow=27397, thrust=82800, span=16.15, area=49.14, pilots=2),
+        'A-7': dict(empty_kg=8676, fuel=3945, mtow=19050, thrust=66700, span=11.80, area=34.83, pilots=1),
+        'S-3': dict(empty_kg=12057, fuel=5962, mtow=23831, thrust=82600, span=20.93, area=55.56, pilots=4),
+        'C-2': dict(empty_kg=15307, fuel=5625, mtow=26082, thrust=110130, span=24.56, area=65.03, pilots=4),
+        'A-3': dict(empty_kg=17876, fuel=13570, mtow=37195, thrust=110400, span=22.10, area=75.4, pilots=3),
+        'A-5': dict(empty_kg=14870, fuel=8652, mtow=28615, thrust=151200, span=16.16, area=65.1, pilots=2),
+    }
+    for aid, exp in expected.items():
+        ac = aircraft[aid]
+        assert is_conventional_aircraft(ac) is True, aid
+        assert ac.empty_kg == pytest.approx(exp['empty_kg'])
+        assert ac.internal_fuel_kg == pytest.approx(exp['fuel'])
+        assert ac.mtow_kg == pytest.approx(exp['mtow'])
+        assert ac.t_max_sl_n == pytest.approx(exp['thrust'])
+        assert ac.wingspan_m == pytest.approx(exp['span'])
+        assert ac.wing_area_m2 == pytest.approx(exp['area'])
+        assert ac.n_pilots == exp['pilots']
+        assert ac.a2a_mass_kg < ac.mtow_kg, aid
+
+    c2 = aircraft['C-2']
+    rho = calc_sea_level_density_kg_m3(15.0)
+    disk = calc_prop_disk_area_m2(c2.prop_diameter_m, 2)
+    t_eq = calc_propeller_thrust_n(
+        c2.shaft_power_sl_w, rho, disk, 0.0,
+        DEFAULT_FIGURE_OF_MERIT, c2.nacelle_blockage_frac,
+    )
+    assert c2.t_max_sl_n == pytest.approx(t_eq, rel=1e-3)
+    assert c2.shaft_power_sl_w == pytest.approx(6860440)
+    assert c2.prop_diameter_m == pytest.approx(4.11)
+    assert c2.nacelle_blockage_frac == pytest.approx(0.08)
 
 
 def test_simulation_uses_plume_model_only_vtol_short_modes():

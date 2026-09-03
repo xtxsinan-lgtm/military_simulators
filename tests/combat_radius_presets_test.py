@@ -308,6 +308,11 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
         'rd33mk': (0.49, 21.0, 1680.0),
         'm88': (0.30, 24.5, 1850.0),
         'f402': (1.20, 16.0, 1400.0),
+        'j52': (0.00, 14.6, 1400.0),
+        'tf41': (0.77, 20.0, 1450.0),
+        'tf34': (6.20, 21.0, 1500.0),
+        'j57': (0.00, 12.5, 1400.0),
+        'j79': (0.00, 13.5, 1450.0),
     }
     for eid, (bpr, opr, t4) in expected.items():
         row = get_preset_by_id(engines, eid)
