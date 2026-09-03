@@ -192,7 +192,7 @@ def test_ng6_medium_sixth_gen_presets():
     assert b['empty_kg'] == pytest.approx(12900)
     assert a['empty_kg'] == pytest.approx(11400)
     assert c['internal_fuel_kg'] == pytest.approx(7860)
-    assert b['internal_fuel_kg'] == pytest.approx(7440)
+    assert b['internal_fuel_kg'] == pytest.approx(7510)
     assert a['internal_fuel_kg'] == pytest.approx(7730)
     assert c['sweep_deg'] == b['sweep_deg'] == a['sweep_deg'] == pytest.approx(49.0)
     assert c['mach_angle_deg'] == pytest.approx(28.6)
@@ -205,7 +205,7 @@ def test_ng6_medium_sixth_gen_presets():
         12700, 7860, 66.6, 1, 210,
     ), abs=1e-6)
     assert b['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        12900, 7440, 55.9, 1, 210,
+        12900, 7510, 55.9, 1, 210,
     ), abs=1e-6)
     assert a['wing_loading'] == pytest.approx(wing_loading_t_m2(
         11400, 7730, 55.9, 1, 210,

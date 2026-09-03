@@ -37,7 +37,8 @@ def test_max_payload_kg_user_specified_chinese_types():
     assert aircraft['NG6B'].max_payload_kg == 8000
     assert aircraft['NG6B'].is_vtol is True
     assert aircraft['NG6C'].a2a_mass_kg == pytest.approx(12700 + 7860 + 100 + 4 * 210)
-    assert aircraft['NG6B'].a2a_mass_kg == pytest.approx(12900 + 7440 + 100 + 4 * 210)
+    assert aircraft['NG6B'].internal_fuel_kg == pytest.approx(7510)
+    assert aircraft['NG6B'].a2a_mass_kg == pytest.approx(12900 + 7510 + 100 + 4 * 210)
     assert aircraft['J-10C'].mtow_kg == pytest.approx(19277)
     assert aircraft['J-10C'].max_payload_kg == pytest.approx(5600)
     assert aircraft['J-10C'].a2a_mass_kg == pytest.approx(9750 + 3860 + 100 + 4 * 210)

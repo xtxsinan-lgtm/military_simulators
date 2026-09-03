@@ -258,6 +258,8 @@ def test_load_combat_radius_aircraft_csv():
     for aid in ('NG6C', 'NG6B', 'NG6A'):
         ng6 = next(r for r in rows if r['id'] == aid)
         assert ng6['canard_htail_area_m2'] == pytest.approx(5.6 * 2), aid
+    ng6b = next(r for r in rows if r['id'] == 'NG6B')
+    assert ng6b['internal_fuel_kg'] == pytest.approx(7510)
     assert 'J-15' not in ids
     assert 'AV-8B' not in ids
     assert 'FA-18C' not in ids
