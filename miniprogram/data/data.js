@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 34,
+  "version": 35,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -776,10 +776,10 @@ module.exports = {
       "id": "NG6B",
       "name": "中型六代机垂起型",
       "type_label": "v/stol",
-      "mtow_kg": 27000.0,
+      "mtow_kg": 28340.0,
       "empty_kg": 12900.0,
       "internal_fuel_kg": 7440.0,
-      "max_payload_kg": 6800.0,
+      "max_payload_kg": 8000.0,
       "bvr_missile": "PL-15",
       "missile_mass_kg": 210.0,
       "sweep_le_deg": 49.0,
@@ -798,7 +798,7 @@ module.exports = {
       "prop_diameter_m": null,
       "nacelle_blockage_frac": null,
       "n_pilots": 1,
-      "notes": "STOVL；兰姆达翼 + 平尾单侧 5.6 m²（中等平尾）；DSI 进气道；1×F135-PW-600（F-35B 同款，含升力风扇）；PL-15",
+      "notes": "STOVL；兰姆达翼 + 平尾单侧 5.6 m²（中等平尾）；DSI 进气道；1×F135-PW-600（F-35B 同款，含升力风扇）；PL-15；MTOW 28340 kg、外挂 8000 kg",
       "layout": "medium_htail",
       "canard_htail_area_m2": 11.2
     },
@@ -2671,7 +2671,7 @@ module.exports = {
       "n_pilots": 1,
       "missile_mass_kg": 210.0,
       "n_engines": 1,
-      "notes": "STOVL；兰姆达翼 + 平尾单侧 5.6 m²（中等平尾）；DSI 进气道；1×F135-PW-600（F-35B 同款，含升力风扇）；PL-15",
+      "notes": "STOVL；兰姆达翼 + 平尾单侧 5.6 m²（中等平尾）；DSI 进气道；1×F135-PW-600（F-35B 同款，含升力风扇）；PL-15；MTOW 28340 kg、外挂 8000 kg",
       "wing_area_m2": 55.9,
       "mach_angle_deg": 28.6,
       "length_m": 17.7,

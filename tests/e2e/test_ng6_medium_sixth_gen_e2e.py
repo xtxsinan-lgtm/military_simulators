@@ -48,6 +48,8 @@ def test_e2e_ng6_catalog_and_combat_radius():
     assert 'NG6A' not in takeoff_ids
     assert aircraft['NG6C'].t_max_sl_n == pytest.approx(185000)
     assert aircraft['NG6B'].is_vtol is True
+    assert aircraft['NG6B'].mtow_kg == pytest.approx(28340)
+    assert aircraft['NG6B'].max_payload_kg == 8000
     assert get_preset_by_id(presets, 'NG6B')['engine_id'] == 'f135b'
     ng6b_tgt = get_preset_by_id(presets, 'NG6B')
     ng6b_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': ng6b_tgt}})
