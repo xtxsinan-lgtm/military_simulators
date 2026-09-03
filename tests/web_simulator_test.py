@@ -4,6 +4,7 @@ import json
 import pytest
 
 from apps.web_simulator import (
+    _wing_geom,
     compute_aircraft_aero,
     filter_aircraft_for_mode,
     filter_carriers_for_mode,
@@ -85,10 +86,33 @@ def test_filter_aircraft_tiltrotor_and_ski_jump_excludes_tiltrotor(aircraft):
     assert 'MV-22' not in {a.id for a in ski}
 
 
+def test_wing_geom_includes_canard_fields(aircraft):
+    """起飞几何须带上布局与鸭翼面积，供滑跃增升使用。"""
+    ac = aircraft['J-10C']
+    geom = _wing_geom(ac, ac.a2a_mass_kg)
+    assert geom['layout'] == 'canard'
+    assert geom['canard_htail_area_m2'] == pytest.approx(4.9)
+    assert geom['s_ref_m2'] == pytest.approx(37.0)
+
+
 def test_compute_aircraft_aero_j15(aircraft):
     aero = compute_aircraft_aero(aircraft['J-15'])
     assert aero['aspect_ratio'] == pytest.approx(14.7 ** 2 / 67.84)
     assert aero['cl_20deg'] > aero['cl_taxi']
+
+
+def test_compute_aircraft_aero_j10c_includes_canard_lift(aircraft):
+    """歼-10C 预览 C_Lα 含近距耦合鸭翼净增升。"""
+    from dataclasses import replace
+    from utils.takeoff.takeoff_physics import calc_canard_lift_factor
+
+    ac = aircraft['J-10C']
+    factor = calc_canard_lift_factor(ac.layout, ac.canard_htail_area_m2, ac.wing_area_m2)
+    assert factor > 1.0
+    with_canard = compute_aircraft_aero(ac)
+    without = compute_aircraft_aero(replace(ac, layout='conventional'))
+    assert with_canard['cl_taxi'] == pytest.approx(without['cl_taxi'] * factor)
+    assert with_canard['cl_alpha_per_rad'] == pytest.approx(without['cl_alpha_per_rad'] * factor)
 
 
 def test_run_simulation_ski_jump_j15(aircraft, carriers):

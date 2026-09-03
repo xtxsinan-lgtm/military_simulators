@@ -30,7 +30,7 @@ from utils.takeoff.takeoff_physics import (
     FLAP_EFFICIENCY,
     PITCH_MAX_DEG,
     WING_INCIDENCE_DEG,
-    calc_cl_alpha,
+    calc_cl_alpha_with_canard,
     calc_cl_from_alpha_deg,
     calc_oswald_e,
     taxi_alpha_deg,
@@ -85,6 +85,8 @@ def aircraft_from_dict(d: dict[str, Any]) -> AircraftSpec:
         nacelle_blockage_frac=_opt_float(d.get('nacelle_blockage_frac')),
         n_pilots=int(d['n_pilots']) if d.get('n_pilots') not in (None, '') else 1,
         notes=d.get('notes', ''),
+        layout=(d.get('layout') or 'conventional'),
+        canard_htail_area_m2=_opt_float(d.get('canard_htail_area_m2')),
     )
 
 
@@ -180,7 +182,12 @@ def resolve_ski_jump_geom(
 def compute_aircraft_aero(ac: AircraftSpec) -> dict[str, float]:
     ar = ac.wingspan_m ** 2 / ac.wing_area_m2
     eta = calc_oswald_e(ar, ac.sweep_le_deg)
-    cl_alpha = calc_cl_alpha(ar, eta, ac.sweep_le_deg)
+    cl_alpha = calc_cl_alpha_with_canard(
+        ar, eta, ac.sweep_le_deg,
+        layout=ac.layout,
+        canard_area_m2=ac.canard_htail_area_m2 or 0.0,
+        wing_area_m2=ac.wing_area_m2,
+    )
     alpha_taxi = taxi_alpha_deg(FLAP_DEFLECTION_DEG, FLAP_EFFICIENCY, WING_INCIDENCE_DEG)
     return {
         'aspect_ratio': ar,
@@ -247,9 +254,17 @@ def format_output_summary(
     return f'{dist} · 超出 {-margin:.1f} m'
 
 
+def _wing_geom(ac: AircraftSpec, mass_kg: float) -> dict:
+    """起飞模块共用的机翼几何 + 鸭翼增升字段。"""
+    return dict(
+        mass_kg=mass_kg, s_ref_m2=ac.wing_area_m2, wingspan_m=ac.wingspan_m,
+        wing_height_m=ac.wing_height_m, sweep_le_deg=ac.sweep_le_deg, cd0=ac.cd0,
+        layout=ac.layout, canard_htail_area_m2=ac.canard_htail_area_m2,
+    )
+
+
 def _configure_flat_stovl(ac: AircraftSpec, mass_kg: float, temp_c: float, wind_kt: float):
-    geom = dict(mass_kg=mass_kg, s_ref_m2=ac.wing_area_m2, wingspan_m=ac.wingspan_m,
-                wing_height_m=ac.wing_height_m, sweep_le_deg=ac.sweep_le_deg, cd0=ac.cd0)
+    geom = _wing_geom(ac, mass_kg)
     flat_stovl.apply_thrust_temperature(temp_c)
     flat_stovl.apply_stovl_thrust_sl(
         ac.t_main_stovl_sl_n, ac.t_liftfan_sl_n or 0.0, ac.t_rollposts_sl_n or 0.0)
@@ -261,8 +276,7 @@ def _configure_flat_stovl(ac: AircraftSpec, mass_kg: float, temp_c: float, wind_
 
 def _configure_ski_stovl(ac: AircraftSpec, mass_kg: float, temp_c: float, wind_kt: float,
                          ski_angle: float, lip_height_m: float | None):
-    geom = dict(mass_kg=mass_kg, s_ref_m2=ac.wing_area_m2, wingspan_m=ac.wingspan_m,
-                wing_height_m=ac.wing_height_m, sweep_le_deg=ac.sweep_le_deg, cd0=ac.cd0)
+    geom = _wing_geom(ac, mass_kg)
     ski_stovl.apply_thrust_temperature(temp_c)
     ski_stovl.apply_stovl_thrust_sl(
         ac.t_main_stovl_sl_n, ac.t_liftfan_sl_n or 0.0, ac.t_rollposts_sl_n or 0.0)
@@ -279,9 +293,7 @@ def _configure_ski_conv(ac: AircraftSpec, mass_kg: float, temp_c: float, wind_kt
     ski_conv.apply_wind_knots(wind_kt)
     ski_conv.apply_ski_jump_deck(ski_angle, lip_height_m)
     ski_conv.apply_aircraft_geometry(
-        mass_kg=mass_kg, s_ref_m2=ac.wing_area_m2, wingspan_m=ac.wingspan_m,
-        wing_height_m=ac.wing_height_m, sweep_le_deg=ac.sweep_le_deg,
-        cd0=ac.cd0, t_max_sl_n=ac.t_max_sl_n)
+        **_wing_geom(ac, mass_kg), t_max_sl_n=ac.t_max_sl_n)
     if ac.uses_propeller_power:
         ski_conv.apply_propulsion_sl(
             ac.shaft_power_sl_w,
@@ -295,8 +307,7 @@ def _configure_tiltrotor(ac: AircraftSpec, mass_kg: float, temp_c: float, wind_k
     """配置倾转旋翼短距模块（轴功率 → 推力）。"""
     if not ac.shaft_power_sl_w or not ac.prop_diameter_m:
         raise ValueError(f'{ac.id} 缺少轴功率或桨盘直径，无法进行倾转短距仿真')
-    geom = dict(mass_kg=mass_kg, s_ref_m2=ac.wing_area_m2, wingspan_m=ac.wingspan_m,
-                wing_height_m=ac.wing_height_m, sweep_le_deg=ac.sweep_le_deg, cd0=ac.cd0)
+    geom = _wing_geom(ac, mass_kg)
     tilt_stovl.apply_thrust_temperature(temp_c)
     tilt_stovl.apply_propulsion_sl(
         ac.shaft_power_sl_w,

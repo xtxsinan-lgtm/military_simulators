@@ -22,6 +22,7 @@ _EXPORT_NAMES = (
     'calcClAlpha',
     'calcClFromAlphaDeg',
     'taxiAlphaDeg',
+    'calcCanardLiftFactor',
     'computeAircraftAero',
     'a2aMassKg',
     'maxPayloadKg',
@@ -47,6 +48,7 @@ def _load_constants() -> dict:
         'PILOT_LOAD_KG': float(phys['pilot_load_kg']),
         'A2A_MISSILE_COUNT': int(phys['a2a_missile_count']),
         'PITCH_MAX_DEG': float(phys['pitch_max_deg']),
+        'CANARD_LIFT_INTERFERENCE': float(phys.get('canard_lift_interference', 0.5)),
     }
 
 
@@ -64,6 +66,8 @@ const WING_INCIDENCE_DEG = {c['WING_INCIDENCE_DEG']};
 const PILOT_LOAD_KG = {c['PILOT_LOAD_KG']};
 const A2A_MISSILE_COUNT = {c['A2A_MISSILE_COUNT']};
 const PITCH_MAX_DEG = {c['PITCH_MAX_DEG']};
+const CANARD_LIFT_INTERFERENCE = {c['CANARD_LIFT_INTERFERENCE']};
+const CANARD_LAYOUT = 'canard';
 
 function computeSkiJumpArc(angleDeg, lipHeightM = null, arcLengthM = null) {{
   if (angleDeg <= 0) throw new Error('滑跃角必须为正');
@@ -119,6 +123,15 @@ function calcClFromAlphaDeg(alphaDeg, clAlpha) {{
   return ((alphaDeg * Math.PI) / 180) * clAlpha;
 }}
 
+function calcCanardLiftFactor(layout, canardAreaM2, wingAreaM2) {{
+  if (layout !== CANARD_LAYOUT) return 1.0;
+  const sc = Number(canardAreaM2);
+  const sw = Number(wingAreaM2);
+  if (!(sc > 0) || !(sw > 0)) return 1.0;
+  const k = Math.min(Math.max(CANARD_LIFT_INTERFERENCE, 0.0), 1.0);
+  return 1.0 + k * (sc / sw);
+}}
+
 function taxiAlphaDeg() {{
   return FLAP_DEFLECTION_DEG * FLAP_EFFICIENCY + WING_INCIDENCE_DEG;
 }}
@@ -126,7 +139,8 @@ function taxiAlphaDeg() {{
 function computeAircraftAero(ac) {{
   const ar = (ac.wingspan_m ** 2) / ac.wing_area_m2;
   const eta = calcOswaldE(ar, ac.sweep_le_deg);
-  const clAlpha = calcClAlpha(ar, eta, ac.sweep_le_deg);
+  const factor = calcCanardLiftFactor(ac.layout, ac.canard_htail_area_m2, ac.wing_area_m2);
+  const clAlpha = calcClAlpha(ar, eta, ac.sweep_le_deg) * factor;
   const alphaTaxi = taxiAlphaDeg();
   return {{
     aspect_ratio: ar,
@@ -234,6 +248,8 @@ enum Physics {{
     static let pilotLoadKg: Double = {c['PILOT_LOAD_KG']}
     static let a2aMissileCount: Int = {c['A2A_MISSILE_COUNT']}
     static let pitchMaxDeg: Double = {c['PITCH_MAX_DEG']}
+    static let canardLiftInterference: Double = {c['CANARD_LIFT_INTERFERENCE']}
+    static let canardLayout: String = "canard"
 
     struct SkiJumpGeom {{
         var angleDeg: Double
@@ -312,6 +328,14 @@ enum Physics {{
         (alphaDeg * .pi / 180) * clAlpha
     }}
 
+    static func calcCanardLiftFactor(layout: String?, canardAreaM2: Double?, wingAreaM2: Double) -> Double {{
+        guard layout == canardLayout else {{ return 1.0 }}
+        let sc = canardAreaM2 ?? 0
+        guard sc > 0, wingAreaM2 > 0 else {{ return 1.0 }}
+        let k = min(max(canardLiftInterference, 0.0), 1.0)
+        return 1.0 + k * (sc / wingAreaM2)
+    }}
+
     static func taxiAlphaDeg() -> Double {{
         flapDeflectionDeg * flapEfficiency + wingIncidenceDeg
     }}
@@ -319,7 +343,9 @@ enum Physics {{
     static func computeAircraftAero(_ ac: Aircraft) -> AeroPreview {{
         let ar = pow(ac.wingspan_m, 2) / ac.wing_area_m2
         let eta = calcOswaldE(aspectRatio: ar, sweepLeDeg: ac.sweep_le_deg)
-        let clAlpha = calcClAlpha(aspectRatio: ar, oswaldE: eta, sweepLeDeg: ac.sweep_le_deg)
+        let factor = calcCanardLiftFactor(
+            layout: ac.layout, canardAreaM2: ac.canard_htail_area_m2, wingAreaM2: ac.wing_area_m2)
+        let clAlpha = calcClAlpha(aspectRatio: ar, oswaldE: eta, sweepLeDeg: ac.sweep_le_deg) * factor
         let alphaTaxi = taxiAlphaDeg()
         return AeroPreview(
             aspectRatio: ar,

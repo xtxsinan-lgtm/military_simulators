@@ -32,6 +32,13 @@ WING_INCIDENCE_DEG = float(_PHYS['wing_incidence_deg'])
 # ---------------------------------------------------------------------------
 PITCH_MAX_DEG = int(_PHYS['pitch_max_deg'])
 
+# 近距耦合鸭翼：起飞滑跑约 10–20°，净增升取孤立鸭翼升力的一半。
+# Gloss / Hummel：小迎角下洗减主翼升力；中迎角翼上洗把鸭翼增量补回。
+# DTIC ADA067122：低迎角增量升力 ≈ ½ 孤立鸭翼 CL。
+# Stoll、Howard 的 20–34% 是失速 CLmax，不用于线性起飞段。
+CANARD_LAYOUT = 'canard'
+CANARD_LIFT_INTERFERENCE = float(_PHYS.get('canard_lift_interference', 0.5))
+
 
 def calc_sea_level_density_kg_m3(ambient_temp_c, reference_temp_c=T_THRUST_REF_C):
     """海平面空气密度，kg/m³；同压强下 ρ ∝ 1/T。"""
@@ -63,6 +70,30 @@ def calc_cl_alpha(aspect_ratio, oswald_e, sweep_le_deg):
 
 def calc_cl_from_alpha_deg(alpha_deg, cl_alpha):
     return np.radians(alpha_deg) * cl_alpha
+
+
+def calc_canard_lift_factor(layout, canard_area_m2, wing_area_m2,
+                            interference=CANARD_LIFT_INTERFERENCE):
+    """近距耦合鸭翼相对参考翼面积的净增升乘数（1 表示无鸭翼）。
+
+    ΔCL/CL = k · (Sc / S_ref)，k 默认 0.5。
+    非鸭式布局、缺面积时返回 1。
+    """
+    if (layout or '') != CANARD_LAYOUT:
+        return 1.0
+    s_c = float(canard_area_m2 or 0.0)
+    s_w = float(wing_area_m2 or 0.0)
+    if s_c <= 0.0 or s_w <= 0.0:
+        return 1.0
+    k = min(max(float(interference), 0.0), 1.0)
+    return 1.0 + k * (s_c / s_w)
+
+
+def calc_cl_alpha_with_canard(aspect_ratio, oswald_e, sweep_le_deg,
+                              layout='conventional', canard_area_m2=0.0, wing_area_m2=0.0):
+    """Helmbold C_Lα 再乘鸭翼净增升。"""
+    cl_a = calc_cl_alpha(aspect_ratio, oswald_e, sweep_le_deg)
+    return cl_a * calc_canard_lift_factor(layout, canard_area_m2, wing_area_m2)
 
 
 def calc_ground_effect_phi(wing_height_m, wingspan_m):

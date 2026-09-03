@@ -181,6 +181,11 @@ def test_usn_legacy_carrier_specs_from_public_sources():
     assert c2.uses_propeller_power is True
     assert uses_propeller_power(aircraft['A-6']) is False
     assert uses_propeller_power(aircraft['J-15']) is False
+    assert aircraft['J-10C'].layout == 'canard'
+    assert aircraft['J-10C'].canard_htail_area_m2 == pytest.approx(4.9)
+    assert aircraft['Typhoon'].canard_htail_area_m2 == pytest.approx(2.4)
+    assert aircraft['Rafale-M'].canard_htail_area_m2 == pytest.approx(5.5)
+    assert aircraft['Gripen-CD'].canard_htail_area_m2 == pytest.approx(4.5)
 
 
 def test_land_fighters_ski_jump_specs_from_public_sources():

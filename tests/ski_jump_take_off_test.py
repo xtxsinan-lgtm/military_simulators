@@ -106,3 +106,28 @@ def test_propeller_ski_jump_slower_than_constant_static_thrust():
         assert v_power < v_const
     finally:
         _restore_ski_conv_defaults()
+
+
+def test_canard_layout_raises_cl_taxi():
+    """鸭式布局把滑行 CL 按 Sc/S 的一半抬高。"""
+    from utils.takeoff.takeoff_physics import calc_canard_lift_factor
+
+    _restore_ski_conv_defaults()
+    base_cl = ski_conv.CL_TAXI
+    ski_conv.apply_aircraft_geometry(
+        mass_kg=29500,
+        s_ref_m2=68.9,
+        wingspan_m=13.6,
+        wing_height_m=1.96,
+        sweep_le_deg=38,
+        cd0=0.039,
+        t_max_sl_n=186000,
+        layout='canard',
+        canard_htail_area_m2=6.89,
+    )
+    try:
+        factor = calc_canard_lift_factor('canard', 6.89, 68.9)
+        assert ski_conv.CL_TAXI == pytest.approx(base_cl * factor)
+        assert factor > 1.0
+    finally:
+        _restore_ski_conv_defaults()

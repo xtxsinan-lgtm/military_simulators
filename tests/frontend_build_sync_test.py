@@ -27,6 +27,7 @@ from utils.takeoff.ski_jump_geometry import compute_ski_jump_arc
 from utils.specs import A2A_MISSILE_COUNT, PILOT_LOAD_KG
 from utils.takeoff.takeoff_physics import (
     PITCH_MAX_DEG,
+    CANARD_LIFT_INTERFERENCE,
     calc_cl_alpha,
     calc_cl_from_alpha_deg,
     calc_oswald_e,
@@ -102,6 +103,7 @@ def test_generated_constants_match_python():
     assert c['PILOT_LOAD_KG'] == float(PILOT_LOAD_KG)
     assert c['A2A_MISSILE_COUNT'] == int(A2A_MISSILE_COUNT)
     assert c['PITCH_MAX_DEG'] == float(PITCH_MAX_DEG)
+    assert c['CANARD_LIFT_INTERFERENCE'] == float(CANARD_LIFT_INTERFERENCE)
 
 
 def test_python_ski_jump_and_aero_reference_values():

@@ -480,6 +480,8 @@ struct Aircraft: Codable, Identifiable, Hashable {
     var exhaust_d0_m: Double?
     var exhaust_height_m: Double?
     var exhaust_mdot_kg_s: Double?
+    var layout: String?
+    var canard_htail_area_m2: Double?
 }
 
 /// 规格行

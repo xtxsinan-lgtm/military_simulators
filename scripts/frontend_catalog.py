@@ -29,7 +29,7 @@ TILTROTOR_STRATEGIES = {
 }
 
 # data.json 结构版本；字段变更时递增
-DATA_VERSION = 31
+DATA_VERSION = 32
 
 # 启动页可选模拟器（HTML / 小程序 / iOS 同源）
 SIMULATORS = [
@@ -67,7 +67,8 @@ _AIRCRAFT_KEYS = (
     'bvr_missile', 'missile_mass_kg', 'sweep_le_deg', 'wingspan_m', 'wing_area_m2',
     'wing_height_m', 'cd0', 't_max_sl_n', 't_main_stovl_sl_n', 't_liftfan_sl_n',
     't_rollposts_sl_n', 'exhaust_mdot_kg_s', 'exhaust_d0_m', 'exhaust_height_m',
-    'shaft_power_sl_w', 'prop_diameter_m', 'nacelle_blockage_frac', 'n_pilots', 'notes',
+        'shaft_power_sl_w', 'prop_diameter_m', 'nacelle_blockage_frac', 'n_pilots', 'notes',
+        'layout', 'canard_htail_area_m2',
 )
 
 

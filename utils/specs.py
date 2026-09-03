@@ -79,6 +79,9 @@ class AircraftSpec:
     nacelle_blockage_frac: float | None = None
     n_pilots: int = 1
     notes: str = ''
+    # 起飞增升：仅 layout=canard 且填了鸭翼面积时启用
+    layout: str = 'conventional'
+    canard_htail_area_m2: float | None = None
 
     @property
     def is_vtol(self) -> bool:

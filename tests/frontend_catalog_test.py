@@ -1,6 +1,8 @@
 """frontend_catalog / generate_frontend_physics / build_all 单元测试。"""
 from __future__ import annotations
 
+import pytest
+
 from scripts.frontend_catalog import MODES, aircraft_to_dict, build_catalog_payload, carrier_to_dict
 from scripts.generate_frontend_physics import render_cjs, render_esm, _load_constants
 from utils.combat_radius.combat_radius_presets import load_presets, sort_presets_by_nation_then_name
@@ -247,6 +249,9 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
         p['id'] for p in sort_presets_by_nation_then_name(load_presets())
     ]
     takeoff_ids = {a['id'] for a in payload['aircraft']}
+    j10 = next(a for a in payload['aircraft'] if a['id'] == 'J-10C')
+    assert j10['layout'] == 'canard'
+    assert j10['canard_htail_area_m2'] == pytest.approx(4.9)
     assert 'F-35C' in takeoff_ids
     assert 'J-50N' in takeoff_ids
     assert 'NG6C' in takeoff_ids
@@ -303,6 +308,8 @@ def test_render_esm_and_cjs_contain_injected_constants():
     esm = render_esm(c)
     cjs = render_cjs(c)
     assert f"SKI_JUMP_REF_RADIUS_M = {c['SKI_JUMP_REF_RADIUS_M']}" in esm
+    assert 'calcCanardLiftFactor' in esm
+    assert f"CANARD_LIFT_INTERFERENCE = {c['CANARD_LIFT_INTERFERENCE']}" in esm
     assert 'export {' in esm
     assert 'module.exports' in cjs
     assert '请勿手改' in esm and '请勿手改' in cjs

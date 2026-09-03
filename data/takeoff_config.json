@@ -22,7 +22,8 @@
     "pitch_max_deg": 20,
     "pilot_load_kg": 100,
     "a2a_missile_count": 4,
-    "ski_jump_ref_radius_m": 200
+    "ski_jump_ref_radius_m": 200,
+    "canard_lift_interference": 0.5
   },
   "ui": {
     "default_mode": "ski_jump",

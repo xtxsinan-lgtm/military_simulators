@@ -79,3 +79,22 @@ def test_check_pitch_deg_accepts_limit():
 def test_check_pitch_deg_rejects_over_limit():
     with pytest.raises(ValueError, match='超过硬上限'):
         check_pitch_deg(PITCH_MAX_DEG + 1)
+
+
+def test_canard_lift_factor_only_for_canard_layout():
+    """常规布局为 1；鸭式为 1 + 0.5·Sc/S。"""
+    from utils.takeoff.takeoff_physics import calc_canard_lift_factor
+
+    assert calc_canard_lift_factor('conventional', 4.9, 37.0) == pytest.approx(1.0)
+    assert calc_canard_lift_factor('canard', 0.0, 37.0) == pytest.approx(1.0)
+    assert calc_canard_lift_factor('canard', 4.9, 37.0) == pytest.approx(1.0 + 0.5 * 4.9 / 37.0)
+
+
+def test_cl_alpha_with_canard_scales_helmbold():
+    from utils.takeoff.takeoff_physics import calc_cl_alpha_with_canard
+
+    ar, sweep = 2.6, 50.0
+    eta = calc_oswald_e(ar, sweep)
+    base = calc_cl_alpha(ar, eta, sweep)
+    scaled = calc_cl_alpha_with_canard(ar, eta, sweep, 'canard', 4.9, 37.0)
+    assert scaled == pytest.approx(base * (1.0 + 0.5 * 4.9 / 37.0))

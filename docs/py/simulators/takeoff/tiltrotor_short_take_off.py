@@ -41,7 +41,7 @@ from utils.takeoff.takeoff_physics import (
     MPS_TO_KT,
     M_TO_FT,
     T_THRUST_REF_C,
-    calc_cl_alpha,
+    calc_cl_alpha_with_canard,
     calc_cl_from_alpha_deg,
     calc_ground_effect_phi,
     calc_oswald_e,
@@ -68,6 +68,8 @@ WING_HEIGHT_M = float(_REF['wing_height_m'])
 ASPECT_RATIO = WINGSPAN_M ** 2 / S_REF_M2
 SWEEP_LE_DEG = float(_REF['sweep_le_deg'])
 CD0 = float(_REF['cd0'])
+LAYOUT = 'conventional'
+CANARD_HTAIL_AREA_M2 = 0.0
 MU = float(_MODE['mu'])
 ROTATION_AOA_DEG = float(_MODE['rotation_aoa_deg'])
 
@@ -117,7 +119,10 @@ def recompute_aero_parameters():
     WEIGHT_N = MASS_KG * G
     OSWALD_E = calc_oswald_e(ASPECT_RATIO, SWEEP_LE_DEG)
     K_IND = 1 / (np.pi * ASPECT_RATIO * OSWALD_E)
-    CL_ALPHA = calc_cl_alpha(ASPECT_RATIO, OSWALD_E, SWEEP_LE_DEG)
+    CL_ALPHA = calc_cl_alpha_with_canard(
+        ASPECT_RATIO, OSWALD_E, SWEEP_LE_DEG,
+        layout=LAYOUT, canard_area_m2=CANARD_HTAIL_AREA_M2, wing_area_m2=S_REF_M2,
+    )
     PHI_GROUND = calc_ground_effect_phi(WING_HEIGHT_M, WINGSPAN_M)
     CL_TAXI = calc_cl_from_alpha_deg(TAXI_ALPHA_DEG, CL_ALPHA)
     CL_ROTATION = calc_cl_from_alpha_deg(TAXI_ALPHA_DEG + ROTATION_AOA_DEG, CL_ALPHA)
@@ -159,8 +164,10 @@ def apply_propulsion_sl(
     apply_thrust_temperature(AMBIENT_TEMP_C)
 
 
-def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_le_deg, cd0=None):
+def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_le_deg, cd0=None,
+                            layout='conventional', canard_htail_area_m2=None):
     global MASS_KG, S_REF_M2, WINGSPAN_M, WING_HEIGHT_M, SWEEP_LE_DEG, CD0
+    global LAYOUT, CANARD_HTAIL_AREA_M2
     MASS_KG = mass_kg
     S_REF_M2 = s_ref_m2
     WINGSPAN_M = wingspan_m
@@ -168,6 +175,8 @@ def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_
     SWEEP_LE_DEG = sweep_le_deg
     if cd0 is not None:
         CD0 = cd0
+    LAYOUT = layout or 'conventional'
+    CANARD_HTAIL_AREA_M2 = float(canard_htail_area_m2 or 0.0)
     recompute_aero_parameters()
 
 

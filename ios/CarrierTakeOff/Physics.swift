@@ -12,6 +12,8 @@ enum Physics {
     static let pilotLoadKg: Double = 100.0
     static let a2aMissileCount: Int = 4
     static let pitchMaxDeg: Double = 20.0
+    static let canardLiftInterference: Double = 0.5
+    static let canardLayout: String = "canard"
 
     struct SkiJumpGeom {
         var angleDeg: Double
@@ -90,6 +92,14 @@ enum Physics {
         (alphaDeg * .pi / 180) * clAlpha
     }
 
+    static func calcCanardLiftFactor(layout: String?, canardAreaM2: Double?, wingAreaM2: Double) -> Double {
+        guard layout == canardLayout else { return 1.0 }
+        let sc = canardAreaM2 ?? 0
+        guard sc > 0, wingAreaM2 > 0 else { return 1.0 }
+        let k = min(max(canardLiftInterference, 0.0), 1.0)
+        return 1.0 + k * (sc / wingAreaM2)
+    }
+
     static func taxiAlphaDeg() -> Double {
         flapDeflectionDeg * flapEfficiency + wingIncidenceDeg
     }
@@ -97,7 +107,9 @@ enum Physics {
     static func computeAircraftAero(_ ac: Aircraft) -> AeroPreview {
         let ar = pow(ac.wingspan_m, 2) / ac.wing_area_m2
         let eta = calcOswaldE(aspectRatio: ar, sweepLeDeg: ac.sweep_le_deg)
-        let clAlpha = calcClAlpha(aspectRatio: ar, oswaldE: eta, sweepLeDeg: ac.sweep_le_deg)
+        let factor = calcCanardLiftFactor(
+            layout: ac.layout, canardAreaM2: ac.canard_htail_area_m2, wingAreaM2: ac.wing_area_m2)
+        let clAlpha = calcClAlpha(aspectRatio: ar, oswaldE: eta, sweepLeDeg: ac.sweep_le_deg) * factor
         let alphaTaxi = taxiAlphaDeg()
         return AeroPreview(
             aspectRatio: ar,

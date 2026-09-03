@@ -297,6 +297,8 @@ def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
             nacelle_blockage_frac=_parse_optional_float(row.get('nacelle_blockage_frac') or ''),
             n_pilots=cr_item['n_pilots'],
             notes=(row.get('notes') or '').strip(),
+            layout=cr_item['layout'],
+            canard_htail_area_m2=_parse_optional_float(row.get('canard_htail_area_m2') or ''),
         )
     if not aircraft:
         raise ValueError(f'{csv_path} 未读到有效起飞仿真记录（须填写 mtow_kg）')

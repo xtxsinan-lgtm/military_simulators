@@ -9,6 +9,8 @@ const WING_INCIDENCE_DEG = 2.0;
 const PILOT_LOAD_KG = 100.0;
 const A2A_MISSILE_COUNT = 4;
 const PITCH_MAX_DEG = 20.0;
+const CANARD_LIFT_INTERFERENCE = 0.5;
+const CANARD_LAYOUT = 'canard';
 
 function computeSkiJumpArc(angleDeg, lipHeightM = null, arcLengthM = null) {
   if (angleDeg <= 0) throw new Error('滑跃角必须为正');
@@ -64,6 +66,15 @@ function calcClFromAlphaDeg(alphaDeg, clAlpha) {
   return ((alphaDeg * Math.PI) / 180) * clAlpha;
 }
 
+function calcCanardLiftFactor(layout, canardAreaM2, wingAreaM2) {
+  if (layout !== CANARD_LAYOUT) return 1.0;
+  const sc = Number(canardAreaM2);
+  const sw = Number(wingAreaM2);
+  if (!(sc > 0) || !(sw > 0)) return 1.0;
+  const k = Math.min(Math.max(CANARD_LIFT_INTERFERENCE, 0.0), 1.0);
+  return 1.0 + k * (sc / sw);
+}
+
 function taxiAlphaDeg() {
   return FLAP_DEFLECTION_DEG * FLAP_EFFICIENCY + WING_INCIDENCE_DEG;
 }
@@ -71,7 +82,8 @@ function taxiAlphaDeg() {
 function computeAircraftAero(ac) {
   const ar = (ac.wingspan_m ** 2) / ac.wing_area_m2;
   const eta = calcOswaldE(ar, ac.sweep_le_deg);
-  const clAlpha = calcClAlpha(ar, eta, ac.sweep_le_deg);
+  const factor = calcCanardLiftFactor(ac.layout, ac.canard_htail_area_m2, ac.wing_area_m2);
+  const clAlpha = calcClAlpha(ar, eta, ac.sweep_le_deg) * factor;
   const alphaTaxi = taxiAlphaDeg();
   return {
     aspect_ratio: ar,
@@ -153,6 +165,7 @@ module.exports = {
   calcClAlpha,
   calcClFromAlphaDeg,
   taxiAlphaDeg,
+  calcCanardLiftFactor,
   computeAircraftAero,
   a2aMassKg,
   maxPayloadKg,
