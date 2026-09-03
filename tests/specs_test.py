@@ -8,6 +8,7 @@ from utils.specs import (
     PILOT_LOAD_KG,
     is_vtol_aircraft,
     simulation_uses_plume_model,
+    uses_propeller_power,
 )
 
 
@@ -131,6 +132,7 @@ def test_mv22_tiltrotor_spec_from_wikipedia():
     assert ac.nacelle_blockage_frac == pytest.approx(0.10)
     assert ac.t_liftfan_sl_n is None
     assert ac.t_rollposts_sl_n is None
+    assert ac.uses_propeller_power is True
 
 
 def test_usn_legacy_carrier_specs_from_public_sources():
@@ -175,6 +177,10 @@ def test_usn_legacy_carrier_specs_from_public_sources():
     assert c2.shaft_power_sl_w == pytest.approx(6860440)
     assert c2.prop_diameter_m == pytest.approx(4.11)
     assert c2.nacelle_blockage_frac == pytest.approx(0.08)
+    assert uses_propeller_power(c2) is True
+    assert c2.uses_propeller_power is True
+    assert uses_propeller_power(aircraft['A-6']) is False
+    assert uses_propeller_power(aircraft['J-15']) is False
 
 
 def test_land_fighters_ski_jump_specs_from_public_sources():

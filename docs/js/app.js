@@ -13,7 +13,7 @@ import {
 
 const PYODIDE_VERSION = '0.26.4';
 /** 与 takeoff.html 中 app.js?v= 及 data.json?v= 同步递增，避免 CDN/浏览器缓存旧资源 */
-const APP_VERSION = 28;
+const APP_VERSION = 29;
 let data = null;
 let pyodide = null;
 let pyReady = false;
@@ -361,6 +361,7 @@ function updateAircraftInfo() {
   const aero = computeAircraftAero(ac);
   const isVtol = ac.type_label === 'v/stol';
   const isTilt = ac.type_label === 'tiltrotor';
+  const isProp = Boolean(ac.shaft_power_sl_w) && Boolean(ac.prop_diameter_m);
 
   let thrustRows = '';
   if (isVtol) {
@@ -369,7 +370,7 @@ function updateAircraftInfo() {
       <tr><th>升力风扇推力</th><td>${fmtNum(ac.t_liftfan_sl_n / 1000, 1)} kN</td></tr>
       <tr><th>滚转喷管推力</th><td>${fmtNum(ac.t_rollposts_sl_n / 1000, 1)} kN</td></tr>
     `;
-  } else if (isTilt) {
+  } else if (isTilt || isProp) {
     thrustRows = `
       <tr><th>总轴功率 (15°C SL)</th><td>${fmtNum(ac.shaft_power_sl_w / 1e6, 2)} MW</td></tr>
       <tr><th>桨盘直径</th><td>${fmtNum(ac.prop_diameter_m, 2)} m</td></tr>

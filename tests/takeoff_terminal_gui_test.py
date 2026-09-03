@@ -51,6 +51,7 @@ def test_docs_takeoff_terminal_chrome():
         f'app.js?v={ver_app.group(1)} style.css?v={ver_css.group(1)}'
     )
     assert 'takeoffClock' in app_js
+    assert 'isTilt || isProp' in app_js
 
 
 def test_miniprogram_takeoff_terminal_chrome():
@@ -65,6 +66,7 @@ def test_miniprogram_takeoff_terminal_chrome():
     assert 'massRangeHint' in wxml
     index_js = (ROOT / 'miniprogram' / 'pages' / 'index' / 'index.js').read_text(encoding='utf-8')
     assert "label: '空重'" in index_js
+    assert 'isTilt || isProp' in index_js
     for tag in CARD_TAGS:
         assert f'card-tag">{tag}</text>' in wxml or f'>{tag}</text>' in wxml
     assert TAKEOFF_BG in wxss
@@ -89,6 +91,7 @@ def test_ios_takeoff_terminal_chrome():
     vm = (ROOT / 'ios' / 'CarrierTakeOff' / 'SimulatorViewModel.swift').read_text(encoding='utf-8')
     assert 'validateTakeoffMass' in vm
     assert 'label: "空重"' in vm
+    assert 'isTilt || isProp' in vm
     assert 'LOCAL PYODIDE' not in content
     assert 'PYODIDE LOCAL' not in content
     for tag in CARD_TAGS:

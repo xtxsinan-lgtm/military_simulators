@@ -193,6 +193,7 @@ final class SimulatorViewModel: ObservableObject {
         let aero = Physics.computeAircraftAero(ac)
         let isVtol = ac.type_label == "v/stol"
         let isTilt = ac.type_label == "tiltrotor"
+        let isProp = (ac.shaft_power_sl_w ?? 0) > 0 && (ac.prop_diameter_m ?? 0) > 0
         var specs: [SpecItem] = [
             SpecItem(label: "最大起飞重量 (MTOW)", value: "\(Physics.fmtInt(ac.mtow_kg)) kg"),
             SpecItem(label: "空重", value: "\(Physics.fmtInt(ac.empty_kg)) kg"),
@@ -213,7 +214,7 @@ final class SimulatorViewModel: ObservableObject {
                 SpecItem(label: "升力风扇推力", value: "\(Physics.fmtNum((ac.t_liftfan_sl_n ?? 0) / 1000, digits: 1)) kN"),
                 SpecItem(label: "滚转喷管推力", value: "\(Physics.fmtNum((ac.t_rollposts_sl_n ?? 0) / 1000, digits: 1)) kN"),
             ])
-        } else if isTilt {
+        } else if isTilt || isProp {
             let block = (ac.nacelle_blockage_frac ?? 0.1) * 100
             specs.append(contentsOf: [
                 SpecItem(label: "总轴功率 (15°C SL)", value: "\(Physics.fmtNum((ac.shaft_power_sl_w ?? 0) / 1e6, digits: 2)) MW"),

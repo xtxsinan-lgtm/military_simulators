@@ -320,6 +320,7 @@ Page({
     const aero = computeAircraftAero(ac);
     const isVtol = ac.type_label === 'v/stol';
     const isTilt = ac.type_label === 'tiltrotor';
+    const isProp = Boolean(ac.shaft_power_sl_w) && Boolean(ac.prop_diameter_m);
     const specs = [
       { label: '最大起飞重量 (MTOW)', value: `${fmtInt(ac.mtow_kg)} kg` },
       { label: '空重', value: `${fmtInt(ac.empty_kg)} kg` },
@@ -341,7 +342,7 @@ Page({
         { label: '升力风扇推力', value: `${fmtNum(ac.t_liftfan_sl_n / 1000, 1)} kN` },
         { label: '滚转喷管推力', value: `${fmtNum(ac.t_rollposts_sl_n / 1000, 1)} kN` }
       );
-    } else if (isTilt) {
+    } else if (isTilt || isProp) {
       specs.push(
         { label: '总轴功率 (15°C SL)', value: `${fmtNum(ac.shaft_power_sl_w / 1e6, 2)} MW` },
         { label: '桨盘直径', value: `${fmtNum(ac.prop_diameter_m, 2)} m` },

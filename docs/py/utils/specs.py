@@ -42,6 +42,14 @@ def simulation_uses_plume_model(mode: str, aircraft: AircraftSpec) -> bool:
     return mode in PLUME_SIMULATION_MODES and is_vtol_aircraft(aircraft)
 
 
+def uses_propeller_power(aircraft: AircraftSpec) -> bool:
+    """是否按恒定轴功率（桨盘动量理论）计算起飞推力，而非恒定喷气推力。"""
+    return bool(
+        aircraft.shaft_power_sl_w and aircraft.shaft_power_sl_w > 0
+        and aircraft.prop_diameter_m and aircraft.prop_diameter_m > 0
+    )
+
+
 @dataclass(frozen=True)
 class AircraftSpec:
     id: str
@@ -81,6 +89,11 @@ class AircraftSpec:
     def is_tiltrotor(self) -> bool:
         """倾转旋翼机型（如 MV-22）。"""
         return is_tiltrotor_aircraft(self)
+
+    @property
+    def uses_propeller_power(self) -> bool:
+        """涡桨 / 倾转旋翼：有轴功率与桨盘直径，滑跃按恒定功率而非恒定推力。"""
+        return uses_propeller_power(self)
 
     @property
     def has_lift_fan(self) -> bool:

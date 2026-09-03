@@ -282,6 +282,12 @@ def _configure_ski_conv(ac: AircraftSpec, mass_kg: float, temp_c: float, wind_kt
         mass_kg=mass_kg, s_ref_m2=ac.wing_area_m2, wingspan_m=ac.wingspan_m,
         wing_height_m=ac.wing_height_m, sweep_le_deg=ac.sweep_le_deg,
         cd0=ac.cd0, t_max_sl_n=ac.t_max_sl_n)
+    if ac.uses_propeller_power:
+        ski_conv.apply_propulsion_sl(
+            ac.shaft_power_sl_w,
+            ac.prop_diameter_m,
+            nacelle_blockage_frac=ac.nacelle_blockage_frac,
+        )
     return ski_conv
 
 

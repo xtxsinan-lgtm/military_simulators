@@ -8,6 +8,12 @@ from __future__ import annotations
 import numpy as np
 
 from utils.takeoff.deck_config import assign_ski_jump_globals, total_takeoff_distance_m as _total_takeoff_distance_m
+from utils.takeoff.propeller_thrust import (
+    DEFAULT_FIGURE_OF_MERIT,
+    DEFAULT_NACELLE_BLOCKAGE_FRAC,
+    calc_prop_disk_area_m2,
+    calc_propeller_thrust_n,
+)
 from utils.takeoff.search_utils import fine_range_deck, fine_range_symmetric
 from utils.takeoff.sim_config import apply_wind_knots_globals
 from utils.takeoff.ski_jump_geometry import SkiJumpArc, compute_ski_jump_arc, deck_angle_deg_at_s, deck_cos_sin_at_s, deck_height_at_s
@@ -61,6 +67,15 @@ T_MAX_SL_N = float(_REF['t_max_sl_n'])
 T_MAX_N = T_MAX_SL_N * THRUST_TEMP_FACTOR
 CD0 = float(_REF['cd0'])
 
+# 涡桨恒定功率：有轴功率与桨盘时，推力随空速由动量理论给出；否则用上面的恒定推力
+SHAFT_POWER_SL_W = 0.0
+PROP_DIAMETER_M = 0.0
+N_ROTORS = 2
+NACELLE_BLOCKAGE_FRAC = DEFAULT_NACELLE_BLOCKAGE_FRAC
+FIGURE_OF_MERIT = DEFAULT_FIGURE_OF_MERIT
+PROP_DISK_AREA_M2 = 0.0
+SHAFT_POWER_W = 0.0
+
 SWEEP_LE_DEG = float(_REF['sweep_le_deg'])
 
 SKI_JUMP_ANGLE_DEG = float(_MODE['ski_jump_angle_deg'])
@@ -103,15 +118,53 @@ def recompute_aero_parameters():
 
 
 def apply_thrust_temperature(ambient_temp_c):
-    global AMBIENT_TEMP_C, RHO, THRUST_TEMP_FACTOR, T_MAX_N
+    global AMBIENT_TEMP_C, RHO, THRUST_TEMP_FACTOR, T_MAX_N, SHAFT_POWER_W
     AMBIENT_TEMP_C = ambient_temp_c
     RHO = calc_sea_level_density_kg_m3(ambient_temp_c)
     THRUST_TEMP_FACTOR = calc_thrust_temp_factor(ambient_temp_c)
     T_MAX_N = T_MAX_SL_N * THRUST_TEMP_FACTOR
+    SHAFT_POWER_W = SHAFT_POWER_SL_W * THRUST_TEMP_FACTOR
 
 
 def apply_wind_knots(wind_kt):
     apply_wind_knots_globals(wind_kt, globals())
+
+
+def uses_propeller_power_model() -> bool:
+    """当前模块是否按恒定轴功率计算滑跃推力。"""
+    return SHAFT_POWER_SL_W > 0 and PROP_DIAMETER_M > 0 and PROP_DISK_AREA_M2 > 0
+
+
+def apply_propulsion_sl(
+    shaft_power_sl_w: float | None = None,
+    prop_diameter_m: float | None = None,
+    nacelle_blockage_frac: float | None = None,
+    figure_of_merit: float | None = None,
+    n_rotors: int = 2,
+):
+    """设置涡桨海平面轴功率与桨盘；功率或直径为空则退回恒定喷气推力。"""
+    global SHAFT_POWER_SL_W, PROP_DIAMETER_M, N_ROTORS, PROP_DISK_AREA_M2
+    global NACELLE_BLOCKAGE_FRAC, FIGURE_OF_MERIT
+    power = float(shaft_power_sl_w or 0.0)
+    diam = float(prop_diameter_m or 0.0)
+    SHAFT_POWER_SL_W = power
+    PROP_DIAMETER_M = diam
+    N_ROTORS = int(n_rotors)
+    if nacelle_blockage_frac is not None:
+        NACELLE_BLOCKAGE_FRAC = float(nacelle_blockage_frac)
+    else:
+        NACELLE_BLOCKAGE_FRAC = DEFAULT_NACELLE_BLOCKAGE_FRAC
+    if figure_of_merit is not None:
+        FIGURE_OF_MERIT = float(figure_of_merit)
+    else:
+        FIGURE_OF_MERIT = DEFAULT_FIGURE_OF_MERIT
+    if power > 0 and diam > 0:
+        PROP_DISK_AREA_M2 = calc_prop_disk_area_m2(PROP_DIAMETER_M, N_ROTORS)
+    else:
+        SHAFT_POWER_SL_W = 0.0
+        PROP_DIAMETER_M = 0.0
+        PROP_DISK_AREA_M2 = 0.0
+    apply_thrust_temperature(AMBIENT_TEMP_C)
 
 
 def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_le_deg, cd0, t_max_sl_n):
@@ -123,8 +176,24 @@ def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_
     SWEEP_LE_DEG = sweep_le_deg
     CD0 = cd0
     T_MAX_SL_N = t_max_sl_n
+    # 喷气机默认；涡桨须在此后再调用 apply_propulsion_sl，避免上一机残留功率模型
+    apply_propulsion_sl(0.0, 0.0)
     apply_thrust_temperature(AMBIENT_TEMP_C)
     recompute_aero_parameters()
+
+
+def current_thrust_n(v_air_mps: float) -> float:
+    """当前空速下的可用推力：涡桨为恒定功率动量理论，喷气为恒定推力。"""
+    if uses_propeller_power_model():
+        return calc_propeller_thrust_n(
+            SHAFT_POWER_W,
+            RHO,
+            PROP_DISK_AREA_M2,
+            v_axial_mps=max(float(v_air_mps), 0.0),
+            figure_of_merit=FIGURE_OF_MERIT,
+            nacelle_blockage_frac=NACELLE_BLOCKAGE_FRAC,
+        )
+    return T_MAX_N
 
 
 def apply_ski_jump_deck(angle_deg, lip_height_m=None):
@@ -143,8 +212,14 @@ CL_MAX = float(_MODE['cl_max'])
 def print_config_summary():
     print(f"环境温度:     {AMBIENT_TEMP_C:.0f} °C (推力标定 {T_THRUST_REF_C:.0f} °C)")
     print(f"空气密度 ρ:   {RHO:.4f} kg/m³ | 推力温度系数 {THRUST_TEMP_FACTOR:.4f}")
-    print(f"实际加力推力({AMBIENT_TEMP_C:.0f}°C SL): {T_MAX_N/1000:.1f} kN"
-          f"（{T_THRUST_REF_C:.0f}°C 标定 {T_MAX_SL_N/1000:.1f} kN）")
+    if uses_propeller_power_model():
+        t0 = current_thrust_n(0.0)
+        print(f"轴功率:       {SHAFT_POWER_W/1e6:.2f} MW（{T_THRUST_REF_C:.0f}°C 标定 {SHAFT_POWER_SL_W/1e6:.2f} MW）")
+        print(f"桨盘:         {N_ROTORS}×⌀{PROP_DIAMETER_M:.2f} m，总面积 {PROP_DISK_AREA_M2:.1f} m²")
+        print(f"静推力估计:   {t0/1000:.1f} kN（恒定功率，推力随空速下降）")
+    else:
+        print(f"实际加力推力({AMBIENT_TEMP_C:.0f}°C SL): {T_MAX_N/1000:.1f} kN"
+              f"（{T_THRUST_REF_C:.0f}°C 标定 {T_MAX_SL_N/1000:.1f} kN）")
     print(f"起飞重量:     {MASS_KG:,} kg")
     print(f"展弦比 AR:    {ASPECT_RATIO:.3f}")
     print(f"甲板风:       {WIND_KT} kt ({V_WIND_MPS:.2f} m/s)")
@@ -192,7 +267,8 @@ def simulate(flat_length_m, pitch_deg, dt=DT_DEFAULT, max_time_s=MAX_GROUND_TIME
         lift = q * S_REF_M2 * CL_TAXI
         drag = q * S_REF_M2 * drag_coefficient(CL_TAXI, PHI_GROUND_FLAT)
         normal = max(WEIGHT_N - lift, 0.0)
-        v_gs = max(v_gs + (T_MAX_N - drag - MU * normal) / MASS_KG * dt, 0.0)
+        thrust = current_thrust_n(v_air)
+        v_gs = max(v_gs + (thrust - drag - MU * normal) / MASS_KG * dt, 0.0)
         x += v_gs * dt
         t += dt
         rec.record(x, y, t, 'flat')
@@ -209,7 +285,8 @@ def simulate(flat_length_m, pitch_deg, dt=DT_DEFAULT, max_time_s=MAX_GROUND_TIME
         lift = q * S_REF_M2 * CL_TAXI
         drag = q * S_REF_M2 * drag_coefficient(CL_TAXI, phi_s)
         normal = max(WEIGHT_N * cos_p - lift, 0.0)
-        v_gs = max(v_gs + (T_MAX_N - drag - WEIGHT_N * sin_p - MU * normal) / MASS_KG * dt, 0.0)
+        thrust = current_thrust_n(v_air)
+        v_gs = max(v_gs + (thrust - drag - WEIGHT_N * sin_p - MU * normal) / MASS_KG * dt, 0.0)
         s += v_gs * dt
         x += v_gs * cos_p * dt
         y = deck_height_at_s(s, SKI_JUMP_ARC)
@@ -248,7 +325,8 @@ def simulate(flat_length_m, pitch_deg, dt=DT_DEFAULT, max_time_s=MAX_GROUND_TIME
         final_lift_n = lift
 
         sin_g, cos_g = np.sin(gamma), np.cos(gamma)
-        dvx = (T_MAX_N - lift * sin_g - drag * cos_g) / MASS_KG
+        thrust = current_thrust_n(v_air)
+        dvx = (thrust - lift * sin_g - drag * cos_g) / MASS_KG
         dvy = (lift * cos_g - drag * sin_g - WEIGHT_N) / MASS_KG
         vx += dvx * dt
         vy += dvy * dt

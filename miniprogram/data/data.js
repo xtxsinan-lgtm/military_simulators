@@ -610,7 +610,7 @@ module.exports = {
       "prop_diameter_m": 4.11,
       "nacelle_blockage_frac": 0.08,
       "n_pilots": 4,
-      "notes": "NAVAIR C-2A：翼展 24.56 m、MTOW 57500 lb（26082 kg）；Wikipedia 空重 15307 kg、翼面积 700 ft²；内油按 12400 lb（5625 kg）；2×T56-A-425 各 4600 shp、桨盘 ⌀13.5 ft；滑跃推力由桨盘动量理论静推力（品质因数 0.78、短舱遮挡 8%）；舰上载荷 10000 lb；机身截面为估算"
+      "notes": "NAVAIR C-2A：翼展 24.56 m、MTOW 57500 lb（26082 kg）；Wikipedia 空重 15307 kg、翼面积 700 ft²；内油按 12400 lb（5625 kg）；2×T56-A-425 各 4600 shp、桨盘 ⌀13.5 ft；滑跃按恒定轴功率动量理论（推力随空速下降；静推力仅作机库对照；品质因数 0.78、短舱遮挡 8%）；舰上载荷 10000 lb；机身截面为估算"
     },
     {
       "id": "A-3",
