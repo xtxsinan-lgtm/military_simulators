@@ -333,6 +333,12 @@ button.primary:disabled {
   opacity: 1;
 }
 
+/* 仿真计算中：整页等待光标，避免主线程阻塞后手型指针卡住 */
+body.sim-busy,
+body.sim-busy * {
+  cursor: progress !important;
+}
+
 button.secondary {
   padding: 11px 14px;
   background: transparent;

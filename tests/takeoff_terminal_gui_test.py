@@ -100,3 +100,24 @@ def test_ios_takeoff_terminal_chrome():
     assert '0x38BDF8' in theme
     assert 'var tag: String' in card or 'tag: String' in card
     assert 'design: .monospaced' in content
+
+
+def test_run_simulation_yields_before_blocking_python():
+    """第二次仿真须先让出主线程再 runPython，否则按钮不变灰、光标卡在手型。"""
+    app_js = (ROOT / 'docs' / 'js' / 'app.js').read_text(encoding='utf-8')
+    css = (ROOT / 'docs' / 'css' / 'style.css').read_text(encoding='utf-8')
+    start = app_js.index('async function runSimulation()')
+    end = app_js.index('\nfunction bindEvents()')
+    body = app_js[start:end]
+    yield_at = body.index('await yieldForUiPaint()')
+    python_at = body.index('pyodide.runPython')
+    assert yield_at < python_at
+    assert 'function yieldForUiPaint' in app_js
+    assert 'function setRunBusy' in app_js
+    assert 'setRunBusy(true)' in body
+    assert 'setRunBusy(false)' in body
+    assert 'if (runBusy) return' in body
+    assert 'UI_PAINT_YIELD_MS' in app_js
+    assert "classList.toggle('sim-busy'" in app_js
+    assert 'body.sim-busy' in css
+    assert 'cursor: progress' in css

@@ -13,7 +13,11 @@ import {
 
 const PYODIDE_VERSION = '0.26.4';
 /** 与 takeoff.html 中 app.js?v= 及 data.json?v= 同步递增，避免 CDN/浏览器缓存旧资源 */
-const APP_VERSION = 40;
+const APP_VERSION = 41;
+/** 让出主线程的毫秒数：须覆盖一次样式绘制，使按钮变灰与等待光标生效 */
+const UI_PAINT_YIELD_MS = 40;
+/** 引擎加载或仿真计算中，防止二次点击在阻塞前再次进入 */
+let runBusy = false;
 let data = null;
 let pyodide = null;
 let pyReady = false;
@@ -409,26 +413,41 @@ function updateAircraftInfo() {
   refreshMassHint();
 }
 
+/** 让出主线程一拍，使 disabled / 光标样式能先绘制，再进入阻塞式 Python。 */
+function yieldForUiPaint() {
+  return new Promise((resolve) => setTimeout(resolve, UI_PAINT_YIELD_MS));
+}
+
+/** 同步仿真按钮禁用态与整页等待光标，避免计算中仍显示手型指针。 */
+function setRunBusy(busy) {
+  runBusy = !!busy;
+  if (els.runBtn) els.runBtn.disabled = runBusy;
+  document.body.classList.toggle('sim-busy', runBusy);
+}
+
 async function initPyodide() {
   if (pyReady) return;
   setStatus('正在加载 Python 仿真引擎（首次约需 20–40 秒）…', 'loading');
-  els.runBtn.disabled = true;
-
-  const { loadPyodide } = await import(
-    `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/pyodide.mjs`
-  );
-  pyodide = await loadPyodide();
-  await pyodide.loadPackage('numpy');
+  setRunBusy(true);
 
   try {
-    await loadPythonModules();
-  } catch (e) {
-    throw new Error(`Python 模块加载失败: ${e.message}`);
-  }
+    const { loadPyodide } = await import(
+      `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/pyodide.mjs`
+    );
+    pyodide = await loadPyodide();
+    await pyodide.loadPackage('numpy');
 
-  pyReady = true;
-  els.runBtn.disabled = false;
-  setStatus('仿真引擎已就绪', 'ok');
+    try {
+      await loadPythonModules();
+    } catch (e) {
+      throw new Error(`Python 模块加载失败: ${e.message}`);
+    }
+
+    pyReady = true;
+    setStatus('仿真引擎已就绪', 'ok');
+  } finally {
+    setRunBusy(false);
+  }
 }
 
 function modeHasTrajectory(mode) {
@@ -626,6 +645,7 @@ function drawTrajectory(result) {
 }
 
 async function runSimulation() {
+  if (runBusy) return;
   const carrier = getSelectedCarrier();
   const aircraft = getSelectedAircraft();
   if (!carrier || !aircraft) {
@@ -653,7 +673,7 @@ async function runSimulation() {
     return;
   }
 
-  els.runBtn.disabled = true;
+  setRunBusy(true);
   setStatus('仿真计算中（可能需要数秒至数十秒）…', 'loading');
   els.output.classList.remove('empty');
   els.output.textContent = '计算中…';
@@ -682,6 +702,8 @@ async function runSimulation() {
   }
 
   try {
+    // 第二次仿真不再 await 加载引擎，须先让出一拍，否则按钮来不及变灰、光标卡在手型
+    await yieldForUiPaint();
     pyodide.globals.set('_payload_json', JSON.stringify(payload));
     const raw = pyodide.runPython(`
 import json
@@ -722,7 +744,7 @@ json.dumps(run_simulation_json(_payload_json), ensure_ascii=False)
     resultFresh = false;
     setStatus(`仿真出错: ${e.message}`, 'error');
   } finally {
-    els.runBtn.disabled = false;
+    setRunBusy(false);
   }
 }
 
