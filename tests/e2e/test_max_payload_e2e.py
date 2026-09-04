@@ -87,16 +87,17 @@ def test_e2e_j50n_takeoff_weights_match_combat_radius():
     takeoff = next(a for a in catalog['aircraft'] if a['id'] == 'J-50N')
     cr = get_preset_by_id(load_presets(), 'J-50N')
     land = get_preset_by_id(load_presets(), 'J-50')
-    assert takeoff['empty_kg'] == cr['empty_kg'] == land['empty_kg'] == 20800
+    assert takeoff['empty_kg'] == cr['empty_kg'] == 19900
+    assert land['empty_kg'] == 19300
     assert takeoff['internal_fuel_kg'] == cr['internal_fuel_kg'] == 13000
     assert takeoff['mtow_kg'] == pytest.approx(41800)
     spec = aircraft_from_dict(takeoff)
     expected_a2a = (
-        20800 + 13000 + A2A_MISSILE_COUNT * spec.missile_mass_kg
+        19900 + 13000 + A2A_MISSILE_COUNT * spec.missile_mass_kg
         + spec.n_pilots * PILOT_LOAD_KG
     )
     assert spec.a2a_mass_kg == pytest.approx(expected_a2a)
-    assert spec.a2a_mass_kg == pytest.approx(34740)
+    assert spec.a2a_mass_kg == pytest.approx(33840)
     carrier = next(c for c in catalog['carriers'] if c['id'] == 'SHANDONG')
     result = run_simulation_json({
         'mode': 'ski_jump',

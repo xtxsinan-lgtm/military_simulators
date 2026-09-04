@@ -1025,10 +1025,10 @@ def test_predict_ld_j20_between_anchors():
     assert KAPPA_A == pytest.approx(0.90)
 
 
-def test_lambda_uav_ma15_ld_below_j50_because_cl_is_lower():
-    """同为兰姆达无尾时，53636 翼载更低 → Ma 1.5 的 CL 更小，L/D 仍低于歼-50。
+def test_lambda_uav_ma15_cl_below_j50_ld_above_without_canopy():
+    """同为兰姆达无尾时，53636 翼载更低 → Ma 1.5 的 CL 更小；无座舱使 CD0 更低，L/D 略高于歼-50。
 
-    无座舱削 CD0；53636 为加莱特、歼-50 为 DSI，进气道不是 L/D 差距的主因。
+    53636 为加莱特、歼-50 为 DSI，进气道不是 L/D 差距的主因。
     """
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets, preset_to_aircraft
 
@@ -1047,7 +1047,7 @@ def test_lambda_uav_ma15_ld_below_j50_because_cl_is_lower():
     ld_u, d_u = predict_ld(uav_m, cf0, k_e)
     ld_j, d_j = predict_ld(j50_m, cf0, k_e)
     assert d_u['CL'] < d_j['CL']
-    assert ld_u < ld_j
+    assert ld_u > ld_j
     dsi_twin = Aircraft(**{**aircraft_to_dict(uav_m), 'inlet': 'dsi'})
     _, d_dsi = predict_ld(dsi_twin, cf0, k_e)
     assert d_u['CD0'] > d_dsi['CD0']

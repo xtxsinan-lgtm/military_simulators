@@ -51,7 +51,8 @@ def test_load_presets_contains_anchors_and_j20():
     assert j50['planform'] == 'lambda'
     j50n = get_preset_by_id(presets, 'J-50N')
     assert j50n is not None
-    assert j50['empty_kg'] == j50n['empty_kg'] == 20800
+    assert j50['empty_kg'] == pytest.approx(19300)
+    assert j50n['empty_kg'] == pytest.approx(19900)
     assert j50['internal_fuel_kg'] == j50n['internal_fuel_kg'] == 13000
     assert j50['missile_mass_kg'] == j50n['missile_mass_kg'] == 210
     assert j50['n_pilots'] == j50n['n_pilots'] == 1
@@ -62,12 +63,12 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav['wingspan_m'] == pytest.approx(10.2)
     assert uav['wing_area_m2'] == pytest.approx(47.8)
     assert uav['sweep_deg'] == pytest.approx(56.1)
-    assert uav['empty_kg'] == pytest.approx(7300)
-    assert uav['internal_fuel_kg'] == pytest.approx(4500)
+    assert uav['empty_kg'] == pytest.approx(7700)
+    assert uav['internal_fuel_kg'] == pytest.approx(4870)
     from utils.combat_radius.cruise_load import wing_loading_t_m2
     assert uav['AR'] == pytest.approx(10.2 ** 2 / 47.8, abs=0.005)
     assert uav['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        7300, 4500, 47.8, 0, 210,
+        7700, 4870, 47.8, 0, 210,
     ), abs=1e-6)
     assert uav['fuse_width_m'] == pytest.approx(2.26)
     assert uav['fuse_height_m'] == pytest.approx(1.62)
@@ -81,6 +82,8 @@ def test_load_presets_contains_anchors_and_j20():
     assert j36['n_pilots'] == 2
     assert j36['planform'] == 'double_delta'
     assert j36['bwb'] is True
+    assert j36['empty_kg'] == pytest.approx(26000)
+    assert j36['internal_fuel_kg'] == pytest.approx(26800)
     uav535 = get_preset_by_id(presets, '53536')
     assert uav535 is not None
     assert uav535['planform'] == 'diamond'
@@ -91,11 +94,11 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav535['wing_area_m2'] == pytest.approx(51.56)
     assert uav535['sweep_deg'] == pytest.approx(52.3)
     assert uav535['mach_angle_deg'] == pytest.approx(21.6)
-    assert uav535['empty_kg'] == pytest.approx(7800)
-    assert uav535['internal_fuel_kg'] == pytest.approx(5160)
+    assert uav535['empty_kg'] == pytest.approx(8400)
+    assert uav535['internal_fuel_kg'] == pytest.approx(5690)
     assert uav535['AR'] == pytest.approx(9.11 ** 2 / 51.56, abs=0.005)
     assert uav535['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        7800, 5160, 51.56, 0, 210,
+        8400, 5690, 51.56, 0, 210,
     ), abs=1e-6)
     assert j36['sweep_inner_deg'] == pytest.approx(67.8)
     assert j36['sweep_outer_deg'] == pytest.approx(55.3)
@@ -117,11 +120,11 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav_n['wing_area_m2'] == pytest.approx(uav['wing_area_m2'])
     assert uav_n['sweep_deg'] == pytest.approx(uav['sweep_deg'])
     assert uav_n['mach_angle_deg'] == pytest.approx(uav['mach_angle_deg'])
-    assert uav_n['empty_kg'] == pytest.approx(7600)
-    assert uav_n['internal_fuel_kg'] == pytest.approx(4500)
+    assert uav_n['empty_kg'] == pytest.approx(8000)
+    assert uav_n['internal_fuel_kg'] == pytest.approx(4870)
     assert uav_n['AR'] == pytest.approx(uav['AR'])
     assert uav_n['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        7600, 4500, 47.8, 0, 210,
+        8000, 4870, 47.8, 0, 210,
     ), abs=1e-6)
     assert j20['inlet'] == 'dsi'
     assert f35['inlet'] == 'dsi'
@@ -180,20 +183,22 @@ def test_ng6_medium_sixth_gen_presets():
     assert c['length_m'] == b['length_m'] == a['length_m'] == pytest.approx(17.7)
     assert c['wingspan_m'] == pytest.approx(13.3)
     assert b['wingspan_m'] == a['wingspan_m'] == pytest.approx(12.1)
+    assert c['AR'] == pytest.approx(13.3 ** 2 / 66.7, abs=0.005)
+    assert b['AR'] == a['AR'] == pytest.approx(12.1 ** 2 / 55.0, abs=0.005)
     assert c['fuse_width_m'] == b['fuse_width_m'] == a['fuse_width_m'] == pytest.approx(3.40)
     assert c['fuse_height_m'] == b['fuse_height_m'] == a['fuse_height_m'] == pytest.approx(1.97)
     assert c['main_wing_area_m2'] == pytest.approx(34.9)
-    assert b['main_wing_area_m2'] == a['main_wing_area_m2'] == pytest.approx(29.0)
+    assert b['main_wing_area_m2'] == a['main_wing_area_m2'] == pytest.approx(27.0)
     assert c['canard_htail_area_m2'] == pytest.approx(5.6 * 2)
     assert b['canard_htail_area_m2'] == a['canard_htail_area_m2'] == pytest.approx(5.6 * 2)
-    assert c['wing_area_m2'] == pytest.approx(66.6)
-    assert b['wing_area_m2'] == a['wing_area_m2'] == pytest.approx(55.9)
-    assert c['empty_kg'] == pytest.approx(12700)
-    assert b['empty_kg'] == pytest.approx(12900)
-    assert a['empty_kg'] == pytest.approx(11400)
-    assert c['internal_fuel_kg'] == pytest.approx(7860)
-    assert b['internal_fuel_kg'] == pytest.approx(7510)
-    assert a['internal_fuel_kg'] == pytest.approx(7730)
+    assert c['wing_area_m2'] == pytest.approx(66.7)
+    assert b['wing_area_m2'] == a['wing_area_m2'] == pytest.approx(55.0)
+    assert c['empty_kg'] == pytest.approx(13700)
+    assert b['empty_kg'] == pytest.approx(13900)
+    assert a['empty_kg'] == pytest.approx(12500)
+    assert c['internal_fuel_kg'] == pytest.approx(8400)
+    assert b['internal_fuel_kg'] == pytest.approx(6530)
+    assert a['internal_fuel_kg'] == pytest.approx(8260)
     assert c['sweep_deg'] == b['sweep_deg'] == a['sweep_deg'] == pytest.approx(49.0)
     assert c['mach_angle_deg'] == pytest.approx(28.6)
     assert c['type_label'] == 'conventional'
@@ -202,13 +207,13 @@ def test_ng6_medium_sixth_gen_presets():
     assert b['tc'] == a['tc'] == pytest.approx(0.047)
     from utils.combat_radius.cruise_load import wing_loading_t_m2
     assert c['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        12700, 7860, 66.6, 1, 210,
+        13700, 8400, 66.7, 1, 210,
     ), abs=1e-6)
     assert b['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        12900, 7510, 55.9, 1, 210,
+        13900, 6530, 55.0, 1, 210,
     ), abs=1e-6)
     assert a['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        11400, 7730, 55.9, 1, 210,
+        12500, 8260, 55.0, 1, 210,
     ), abs=1e-6)
 
 
@@ -225,6 +230,25 @@ def test_vtail_area_single_side_times_two():
         assert row['vtail_area_m2'] == pytest.approx(area), aid
     tailless = get_preset_by_id(presets, 'J-50')
     assert tailless.get('vtail_area_m2') in (None, 0)
+
+
+def test_j35a_mass_and_planform_geometry():
+    """歼-35A：空重/主翼/参考翼/后掠/翼展；副翼按平尾单侧单面×2 入库。"""
+    from utils.combat_radius.cruise_load import wing_loading_t_m2
+
+    j35a = get_preset_by_id(load_presets(), 'J-35A')
+    assert j35a['empty_kg'] == pytest.approx(13200)
+    assert j35a['internal_fuel_kg'] == pytest.approx(7200)
+    assert j35a['main_wing_area_m2'] == pytest.approx(26.7)
+    assert j35a['canard_htail_area_m2'] == pytest.approx(6.03 * 2)
+    assert j35a['wing_area_m2'] == pytest.approx(49.2)
+    assert j35a['sweep_deg'] == pytest.approx(40.5)
+    assert j35a['mach_angle_deg'] == pytest.approx(27.2)
+    assert j35a['wingspan_m'] == pytest.approx(12.1)
+    assert j35a['AR'] == pytest.approx(12.1 ** 2 / 49.2, abs=0.005)
+    assert j35a['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        13200, 7200, 49.2, 1, 210,
+    ), abs=1e-6)
 
 
 def test_get_preset_by_id_missing_returns_none():
