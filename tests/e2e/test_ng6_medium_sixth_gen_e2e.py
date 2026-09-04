@@ -32,6 +32,9 @@ def test_e2e_ng6_catalog_and_combat_radius():
         assert tgt['canard_htail_area_m2'] == pytest.approx(
             16.7 if aid == 'NG6C' else 13.9
         ), aid
+        assert tgt['mach_angle_deg'] == pytest.approx(
+            29.3 if aid == 'NG6C' else 27.3
+        ), aid
         assert aid in cr_ids
         r = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': tgt}})
         assert r['success'] is True, aid

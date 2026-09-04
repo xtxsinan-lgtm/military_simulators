@@ -2673,7 +2673,7 @@ module.exports = {
       "n_engines": 1,
       "notes": "STOVL；兰姆达翼 + 平尾两侧合计 13.9 m²（中等平尾）；DSI 进气道；1×F135-PW-600（F-35B 同款，含升力风扇）；PL-15；MTOW 28340 kg、外挂 8000 kg",
       "wing_area_m2": 58.8,
-      "mach_angle_deg": 28.6,
+      "mach_angle_deg": 27.3,
       "length_m": 17.7,
       "wingspan_m": 12.1,
       "fuse_width_m": 3.4,
@@ -2712,7 +2712,7 @@ module.exports = {
       "n_engines": 1,
       "notes": "弹射舰载；兰姆达翼 + 平尾两侧合计 16.7 m²（中等 Pelican）；DSI 进气道；1×涡扇15改进；PL-15",
       "wing_area_m2": 70.8,
-      "mach_angle_deg": 28.6,
+      "mach_angle_deg": 29.3,
       "length_m": 17.7,
       "wingspan_m": 13.3,
       "fuse_width_m": 3.4,
@@ -2751,7 +2751,7 @@ module.exports = {
       "n_engines": 1,
       "notes": "陆基；兰姆达翼 + 平尾两侧合计 13.9 m²（小平尾）；DSI 进气道；1×涡扇15改进；PL-15",
       "wing_area_m2": 58.8,
-      "mach_angle_deg": 28.6,
+      "mach_angle_deg": 27.3,
       "length_m": 17.7,
       "wingspan_m": 12.1,
       "fuse_width_m": 3.4,
@@ -7355,8 +7355,8 @@ module.exports = {
           "max_speed_kmh": 2251.8,
           "max_speed_kts": 1215.9,
           "alt_m": 11200.0,
-          "ld": 1.1034,
-          "load": 0.9981,
+          "ld": 1.1021,
+          "load": 0.9993,
           "thrust_avail_kN": 167.764
         }
       },
@@ -7613,10 +7613,10 @@ module.exports = {
           "max_speed_mach": 2.22,
           "max_speed_kmh": 2358.0,
           "max_speed_kts": 1273.2,
-          "alt_m": 11400.0,
-          "ld": 0.9417,
-          "load": 0.9994,
-          "thrust_avail_kN": 188.123
+          "alt_m": 11800.0,
+          "ld": 1.0049,
+          "load": 0.9976,
+          "thrust_avail_kN": 176.621
         }
       },
       "NG6A": {
@@ -7872,10 +7872,10 @@ module.exports = {
           "max_speed_mach": 2.18,
           "max_speed_kmh": 2315.5,
           "max_speed_kts": 1250.3,
-          "alt_m": 12000.0,
-          "ld": 1.1086,
-          "load": 0.9971,
-          "thrust_avail_kN": 153.833
+          "alt_m": 12200.0,
+          "ld": 1.1427,
+          "load": 0.9984,
+          "thrust_avail_kN": 149.057
         }
       }
     }

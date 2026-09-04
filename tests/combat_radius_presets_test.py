@@ -206,7 +206,8 @@ def test_ng6_medium_sixth_gen_presets():
     assert b['internal_fuel_kg'] == pytest.approx(7230)
     assert a['internal_fuel_kg'] == pytest.approx(8200)
     assert c['sweep_deg'] == b['sweep_deg'] == a['sweep_deg'] == pytest.approx(49.0)
-    assert c['mach_angle_deg'] == pytest.approx(28.6)
+    assert c['mach_angle_deg'] == pytest.approx(29.3)
+    assert b['mach_angle_deg'] == a['mach_angle_deg'] == pytest.approx(27.3)
     assert c['type_label'] == 'conventional'
     assert b['type_label'] == 'v/stol'
     assert c['tc'] == pytest.approx(0.043)
