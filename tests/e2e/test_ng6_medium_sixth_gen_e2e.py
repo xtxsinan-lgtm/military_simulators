@@ -29,7 +29,9 @@ def test_e2e_ng6_catalog_and_combat_radius():
         assert tgt['layout'] == layouts[aid], aid
         assert tgt['fuse_width_m'] == pytest.approx(3.40)
         assert tgt['fuse_height_m'] == pytest.approx(1.97)
-        assert tgt['canard_htail_area_m2'] == pytest.approx(5.6 * 2), aid
+        assert tgt['canard_htail_area_m2'] == pytest.approx(
+            16.7 if aid == 'NG6C' else 13.9
+        ), aid
         assert aid in cr_ids
         r = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': tgt}})
         assert r['success'] is True, aid
@@ -47,11 +49,12 @@ def test_e2e_ng6_catalog_and_combat_radius():
     assert get_preset_by_id(presets, 'NG6B')['empty_kg'] == pytest.approx(13500)
     assert get_preset_by_id(presets, 'NG6A')['empty_kg'] == pytest.approx(12300)
 
-    assert get_preset_by_id(presets, 'NG6C')['wing_area_m2'] == pytest.approx(66.7)
-    assert get_preset_by_id(presets, 'NG6B')['wing_area_m2'] == pytest.approx(55.0)
-    assert get_preset_by_id(presets, 'NG6A')['wing_area_m2'] == pytest.approx(55.0)
-    assert get_preset_by_id(presets, 'NG6B')['main_wing_area_m2'] == pytest.approx(27.0)
-    assert get_preset_by_id(presets, 'NG6A')['main_wing_area_m2'] == pytest.approx(27.0)
+    assert get_preset_by_id(presets, 'NG6C')['wing_area_m2'] == pytest.approx(70.8)
+    assert get_preset_by_id(presets, 'NG6B')['wing_area_m2'] == pytest.approx(58.8)
+    assert get_preset_by_id(presets, 'NG6A')['wing_area_m2'] == pytest.approx(58.8)
+    assert get_preset_by_id(presets, 'NG6C')['main_wing_area_m2'] == pytest.approx(39.0)
+    assert get_preset_by_id(presets, 'NG6B')['main_wing_area_m2'] == pytest.approx(30.2)
+    assert get_preset_by_id(presets, 'NG6A')['main_wing_area_m2'] == pytest.approx(30.2)
 
     assert 'NG6C' in takeoff_ids and 'NG6B' in takeoff_ids
     assert 'NG6A' not in takeoff_ids
