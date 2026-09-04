@@ -194,8 +194,8 @@ def test_ng6_medium_sixth_gen_presets():
     assert c['wing_area_m2'] == pytest.approx(66.7)
     assert b['wing_area_m2'] == a['wing_area_m2'] == pytest.approx(55.0)
     assert c['empty_kg'] == pytest.approx(13700)
-    assert b['empty_kg'] == pytest.approx(13900)
-    assert a['empty_kg'] == pytest.approx(12500)
+    assert b['empty_kg'] == pytest.approx(13500)
+    assert a['empty_kg'] == pytest.approx(12300)
     assert c['internal_fuel_kg'] == pytest.approx(8400)
     assert b['internal_fuel_kg'] == pytest.approx(7230)
     assert a['internal_fuel_kg'] == pytest.approx(8200)
@@ -210,10 +210,10 @@ def test_ng6_medium_sixth_gen_presets():
         13700, 8400, 66.7, 1, 210,
     ), abs=1e-6)
     assert b['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        13900, 7230, 55.0, 1, 210,
+        13500, 7230, 55.0, 1, 210,
     ), abs=1e-6)
     assert a['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        12500, 8200, 55.0, 1, 210,
+        12300, 8200, 55.0, 1, 210,
     ), abs=1e-6)
 
 
