@@ -100,11 +100,11 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav535['wing_area_m2'] == pytest.approx(53.04)
     assert uav535['sweep_deg'] == pytest.approx(52.3)
     assert uav535['mach_angle_deg'] == pytest.approx(21.6)
-    assert uav535['empty_kg'] == pytest.approx(8400)
+    assert uav535['empty_kg'] == pytest.approx(8000)
     assert uav535['internal_fuel_kg'] == pytest.approx(5690)
     assert uav535['AR'] == pytest.approx(9.11 ** 2 / 53.04, abs=0.005)
     assert uav535['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        8400, 5690, 53.04, 0, 210,
+        8000, 5690, 53.04, 0, 210,
     ), abs=1e-6)
     assert j36['sweep_inner_deg'] == pytest.approx(67.8)
     assert j36['sweep_outer_deg'] == pytest.approx(55.3)
@@ -126,11 +126,11 @@ def test_load_presets_contains_anchors_and_j20():
     assert uav_n['wing_area_m2'] == pytest.approx(uav['wing_area_m2'])
     assert uav_n['sweep_deg'] == pytest.approx(uav['sweep_deg'])
     assert uav_n['mach_angle_deg'] == pytest.approx(uav['mach_angle_deg'])
-    assert uav_n['empty_kg'] == pytest.approx(8000)
+    assert uav_n['empty_kg'] == pytest.approx(8300)
     assert uav_n['internal_fuel_kg'] == pytest.approx(4870)
     assert uav_n['AR'] == pytest.approx(uav['AR'])
     assert uav_n['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        8000, 4870, 50.23, 0, 210,
+        8300, 4870, 50.23, 0, 210,
     ), abs=1e-6)
     assert j20['inlet'] == 'dsi'
     assert f35['inlet'] == 'dsi'

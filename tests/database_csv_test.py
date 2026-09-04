@@ -311,6 +311,7 @@ def test_load_combat_radius_aircraft_csv():
     assert uav_n['inlet'] == 'caret'
     assert uav_n['engine_id'] == 'ws10c'
     assert uav_n['internal_fuel_kg'] == pytest.approx(4870)
+    assert uav_n['empty_kg'] == pytest.approx(8300)
     j36 = next(r for r in rows if r['id'] == 'J-36')
     assert j36['n_engines'] == 3
     assert j36['n_pilots'] == 2
@@ -369,7 +370,7 @@ def test_load_combat_radius_aircraft_csv():
     assert uav535['wing_area_m2'] == pytest.approx(53.04)
     assert uav535['sweep_deg'] == pytest.approx(52.3)
     assert uav535['mach_angle_deg'] == pytest.approx(21.6)
-    assert uav535['empty_kg'] == pytest.approx(8400)
+    assert uav535['empty_kg'] == pytest.approx(8000)
     assert uav535['internal_fuel_kg'] == pytest.approx(5690)
     assert uav535['fuse_width_m'] == pytest.approx(2.36)
     assert uav535['fuse_height_m'] == pytest.approx(1.61)

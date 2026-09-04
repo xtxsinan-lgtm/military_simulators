@@ -339,7 +339,7 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     assert uav535['length_m'] == pytest.approx(16.7)
     assert uav535['wingspan_m'] == pytest.approx(9.11)
     assert uav535['wing_area_m2'] == pytest.approx(53.04)
-    assert uav535['empty_kg'] == pytest.approx(8400)
+    assert uav535['empty_kg'] == pytest.approx(8000)
     assert uav535['internal_fuel_kg'] == pytest.approx(5690)
     assert uav535['bwb'] is True
     assert uav535['planform'] == 'diamond'
