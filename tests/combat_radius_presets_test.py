@@ -84,6 +84,12 @@ def test_load_presets_contains_anchors_and_j20():
     assert j36['bwb'] is True
     assert j36['empty_kg'] == pytest.approx(26000)
     assert j36['internal_fuel_kg'] == pytest.approx(26800)
+    assert j36['wing_area_m2'] == pytest.approx(196.0)
+    assert j36['wingspan_m'] == pytest.approx(19.24)
+    assert j36['AR'] == pytest.approx(19.24 ** 2 / 196.0, abs=0.005)
+    assert j36['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        26000, 26800, 196.0, 2, 210,
+    ), abs=1e-6)
     uav535 = get_preset_by_id(presets, '53536')
     assert uav535 is not None
     assert uav535['planform'] == 'diamond'
@@ -249,6 +255,39 @@ def test_j35a_mass_and_planform_geometry():
     assert j35a['AR'] == pytest.approx(11.8 ** 2 / 50.7, abs=0.005)
     assert j35a['wing_loading'] == pytest.approx(wing_loading_t_m2(
         13000, 7600, 50.7, 1, 210,
+    ), abs=1e-6)
+
+
+def test_j50_planform_geometry_shared_with_carrier():
+    """歼-50：翼展 16.4 m、参考翼面积 107 m²、主翼 66 m²；舰载型几何相同。"""
+    from utils.combat_radius.cruise_load import wing_loading_t_m2
+
+    presets = load_presets()
+    j50 = get_preset_by_id(presets, 'J-50')
+    j50n = get_preset_by_id(presets, 'J-50N')
+    assert j50['wingspan_m'] == pytest.approx(16.4)
+    assert j50['wing_area_m2'] == pytest.approx(107.0)
+    assert j50['main_wing_area_m2'] == pytest.approx(66.0)
+    assert j50['nose_cone_length_m'] == pytest.approx(2.5)
+    assert j50['nose_cone_diameter_m'] == pytest.approx(2.0)
+    assert j50['nose_length_m'] == pytest.approx(5.0)
+    assert j50['nose_root_diameter_m'] == pytest.approx(3.9)
+    assert j50['fuse_body_length_m'] == pytest.approx(10.0)
+    assert j50['fuse_height_m'] == pytest.approx(1.7)
+    assert j50['fuse_width_m'] == pytest.approx(3.5)
+    assert j50['AR'] == pytest.approx(16.4 ** 2 / 107.0, abs=0.005)
+    assert j50['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        19300, 13000, 107.0, 1, 210,
+    ), abs=1e-6)
+    for key in (
+        'wingspan_m', 'wing_area_m2', 'main_wing_area_m2',
+        'nose_cone_length_m', 'nose_cone_diameter_m', 'nose_length_m',
+        'nose_root_diameter_m', 'fuse_body_length_m', 'fuse_height_m',
+        'fuse_width_m', 'AR',
+    ):
+        assert j50n[key] == pytest.approx(j50[key]), key
+    assert j50n['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        19900, 13000, 107.0, 1, 210,
     ), abs=1e-6)
 
 

@@ -358,6 +358,18 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     assert j36['n_pilots'] == 2
     assert j36['sweep_inner_deg'] == pytest.approx(67.8)
     assert j36['sweep_outer_deg'] == pytest.approx(55.3)
+    assert j36['wing_area_m2'] == pytest.approx(196.0)
+    j50 = get_preset_by_id(presets, 'J-50')
+    j50n = get_preset_by_id(presets, 'J-50N')
+    assert j50['wingspan_m'] == pytest.approx(16.4)
+    assert j50['wing_area_m2'] == pytest.approx(107.0)
+    assert j50['main_wing_area_m2'] == pytest.approx(66.0)
+    assert j50['fuse_width_m'] == pytest.approx(3.5)
+    assert j50['fuse_height_m'] == pytest.approx(1.7)
+    assert j50['nose_length_m'] == pytest.approx(5.0)
+    assert j50['fuse_body_length_m'] == pytest.approx(10.0)
+    assert j50n['wingspan_m'] == pytest.approx(j50['wingspan_m'])
+    assert j50n['wing_area_m2'] == pytest.approx(j50['wing_area_m2'])
     f22 = get_preset_by_id(presets, 'F-22')
     p = _params_from_csv()
     p['target'] = uav
@@ -793,6 +805,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert j50['success'] is True
     assert j50['max_possible_cruise_mach'] > f22['max_possible_cruise_mach']
     assert j50['max_cruise_mach'] == pytest.approx(1.77, abs=0.005)
+    assert stored['aircraft']['J-50N']['max_cruise_mach'] == pytest.approx(1.78, abs=0.005)
     j50_m08 = next(p for p in j50['points'] if p['id'] == 'mach_0_8')
     f22_m08 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert j50_m08['alt_m'] >= f22_m08['alt_m']

@@ -611,7 +611,7 @@ def test_j50_practical_max_from_centi_grid_not_f22_pin():
     j50n = search_max_cruise_mach(_csv_ctx('J-50N'))
     assert f22 == pytest.approx(1.76, abs=0.005)
     assert j50 == pytest.approx(1.77, abs=0.005)
-    assert j50n == pytest.approx(1.77, abs=0.005)
+    assert j50n == pytest.approx(1.78, abs=0.005)
     a_f22 = search_best_altitude(_csv_ctx('F-22'), f22)
     a_j50 = search_best_altitude(_csv_ctx('J-50'), j50)
     assert a_f22 is not None and a_j50 is not None
