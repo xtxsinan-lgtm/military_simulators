@@ -218,7 +218,7 @@ def test_run_preset_dashboard_ws10c_uav_slim_fuse_supercruise():
     """细机身无人机均可越过跨声速鼓包后超巡。"""
     slim = run_preset_dashboard('53636')
     assert slim['success'] is True
-    assert slim['max_cruise_mach'] == pytest.approx(1.57, abs=0.02)
+    assert slim['max_cruise_mach'] == pytest.approx(1.56, abs=0.02)
     m12 = next(p for p in slim['points'] if p['id'] == 'mach_1_2')
     assert m12['feasible'] is True
     for aid in ('53536', '53636N'):

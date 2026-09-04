@@ -328,7 +328,7 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     assert uav['n_pilots'] == 0
     assert uav['length_m'] == pytest.approx(14.7)
     assert uav['wingspan_m'] == pytest.approx(10.2)
-    assert uav['wing_area_m2'] == pytest.approx(47.8)
+    assert uav['wing_area_m2'] == pytest.approx(50.23)
     assert uav['sweep_deg'] == pytest.approx(56.1)
     assert uav['mach_angle_deg'] == pytest.approx(23.1)
     assert uav['empty_kg'] == pytest.approx(7700)
@@ -338,7 +338,7 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     uav535 = get_preset_by_id(presets, '53536')
     assert uav535['length_m'] == pytest.approx(16.7)
     assert uav535['wingspan_m'] == pytest.approx(9.11)
-    assert uav535['wing_area_m2'] == pytest.approx(51.56)
+    assert uav535['wing_area_m2'] == pytest.approx(53.04)
     assert uav535['empty_kg'] == pytest.approx(8400)
     assert uav535['internal_fuel_kg'] == pytest.approx(5690)
     assert uav535['bwb'] is True
@@ -824,7 +824,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     j35a = stored['aircraft']['J-35A']
     assert j35['max_cruise_mach'] is None
     assert j35a['max_cruise_mach'] == pytest.approx(1.49, abs=0.02)
-    assert stored['aircraft']['53636']['max_cruise_mach'] == pytest.approx(1.57, abs=0.02)
+    assert stored['aircraft']['53636']['max_cruise_mach'] == pytest.approx(1.56, abs=0.02)
     for aid in ('53536', '53636N'):
         assert stored['aircraft'][aid]['max_cruise_mach'] is not None, aid
         assert stored['aircraft'][aid]['max_cruise_mach'] >= 1.2, aid

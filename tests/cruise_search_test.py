@@ -596,7 +596,7 @@ def test_practical_max_cruise_is_mach_at_peak_altitude():
 
 def test_ws10c_uav_slim_fuse_enables_53636_supercruise():
     """细机身无人机均可越过跨声速鼓包后超巡。"""
-    assert search_max_cruise_mach(_csv_ctx('53636')) == pytest.approx(1.57, abs=0.02)
+    assert search_max_cruise_mach(_csv_ctx('53636')) == pytest.approx(1.56, abs=0.02)
     assert any_feasible_altitude(_csv_ctx('53636'), 1.2) is True
     for aid in ('53536', '53636N'):
         m = search_max_cruise_mach(_csv_ctx(aid))
