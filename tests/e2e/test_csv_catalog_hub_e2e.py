@@ -43,6 +43,10 @@ def test_e2e_catalog_auto_detects_csv_models():
     takeoff_ids = {a['id'] for a in api['aircraft']}
     assert 'F-35C' in takeoff_ids and 'F-22' not in takeoff_ids
     assert 'J-10C' in takeoff_ids and 'J-20' in takeoff_ids
+    uav = next(a for a in api['aircraft'] if a['id'] == '53636')
+    uav_n = next(a for a in api['aircraft'] if a['id'] == '53636N')
+    assert uav['mtow_kg'] == pytest.approx(14600)
+    assert uav_n['mtow_kg'] == pytest.approx(15200)
     assert any(p['id'] == 'f119' for p in api['combat_radius_engine_presets'])
     assert any(p['id'] == 'f135b' for p in api['combat_radius_engine_presets'])
 

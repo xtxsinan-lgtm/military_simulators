@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from apps.miniprogram_api import build_data_payload, handle_request
 
 
@@ -28,6 +30,11 @@ def test_get_api_data_returns_aircraft_and_carriers():
     assert 'F-35C' in takeoff_ids
     assert 'J-10C' in takeoff_ids
     assert 'J-20' in takeoff_ids
+    assert '53636' in takeoff_ids
+    uav = next(a for a in data['aircraft'] if a['id'] == '53636')
+    uav_n = next(a for a in data['aircraft'] if a['id'] == '53636N')
+    assert uav['mtow_kg'] == pytest.approx(14600)
+    assert uav_n['mtow_kg'] == pytest.approx(15200)
     assert 'F-22' not in takeoff_ids
     assert any(p['id'] == 'f119' for p in data['combat_radius_engine_presets'])
 

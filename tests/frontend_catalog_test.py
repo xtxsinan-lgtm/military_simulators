@@ -266,6 +266,11 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     assert 'J-10C' in takeoff_ids
     assert 'J-20' in takeoff_ids
     assert 'F-35A' in takeoff_ids
+    assert '53636' in takeoff_ids
+    uav = next(a for a in payload['aircraft'] if a['id'] == '53636')
+    uav_n = next(a for a in payload['aircraft'] if a['id'] == '53636N')
+    assert uav['mtow_kg'] == pytest.approx(14600)
+    assert uav_n['mtow_kg'] == pytest.approx(15200)
     assert 'F-22' not in takeoff_ids
     assert 'J-50' not in takeoff_ids
     assert 'NG6A' not in takeoff_ids

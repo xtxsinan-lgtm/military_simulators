@@ -66,6 +66,19 @@ def test_uav_carrier_a2a_mass_zero_pilots():
     assert ac.a2a_mass_kg == pytest.approx(
         ac.empty_kg + ac.internal_fuel_kg + A2A_MISSILE_COUNT * ac.missile_mass_kg
     )
+    assert ac.mtow_kg == pytest.approx(15200)
+    assert ac.a2a_mass_kg < ac.mtow_kg
+
+
+def test_uav_land_mtow_and_a2a_mass():
+    """53636 普通版最大起飞重量 14.6 t，空战重量不计飞行员且低于 MTOW。"""
+    ac = load_aircraft_csv(AIRCRAFT_CSV)['53636']
+    assert ac.n_pilots == 0
+    assert ac.mtow_kg == pytest.approx(14600)
+    assert ac.a2a_mass_kg == pytest.approx(
+        ac.empty_kg + ac.internal_fuel_kg + A2A_MISSILE_COUNT * ac.missile_mass_kg
+    )
+    assert ac.a2a_mass_kg < ac.mtow_kg
 
 
 def test_max_payload_kg_wikipedia_sourced_types():

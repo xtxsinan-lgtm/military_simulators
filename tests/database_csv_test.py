@@ -45,7 +45,11 @@ def test_load_aircraft_csv_count():
     assert 'F-35C' in aircraft
     assert 'J-50N' in aircraft
     assert 'J-35' in aircraft
+    assert '53636' in aircraft
     assert '53636N' in aircraft
+    assert aircraft['53636'].mtow_kg == pytest.approx(14600)
+    assert aircraft['53636N'].mtow_kg == pytest.approx(15200)
+    assert aircraft['53636'].t_max_sl_n == pytest.approx(132000)
     assert 'NG6C' in aircraft
     assert 'NG6B' in aircraft
     assert 'J-10C' in aircraft
