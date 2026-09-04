@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 63;
+const APP_VERSION = 64;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',

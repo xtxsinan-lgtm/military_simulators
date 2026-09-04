@@ -51,7 +51,7 @@ def test_load_presets_contains_anchors_and_j20():
     assert j50['planform'] == 'lambda'
     j50n = get_preset_by_id(presets, 'J-50N')
     assert j50n is not None
-    assert j50['empty_kg'] == pytest.approx(19300)
+    assert j50['empty_kg'] == pytest.approx(18300)
     assert j50n['empty_kg'] == pytest.approx(19900)
     assert j50['internal_fuel_kg'] == j50n['internal_fuel_kg'] == 13000
     assert j50['missile_mass_kg'] == j50n['missile_mass_kg'] == 210
@@ -265,6 +265,7 @@ def test_j50_planform_geometry_shared_with_carrier():
     presets = load_presets()
     j50 = get_preset_by_id(presets, 'J-50')
     j50n = get_preset_by_id(presets, 'J-50N')
+    assert j50['empty_kg'] == pytest.approx(18300)
     assert j50['wingspan_m'] == pytest.approx(16.4)
     assert j50['wing_area_m2'] == pytest.approx(107.0)
     assert j50['main_wing_area_m2'] == pytest.approx(66.0)
@@ -277,7 +278,7 @@ def test_j50_planform_geometry_shared_with_carrier():
     assert j50['fuse_width_m'] == pytest.approx(3.5)
     assert j50['AR'] == pytest.approx(16.4 ** 2 / 107.0, abs=0.005)
     assert j50['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        19300, 13000, 107.0, 1, 210,
+        18300, 13000, 107.0, 1, 210,
     ), abs=1e-6)
     for key in (
         'wingspan_m', 'wing_area_m2', 'main_wing_area_m2',

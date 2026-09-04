@@ -88,7 +88,7 @@ def test_e2e_j50n_takeoff_weights_match_combat_radius():
     cr = get_preset_by_id(load_presets(), 'J-50N')
     land = get_preset_by_id(load_presets(), 'J-50')
     assert takeoff['empty_kg'] == cr['empty_kg'] == 19900
-    assert land['empty_kg'] == 19300
+    assert land['empty_kg'] == 18300
     assert takeoff['internal_fuel_kg'] == cr['internal_fuel_kg'] == 13000
     assert takeoff['mtow_kg'] == pytest.approx(41800)
     spec = aircraft_from_dict(takeoff)

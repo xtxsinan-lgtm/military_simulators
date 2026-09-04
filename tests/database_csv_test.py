@@ -324,6 +324,8 @@ def test_load_combat_radius_aircraft_csv():
     assert j36['AR'] == pytest.approx(19.24 ** 2 / 196.0, abs=0.005)
     j50 = next(r for r in rows if r['id'] == 'J-50')
     j50n = next(r for r in rows if r['id'] == 'J-50N')
+    assert j50['empty_kg'] == pytest.approx(18300)
+    assert j50n['empty_kg'] == pytest.approx(19900)
     assert j50['wingspan_m'] == pytest.approx(16.4)
     assert j50['wing_area_m2'] == pytest.approx(107.0)
     assert j50['main_wing_area_m2'] == pytest.approx(66.0)
