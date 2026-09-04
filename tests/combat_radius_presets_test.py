@@ -233,12 +233,12 @@ def test_vtail_area_single_side_times_two():
 
 
 def test_j35a_mass_and_planform_geometry():
-    """歼-35A：空重 13 t；平尾与垂尾均为两侧合计 12 m²。"""
+    """歼-35A：空重 13.1 t、内油 7.6 t；平尾与垂尾均为两侧合计 12 m²。"""
     from utils.combat_radius.cruise_load import wing_loading_t_m2
 
     j35a = get_preset_by_id(load_presets(), 'J-35A')
-    assert j35a['empty_kg'] == pytest.approx(13000)
-    assert j35a['internal_fuel_kg'] == pytest.approx(7200)
+    assert j35a['empty_kg'] == pytest.approx(13100)
+    assert j35a['internal_fuel_kg'] == pytest.approx(7600)
     assert j35a['main_wing_area_m2'] == pytest.approx(26.7)
     assert j35a['canard_htail_area_m2'] == pytest.approx(12.0)
     assert j35a['vtail_area_m2'] == pytest.approx(12.0)
@@ -248,7 +248,7 @@ def test_j35a_mass_and_planform_geometry():
     assert j35a['wingspan_m'] == pytest.approx(12.1)
     assert j35a['AR'] == pytest.approx(12.1 ** 2 / 49.2, abs=0.005)
     assert j35a['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        13000, 7200, 49.2, 1, 210,
+        13100, 7600, 49.2, 1, 210,
     ), abs=1e-6)
 
 
@@ -329,6 +329,10 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
     assert ws15 is not None
     assert ws15['tsl_kN'] == 105.0
     assert ws15['max_tsl_kN'] == 156.0
+    ws19 = get_preset_by_id(engines, 'ws19')
+    assert ws19 is not None
+    assert ws19['tsl_kN'] == pytest.approx(70.0)
+    assert ws19['max_tsl_kN'] == pytest.approx(110.0)
     ws15i = get_preset_by_id(engines, 'ws15i')
     assert ws15i is not None
     assert ws15i['tsl_kN'] == pytest.approx(13.5 * 9.80665, abs=0.05)

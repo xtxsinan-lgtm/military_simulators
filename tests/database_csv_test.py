@@ -328,7 +328,8 @@ def test_load_combat_radius_aircraft_csv():
     j35a = next(r for r in rows if r['id'] == 'J-35A')
     assert j35a['vtail_area_m2'] == pytest.approx(12.0)
     assert j35a['length_m'] == pytest.approx(17.7)
-    assert j35a['empty_kg'] == pytest.approx(13000)
+    assert j35a['empty_kg'] == pytest.approx(13100)
+    assert j35a['internal_fuel_kg'] == pytest.approx(7600)
     assert j35a['main_wing_area_m2'] == pytest.approx(26.7)
     assert j35a['canard_htail_area_m2'] == pytest.approx(12.0)
     assert j35a['wing_area_m2'] == pytest.approx(49.2)
@@ -424,8 +425,8 @@ def test_load_combat_radius_engine_csv():
     assert by_id['ws10c']['tsl_kN'] == pytest.approx(90.0)
     assert by_id['ws10b']['max_tsl_kN'] == pytest.approx(144.0)
     assert by_id['ws10b']['tsl_kN'] == pytest.approx(89.17)
-    assert by_id['ws19']['max_tsl_kN'] == 118.0
-    assert by_id['ws19']['tsl_kN'] == pytest.approx(66.2)
+    assert by_id['ws19']['max_tsl_kN'] == 110.0
+    assert by_id['ws19']['tsl_kN'] == pytest.approx(70.0)
     assert by_id['ws21']['max_tsl_kN'] == 95.0
     assert by_id['ws21']['tsl_kN'] == pytest.approx(66.2)
     assert by_id['f135']['t4_K'] == 2260.0

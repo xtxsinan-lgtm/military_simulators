@@ -502,11 +502,11 @@ def test_search_max_cruise_mach_default_lo_is_mach_12():
 
 
 def test_j35_and_j35a_max_cruise_anchored():
-    """歼-35 / 歼-35A 军推都穿不过跨声速空洞（垂尾浸润 + Cf0 上调后）。"""
+    """歼-35 军推穿不过跨声速空洞；歼-35A 涡扇19 军推 70 kN 后可超巡。"""
     j35 = search_max_cruise_mach(_csv_ctx('J-35'))
     j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
     assert j35 is None
-    assert j35a is None
+    assert j35a == pytest.approx(1.49, abs=0.02)
     assert any_feasible_altitude(_csv_ctx('J-35'), 1.2) is False
     assert any_feasible_altitude(_csv_ctx('J-35A'), 1.2) is False
 

@@ -194,14 +194,14 @@ def test_run_preset_dashboard_j20_supercruise_below_f22():
 
 
 def test_run_preset_dashboard_j35_and_j35a_max_cruise():
-    """歼-35 / 歼-35A 军推都穿不过跨声速空洞（垂尾浸润 + Cf0 上调后）。"""
+    """歼-35 军推穿不过跨声速空洞；歼-35A 涡扇19 军推 70 kN 后可超巡。"""
     j35 = run_preset_dashboard('J-35')
     j35a = run_preset_dashboard('J-35A')
     assert j35['success'] is True and j35a['success'] is True
     m12 = next(p for p in j35['points'] if p['id'] == 'mach_1_2')
     assert m12['feasible'] is False
     assert j35['max_cruise_mach'] is None
-    assert j35a['max_cruise_mach'] is None
+    assert j35a['max_cruise_mach'] == pytest.approx(1.49, abs=0.02)
     m12a = next(p for p in j35a['points'] if p['id'] == 'mach_1_2')
     assert m12a['feasible'] is False
 
