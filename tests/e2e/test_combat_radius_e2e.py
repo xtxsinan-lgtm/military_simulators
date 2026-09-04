@@ -254,7 +254,10 @@ def test_e2e_combat_radius_http_api():
 def test_e2e_combat_radius_expanded_fleet_predict_ld():
     """扩充机型（兰姆达翼、无人机、三发双座）须能完成统一模型升阻比估计。"""
     presets = load_presets()
-    for aid in ('J-50', 'J-36', '53636', '53536', 'J-35', 'F-35B', 'NG6C', 'NG6B', 'NG6A'):
+    for aid in (
+        'J-50', 'J-36', '53636', '53536', 'J-35', 'F-35B', 'NG6C', 'NG6B', 'NG6A',
+        'Typhoon', 'Rafale', 'Rafale-M', 'Su-57', 'KF-21', 'KAAN', 'Su-75',
+    ):
         tgt = get_preset_by_id(presets, aid)
         r = run_combat_radius_json({
             'action': 'predict_ld',

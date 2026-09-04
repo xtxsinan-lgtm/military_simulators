@@ -88,6 +88,11 @@ def test_max_payload_kg_wikipedia_sourced_types():
     assert aircraft['F-15'].max_payload_kg == 7300
     assert aircraft['F-16'].max_payload_kg == 7800
     assert aircraft['Typhoon'].max_payload_kg == 9000
+    assert aircraft['Rafale'].max_payload_kg == 9500
+    assert aircraft['Su-57'].max_payload_kg == 6500
+    assert aircraft['KF-21'].max_payload_kg == 7700
+    assert aircraft['KAAN'].max_payload_kg == 8000
+    assert aircraft['Su-75'].max_payload_kg == 7400
     assert aircraft['Gripen-CD'].max_payload_kg == 5300
     assert aircraft['Gripen-EF'].max_payload_kg == 7200
     assert aircraft['F-CK-1'].max_payload_kg == 3600
@@ -204,6 +209,11 @@ def test_land_fighters_ski_jump_specs_from_public_sources():
         'F-15': dict(mtow=30844, thrust=211400, span=13.06, area=56.5),
         'F-16': dict(mtow=19187, thrust=131200, span=9.96, area=28.0),
         'Typhoon': dict(mtow=23500, thrust=180000, span=10.95, area=51.2),
+        'Rafale': dict(mtow=24500, thrust=150000, span=10.90, area=45.7),
+        'Su-57': dict(mtow=35000, thrust=284400, span=14.1, area=78.8),
+        'KF-21': dict(mtow=25600, thrust=195800, span=11.2, area=46.5),
+        'KAAN': dict(mtow=34750, thrust=262400, span=13.4, area=71.6),
+        'Su-75': dict(mtow=26000, thrust=161900, span=11.8, area=58.2),
         'Gripen-CD': dict(mtow=14000, thrust=80500, span=8.4, area=30.0),
         'Gripen-EF': dict(mtow=16500, thrust=98000, span=8.6, area=31.0),
         'F-CK-1': dict(mtow=12247, thrust=84200, span=9.0, area=24.2),

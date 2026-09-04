@@ -24,7 +24,10 @@ EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
     'F-35C', 'F-22', 'F-35A', 'J-20', 'J-10C', 'J-50', 'J-50N', 'J-36',
     'J-35', 'J-35A', '53636', '53636N', '53536',
     'F-35B',
+    'Rafale-M', 'Rafale',
     'NG6C', 'NG6B', 'NG6A',
+    'Typhoon',
+    'Su-57', 'KF-21', 'KAAN', 'Su-75',
 ]
 
 
@@ -163,6 +166,127 @@ def test_j10c_preset_canard_delta_ws10b():
     assert ac.mach_angle_deg == pytest.approx(16.2)
 
 
+def test_typhoon_rafale_su57_kf21_kaan_su75_presets():
+    """台风/阵风/苏-57/KF-21/KAAN/苏-75：分段浸润齐全，进入作战半径库。"""
+    from utils.combat_radius.cruise_load import wing_loading_t_m2
+
+    presets = load_presets()
+    typhoon = get_preset_by_id(presets, 'Typhoon')
+    assert typhoon is not None
+    assert typhoon['name'] == '台风'
+    assert typhoon['nation'] == '欧洲'
+    assert typhoon['carrier'] is False
+    assert typhoon['planform'] == 'delta'
+    assert typhoon['layout'] == 'canard'
+    assert typhoon['inlet'] == 'caret'
+    assert typhoon['engine_id'] == 'ej200'
+    assert typhoon['n_engines'] == 2
+    assert typhoon['wing_area_m2'] == pytest.approx(51.2)
+    assert typhoon['wingspan_m'] == pytest.approx(10.95)
+    assert typhoon['empty_kg'] == pytest.approx(11000)
+    assert typhoon['internal_fuel_kg'] == pytest.approx(4500)
+    assert typhoon['canard_htail_area_m2'] == pytest.approx(2.4)
+    assert typhoon['main_wing_area_m2'] == pytest.approx(40.0)
+    assert typhoon['vtail_area_m2'] == pytest.approx(7.8)
+    assert typhoon['mach_angle_deg'] == pytest.approx(18.9)
+    assert typhoon['AR'] == pytest.approx(10.95 ** 2 / 51.2, abs=0.005)
+    assert typhoon['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        11000, 4500, 51.2, 1, 190,
+    ), abs=1e-6)
+
+    rafale_m = get_preset_by_id(presets, 'Rafale-M')
+    assert rafale_m is not None
+    assert rafale_m['carrier'] is True
+    assert rafale_m['planform'] == 'delta'
+    assert rafale_m['layout'] == 'canard'
+    assert rafale_m['engine_id'] == 'm88'
+    assert rafale_m['empty_kg'] == pytest.approx(10600)
+    assert rafale_m['main_wing_area_m2'] == pytest.approx(34.7)
+    assert rafale_m['vtail_area_m2'] == pytest.approx(6.3)
+
+    rafale = get_preset_by_id(presets, 'Rafale')
+    assert rafale is not None
+    assert rafale['name'] == '阵风'
+    assert rafale['nation'] == '法国'
+    assert rafale['carrier'] is False
+    assert rafale['engine_id'] == 'm88'
+    assert rafale['empty_kg'] == pytest.approx(10000)
+    assert rafale['internal_fuel_kg'] == pytest.approx(4700)
+    assert rafale['wingspan_m'] == pytest.approx(10.90)
+    assert rafale['main_wing_area_m2'] == pytest.approx(34.8)
+    assert rafale['mach_angle_deg'] == pytest.approx(19.6)
+    assert rafale['AR'] == pytest.approx(10.90 ** 2 / 45.7, abs=0.005)
+    assert rafale['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        10000, 4700, 45.7, 1, 190,
+    ), abs=1e-6)
+
+    su57 = get_preset_by_id(presets, 'Su-57')
+    assert su57 is not None
+    assert su57['name'] == '苏-57'
+    assert su57['nation'] == '俄罗斯'
+    assert su57['carrier'] is False
+    assert su57['planform'] == 'trapezoidal'
+    assert su57['layout'] == 'conventional'
+    assert su57['inlet'] == 'caret'
+    assert su57['engine_id'] == 'al41f1'
+    assert su57['n_engines'] == 2
+    assert su57['empty_kg'] == pytest.approx(18500)
+    assert su57['internal_fuel_kg'] == pytest.approx(9700)
+    assert su57['wing_area_m2'] == pytest.approx(78.8)
+    assert su57['wingspan_m'] == pytest.approx(14.1)
+    assert su57['main_wing_area_m2'] == pytest.approx(55.3)
+    assert su57['mach_angle_deg'] == pytest.approx(28.0)
+    assert su57['AR'] == pytest.approx(14.1 ** 2 / 78.8, abs=0.005)
+    assert su57['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        18500, 9700, 78.8, 1, 175,
+    ), abs=1e-6)
+
+    kf21 = get_preset_by_id(presets, 'KF-21')
+    assert kf21 is not None
+    assert kf21['nation'] == '韩国'
+    assert kf21['inlet'] == 'dsi'
+    assert kf21['engine_id'] == 'f414'
+    assert kf21['n_engines'] == 2
+    assert kf21['empty_kg'] == pytest.approx(11800)
+    assert kf21['internal_fuel_kg'] == pytest.approx(5400)
+    assert kf21['wing_area_m2'] == pytest.approx(46.5)
+    assert kf21['AR'] == pytest.approx(11.2 ** 2 / 46.5, abs=0.005)
+    assert kf21['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        11800, 5400, 46.5, 1, 190,
+    ), abs=1e-6)
+
+    kaan = get_preset_by_id(presets, 'KAAN')
+    assert kaan is not None
+    assert kaan['nation'] == '土耳其'
+    assert kaan['inlet'] == 'caret'
+    assert kaan['engine_id'] == 'f110ge129'
+    assert kaan['empty_kg'] == pytest.approx(18000)
+    assert kaan['internal_fuel_kg'] == pytest.approx(8000)
+    assert kaan['wing_area_m2'] == pytest.approx(71.6)
+    assert kaan['AR'] == pytest.approx(13.4 ** 2 / 71.6, abs=0.005)
+    assert kaan['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        18000, 8000, 71.6, 1, 190,
+    ), abs=1e-6)
+
+    su75 = get_preset_by_id(presets, 'Su-75')
+    assert su75 is not None
+    assert su75['name'] == '苏-75'
+    assert su75['planform'] == 'lambda'
+    assert su75['layout'] == 'pelican'
+    assert su75['inlet'] == 'dsi'
+    assert su75['engine_id'] == 'al51f1'
+    assert su75['n_engines'] == 1
+    assert su75['empty_kg'] == pytest.approx(11800)
+    assert su75['internal_fuel_kg'] == pytest.approx(5100)
+    assert su75['canard_htail_area_m2'] == pytest.approx(9.6)
+    assert su75['AR'] == pytest.approx(11.8 ** 2 / 58.2, abs=0.005)
+    assert su75['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        11800, 5100, 58.2, 1, 175,
+    ), abs=1e-6)
+    ac75 = preset_to_aircraft(su75)
+    assert ac75.vtail_area_m2 == pytest.approx(0.0)
+
+
 def test_ng6_medium_sixth_gen_presets():
     """中型六代机三型：兰姆达翼、中等 Pelican/中等平尾/小平尾、对应发动机。"""
     presets = load_presets()
@@ -230,6 +354,8 @@ def test_vtail_area_single_side_times_two():
     expected = {
         'F-35A': 4.23 * 2, 'F-35B': 4.23 * 2, 'F-35C': 5.18 * 2,
         'F-22': 9.94 * 2, 'J-35A': 10.86, 'J-35': 6.62 * 2, 'J-20': 9.07 * 2,
+        'Typhoon': 7.8, 'Rafale-M': 6.3, 'Rafale': 6.3,
+        'Su-57': 16.4, 'KF-21': 11.0, 'KAAN': 16.0,
     }
     for aid, area in expected.items():
         row = get_preset_by_id(presets, aid)
@@ -237,6 +363,8 @@ def test_vtail_area_single_side_times_two():
         assert row['vtail_area_m2'] == pytest.approx(area), aid
     tailless = get_preset_by_id(presets, 'J-50')
     assert tailless.get('vtail_area_m2') in (None, 0)
+    pelican = get_preset_by_id(presets, 'Su-75')
+    assert pelican.get('vtail_area_m2') in (None, 0)
 
 
 def test_j35a_mass_and_planform_geometry():
@@ -406,6 +534,8 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
         'f125': (0.49, 19.0, 1450.0),
         'rd93': (0.49, 21.0, 1680.0),
         'f404in20': (0.34, 26.0, 1700.0),
+        'al41f1': (0.59, 23.5, 1750.0),
+        'al51f1': (0.30, 30.0, 1920.0),
     }
     for eid, (bpr, opr, t4) in expected.items():
         row = get_preset_by_id(engines, eid)
@@ -428,6 +558,16 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
     assert f135b['tsfc_install_mult'] == pytest.approx(1.22)
     assert f135b['tsl_kN'] == pytest.approx(120.0)
     assert f135b['max_tsl_kN'] == pytest.approx(182.0)
+    al41 = get_preset_by_id(engines, 'al41f1')
+    assert al41 is not None
+    assert al41['name'] == 'AL-41F1'
+    assert al41['tsl_kN'] == pytest.approx(88.3)
+    assert al41['max_tsl_kN'] == pytest.approx(142.2)
+    al51 = get_preset_by_id(engines, 'al51f1')
+    assert al51 is not None
+    assert al51['name'] == 'AL-51F1'
+    assert al51['tsl_kN'] == pytest.approx(107.9)
+    assert al51['max_tsl_kN'] == pytest.approx(161.9)
 
 
 def test_build_combat_radius_engine_presets_payload():

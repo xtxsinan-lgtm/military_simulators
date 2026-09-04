@@ -10,8 +10,9 @@ from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV
 
 _LAND_SKI_IDS = (
     'J-10C', 'J-20', 'F-35A',
-    'F-15', 'F-16', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
+    'F-15', 'F-16', 'Typhoon', 'Rafale', 'Gripen-CD', 'Gripen-EF',
     'F-CK-1', 'FC-1', 'Tejas',
+    'Su-57', 'KF-21', 'KAAN', 'Su-75',
 )
 
 
@@ -53,9 +54,12 @@ def test_e2e_land_fighters_remain_land_based_in_combat_radius():
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
 
     presets = load_presets()
-    for aid in ('J-10C', 'J-20', 'F-35A'):
+    for aid in ('J-10C', 'J-20', 'F-35A', 'Typhoon', 'Rafale', 'Su-57', 'KF-21', 'KAAN', 'Su-75'):
         row = get_preset_by_id(presets, aid)
         assert row is not None, aid
         assert row['carrier'] is False, aid
-    for aid in ('F-15', 'F-16', 'Typhoon', 'Gripen-CD', 'Gripen-EF', 'F-CK-1', 'FC-1', 'Tejas'):
+    rafale_m = get_preset_by_id(presets, 'Rafale-M')
+    assert rafale_m is not None
+    assert rafale_m['carrier'] is True
+    for aid in ('F-15', 'F-16', 'Gripen-CD', 'Gripen-EF', 'F-CK-1', 'FC-1', 'Tejas'):
         assert get_preset_by_id(presets, aid) is None, aid
