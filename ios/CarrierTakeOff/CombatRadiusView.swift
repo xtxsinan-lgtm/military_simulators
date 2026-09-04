@@ -184,6 +184,7 @@ struct CombatRadiusView: View {
         pickerRow("翼型", selection: ac.planform, options: vm.planformOptions)
         pickerRow("布局", selection: ac.layout, options: vm.layoutOptions)
         pickerRow("进气道", selection: ac.inlet, options: vm.inletOptions)
+        pickerRow("挂装方式", selection: ac.storeMount, options: vm.storeMountOptions)
         Toggle("翼身融合", isOn: ac.bwb)
             .font(.system(size: 12, design: .monospaced))
             .foregroundStyle(CombatRadiusTheme.text)

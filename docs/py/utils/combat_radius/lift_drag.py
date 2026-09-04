@@ -4,7 +4,7 @@
 不再用 F-35C/F-22 的「已知升阻比」做两机闭式标定。
 
 物理框架：
-    CD = CD0(摩擦/寄生阻力) + CDi(诱导阻力) + CDa(大迎角附加) + CDw(波阻)
+    CD = CD0(摩擦/寄生阻力) + CDi(诱导阻力) + CDa(大迎角附加) + CDw(波阻) + CDs(外挂)
     L/D = CL / CD
 
 大迎角项：超过典型巡航 CL 后诱导/分离阻力按 (CL-CL_on)² 上升，
@@ -36,6 +36,8 @@ BUMP_FORM_MULT 乘在 CD0 上（不平整对形状/型阻，不进浸润面积�
        + 超巡带之后的附加体积项 (M-1.76)²
        + rough 机肥机身/厚翼附加（不作用于光滑隐身机，保住 F-22 超巡）；
     4. 超过马赫锥后的附加波阻（翼尖-机头连线）。
+外挂阻力 CDs 另计，不进 (Cf0, k_e)：内埋弹舱为 0；半埋（台风/阵风机腹中距弹）
+与挂架按 Meteor/AIM-120 量级几何加摩擦、型阻与跨/超声速波阻。起飞 CD0 不计入外挂。
     升力波阻马赫因子：刚超音速按 (M-1)，Ma 1.5–1.76 封顶，过了 1.76 再加重。
     线性 (M-1) 会让超巡带极曲线继续变陡、高度掉下来；封顶后 1.5–1.76
     仍贴着峰值高度，kg/km 大约只高 7%。Ma 1.5 的布雷盖惩罚不变。
@@ -165,6 +167,7 @@ PlanformId = Literal[
 ]
 LayoutId = Literal['conventional', 'canard', 'tailless', 'pelican', 'small_htail', 'medium_htail']
 InletId = Literal['dsi', 'caret']
+StoreMountId = Literal['internal', 'semi_recessed', 'pylon']
 
 # 浸润面积/参考面积的相对因子（绝对量级由 Cf0 吸收，这里只保留相对趋势）
 PLANFORM_MULT: dict[str, float] = {
@@ -206,6 +209,35 @@ INLET_CDW_VOL_MULT: dict[str, float] = {
     'dsi': INLET_DSI_CDW,
     'caret': INLET_CARET_CDW,
 }
+# 外挂：中距弹按 Meteor / AIM-120 量级（长约 3.65 m、直径 178 mm）。
+# 内埋弹舱不增加浸润/迎风；半埋露出约一半侧面积并带槽腔；挂架全外露再加挂架浸润。
+STORE_LENGTH_M = 3.65
+STORE_DIAMETER_M = 0.178
+STORE_CF = 0.0030  # 外露弹体摩擦
+STORE_FORM_CD = 0.08  # 亚音速型阻，乘迎风/S_ref
+STORE_EXPOSED_FRAC: dict[str, float] = {
+    'internal': 0.0,
+    'semi_recessed': 0.45,
+    'pylon': 1.0,
+}
+STORE_INTERF: dict[str, float] = {
+    'internal': 0.0,
+    'semi_recessed': 1.25,
+    'pylon': 1.40,
+}
+STORE_FRONT_FRAC: dict[str, float] = {
+    'internal': 0.0,
+    'semi_recessed': 0.55,
+    'pylon': 1.0,
+}
+STORE_PYLON_WETTED_M2 = 0.35  # 单站挂架浸润
+STORE_PYLON_FRONT_M2 = 0.008
+STORE_CAVITY_FRONT_M2 = 0.006  # 半埋槽腔等效迎风
+# 波阻乘 (n·S_front/S_ref)：跨声速鼓包用机身同一高斯；超音速 × (M-1)²
+# 跨声速幅度须让半埋四弹仍能穿过鼓包超巡（台风公开空优构型可超巡）。
+# 超声速 (M-1)² 把空优四弹的实用超巡从仅计质量的约 1.43 收到约 1.38。
+STORE_WAVE_TRANS_K = 0.5
+STORE_WAVE_SS_K = 8.0
 
 
 @dataclass
@@ -243,6 +275,8 @@ class Aircraft:
     sweep_inner_deg: float = 0.0  # 双三角内段前缘后掠（度）；0 表示未启用两段
     sweep_outer_deg: float = 0.0  # 双三角外段前缘后掠（度）；0 表示未启用两段
     sweep_kink_span_frac: float = 0.0  # 折点半展站位 (0,1)；0 表示由几何反解
+    store_mount: StoreMountId = 'internal'  # 中距弹挂装：内埋 / 半埋 / 挂架
+    n_stores: float = 0.0  # 计入气动阻力的中距弹枚数；起飞估算保持 0
 
 
 def _as_bool(value: Any, default: bool = False) -> bool:
@@ -302,6 +336,95 @@ def inlet_cdw_vol_mult(inlet: str) -> float:
     return INLET_CDW_VOL_MULT[inlet]
 
 
+def parse_store_mount(value: Any) -> StoreMountId:
+    """解析中距弹挂装方式；空值视为内埋弹舱。"""
+    if value is None or value == '':
+        return 'internal'
+    text = str(value).strip().lower().replace('-', '_')
+    aliases = {
+        'internal': 'internal',
+        'bay': 'internal',
+        '内埋': 'internal',
+        '弹舱': 'internal',
+        'semi_recessed': 'semi_recessed',
+        'semirecessed': 'semi_recessed',
+        '半埋': 'semi_recessed',
+        '半埋入': 'semi_recessed',
+        'pylon': 'pylon',
+        '挂架': 'pylon',
+        '外挂': 'pylon',
+    }
+    if text not in aliases:
+        raise ValueError(f'未知挂装方式 {value!r}，可选: internal, semi_recessed, pylon')
+    return aliases[text]  # type: ignore[return-value]
+
+
+def _n_stores_from_dict(value: Any) -> float:
+    """解析挂弹数；空值视为 0，负数非法。"""
+    if value is None or value == '':
+        return 0.0
+    n = float(value)
+    if n < 0:
+        raise ValueError('挂弹数不能为负')
+    return n
+
+
+def store_one_wetted_m2(mount: str) -> float:
+    """单枚中距弹外露浸润面积（含挂架）；内埋为 0。"""
+    if mount not in STORE_EXPOSED_FRAC:
+        raise ValueError(f'未知挂装方式 {mount!r}，可选: internal, semi_recessed, pylon')
+    cyl = math.pi * STORE_DIAMETER_M * STORE_LENGTH_M
+    exposed = STORE_EXPOSED_FRAC[mount] * STORE_INTERF[mount] * cyl
+    if mount == 'pylon':
+        exposed += STORE_PYLON_WETTED_M2
+    return exposed
+
+
+def store_one_front_m2(mount: str) -> float:
+    """单枚中距弹外露迎风面积（半埋含槽腔、挂架含挂架迎风）。"""
+    if mount not in STORE_FRONT_FRAC:
+        raise ValueError(f'未知挂装方式 {mount!r}，可选: internal, semi_recessed, pylon')
+    body = math.pi * (STORE_DIAMETER_M / 2.0) ** 2
+    front = STORE_FRONT_FRAC[mount] * body
+    if mount == 'semi_recessed':
+        front += STORE_CAVITY_FRONT_M2
+    elif mount == 'pylon':
+        front += STORE_PYLON_FRONT_M2
+    return front
+
+
+def cd_store_parasite(ac: Aircraft) -> float:
+    """外挂寄生阻力系数（摩擦+型阻）；内埋或未给参考翼面积时为 0。"""
+    n = ac.n_stores
+    s_ref = ac.wing_area_m2
+    if n <= 0 or s_ref <= 0 or ac.store_mount == 'internal':
+        return 0.0
+    s_wet = n * store_one_wetted_m2(ac.store_mount)
+    s_front = n * store_one_front_m2(ac.store_mount)
+    return (STORE_CF * s_wet + STORE_FORM_CD * s_front) / s_ref
+
+
+def cd_store_wave(ac: Aircraft) -> float:
+    """外挂跨声速鼓包与超音速体积波阻；内埋为 0。"""
+    n = ac.n_stores
+    s_ref = ac.wing_area_m2
+    if n <= 0 or s_ref <= 0 or ac.store_mount == 'internal':
+        return 0.0
+    if ac.mach <= 0:
+        raise ValueError('马赫数须为正')
+    ratio = n * store_one_front_m2(ac.store_mount) / s_ref
+    trans = STORE_WAVE_TRANS_K * ratio * transonic_gaussian(ac.mach)
+    ss = 0.0
+    if ac.mach > 1.0:
+        ss = STORE_WAVE_SS_K * ratio * (ac.mach - 1.0) ** 2
+    return trans + ss
+
+
+def cd_store(ac: Aircraft) -> float:
+    """n_stores 枚中距弹的总外挂阻力系数 CDs。"""
+    return cd_store_parasite(ac) + cd_store_wave(ac)
+
+
 def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
     """从 JSON/表单字典构造 Aircraft；翼型或布局非法时抛出 ValueError。"""
     planform = str(data.get('planform') or 'trapezoidal').strip()
@@ -343,6 +466,8 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         sweep_inner_deg=_optional_positive_float(data.get('sweep_inner_deg')),
         sweep_outer_deg=_optional_positive_float(data.get('sweep_outer_deg')),
         sweep_kink_span_frac=_optional_positive_float(data.get('sweep_kink_span_frac')),
+        store_mount=parse_store_mount(data.get('store_mount')),
+        n_stores=_n_stores_from_dict(data.get('n_stores')),
     )
 
 
@@ -938,7 +1063,8 @@ def predict_ld(ac: Aircraft, cf0: float, k_e: float) -> tuple[float, dict[str, f
     cd0 = cf0 * c['W'] * c['F_form']
     cdw = c['CDw']
     cda = c['CDa']
-    cd = cd0 + cdi + cdw + cda
+    cds = cd_store(ac)
+    cd = cd0 + cdi + cdw + cda + cds
     ld = c['CL'] / cd
     return ld, dict(
         CL=c['CL'],
@@ -947,6 +1073,7 @@ def predict_ld(ac: Aircraft, cf0: float, k_e: float) -> tuple[float, dict[str, f
         CDi=cdi,
         CDw=cdw,
         CDa=cda,
+        CDs=cds,
         CD=cd,
     )
 

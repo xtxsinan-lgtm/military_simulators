@@ -63,3 +63,41 @@ def test_e2e_new_fighters_in_catalog_and_combat_radius():
     assert su57['inlet'] == kaan['inlet'] == 'caret'
     kf21 = get_preset_by_id(presets, 'KF-21')
     assert kf21['inlet'] == 'dsi'
+
+
+@pytest.mark.e2e
+def test_e2e_four_missile_store_drag_on_semi_recessed_not_internal():
+    """半埋四弹降低台风最大巡航；内埋 F-22 外挂阻力为 0。"""
+    from simulators.combat_radius.combat_radius import run_aircraft_dashboard_from_params
+    from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
+    from utils.combat_radius.lift_drag import aircraft_from_dict, cd_store, predict_ld, model_coefficients
+    from dataclasses import replace
+
+    presets = load_presets()
+    engines = load_engine_presets()
+    typhoon = get_preset_by_id(presets, 'Typhoon')
+    f22 = get_preset_by_id(presets, 'F-22')
+    assert typhoon['store_mount'] == 'semi_recessed'
+    assert f22['store_mount'] == 'internal'
+    assert get_preset_by_id(presets, 'J-10C')['store_mount'] == 'pylon'
+    assert get_preset_by_id(presets, 'KF-21')['store_mount'] == 'pylon'
+
+    ty_ac = replace(aircraft_from_dict(typhoon), n_stores=4, mach=1.5, alt_m=11000)
+    f22_ac = replace(aircraft_from_dict(f22), n_stores=4, mach=1.5, alt_m=11000)
+    assert cd_store(ty_ac) > 0.002
+    assert cd_store(f22_ac) == pytest.approx(0.0)
+    cf0, k_e = model_coefficients()
+    _ld_ty, d_ty = predict_ld(ty_ac, cf0, k_e)
+    _ld_f22, d_f22 = predict_ld(f22_ac, cf0, k_e)
+    assert d_ty['CDs'] > 0
+    assert d_f22['CDs'] == pytest.approx(0.0)
+
+    eng = get_preset_by_id(engines, typhoon['engine_id'])
+    params = dashboard_params_from_preset(typhoon, eng)
+    with4 = run_aircraft_dashboard_from_params(params)
+    with0 = run_aircraft_dashboard_from_params({**params, 'n_missiles': 0})
+    assert with4['success'] is True and with0['success'] is True
+    assert with4['max_possible_cruise_mach'] < with0['max_possible_cruise_mach']
+    assert with4['max_cruise_mach'] == pytest.approx(1.38, abs=0.05)
+    assert with0['max_cruise_mach'] == pytest.approx(1.42, abs=0.05)
+

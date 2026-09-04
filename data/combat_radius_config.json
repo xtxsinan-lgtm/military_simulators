@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "engine": {
     "dry_to_max_thrust_ratio": 0.7
   },
@@ -41,5 +41,10 @@
   "inlet_labels": {
     "dsi": "DSI",
     "caret": "加莱特"
+  },
+  "store_mount_labels": {
+    "internal": "内埋弹舱",
+    "semi_recessed": "半埋",
+    "pylon": "挂架"
   }
 }

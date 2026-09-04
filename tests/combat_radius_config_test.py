@@ -12,6 +12,7 @@ from utils.combat_radius.combat_radius_config import (
     load_combat_radius_config,
     mission_fuel_config,
     planform_labels,
+    store_mount_labels,
     reserve_kind_label,
     reserve_min_for_mission,
     ui_config,
@@ -28,7 +29,7 @@ def test_load_combat_radius_config_file_exists_and_ui_defaults():
     assert 'default_anchor1_id' not in ui
     assert ui['default_eta_c'] == 0.87
     assert ui['default_eps'] == 0.83
-    assert load_combat_radius_config()['version'] == 5
+    assert load_combat_radius_config()['version'] == 6
 
 
 def test_planform_and_layout_labels():
@@ -47,9 +48,14 @@ def test_planform_and_layout_labels():
     inn = inlet_labels()
     assert inn['dsi'] == 'DSI'
     assert inn['caret'] == '加莱特'
-    from utils.combat_radius.lift_drag import LAYOUT_MULT, PLANFORM_MULT
+    sm = store_mount_labels()
+    assert sm['internal'] == '内埋弹舱'
+    assert sm['semi_recessed'] == '半埋'
+    assert sm['pylon'] == '挂架'
+    from utils.combat_radius.lift_drag import LAYOUT_MULT, PLANFORM_MULT, STORE_EXPOSED_FRAC
     assert set(pf) == set(PLANFORM_MULT)
     assert set(ly) == set(LAYOUT_MULT)
+    assert set(sm) == set(STORE_EXPOSED_FRAC)
 
 
 def test_build_combat_radius_config_payload():
@@ -67,6 +73,7 @@ def test_build_combat_radius_config_payload():
     assert 'trapezoidal' in payload['planform_labels']
     assert 'conventional' in payload['layout_labels']
     assert payload['inlet_labels']['caret'] == '加莱特'
+    assert payload['store_mount_labels']['semi_recessed'] == '半埋'
 
 
 def test_load_combat_radius_config_custom_path(tmp_path):
@@ -102,7 +109,7 @@ def test_inject_combat_radius_config_overrides_disk():
     finally:
         mod._INJECTED = None
         load_combat_radius_config.cache_clear()
-    assert load_combat_radius_config()['version'] == 5
+    assert load_combat_radius_config()['version'] == 6
 
 
 def test_mission_fuel_config_defaults():

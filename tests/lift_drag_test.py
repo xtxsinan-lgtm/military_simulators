@@ -110,9 +110,16 @@ from utils.combat_radius.lift_drag import (
     inlet_cdw_vol_mult,
     inlet_wetted_mult,
     parse_inlet,
+    parse_store_mount,
+    store_one_wetted_m2,
+    store_one_front_m2,
+    cd_store_parasite,
+    cd_store_wave,
+    cd_store,
     _as_bool,
     _canopy_from_dict,
     _fuse_section_dims,
+    _n_stores_from_dict,
     _optional_positive_float,
 )
 
@@ -170,6 +177,8 @@ def test_aircraft_from_dict_and_to_dict_roundtrip():
     assert d['bwb'] is False
     assert d['rough'] is False
     assert d['inlet'] == 'dsi'
+    assert d['store_mount'] == 'internal'
+    assert d['n_stores'] == pytest.approx(0.0)
     again = aircraft_from_dict(d)
     assert again.AR == pytest.approx(2.32)
     assert again.length_m == pytest.approx(0.0)
@@ -1021,7 +1030,7 @@ def test_predict_ld_j20_between_anchors():
     cf0, k_e = calibrate(_f35c(), 8.8, _f22(), 8.0)
     ld, d = predict_ld(_j20(), cf0, k_e)
     assert 7.0 < ld < 10.0
-    assert d['CD'] == pytest.approx(d['CD0'] + d['CDi'] + d['CDw'] + d['CDa'])
+    assert d['CD'] == pytest.approx(d['CD0'] + d['CDi'] + d['CDw'] + d['CDa'] + d['CDs'])
     assert KAPPA_A == pytest.approx(0.90)
 
 
@@ -1166,3 +1175,105 @@ def test_aircraft_from_dict_reads_double_delta_sweeps():
     assert d['sweep_inner_deg'] == pytest.approx(67.8)
     again = aircraft_from_dict(d)
     assert again.sweep_outer_deg == pytest.approx(55.3)
+
+
+def test_parse_store_mount_aliases_and_default():
+    """空值视为内埋；半埋/挂架中英文别名归一。"""
+    assert parse_store_mount(None) == 'internal'
+    assert parse_store_mount('') == 'internal'
+    assert parse_store_mount('弹舱') == 'internal'
+    assert parse_store_mount('semi-recessed') == 'semi_recessed'
+    assert parse_store_mount('半埋入') == 'semi_recessed'
+    assert parse_store_mount('外挂') == 'pylon'
+    with pytest.raises(ValueError, match='未知挂装方式'):
+        parse_store_mount('wingtip')
+
+
+def test_n_stores_from_dict_blank_and_rejects_negative():
+    """挂弹数空值为 0，负数非法。"""
+    assert _n_stores_from_dict(None) == 0.0
+    assert _n_stores_from_dict('') == 0.0
+    assert _n_stores_from_dict('4') == pytest.approx(4.0)
+    with pytest.raises(ValueError, match='不能为负'):
+        _n_stores_from_dict(-1)
+
+
+def test_store_one_wetted_and_front_area():
+    """内埋无外露面积；挂架浸润与迎风大于半埋。"""
+    assert store_one_wetted_m2('internal') == pytest.approx(0.0)
+    assert store_one_front_m2('internal') == pytest.approx(0.0)
+    assert store_one_wetted_m2('pylon') > store_one_wetted_m2('semi_recessed') > 0
+    assert store_one_front_m2('pylon') > store_one_front_m2('semi_recessed') > 0
+    with pytest.raises(ValueError, match='未知挂装方式'):
+        store_one_wetted_m2('wingtip')
+    with pytest.raises(ValueError, match='未知挂装方式'):
+        store_one_front_m2('wingtip')
+
+
+def _typhoon_store_ac(**over) -> Aircraft:
+    """台风量级参考面积，便于外挂阻力单测。"""
+    base = dict(
+        name='台风', AR=2.34, sweep_deg=53.0, wing_loading=0.276,
+        tc=0.05, mach=0.8, alt_m=12000,
+        planform='delta', layout='canard',
+        bwb=False, rough=False, inlet='caret',
+        wing_area_m2=51.2, store_mount='semi_recessed', n_stores=4.0,
+    )
+    base.update(over)
+    return Aircraft(**base)
+
+
+def test_cd_store_zero_when_internal_or_empty():
+    """内埋或零枚弹不增加阻力；缺参考面积也无法无量纲化。"""
+    loaded = _typhoon_store_ac()
+    assert cd_store(Aircraft(**{**aircraft_to_dict(loaded), 'store_mount': 'internal'})) == 0.0
+    assert cd_store(Aircraft(**{**aircraft_to_dict(loaded), 'n_stores': 0})) == 0.0
+    assert cd_store(Aircraft(**{**aircraft_to_dict(loaded), 'wing_area_m2': 0})) == 0.0
+    assert cd_store_parasite(loaded) > 0
+    assert cd_store_wave(loaded) == pytest.approx(0.0)  # Ma 0.8 低于跨声速起点
+
+
+def test_cd_store_wave_rises_supersonic_and_pylon_exceeds_semi():
+    """半埋四弹超音速波阻为正；同几何挂架大于半埋。"""
+    semi = _typhoon_store_ac(mach=1.5)
+    pylon = Aircraft(**{**aircraft_to_dict(semi), 'store_mount': 'pylon'})
+    assert cd_store_wave(semi) > cd_store_parasite(semi)
+    assert cd_store(pylon) > cd_store(semi)
+    sub = _typhoon_store_ac(mach=0.8)
+    assert cd_store(semi) > cd_store(sub)
+    with pytest.raises(ValueError, match='马赫数须为正'):
+        cd_store_wave(_typhoon_store_ac(mach=0.0))
+
+
+def test_predict_ld_adds_store_drag_without_changing_takeoff_cd0():
+    """巡航 L/D 计入外挂；起飞 CD0 仍只看机体。"""
+    clean = _typhoon_store_ac(n_stores=0.0)
+    loaded = _typhoon_store_ac(n_stores=4.0, mach=1.5)
+    clean_ss = Aircraft(**{**aircraft_to_dict(clean), 'mach': 1.5})
+    cf0, k_e = calibrate_default_anchors()
+    ld_c, d_c = predict_ld(clean_ss, cf0, k_e)
+    ld_l, d_l = predict_ld(loaded, cf0, k_e)
+    assert d_l['CDs'] > 0
+    assert d_c['CDs'] == pytest.approx(0.0)
+    assert d_l['CD'] > d_c['CD']
+    assert ld_l < ld_c
+    assert estimate_takeoff_cd0(loaded) == pytest.approx(estimate_takeoff_cd0(clean))
+
+
+def test_aircraft_from_dict_reads_store_fields():
+    """表单/CSV 的挂装与枚数进入 Aircraft。"""
+    ac = aircraft_from_dict({
+        'name': '台风', 'AR': 2.34, 'sweep_deg': 53, 'wing_loading': 0.276,
+        'tc': 0.05, 'mach': 0.8, 'alt_m': 12000,
+        'planform': 'delta', 'layout': 'canard', 'bwb': 0, 'rough': 0,
+        'wing_area_m2': 51.2, 'store_mount': '半埋', 'n_stores': 4,
+    })
+    assert ac.store_mount == 'semi_recessed'
+    assert ac.n_stores == pytest.approx(4.0)
+    with pytest.raises(ValueError, match='不能为负'):
+        aircraft_from_dict({
+            'name': 'x', 'AR': 2, 'sweep_deg': 30, 'wing_loading': 0.3,
+            'tc': 0.05, 'mach': 0.8, 'alt_m': 12000,
+            'planform': 'trapezoidal', 'layout': 'conventional',
+            'n_stores': -1,
+        })

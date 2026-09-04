@@ -179,6 +179,7 @@ def test_typhoon_rafale_su57_kf21_kaan_su75_presets():
     assert typhoon['planform'] == 'delta'
     assert typhoon['layout'] == 'canard'
     assert typhoon['inlet'] == 'caret'
+    assert typhoon['store_mount'] == 'semi_recessed'
     assert typhoon['engine_id'] == 'ej200'
     assert typhoon['n_engines'] == 2
     assert typhoon['wing_area_m2'] == pytest.approx(51.2)
@@ -203,6 +204,7 @@ def test_typhoon_rafale_su57_kf21_kaan_su75_presets():
     assert rafale_m['empty_kg'] == pytest.approx(10600)
     assert rafale_m['main_wing_area_m2'] == pytest.approx(34.7)
     assert rafale_m['vtail_area_m2'] == pytest.approx(6.3)
+    assert rafale_m['store_mount'] == 'semi_recessed'
 
     rafale = get_preset_by_id(presets, 'Rafale')
     assert rafale is not None
@@ -245,6 +247,7 @@ def test_typhoon_rafale_su57_kf21_kaan_su75_presets():
     assert kf21 is not None
     assert kf21['nation'] == '韩国'
     assert kf21['inlet'] == 'dsi'
+    assert kf21['store_mount'] == 'pylon'
     assert kf21['engine_id'] == 'f414'
     assert kf21['n_engines'] == 2
     assert kf21['empty_kg'] == pytest.approx(11800)

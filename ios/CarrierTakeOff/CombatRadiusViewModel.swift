@@ -15,6 +15,7 @@ struct CombatRadiusAircraftInput {
     var planform = "trapezoidal"
     var layout = "conventional"
     var inlet = "dsi"
+    var storeMount = "internal"
     var bwb = false
     var rough = false
     var lengthM = ""
@@ -48,6 +49,7 @@ struct CombatRadiusAircraftInput {
         planform = p.planform
         layout = p.layout
         inlet = p.inlet ?? "dsi"
+        storeMount = p.store_mount ?? "internal"
         bwb = p.bwb
         rough = p.rough
         lengthM = p.length_m.map { String($0) } ?? ""
@@ -83,6 +85,7 @@ struct CombatRadiusAircraftInput {
             "planform": planform,
             "layout": layout,
             "inlet": inlet,
+            "store_mount": storeMount,
             "bwb": bwb,
             "rough": rough,
             "length_m": Double(lengthM) ?? 0,
@@ -116,6 +119,9 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var planformOptions: [(String, String)] = [("trapezoidal", "梯形翼")]
     @Published var layoutOptions: [(String, String)] = [("conventional", "常规")]
     @Published var inletOptions: [(String, String)] = [("dsi", "DSI"), ("caret", "加莱特")]
+    @Published var storeMountOptions: [(String, String)] = [
+        ("internal", "内埋弹舱"), ("semi_recessed", "半埋"), ("pylon", "挂架"),
+    ]
     @Published var enginePresets: [CombatRadiusEnginePresetItem] = []
     @Published var selectedEngineId = ""
     @Published var engBpr = ""
@@ -173,6 +179,10 @@ final class CombatRadiusViewModel: ObservableObject {
             if let labels = catalog.combat_radius_config?.inlet_labels, !labels.isEmpty {
                 let order = ["dsi", "caret"]
                 inletOptions = orderedPairs(labels, preferred: order)
+            }
+            if let labels = catalog.combat_radius_config?.store_mount_labels, !labels.isEmpty {
+                let order = ["internal", "semi_recessed", "pylon"]
+                storeMountOptions = orderedPairs(labels, preferred: order)
             }
             let ui = catalog.combat_radius_config?.ui
             if let v = ui?.default_eta_c { engEta = String(v) }

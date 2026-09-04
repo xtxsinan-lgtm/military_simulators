@@ -47,6 +47,7 @@ def test_build_catalog_payload_modes():
     assert payload['combat_radius_config']['mission_fuel']['carrier_reserve_min'] == 45
     assert payload['combat_radius_config']['engine']['dry_to_max_thrust_ratio'] == 0.7
     assert payload['combat_radius_config']['inlet_labels']['caret'] == '加莱特'
+    assert payload['combat_radius_config']['store_mount_labels']['pylon'] == '挂架'
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-50' for p in payload['combat_radius_presets'])
     assert all(p['id'] != 'J-15' for p in payload['combat_radius_presets'])
@@ -168,6 +169,7 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'tgt_fuse_h' in js_text
     assert 'tgt_nose_cone_l' in js_text
     assert 'tgt_main_wing' in js_text
+    assert 'tgt_store_mount' in js_text
     assert 'canard_htail_area_m2' in js_text
     assert 'ventral_fin_area_m2' in js_text
     assert 'vtail_area_m2' in js_text

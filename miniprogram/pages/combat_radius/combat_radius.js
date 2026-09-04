@@ -35,6 +35,7 @@ const EMPTY_AC = {
   planform: 'trapezoidal',
   layout: 'conventional',
   inlet: 'dsi',
+  store_mount: 'internal',
   bwb: false,
   rough: false,
   length_m: '',
@@ -175,6 +176,9 @@ Page({
     inletIds: ['dsi', 'caret'],
     inletNames: ['DSI', '加莱特'],
     inletIndex: 0,
+    storeMountIds: ['internal', 'semi_recessed', 'pylon'],
+    storeMountNames: ['内埋弹舱', '半埋', '挂架'],
+    storeMountIndex: 0,
   },
 
   onShow() {
@@ -198,6 +202,11 @@ Page({
         const inletLabels = cfg.inlet_labels || { dsi: 'DSI', caret: '加莱特' };
         const inletIds = Object.keys(inletLabels);
         const inletNames = inletIds.map((id) => inletLabels[id]);
+        const storeLabels = cfg.store_mount_labels || {
+          internal: '内埋弹舱', semi_recessed: '半埋', pylon: '挂架',
+        };
+        const storeMountIds = Object.keys(storeLabels);
+        const storeMountNames = storeMountIds.map((id) => storeLabels[id]);
         const ratioRaw = Number((cfg.engine || {}).dry_to_max_thrust_ratio);
         const dryToMaxRatio = ratioRaw > 0 && ratioRaw <= 1 ? ratioRaw : 0.7;
         const eng = (tgtp && tgtp.engine_id && engines.find((p) => p.id === tgtp.engine_id))
@@ -221,6 +230,9 @@ Page({
           inletIds,
           inletNames,
           inletIndex: Math.max(0, inletIds.indexOf((tgtp && tgtp.inlet) || 'dsi')),
+          storeMountIds,
+          storeMountNames,
+          storeMountIndex: Math.max(0, storeMountIds.indexOf((tgtp && tgtp.store_mount) || 'internal')),
           resultsMap: (data.combat_radius_results && data.combat_radius_results.aircraft) || {},
           ...weightFromPreset(tgtp),
           statusText: presets.length ? '预设已加载' : '缺少 combat_radius_presets，请运行 build_all.py',
@@ -286,6 +298,13 @@ Page({
     this.scheduleLiveDash();
   },
 
+  onStoreMountPreset(e) {
+    const idx = Number(e.detail.value);
+    const id = this.data.storeMountIds[idx] || 'internal';
+    this.setData({ storeMountIndex: idx, 'tgt.store_mount': id });
+    this.scheduleLiveDash();
+  },
+
   onCarrierSwitch(e) {
     this.setData({ wtCarrier: !!e.detail.value });
     this.scheduleLiveDash();
@@ -298,6 +317,7 @@ Page({
       const p = this.data.presets[idx - 1];
       patch.tgt = cloneAc(p);
       patch.inletIndex = Math.max(0, this.data.inletIds.indexOf(p.inlet || 'dsi'));
+      patch.storeMountIndex = Math.max(0, this.data.storeMountIds.indexOf(p.store_mount || 'internal'));
       Object.assign(patch, weightFromPreset(p));
       if (p.engine_id) {
         const ei = this.data.enginePresets.findIndex((x) => x.id === p.engine_id);
@@ -347,6 +367,7 @@ Page({
       planform: ac.planform,
       layout: ac.layout,
       inlet: ac.inlet || 'dsi',
+      store_mount: ac.store_mount || 'internal',
       bwb: !!ac.bwb,
       rough: !!ac.rough,
       length_m: num(ac.length_m, 0),

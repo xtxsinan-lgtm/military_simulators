@@ -106,6 +106,7 @@ def test_format_ld_row_with_and_without_target():
     assert row['target_ld'] == 8.0
     assert row['error'] == pytest.approx(row['ld'] - 8.0)
     assert 'CDa' in row
+    assert 'CDs' in row
     bare = format_ld_row(ac, r['Cf0'], r['k_e'])
     assert 'target_ld' not in bare
 
@@ -344,6 +345,18 @@ def test_calibrate_from_params_returns_target_and_cf0():
     tgt, cf0, k_e = _calibrate_from_params(_sample_params())
     assert tgt.name == 'J-20'
     assert cf0 > 0 and k_e > 0
+    assert tgt.n_stores == pytest.approx(4.0)
+
+
+def test_calibrate_from_params_uses_n_missiles_as_n_stores():
+    """仪表盘挂弹数写入外挂阻力枚数；显式 n_stores 优先。"""
+    p = _sample_params()
+    p['n_missiles'] = 2
+    tgt, _cf0, _k_e = _calibrate_from_params(p)
+    assert tgt.n_stores == pytest.approx(2.0)
+    p['target'] = dict(p['target'], n_stores=6)
+    tgt2, _cf0, _k_e = _calibrate_from_params(p)
+    assert tgt2.n_stores == pytest.approx(6.0)
 
 
 def test_cruise_limit_specs_order_and_labels():

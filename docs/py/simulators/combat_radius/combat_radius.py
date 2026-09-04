@@ -231,6 +231,7 @@ def format_ld_row(
         'CDi': breakdown['CDi'],
         'CDw': breakdown['CDw'],
         'CDa': breakdown['CDa'],
+        'CDs': breakdown['CDs'],
         'CD': breakdown['CD'],
     }
     if target_ld is not None:
@@ -267,7 +268,10 @@ def _require_aircraft_params(params: dict[str, Any], key: str) -> dict[str, Any]
 
 def run_predict_ld_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """从 JSON 参数运行升阻比估算（统一模型，忽略旧锚点字段）。"""
-    target = aircraft_from_dict(_require_aircraft_params(params, 'target'))
+    raw = dict(_require_aircraft_params(params, 'target'))
+    if raw.get('n_stores') in (None, '') and params.get('n_missiles') not in (None, ''):
+        raw['n_stores'] = float(params['n_missiles'])
+    target = aircraft_from_dict(raw)
     return run_predict_ld(target)
 
 
@@ -462,7 +466,10 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
         target_raw = dict(_require_aircraft_params(params, 'target'))
         target_raw['mach'] = mach
         target_raw['alt_m'] = alt_m
-        ld_info = run_predict_ld_from_params({'target': target_raw})
+        ld_info = run_predict_ld_from_params({
+            'target': target_raw,
+            'n_missiles': params.get('n_missiles', N_MISSILES_DEFAULT),
+        })
         ld = float(ld_info['target']['ld'])
 
     breakdown = combat_mass_breakdown(
@@ -550,8 +557,11 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
 
 
 def _calibrate_from_params(params: dict[str, Any]) -> tuple[Aircraft, float, float]:
-    """取待估机几何，并返回统一模型 (Cf0, k_e)。"""
-    target = aircraft_from_dict(_require_aircraft_params(params, 'target'))
+    """取待估机几何，并返回统一模型 (Cf0, k_e)。挂弹数默认跟 n_missiles。"""
+    raw = dict(_require_aircraft_params(params, 'target'))
+    if raw.get('n_stores') in (None, ''):
+        raw['n_stores'] = float(params.get('n_missiles', N_MISSILES_DEFAULT))
+    target = aircraft_from_dict(raw)
     cf0, k_e = model_coefficients()
     return target, cf0, k_e
 

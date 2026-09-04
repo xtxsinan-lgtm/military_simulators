@@ -560,4 +560,5 @@ def scored_to_dict(point: CruiseScored) -> dict[str, Any]:
         'CDi': point.cd_breakdown.get('CDi'),
         'CDw': point.cd_breakdown.get('CDw'),
         'CDa': point.cd_breakdown.get('CDa'),
+        'CDs': point.cd_breakdown.get('CDs'),
     }

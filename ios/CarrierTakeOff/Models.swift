@@ -84,6 +84,7 @@ struct CombatRadiusConfigPayload: Codable {
     var planform_labels: [String: String]?
     var layout_labels: [String: String]?
     var inlet_labels: [String: String]?
+    var store_mount_labels: [String: String]?
     var engine: CombatRadiusEngineConfig?
 }
 
@@ -141,6 +142,7 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var planform: String
     var layout: String
     var inlet: String?
+    var store_mount: String?
     var bwb: Bool
     var rough: Bool
     var ld_known: Double?

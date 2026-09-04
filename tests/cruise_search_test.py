@@ -131,6 +131,7 @@ def test_score_cruise_point_positive_efficiency():
     d = scored_to_dict(s)
     assert d['feasible'] is True
     assert d['CDa'] is not None
+    assert d['CDs'] is not None
     assert d['thrust_avail_kN'] == pytest.approx(s.thrust_avail_N / 1000.0)
 
 
@@ -252,7 +253,7 @@ def _csv_ctx(aircraft_id: str, tsl_kn: float | None = None) -> CruiseContext:
     )
     thrust_kn = float(eng['tsl_kN']) if tsl_kn is None else tsl_kn
     return CruiseContext(
-        target=aircraft_from_dict(ac),
+        target=aircraft_from_dict({**ac, 'n_stores': 4}),
         cf0=cf0,
         k_e=k_e,
         mass_kg=mass,

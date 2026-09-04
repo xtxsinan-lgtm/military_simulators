@@ -293,7 +293,9 @@ def test_load_combat_radius_aircraft_csv():
     f22 = next(r for r in rows if r['id'] == 'F-22')
     j20 = next(r for r in rows if r['id'] == 'J-20')
     assert f22['inlet'] == 'caret'
+    assert f22['store_mount'] == 'internal'
     assert j20['inlet'] == 'dsi'
+    assert j20['store_mount'] == 'internal'
     assert j20.get('ld_known') is None
     assert j20['carrier'] is False
     assert j20['wing_area_m2'] == pytest.approx(76.8)
@@ -301,6 +303,7 @@ def test_load_combat_radius_aircraft_csv():
     assert j10c['carrier'] is False
     assert j10c['planform'] == 'delta'
     assert j10c['layout'] == 'canard'
+    assert j10c['store_mount'] == 'pylon'
     assert j10c['engine_id'] == 'ws10b'
     assert j10c['wing_area_m2'] == pytest.approx(37.0)
     assert j10c['empty_kg'] == pytest.approx(9750)
@@ -414,6 +417,14 @@ def test_combat_radius_csv_unknown_inlet_raises(tmp_path):
     path = tmp_path / 'cr.csv'
     path.write_text(_unified_csv_text([_valid_land_row(inlet='pitot')]), encoding='utf-8')
     with pytest.raises(ValueError, match='进气道'):
+        load_combat_radius_aircraft_csv(path)
+
+
+def test_combat_radius_csv_unknown_store_mount_raises(tmp_path):
+    """未知挂装方式须在加载时拒绝。"""
+    path = tmp_path / 'cr.csv'
+    path.write_text(_unified_csv_text([_valid_land_row(store_mount='wingtip')]), encoding='utf-8')
+    with pytest.raises(ValueError, match='挂装方式'):
         load_combat_radius_aircraft_csv(path)
 
 
@@ -569,6 +580,7 @@ def test_unified_csv_shared_between_takeoff_and_combat_radius():
     assert 'canard_htail_area_m2' in AIRCRAFT_CSV_COLUMNS
     assert 'ventral_fin_area_m2' in AIRCRAFT_CSV_COLUMNS
     assert 'vtail_area_m2' in AIRCRAFT_CSV_COLUMNS
+    assert 'store_mount' in AIRCRAFT_CSV_COLUMNS
 
 
 def test_read_unified_aircraft_rows_and_item(tmp_path):

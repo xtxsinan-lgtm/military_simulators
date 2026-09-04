@@ -45,6 +45,12 @@
       </picker>
     </view>
     <view class="field">
+      <view class="field-label"><text>挂装方式</text></view>
+      <picker mode="selector" range="{{storeMountNames}}" value="{{storeMountIndex}}" bindchange="onStoreMountPreset">
+        <view class="picker-val">{{storeMountNames[storeMountIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
       <view class="field-label"><text>翼面积</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{tgt.wing_area_m2}}" data-key="wing_area_m2" bindinput="onAcField"/>
     </view>
