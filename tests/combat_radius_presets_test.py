@@ -218,11 +218,11 @@ def test_ng6_medium_sixth_gen_presets():
 
 
 def test_vtail_area_single_side_times_two():
-    """垂尾按单侧单面×2 入库，与平尾/腹鳍同一约定。"""
+    """垂尾按单侧单面×2 入库（歼-35A 为两侧合计 12 m²），与平尾/腹鳍同一约定。"""
     presets = load_presets()
     expected = {
         'F-35A': 4.23 * 2, 'F-35B': 4.23 * 2, 'F-35C': 5.18 * 2,
-        'F-22': 9.94 * 2, 'J-35A': 6.30 * 2, 'J-35': 6.62 * 2, 'J-20': 9.07 * 2,
+        'F-22': 9.94 * 2, 'J-35A': 12.0, 'J-35': 6.62 * 2, 'J-20': 9.07 * 2,
     }
     for aid, area in expected.items():
         row = get_preset_by_id(presets, aid)
@@ -233,21 +233,22 @@ def test_vtail_area_single_side_times_two():
 
 
 def test_j35a_mass_and_planform_geometry():
-    """歼-35A：空重/主翼/参考翼/后掠/翼展；副翼按平尾单侧单面×2 入库。"""
+    """歼-35A：空重 13 t；平尾与垂尾均为两侧合计 12 m²。"""
     from utils.combat_radius.cruise_load import wing_loading_t_m2
 
     j35a = get_preset_by_id(load_presets(), 'J-35A')
-    assert j35a['empty_kg'] == pytest.approx(13200)
+    assert j35a['empty_kg'] == pytest.approx(13000)
     assert j35a['internal_fuel_kg'] == pytest.approx(7200)
     assert j35a['main_wing_area_m2'] == pytest.approx(26.7)
-    assert j35a['canard_htail_area_m2'] == pytest.approx(6.03 * 2)
+    assert j35a['canard_htail_area_m2'] == pytest.approx(12.0)
+    assert j35a['vtail_area_m2'] == pytest.approx(12.0)
     assert j35a['wing_area_m2'] == pytest.approx(49.2)
     assert j35a['sweep_deg'] == pytest.approx(40.5)
     assert j35a['mach_angle_deg'] == pytest.approx(27.2)
     assert j35a['wingspan_m'] == pytest.approx(12.1)
     assert j35a['AR'] == pytest.approx(12.1 ** 2 / 49.2, abs=0.005)
     assert j35a['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        13200, 7200, 49.2, 1, 210,
+        13000, 7200, 49.2, 1, 210,
     ), abs=1e-6)
 
 
