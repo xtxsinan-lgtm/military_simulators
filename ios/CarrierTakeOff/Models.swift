@@ -164,6 +164,7 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var main_wing_area_m2: Double?
     var canard_htail_area_m2: Double?
     var ventral_fin_area_m2: Double?
+    var vtail_area_m2: Double?
     var mach_angle_deg: Double?
     var wing_area_m2: Double?
     var bvr_missile: String?

@@ -45,7 +45,6 @@ from utils.combat_radius.max_speed_search import MAX_SPEED_THRUST_MARGIN
 from utils.combat_radius.lift_drag import (
     F22_SUPERCRUISE_MACH,
     J20_SUPERCRUISE_MACH,
-    J35A_SUPERCRUISE_MACH,
     Aircraft,
     aircraft_from_dict,
     model_coefficients,
@@ -98,7 +97,7 @@ def test_altitude_grid_inclusive_and_integer_steps():
 def test_evaluate_cruise_forces_f22_cruise_is_feasible():
     ctx = _f22_ctx()
     f = evaluate_cruise_forces(ctx, 0.8, 11800)
-    assert f.ld == pytest.approx(9.25, abs=0.05)
+    assert f.ld == pytest.approx(8.97, abs=0.05)
     assert f.feasible is True
     assert f.load_raw < 0.92
     assert cruise_point_feasible(ctx, 0.8, 11800) is True
@@ -221,7 +220,7 @@ def test_search_max_possible_cruise_mach_faster_than_peak():
 
 def test_search_max_possible_cruise_mach_skips_transonic_hole():
     """跨声速空洞不能截断最大巡航：须落在空洞之后的超音速窗口上沿。"""
-    ctx = _csv_ctx('J-35A')
+    ctx = _csv_ctx('NG6B')
     peak = search_max_cruise_mach(ctx)
     floor = search_max_possible_cruise_mach(ctx)
     assert peak is not None and floor is not None
@@ -327,7 +326,7 @@ def test_j20_legacy_90kn_military_cruise_near_mach_15():
     """早期 90 kN 军推下，掉高度后上限仍低于现役 105 kN。"""
     legacy = _csv_ctx('J-20', tsl_kn=90.0)
     m = search_max_possible_cruise_mach(legacy)
-    assert m == pytest.approx(1.73, abs=0.05)
+    assert m == pytest.approx(1.64, abs=0.05)
     current = search_max_possible_cruise_mach(_csv_ctx('J-20'))
     assert current > m
     assert search_max_cruise_mach(legacy) < m
@@ -503,13 +502,13 @@ def test_search_max_cruise_mach_default_lo_is_mach_12():
 
 
 def test_j35_and_j35a_max_cruise_anchored():
-    """歼-35 军推穿不过跨声速空洞；歼-35A 仍可在其后超巡。"""
+    """歼-35 / 歼-35A 军推都穿不过跨声速空洞（垂尾浸润 + Cf0 上调后）。"""
     j35 = search_max_cruise_mach(_csv_ctx('J-35'))
     j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
     assert j35 is None
+    assert j35a is None
     assert any_feasible_altitude(_csv_ctx('J-35'), 1.2) is False
-    assert j35a == pytest.approx(J35A_SUPERCRUISE_MACH, abs=0.03)
-    assert j35a >= PRACTICAL_MAX_CRUISE_MACH_LO
+    assert any_feasible_altitude(_csv_ctx('J-35A'), 1.2) is False
 
 
 def test_search_max_cruise_mach_when_low_mach_infeasible():
@@ -571,7 +570,7 @@ def test_scan_best_altitude_profile_endpoints_and_rejects_bad_step():
 
 def test_practical_max_cruise_is_mach_at_peak_altitude():
     """实用最大巡航须等于最佳高度真正见顶的最大马赫，不能用掉高一格的容差往上加。"""
-    for aid in ('F-22', 'J-20', 'J-50', 'J-35A'):
+    for aid in ('F-22', 'J-20', 'J-50', 'NG6B'):
         ctx = _csv_ctx(aid)
         prof = scan_best_altitude_profile(ctx, PRACTICAL_MAX_CRUISE_MACH_LO)
         assert prof, aid
@@ -611,8 +610,8 @@ def test_j50_practical_max_from_centi_grid_not_f22_pin():
     j50 = search_max_cruise_mach(_csv_ctx('J-50'))
     j50n = search_max_cruise_mach(_csv_ctx('J-50N'))
     assert f22 == pytest.approx(1.76, abs=0.005)
-    assert j50 == pytest.approx(1.76, abs=0.005)
-    assert j50n == pytest.approx(1.76, abs=0.005)
+    assert j50 == pytest.approx(1.77, abs=0.005)
+    assert j50n == pytest.approx(1.77, abs=0.005)
     a_f22 = search_best_altitude(_csv_ctx('F-22'), f22)
     a_j50 = search_best_altitude(_csv_ctx('J-50'), j50)
     assert a_f22 is not None and a_j50 is not None

@@ -212,6 +212,21 @@ def test_ng6_medium_sixth_gen_presets():
     ), abs=1e-6)
 
 
+def test_vtail_area_single_side_times_two():
+    """垂尾按单侧单面×2 入库，与平尾/腹鳍同一约定。"""
+    presets = load_presets()
+    expected = {
+        'F-35A': 4.23 * 2, 'F-35B': 4.23 * 2, 'F-35C': 5.18 * 2,
+        'F-22': 9.94 * 2, 'J-35A': 6.30 * 2, 'J-35': 6.62 * 2, 'J-20': 9.07 * 2,
+    }
+    for aid, area in expected.items():
+        row = get_preset_by_id(presets, aid)
+        assert row is not None, aid
+        assert row['vtail_area_m2'] == pytest.approx(area), aid
+    tailless = get_preset_by_id(presets, 'J-50')
+    assert tailless.get('vtail_area_m2') in (None, 0)
+
+
 def test_get_preset_by_id_missing_returns_none():
     assert get_preset_by_id(load_presets(), 'NO-SUCH') is None
 
@@ -229,6 +244,7 @@ def test_preset_to_aircraft_and_dict():
     assert ac.fuse_width_m == pytest.approx(4.0)
     assert ac.fuse_height_m == pytest.approx(1.8)
     assert ac.canard_htail_area_m2 == pytest.approx(15.2)
+    assert ac.vtail_area_m2 == pytest.approx(9.94 * 2)
     assert ac.main_wing_area_m2 == pytest.approx(41.4)
     assert p['empty_kg'] == 19800
     assert p['bvr_missile'] == 'AIM-120D'

@@ -97,6 +97,10 @@
       <input class="input" type="digit" value="{{tgt.canard_htail_area_m2}}" data-key="canard_htail_area_m2" bindinput="onAcField"/>
     </view>
     <view class="field">
+      <view class="field-label"><text>垂尾面积（单面）</text><text class="unit">m²</text></view>
+      <input class="input" type="digit" value="{{tgt.vtail_area_m2}}" data-key="vtail_area_m2" bindinput="onAcField"/>
+    </view>
+    <view class="field">
       <view class="field-label"><text>腹鳍面积（单面）</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{tgt.ventral_fin_area_m2}}" data-key="ventral_fin_area_m2" bindinput="onAcField"/>
     </view>

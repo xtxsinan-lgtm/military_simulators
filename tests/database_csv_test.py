@@ -117,6 +117,7 @@ def _wetted_fields(**over: str) -> dict[str, str]:
         'nose_length_m': '3.26', 'nose_root_diameter_m': '1.90',
         'fuse_body_length_m': '9.66', 'fuse_width_m': '3.40', 'fuse_height_m': '1.97',
         'main_wing_area_m2': '24.48', 'canard_htail_area_m2': '11.12',
+        'vtail_area_m2': '8.46',
         'wing_area_m2': '42.74',
     }
     base.update(over)
@@ -266,11 +267,13 @@ def test_load_combat_radius_aircraft_csv():
     f35b = next(r for r in rows if r['id'] == 'F-35B')
     assert f35b['engine_id'] == 'f135b'
     assert f35b['canard_htail_area_m2'] == pytest.approx(5.56 * 2)
+    assert f35b['vtail_area_m2'] == pytest.approx(4.23 * 2)
     assert f35b['main_wing_area_m2'] == pytest.approx(24.48)
     assert rows[0]['carrier'] is True
     assert next(r for r in rows if r['id'] == 'F-22')['carrier'] is False
     assert rows[0]['rough'] is True
     assert rows[0]['inlet'] == 'dsi'
+    assert rows[0]['vtail_area_m2'] == pytest.approx(5.18 * 2)
     f22 = next(r for r in rows if r['id'] == 'F-22')
     j20 = next(r for r in rows if r['id'] == 'J-20')
     assert f22['inlet'] == 'caret'
@@ -288,6 +291,7 @@ def test_load_combat_radius_aircraft_csv():
     assert j10c['internal_fuel_kg'] == pytest.approx(3860)
     assert j20['ventral_fin_area_m2'] == pytest.approx(3.19 * 2)
     assert j20['canard_htail_area_m2'] == pytest.approx(3.45 * 2)
+    assert j20['vtail_area_m2'] == pytest.approx(9.07 * 2)
     assert f22['empty_kg'] == 19800
     assert f22['n_engines'] == 2
     assert f22['engine_id'] == 'f119'
@@ -296,6 +300,7 @@ def test_load_combat_radius_aircraft_csv():
     assert f22['fuse_width_m'] == pytest.approx(4.0)
     assert f22['fuse_height_m'] == pytest.approx(1.8)
     assert f22['canard_htail_area_m2'] == pytest.approx(7.6 * 2)
+    assert f22['vtail_area_m2'] == pytest.approx(9.94 * 2)
     assert rows[0]['n_engines'] == 1
     uav = next(r for r in rows if r['id'] == '53636')
     assert uav['n_pilots'] == 0
@@ -315,11 +320,13 @@ def test_load_combat_radius_aircraft_csv():
     assert j36['fuse_width_m'] == pytest.approx(6.1)
     assert j36['fuse_height_m'] == pytest.approx(2.4)
     j35 = next(r for r in rows if r['id'] == 'J-35')
+    assert j35['vtail_area_m2'] == pytest.approx(6.62 * 2)
     assert j35['length_m'] == pytest.approx(17.7)
     assert j35['fuse_width_m'] == pytest.approx(3.70)
     assert j35['fuse_height_m'] == pytest.approx(1.48)
     assert j35['carrier'] is True
     j35a = next(r for r in rows if r['id'] == 'J-35A')
+    assert j35a['vtail_area_m2'] == pytest.approx(6.30 * 2)
     assert j35a['length_m'] == pytest.approx(17.7)
     assert uav['length_m'] == pytest.approx(14.7)
     assert uav['wingspan_m'] == pytest.approx(10.2)
@@ -515,6 +522,7 @@ def test_unified_csv_shared_between_takeoff_and_combat_radius():
     assert 'main_wing_area_m2' in AIRCRAFT_CSV_COLUMNS
     assert 'canard_htail_area_m2' in AIRCRAFT_CSV_COLUMNS
     assert 'ventral_fin_area_m2' in AIRCRAFT_CSV_COLUMNS
+    assert 'vtail_area_m2' in AIRCRAFT_CSV_COLUMNS
 
 
 def test_read_unified_aircraft_rows_and_item(tmp_path):

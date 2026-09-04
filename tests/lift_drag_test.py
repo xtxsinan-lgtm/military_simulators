@@ -439,6 +439,7 @@ def _f35a_wetted() -> Aircraft:
         'main_wing_area_m2': 24.48,
         'canard_htail_area_m2': 11.12,
         'ventral_fin_area_m2': 0.0,
+        'vtail_area_m2': 4.23 * 2,
         'wing_area_m2': 42.74,
     })
 
@@ -464,7 +465,7 @@ def test_geometric_wetted_f35a_is_ratio_ref():
     assert geometric_wetted_ratio(ac) == pytest.approx(WETTED_RATIO_REF)
     assert fuse_wetted_factor(ac) == pytest.approx(1.0)
     s_wet = geometric_wetted_area_m2(ac)
-    lifting = LIFTING_WETTED_SIDES * (24.48 + 11.12)
+    lifting = LIFTING_WETTED_SIDES * (24.48 + 11.12 + 4.23 * 2)
     expected = (
         cone_lateral_area_m2(1.06, 1.02)
         + frustum_lateral_area_m2(3.26, 1.02, 1.90)
@@ -479,7 +480,10 @@ def test_geometric_wetted_f35a_is_ratio_ref():
 def test_lifting_planform_wetted_counts_both_sides():
     """升力面浸润须按平面面积×上下两面，再与机身表面积相加。"""
     ac = _f35a_wetted()
-    planform = ac.main_wing_area_m2 + ac.canard_htail_area_m2 + ac.ventral_fin_area_m2
+    planform = (
+        ac.main_wing_area_m2 + ac.canard_htail_area_m2
+        + ac.ventral_fin_area_m2 + ac.vtail_area_m2
+    )
     assert LIFTING_WETTED_SIDES == pytest.approx(2.0)
     assert lifting_planform_wetted_m2(ac) == pytest.approx(2.0 * planform)
     assert geometric_wetted_area_m2(ac) == pytest.approx(
@@ -499,6 +503,7 @@ def test_geometric_wetted_larger_wing_lowers_ratio():
         'name': 'F-35C',
         'main_wing_area_m2': 38.84,
         'canard_htail_area_m2': 13.04,
+        'vtail_area_m2': 5.18 * 2,
         'wing_area_m2': 62.06,
     })
     assert geometric_wetted_ratio(c) < geometric_wetted_ratio(a)
@@ -515,11 +520,22 @@ def test_geometric_wetted_larger_wing_lowers_ratio():
         'main_wing_area_m2': 32.93,
         'canard_htail_area_m2': 6.90,
         'ventral_fin_area_m2': 6.38,
+        'vtail_area_m2': 9.07 * 2,
         'wing_area_m2': 76.8,
     })
     assert j20.ventral_fin_area_m2 == pytest.approx(3.19 * 2)
     assert has_geometric_wetted(j20) is True
     assert geometric_wetted_area_m2(j20) > geometric_wetted_area_m2(a)
+
+
+def test_vtail_increases_lifting_wetted():
+    """垂尾按左右两件×两面计入浸润；单侧单面 4.23 → 入库 8.46 → 浸润 16.92。"""
+    base = _f35a_wetted()
+    bare = Aircraft(**{**aircraft_to_dict(base), 'vtail_area_m2': 0.0})
+    delta = lifting_planform_wetted_m2(base) - lifting_planform_wetted_m2(bare)
+    assert base.vtail_area_m2 == pytest.approx(4.23 * 2)
+    assert delta == pytest.approx(LIFTING_WETTED_SIDES * 4.23 * 2)
+    assert geometric_wetted_area_m2(base) > geometric_wetted_area_m2(bare)
 
 
 def test_has_geometric_wetted_dict_requires_all_fields():
@@ -544,6 +560,9 @@ def test_csv_presets_use_geometric_wetted_and_exclude_j15():
     assert fuse_wetted_factor(f35c) < fuse_wetted_factor(f35a)
     j20 = preset_to_aircraft(get_preset_by_id(presets, 'J-20'))
     assert j20.ventral_fin_area_m2 == pytest.approx(6.38)
+    assert j20.vtail_area_m2 == pytest.approx(9.07 * 2)
+    f22 = preset_to_aircraft(get_preset_by_id(presets, 'F-22'))
+    assert f22.vtail_area_m2 == pytest.approx(9.94 * 2)
 
 
 def test_fuse_body_area_factor_clamps_and_defaults():
@@ -842,7 +861,7 @@ def test_canard_adds_supersonic_wave_drag():
     canard = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.7, 'layout': 'canard'})
     extra = cd_wave_supersonic(1.7, canard) - cd_wave_supersonic(1.7, conv)
     assert extra == pytest.approx(CDW_CANARD * 0.7 ** 2)
-    assert J20_SUPERCRUISE_MACH == pytest.approx(1.68)
+    assert J20_SUPERCRUISE_MACH == pytest.approx(1.67)
 
 
 def test_tailless_and_bwb_discount_volume_wave_drag():
@@ -948,8 +967,8 @@ def test_default_ld_anchors_match_f35c_f22():
     a1, ld1, a2, ld2 = default_ld_anchor_aircraft()
     assert a1.name == 'F-35C' and a1.rough is True and a1.inlet == 'dsi'
     assert a2.name == 'F-22' and a2.rough is False and a2.inlet == 'caret'
-    assert ld2 == pytest.approx(8.90, abs=0.10)
-    assert ld1 == pytest.approx(9.56, abs=0.10)
+    assert ld2 == pytest.approx(8.64, abs=0.10)
+    assert ld1 == pytest.approx(9.27, abs=0.10)
     assert ld1 > ld2
     cf0, k_e = calibrate_default_anchors()
     assert cf0 == pytest.approx(CF0_REF)

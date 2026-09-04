@@ -29,6 +29,7 @@ struct CombatRadiusAircraftInput {
     var mainWingAreaM2 = ""
     var canardHtailAreaM2 = ""
     var ventralFinAreaM2 = ""
+    var vtailAreaM2 = ""
     var machAngleDeg = ""
     var wingAreaM2 = ""
     var typeLabel = ""
@@ -61,6 +62,7 @@ struct CombatRadiusAircraftInput {
         mainWingAreaM2 = p.main_wing_area_m2.map { String($0) } ?? ""
         canardHtailAreaM2 = p.canard_htail_area_m2.map { String($0) } ?? ""
         ventralFinAreaM2 = p.ventral_fin_area_m2.map { String($0) } ?? ""
+        vtailAreaM2 = p.vtail_area_m2.map { String($0) } ?? ""
         machAngleDeg = p.mach_angle_deg.map { String($0) } ?? ""
         wingAreaM2 = p.wing_area_m2.map { String($0) } ?? ""
         typeLabel = p.type_label ?? ""
@@ -95,6 +97,7 @@ struct CombatRadiusAircraftInput {
             "main_wing_area_m2": Double(mainWingAreaM2) ?? 0,
             "canard_htail_area_m2": Double(canardHtailAreaM2) ?? 0,
             "ventral_fin_area_m2": Double(ventralFinAreaM2) ?? 0,
+            "vtail_area_m2": Double(vtailAreaM2) ?? 0,
             "mach_angle_deg": Double(machAngleDeg) ?? 0,
             "wing_area_m2": Double(wingAreaM2) ?? 0,
             "type_label": typeLabel,

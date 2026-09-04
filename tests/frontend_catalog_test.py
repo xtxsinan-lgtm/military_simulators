@@ -164,6 +164,7 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'tgt_main_wing' in js_text
     assert 'canard_htail_area_m2' in js_text
     assert 'ventral_fin_area_m2' in js_text
+    assert 'vtail_area_m2' in js_text
     assert 'fuse_width_m' in js_text
     assert 'syncDoubleDeltaFields' in js_text
     assert "e.target.id === 'tgtPreset'" in js_text

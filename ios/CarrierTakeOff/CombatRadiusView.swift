@@ -179,6 +179,7 @@ struct CombatRadiusView: View {
         field("机身盒段长度 (m)", text: ac.fuseBodyLengthM)
         field("主翼面积（单面）(m²)", text: ac.mainWingAreaM2)
         field("平尾/鸭翼面积（单面）(m²)", text: ac.canardHtailAreaM2)
+        field("垂尾面积（单面）(m²)", text: ac.vtailAreaM2)
         field("腹鳍面积（单面）(m²)", text: ac.ventralFinAreaM2)
         pickerRow("翼型", selection: ac.planform, options: vm.planformOptions)
         pickerRow("布局", selection: ac.layout, options: vm.layoutOptions)

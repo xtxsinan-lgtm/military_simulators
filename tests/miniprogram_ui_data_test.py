@@ -117,6 +117,8 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '机头锥长度' in cr_wxml
     assert '平尾/鸭翼面积' in cr_wxml
     assert '腹鳍面积' in cr_wxml
+    assert '垂尾面积' in cr_wxml
+    assert 'vtail_area_m2' in cr_js
     assert 'resolveTslKN' in cr_js
     assert 'sweep_inner_deg' in cr_js
     assert 'function sortPresetsByNationThenName' in cr_js

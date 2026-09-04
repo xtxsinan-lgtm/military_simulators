@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 60;
+const APP_VERSION = 61;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -156,7 +156,11 @@ function renderAircraftFields() {
     </div>
     <div class="pair">
       <div class="field"><label>平尾/鸭翼面积（单面） <span class="unit">m²</span></label><input id="tgt_htail" type="number" step="0.01" min="0"></div>
+      <div class="field"><label>垂尾面积（单面） <span class="unit">m²</span></label><input id="tgt_vtail" type="number" step="0.01" min="0"></div>
+    </div>
+    <div class="pair">
       <div class="field"><label>腹鳍面积（单面） <span class="unit">m²</span></label><input id="tgt_ventral" type="number" step="0.01" min="0"></div>
+      <div class="field"></div>
     </div>
     <div class="pair">
       <div class="field"><label>翼型</label><select id="tgt_planform">${optionHtml(planforms)}</select></div>
@@ -207,6 +211,7 @@ function applyPresetToFields(preset) {
   $('tgt_fuse_body_l').value = preset.fuse_body_length_m != null ? preset.fuse_body_length_m : '';
   $('tgt_main_wing').value = preset.main_wing_area_m2 != null ? preset.main_wing_area_m2 : '';
   $('tgt_htail').value = preset.canard_htail_area_m2 != null ? preset.canard_htail_area_m2 : '';
+  $('tgt_vtail').value = preset.vtail_area_m2 != null ? preset.vtail_area_m2 : '';
   $('tgt_ventral').value = preset.ventral_fin_area_m2 != null ? preset.ventral_fin_area_m2 : '';
   if ($('tgt_type_label')) $('tgt_type_label').value = preset.type_label || '';
   applyWeightFromPreset(preset);
@@ -287,6 +292,7 @@ function readAircraft() {
     main_wing_area_m2: Number($('tgt_main_wing').value),
     canard_htail_area_m2: Number($('tgt_htail').value),
     ventral_fin_area_m2: Number($('tgt_ventral').value),
+    vtail_area_m2: Number($('tgt_vtail').value),
     mach_angle_deg: Number($('tgt_mach_angle').value),
     wing_area_m2: Number($('tgt_area').value),
     type_label: $('tgt_type_label') ? $('tgt_type_label').value : '',

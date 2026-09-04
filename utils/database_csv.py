@@ -18,6 +18,7 @@ AIRCRAFT_CSV_COLUMNS = (
     'fuse_width_m', 'fuse_height_m',
     'nose_cone_length_m', 'nose_cone_diameter_m', 'nose_length_m', 'nose_root_diameter_m',
     'fuse_body_length_m', 'main_wing_area_m2', 'canard_htail_area_m2', 'ventral_fin_area_m2',
+    'vtail_area_m2',
     'empty_kg', 'internal_fuel_kg', 'n_pilots', 'missile_mass_kg', 'n_engines', 'engine_id',
     'mtow_kg', 'max_payload_kg', 'wing_height_m', 'cd0',
     't_max_sl_n', 't_main_stovl_sl_n', 't_liftfan_sl_n', 't_rollposts_sl_n',
@@ -221,6 +222,7 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
         'fuse_width_m', 'fuse_height_m',
         'nose_cone_length_m', 'nose_cone_diameter_m', 'nose_length_m', 'nose_root_diameter_m',
         'fuse_body_length_m', 'main_wing_area_m2', 'canard_htail_area_m2', 'ventral_fin_area_m2',
+        'vtail_area_m2',
         'sweep_inner_deg', 'sweep_outer_deg', 'sweep_kink_span_frac',
     ):
         value = _parse_optional_float(row.get(key) or '')
