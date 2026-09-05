@@ -317,7 +317,7 @@ def test_ng6_medium_sixth_gen_presets():
     assert c['wingspan_m'] == pytest.approx(13.3)
     assert b['wingspan_m'] == a['wingspan_m'] == pytest.approx(12.1)
     assert c['AR'] == pytest.approx(13.3 ** 2 / 70.8, abs=0.005)
-    assert b['AR'] == a['AR'] == pytest.approx(12.1 ** 2 / 55.7, abs=0.005)
+    assert b['AR'] == a['AR'] == pytest.approx(12.1 ** 2 / 55.65, abs=0.005)
     assert c['fuse_width_m'] == b['fuse_width_m'] == a['fuse_width_m'] == pytest.approx(3.40)
     assert c['fuse_height_m'] == b['fuse_height_m'] == a['fuse_height_m'] == pytest.approx(1.97)
     assert c['main_wing_area_m2'] == pytest.approx(39.0)
@@ -325,13 +325,13 @@ def test_ng6_medium_sixth_gen_presets():
     assert c['canard_htail_area_m2'] == pytest.approx(16.7)
     assert b['canard_htail_area_m2'] == a['canard_htail_area_m2'] == pytest.approx(13.1)
     assert c['wing_area_m2'] == pytest.approx(70.8)
-    assert b['wing_area_m2'] == a['wing_area_m2'] == pytest.approx(55.7)
+    assert b['wing_area_m2'] == a['wing_area_m2'] == pytest.approx(55.65)
     assert c['empty_kg'] == pytest.approx(14200)
-    assert b['empty_kg'] == pytest.approx(12340)
-    assert a['empty_kg'] == pytest.approx(13840)
+    assert b['empty_kg'] == pytest.approx(13840)
+    assert a['empty_kg'] == pytest.approx(12340)
     assert c['internal_fuel_kg'] == pytest.approx(8360)
-    assert b['internal_fuel_kg'] == pytest.approx(7560)
-    assert a['internal_fuel_kg'] == pytest.approx(6590)
+    assert b['internal_fuel_kg'] == pytest.approx(6590)
+    assert a['internal_fuel_kg'] == pytest.approx(7560)
     assert c['sweep_deg'] == pytest.approx(49.3)
     assert b['sweep_deg'] == a['sweep_deg'] == pytest.approx(48.0)
     assert c['mach_angle_deg'] == pytest.approx(29.3)
@@ -345,10 +345,10 @@ def test_ng6_medium_sixth_gen_presets():
         14200, 8360, 70.8, 1, 210,
     ), abs=1e-6)
     assert b['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        12340, 7560, 55.7, 1, 210,
+        13840, 6590, 55.65, 1, 210,
     ), abs=1e-6)
     assert a['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        13840, 6590, 55.7, 1, 210,
+        12340, 7560, 55.65, 1, 210,
     ), abs=1e-6)
 
 

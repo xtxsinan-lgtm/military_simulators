@@ -276,7 +276,8 @@ def test_load_combat_radius_aircraft_csv():
         expected_phi = 29.3 if aid == 'NG6C' else 27.3
         assert ng6['mach_angle_deg'] == pytest.approx(expected_phi), aid
     ng6b = next(r for r in rows if r['id'] == 'NG6B')
-    assert ng6b['internal_fuel_kg'] == pytest.approx(7560)
+    assert ng6b['internal_fuel_kg'] == pytest.approx(6590)
+    assert ng6b['empty_kg'] == pytest.approx(13840)
     assert 'J-15' not in ids
     assert 'AV-8B' not in ids
     assert 'FA-18C' not in ids
