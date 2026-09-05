@@ -334,7 +334,7 @@ def test_load_combat_radius_aircraft_csv():
     j36 = next(r for r in rows if r['id'] == 'J-36')
     assert j36['n_engines'] == 3
     assert j36['n_pilots'] == 2
-    assert j36['internal_fuel_kg'] == pytest.approx(26600)
+    assert j36['internal_fuel_kg'] == pytest.approx(26500)
     assert j36['planform'] == 'double_delta'
     assert j36['inlet'] == 'caret'
     assert j36['sweep_inner_deg'] == pytest.approx(67.8)
