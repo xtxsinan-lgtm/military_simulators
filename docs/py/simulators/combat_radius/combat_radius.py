@@ -60,6 +60,7 @@ from utils.combat_radius.cruise_search import (
     CruiseContext,
     CruiseScored,
     SUPERSONIC_MACH,
+    build_altitude_scan,
     contiguous_peak_max_mach,
     evaluate_cruise_forces,
     max_ld_fields,
@@ -1192,7 +1193,8 @@ def _cruise_context_from_params(params: dict[str, Any]) -> tuple[CruiseContext, 
 def run_search_best_cruise_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """给定马赫，搜索 L/D×η_o 最大且满足推力裕度的巡航高度。
 
-    无论能否军推巡航，都附带可飞高度上的最大升阻比。
+    无论能否军推巡航，都附带可飞高度上的最大升阻比，
+    以及该速度下各搜索高度的升阻比、推力、负载与效率。
     加力可飞与极速同一包线：全部加力、高度可到海平面。
     """
     mach = float(params['mach'])
@@ -1208,6 +1210,12 @@ def run_search_best_cruise_from_params(params: dict[str, Any]) -> dict[str, Any]
         scored = search_best_altitude(ctx, mach, alt_min, alt_max, coarse_m, refine_m)
     except ValueError:
         scored = None
+    try:
+        altitude_scan = build_altitude_scan(
+            ctx, mach, alt_min, alt_max, coarse_m, selected=scored,
+        )
+    except ValueError:
+        altitude_scan = []
     if scored is None:
         row = {
             'success': True,
@@ -1215,6 +1223,7 @@ def run_search_best_cruise_from_params(params: dict[str, Any]) -> dict[str, Any]
             'mach': mach,
             'name': str(params.get('name') or target.name),
             'fail_reason': _radius_fail_reason('no_feasible_altitude'),
+            'altitude_scan': altitude_scan,
         }
         return _attach_max_ld_to_point(
             row, ctx, mach, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
@@ -1222,6 +1231,7 @@ def run_search_best_cruise_from_params(params: dict[str, Any]) -> dict[str, Any]
     row = scored_to_dict(scored)
     row['success'] = True
     row['name'] = str(params.get('name') or target.name)
+    row['altitude_scan'] = altitude_scan
     return _attach_max_ld_to_point(
         row, ctx, mach, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
     )

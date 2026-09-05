@@ -27,12 +27,13 @@ from utils.combat_radius.cruise_search import (
     max_ld_fields,
     profile_machs,
     scan_best_altitude_profile,
+    scan_altitudes_at_mach,
     score_cruise_point,
     scored_to_dict,
     search_best_altitude,
     snap_mach,
-    scored_to_dict,
-    search_best_altitude,
+    altitude_scan_fields,
+    build_altitude_scan,
     _require_mach_search_bounds,
     search_max_possible_cruise_mach,
     search_max_cruise_mach,
@@ -439,6 +440,41 @@ def test_search_max_ld_altitude_ab_full_thrust_and_sea_level_fallback():
     )
     assert low_only is not None
     assert low_only.thrust_mode == 'afterburner'
+
+
+def test_scan_altitudes_at_mach_covers_grid_and_scores():
+    """给定马赫须按高度网格返回升阻比、推力、负载与效率。"""
+    rows = scan_altitudes_at_mach(_f22_ctx(), 0.8, 11000, 14000, 1000)
+    assert [p.alt_m for p in rows] == [11000.0, 12000.0, 13000.0, 14000.0]
+    assert all(p.ld > 0 for p in rows)
+    assert all(p.thrust_avail_N > 0 for p in rows)
+    assert any(p.feasible for p in rows)
+    packed = altitude_scan_fields(rows[0], selected=True)
+    assert packed['selected'] is True
+    assert packed['thrust_avail_kN'] == pytest.approx(rows[0].thrust_avail_N / 1000.0)
+    assert packed['eta_th'] >= 0
+    assert packed['eta_p'] >= 0
+    assert packed['eta_o'] >= 0
+    assert 'load' in packed
+    with pytest.raises(ValueError, match='马赫数'):
+        scan_altitudes_at_mach(_f22_ctx(), 0.0)
+
+
+def test_build_altitude_scan_inserts_refined_best():
+    """细化后的最佳高度若不在粗网格上，须插入并标 selected。"""
+    ctx = _f22_ctx()
+    selected = score_cruise_point(ctx, evaluate_cruise_forces(ctx, 0.8, 11800))
+    scan = build_altitude_scan(ctx, 0.8, 11000, 14000, 1000, selected=selected)
+    alts = [row['alt_m'] for row in scan]
+    assert alts == sorted(alts)
+    assert 11800.0 in alts
+    assert 11000.0 in alts
+    marked = [row for row in scan if row['selected']]
+    assert len(marked) == 1
+    assert marked[0]['alt_m'] == pytest.approx(11800.0)
+    empty = build_altitude_scan(ctx, 0.8, 11000, 14000, 1000, selected=None)
+    assert all(not row['selected'] for row in empty)
+    assert 11800.0 not in [row['alt_m'] for row in empty]
 
 
 def test_max_ld_fields_none_and_point():

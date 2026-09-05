@@ -533,6 +533,71 @@ def max_ld_fields(point: MaxLdPoint | None) -> dict[str, Any]:
     }
 
 
+def scan_altitudes_at_mach(
+    ctx: CruiseContext,
+    mach: float,
+    alt_min_m: float = ALT_MIN_M,
+    alt_max_m: float = ALT_MAX_M,
+    step_m: float = ALT_COARSE_M,
+) -> list[CruiseScored]:
+    """给定马赫，按高度网格逐点计算升阻比、推力、负载与效率。
+
+    不可行高度也保留：便于对照为何未被选为最佳巡航点。
+    推力循环无解的高度跳过。
+    """
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    rows: list[CruiseScored] = []
+    for alt in altitude_grid(alt_min_m, alt_max_m, step_m):
+        forces = try_cruise_forces(ctx, mach, alt)
+        if forces is None:
+            continue
+        rows.append(score_cruise_point(ctx, forces))
+    return rows
+
+
+def altitude_scan_fields(point: CruiseScored, selected: bool = False) -> dict[str, Any]:
+    """单个高度扫描点的展示字段。"""
+    return {
+        'alt_m': point.alt_m,
+        'ld': point.ld,
+        'thrust_avail_kN': point.thrust_avail_N / 1000.0,
+        'load': point.load,
+        'load_raw': point.load_raw,
+        'feasible': point.feasible,
+        'eta_th': point.eta_th,
+        'eta_p': point.eta_p,
+        'eta_o': point.eta_o,
+        'score': point.score,
+        'selected': selected,
+    }
+
+
+def build_altitude_scan(
+    ctx: CruiseContext,
+    mach: float,
+    alt_min_m: float = ALT_MIN_M,
+    alt_max_m: float = ALT_MAX_M,
+    step_m: float = ALT_COARSE_M,
+    selected: CruiseScored | None = None,
+) -> list[dict[str, Any]]:
+    """给定马赫扫描各高度，并标出已选最佳点。
+
+    细化后的最佳高度若不在粗网格上，插入该点再按高度排序。
+    """
+    points = scan_altitudes_at_mach(ctx, mach, alt_min_m, alt_max_m, step_m)
+    if selected is not None and all(abs(p.alt_m - selected.alt_m) > 1e-6 for p in points):
+        points = sorted([*points, selected], key=lambda p: p.alt_m)
+    best_alt = selected.alt_m if selected is not None else None
+    return [
+        altitude_scan_fields(
+            point,
+            selected=best_alt is not None and abs(point.alt_m - best_alt) < 1e-6,
+        )
+        for point in points
+    ]
+
+
 def scored_to_dict(point: CruiseScored) -> dict[str, Any]:
     """巡航评分点 → JSON 字段（不含布雷盖半径，由上层补）。"""
     return {
