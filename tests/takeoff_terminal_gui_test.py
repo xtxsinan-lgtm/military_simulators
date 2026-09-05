@@ -37,6 +37,9 @@ def test_docs_takeoff_terminal_chrome():
     assert 'massRangeHint' in html
     assert 'formatOutputSummary' in app_js
     assert 'validateTakeoffMass' in app_js
+    assert 'MTOW_OVERLOAD_ALLOWANCE_KG' in app_js
+    assert 'field-warning' in css
+    assert 'input.warn' in css
     assert 'markResultsStale' in app_js
     assert 'LOCAL PYODIDE' not in html
     assert 'PYODIDE LOCAL' not in html
@@ -64,6 +67,8 @@ def test_miniprogram_takeoff_terminal_chrome():
     assert 'highlights' in wxml
     assert 'resultStale' in wxml or 'stale-banner' in wxml
     assert 'massRangeHint' in wxml
+    assert 'massWarning' in wxml
+    assert 'field-warning' in wxss
     index_js = (ROOT / 'miniprogram' / 'pages' / 'index' / 'index.js').read_text(encoding='utf-8')
     assert "label: '空重'" in index_js
     assert 'isTilt || isProp' in index_js
@@ -89,7 +94,9 @@ def test_ios_takeoff_terminal_chrome():
     assert 'highlights' in content
     assert 'resultStale' in content
     vm = (ROOT / 'ios' / 'CarrierTakeOff' / 'SimulatorViewModel.swift').read_text(encoding='utf-8')
-    assert 'validateTakeoffMass' in vm
+    assert 'classifyTakeoffMass' in vm
+    assert 'mtowOverloadAllowanceKg' in vm
+    assert 'massWarning' in vm
     assert 'label: "空重"' in vm
     assert 'isTilt || isProp' in vm
     assert 'LOCAL PYODIDE' not in content
@@ -100,6 +107,8 @@ def test_ios_takeoff_terminal_chrome():
     assert '0x38BDF8' in theme
     assert 'var tag: String' in card or 'tag: String' in card
     assert 'design: .monospaced' in content
+    assert 'warning: vm.massWarning' in content
+    assert 'AppTheme.warning' in card
 
 
 def test_run_simulation_yields_before_blocking_python():

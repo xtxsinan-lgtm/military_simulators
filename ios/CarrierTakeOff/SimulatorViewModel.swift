@@ -40,6 +40,7 @@ final class SimulatorViewModel: ObservableObject {
     @Published var outputDetailsOpen: Bool = true
     @Published var massRangeHint: String = ""
     @Published var massError: String = ""
+    @Published var massWarning: String = ""
     @Published var running: Bool = false
     @Published var showTrajectory: Bool = false
     @Published var chartResult: SimulationResult?
@@ -276,31 +277,49 @@ final class SimulatorViewModel: ObservableObject {
         setStatus("参数已更改 — 结果已过期，请重新仿真", .stale)
     }
 
-    /// 与 Python validate_takeoff_mass 对齐
-    func validateTakeoffMass(_ mass: Double, mtow: Double, empty: Double) -> String {
-        if mass <= 0 { return "起飞重量必须为正数" }
-        if mass > mtow + 1e-6 {
-            return "起飞重量 \(Int(mass.rounded())) kg 超出最大起飞重量 \(Int(mtow.rounded())) kg"
+    /// 与 Python MTOW_OVERLOAD_ALLOWANCE_KG 对齐
+    static let mtowOverloadAllowanceKg = 3000.0
+
+    /// 与 Python validate_takeoff_mass / takeoff_mass_over_mtow_warning 对齐
+    func classifyTakeoffMass(_ mass: Double, mtow: Double, empty: Double) -> (error: String, warning: String) {
+        if mass <= 0 { return ("起飞重量必须为正数", "") }
+        if mass > mtow + Self.mtowOverloadAllowanceKg + 1e-6 {
+            return (
+                "起飞重量 \(Int(mass.rounded())) kg 超出最大起飞重量 \(Int(mtow.rounded())) kg（最多允许超重 \(Int(Self.mtowOverloadAllowanceKg.rounded())) kg）",
+                ""
+            )
         }
         if mass + 1e-6 < empty {
-            return "起飞重量 \(Int(mass.rounded())) kg 低于空重 \(Int(empty.rounded())) kg"
+            return ("起飞重量 \(Int(mass.rounded())) kg 低于空重 \(Int(empty.rounded())) kg", "")
         }
-        return ""
+        if mass > mtow + 1e-6 {
+            let over = Int((mass - mtow).rounded())
+            return (
+                "",
+                "起飞重量已超过最大起飞重量 \(Int(mtow.rounded())) kg（超重 \(over) kg，仿真仍可进行）"
+            )
+        }
+        return ("", "")
     }
 
     func refreshMassHint() {
         guard let ac = selectedAircraft else {
             massRangeHint = ""
             massError = ""
+            massWarning = ""
             return
         }
-        massRangeHint = "范围：空重 \(Int(ac.empty_kg.rounded())) – MTOW \(Int(ac.mtow_kg.rounded())) kg"
+        massRangeHint = "范围：空重 \(Int(ac.empty_kg.rounded())) – MTOW \(Int(ac.mtow_kg.rounded())) kg（最多可超 \(Int(Self.mtowOverloadAllowanceKg.rounded())) kg）"
         if let mass = Double(massKg) {
-            massError = validateTakeoffMass(mass, mtow: ac.mtow_kg, empty: ac.empty_kg)
+            let check = classifyTakeoffMass(mass, mtow: ac.mtow_kg, empty: ac.empty_kg)
+            massError = check.error
+            massWarning = check.warning
         } else if massKg.isEmpty {
             massError = ""
+            massWarning = ""
         } else {
             massError = "请填写有效的起飞重量"
+            massWarning = ""
         }
     }
 

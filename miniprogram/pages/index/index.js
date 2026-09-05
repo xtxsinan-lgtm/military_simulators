@@ -67,7 +67,9 @@ Page({
     outputDetailsOpen: true,
     massRangeHint: '',
     massError: '',
+    massWarning: '',
     massInvalid: false,
+    massOverMtow: false,
     showBackToTop: false,
     running: false,
     simResult: null,
@@ -147,30 +149,53 @@ Page({
     this.setStatus('参数已更改 — 结果已过期，请重新仿真', '');
   },
 
-  /** 与 Python validate_takeoff_mass 对齐。 */
+  /** 与 Python MTOW_OVERLOAD_ALLOWANCE_KG 对齐 */
+  _mtowOverloadKg: 3000,
+
+  /** 与 Python validate_takeoff_mass / takeoff_mass_over_mtow_warning 对齐。 */
   validateTakeoffMass(massKg, mtowKg, emptyKg) {
     const mass = Number(massKg);
-    if (!Number.isFinite(mass)) return '请填写有效的起飞重量';
-    if (mass <= 0) return '起飞重量必须为正数';
-    if (Number.isFinite(mtowKg) && mass > mtowKg + 1e-6) {
-      return `起飞重量 ${Math.round(mass)} kg 超出最大起飞重量 ${Math.round(mtowKg)} kg`;
+    const allow = this._mtowOverloadKg;
+    if (!Number.isFinite(mass)) return { error: '请填写有效的起飞重量', warning: '' };
+    if (mass <= 0) return { error: '起飞重量必须为正数', warning: '' };
+    if (Number.isFinite(mtowKg) && mass > mtowKg + allow + 1e-6) {
+      return {
+        error: `起飞重量 ${Math.round(mass)} kg 超出最大起飞重量 ${Math.round(mtowKg)} kg（最多允许超重 ${allow} kg）`,
+        warning: '',
+      };
     }
     if (Number.isFinite(emptyKg) && mass + 1e-6 < emptyKg) {
-      return `起飞重量 ${Math.round(mass)} kg 低于空重 ${Math.round(emptyKg)} kg`;
+      return {
+        error: `起飞重量 ${Math.round(mass)} kg 低于空重 ${Math.round(emptyKg)} kg`,
+        warning: '',
+      };
     }
-    return '';
+    if (Number.isFinite(mtowKg) && mass > mtowKg + 1e-6) {
+      const over = Math.round(mass - mtowKg);
+      return {
+        error: '',
+        warning: `起飞重量已超过最大起飞重量 ${Math.round(mtowKg)} kg（超重 ${over} kg，仿真仍可进行）`,
+      };
+    }
+    return { error: '', warning: '' };
   },
 
   refreshMassHint() {
     const ac = this.getSelectedAircraft();
     const massRangeHint = ac
-      ? `范围：空重 ${Math.round(ac.empty_kg)} – MTOW ${Math.round(ac.mtow_kg)} kg`
+      ? `范围：空重 ${Math.round(ac.empty_kg)} – MTOW ${Math.round(ac.mtow_kg)} kg（最多可超 ${this._mtowOverloadKg} kg）`
       : '';
-    const massError = ac
+    const check = ac
       ? this.validateTakeoffMass(parseFloat(this.data.massKg), ac.mtow_kg, ac.empty_kg)
-      : '';
-    this.setData({ massRangeHint, massError, massInvalid: Boolean(massError) });
-    return massError;
+      : { error: '', warning: '' };
+    this.setData({
+      massRangeHint,
+      massError: check.error,
+      massWarning: check.warning,
+      massInvalid: Boolean(check.error),
+      massOverMtow: Boolean(check.warning) && !check.error,
+    });
+    return check.error;
   },
 
   setStatus(text, cls = '') {

@@ -88,9 +88,10 @@
       </view>
       <view class="grid-item">
         <text class="field-label">起飞重量 (kg)</text>
-        <input class="field-input {{massInvalid ? 'invalid' : ''}}" type="digit" value="{{massKg}}" bindinput="onMassInput" />
+        <input class="field-input {{massInvalid ? 'invalid' : ''}} {{massOverMtow ? 'warn' : ''}}" type="digit" value="{{massKg}}" bindinput="onMassInput" />
         <text class="field-hint" wx:if="{{massRangeHint}}">{{massRangeHint}}</text>
         <text class="field-error" wx:if="{{massError}}">{{massError}}</text>
+        <text class="field-warning" wx:if="{{massWarning}}">{{massWarning}}</text>
       </view>
     </view>
     <view class="btn-row">

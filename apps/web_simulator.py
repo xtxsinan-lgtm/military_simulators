@@ -23,6 +23,7 @@ from utils.specs import (
 from utils.takeoff.takeoff_input import (
     build_takeoff_highlights,
     extract_exit_kinematics,
+    takeoff_mass_over_mtow_warning,
     validate_takeoff_mass,
 )
 from utils.takeoff.takeoff_physics import (
@@ -434,6 +435,7 @@ def run_simulation(
     mass_err = validate_takeoff_mass(mass_kg, aircraft.mtow_kg, aircraft.empty_kg)
     if mass_err:
         return _fail(mass_err, '', mode)
+    mass_warning = takeoff_mass_over_mtow_warning(mass_kg, aircraft.mtow_kg)
 
     try:
         with redirect_stdout(buf):
@@ -555,6 +557,7 @@ def run_simulation(
             ),
             'plume_applicable': plume_applicable,
             'min_plume_trailing_edge_m': plume_edge,
+            'mass_warning': mass_warning,
             'result': _json_safe(result),
             'trajectory': _json_safe(trajectory),
             'deck_profile': _json_safe(deck_profile),

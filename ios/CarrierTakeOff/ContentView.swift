@@ -107,7 +107,8 @@ struct ContentView: View {
                             label: "起飞重量 (kg)",
                             text: $vm.massKg,
                             hint: vm.massRangeHint,
-                            error: vm.massError
+                            error: vm.massError,
+                            warning: vm.massWarning
                         ) { vm.markMassEdited() }
                     }
                     Button {

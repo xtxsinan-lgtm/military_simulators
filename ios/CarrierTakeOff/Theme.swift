@@ -12,6 +12,7 @@ enum AppTheme {
     static let accentDim = Color(hex: 0x0EA5E9)
     static let success = Color(hex: 0x4ADE80)
     static let danger = Color(hex: 0xF87171)
+    static let warning = Color(hex: 0xFBBF24)
     /// 战术终端风格：近直角
     static let radius: CGFloat = 2
     static let mono = Font.system(size: 13, design: .monospaced)

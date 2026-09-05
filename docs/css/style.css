@@ -10,6 +10,7 @@
   --accent-dim: #0ea5e9;
   --success: #4ade80;
   --danger: #f87171;
+  --warn: #fbbf24;
   --radius: 2px;
   --mono: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
@@ -399,7 +400,13 @@ button.secondary:hover:not(:disabled) {
   font-size: 11px;
   color: var(--danger);
 }
+.field-warning {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--warn);
+}
 input.invalid { border-color: var(--danger); }
+input.warn { border-color: var(--warn); }
 
 .back-to-top {
   position: fixed;

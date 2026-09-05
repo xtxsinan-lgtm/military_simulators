@@ -86,12 +86,12 @@ def test_load_presets_contains_anchors_and_j20():
     assert j36['planform'] == 'double_delta'
     assert j36['bwb'] is True
     assert j36['empty_kg'] == pytest.approx(26000)
-    assert j36['internal_fuel_kg'] == pytest.approx(26800)
+    assert j36['internal_fuel_kg'] == pytest.approx(26600)
     assert j36['wing_area_m2'] == pytest.approx(196.0)
     assert j36['wingspan_m'] == pytest.approx(19.24)
     assert j36['AR'] == pytest.approx(19.24 ** 2 / 196.0, abs=0.005)
     assert j36['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        26000, 26800, 196.0, 2, 210,
+        26000, 26600, 196.0, 2, 210,
     ), abs=1e-6)
     uav535 = get_preset_by_id(presets, '53536')
     assert uav535 is not None

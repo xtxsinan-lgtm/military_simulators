@@ -193,10 +193,11 @@ def test_run_simulation_rejects_negative_mass(aircraft, carriers):
 
 
 def test_run_simulation_rejects_mass_above_mtow(aircraft, carriers):
-    """超出 MTOW 在搜索前拒绝。"""
+    """超出 MTOW 逾 3 t 在搜索前拒绝。"""
     carrier = next(c for c in carriers if c.id == 'WASP')
     ac = aircraft['F-35B']
     result = run_simulation('short_takeoff', ac, carrier, 50000.0, 30.0, 22.0)
     assert result['success'] is False
     assert '超出最大起飞重量' in result['error']
     assert str(int(ac.mtow_kg)) in result['error']
+    assert '3000' in result['error']

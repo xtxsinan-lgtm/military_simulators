@@ -13,7 +13,7 @@ import {
 
 const PYODIDE_VERSION = '0.26.4';
 /** 与 takeoff.html 中 app.js?v= 及 data.json?v= 同步递增，避免 CDN/浏览器缓存旧资源 */
-const APP_VERSION = 41;
+const APP_VERSION = 42;
 /** 让出主线程的毫秒数：须覆盖一次样式绘制，使按钮变灰与等待光标生效 */
 const UI_PAINT_YIELD_MS = 40;
 /** 引擎加载或仿真计算中，防止二次点击在阻塞前再次进入 */
@@ -115,18 +115,34 @@ function setOutputSummary(text) {
   els.outputSummary.textContent = text || '';
 }
 
-/** 与 Python validate_takeoff_mass 对齐的即时校验。 */
+/** 与 Python MTOW_OVERLOAD_ALLOWANCE_KG 对齐 */
+const MTOW_OVERLOAD_ALLOWANCE_KG = 3000;
+
+/** 与 Python validate_takeoff_mass / takeoff_mass_over_mtow_warning 对齐。 */
 function validateTakeoffMass(massKg, mtowKg, emptyKg) {
   const mass = Number(massKg);
-  if (!Number.isFinite(mass)) return '请填写有效的起飞重量';
-  if (mass <= 0) return '起飞重量必须为正数';
-  if (Number.isFinite(mtowKg) && mass > mtowKg + 1e-6) {
-    return `起飞重量 ${Math.round(mass)} kg 超出最大起飞重量 ${Math.round(mtowKg)} kg`;
+  if (!Number.isFinite(mass)) return { error: '请填写有效的起飞重量', warning: '' };
+  if (mass <= 0) return { error: '起飞重量必须为正数', warning: '' };
+  if (Number.isFinite(mtowKg) && mass > mtowKg + MTOW_OVERLOAD_ALLOWANCE_KG + 1e-6) {
+    return {
+      error: `起飞重量 ${Math.round(mass)} kg 超出最大起飞重量 ${Math.round(mtowKg)} kg（最多允许超重 ${MTOW_OVERLOAD_ALLOWANCE_KG} kg）`,
+      warning: '',
+    };
   }
   if (Number.isFinite(emptyKg) && mass + 1e-6 < emptyKg) {
-    return `起飞重量 ${Math.round(mass)} kg 低于空重 ${Math.round(emptyKg)} kg`;
+    return {
+      error: `起飞重量 ${Math.round(mass)} kg 低于空重 ${Math.round(emptyKg)} kg`,
+      warning: '',
+    };
   }
-  return '';
+  if (Number.isFinite(mtowKg) && mass > mtowKg + 1e-6) {
+    const over = Math.round(mass - mtowKg);
+    return {
+      error: '',
+      warning: `起飞重量已超过最大起飞重量 ${Math.round(mtowKg)} kg（超重 ${over} kg，仿真仍可进行）`,
+    };
+  }
+  return { error: '', warning: '' };
 }
 
 function refreshMassHint() {
@@ -134,20 +150,26 @@ function refreshMassHint() {
   if (els.massRangeHint) {
     if (ac) {
       els.massRangeHint.textContent =
-        `范围：空重 ${Math.round(ac.empty_kg)} – MTOW ${Math.round(ac.mtow_kg)} kg`;
+        `范围：空重 ${Math.round(ac.empty_kg)} – MTOW ${Math.round(ac.mtow_kg)} kg（最多可超 ${MTOW_OVERLOAD_ALLOWANCE_KG} kg）`;
     } else {
       els.massRangeHint.textContent = '';
     }
   }
-  const err = ac
+  const check = ac
     ? validateTakeoffMass(parseFloat(els.massInput.value), ac.mtow_kg, ac.empty_kg)
-    : '';
+    : { error: '', warning: '' };
+  const msg = check.error || check.warning;
   if (els.massError) {
-    els.massError.textContent = err;
-    els.massError.classList.toggle('hidden', !err);
+    els.massError.textContent = msg;
+    els.massError.classList.toggle('hidden', !msg);
+    els.massError.classList.toggle('field-warning', Boolean(check.warning) && !check.error);
+    els.massError.classList.toggle('field-error', Boolean(check.error));
   }
-  if (els.massInput) els.massInput.classList.toggle('invalid', Boolean(err));
-  return err;
+  if (els.massInput) {
+    els.massInput.classList.toggle('invalid', Boolean(check.error));
+    els.massInput.classList.toggle('warn', Boolean(check.warning) && !check.error);
+  }
+  return check.error;
 }
 
 function markResultsStale() {

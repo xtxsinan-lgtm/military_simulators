@@ -3,13 +3,29 @@ from __future__ import annotations
 
 from typing import Any
 
+# 舰载起飞允许超过最大起飞重量的上限（仍仿真，但前端须提示）
+MTOW_OVERLOAD_ALLOWANCE_KG = 3000.0
+
+
+def _parse_mass(value: float | None) -> float | None:
+    """解析重量；无法得到有限正负值时返回 None。"""
+    if value is None:
+        return None
+    try:
+        mass = float(value)
+    except (TypeError, ValueError):
+        return None
+    if mass != mass:  # NaN
+        return None
+    return mass
+
 
 def validate_takeoff_mass(
     mass_kg: float,
     mtow_kg: float,
     empty_kg: float | None = None,
 ) -> str | None:
-    """校验起飞重量。合法返回 None，否则返回中文错误信息（供前端即时提示）。"""
+    """校验起飞重量。合法（含超 MTOW 不超过 3 t）返回 None，否则返回中文错误。"""
     try:
         mass = float(mass_kg)
     except (TypeError, ValueError):
@@ -18,24 +34,43 @@ def validate_takeoff_mass(
         return '请填写有效的起飞重量'
     if mass <= 0:
         return '起飞重量必须为正数'
-    try:
-        mtow = float(mtow_kg)
-    except (TypeError, ValueError):
-        mtow = None
-    if mtow is not None and mass > mtow + 1e-6:
-        return f'起飞重量 {mass:.0f} kg 超出最大起飞重量 {mtow:.0f} kg'
+    mtow = _parse_mass(mtow_kg)
+    if mtow is not None and mass > mtow + MTOW_OVERLOAD_ALLOWANCE_KG + 1e-6:
+        return (
+            f'起飞重量 {mass:.0f} kg 超出最大起飞重量 {mtow:.0f} kg'
+            f'（最多允许超重 {MTOW_OVERLOAD_ALLOWANCE_KG:.0f} kg）'
+        )
     if empty_kg is not None:
-        try:
-            empty = float(empty_kg)
-        except (TypeError, ValueError):
-            empty = None
+        empty = _parse_mass(empty_kg)
         if empty is not None and mass + 1e-6 < empty:
             return f'起飞重量 {mass:.0f} kg 低于空重 {empty:.0f} kg'
     return None
 
 
+def takeoff_mass_over_mtow_warning(
+    mass_kg: float,
+    mtow_kg: float,
+) -> str | None:
+    """超过 MTOW 但仍在 3 t 裕度内时返回提示；否则 None。"""
+    mass = _parse_mass(mass_kg)
+    mtow = _parse_mass(mtow_kg)
+    if mass is None or mtow is None:
+        return None
+    if mass <= 0:
+        return None
+    if mass <= mtow + 1e-6:
+        return None
+    if mass > mtow + MTOW_OVERLOAD_ALLOWANCE_KG + 1e-6:
+        return None
+    over_kg = mass - mtow
+    return (
+        f'起飞重量已超过最大起飞重量 {mtow:.0f} kg'
+        f'（超重 {over_kg:.0f} kg，仿真仍可进行）'
+    )
+
+
 def mass_range_hint(empty_kg: float | None, mtow_kg: float | None) -> str:
-    """重量输入旁的合理范围文案，例如「范围：空重 14651 – MTOW 27200 kg」。"""
+    """重量输入旁的合理范围文案，例如「范围：空重 14651 – MTOW 27200 kg（最多可超 3000 kg）」。"""
     parts: list[str] = []
     if empty_kg is not None:
         try:
@@ -49,7 +84,10 @@ def mass_range_hint(empty_kg: float | None, mtow_kg: float | None) -> str:
             pass
     if not parts:
         return ''
-    return '范围：' + ' – '.join(parts) + ' kg'
+    hint = '范围：' + ' – '.join(parts) + ' kg'
+    if mtow_kg is not None and _parse_mass(mtow_kg) is not None:
+        hint += f'（最多可超 {MTOW_OVERLOAD_ALLOWANCE_KG:.0f} kg）'
+    return hint
 
 
 def _fmt_num(value: float, digits: int = 1) -> str:

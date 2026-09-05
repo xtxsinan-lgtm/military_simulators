@@ -11,6 +11,7 @@ page {
   --accent-dim: #0ea5e9;
   --success: #4ade80;
   --danger: #f87171;
+  --warn: #fbbf24;
   --radius: 4rpx;
 
   background-color: var(--bg);
@@ -132,7 +133,14 @@ scroll-view {
   font-size: 20rpx;
   margin-top: 8rpx;
 }
+.field-warning {
+  display: block;
+  color: var(--warn);
+  font-size: 20rpx;
+  margin-top: 8rpx;
+}
 .field-input.invalid { border-color: var(--danger); }
+.field-input.warn { border-color: var(--warn); }
 .back-to-top {
   position: fixed;
   right: 24rpx;

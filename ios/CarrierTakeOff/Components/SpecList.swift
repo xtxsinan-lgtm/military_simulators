@@ -118,6 +118,7 @@ struct FieldInput: View {
     var readonly: Bool = false
     var hint: String? = nil
     var error: String? = nil
+    var warning: String? = nil
     var onEdit: (() -> Void)?
 
     var body: some View {
@@ -133,7 +134,7 @@ struct FieldInput: View {
                 .padding(.vertical, 9)
                 .foregroundStyle(readonly ? AppTheme.muted : AppTheme.text)
                 .background(AppTheme.surface2)
-                .overlay(Rectangle().stroke((error?.isEmpty == false) ? AppTheme.danger : AppTheme.border, lineWidth: 1))
+                .overlay(Rectangle().stroke(borderColor, lineWidth: 1))
                 .onChange(of: text) { _, _ in
                     if !readonly { onEdit?() }
                 }
@@ -146,7 +147,18 @@ struct FieldInput: View {
                 Text(error)
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(AppTheme.danger)
+            } else if let warning, !warning.isEmpty {
+                Text(warning)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(AppTheme.warning)
             }
         }
+    }
+
+    /// 错误优先红框，超 MTOW 提示用琥珀色。
+    private var borderColor: Color {
+        if error?.isEmpty == false { return AppTheme.danger }
+        if warning?.isEmpty == false { return AppTheme.warning }
+        return AppTheme.border
     }
 }
