@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 71;
+const APP_VERSION = 72;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -50,6 +50,8 @@ let runLock = false;
 let dirty = false;
 let dashTimer = 0;
 let applyingPreset = false;
+/** 当前机型显示名：来自选择器预设，不再单独提供「名称」输入。 */
+let currentAircraftName = '';
 
 function $(id) {
   return document.getElementById(id);
@@ -120,7 +122,6 @@ function renderAircraftFields() {
     internal: '内埋弹舱', semi_recessed: '半埋', pylon: '挂架',
   };
   $('tgtFields').innerHTML = `
-    <div class="field"><label>名称</label><input id="tgt_name" type="text"></div>
     <div class="pair">
       <div class="field"><label>展弦比 AR <span class="unit">计算</span></label><input id="tgt_AR" type="number" step="0.01" min="0.5" readonly tabindex="-1"></div>
       <div class="field"><label>前缘后掠角 <span class="unit">°</span></label><input id="tgt_sweep" type="number" step="0.1"></div>
@@ -225,10 +226,15 @@ function syncDerivedLoads() {
   if (wl != null) $('tgt_wl').value = fmtDerived(wl, 6);
 }
 
+/** 机型名取自当前预设；未选时用 fallback（机型字典默认「未命名」）。 */
+function selectedAircraftName(fallback = '未命名') {
+  return currentAircraftName || fallback;
+}
+
 function applyPresetToFields(preset) {
   if (!preset) return;
   applyingPreset = true;
-  $('tgt_name').value = preset.name || '';
+  currentAircraftName = preset.name || '';
   $('tgt_AR').value = preset.AR != null ? preset.AR : '';
   $('tgt_sweep').value = preset.sweep_deg;
   $('tgt_sweep_inner').value = preset.sweep_inner_deg != null ? preset.sweep_inner_deg : '';
@@ -311,7 +317,7 @@ function applyEnginePreset(p) {
 function readAircraft() {
   syncDerivedLoads();
   return {
-    name: $('tgt_name').value || '未命名',
+    name: selectedAircraftName(),
     AR: Number($('tgt_AR').value),
     sweep_deg: Number($('tgt_sweep').value),
     sweep_inner_deg: Number($('tgt_sweep_inner').value) || 0,
@@ -347,7 +353,7 @@ function readAircraft() {
 
 function readDashboardParams() {
   const params = {
-    name: $('tgt_name').value || '',
+    name: selectedAircraftName(''),
     target: readAircraft(),
     empty_kg: Number($('wtEmpty').value),
     internal_fuel_kg: Number($('wtFuel').value),

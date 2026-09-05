@@ -13,6 +13,7 @@ from utils.combat_radius.combat_radius_presets import (
     load_engine_presets,
     load_presets,
     preset_select_label,
+    selected_aircraft_name,
     preset_to_aircraft,
     preset_to_aircraft_dict,
     sort_presets_by_nation_then_name,
@@ -483,6 +484,16 @@ def test_preset_select_label():
     assert preset_select_label({'name': '歼-20', 'nation': '中国'}) == '中国 · 歼-20'
     assert preset_select_label({'name': 'F-22', 'nation': '  '}) == 'F-22'
     assert preset_select_label({'name': '自定义'}) == '自定义'
+
+
+def test_selected_aircraft_name():
+    """名称只来自机型预设；缺省回退，空名称也回退。"""
+    assert selected_aircraft_name({'name': '歼-20'}) == '歼-20'
+    assert selected_aircraft_name(None) == '未命名'
+    assert selected_aircraft_name({}) == '未命名'
+    assert selected_aircraft_name({'name': '  '}) == '未命名'
+    assert selected_aircraft_name(None, '') == ''
+    assert selected_aircraft_name({'name': 'F-22 Raptor'}, '') == 'F-22 Raptor'
 
 
 def test_load_presets_missing_file_returns_empty(tmp_path):

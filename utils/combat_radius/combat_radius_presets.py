@@ -77,6 +77,17 @@ def preset_select_label(preset: dict[str, Any]) -> str:
     return name
 
 
+def selected_aircraft_name(
+    preset: dict[str, Any] | None,
+    fallback: str = '未命名',
+) -> str:
+    """机型显示名取自预设；选择器已展示机型，表单不再另开名称栏。"""
+    if not preset:
+        return fallback
+    name = str(preset.get('name') or '').strip()
+    return name or fallback
+
+
 def preset_to_aircraft_dict(preset: dict[str, Any]) -> dict[str, Any]:
     """预设记录 → Aircraft 字段字典（去掉 id/nation/ld_known/notes）。"""
     ac = aircraft_from_dict(preset)

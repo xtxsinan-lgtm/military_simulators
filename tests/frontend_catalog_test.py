@@ -191,6 +191,17 @@ def test_docs_combat_radius_page_exists_and_links():
     assert "fillAircraftSelect($('tgtPreset')" in js_text
 
 
+def test_combat_radius_form_omits_redundant_name_field():
+    """机型选择器已展示名称，Web 表单不再另开「名称」栏。"""
+    from utils.paths import ROOT
+
+    js_text = (ROOT / 'docs' / 'js' / 'combat_radius.js').read_text(encoding='utf-8')
+    assert 'function selectedAircraftName' in js_text
+    assert 'currentAircraftName' in js_text
+    assert "id=\"tgt_name\"" not in js_text
+    assert '<label>名称</label>' not in js_text
+
+
 def test_pyodide_bundles_combat_radius_modules():
     """作战半径 Web 页须加载与 build_docs 一致的 Python 模块。"""
     from scripts.build_docs import PY_LOAD_ORDER

@@ -567,6 +567,21 @@ def test_e2e_combat_radius_three_channels_exist():
 
 
 @pytest.mark.e2e
+def test_e2e_combat_radius_no_duplicate_name_field():
+    """三端机型选择器已展示名称，表单不再另开「名称」栏。"""
+    js_text = (ROOT / 'docs' / 'js' / 'combat_radius.js').read_text(encoding='utf-8')
+    wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
+    ios = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusView.swift').read_text(encoding='utf-8')
+    assert 'function selectedAircraftName' in js_text
+    assert "id=\"tgt_name\"" not in js_text
+    assert '<label>名称</label>' not in js_text
+    assert '>名称</text>' not in wxml
+    assert 'field-label"><text>名称' not in wxml
+    assert 'field("名称"' not in ios
+    assert 'field("机型名"' not in ios
+
+
+@pytest.mark.e2e
 def test_e2e_combat_radius_aircraft_list_sorted_by_nation_then_name():
     """catalog / API 机型列表须按国别再按名称字母序，供三端选择器共用。"""
     from utils.combat_radius.combat_radius_presets import (
