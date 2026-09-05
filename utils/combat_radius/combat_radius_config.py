@@ -73,6 +73,60 @@ def dry_to_max_thrust_ratio() -> float:
     return ratio
 
 
+F135_TSFC_TOGGLE_AIRCRAFT_IDS = ('F-35A', 'F-35B', 'F-35C')
+F135_TSFC_TOGGLE_PUBLISHED = 1.22
+F135_TSFC_TOGGLE_LPC_ONLY = 1.04
+F135_TSFC_TOGGLE_PUBLISHED_LABEL = '×1.22 公开军推'
+F135_TSFC_TOGGLE_LPC_ONLY_LABEL = '×1.04 仅低压压气机'
+F135_TSFC_TOGGLE_NOTE = (
+    '1.22 按公开军推 TSFC 相对 F100 的差距；'
+    '1.04 只计低压压气机为垂起榨功做的设计妥协（巡航不抽升力风扇）。'
+)
+
+
+def f135_tsfc_toggle_config() -> dict[str, Any]:
+    """F-35 油耗惩罚切换：公开军推 1.22 与仅低压压气机 1.04。"""
+    raw = load_combat_radius_config().get('f135_tsfc_toggle') or {}
+    ids = raw.get('aircraft_ids') or list(F135_TSFC_TOGGLE_AIRCRAFT_IDS)
+    return {
+        'aircraft_ids': [str(x) for x in ids],
+        'published': float(raw.get('published', F135_TSFC_TOGGLE_PUBLISHED)),
+        'lpc_only': float(raw.get('lpc_only', F135_TSFC_TOGGLE_LPC_ONLY)),
+        'published_label': str(raw.get('published_label') or F135_TSFC_TOGGLE_PUBLISHED_LABEL),
+        'lpc_only_label': str(raw.get('lpc_only_label') or F135_TSFC_TOGGLE_LPC_ONLY_LABEL),
+        'note': str(raw.get('note') or F135_TSFC_TOGGLE_NOTE),
+    }
+
+
+def shows_f135_tsfc_toggle(aircraft_id: str | None) -> bool:
+    """仅 F-35A/B/C 显示油耗惩罚切换。"""
+    return str(aircraft_id or '') in set(f135_tsfc_toggle_config()['aircraft_ids'])
+
+
+def f135_tsfc_install_mult_for_mode(mode: str | None) -> float:
+    """按切换档返回 TSFC 乘数；非法档回退公开军推 1.22。"""
+    cfg = f135_tsfc_toggle_config()
+    if str(mode or '') == 'lpc_only':
+        return float(cfg['lpc_only'])
+    return float(cfg['published'])
+
+
+def resolve_ui_tsfc_install_mult(
+    aircraft_id: str | None,
+    mode: str | None = None,
+    engine_mult: float | None = None,
+) -> float:
+    """界面选定的 TSFC 乘数：F-35 三型用切换档，其余用发动机预设。"""
+    if shows_f135_tsfc_toggle(aircraft_id):
+        return f135_tsfc_install_mult_for_mode(mode)
+    if engine_mult is None:
+        return 1.0
+    val = float(engine_mult)
+    if val <= 0:
+        raise ValueError('TSFC 乘数须为正')
+    return val
+
+
 def build_combat_radius_config_payload() -> dict[str, Any]:
     """构建前端/小程序/iOS 共用的作战半径配置片段。"""
     cfg = load_combat_radius_config()
@@ -85,6 +139,7 @@ def build_combat_radius_config_payload() -> dict[str, Any]:
         'store_mount_labels': dict(cfg.get('store_mount_labels', {})),
         'mission_fuel': dict(cfg.get('mission_fuel', {})),
         'engine': dict(cfg.get('engine', {})),
+        'f135_tsfc_toggle': f135_tsfc_toggle_config(),
     }
 
 

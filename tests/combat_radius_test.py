@@ -891,6 +891,42 @@ def test_ma08_combat_radius_calibration_targets():
         )
 
 
+def test_f35_lpc_only_tsfc_mult_widens_ma08_radius():
+    """F-35 三型切到 1.04 后 Ma 0.8 半径应明显高于公开军推 1.22。"""
+    from utils.combat_radius.combat_radius_config import f135_tsfc_install_mult_for_mode
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+
+    presets = load_presets()
+    engines = load_engine_presets()
+    lpc = f135_tsfc_install_mult_for_mode('lpc_only')
+    cases = [
+        ('F-35A', 'f135', 1441),
+        ('F-35B', 'f135b', 997),
+        ('F-35C', 'f135', 1655),
+    ]
+    for ac_id, eng_id, target_km in cases:
+        tgt = get_preset_by_id(presets, ac_id)
+        eng = get_preset_by_id(engines, eng_id)
+        r = run_estimate_radius_from_params({
+            'target': tgt,
+            'empty_kg': tgt['empty_kg'],
+            'internal_fuel_kg': tgt['internal_fuel_kg'],
+            'n_pilots': tgt['n_pilots'],
+            'missile_mass_kg': tgt['missile_mass_kg'],
+            'n_engines': tgt['n_engines'],
+            'carrier': bool(tgt.get('carrier', False)),
+            'type_label': tgt.get('type_label'),
+            'bpr': eng['bpr'],
+            'opr': eng['opr'],
+            't4_K': eng['t4_K'],
+            'tsl_kN': eng['tsl_kN'],
+            'tsfc_install_mult': lpc,
+        })
+        m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
+        assert m08['feasible'] is True, ac_id
+        assert m08['radius_km'] == pytest.approx(target_km, abs=30), ac_id
+
+
 def test_cruise_context_from_params_uses_half_fuel():
     ctx, ac = _cruise_context_from_params(_radius_params())
     assert ctx.n_engines == 2
@@ -950,10 +986,20 @@ def test_run_search_best_cruise_from_params_ma08():
     assert r['ld'] > 0
     assert r['eta_th'] > 0
     assert r['eta_p'] > 0
+    assert r['eta_o'] > 0
     assert r['thrust_avail_kN'] > 0
     assert r['max_ld'] >= r['ld'] - 1e-9
     assert r['max_ld_thrust_mode'] == 'military'
     assert 11000.0 <= r['alt_m'] <= 13000.0
+    scan = r['altitude_scan']
+    assert len(scan) >= 2
+    alts = [p['alt_m'] for p in scan]
+    assert alts == sorted(alts)
+    keys = ('ld', 'thrust_avail_kN', 'load', 'eta_th', 'eta_p', 'eta_o', 'feasible')
+    assert all(k in scan[0] for k in keys)
+    selected = [p for p in scan if p['selected']]
+    assert len(selected) == 1
+    assert selected[0]['alt_m'] == pytest.approx(r['alt_m'])
 
 
 def test_run_search_best_cruise_infeasible_mach():
@@ -962,6 +1008,10 @@ def test_run_search_best_cruise_infeasible_mach():
     assert r['feasible'] is False
     assert '92%' in r['fail_reason']
     assert r['max_ld'] is None
+    assert isinstance(r.get('altitude_scan'), list)
+    if r['altitude_scan']:
+        assert all(not p['feasible'] for p in r['altitude_scan'])
+        assert all(not p['selected'] for p in r['altitude_scan'])
 
 
 def test_run_search_best_cruise_infeasible_has_ab_max_ld():

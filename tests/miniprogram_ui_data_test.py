@@ -102,6 +102,10 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '热效率' in cr_js
     assert '推进效率' in cr_js
     assert '总效率' in cr_js
+    assert 'function q1RowsFrom' in cr_js
+    assert 'altitude_scan' in cr_js
+    assert '高度km' in cr_wxml
+    assert '绿行是该速度下升阻比×总效率最大的高度' in cr_wxml
     assert 'η_th' not in cr_js
     assert 'η_p' not in cr_js
     assert 'η_o' not in cr_js
@@ -132,6 +136,14 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert '外段前缘后掠' in cr_wxml
     assert 'onInletPreset' in cr_js
     assert 'onStoreMountPreset' in cr_js
+    assert 'onF135TsfcMode' in cr_js
+    assert 'resolvePageTsfcInstallMult' in cr_js
+    assert 'showF135TsfcToggle' in cr_wxml
+    assert 'f135TsfcPublishedLabel' in cr_wxml
+    assert 'f135TsfcLpcLabel' in cr_wxml
+    assert '×1.22 公开军推' in cr_js
+    assert '×1.04 仅低压压气机' in cr_js
+    assert 'F135 油耗惩罚' in cr_wxml
     assert '进气道' in cr_wxml
     assert '挂装方式' in cr_wxml
     assert "inlet: ac.inlet || 'dsi'" in cr_js

@@ -505,10 +505,19 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '热效率' in cr_mp
     assert '推进效率' in cr_mp
     assert '总效率' in cr_mp
+    assert 'function q1RowsFrom' in cr_mp
+    assert 'altitude_scan' in cr_mp
+    assert '高度km' in wxml
+    assert '推力kN' in wxml
+    assert '绿行是该速度下升阻比×总效率最大的高度' in wxml
     assert 'η_th' not in cr_mp
     assert '锚点' not in wxml
     assert 'search_best_cruise' in js_text
     assert 'estimate_engine_cycle' in js_text
+    assert 'function renderAltitudeScan' in js_text
+    assert 'altitude_scan' in js_text
+    assert '<th>可用推力 kN</th>' in js_text
+    assert '绿行是该速度下升阻比×总效率最大的高度' in js_text
     ios = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusView.swift').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in ios
     assert '搜索最佳升阻比和巡航高度' in ios
@@ -528,6 +537,9 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '热效率' in ios
     assert '推进效率' in ios
     assert '总效率' in ios
+    assert 'func altitudeScanTable' in ios
+    assert 'altitude_scan' in ios
+    assert '绿行是该速度下升阻比×总效率最大的高度' in ios
     assert 'η_th' not in ios
     assert 'p.label' in ios
     assert 'max_possible_cruise' in ios
@@ -564,6 +576,19 @@ def test_e2e_combat_radius_three_channels_exist():
     assert 'function presetSelectLabel' in cr_mp
     assert 'selectLabel' in ios
     assert 'sortedByNationThenName' in ios_vm
+    assert 'f135TsfcBox' in html_text
+    assert 'currentTsfcInstallMult' in js_text
+    assert 'onF135TsfcMode' in cr_mp
+    assert 'showF135TsfcToggle' in wxml
+    assert '×1.22 公开军推' in html_text
+    assert 'f135TsfcPublishedLabel' in wxml
+    assert '×1.04 仅低压压气机' in cr_mp
+    assert 'setF135TsfcMode' in ios_vm
+    assert 'currentTsfcInstallMult' in ios_vm
+    assert 'F135 油耗惩罚' in ios
+    assert 'tsfc_install_mult' in js_text
+    assert 'tsfc_install_mult' in cr_mp
+    assert 'tsfc_install_mult' in ios_vm
 
 
 @pytest.mark.e2e
@@ -757,6 +782,36 @@ def test_e2e_combat_radius_f35c_engine_install_applied():
 
 
 @pytest.mark.e2e
+def test_e2e_f35_tsfc_toggle_lpc_only_widens_radius():
+    """F-35A 切到 1.04 后仪表盘 Ma 0.8 半径须明显高于公开军推 1.22。"""
+    from utils.combat_radius.combat_radius_config import f135_tsfc_install_mult_for_mode
+    from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
+
+    presets = load_presets()
+    engines = load_engine_presets()
+    tgt = get_preset_by_id(presets, 'F-35A')
+    eng = get_preset_by_id(engines, 'f135')
+    pub = dashboard_params_from_preset(tgt, eng)
+    lpc = dict(pub)
+    lpc['tsfc_install_mult'] = f135_tsfc_install_mult_for_mode('lpc_only')
+    r_pub = run_combat_radius_json({'action': 'aircraft_dashboard', 'params': pub})
+    r_lpc = run_combat_radius_json({'action': 'aircraft_dashboard', 'params': lpc})
+    m08_pub = next(p for p in r_pub['points'] if p['id'] == 'mach_0_8')
+    m08_lpc = next(p for p in r_lpc['points'] if p['id'] == 'mach_0_8')
+    assert m08_pub['feasible'] is True and m08_lpc['feasible'] is True
+    assert m08_lpc['radius_km'] > m08_pub['radius_km'] + 150
+    assert m08_lpc['radius_km'] == pytest.approx(1441, abs=30)
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate',
+        json.dumps({'action': 'aircraft_dashboard', 'params': lpc}).encode(),
+    )
+    assert status == 200
+    http = json.loads(body.decode())
+    http_m08 = next(p for p in http['points'] if p['id'] == 'mach_0_8')
+    assert http_m08['radius_km'] == pytest.approx(m08_lpc['radius_km'], abs=1)
+
+
+@pytest.mark.e2e
 def test_e2e_f135_pw600_split_from_pw100():
     """垂起型 F135-PW-600 须与 PW-100 分型号：循环相同、海平面军推/加力更低。"""
     from utils.combat_radius.combat_radius_results import run_preset_dashboard
@@ -915,7 +970,12 @@ def test_e2e_search_best_cruise_and_engine_cycle_http():
     assert result['success'] is True
     assert result['feasible'] is True
     assert result['ld'] > 0
+    assert result['eta_o'] > 0
     assert result['max_ld'] is not None and result['max_ld'] >= result['ld'] - 1e-9
+    scan = result.get('altitude_scan') or []
+    assert len(scan) >= 2
+    assert all(k in scan[0] for k in ('ld', 'thrust_avail_kN', 'load', 'eta_th', 'eta_p', 'eta_o'))
+    assert any(p.get('selected') for p in scan)
     p['mach'] = 2.2
     p['max_tsl_kN'] = 156.0
     status, _, body = handle_request(

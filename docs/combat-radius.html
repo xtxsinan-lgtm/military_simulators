@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=72">
+<link rel="stylesheet" href="css/combat_radius.css?v=74">
 </head>
 <body>
 <div class="scanline"></div>
@@ -73,6 +73,14 @@
         <label>附件功提取比例</label>
         <input type="number" id="effAcc" step="0.01" min="0" max="0.5" value="0.16">
       </div>
+      <div id="f135TsfcBox" hidden>
+        <div class="section-label amber">▸ F135 油耗惩罚</div>
+        <div class="seg" id="f135TsfcSeg">
+          <button type="button" class="seg-btn on" data-mode="published">×1.22 公开军推</button>
+          <button type="button" class="seg-btn" data-mode="lpc_only">×1.04 仅低压压气机</button>
+        </div>
+        <p class="note" id="f135TsfcNote">1.22 按公开军推 TSFC 相对 F100 的差距；1.04 只计低压压气机为垂起榨功做的设计妥协（巡航不抽升力风扇）。</p>
+      </div>
       <button class="run" id="dashBtn" data-run-dash>▶ 计算作战半径</button>
     </div>
   </div>
@@ -89,7 +97,7 @@
 <div class="stack" style="margin-top:14px;">
   <div class="panel">
     <div class="panel-head"><span>给定速度 · 搜索最佳升阻比与巡航高度</span><span class="tag">SEARCH</span></div>
-    <p class="note">临时按当前机型/发动机参数，在 11–20 km 内搜索使升阻比×总效率最大、且阻力不超过军推 92% 的高度。不能巡航时仍计算可飞高度上的最大升阻比（加力按全部推力，高度可到海平面）。</p>
+    <p class="note">临时按当前机型/发动机参数，在 11–20 km 内搜索使升阻比×总效率最大、且阻力不超过军推 92% 的高度。上方给出最佳点（含总效率）；下方列出该速度下各搜索高度的升阻比、可用推力、负载与热/推进/总效率。不能巡航时仍计算可飞高度上的最大升阻比（加力按全部推力，高度可到海平面）。</p>
     <div class="pair">
       <div class="field"><label>马赫数</label><input type="number" id="q1Mach" step="0.05" min="0.1" value="0.9"></div>
     </div>
@@ -121,6 +129,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预计算快照 + Pyodide 按需计算 · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=72"></script>
+<script type="module" src="js/combat_radius.js?v=74"></script>
 </body>
 </html>

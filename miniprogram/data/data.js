@@ -4050,7 +4050,7 @@ module.exports = {
     }
   ],
   "combat_radius_config": {
-    "version": 6,
+    "version": 7,
     "ui": {
       "default_target_id": "J-20",
       "default_engine_id": "f119",
@@ -4097,6 +4097,18 @@ module.exports = {
     },
     "engine": {
       "dry_to_max_thrust_ratio": 0.7
+    },
+    "f135_tsfc_toggle": {
+      "aircraft_ids": [
+        "F-35A",
+        "F-35B",
+        "F-35C"
+      ],
+      "published": 1.22,
+      "lpc_only": 1.04,
+      "published_label": "×1.22 公开军推",
+      "lpc_only_label": "×1.04 仅低压压气机",
+      "note": "1.22 按公开军推 TSFC 相对 F100 的差距；1.04 只计低压压气机为垂起榨功做的设计妥协（巡航不抽升力风扇）。"
     }
   },
   "combat_radius_results": {

@@ -7,6 +7,7 @@ import pytest
 
 from utils.combat_radius.engine_efficiency import (
     F135_TSFC_INSTALL_MULT,
+    F135_TSFC_LPC_ONLY_MULT,
     FUEL_LHV_J_KG,
     G0,
     TSFC_INSTALL_MULT_DEFAULT,
@@ -143,6 +144,8 @@ def test_parse_tsfc_install_mult_and_eta_o_after_install():
     assert parse_tsfc_install_mult(None) == TSFC_INSTALL_MULT_DEFAULT
     assert parse_tsfc_install_mult('') == TSFC_INSTALL_MULT_DEFAULT
     assert parse_tsfc_install_mult(1.22) == pytest.approx(F135_TSFC_INSTALL_MULT)
+    assert F135_TSFC_LPC_ONLY_MULT == pytest.approx(1.04)
+    assert parse_tsfc_install_mult(1.04) == pytest.approx(F135_TSFC_LPC_ONLY_MULT)
     with pytest.raises(ValueError, match='TSFC 乘数'):
         parse_tsfc_install_mult(0.0)
     eta = 0.192

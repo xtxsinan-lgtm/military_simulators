@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 72;
+const APP_VERSION = 74;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -52,6 +52,10 @@ let dashTimer = 0;
 let applyingPreset = false;
 /** 当前机型显示名：来自选择器预设，不再单独提供「名称」输入。 */
 let currentAircraftName = '';
+/** F-35 油耗惩罚档：published=1.22，lpc_only=1.04。 */
+let f135TsfcMode = 'published';
+/** 选机后尚未改其它参数时，切回 1.22 可直接用预计算快照。 */
+let snapshotEligible = false;
 
 function $(id) {
   return document.getElementById(id);
@@ -232,7 +236,12 @@ function selectedAircraftName(fallback = '未命名') {
 }
 
 function applyPresetToFields(preset) {
-  if (!preset) return;
+  if (!preset) {
+    currentAircraftName = '';
+    f135TsfcMode = 'published';
+    syncF135TsfcToggle('');
+    return;
+  }
   applyingPreset = true;
   currentAircraftName = preset.name || '';
   $('tgt_AR').value = preset.AR != null ? preset.AR : '';
@@ -266,6 +275,8 @@ function applyPresetToFields(preset) {
   applyWeightFromPreset(preset);
   syncDoubleDeltaFields();
   syncDerivedLoads();
+  f135TsfcMode = 'published';
+  syncF135TsfcToggle(preset.id);
   applyingPreset = false;
 }
 
@@ -312,6 +323,48 @@ function applyEnginePreset(p) {
   const tsl = resolveTslKN(p);
   $('engTsl').value = tsl === '' ? '' : tsl;
   $('engMaxTsl').value = p.max_tsl_kN != null ? p.max_tsl_kN : '';
+}
+
+function f135ToggleCfg() {
+  return data?.combat_radius_config?.f135_tsfc_toggle || {};
+}
+
+function isF35TsfcToggleAircraft(id) {
+  const ids = f135ToggleCfg().aircraft_ids || ['F-35A', 'F-35B', 'F-35C'];
+  return ids.includes(id);
+}
+
+function currentEngineTsfcMult() {
+  const engines = data.combat_radius_engine_presets || [];
+  const eng = engines.find((x) => x.id === $('engPreset').value);
+  const raw = Number(eng?.tsfc_install_mult);
+  return Number.isFinite(raw) && raw > 0 ? raw : 1.0;
+}
+
+function currentTsfcInstallMult() {
+  const id = $('tgtPreset') ? $('tgtPreset').value : '';
+  const cfg = f135ToggleCfg();
+  if (isF35TsfcToggleAircraft(id)) {
+    return f135TsfcMode === 'lpc_only'
+      ? Number(cfg.lpc_only || 1.04)
+      : Number(cfg.published || 1.22);
+  }
+  return currentEngineTsfcMult();
+}
+
+function syncF135TsfcToggle(aircraftId) {
+  const box = $('f135TsfcBox');
+  if (!box) return;
+  const cfg = f135ToggleCfg();
+  const show = isF35TsfcToggleAircraft(aircraftId);
+  box.hidden = !show;
+  if ($('f135TsfcNote') && cfg.note) $('f135TsfcNote').textContent = cfg.note;
+  document.querySelectorAll('#f135TsfcSeg .seg-btn').forEach((btn) => {
+    const mode = btn.getAttribute('data-mode');
+    btn.classList.toggle('on', mode === f135TsfcMode);
+    if (mode === 'published' && cfg.published_label) btn.textContent = cfg.published_label;
+    if (mode === 'lpc_only' && cfg.lpc_only_label) btn.textContent = cfg.lpc_only_label;
+  });
 }
 
 function readAircraft() {
@@ -373,6 +426,10 @@ function readDashboardParams() {
   const tsl = Number($('engTsl').value);
   if (Number.isFinite(tsl) && tsl > 0) params.tsl_kN = tsl;
   if ($('engMaxTsl').value !== '') params.max_tsl_kN = Number($('engMaxTsl').value);
+  params.tsfc_install_mult = currentTsfcInstallMult();
+  if ($('tgt_type_label') && $('tgt_type_label').value) {
+    params.type_label = $('tgt_type_label').value;
+  }
   return params;
 }
 
@@ -471,6 +528,32 @@ function thrustModeLabel(mode) {
   return '—';
 }
 
+/** 给定速度搜索：各高度升阻比、推力、负载与效率表。 */
+function renderAltitudeScan(scan, bestAlt) {
+  if (!scan || !scan.length) return '';
+  const rows = scan.map((p) => {
+    const selected = p.selected || (bestAlt != null && Math.abs(p.alt_m - bestAlt) < 1e-6);
+    const cls = selected ? 'target' : (p.feasible ? '' : 'miss');
+    return `<tr class="${cls}">
+      <td>${fmt((p.alt_m || 0) / 1000, 1)}</td>
+      <td>${fmt(p.ld, 3)}</td>
+      <td>${fmt(p.thrust_avail_kN, 1)}</td>
+      <td>${pct(p.load)}</td>
+      <td>${pct(p.eta_th)}</td>
+      <td>${pct(p.eta_p)}</td>
+      <td>${pct(p.eta_o)}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="scroll-x"><table>
+    <thead><tr>
+      <th>高度 km</th><th>升阻比</th><th>可用推力 kN</th><th>负载</th>
+      <th>热效率</th><th>推进效率</th><th>总效率</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>
+  <p class="note">绿行是该速度下升阻比×总效率最大的高度；灰行不满足 92% 军推裕度。</p>`;
+}
+
 /** 分速表第一列：固定马赫只写数字，表尾命名行写中文名称加马赫。 */
 function cruiseSpeedLabel(p) {
   const name = p.label || (p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—');
@@ -545,6 +628,7 @@ function renderDash(r, sourceLabel) {
 
 function showSnapshot() {
   dirty = false;
+  snapshotEligible = true;
   const id = $('tgtPreset').value;
   const snap = id ? snapshotFor(id) : null;
   if (!snap) {
@@ -565,6 +649,7 @@ function setDashButtonsRunning(on) {
 
 function markParamsDirty() {
   if (applyingPreset) return;
+  snapshotEligible = false;
   dirty = true;
   if ($('dashStatus').textContent !== 'RUNNING') {
     $('dashStatus').textContent = 'PARAMS CHANGED';
@@ -645,14 +730,16 @@ async function runSearchCruise() {
       const r = await callPythonAsync('search_best_cruise', params);
       if (!r.success) throw new Error(r.error || '搜索失败');
       if (!r.feasible) {
+        const scanHtml = renderAltitudeScan(r.altitude_scan, r.alt_m);
         const maxLdHtml = r.max_ld != null
           ? `<div class="stat-row">
               <div class="stat"><div class="k">最大 L/D</div><div class="v">${fmt(r.max_ld, 3)}</div></div>
               <div class="stat"><div class="k">最大 L/D 高度</div><div class="v amber">${fmt((r.max_ld_alt_m || 0) / 1000, 1)} km</div></div>
               <div class="stat"><div class="k">推力</div><div class="v">${thrustModeLabel(r.max_ld_thrust_mode)}</div></div>
             </div>
-            <p class="note">${r.fail_reason || '无可行巡航高度'}（上表为可飞高度上的最大升阻比）</p>`
-          : `<p class="placeholder">${r.fail_reason || '无可行高度'}</p>`;
+            <p class="note">${r.fail_reason || '无可行巡航高度'}（上表为可飞高度上的最大升阻比）</p>
+            ${scanHtml}`
+          : `${scanHtml || `<p class="placeholder">${r.fail_reason || '无可行高度'}</p>`}`;
         renderQueryBox('q1Box', maxLdHtml);
         return;
       }
@@ -665,7 +752,9 @@ async function runSearchCruise() {
           <div class="stat"><div class="k">负载</div><div class="v">${pct(r.load)}</div></div>
           <div class="stat"><div class="k">热效率</div><div class="v">${pct(r.eta_th)}</div></div>
           <div class="stat"><div class="k">推进效率</div><div class="v">${pct(r.eta_p)}</div></div>
+          <div class="stat"><div class="k">总效率</div><div class="v">${pct(r.eta_o)}</div></div>
         </div>
+        ${renderAltitudeScan(r.altitude_scan, r.alt_m)}
       `);
     });
   } catch (e) {
@@ -713,6 +802,7 @@ async function runEngineCycle() {
         eps: Number($('effEps').value),
         etan: Number($('effEtan').value),
         acc_frac: Number($('effAcc').value),
+        tsfc_install_mult: currentTsfcInstallMult(),
       });
       if (!r.success) throw new Error(r.error || '计算失败');
       renderQueryBox('q3Box', `
@@ -732,10 +822,12 @@ function bindLiveInputs() {
   const root = document.querySelector('.grid');
   root.addEventListener('input', (e) => {
     if (e.target && (e.target.id === 'tgtPreset' || e.target.id === 'engPreset')) return;
+    if (e.target && e.target.closest && e.target.closest('#f135TsfcBox')) return;
     if (e.target && e.target.closest && e.target.closest('.panel')) scheduleLiveDash();
   });
   root.addEventListener('change', (e) => {
     if (e.target && (e.target.id === 'tgtPreset' || e.target.id === 'engPreset')) return;
+    if (e.target && e.target.closest && e.target.closest('#f135TsfcBox')) return;
     if (e.target && e.target.closest && e.target.closest('.panel')) scheduleLiveDash();
   });
 }
@@ -752,6 +844,8 @@ function applyUiDefaults() {
     $('tgtPreset').value = tgt.id;
     applyPresetToFields(tgt);
     showSnapshot();
+  } else {
+    syncF135TsfcToggle('');
   }
 }
 
@@ -772,6 +866,20 @@ async function main() {
       const p = engines.find((x) => x.id === $('engPreset').value);
       applyEnginePreset(p);
       scheduleLiveDash();
+    });
+    document.querySelectorAll('#f135TsfcSeg .seg-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-mode') || 'published';
+        if (f135TsfcMode === mode) return;
+        f135TsfcMode = mode;
+        syncF135TsfcToggle($('tgtPreset').value);
+        if (mode === 'published' && snapshotEligible) {
+          showSnapshot();
+          return;
+        }
+        clearTimeout(dashTimer);
+        runLiveDash();
+      });
     });
     applyUiDefaults();
     bindLiveInputs();

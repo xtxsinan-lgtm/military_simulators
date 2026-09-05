@@ -96,6 +96,13 @@ header{
 .section-label.cyan{ color:var(--cyan); }
 .section-label.amber{ color:var(--amber); }
 
+.seg{ display:flex; gap:8px; margin-bottom:6px; }
+.seg-btn{
+  flex:1; background:var(--panel2); border:1px solid var(--line); color:var(--text-dim);
+  font-family:var(--mono); font-size:12px; padding:8px 6px; cursor:pointer; border-radius:2px;
+}
+.seg-btn.on{ border-color:var(--amber); color:var(--amber); background:#1a1408; }
+
 button.run{
   width:100%; margin-top:6px; margin-bottom:10px; background:var(--green); color:#042014; border:none;
   font-family:var(--mono); font-weight:bold; letter-spacing:2px; font-size:13px;
@@ -119,6 +126,7 @@ th,td{ padding:6px 7px; text-align:right; border-bottom:1px solid var(--line); w
 th:first-child, td:first-child{ text-align:left; }
 th{ color:var(--text-dim); font-weight:normal; letter-spacing:0.5px; font-size:10px; text-transform:uppercase;}
 tr.target td{ color:var(--green); }
+tr.miss td{ color:var(--text-dim); }
 .scroll-x{ overflow-x:auto; }
 
 .note{ font-size:10.5px; color:var(--text-dim); line-height:1.6; margin-top:10px; }

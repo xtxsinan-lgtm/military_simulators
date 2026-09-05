@@ -164,6 +164,14 @@
       <view class="field-label"><text>海平面加力</text><text class="unit">kN</text></view>
       <input class="input" type="digit" value="{{engMaxTsl}}" data-key="engMaxTsl" bindinput="onField"/>
     </view>
+    <view wx:if="{{showF135TsfcToggle}}">
+      <view class="section amber">▸ F135 油耗惩罚</view>
+      <view class="seg">
+        <view class="seg-btn {{f135TsfcMode === 'published' ? 'on' : ''}}" data-mode="published" bindtap="onF135TsfcMode">{{f135TsfcPublishedLabel}}</view>
+        <view class="seg-btn {{f135TsfcMode === 'lpc_only' ? 'on' : ''}}" data-mode="lpc_only" bindtap="onF135TsfcMode">{{f135TsfcLpcLabel}}</view>
+      </view>
+      <view class="note">{{f135TsfcNote}}</view>
+    </view>
     <view class="btn" bindtap="onRunDash">▶ 计算作战半径</view>
   </view>
 
@@ -197,6 +205,27 @@
     </view>
     <view class="btn" bindtap="onRunSearchCruise">▶ 搜索最佳升阻比和巡航高度</view>
     <view class="note">{{q1Text}}</view>
+    <block wx:if="{{q1Rows.length}}">
+      <view class="tr scan th">
+        <text class="th">高度km</text>
+        <text class="th">升阻比</text>
+        <text class="th">推力kN</text>
+        <text class="th">负载</text>
+        <text class="th">热效率</text>
+        <text class="th">推进效率</text>
+        <text class="th">总效率</text>
+      </view>
+      <view class="tr scan" wx:for="{{q1Rows}}" wx:key="key">
+        <text class="td {{item.best ? 'target' : (item.ok ? '' : 'miss')}}">{{item.alt}}</text>
+        <text class="td {{item.best ? 'target' : (item.ok ? '' : 'miss')}}">{{item.ld}}</text>
+        <text class="td {{item.best ? 'target' : (item.ok ? '' : 'miss')}}">{{item.thrust}}</text>
+        <text class="td {{item.best ? 'target' : (item.ok ? '' : 'miss')}}">{{item.load}}</text>
+        <text class="td {{item.best ? 'target' : (item.ok ? '' : 'miss')}}">{{item.etaTh}}</text>
+        <text class="td {{item.best ? 'target' : (item.ok ? '' : 'miss')}}">{{item.etaP}}</text>
+        <text class="td {{item.best ? 'target' : (item.ok ? '' : 'miss')}}">{{item.etaO}}</text>
+      </view>
+      <view class="note">绿行是该速度下升阻比×总效率最大的高度；灰行不满足 92% 军推裕度。</view>
+    </block>
   </view>
 
   <view class="panel">

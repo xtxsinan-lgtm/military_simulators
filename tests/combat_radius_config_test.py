@@ -4,14 +4,20 @@ from __future__ import annotations
 import pytest
 
 from utils.combat_radius.combat_radius_config import (
+    F135_TSFC_TOGGLE_LPC_ONLY,
+    F135_TSFC_TOGGLE_PUBLISHED,
     build_combat_radius_config_payload,
     dry_to_max_thrust_ratio,
+    f135_tsfc_install_mult_for_mode,
+    f135_tsfc_toggle_config,
     inject_combat_radius_config,
     inlet_labels,
     layout_labels,
     load_combat_radius_config,
     mission_fuel_config,
     planform_labels,
+    resolve_ui_tsfc_install_mult,
+    shows_f135_tsfc_toggle,
     store_mount_labels,
     reserve_kind_label,
     reserve_min_for_mission,
@@ -29,7 +35,7 @@ def test_load_combat_radius_config_file_exists_and_ui_defaults():
     assert 'default_anchor1_id' not in ui
     assert ui['default_eta_c'] == 0.87
     assert ui['default_eps'] == 0.83
-    assert load_combat_radius_config()['version'] == 6
+    assert load_combat_radius_config()['version'] == 7
 
 
 def test_planform_and_layout_labels():
@@ -74,6 +80,9 @@ def test_build_combat_radius_config_payload():
     assert 'conventional' in payload['layout_labels']
     assert payload['inlet_labels']['caret'] == '加莱特'
     assert payload['store_mount_labels']['semi_recessed'] == '半埋'
+    assert payload['f135_tsfc_toggle']['aircraft_ids'] == ['F-35A', 'F-35B', 'F-35C']
+    assert payload['f135_tsfc_toggle']['published'] == pytest.approx(1.22)
+    assert payload['f135_tsfc_toggle']['lpc_only'] == pytest.approx(1.04)
 
 
 def test_load_combat_radius_config_custom_path(tmp_path):
@@ -109,7 +118,7 @@ def test_inject_combat_radius_config_overrides_disk():
     finally:
         mod._INJECTED = None
         load_combat_radius_config.cache_clear()
-    assert load_combat_radius_config()['version'] == 6
+    assert load_combat_radius_config()['version'] == 7
 
 
 def test_mission_fuel_config_defaults():
@@ -149,6 +158,51 @@ def test_dry_to_max_thrust_ratio_default_and_invalid_inject():
         assert dry_to_max_thrust_ratio() == pytest.approx(0.7)
         inject_combat_radius_config({'version': 1, 'ui': {}, 'planform_labels': {}, 'layout_labels': {}})
         assert dry_to_max_thrust_ratio() == pytest.approx(0.7)
+    finally:
+        mod._INJECTED = None
+        load_combat_radius_config.cache_clear()
+
+
+def test_f135_tsfc_toggle_config_and_resolve():
+    """F-35 三型显示切换；1.22 / 1.04 两档；其它机型用发动机乘数。"""
+    from utils.combat_radius.engine_efficiency import F135_TSFC_INSTALL_MULT, F135_TSFC_LPC_ONLY_MULT
+
+    cfg = f135_tsfc_toggle_config()
+    assert cfg['published'] == pytest.approx(F135_TSFC_INSTALL_MULT)
+    assert cfg['lpc_only'] == pytest.approx(F135_TSFC_LPC_ONLY_MULT)
+    assert cfg['aircraft_ids'] == ['F-35A', 'F-35B', 'F-35C']
+    assert cfg['published'] == pytest.approx(F135_TSFC_TOGGLE_PUBLISHED)
+    assert cfg['lpc_only'] == pytest.approx(F135_TSFC_TOGGLE_LPC_ONLY)
+    assert '公开军推' in cfg['published_label']
+    assert '低压压气机' in cfg['lpc_only_label']
+    assert '巡航不抽升力风扇' in cfg['note']
+    assert shows_f135_tsfc_toggle('F-35A') is True
+    assert shows_f135_tsfc_toggle('F-35B') is True
+    assert shows_f135_tsfc_toggle('F-35C') is True
+    assert shows_f135_tsfc_toggle('F-22') is False
+    assert shows_f135_tsfc_toggle(None) is False
+    assert f135_tsfc_install_mult_for_mode('published') == pytest.approx(1.22)
+    assert f135_tsfc_install_mult_for_mode('lpc_only') == pytest.approx(1.04)
+    assert f135_tsfc_install_mult_for_mode(None) == pytest.approx(1.22)
+    assert resolve_ui_tsfc_install_mult('F-35A', 'lpc_only', 1.22) == pytest.approx(1.04)
+    assert resolve_ui_tsfc_install_mult('F-35C', 'published') == pytest.approx(1.22)
+    assert resolve_ui_tsfc_install_mult('F-22', 'lpc_only', 1.0) == pytest.approx(1.0)
+    assert resolve_ui_tsfc_install_mult('J-20', None, None) == pytest.approx(1.0)
+    with pytest.raises(ValueError, match='TSFC 乘数须为正'):
+        resolve_ui_tsfc_install_mult('F-22', None, 0.0)
+
+
+def test_f135_tsfc_toggle_falls_back_when_section_missing():
+    """配置缺 f135_tsfc_toggle 段时仍给出默认三型与两档。"""
+    from utils.combat_radius import combat_radius_config as mod
+
+    try:
+        inject_combat_radius_config({'version': 1, 'ui': {}, 'planform_labels': {}, 'layout_labels': {}})
+        cfg = f135_tsfc_toggle_config()
+        assert cfg['aircraft_ids'] == ['F-35A', 'F-35B', 'F-35C']
+        assert cfg['published'] == pytest.approx(1.22)
+        assert cfg['lpc_only'] == pytest.approx(1.04)
+        assert shows_f135_tsfc_toggle('F-35B') is True
     finally:
         mod._INJECTED = None
         load_combat_radius_config.cache_clear()

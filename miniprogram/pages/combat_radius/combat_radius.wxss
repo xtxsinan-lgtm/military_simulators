@@ -22,6 +22,12 @@ page {
 .section.green { color: #3ddc84; }
 .section.cyan { color: #5fd8e8; }
 .section.amber { color: #ffb020; }
+.seg { display: flex; gap: 16rpx; margin-bottom: 12rpx; }
+.seg-btn {
+  flex: 1; text-align: center; background: #0e161b; border: 1px solid #1c2b30;
+  color: #7b8e92; padding: 14rpx 8rpx; font-size: 22rpx;
+}
+.seg-btn.on { border-color: #ffb020; color: #ffb020; background: #1a1408; }
 .field { margin-bottom: 20rpx; }
 .field-label { display: flex; justify-content: space-between; color: #7b8e92; font-size: 22rpx; margin-bottom: 8rpx; }
 .unit { color: #5fd8e8; }
@@ -46,3 +52,5 @@ page {
 .th { color: #7b8e92; flex: 1; }
 .td { color: #d7e2e4; flex: 1; }
 .td.target { color: #3ddc84; }
+.td.miss { color: #7b8e92; }
+.tr.scan { font-size: 18rpx; }

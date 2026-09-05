@@ -150,6 +150,11 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var wtNMissiles = "4"
     @Published var wtEngines = "1"
     @Published var wtCarrier = false
+    @Published var showF135TsfcToggle = false
+    @Published var f135TsfcMode = "published"
+    @Published var f135TsfcPublishedLabel = "×1.22 公开军推"
+    @Published var f135TsfcLpcLabel = "×1.04 仅低压压气机"
+    @Published var f135TsfcNote = "1.22 按公开军推 TSFC 相对 F100 的差距；1.04 只计低压压气机为垂起榨功做的设计妥协（巡航不抽升力风扇）。"
     @Published var dashboard: CombatRadiusResult?
     @Published var dashSource = "STANDBY"
     @Published var q1Mach = "0.9"
@@ -165,6 +170,11 @@ final class CombatRadiusViewModel: ObservableObject {
     private var liveTask: Task<Void, Never>?
     private var applying = false
     private var dryToMaxRatio = 0.7
+    private var f135TsfcAircraftIds: [String] = ["F-35A", "F-35B", "F-35C"]
+    private var f135TsfcPublished = 1.22
+    private var f135TsfcLpcOnly = 1.04
+    /// 选机后尚未改其它参数时，切回 1.22 可直接用预计算快照
+    private var snapshotEligible = false
     /// 计算进行中又改了参数时，结束后再跑一轮
     private var dashPending = false
 
@@ -202,6 +212,7 @@ final class CombatRadiusViewModel: ObservableObject {
             if let r = catalog.combat_radius_config?.engine?.dry_to_max_thrust_ratio, r > 0, r <= 1 {
                 dryToMaxRatio = r
             }
+            applyF135ToggleConfig(catalog.combat_radius_config?.f135_tsfc_toggle)
             let defaultId = ui?.default_target_id
             applying = true
             if let p = (defaultId.flatMap { id in presets.first(where: { $0.id == id }) }) ?? presets.first {
@@ -213,6 +224,7 @@ final class CombatRadiusViewModel: ObservableObject {
                     selectedEngineId = engId
                     applyEngine()
                 }
+                resetF135TsfcToggle(for: p.id)
                 showSnapshot()
             }
             DispatchQueue.main.async { [weak self] in
@@ -249,6 +261,7 @@ final class CombatRadiusViewModel: ObservableObject {
             selectedEngineId = engId
             applyEngine()
         }
+        resetF135TsfcToggle(for: p.id)
         showSnapshot()
         DispatchQueue.main.async { [weak self] in
             self?.applying = false
@@ -295,6 +308,7 @@ final class CombatRadiusViewModel: ObservableObject {
     }
 
     func showSnapshot() {
+        snapshotEligible = true
         if let snap = resultsMap[selectedTgtId], snap.success {
             dashboard = snap
             dashSource = "预计算快照"
@@ -307,6 +321,7 @@ final class CombatRadiusViewModel: ObservableObject {
     /// 参数改动后延迟现场重算仪表盘
     func scheduleLiveDash() {
         if applying { return }
+        snapshotEligible = false
         refreshDerivedLoads()
         liveTask?.cancel()
         liveTask = Task { [weak self] in
@@ -339,7 +354,53 @@ final class CombatRadiusViewModel: ObservableObject {
         if let maxTsl = Double(engMaxTsl), maxTsl > 0 {
             params["max_tsl_kN"] = maxTsl
         }
+        params["tsfc_install_mult"] = currentTsfcInstallMult()
+        if !tgt.typeLabel.isEmpty {
+            params["type_label"] = tgt.typeLabel
+        }
         return params
+    }
+
+    /// 从 catalog 填入 F-35 油耗惩罚切换文案与系数
+    func applyF135ToggleConfig(_ cfg: CombatRadiusF135TsfcToggle?) {
+        if let ids = cfg?.aircraft_ids, !ids.isEmpty {
+            f135TsfcAircraftIds = ids
+        }
+        if let v = cfg?.published, v > 0 { f135TsfcPublished = v }
+        if let v = cfg?.lpc_only, v > 0 { f135TsfcLpcOnly = v }
+        if let s = cfg?.published_label, !s.isEmpty { f135TsfcPublishedLabel = s }
+        if let s = cfg?.lpc_only_label, !s.isEmpty { f135TsfcLpcLabel = s }
+        if let s = cfg?.note, !s.isEmpty { f135TsfcNote = s }
+    }
+
+    func showsF135TsfcToggle(for aircraftId: String) -> Bool {
+        f135TsfcAircraftIds.contains(aircraftId)
+    }
+
+    func resetF135TsfcToggle(for aircraftId: String) {
+        f135TsfcMode = "published"
+        showF135TsfcToggle = showsF135TsfcToggle(for: aircraftId)
+    }
+
+    func currentTsfcInstallMult() -> Double {
+        if showsF135TsfcToggle(for: selectedTgtId) {
+            return f135TsfcMode == "lpc_only" ? f135TsfcLpcOnly : f135TsfcPublished
+        }
+        if let eng = enginePresets.first(where: { $0.id == selectedEngineId }),
+           let raw = eng.tsfc_install_mult, raw > 0 {
+            return raw
+        }
+        return 1.0
+    }
+
+    func setF135TsfcMode(_ mode: String) {
+        guard mode != f135TsfcMode else { return }
+        f135TsfcMode = mode
+        if mode == "published", snapshotEligible {
+            showSnapshot()
+            return
+        }
+        Task { await requestLiveDash() }
     }
 
     /// 立即按当前机型/发动机参数重算各速度仪表盘（对应「计算作战半径」）。
@@ -441,6 +502,7 @@ final class CombatRadiusViewModel: ObservableObject {
                 "mach": Double(q3Mach) ?? 0.8,
                 "alt_m": Double(q3Alt) ?? 12000,
                 "load": Double(q3Load) ?? 0.45,
+                "tsfc_install_mult": currentTsfcInstallMult(),
             ]
             let r = try await LocalSimulatorEngine.shared.runCombatRadius(payload: [
                 "action": "estimate_engine_cycle",

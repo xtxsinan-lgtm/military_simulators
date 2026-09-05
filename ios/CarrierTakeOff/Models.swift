@@ -86,6 +86,17 @@ struct CombatRadiusConfigPayload: Codable {
     var inlet_labels: [String: String]?
     var store_mount_labels: [String: String]?
     var engine: CombatRadiusEngineConfig?
+    var f135_tsfc_toggle: CombatRadiusF135TsfcToggle?
+}
+
+/// F-35A/B/C 油耗惩罚切换：公开军推 1.22 与仅低压压气机 1.04
+struct CombatRadiusF135TsfcToggle: Codable {
+    var aircraft_ids: [String]?
+    var published: Double?
+    var lpc_only: Double?
+    var published_label: String?
+    var lpc_only_label: String?
+    var note: String?
 }
 
 struct CombatRadiusEngineConfig: Codable {
@@ -202,6 +213,7 @@ struct CombatRadiusEnginePresetItem: Codable, Identifiable, Hashable {
     var t4_K: Double
     var tsl_kN: Double?
     var max_tsl_kN: Double?
+    var tsfc_install_mult: Double?
     var notes: String?
 }
 
@@ -269,6 +281,21 @@ struct CombatRadiusResult: Codable {
     var max_ld: Double?
     var max_ld_alt_m: Double?
     var max_ld_thrust_mode: String?
+    var altitude_scan: [CombatRadiusAltitudeScanPoint]?
+}
+
+struct CombatRadiusAltitudeScanPoint: Codable, Identifiable, Hashable {
+    var alt_m: Double
+    var ld: Double?
+    var thrust_avail_kN: Double?
+    var load: Double?
+    var eta_th: Double?
+    var eta_p: Double?
+    var eta_o: Double?
+    var feasible: Bool?
+    var selected: Bool?
+
+    var id: String { String(format: "%.1f", alt_m) }
 }
 
 struct CombatRadiusMaxSpeedProfilePoint: Codable, Identifiable, Hashable {

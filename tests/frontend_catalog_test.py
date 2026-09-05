@@ -145,6 +145,10 @@ def test_docs_combat_radius_page_exists_and_links():
     assert '热效率' in js_text
     assert '推进效率' in js_text
     assert '总效率' in js_text
+    assert 'function renderAltitudeScan' in js_text
+    assert 'altitude_scan' in js_text
+    assert '<th>可用推力 kN</th>' in js_text
+    assert '该速度下各搜索高度' in html
     assert '<th>η_th</th>' not in js_text
     assert '<th>η_p</th>' not in js_text
     assert '<th>η_o</th>' not in js_text
@@ -189,6 +193,12 @@ def test_docs_combat_radius_page_exists_and_links():
     assert 'function fillAircraftSelect' in js_text
     assert '<optgroup label="' in js_text
     assert "fillAircraftSelect($('tgtPreset')" in js_text
+    assert 'f135TsfcBox' in html
+    assert 'currentTsfcInstallMult' in js_text
+    assert 'lpc_only' in js_text
+    assert '×1.22 公开军推' in html
+    assert '×1.04 仅低压压气机' in html
+    assert '.seg-btn.on' in css.read_text(encoding='utf-8')
 
 
 def test_combat_radius_form_omits_redundant_name_field():

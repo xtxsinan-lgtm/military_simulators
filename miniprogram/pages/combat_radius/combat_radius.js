@@ -130,6 +130,51 @@ function cruiseSpeedLabel(p) {
   return p.mach != null ? fmt(p.mach, 3) : name;
 }
 
+function f135ToggleFromCfg(cfg) {
+  const raw = (cfg && cfg.f135_tsfc_toggle) || {};
+  return {
+    f135TsfcAircraftIds: raw.aircraft_ids || ['F-35A', 'F-35B', 'F-35C'],
+    f135TsfcPublished: Number(raw.published) > 0 ? Number(raw.published) : 1.22,
+    f135TsfcLpcOnly: Number(raw.lpc_only) > 0 ? Number(raw.lpc_only) : 1.04,
+    f135TsfcPublishedLabel: raw.published_label || '×1.22 公开军推',
+    f135TsfcLpcLabel: raw.lpc_only_label || '×1.04 仅低压压气机',
+    f135TsfcNote: raw.note || '1.22 按公开军推 TSFC 相对 F100 的差距；1.04 只计低压压气机为垂起榨功做的设计妥协（巡航不抽升力风扇）。',
+  };
+}
+
+function isF35TsfcToggleAircraft(id, ids) {
+  return (ids || []).indexOf(id) >= 0;
+}
+
+function resolvePageTsfcInstallMult(page) {
+  const d = page.data;
+  const idx = d.tgtPresetIndex;
+  const ac = idx > 0 ? d.presets[idx - 1] : null;
+  if (isF35TsfcToggleAircraft(ac && ac.id, d.f135TsfcAircraftIds)) {
+    return d.f135TsfcMode === 'lpc_only' ? d.f135TsfcLpcOnly : d.f135TsfcPublished;
+  }
+  const ei = d.enginePresetIndex;
+  const eng = ei > 0 ? d.enginePresets[ei - 1] : null;
+  const raw = Number(eng && eng.tsfc_install_mult);
+  return Number.isFinite(raw) && raw > 0 ? raw : 1.0;
+}
+
+/** 给定速度搜索：各高度升阻比、推力、负载与效率行。 */
+function q1RowsFrom(r) {
+  return (r.altitude_scan || []).map((p) => ({
+    key: String(p.alt_m),
+    alt: fmt((p.alt_m || 0) / 1000, 1),
+    ld: fmt(p.ld, 2),
+    thrust: fmt(p.thrust_avail_kN, 1),
+    load: `${fmt(100 * p.load, 1)}%`,
+    etaTh: `${fmt(100 * p.eta_th, 1)}%`,
+    etaP: `${fmt(100 * p.eta_p, 1)}%`,
+    etaO: `${fmt(100 * p.eta_o, 1)}%`,
+    ok: !!p.feasible,
+    best: !!p.selected,
+  }));
+}
+
 function dashRowsFrom(r) {
   return (r.points || []).map((p) => {
     const maxLd = p.max_ld != null ? fmt(p.max_ld, 2) : '—';
@@ -190,6 +235,7 @@ Page({
     resultsMap: {},
     q1Mach: '0.9',
     q1Text: '',
+    q1Rows: [],
     q2Mach: '0.8',
     q2Alt: '12000',
     q2Text: '',
@@ -205,6 +251,15 @@ Page({
     storeMountIds: ['internal', 'semi_recessed', 'pylon'],
     storeMountNames: ['内埋弹舱', '半埋', '挂架'],
     storeMountIndex: 0,
+    showF135TsfcToggle: false,
+    f135TsfcMode: 'published',
+    f135TsfcPublishedLabel: '×1.22 公开军推',
+    f135TsfcLpcLabel: '×1.04 仅低压压气机',
+    f135TsfcNote: '1.22 按公开军推 TSFC 相对 F100 的差距；1.04 只计低压压气机为垂起榨功做的设计妥协（巡航不抽升力风扇）。',
+    f135TsfcAircraftIds: ['F-35A', 'F-35B', 'F-35C'],
+    f135TsfcPublished: 1.22,
+    f135TsfcLpcOnly: 1.04,
+    snapshotEligible: false,
   },
 
   onShow() {
@@ -235,6 +290,7 @@ Page({
         const storeMountNames = storeMountIds.map((id) => storeLabels[id]);
         const ratioRaw = Number((cfg.engine || {}).dry_to_max_thrust_ratio);
         const dryToMaxRatio = ratioRaw > 0 && ratioRaw <= 1 ? ratioRaw : 0.7;
+        const f135Toggle = f135ToggleFromCfg(cfg);
         const eng = (tgtp && tgtp.engine_id && engines.find((p) => p.id === tgtp.engine_id))
           || engines.find((p) => p.id === ui.default_engine_id)
           || engines[0];
@@ -262,6 +318,10 @@ Page({
           storeMountIndex: Math.max(0, storeMountIds.indexOf((tgtp && tgtp.store_mount) || 'internal')),
           resultsMap: (data.combat_radius_results && data.combat_radius_results.aircraft) || {},
           ...wt,
+          ...f135Toggle,
+          showF135TsfcToggle: isF35TsfcToggleAircraft(tgtp && tgtp.id, f135Toggle.f135TsfcAircraftIds),
+          f135TsfcMode: 'published',
+          snapshotEligible: true,
           statusText: presets.length ? '预设已加载' : '缺少 combat_radius_presets，请运行 build_all.py',
         });
         this.showSnapshot(tgtp && tgtp.id);
@@ -272,6 +332,7 @@ Page({
   },
 
   showSnapshot(id) {
+    this.data.snapshotEligible = true;
     const snap = id ? this.data.resultsMap[id] : null;
     if (!snap || !snap.success) {
       this.setData({
@@ -369,9 +430,13 @@ Page({
           Object.assign(patch, this.applyEngine(this.data.enginePresets[ei]));
         }
       }
+      patch.f135TsfcMode = 'published';
+      patch.showF135TsfcToggle = isF35TsfcToggleAircraft(p.id, this.data.f135TsfcAircraftIds);
       this.setData(patch);
       this.showSnapshot(p.id);
     } else {
+      patch.f135TsfcMode = 'published';
+      patch.showF135TsfcToggle = false;
       this.setData(patch);
     }
   },
@@ -385,8 +450,22 @@ Page({
   },
 
   scheduleLiveDash() {
+    this.data.snapshotEligible = false;
     if (this._dashTimer) clearTimeout(this._dashTimer);
     this._dashTimer = setTimeout(() => this.runLiveDash(), 600);
+  },
+
+  onF135TsfcMode(e) {
+    const mode = e.currentTarget.dataset.mode || 'published';
+    if (mode === this.data.f135TsfcMode) return;
+    this.setData({ f135TsfcMode: mode });
+    if (mode === 'published' && this.data.snapshotEligible) {
+      const idx = this.data.tgtPresetIndex;
+      const ac = idx > 0 ? this.data.presets[idx - 1] : null;
+      this.showSnapshot(ac && ac.id);
+      return;
+    }
+    this.onRunDash();
   },
 
   /** 立即按当前机型/发动机参数重算各速度仪表盘（对应「计算作战半径」）。 */
@@ -451,6 +530,10 @@ Page({
     const tsl = num(this.data.engTsl, 0);
     if (tsl > 0) params.tsl_kN = tsl;
     if (this.data.engMaxTsl !== '') params.max_tsl_kN = num(this.data.engMaxTsl, 0);
+    params.tsfc_install_mult = resolvePageTsfcInstallMult(this);
+    if (this.data.tgt && this.data.tgt.type_label) {
+      params.type_label = this.data.tgt.type_label;
+    }
     return params;
   },
 
@@ -500,12 +583,14 @@ Page({
             : '';
           this.setData({
             q1Text: `${r.fail_reason || '无可行高度'}${maxLd ? ' ' + maxLd : ''}`,
+            q1Rows: q1RowsFrom(r),
             running: false,
           });
           return;
         }
         this.setData({
-          q1Text: `L/D ${fmt(r.ld, 2)} · 最大 L/D ${fmt(r.max_ld, 2)} · ${fmt(r.alt_m / 1000, 1)} km · 推力 ${fmt(r.thrust_avail_kN, 1)} kN · 负载 ${fmt(100 * r.load, 1)}% · 热效率 ${fmt(100 * r.eta_th, 1)}% · 推进效率 ${fmt(100 * r.eta_p, 1)}%`,
+          q1Text: `L/D ${fmt(r.ld, 2)} · 最大 L/D ${fmt(r.max_ld, 2)} · ${fmt(r.alt_m / 1000, 1)} km · 推力 ${fmt(r.thrust_avail_kN, 1)} kN · 负载 ${fmt(100 * r.load, 1)}% · 热效率 ${fmt(100 * r.eta_th, 1)}% · 推进效率 ${fmt(100 * r.eta_p, 1)}% · 总效率 ${fmt(100 * r.eta_o, 1)}%`,
+          q1Rows: q1RowsFrom(r),
           running: false,
         });
       })
@@ -541,6 +626,7 @@ Page({
         mach: num(this.data.q3Mach, 0.8),
         alt_m: num(this.data.q3Alt, 12000),
         load: num(this.data.q3Load, 0.45),
+        tsfc_install_mult: resolvePageTsfcInstallMult(this),
       },
     })
       .then((r) => {

@@ -39,6 +39,18 @@ struct CombatRadiusView: View {
                     field("涡轮前温度 T4 (K)", text: $vm.engT4)
                     field("海平面军推 (kN)", text: $vm.engTsl)
                     field("海平面加力 (kN)", text: $vm.engMaxTsl)
+                    if vm.showF135TsfcToggle {
+                        sectionLabel("▸ F135 油耗惩罚", color: CombatRadiusTheme.amber)
+                        HStack(spacing: 8) {
+                            Button(vm.f135TsfcPublishedLabel) { vm.setF135TsfcMode("published") }
+                                .buttonStyle(CombatRadiusSegButton(on: vm.f135TsfcMode == "published"))
+                            Button(vm.f135TsfcLpcLabel) { vm.setF135TsfcMode("lpc_only") }
+                                .buttonStyle(CombatRadiusSegButton(on: vm.f135TsfcMode == "lpc_only"))
+                        }
+                        Text(vm.f135TsfcNote)
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(CombatRadiusTheme.textDim)
+                    }
                     Button(vm.running ? "计算中…" : "▶ 计算作战半径") {
                         Task { await vm.requestLiveDash() }
                     }
@@ -80,7 +92,9 @@ struct CombatRadiusView: View {
                             HStack(spacing: 10) {
                                 stat("热效率", value: String(format: "%.1f%%", (r.eta_th ?? 0) * 100))
                                 stat("推进效率", value: String(format: "%.1f%%", (r.eta_p ?? 0) * 100))
+                                stat("总效率", value: String(format: "%.1f%%", (r.eta_o ?? 0) * 100))
                             }
+                            altitudeScanTable(r.altitude_scan)
                         } else if let maxLd = r.max_ld {
                             HStack(spacing: 10) {
                                 stat("最大 L/D", value: String(format: "%.3f", maxLd))
@@ -89,10 +103,12 @@ struct CombatRadiusView: View {
                             Text(r.fail_reason ?? "无可行巡航高度")
                                 .font(.system(size: 11, design: .monospaced))
                                 .foregroundStyle(CombatRadiusTheme.textDim)
+                            altitudeScanTable(r.altitude_scan)
                         } else {
                             Text(r.fail_reason ?? "无可行高度")
                                 .font(.system(size: 11, design: .monospaced))
                                 .foregroundStyle(CombatRadiusTheme.textDim)
+                            altitudeScanTable(r.altitude_scan)
                         }
                     }
                 }
@@ -251,6 +267,52 @@ struct CombatRadiusView: View {
         return name
     }
 
+    /// 给定速度搜索：各高度升阻比、推力、负载与效率表。
+    @ViewBuilder
+    private func altitudeScanTable(_ scan: [CombatRadiusAltitudeScanPoint]?) -> some View {
+        if let scan, !scan.isEmpty {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Text("高度km").frame(maxWidth: .infinity, alignment: .leading)
+                    Text("升阻比").frame(maxWidth: .infinity, alignment: .trailing)
+                    Text("推力kN").frame(maxWidth: .infinity, alignment: .trailing)
+                    Text("负载").frame(maxWidth: .infinity, alignment: .trailing)
+                    Text("热效率").frame(maxWidth: .infinity, alignment: .trailing)
+                    Text("推进效率").frame(maxWidth: .infinity, alignment: .trailing)
+                    Text("总效率").frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                .font(.system(size: 9, design: .monospaced))
+                .foregroundStyle(CombatRadiusTheme.textDim)
+                ForEach(scan) { p in
+                    let best = p.selected == true
+                    let dim = p.feasible != true
+                    HStack(spacing: 6) {
+                        Text(String(format: "%.1f", p.alt_m / 1000))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text(String(format: "%.2f", p.ld ?? 0))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        Text(String(format: "%.1f", p.thrust_avail_kN ?? 0))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        Text(String(format: "%.1f%%", (p.load ?? 0) * 100))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        Text(String(format: "%.1f%%", (p.eta_th ?? 0) * 100))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        Text(String(format: "%.1f%%", (p.eta_p ?? 0) * 100))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        Text(String(format: "%.1f%%", (p.eta_o ?? 0) * 100))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(best ? CombatRadiusTheme.green : (dim ? CombatRadiusTheme.textDim : CombatRadiusTheme.text))
+                }
+                Text("绿行是该速度下升阻比×总效率最大的高度；灰行不满足 92% 军推裕度。")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.textDim)
+            }
+            .padding(.top, 6)
+        }
+    }
+
     private func stat(_ k: String, value: String, sub: String = "", amber: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(k)
@@ -372,6 +434,20 @@ struct CombatRadiusView: View {
             .tint(CombatRadiusTheme.cyan)
             .onChange(of: selection.wrappedValue) { _, _ in vm.scheduleLiveDash() }
         }
+    }
+}
+
+private struct CombatRadiusSegButton: ButtonStyle {
+    var on: Bool
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 12, design: .monospaced))
+            .frame(maxWidth: .infinity)
+            .padding(8)
+            .background(on ? Color(hex: 0x1A1408) : CombatRadiusTheme.panel2)
+            .foregroundStyle(on ? CombatRadiusTheme.amber : CombatRadiusTheme.textDim)
+            .overlay(Rectangle().stroke(on ? CombatRadiusTheme.amber : CombatRadiusTheme.line, lineWidth: 1))
+            .opacity(configuration.isPressed ? 0.85 : 1)
     }
 }
 

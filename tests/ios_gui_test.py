@@ -113,7 +113,9 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'combat_radius_engine_presets' in models
     assert 'mixed_radius_km' in models
     assert 'CombatRadiusCruisePoint' in models
+    assert 'CombatRadiusAltitudeScanPoint' in models
     assert 'max_ld' in models
+    assert 'altitude_scan' in models
     cr_view = (IOS_ROOT / 'CombatRadiusView.swift').read_text(encoding='utf-8')
     assert '实用最大巡航速度' in cr_view
     assert '最大巡航速度' in cr_view
@@ -126,6 +128,8 @@ def test_ios_uses_local_engine_not_http_api():
     assert '腹鳍面积' in cr_view
     assert '垂尾面积' in cr_view
     assert 'func cruiseSpeedLabel' in cr_view
+    assert 'func altitudeScanTable' in cr_view
+    assert '绿行是该速度下升阻比×总效率最大的高度' in cr_view
     assert 'readonly: true' in cr_view
     assert 'func refreshDerived' in cr_vm
     assert 'func refreshDerivedLoads' in cr_vm
@@ -147,6 +151,13 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'selectLabel' in cr_view
     assert 'sortedByNationThenName' in models
     assert 'var selectLabel' in models
+    assert 'CombatRadiusF135TsfcToggle' in models
+    assert 'f135_tsfc_toggle' in models
+    assert 'tsfc_install_mult' in models
+    assert 'setF135TsfcMode' in cr_vm
+    assert 'currentTsfcInstallMult' in cr_vm
+    assert 'F135 油耗惩罚' in cr_view
+    assert 'CombatRadiusSegButton' in cr_view
 
 
 def test_ios_project_yml_exists():
