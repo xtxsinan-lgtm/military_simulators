@@ -507,7 +507,7 @@ def test_j35_and_j35a_max_cruise_anchored():
     j35 = search_max_cruise_mach(_csv_ctx('J-35'))
     j35a = search_max_cruise_mach(_csv_ctx('J-35A'))
     assert j35 is None
-    assert j35a == pytest.approx(1.49, abs=0.02)
+    assert j35a == pytest.approx(1.47, abs=0.02)
     assert any_feasible_altitude(_csv_ctx('J-35'), 1.2) is False
     assert any_feasible_altitude(_csv_ctx('J-35A'), 1.2) is False
 

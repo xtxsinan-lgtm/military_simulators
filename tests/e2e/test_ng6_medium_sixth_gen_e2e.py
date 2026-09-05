@@ -30,7 +30,7 @@ def test_e2e_ng6_catalog_and_combat_radius():
         assert tgt['fuse_width_m'] == pytest.approx(3.40)
         assert tgt['fuse_height_m'] == pytest.approx(1.97)
         assert tgt['canard_htail_area_m2'] == pytest.approx(
-            16.7 if aid == 'NG6C' else 13.9
+            16.7 if aid == 'NG6C' else 13.1
         ), aid
         assert tgt['mach_angle_deg'] == pytest.approx(
             29.3 if aid == 'NG6C' else 27.3
@@ -45,19 +45,19 @@ def test_e2e_ng6_catalog_and_combat_radius():
             tgt['n_pilots'], tgt['missile_mass_kg'],
         ), abs=1e-6), aid
 
-    assert aircraft['NG6C'].a2a_mass_kg == pytest.approx(13700 + 8400 + 100 + 840)
-    assert aircraft['NG6B'].a2a_mass_kg == pytest.approx(13500 + 7230 + 100 + 840)
-    assert get_preset_by_id(presets, 'NG6B')['internal_fuel_kg'] == pytest.approx(7230)
-    assert get_preset_by_id(presets, 'NG6A')['internal_fuel_kg'] == pytest.approx(8200)
-    assert get_preset_by_id(presets, 'NG6B')['empty_kg'] == pytest.approx(13500)
-    assert get_preset_by_id(presets, 'NG6A')['empty_kg'] == pytest.approx(12300)
+    assert aircraft['NG6C'].a2a_mass_kg == pytest.approx(14200 + 8360 + 100 + 840)
+    assert aircraft['NG6B'].a2a_mass_kg == pytest.approx(12340 + 7560 + 100 + 840)
+    assert get_preset_by_id(presets, 'NG6B')['internal_fuel_kg'] == pytest.approx(7560)
+    assert get_preset_by_id(presets, 'NG6A')['internal_fuel_kg'] == pytest.approx(6590)
+    assert get_preset_by_id(presets, 'NG6B')['empty_kg'] == pytest.approx(12340)
+    assert get_preset_by_id(presets, 'NG6A')['empty_kg'] == pytest.approx(13840)
 
     assert get_preset_by_id(presets, 'NG6C')['wing_area_m2'] == pytest.approx(70.8)
-    assert get_preset_by_id(presets, 'NG6B')['wing_area_m2'] == pytest.approx(58.8)
-    assert get_preset_by_id(presets, 'NG6A')['wing_area_m2'] == pytest.approx(58.8)
+    assert get_preset_by_id(presets, 'NG6B')['wing_area_m2'] == pytest.approx(55.7)
+    assert get_preset_by_id(presets, 'NG6A')['wing_area_m2'] == pytest.approx(55.7)
     assert get_preset_by_id(presets, 'NG6C')['main_wing_area_m2'] == pytest.approx(39.0)
-    assert get_preset_by_id(presets, 'NG6B')['main_wing_area_m2'] == pytest.approx(30.2)
-    assert get_preset_by_id(presets, 'NG6A')['main_wing_area_m2'] == pytest.approx(30.2)
+    assert get_preset_by_id(presets, 'NG6B')['main_wing_area_m2'] == pytest.approx(31.2)
+    assert get_preset_by_id(presets, 'NG6A')['main_wing_area_m2'] == pytest.approx(31.2)
 
     assert 'NG6C' in takeoff_ids and 'NG6B' in takeoff_ids
     assert 'NG6A' not in takeoff_ids

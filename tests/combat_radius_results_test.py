@@ -201,7 +201,7 @@ def test_run_preset_dashboard_j35_and_j35a_max_cruise():
     m12 = next(p for p in j35['points'] if p['id'] == 'mach_1_2')
     assert m12['feasible'] is False
     assert j35['max_cruise_mach'] is None
-    assert j35a['max_cruise_mach'] == pytest.approx(1.49, abs=0.02)
+    assert j35a['max_cruise_mach'] == pytest.approx(1.47, abs=0.02)
     m12a = next(p for p in j35a['points'] if p['id'] == 'mach_1_2')
     assert m12a['feasible'] is False
 
@@ -211,7 +211,7 @@ def test_run_preset_dashboard_j35_floor_above_practical_when_no_supercruise():
     r = run_preset_dashboard('J-35')
     assert r['success'] is True
     assert r['max_cruise_mach'] is None
-    assert r['max_possible_cruise_mach'] == pytest.approx(1.05, abs=0.03)
+    assert r['max_possible_cruise_mach'] == pytest.approx(1.00, abs=0.03)
 
 
 def test_run_preset_dashboard_ws10c_uav_slim_fuse_supercruise():
