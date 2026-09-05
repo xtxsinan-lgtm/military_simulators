@@ -62,6 +62,23 @@ def wing_loading_t_m2(
     return mass_t / wing_area_m2
 
 
+def aspect_ratio_from_geometry(wingspan_m: float, wing_area_m2: float) -> float:
+    """展弦比 AR = 翼展² / 参考翼面积。"""
+    if wingspan_m <= 0 or wing_area_m2 <= 0:
+        raise ValueError('翼展与翼面积须为正才能计算展弦比')
+    return (wingspan_m ** 2) / wing_area_m2
+
+
+def _optional_finite(value: Any) -> float | None:
+    """空值视为未提供；无法解析则返回 None。"""
+    if value in (None, ''):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def apply_combat_wing_loading(
     target: dict[str, Any],
     empty_kg: float,
@@ -84,6 +101,46 @@ def apply_combat_wing_loading(
         empty_kg, internal_fuel_kg, area_f, n_pilots, missile_mass_kg,
         n_missiles, fuel_fraction, pilot_mass_kg,
     )
+    return out
+
+
+def apply_derived_planform_loads(
+    target: dict[str, Any],
+    empty_kg: float | None = None,
+    internal_fuel_kg: float | None = None,
+    n_pilots: float | None = None,
+    missile_mass_kg: float | None = None,
+    n_missiles: float = N_MISSILES_DEFAULT,
+    fuel_fraction: float = FUEL_FRACTION_DEFAULT,
+    pilot_mass_kg: float = PILOT_MASS_KG,
+) -> dict[str, Any]:
+    """有几何时覆盖展弦比，有空战重量时覆盖翼载荷；缺数则保留原值。"""
+    out = dict(target)
+    span = _optional_finite(out.get('wingspan_m'))
+    area = _optional_finite(out.get('wing_area_m2'))
+    if span is not None and area is not None and span > 0 and area > 0:
+        out['AR'] = aspect_ratio_from_geometry(span, area)
+    empty = _optional_finite(empty_kg)
+    if empty is None:
+        empty = _optional_finite(out.get('empty_kg'))
+    fuel = _optional_finite(internal_fuel_kg)
+    if fuel is None:
+        fuel = _optional_finite(out.get('internal_fuel_kg'))
+    pilots = _optional_finite(n_pilots)
+    if pilots is None:
+        pilots = _optional_finite(out.get('n_pilots'))
+        if pilots is None:
+            pilots = 1.0
+    missile = _optional_finite(missile_mass_kg)
+    if missile is None:
+        missile = _optional_finite(out.get('missile_mass_kg'))
+        if missile is None:
+            missile = 0.0
+    if empty is not None and fuel is not None and empty >= 0 and fuel >= 0:
+        out = apply_combat_wing_loading(
+            out, empty, fuel, pilots, missile, n_missiles,
+            fuel_fraction, pilot_mass_kg,
+        )
     return out
 
 

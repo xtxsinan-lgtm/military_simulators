@@ -35,6 +35,19 @@ struct CombatRadiusAircraftInput {
     var wingAreaM2 = ""
     var typeLabel = ""
 
+    /// 按翼展、翼面积与空战重量覆盖展弦比和翼载荷。
+    mutating func refreshDerived(
+        emptyKg: Double, fuelKg: Double, nPilots: Double, missileKg: Double, nMissiles: Double
+    ) {
+        if let span = Double(wingspanM), let area = Double(wingAreaM2), span > 0, area > 0 {
+            ar = String(format: "%g", (span * span / area * 10_000).rounded() / 10_000)
+        }
+        if let area = Double(wingAreaM2), area > 0, emptyKg >= 0, fuelKg >= 0 {
+            let massT = (emptyKg + 0.5 * fuelKg + nPilots * 100 + nMissiles * missileKg) / 1000
+            wingLoading = String(format: "%g", (massT / area * 1_000_000).rounded() / 1_000_000)
+        }
+    }
+
     /// 填入预设几何
     mutating func apply(_ p: CombatRadiusPresetItem) {
         name = p.name
@@ -195,6 +208,7 @@ final class CombatRadiusViewModel: ObservableObject {
                 selectedTgtId = p.id
                 tgt.apply(p)
                 applyWeight(from: p)
+                refreshDerivedLoads()
                 if let engId = p.engine_id, enginePresets.contains(where: { $0.id == engId }) {
                     selectedEngineId = engId
                     applyEngine()
@@ -230,6 +244,7 @@ final class CombatRadiusViewModel: ObservableObject {
         applying = true
         tgt.apply(p)
         applyWeight(from: p)
+        refreshDerivedLoads()
         if let engId = p.engine_id, enginePresets.contains(where: { $0.id == engId }) {
             selectedEngineId = engId
             applyEngine()
@@ -238,6 +253,17 @@ final class CombatRadiusViewModel: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             self?.applying = false
         }
+    }
+
+    /// 按当前翼展、翼面积与重量刷新只读展弦比和翼载荷。
+    func refreshDerivedLoads() {
+        tgt.refreshDerived(
+            emptyKg: Double(wtEmpty) ?? 0,
+            fuelKg: Double(wtFuel) ?? 0,
+            nPilots: Double(wtPilots) ?? 1,
+            missileKg: Double(wtMissile) ?? 0,
+            nMissiles: Double(wtNMissiles) ?? 4
+        )
     }
 
     /// 从机型预设填入空战重量与发动机台数
@@ -281,6 +307,7 @@ final class CombatRadiusViewModel: ObservableObject {
     /// 参数改动后延迟现场重算仪表盘
     func scheduleLiveDash() {
         if applying { return }
+        refreshDerivedLoads()
         liveTask?.cancel()
         liveTask = Task { [weak self] in
             try? await Task.sleep(nanoseconds: 600_000_000)
@@ -290,6 +317,7 @@ final class CombatRadiusViewModel: ObservableObject {
     }
 
     func dashboardParams() -> [String: Any] {
+        refreshDerivedLoads()
         var params: [String: Any] = [
             "name": tgt.name,
             "target": tgt.asParams(),

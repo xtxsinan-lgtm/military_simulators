@@ -126,6 +126,9 @@ def test_ios_uses_local_engine_not_http_api():
     assert '腹鳍面积' in cr_view
     assert '垂尾面积' in cr_view
     assert 'func cruiseSpeedLabel' in cr_view
+    assert 'readonly: true' in cr_view
+    assert 'func refreshDerived' in cr_vm
+    assert 'func refreshDerivedLoads' in cr_vm
     assert 'max_possible_cruise_mach' in models
     assert 'max_cruise_floor_mach' not in models
     assert 'max_radius_mach' in models

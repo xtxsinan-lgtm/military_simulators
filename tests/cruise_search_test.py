@@ -327,7 +327,7 @@ def test_j20_legacy_90kn_military_cruise_near_mach_15():
     """早期 90 kN 军推下，掉高度后上限仍低于现役 105 kN。"""
     legacy = _csv_ctx('J-20', tsl_kn=90.0)
     m = search_max_possible_cruise_mach(legacy)
-    assert m == pytest.approx(1.64, abs=0.05)
+    assert m == pytest.approx(1.53, abs=0.05)
     current = search_max_possible_cruise_mach(_csv_ctx('J-20'))
     assert current > m
     assert search_max_cruise_mach(legacy) < m

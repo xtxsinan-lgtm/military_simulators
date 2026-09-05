@@ -435,7 +435,7 @@ def test_preset_to_aircraft_and_dict():
     ac = preset_to_aircraft(p)
     d = preset_to_aircraft_dict(p)
     assert ac.name == 'F-22 Raptor'
-    assert d['AR'] == 2.37
+    assert d['AR'] == pytest.approx(13.59 ** 2 / 78.0)
     assert 'id' not in d
     assert 'ld_known' not in d
     assert p['mach_angle_deg'] == pytest.approx(28.5)

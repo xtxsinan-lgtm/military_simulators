@@ -158,13 +158,13 @@ struct CombatRadiusView: View {
 
     @ViewBuilder
     private func aircraftEditor(ac: Binding<CombatRadiusAircraftInput>) -> some View {
-        field("展弦比 AR", text: ac.ar)
+        field("展弦比 AR（计算）", text: ac.ar, readonly: true)
         field("前缘后掠角 (°)", text: ac.sweepDeg)
         if ac.planform.wrappedValue == "double_delta" {
             field("内段前缘后掠 (°)", text: ac.sweepInnerDeg)
             field("外段前缘后掠 (°)", text: ac.sweepOuterDeg)
         }
-        field("翼载荷 (t/m²)", text: ac.wingLoading)
+        field("翼载荷 (t/m² · 计算)", text: ac.wingLoading, readonly: true)
         field("厚弦比 tc", text: ac.tc)
         field("翼面积 (m²)", text: ac.wingAreaM2)
         field("马赫角 (°)", text: ac.machAngleDeg)
@@ -296,21 +296,31 @@ struct CombatRadiusView: View {
             .padding(.top, 6)
     }
 
-    private func field(_ label: String, text: Binding<String>, live: Bool = true) -> some View {
+    private func field(_ label: String, text: Binding<String>, live: Bool = true, readonly: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
-            TextField("", text: text)
-                .textFieldStyle(.plain)
-                .font(.system(size: 13, design: .monospaced))
-                .foregroundStyle(CombatRadiusTheme.text)
-                .padding(8)
-                .background(CombatRadiusTheme.panel2)
-                .overlay(Rectangle().stroke(CombatRadiusTheme.line, lineWidth: 1))
-                .onChange(of: text.wrappedValue) { _, _ in
-                    if live { vm.scheduleLiveDash() }
-                }
+            if readonly {
+                Text(text.wrappedValue.isEmpty ? "—" : text.wrappedValue)
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.cyan)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(8)
+                    .background(CombatRadiusTheme.panel)
+                    .overlay(Rectangle().stroke(CombatRadiusTheme.line, lineWidth: 1))
+            } else {
+                TextField("", text: text)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.text)
+                    .padding(8)
+                    .background(CombatRadiusTheme.panel2)
+                    .overlay(Rectangle().stroke(CombatRadiusTheme.line, lineWidth: 1))
+                    .onChange(of: text.wrappedValue) { _, _ in
+                        if live { vm.scheduleLiveDash() }
+                    }
+            }
         }
     }
 

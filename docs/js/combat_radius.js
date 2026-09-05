@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 70;
+const APP_VERSION = 71;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -122,7 +122,7 @@ function renderAircraftFields() {
   $('tgtFields').innerHTML = `
     <div class="field"><label>名称</label><input id="tgt_name" type="text"></div>
     <div class="pair">
-      <div class="field"><label>展弦比 AR</label><input id="tgt_AR" type="number" step="0.01" min="0.5"></div>
+      <div class="field"><label>展弦比 AR <span class="unit">计算</span></label><input id="tgt_AR" type="number" step="0.01" min="0.5" readonly tabindex="-1"></div>
       <div class="field"><label>前缘后掠角 <span class="unit">°</span></label><input id="tgt_sweep" type="number" step="0.1"></div>
     </div>
     <div class="pair" id="tgt_dd_sweep_row" hidden>
@@ -130,7 +130,7 @@ function renderAircraftFields() {
       <div class="field"><label>外段前缘后掠 <span class="unit">°</span></label><input id="tgt_sweep_outer" type="number" step="0.1"></div>
     </div>
     <div class="pair">
-      <div class="field"><label>翼载荷 <span class="unit">t/m²</span></label><input id="tgt_wl" type="number" step="0.001" min="0.01"></div>
+      <div class="field"><label>翼载荷 <span class="unit">t/m² · 计算</span></label><input id="tgt_wl" type="number" step="0.001" min="0.01" readonly tabindex="-1"></div>
       <div class="field"><label>厚弦比 tc</label><input id="tgt_tc" type="number" step="0.001" min="0.01"></div>
     </div>
     <div class="pair">
@@ -189,15 +189,51 @@ function syncDoubleDeltaFields() {
   row.hidden = $('tgt_planform').value !== 'double_delta';
 }
 
+/** 展弦比 = 翼展² / 参考翼面积。 */
+function aspectRatioFromGeometry(span, area) {
+  if (!(span > 0) || !(area > 0)) return null;
+  return (span * span) / area;
+}
+
+/** 空战翼载荷 (t/m²) =（空重 + 半油 + 飞行员×0.1 t + 挂弹）/ 翼面积。 */
+function wingLoadingFromCombatMass(emptyKg, fuelKg, area, nPilots, missileKg, nMissiles) {
+  if (!(area > 0)) return null;
+  const empty = Number(emptyKg);
+  const fuel = Number(fuelKg);
+  if (!Number.isFinite(empty) || !Number.isFinite(fuel) || empty < 0 || fuel < 0) return null;
+  const pilots = Number.isFinite(Number(nPilots)) ? Number(nPilots) : 1;
+  const missile = Number.isFinite(Number(missileKg)) ? Number(missileKg) : 0;
+  const count = Number.isFinite(Number(nMissiles)) ? Number(nMissiles) : 4;
+  const massT = (empty + 0.5 * fuel + pilots * 100 + count * missile) / 1000;
+  return massT / area;
+}
+
+function fmtDerived(n, digits) {
+  if (n == null || !Number.isFinite(n)) return '';
+  return String(Number(n.toFixed(digits)));
+}
+
+/** 按当前翼展、翼面积与重量刷新只读的展弦比和翼载荷。 */
+function syncDerivedLoads() {
+  if (!$('tgt_AR') || !$('tgt_wl')) return;
+  const ar = aspectRatioFromGeometry(Number($('tgt_span').value), Number($('tgt_area').value));
+  if (ar != null) $('tgt_AR').value = fmtDerived(ar, 4);
+  const wl = wingLoadingFromCombatMass(
+    $('wtEmpty').value, $('wtFuel').value, Number($('tgt_area').value),
+    $('wtPilots').value, $('wtMissile').value, $('wtNMissiles').value,
+  );
+  if (wl != null) $('tgt_wl').value = fmtDerived(wl, 6);
+}
+
 function applyPresetToFields(preset) {
   if (!preset) return;
   applyingPreset = true;
   $('tgt_name').value = preset.name || '';
-  $('tgt_AR').value = preset.AR;
+  $('tgt_AR').value = preset.AR != null ? preset.AR : '';
   $('tgt_sweep').value = preset.sweep_deg;
   $('tgt_sweep_inner').value = preset.sweep_inner_deg != null ? preset.sweep_inner_deg : '';
   $('tgt_sweep_outer').value = preset.sweep_outer_deg != null ? preset.sweep_outer_deg : '';
-  $('tgt_wl').value = preset.wing_loading;
+  $('tgt_wl').value = preset.wing_loading != null ? preset.wing_loading : '';
   $('tgt_tc').value = preset.tc;
   $('tgt_planform').value = preset.planform;
   $('tgt_layout').value = preset.layout;
@@ -223,6 +259,7 @@ function applyPresetToFields(preset) {
   if ($('tgt_type_label')) $('tgt_type_label').value = preset.type_label || '';
   applyWeightFromPreset(preset);
   syncDoubleDeltaFields();
+  syncDerivedLoads();
   applyingPreset = false;
 }
 
@@ -272,6 +309,7 @@ function applyEnginePreset(p) {
 }
 
 function readAircraft() {
+  syncDerivedLoads();
   return {
     name: $('tgt_name').value || '未命名',
     AR: Number($('tgt_AR').value),
@@ -528,6 +566,7 @@ function markParamsDirty() {
 }
 
 function scheduleLiveDash() {
+  syncDerivedLoads();
   markParamsDirty();
   clearTimeout(dashTimer);
   dashTimer = setTimeout(() => {

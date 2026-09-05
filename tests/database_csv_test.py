@@ -592,7 +592,7 @@ def test_read_unified_aircraft_rows_and_item(tmp_path):
     item = _combat_radius_item_from_row(rows[0], path)
     assert item['id'] == 'L1'
     assert item['carrier'] is False
-    assert item['AR'] == 2.5
+    assert item['AR'] == pytest.approx(13 ** 2 / 60)
     cd0 = _estimate_cd0_for_item(item)
     assert 0.01 < cd0 < 0.08
 
@@ -669,5 +669,5 @@ def test_export_aircraft_csv_preserves_geometry(tmp_path):
     out.write_text(src.read_text(encoding='utf-8'), encoding='utf-8')
     export_aircraft_csv(out, aircraft)
     items = load_combat_radius_aircraft_csv(out)
-    assert items[0]['AR'] == pytest.approx(2.7)
+    assert items[0]['AR'] == pytest.approx(13 ** 2 / 42.74)
     assert items[0]['carrier'] is True

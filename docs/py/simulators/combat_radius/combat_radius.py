@@ -39,6 +39,7 @@ from utils.combat_radius.combat_radius_config import (
 )
 from utils.combat_radius.cruise_load import (
     N_MISSILES_DEFAULT,
+    apply_derived_planform_loads,
     clamp_load,
     combat_mass_breakdown,
     cruise_drag_n,
@@ -266,9 +267,25 @@ def _require_aircraft_params(params: dict[str, Any], key: str) -> dict[str, Any]
     return raw
 
 
+def _derived_target_from_params(params: dict[str, Any]) -> dict[str, Any]:
+    """取出机型字典并用翼展/翼面积/空战重量覆盖展弦比与翼载荷。"""
+    raw = dict(_require_aircraft_params(params, 'target'))
+    n_missiles = params.get('n_missiles', N_MISSILES_DEFAULT)
+    if n_missiles in (None, ''):
+        n_missiles = N_MISSILES_DEFAULT
+    return apply_derived_planform_loads(
+        raw,
+        empty_kg=params.get('empty_kg'),
+        internal_fuel_kg=params.get('internal_fuel_kg'),
+        n_pilots=params.get('n_pilots'),
+        missile_mass_kg=params.get('missile_mass_kg'),
+        n_missiles=float(n_missiles),
+    )
+
+
 def run_predict_ld_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """从 JSON 参数运行升阻比估算（统一模型，忽略旧锚点字段）。"""
-    raw = dict(_require_aircraft_params(params, 'target'))
+    raw = _derived_target_from_params(params)
     if raw.get('n_stores') in (None, '') and params.get('n_missiles') not in (None, ''):
         raw['n_stores'] = float(params['n_missiles'])
     target = aircraft_from_dict(raw)
@@ -558,7 +575,7 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
 
 def _calibrate_from_params(params: dict[str, Any]) -> tuple[Aircraft, float, float]:
     """取待估机几何，并返回统一模型 (Cf0, k_e)。挂弹数默认跟 n_missiles。"""
-    raw = dict(_require_aircraft_params(params, 'target'))
+    raw = _derived_target_from_params(params)
     if raw.get('n_stores') in (None, ''):
         raw['n_stores'] = float(params.get('n_missiles', N_MISSILES_DEFAULT))
     target = aircraft_from_dict(raw)

@@ -163,10 +163,15 @@ def test_docs_combat_radius_page_exists_and_links():
     ver_css = re.search(r'combat_radius\.css\?v=(\d+)', html)
     assert ver_js and ver_html and ver_css
     assert ver_js.group(1) == ver_html.group(1) == ver_css.group(1)
+    assert 'input[readonly]' in css.read_text(encoding='utf-8')
     assert 'resolveTslKN' in js_text
     assert 'tgt_sweep_inner' in js_text
     assert 'tgt_fuse_w' in js_text
     assert 'tgt_fuse_h' in js_text
+    assert 'syncDerivedLoads' in js_text
+    assert 'aspectRatioFromGeometry' in js_text
+    assert 'wingLoadingFromCombatMass' in js_text
+    assert 'readonly' in js_text
     assert 'tgt_nose_cone_l' in js_text
     assert 'tgt_main_wing' in js_text
     assert 'tgt_store_mount' in js_text

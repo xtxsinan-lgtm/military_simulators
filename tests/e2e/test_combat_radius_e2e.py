@@ -156,7 +156,7 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
     assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
-    assert r['max_radius_mach'] == pytest.approx(1.63, abs=0.03)
+    assert r['max_radius_mach'] == pytest.approx(1.56, abs=0.03)
     assert 'split_cruise_note' not in r
     assert prac['alt_m'] >= m15['alt_m'] - 400.0
     assert m175['alt_m'] >= m15['alt_m'] - 200.0
@@ -467,7 +467,11 @@ def test_e2e_combat_radius_three_channels_exist():
     assert wxml.count('bindtap="onRunDash"') == 1
     assert wxml.count('▶ 计算作战半径') == 1
     assert 'function requestLiveDash' in js_text
+    assert 'syncDerivedLoads' in js_text
+    assert 'readonly' in js_text
     assert 'onRunDash' in (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
+    assert 'applyDerivedLoads' in (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
+    assert 'input-readonly' in wxml
     assert '混合作战半径' in wxml
     assert '最大 L/D' in wxml
     assert '速度/马赫' in wxml
@@ -519,6 +523,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert '最大半径超音速巡航速度' in ios
     assert '表下会并排' not in ios
     assert 'func cruiseSpeedLabel' in ios
+    assert 'readonly: true' in ios
     assert '最大 L/D' in ios
     assert '热效率' in ios
     assert '推进效率' in ios
@@ -792,7 +797,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert f22['points'][-2]['label'] == '最大半径超音速巡航速度'
     assert f22['points'][-1]['label'] == '最大巡航速度'
     assert f22.get('max_radius_mach') is not None
-    assert f22['max_radius_mach'] == pytest.approx(1.63, abs=0.03)
+    assert f22['max_radius_mach'] == pytest.approx(1.56, abs=0.03)
     assert f22['max_speed']['max_speed_mach'] == pytest.approx(F22_MAX_SPEED_MACH, abs=0.08)
     assert 'split_cruise_note' not in f22
     live = run_preset_dashboard('F-22')
@@ -974,3 +979,27 @@ def test_e2e_slim_fuse_section_raises_transonic_ld():
     assert slim['target']['ld'] > wide['target']['ld']
     assert uav['fuse_width_m'] == pytest.approx(2.26)
     assert uav['fuse_height_m'] == pytest.approx(1.62)
+
+
+@pytest.mark.e2e
+def test_e2e_stale_ar_and_wing_loading_do_not_change_ld():
+    """手填错误展弦比/翼载荷不得改变升阻比，须按翼展、翼面积与空战重量重算。"""
+    presets = load_presets()
+    tgt = dict(get_preset_by_id(presets, 'NG6A'))
+    ok = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': dict(tgt)}})
+    stale = dict(tgt)
+    stale['AR'] = 99.0
+    stale['wing_loading'] = 9.0
+    bad = run_combat_radius_json({
+        'action': 'predict_ld',
+        'params': {
+            'target': stale,
+            'empty_kg': tgt['empty_kg'],
+            'internal_fuel_kg': tgt['internal_fuel_kg'],
+            'n_pilots': tgt['n_pilots'],
+            'missile_mass_kg': tgt['missile_mass_kg'],
+            'n_missiles': 4,
+        },
+    })
+    assert ok['success'] is True and bad['success'] is True
+    assert bad['target']['ld'] == pytest.approx(ok['target']['ld'], rel=1e-9)

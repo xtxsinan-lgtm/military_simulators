@@ -15,8 +15,8 @@
       </picker>
     </view>
     <view class="field">
-      <view class="field-label"><text>展弦比 AR</text></view>
-      <input class="input" type="digit" value="{{tgt.AR}}" data-key="AR" bindinput="onAcField"/>
+      <view class="field-label"><text>展弦比 AR</text><text class="unit">计算</text></view>
+      <view class="input input-readonly">{{tgt.AR || '—'}}</view>
     </view>
     <view class="field">
       <view class="field-label"><text>前缘后掠角</text><text class="unit">°</text></view>
@@ -31,8 +31,8 @@
       <input class="input" type="digit" value="{{tgt.sweep_outer_deg}}" data-key="sweep_outer_deg" bindinput="onAcField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>翼载荷</text><text class="unit">t/m²</text></view>
-      <input class="input" type="digit" value="{{tgt.wing_loading}}" data-key="wing_loading" bindinput="onAcField"/>
+      <view class="field-label"><text>翼载荷</text><text class="unit">t/m² · 计算</text></view>
+      <view class="input input-readonly">{{tgt.wing_loading || '—'}}</view>
     </view>
     <view class="field">
       <view class="field-label"><text>厚弦比 tc</text></view>

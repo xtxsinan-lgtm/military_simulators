@@ -75,6 +75,7 @@ header{
   outline:none;
 }
 .field input:focus, .field select:focus{ border-color:var(--green); }
+.field input[readonly]{ color:var(--cyan); background:var(--panel); cursor:default; }
 .field select optgroup{
   color:var(--cyan); font-style:normal; font-weight:bold;
 }

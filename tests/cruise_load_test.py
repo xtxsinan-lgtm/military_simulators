@@ -68,6 +68,49 @@ def test_wing_loading_t_m2_is_combat_mass_over_area():
     assert skipped['wing_loading'] == pytest.approx(0.5)
 
 
+def test_aspect_ratio_from_geometry_is_span_squared_over_area():
+    """展弦比 = 翼展² / 参考翼面积。"""
+    from utils.combat_radius.cruise_load import aspect_ratio_from_geometry
+
+    assert aspect_ratio_from_geometry(12.1, 55.7) == pytest.approx(12.1 ** 2 / 55.7)
+    with pytest.raises(ValueError, match='翼展'):
+        aspect_ratio_from_geometry(0.0, 55.7)
+    with pytest.raises(ValueError, match='翼面积'):
+        aspect_ratio_from_geometry(12.1, 0.0)
+
+
+def test_apply_derived_planform_loads_overwrites_stale_ar_and_wing_loading():
+    """有翼展、翼面积与空战重量时覆盖手填的展弦比和翼载荷。"""
+    from utils.combat_radius.cruise_load import (
+        apply_derived_planform_loads,
+        aspect_ratio_from_geometry,
+        wing_loading_t_m2,
+    )
+
+    stale = {
+        'AR': 99.0, 'wing_loading': 9.0,
+        'wingspan_m': 12.1, 'wing_area_m2': 55.7,
+        'empty_kg': 13840, 'internal_fuel_kg': 6590,
+        'n_pilots': 1, 'missile_mass_kg': 210,
+    }
+    out = apply_derived_planform_loads(stale, n_missiles=4)
+    assert out['AR'] == pytest.approx(aspect_ratio_from_geometry(12.1, 55.7))
+    assert out['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        13840, 6590, 55.7, 1, 210, 4,
+    ))
+    request = apply_derived_planform_loads(
+        {'AR': 1.0, 'wing_loading': 1.0, 'wingspan_m': 13.3, 'wing_area_m2': 70.8},
+        empty_kg=14200, internal_fuel_kg=8360, n_pilots=1, missile_mass_kg=210,
+    )
+    assert request['AR'] == pytest.approx(13.3 ** 2 / 70.8)
+    assert request['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        14200, 8360, 70.8, 1, 210, 4,
+    ))
+    kept = apply_derived_planform_loads({'AR': 2.5, 'wing_loading': 0.3})
+    assert kept['AR'] == pytest.approx(2.5)
+    assert kept['wing_loading'] == pytest.approx(0.3)
+
+
 def test_cruise_drag_n_is_weight_over_ld():
     drag = cruise_drag_n(10000.0, 8.0)
     assert drag == pytest.approx(10000.0 * G0 / 8.0)

@@ -242,7 +242,9 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
     type_label = (row.get('type_label') or '').strip()
     if type_label:
         item['type_label'] = type_label
-    return item
+    from utils.combat_radius.cruise_load import apply_derived_planform_loads
+
+    return apply_derived_planform_loads(item)
 
 
 def _estimate_cd0_for_item(item: dict[str, Any]) -> float:

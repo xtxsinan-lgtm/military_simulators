@@ -114,6 +114,10 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert 'canard_htail_area_m2' in cr_js
     assert '机身宽' in cr_wxml
     assert '机身高' in cr_wxml
+    assert 'applyDerivedLoads' in cr_js
+    assert 'input-readonly' in cr_wxml
+    assert 'data-key="AR"' not in cr_wxml
+    assert 'data-key="wing_loading"' not in cr_wxml
     assert '机头锥长度' in cr_wxml
     assert '平尾/鸭翼面积' in cr_wxml
     assert '腹鳍面积' in cr_wxml

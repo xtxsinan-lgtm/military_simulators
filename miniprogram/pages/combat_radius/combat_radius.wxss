@@ -28,6 +28,7 @@ page {
 .input, .picker-val {
   background: #0e161b; border: 1px solid #1c2b30; color: #d7e2e4; padding: 14rpx 16rpx; font-size: 26rpx;
 }
+.input-readonly { color: #5fd8e8; background: #0b1216; }
 .check-row { display: flex; gap: 32rpx; margin-bottom: 16rpx; color: #7b8e92; font-size: 22rpx; }
 .btn {
   background: #3ddc84; color: #042014; text-align: center; padding: 20rpx; font-weight: bold;

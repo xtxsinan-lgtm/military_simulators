@@ -95,6 +95,32 @@ function weightFromPreset(p) {
   return patch;
 }
 
+function fmtDerived(n, digits) {
+  if (n == null || !Number.isFinite(n)) return '';
+  return String(Number(n.toFixed(digits)));
+}
+
+/** 按翼展、翼面积与空战重量覆盖展弦比和翼载荷。 */
+function applyDerivedLoads(tgt, wt) {
+  const out = Object.assign({}, tgt);
+  const span = Number(out.wingspan_m);
+  const area = Number(out.wing_area_m2);
+  if (span > 0 && area > 0) {
+    out.AR = fmtDerived((span * span) / area, 4);
+  }
+  const empty = Number(wt.wtEmpty);
+  const fuel = Number(wt.wtFuel);
+  if (area > 0 && Number.isFinite(empty) && Number.isFinite(fuel) && empty >= 0 && fuel >= 0) {
+    const pilots = Number.isFinite(Number(wt.wtPilots)) ? Number(wt.wtPilots) : 1;
+    const missile = Number.isFinite(Number(wt.wtMissile)) ? Number(wt.wtMissile) : 0;
+    const count = Number.isFinite(Number(wt.wtNMissiles)) ? Number(wt.wtNMissiles) : 4;
+    out.wing_loading = fmtDerived(
+      (empty + 0.5 * fuel + pilots * 100 + count * missile) / 1000 / area, 6,
+    );
+  }
+  return out;
+}
+
 /** 分速表第一列：固定马赫只写数字，表尾命名行写中文名称加马赫。 */
 function cruiseSpeedLabel(p) {
   const name = p.label || (p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—');
@@ -212,10 +238,11 @@ Page({
         const eng = (tgtp && tgtp.engine_id && engines.find((p) => p.id === tgtp.engine_id))
           || engines.find((p) => p.id === ui.default_engine_id)
           || engines[0];
+        const wt = weightFromPreset(tgtp);
         this.setData({
           presets,
           presetNames,
-          tgt: cloneAc(tgtp),
+          tgt: applyDerivedLoads(cloneAc(tgtp), wt),
           tgtPresetIndex: findIdx(ui.default_target_id),
           enginePresets: engines,
           engineNames,
@@ -234,7 +261,7 @@ Page({
           storeMountNames,
           storeMountIndex: Math.max(0, storeMountIds.indexOf((tgtp && tgtp.store_mount) || 'internal')),
           resultsMap: (data.combat_radius_results && data.combat_radius_results.aircraft) || {},
-          ...weightFromPreset(tgtp),
+          ...wt,
           statusText: presets.length ? '预设已加载' : '缺少 combat_radius_presets，请运行 build_all.py',
         });
         this.showSnapshot(tgtp && tgtp.id);
@@ -277,9 +304,23 @@ Page({
     return patch;
   },
 
+  derivedWeight(extra) {
+    return Object.assign({
+      wtEmpty: this.data.wtEmpty,
+      wtFuel: this.data.wtFuel,
+      wtPilots: this.data.wtPilots,
+      wtMissile: this.data.wtMissile,
+      wtNMissiles: this.data.wtNMissiles,
+    }, extra || {});
+  },
+
   onField(e) {
     const key = e.currentTarget.dataset.key;
-    this.setData({ [key]: e.detail.value });
+    const patch = { [key]: e.detail.value };
+    if (['wtEmpty', 'wtFuel', 'wtPilots', 'wtMissile', 'wtNMissiles'].includes(key)) {
+      patch.tgt = applyDerivedLoads(this.data.tgt, this.derivedWeight({ [key]: e.detail.value }));
+    }
+    this.setData(patch);
     if (!['q1Mach', 'q2Mach', 'q2Alt', 'q3Mach', 'q3Alt', 'q3Load'].includes(key)) {
       this.scheduleLiveDash();
     }
@@ -287,7 +328,8 @@ Page({
 
   onAcField(e) {
     const key = e.currentTarget.dataset.key;
-    this.setData({ [`tgt.${key}`]: e.detail.value });
+    const next = Object.assign({}, this.data.tgt, { [key]: e.detail.value });
+    this.setData({ tgt: applyDerivedLoads(next, this.derivedWeight()) });
     this.scheduleLiveDash();
   },
 
@@ -315,10 +357,11 @@ Page({
     const patch = { tgtPresetIndex: idx };
     if (idx > 0) {
       const p = this.data.presets[idx - 1];
-      patch.tgt = cloneAc(p);
+      const wt = weightFromPreset(p);
+      Object.assign(patch, wt);
+      patch.tgt = applyDerivedLoads(cloneAc(p), wt);
       patch.inletIndex = Math.max(0, this.data.inletIds.indexOf(p.inlet || 'dsi'));
       patch.storeMountIndex = Math.max(0, this.data.storeMountIds.indexOf(p.store_mount || 'internal'));
-      Object.assign(patch, weightFromPreset(p));
       if (p.engine_id) {
         const ei = this.data.enginePresets.findIndex((x) => x.id === p.engine_id);
         if (ei >= 0) {
@@ -353,7 +396,7 @@ Page({
   },
 
   toAircraft() {
-    const ac = this.data.tgt;
+    const ac = applyDerivedLoads(this.data.tgt, this.derivedWeight());
     return {
       name: ac.name || '未命名',
       AR: num(ac.AR, 0),

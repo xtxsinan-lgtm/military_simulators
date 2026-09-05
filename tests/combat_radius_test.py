@@ -94,6 +94,28 @@ def test_require_aircraft_params():
         _require_aircraft_params({}, 'anchor1')
 
 
+def test_derived_target_overwrites_stale_ar_and_wing_loading():
+    """请求里手填的展弦比/翼载荷须被翼展、翼面积与空战重量覆盖。"""
+    from simulators.combat_radius.combat_radius import _derived_target_from_params
+    from utils.combat_radius.cruise_load import wing_loading_t_m2
+
+    raw = _derived_target_from_params({
+        'target': {
+            'AR': 99, 'wing_loading': 9,
+            'wingspan_m': 12.1, 'wing_area_m2': 55.7,
+        },
+        'empty_kg': 13840,
+        'internal_fuel_kg': 6590,
+        'n_pilots': 1,
+        'missile_mass_kg': 210,
+        'n_missiles': 4,
+    })
+    assert raw['AR'] == pytest.approx(12.1 ** 2 / 55.7)
+    assert raw['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        13840, 6590, 55.7, 1, 210, 4,
+    ))
+
+
 def test_format_ld_row_with_and_without_target():
     ac = Aircraft(
         'F-22', AR=2.37, sweep_deg=41.3, wing_loading=0.318,

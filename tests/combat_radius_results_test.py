@@ -126,13 +126,13 @@ def test_run_preset_dashboard_f22_compact():
     assert next(p for p in r['points'] if p['id'] == 'max_cruise')['label'] == '实用最大巡航速度'
     radius_row = next(p for p in r['points'] if p['id'] == 'max_radius_cruise')
     assert radius_row['label'] == '最大半径超音速巡航速度'
-    assert radius_row['mach'] == pytest.approx(1.62, abs=0.03)
+    assert radius_row['mach'] == pytest.approx(1.56, abs=0.03)
     assert next(p for p in r['points'] if p['id'] == 'max_possible_cruise')['label'] == '最大巡航速度'
     assert 'max_speed' in r
     assert r['max_cruise_mach'] == pytest.approx(1.76, abs=0.005)
     assert r['max_possible_cruise_mach'] > r['max_cruise_mach']
     assert r['max_radius_mach'] is not None
-    assert r['max_radius_mach'] == pytest.approx(1.62, abs=0.03)
+    assert r['max_radius_mach'] == pytest.approx(1.56, abs=0.03)
     assert cruise_machs_differ(r['max_cruise_mach'], r['max_radius_mach'])
     assert 'split_cruise_note' not in r
     ms = r['max_speed']
