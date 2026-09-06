@@ -30,6 +30,8 @@ from utils.combat_radius.lift_drag import (
     TRANSONIC_ONSET,
     CD_AOA_COEF,
     CL_AOA_ONSET,
+    CL_AOA_WL_K,
+    CL_AOA_WL_REF,
     CF0_REF,
     F22_SUPERCRUISE_MACH,
     F22_MAX_SPEED_MACH,
@@ -58,6 +60,7 @@ from utils.combat_radius.lift_drag import (
     parasite_cd0,
     atmosphere,
     calibrate,
+    aoa_onset_cl,
     cd_high_aoa,
     cd_wave,
     cd_wave_korn,
@@ -926,18 +929,32 @@ def test_components_keys_and_signs():
     assert c['CDa'] >= 0
 
 
+def test_aoa_onset_cl_rises_with_wing_loading():
+    """高翼载机大迎角起点上移，低翼载机接近基准 0.36。"""
+    assert CL_AOA_ONSET == pytest.approx(0.36)
+    assert CL_AOA_WL_REF == pytest.approx(0.32)
+    assert CL_AOA_WL_K == pytest.approx(0.60)
+    light = Aircraft(**{**aircraft_to_dict(_f22()), 'wing_loading': 0.32})
+    heavy = Aircraft(**{**aircraft_to_dict(_f22()), 'wing_loading': 0.42})
+    assert aoa_onset_cl(light) == pytest.approx(CL_AOA_ONSET)
+    assert aoa_onset_cl(heavy) == pytest.approx(CL_AOA_ONSET + 0.06)
+    assert aoa_onset_cl(heavy) > aoa_onset_cl(light)
+
+
 def test_cd_high_aoa_zero_near_cruise_cl_and_rises():
     """标定巡航 CL 附近附加阻力为零；再增大迎角则上升。"""
     assert cd_high_aoa(CL_AOA_ONSET) == 0.0
     assert cd_high_aoa(CL_AOA_ONSET - 0.05) == 0.0
-    assert cd_high_aoa(cl_cruise(_f35c())) == 0.0
-    assert cd_high_aoa(cl_cruise(_f22())) == 0.0
+    assert cd_high_aoa(cl_cruise(_f35c()), _f35c()) == 0.0
+    assert cd_high_aoa(cl_cruise(_f22()), _f22()) == 0.0
     assert cd_high_aoa(0.50) == pytest.approx(CD_AOA_COEF * (0.50 - CL_AOA_ONSET) ** 2)
     assert cd_high_aoa(0.58) > cd_high_aoa(0.45)
-    # F-35A 11 km 巡航 CL≈0.42：只留轻惩罚，不得按大迎角把半径打到公开值以下
-    assert CL_AOA_ONSET == pytest.approx(0.36)
     assert CD_AOA_COEF == pytest.approx(1.6)
+    # 无翼载时仍用基准 0.36；F-35A 级翼载把 0.42 视为巡航而非大迎角
     assert 0.0 < cd_high_aoa(0.42) < 0.006
+    f35a = Aircraft(**{**aircraft_to_dict(_f35c()), 'name': 'F-35A', 'wing_loading': 0.426})
+    assert aoa_onset_cl(f35a) > 0.42
+    assert cd_high_aoa(0.42, f35a) == 0.0
 
 
 def test_f22_ma08_ld_peaks_near_catalog_not_15km():
@@ -997,7 +1014,7 @@ def test_rough_form_cd0_mult():
 
 
 def test_rough_mult_penalizes_f35_vs_smooth():
-    """几何浸润已含肥胖；rough 只留很轻的摩擦/形状 BUMP>1，浸润高于光滑对照。"""
+    """几何浸润已含肥胖；rough 用摩擦/形状 BUMP>1 把 F-35 半径收到公开值。"""
     assert BUMP_FRICTION_MULT == pytest.approx(1.006, abs=0.0005)
     assert BUMP_FORM_MULT == pytest.approx(1.001, abs=0.0005)
     assert BUMP_MULT == pytest.approx(BUMP_FRICTION_MULT)

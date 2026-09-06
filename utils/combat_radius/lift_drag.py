@@ -9,9 +9,8 @@
 
 大迎角项：超过典型巡航 CL 后诱导/分离阻力按 (CL-CL_on)² 上升，
 避免抛物线极曲线把 L/Dmax 推到 CL≈0.57（Ma 0.8 约 15 km）。
-起点须高于高翼载机在 11 km 地板的巡航 CL 附近，并减弱系数，
-避免 F-35A 的 CL≈0.42 被当成大迎角；15 km 的 CL≈0.57 仍触发见顶。
-低翼载飞机同一高度 CL 更小，可以飞得更高。
+起点随翼载上移：高翼载机（F-35A/B）11–12 km 的 CL≈0.41 是设计巡航，
+不是大迎角；低翼载机仍用 0.36 压住 15 km。低翼载同一高度 CL 更小，可以飞得更高。
 无座舱无人机去掉风挡浸润；机长只进入马赫锥项（Ma 1.5 通常未触发）。
 有完整分段几何时，浸润按机头锥（圆锥侧面积）+ 机头（圆台侧面积）+ 机身盒段（长方体表面积）
 + 升力面平面面积×上下两面（主翼、鸭翼/平尾、腹鳍、垂尾），再除以参考翼面积，并相对 F-35A 的 S_wet/S_ref 归一化；
@@ -147,17 +146,24 @@ INLET_CARET_CDW = 0.90
 # 超音速相关系数 CDW_SS_BODY 按 F-22 高度峰值 1.76 重标定。
 # F-35 航程短板主要是 F135 的 +22% TSFC（STOVL 低压轴榨功导致
 # 循环不能按巡航油耗最优，不是进气道安装惩罚，见 engine_efficiency）。
-# 不平整只留很轻的亚音速惩罚：摩擦约 +0.6%，形状约 +0.1%（原先各 +2% 过重）。
-# 垂尾入库后 F-35C Ma0.8 约 1358 km。
+# 不平整只留很轻的亚音速惩罚：摩擦约 +0.6%，形状约 +0.1%。
+# 再加重会把 F-35C 加力极速打到公开 Ma 1.6 以下，且 Ma 1.5 加力不可飞。
+# 大迎角起点随翼载上移后，A/C 半径对齐；绝对值由布雷盖巡航给出（约 1370 km），
+# 公开 1239/1241 km 含战斗/剖面开销，不在本模型里用 BUMP 硬往下压。
+# 光滑隐身机（F-22/歼-20）不吃 BUMP，Ma 0.8 锚点不变。
 BUMP_FRICTION_MULT = 1.006
 BUMP_FORM_MULT = 1.001
 BUMP_MULT = BUMP_FRICTION_MULT  # 兼容旧名：不平整摩擦项
 CF0_REF = 0.02502061935728385
 K_E_REF = 1.9677054936141871
 # 大迎角附加阻力：超过巡航 CL 后 (CL-CL_on)²，使 L/D 在标定高度附近见顶。
-# 起点 0.36、系数 1.6：F-35A 11 km Ma 0.8 的 CL≈0.42 只留轻惩罚（半径≥1200 km），
-# 仍压住 15 km 的抛物线 L/Dmax；过强（0.35/2.0）会把 A 打到远低于公开 1240 km。
+# 基准起点 0.36、系数 1.6：压住低翼载机 15 km 的抛物线 L/Dmax。
+# 起点随翼载上移：高翼载机设计巡航 CL 更高，11–12 km 的 CL≈0.41 不是大迎角；
+# 固定 0.36 会把 F-35A/B 钉在 11 km 地板，L/D 比大翼 C 低 25%，与公开 1239/1241 km 不符。
+# 展弦比 A/C 几乎相同（2.68 vs 2.77），A 偏低不是 AR 权重，而是固定 CL 门槛。
 CL_AOA_ONSET = 0.36
+CL_AOA_WL_REF = 0.32  # 低翼载隐身机（F-22/歼-20）空战翼载
+CL_AOA_WL_K = 0.60  # 翼载每高出 0.1 t/m²，起点上移 0.06
 CD_AOA_COEF = 1.6
 # 双三角折点：几何无法闭合时的默认半展站位（内段占半展的比例）
 DOUBLE_DELTA_KINK_DEFAULT = 0.45
@@ -994,9 +1000,18 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     return cdw
 
 
-def cd_high_aoa(CL: float) -> float:
-    """大迎角附加阻力：CL 超过巡航起点后按超出量平方增长。"""
-    excess = CL - CL_AOA_ONSET
+def aoa_onset_cl(ac: Aircraft) -> float:
+    """大迎角起点：基准 CL_AOA_ONSET，再按翼载相对低翼载参考上移。"""
+    return CL_AOA_ONSET + CL_AOA_WL_K * (ac.wing_loading - CL_AOA_WL_REF)
+
+
+def cd_high_aoa(CL: float, ac: Aircraft | None = None) -> float:
+    """大迎角附加阻力：CL 超过巡航起点后按超出量平方增长。
+
+    给出机型时按翼载上移起点；未给时用基准 0.36（旧测试/对照）。
+    """
+    onset = CL_AOA_ONSET if ac is None else aoa_onset_cl(ac)
+    excess = CL - onset
     return CD_AOA_COEF * excess ** 2 if excess > 0.0 else 0.0
 
 
@@ -1021,7 +1036,7 @@ def components(ac: Aircraft) -> dict[str, float]:
     wetted = wetted_area_factor(ac)
     f_form = rough_form_cd0_mult(ac)
     cdw = cd_wave(CL, ac)
-    cda = cd_high_aoa(CL)
+    cda = cd_high_aoa(CL, ac)
     return dict(CL=CL, e_raw=e_raw, K=k_ind, W=wetted, F_form=f_form, CDw=cdw, CDa=cda)
 
 

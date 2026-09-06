@@ -857,17 +857,19 @@ def test_insufficient_mission_fuel_marks_points_infeasible():
 
 
 def test_ma08_combat_radius_calibration_targets():
-    """Ma 0.8 作战半径：歼-20=1350、F-22≈1061、F-35C≈1358、F-35A≈1174。"""
+    """Ma 0.8：F-35A/C 须对齐（公开 1239/1241）；B 贴近 935；歼-20=1350、F-22≈1061。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 
     presets = load_presets()
     engines = load_engine_presets()
     cases = [
-        ('F-35A', 'f135', 1174, 50),
-        ('F-35C', 'f135', 1358, 50),
+        ('F-35A', 'f135', 1361, 40),
+        ('F-35B', 'f135b', 973, 40),
+        ('F-35C', 'f135', 1384, 40),
         ('F-22', 'f119', 1061, 50),
         ('J-20', 'ws15', 1350, 50),
     ]
+    got: dict[str, float] = {}
     for ac_id, eng_id, target_km, tol_km in cases:
         tgt = get_preset_by_id(presets, ac_id)
         eng = get_preset_by_id(engines, eng_id)
@@ -889,6 +891,8 @@ def test_ma08_combat_radius_calibration_targets():
         assert m08['radius_km'] == pytest.approx(target_km, abs=tol_km), (
             f'{ac_id} Ma0.8={m08["radius_km"]:.0f} km, 目标 {target_km}±{tol_km}'
         )
+        got[ac_id] = float(m08['radius_km'])
+    assert got['F-35A'] == pytest.approx(got['F-35C'], abs=40)
 
 
 def test_f35_lpc_only_tsfc_mult_widens_ma08_radius():
@@ -900,9 +904,9 @@ def test_f35_lpc_only_tsfc_mult_widens_ma08_radius():
     engines = load_engine_presets()
     lpc = f135_tsfc_install_mult_for_mode('lpc_only')
     cases = [
-        ('F-35A', 'f135', 1441),
-        ('F-35B', 'f135b', 997),
-        ('F-35C', 'f135', 1655),
+        ('F-35A', 'f135', 1638),
+        ('F-35B', 'f135b', 1184),
+        ('F-35C', 'f135', 1686),
     ]
     for ac_id, eng_id, target_km in cases:
         tgt = get_preset_by_id(presets, ac_id)

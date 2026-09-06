@@ -758,7 +758,7 @@ def test_e2e_combat_radius_f35_max_speed_near_mach_16():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_f35c_engine_install_applied():
-    """F135 循环油耗乘数须进入仪表盘，F-35C Ma0.8 约 1358 km、F-35A 约 1174；F-22 不受 F135 乘数影响。"""
+    """F135 循环油耗乘数须进入仪表盘，F-35A/C Ma0.8 对齐；F-22 不受 F135 乘数影响。"""
     from utils.combat_radius.combat_radius_results import run_preset_dashboard
     from utils.combat_radius.engine_efficiency import F135_TSFC_INSTALL_MULT
 
@@ -772,13 +772,18 @@ def test_e2e_combat_radius_f35c_engine_install_applied():
     m08 = next(p for p in f35c['points'] if p['id'] == 'mach_0_8')
     m08_22 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert m08['feasible'] is True
-    assert m08['radius_km'] == pytest.approx(1358, abs=50)
+    assert m08['radius_km'] == pytest.approx(1384, abs=40)
     assert m08_22['radius_km'] == pytest.approx(1061, abs=50)
     f35a = run_preset_dashboard('F-35A')
     m08_a = next(p for p in f35a['points'] if p['id'] == 'mach_0_8')
     assert m08_a['feasible'] is True
     assert m08_a['radius_km'] >= 1150
-    assert m08_a['radius_km'] == pytest.approx(1174, abs=50)
+    assert m08_a['radius_km'] == pytest.approx(1361, abs=40)
+    assert m08_a['radius_km'] == pytest.approx(m08['radius_km'], abs=40)
+    f35b = run_preset_dashboard('F-35B')
+    m08_b = next(p for p in f35b['points'] if p['id'] == 'mach_0_8')
+    assert m08_b['feasible'] is True
+    assert m08_b['radius_km'] == pytest.approx(973, abs=40)
 
 
 @pytest.mark.e2e
@@ -800,7 +805,7 @@ def test_e2e_f35_tsfc_toggle_lpc_only_widens_radius():
     m08_lpc = next(p for p in r_lpc['points'] if p['id'] == 'mach_0_8')
     assert m08_pub['feasible'] is True and m08_lpc['feasible'] is True
     assert m08_lpc['radius_km'] > m08_pub['radius_km'] + 150
-    assert m08_lpc['radius_km'] == pytest.approx(1441, abs=30)
+    assert m08_lpc['radius_km'] == pytest.approx(1638, abs=30)
     status, _, body = handle_request(
         'POST', '/api/combat_radius/simulate',
         json.dumps({'action': 'aircraft_dashboard', 'params': lpc}).encode(),
