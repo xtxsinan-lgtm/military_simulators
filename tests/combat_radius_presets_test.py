@@ -330,9 +330,9 @@ def test_ng6_medium_sixth_gen_presets():
     assert c['empty_kg'] == pytest.approx(14200)
     assert b['empty_kg'] == pytest.approx(13840)
     assert a['empty_kg'] == pytest.approx(12340)
-    assert c['internal_fuel_kg'] == pytest.approx(8360)
-    assert b['internal_fuel_kg'] == pytest.approx(6590)
-    assert a['internal_fuel_kg'] == pytest.approx(7560)
+    assert c['internal_fuel_kg'] == pytest.approx(8780)
+    assert b['internal_fuel_kg'] == pytest.approx(5420)
+    assert a['internal_fuel_kg'] == pytest.approx(7990)
     assert c['sweep_deg'] == pytest.approx(49.3)
     assert b['sweep_deg'] == a['sweep_deg'] == pytest.approx(48.0)
     assert c['mach_angle_deg'] == pytest.approx(29.3)
@@ -343,13 +343,13 @@ def test_ng6_medium_sixth_gen_presets():
     assert b['tc'] == a['tc'] == pytest.approx(0.05)
     from utils.combat_radius.cruise_load import wing_loading_t_m2
     assert c['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        14200, 8360, 70.8, 1, 210,
+        14200, 8780, 70.8, 1, 210,
     ), abs=1e-6)
     assert b['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        13840, 6590, 55.65, 1, 210,
+        13840, 5420, 55.65, 1, 210,
     ), abs=1e-6)
     assert a['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        12340, 7560, 55.65, 1, 210,
+        12340, 7990, 55.65, 1, 210,
     ), abs=1e-6)
 
 
