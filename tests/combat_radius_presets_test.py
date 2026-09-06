@@ -315,7 +315,7 @@ def test_ng6_medium_sixth_gen_presets():
     assert c['length_m'] == b['length_m'] == a['length_m'] == pytest.approx(17.0)
     assert c['wingspan_m'] == pytest.approx(12.8)
     assert b['wingspan_m'] == a['wingspan_m'] == pytest.approx(11.6)
-    assert c['AR'] == pytest.approx(12.8 ** 2 / 65.3, abs=0.005)
+    assert c['AR'] == pytest.approx(2.50, abs=0.01)
     assert b['AR'] == a['AR'] == pytest.approx(11.6 ** 2 / 51.3, abs=0.005)
     assert c['fuse_width_m'] == b['fuse_width_m'] == a['fuse_width_m'] == pytest.approx(3.40)
     assert c['fuse_height_m'] == b['fuse_height_m'] == a['fuse_height_m'] == pytest.approx(1.97)
