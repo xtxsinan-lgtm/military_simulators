@@ -171,7 +171,7 @@ DOUBLE_DELTA_KINK_DEFAULT = 0.45
 PlanformId = Literal[
     'trapezoidal', 'swept', 'delta', 'diamond', 'unswept', 'lambda', 'double_delta',
 ]
-LayoutId = Literal['conventional', 'canard', 'tailless', 'pelican', 'small_htail', 'medium_htail']
+LayoutId = Literal['conventional', 'canard', 'tailless']
 InletId = Literal['dsi', 'caret']
 StoreMountId = Literal['internal', 'semi_recessed', 'pylon']
 
@@ -189,21 +189,12 @@ LAYOUT_MULT: dict[str, float] = {
     'conventional': 1.00,  # 常规
     'canard': 1.05,  # 鸭式：多一个升力面，浸润/干扰阻力↑
     'tailless': 0.93,  # 无尾：浸润面积↓
-    'small_htail': 0.97,  # 小平尾：补安定，浸润略高于无尾
-    'pelican': 0.98,  # 中等 Pelican / V 尾：一对全动面，浸润高于小平尾
-    'medium_htail': 0.985,  # 中等平尾：舰载/垂起俯仰面，无双垂尾
 }
 # 超音速体积波阻布局折扣（升力波阻不打折；鸭翼另加 CDW_CANARD）
-CDW_PELICAN = 0.86  # 中等 Pelican / V 尾：面积律好于平尾、差于无尾
-CDW_SMALL_HTAIL = 0.90  # 小平尾仍有尾部容积
-CDW_MEDIUM_HTAIL = 0.94  # 中等平尾：尾部容积大于小平尾，仍好于常规双垂尾
 LAYOUT_CDW_VOL: dict[str, float] = {
     'conventional': 1.00,
     'canard': 1.00,
     'tailless': CDW_TAILLESS,
-    'pelican': CDW_PELICAN,
-    'small_htail': CDW_SMALL_HTAIL,
-    'medium_htail': CDW_MEDIUM_HTAIL,
 }
 # 进气道浸润乘数（绝对量级由 Cf0 吸收，这里只保留相对趋势）
 INLET_WETTED_MULT: dict[str, float] = {
@@ -784,7 +775,7 @@ def wetted_area_factor(ac: Aircraft) -> float:
 
     - 翼型越厚，浸润面积/摩擦阻力略增
     - 三角翼/双三角/钻石翼/兰姆达翼相比梯形翼浸润面积/参考面积略小；平直翼略大
-    - 鸭式布局多一个升力面；无尾布局减少；Pelican 尾 / 小·中等平尾介于二者之间
+    - 鸭式布局多一个升力面；无尾布局减少浸润
     - 翼身融合 (bwb) 与表面不平整 (rough) 是两个完全独立的开关
     - rough 乘 BUMP_FRICTION_MULT（不平整摩擦；形状阻力另乘 CD0；无肥胖乘数）
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
@@ -973,7 +964,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加 + rough 超音速附加。
 
     机身/升力/鸭翼项整机计算一次；机翼前缘项双三角按两段面积加权。
-    无尾/Pelican/小·中等平尾/翼身融合/加莱特进气道只打折体积项，升力波阻与 rough 附加不打折。
+    无尾/翼身融合/加莱特进气道只打折体积项，升力波阻与 rough 附加不打折。
     机身项（(M-1)²）再乘截面积相对 F-35 参考的因子；超巡带后附加与机翼/升力波阻不乘。
     升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速；
     马赫因子在超巡带封顶，过了 1.76 再加重，峰值高度开始回落。

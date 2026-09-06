@@ -35,7 +35,7 @@ def test_load_combat_radius_config_file_exists_and_ui_defaults():
     assert 'default_anchor1_id' not in ui
     assert ui['default_eta_c'] == 0.87
     assert ui['default_eps'] == 0.83
-    assert load_combat_radius_config()['version'] == 7
+    assert load_combat_radius_config()['version'] == 8
 
 
 def test_planform_and_layout_labels():
@@ -48,9 +48,9 @@ def test_planform_and_layout_labels():
     ly = layout_labels()
     assert ly['canard'] == '鸭翼'
     assert ly['tailless'] == '无尾'
-    assert ly['pelican'] == 'Pelican尾'
-    assert ly['small_htail'] == '小平尾'
-    assert ly['medium_htail'] == '中等平尾'
+    assert 'pelican' not in ly
+    assert 'small_htail' not in ly
+    assert 'medium_htail' not in ly
     inn = inlet_labels()
     assert inn['dsi'] == 'DSI'
     assert inn['caret'] == '加莱特'
@@ -118,7 +118,7 @@ def test_inject_combat_radius_config_overrides_disk():
     finally:
         mod._INJECTED = None
         load_combat_radius_config.cache_clear()
-    assert load_combat_radius_config()['version'] == 7
+    assert load_combat_radius_config()['version'] == 8
 
 
 def test_mission_fuel_config_defaults():

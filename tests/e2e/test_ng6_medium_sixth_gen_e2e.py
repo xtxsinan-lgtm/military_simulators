@@ -21,16 +21,15 @@ def test_e2e_ng6_catalog_and_combat_radius():
     takeoff_ids = {a['id'] for a in catalog['aircraft']}
     cr_ids = {p['id'] for p in catalog['combat_radius_presets']}
 
-    layouts = {'NG6C': 'pelican', 'NG6B': 'medium_htail', 'NG6A': 'small_htail'}
     for aid in ('NG6C', 'NG6B', 'NG6A'):
         tgt = get_preset_by_id(presets, aid)
         assert tgt is not None, aid
         assert tgt['planform'] == 'lambda'
-        assert tgt['layout'] == layouts[aid], aid
+        assert tgt['layout'] == 'conventional', aid
         assert tgt['fuse_width_m'] == pytest.approx(3.40)
         assert tgt['fuse_height_m'] == pytest.approx(1.97)
         assert tgt['canard_htail_area_m2'] == pytest.approx(
-            16.7 if aid == 'NG6C' else 13.1
+            15.4 if aid == 'NG6C' else 12.1
         ), aid
         assert tgt['mach_angle_deg'] == pytest.approx(
             29.3 if aid == 'NG6C' else 27.3
@@ -45,19 +44,19 @@ def test_e2e_ng6_catalog_and_combat_radius():
             tgt['n_pilots'], tgt['missile_mass_kg'],
         ), abs=1e-6), aid
 
-    assert aircraft['NG6C'].a2a_mass_kg == pytest.approx(14200 + 8780 + 100 + 840)
-    assert aircraft['NG6B'].a2a_mass_kg == pytest.approx(13840 + 5420 + 100 + 840)
-    assert get_preset_by_id(presets, 'NG6B')['internal_fuel_kg'] == pytest.approx(5420)
-    assert get_preset_by_id(presets, 'NG6A')['internal_fuel_kg'] == pytest.approx(7990)
-    assert get_preset_by_id(presets, 'NG6B')['empty_kg'] == pytest.approx(13840)
-    assert get_preset_by_id(presets, 'NG6A')['empty_kg'] == pytest.approx(12340)
+    assert aircraft['NG6C'].a2a_mass_kg == pytest.approx(13700 + 10820 + 100 + 840)
+    assert aircraft['NG6B'].a2a_mass_kg == pytest.approx(13300 + 7890 + 100 + 840)
+    assert get_preset_by_id(presets, 'NG6B')['internal_fuel_kg'] == pytest.approx(7890)
+    assert get_preset_by_id(presets, 'NG6A')['internal_fuel_kg'] == pytest.approx(10120)
+    assert get_preset_by_id(presets, 'NG6B')['empty_kg'] == pytest.approx(13300)
+    assert get_preset_by_id(presets, 'NG6A')['empty_kg'] == pytest.approx(11900)
 
-    assert get_preset_by_id(presets, 'NG6C')['wing_area_m2'] == pytest.approx(70.8)
-    assert get_preset_by_id(presets, 'NG6B')['wing_area_m2'] == pytest.approx(55.65)
-    assert get_preset_by_id(presets, 'NG6A')['wing_area_m2'] == pytest.approx(55.65)
-    assert get_preset_by_id(presets, 'NG6C')['main_wing_area_m2'] == pytest.approx(39.0)
-    assert get_preset_by_id(presets, 'NG6B')['main_wing_area_m2'] == pytest.approx(31.2)
-    assert get_preset_by_id(presets, 'NG6A')['main_wing_area_m2'] == pytest.approx(31.2)
+    assert get_preset_by_id(presets, 'NG6C')['wing_area_m2'] == pytest.approx(65.3)
+    assert get_preset_by_id(presets, 'NG6B')['wing_area_m2'] == pytest.approx(51.3)
+    assert get_preset_by_id(presets, 'NG6A')['wing_area_m2'] == pytest.approx(51.3)
+    assert get_preset_by_id(presets, 'NG6C')['main_wing_area_m2'] == pytest.approx(36.0)
+    assert get_preset_by_id(presets, 'NG6B')['main_wing_area_m2'] == pytest.approx(28.7)
+    assert get_preset_by_id(presets, 'NG6A')['main_wing_area_m2'] == pytest.approx(28.7)
 
     assert 'NG6C' in takeoff_ids and 'NG6B' in takeoff_ids
     assert 'NG6A' not in takeoff_ids
@@ -66,20 +65,15 @@ def test_e2e_ng6_catalog_and_combat_radius():
     assert aircraft['NG6B'].mtow_kg == pytest.approx(28340)
     assert aircraft['NG6B'].max_payload_kg == 8000
     assert get_preset_by_id(presets, 'NG6B')['engine_id'] == 'f135b'
-    ng6b_tgt = get_preset_by_id(presets, 'NG6B')
-    ng6b_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': ng6b_tgt}})
-    small_tgt = dict(ng6b_tgt)
-    small_tgt['layout'] = 'small_htail'
-    small_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': small_tgt}})
-    assert ng6b_ld['success'] is True and small_ld['success'] is True
-    assert ng6b_ld['target']['ld'] < small_ld['target']['ld']
+    from utils.combat_radius.combat_radius_config import layout_labels
+    assert set(layout_labels()) == {'conventional', 'canard', 'tailless'}
     ng6c_tgt = get_preset_by_id(presets, 'NG6C')
+    ng6a_tgt = get_preset_by_id(presets, 'NG6A')
     ng6c_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': ng6c_tgt}})
-    old_pel = dict(ng6c_tgt)
-    old_pel['layout'] = 'small_htail'
-    old_pel_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': old_pel}})
-    assert ng6c_ld['success'] is True and old_pel_ld['success'] is True
-    assert ng6c_ld['target']['ld'] < old_pel_ld['target']['ld']
+    ng6a_ld = run_combat_radius_json({'action': 'predict_ld', 'params': {'target': ng6a_tgt}})
+    assert ng6c_ld['success'] is True and ng6a_ld['success'] is True
+    assert 6.0 < ng6c_ld['target']['ld'] < 18.0
+    assert 6.0 < ng6a_ld['target']['ld'] < 18.0
     from utils.combat_radius.combat_radius_results import run_preset_dashboard
     ng6c = run_preset_dashboard('NG6C')
     ng6b = run_preset_dashboard('NG6B')

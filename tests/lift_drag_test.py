@@ -18,9 +18,6 @@ from utils.combat_radius.lift_drag import (
     CDW_SS_ROUGH_WING,
     CDW_SS_WING,
     CDW_TAILLESS,
-    CDW_PELICAN,
-    CDW_SMALL_HTAIL,
-    CDW_MEDIUM_HTAIL,
     LAYOUT_CDW_VOL,
     LAYOUT_MULT,
     CDW_TRANS_AMP,
@@ -301,14 +298,16 @@ def test_aircraft_from_dict_rejects_unknown_layout():
         })
 
 
-def test_aircraft_from_dict_accepts_medium_htail():
-    """中等平尾须能通过机型字典解析。"""
-    ac = aircraft_from_dict({
+def test_aircraft_from_dict_rejects_removed_tail_layouts():
+    """Pelican / 小平尾 / 中平尾已并入常规构型，不再作为独立布局。"""
+    base = {
         'name': 'x', 'AR': 2, 'sweep_deg': 30, 'wing_loading': 0.3,
         'tc': 0.05, 'mach': 0.8, 'alt_m': 12000,
-        'planform': 'lambda', 'layout': 'medium_htail',
-    })
-    assert ac.layout == 'medium_htail'
+        'planform': 'lambda',
+    }
+    for layout in ('pelican', 'small_htail', 'medium_htail'):
+        with pytest.raises(ValueError, match='未知布局'):
+            aircraft_from_dict({**base, 'layout': layout})
 
 
 def test_atmosphere_at_tropopause():
@@ -369,9 +368,6 @@ def test_wetted_area_factor_planform_and_layout():
     unswept = Aircraft(**{**aircraft_to_dict(ac), 'planform': 'unswept'})
     canard = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'canard'})
     tailless = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'tailless'})
-    pelican = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'pelican'})
-    small_htail = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'small_htail'})
-    medium_htail = Aircraft(**{**aircraft_to_dict(ac), 'layout': 'medium_htail'})
     assert wetted_area_factor(delta) < w_trap
     assert wetted_area_factor(diamond) < wetted_area_factor(delta)
     assert wetted_area_factor(lam) == pytest.approx(wetted_area_factor(diamond))
@@ -380,13 +376,6 @@ def test_wetted_area_factor_planform_and_layout():
     assert wetted_area_factor(unswept) > w_trap
     assert wetted_area_factor(canard) > w_trap
     assert wetted_area_factor(tailless) < w_trap
-    assert (
-        wetted_area_factor(tailless)
-        < wetted_area_factor(small_htail)
-        < wetted_area_factor(pelican)
-        < wetted_area_factor(medium_htail)
-        < w_trap
-    )
 
 
 def test_ellipse_perimeter_m_circle_and_rejects_nonpositive():
@@ -893,32 +882,12 @@ def test_tailless_and_bwb_discount_volume_wave_drag():
     assert 0.5 < CDW_BWB < 1.0
 
 
-def test_pelican_and_small_htail_discount_volume_between_tailless_and_conventional():
-    """中等 Pelican / 小平尾 / 中等平尾体积波阻介于无尾与常规之间，升力波阻不变。"""
-    conv = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.5, 'layout': 'conventional', 'bwb': False})
-    pel = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'pelican'})
-    ht = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'small_htail'})
-    med = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'medium_htail'})
-    tail = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'tailless'})
-    vol_conv = cd_wave_supersonic(1.5, conv, 0.0)
-    vol_pel = cd_wave_supersonic(1.5, pel, 0.0)
-    vol_ht = cd_wave_supersonic(1.5, ht, 0.0)
-    vol_med = cd_wave_supersonic(1.5, med, 0.0)
-    vol_tail = cd_wave_supersonic(1.5, tail, 0.0)
-    assert vol_pel == pytest.approx(vol_conv * CDW_PELICAN)
-    assert vol_ht == pytest.approx(vol_conv * CDW_SMALL_HTAIL)
-    assert vol_med == pytest.approx(vol_conv * CDW_MEDIUM_HTAIL)
-    assert vol_tail < vol_pel < vol_ht < vol_med < vol_conv
-    lift_conv = cd_wave_supersonic(1.5, conv, 0.25) - vol_conv
-    lift_pel = cd_wave_supersonic(1.5, pel, 0.25) - vol_pel
-    assert lift_pel == pytest.approx(lift_conv)
+def test_layout_mult_only_conventional_canard_tailless():
+    """布局只保留常规 / 鸭翼 / 无尾；无尾体积波阻低于常规。"""
+    assert set(LAYOUT_MULT) == {'conventional', 'canard', 'tailless'}
+    assert set(LAYOUT_CDW_VOL) == set(LAYOUT_MULT)
     assert LAYOUT_CDW_VOL['tailless'] == pytest.approx(CDW_TAILLESS)
-    assert (
-        LAYOUT_MULT['small_htail']
-        < LAYOUT_MULT['pelican']
-        < LAYOUT_MULT['medium_htail']
-        < LAYOUT_MULT['conventional']
-    )
+    assert LAYOUT_MULT['tailless'] < LAYOUT_MULT['conventional'] < LAYOUT_MULT['canard']
 
 
 def test_components_keys_and_signs():

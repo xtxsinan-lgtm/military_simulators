@@ -53,7 +53,7 @@ def test_e2e_new_fighters_in_catalog_and_combat_radius():
 
     su75 = get_preset_by_id(presets, 'Su-75')
     assert su75['planform'] == 'lambda'
-    assert su75['layout'] == 'pelican'
+    assert su75['layout'] == 'conventional'
     typhoon = get_preset_by_id(presets, 'Typhoon')
     rafale = get_preset_by_id(presets, 'Rafale')
     assert typhoon['planform'] == rafale['planform'] == 'delta'
