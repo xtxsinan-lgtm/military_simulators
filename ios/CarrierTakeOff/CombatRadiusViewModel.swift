@@ -16,7 +16,6 @@ struct CombatRadiusAircraftInput {
     var layout = "conventional"
     var inlet = "dsi"
     var storeMount = "internal"
-    var bwb = false
     var rough = false
     var lengthM = ""
     var wingspanM = ""
@@ -63,7 +62,6 @@ struct CombatRadiusAircraftInput {
         layout = p.layout
         inlet = p.inlet ?? "dsi"
         storeMount = p.store_mount ?? "internal"
-        bwb = p.bwb
         rough = p.rough
         lengthM = p.length_m.map { String($0) } ?? ""
         wingspanM = p.wingspan_m.map { String($0) } ?? ""
@@ -99,7 +97,6 @@ struct CombatRadiusAircraftInput {
             "layout": layout,
             "inlet": inlet,
             "store_mount": storeMount,
-            "bwb": bwb,
             "rough": rough,
             "length_m": Double(lengthM) ?? 0,
             "wingspan_m": Double(wingspanM) ?? 0,

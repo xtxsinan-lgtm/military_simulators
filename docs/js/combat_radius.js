@@ -179,7 +179,6 @@ function renderAircraftFields() {
       <div class="field"><label>挂装方式</label><select id="tgt_store_mount">${optionHtml(storeMounts)}</select></div>
     </div>
     <div class="check-row">
-      <label><input type="checkbox" id="tgt_bwb"> 翼身融合</label>
       <label><input type="checkbox" id="tgt_rough"> 表面不平整（摩擦+形状阻力）</label>
     </div>
     <input id="tgt_type_label" type="hidden">
@@ -254,7 +253,6 @@ function applyPresetToFields(preset) {
   $('tgt_layout').value = preset.layout;
   $('tgt_inlet').value = preset.inlet || 'dsi';
   if ($('tgt_store_mount')) $('tgt_store_mount').value = preset.store_mount || 'internal';
-  $('tgt_bwb').checked = !!preset.bwb;
   $('tgt_rough').checked = !!preset.rough;
   $('tgt_area').value = preset.wing_area_m2 != null ? preset.wing_area_m2 : '';
   $('tgt_mach_angle').value = preset.mach_angle_deg != null ? preset.mach_angle_deg : '';
@@ -383,7 +381,6 @@ function readAircraft() {
     layout: $('tgt_layout').value,
     inlet: $('tgt_inlet').value,
     store_mount: $('tgt_store_mount') ? $('tgt_store_mount').value : 'internal',
-    bwb: $('tgt_bwb').checked,
     rough: $('tgt_rough').checked,
     length_m: Number($('tgt_len').value),
     wingspan_m: Number($('tgt_span').value),

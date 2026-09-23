@@ -154,7 +154,6 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var layout: String
     var inlet: String?
     var store_mount: String?
-    var bwb: Bool
     var rough: Bool
     var ld_known: Double?
     var notes: String?

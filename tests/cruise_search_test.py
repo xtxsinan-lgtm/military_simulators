@@ -57,7 +57,7 @@ def _f35c() -> Aircraft:
         'F-35C', AR=2.77, sweep_deg=30.9, wing_loading=0.341,
         tc=0.0510, mach=0.8, alt_m=11300,
         planform='trapezoidal', layout='conventional',
-        bwb=False, rough=True, length_m=15.67, wingspan_m=13.1,
+        rough=True, length_m=15.67, wingspan_m=13.1,
     )
 
 
@@ -66,7 +66,7 @@ def _f22() -> Aircraft:
         'F-22', AR=2.37, sweep_deg=41.3, wing_loading=0.318,
         tc=0.0520, mach=0.8, alt_m=11800,
         planform='trapezoidal', layout='conventional',
-        bwb=False, rough=False, length_m=18.92, wingspan_m=13.56,
+        rough=False, length_m=18.92, wingspan_m=13.56,
     )
 
 

@@ -157,6 +157,21 @@ def test_mv22_tiltrotor_spec_from_wikipedia():
     assert ac.uses_propeller_power is True
 
 
+def test_e2_hawkeye_uses_t56_propeller_power_model():
+    """E-2 作为双 T56 涡桨机型，必须按恒定轴功率计算起飞推力。"""
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)
+    ac = aircraft['E-2']
+    assert ac.empty_kg == pytest.approx(18234)
+    assert ac.mtow_kg == pytest.approx(26082)
+    assert ac.wingspan_m == pytest.approx(24.56)
+    assert ac.wing_area_m2 == pytest.approx(65.03)
+    assert ac.shaft_power_sl_w == pytest.approx(7606140)
+    assert ac.prop_diameter_m == pytest.approx(4.11)
+    assert ac.nacelle_blockage_frac == pytest.approx(0.08)
+    assert uses_propeller_power(ac) is True
+    assert ac.uses_propeller_power is True
+
+
 def test_usn_legacy_carrier_specs_from_public_sources():
     """A-6/A-7/S-3/C-2/A-3/A-5 起飞机库字段与公开资料一致。"""
     from utils.specs import is_conventional_aircraft

@@ -6,7 +6,6 @@ import math
 import pytest
 
 from utils.combat_radius.lift_drag import (
-    CDW_BWB,
     CDW_CANARD,
     CDW_KORN_COEF,
     CDW_SS_BODY,
@@ -129,7 +128,7 @@ def _f35c() -> Aircraft:
         'F-35C', AR=2.77, sweep_deg=30.9, wing_loading=0.341,
         tc=0.0510, mach=0.8, alt_m=11300,
         planform='trapezoidal', layout='conventional',
-        bwb=False, rough=True,
+        rough=True,
     )
 
 
@@ -138,7 +137,7 @@ def _f22() -> Aircraft:
         'F-22', AR=2.37, sweep_deg=41.3, wing_loading=0.318,
         tc=0.0520, mach=0.8, alt_m=11800,
         planform='trapezoidal', layout='conventional',
-        bwb=False, rough=False,
+        rough=False,
     )
 
 
@@ -147,7 +146,7 @@ def _j20() -> Aircraft:
         'J-20', AR=2.32, sweep_deg=46.3, wing_loading=0.329,
         tc=0.0430, mach=0.8, alt_m=12000,
         planform='trapezoidal', layout='canard',
-        bwb=False, rough=False,
+        rough=False,
     )
 
 
@@ -167,14 +166,13 @@ def test_aircraft_from_dict_and_to_dict_roundtrip():
     ac = aircraft_from_dict({
         'name': 'J-20', 'AR': 2.32, 'sweep_deg': 46.3, 'wing_loading': 0.329,
         'tc': 0.043, 'mach': 0.8, 'alt_m': 12000,
-        'planform': 'trapezoidal', 'layout': 'canard', 'bwb': 0, 'rough': '否',
+        'planform': 'trapezoidal', 'layout': 'canard', 'rough': '否',
         'mach_angle_deg': 21.7,
     })
     d = aircraft_to_dict(ac)
     assert d['name'] == 'J-20'
     assert d['planform'] == 'trapezoidal'
     assert d['mach_angle_deg'] == pytest.approx(21.7)
-    assert d['bwb'] is False
     assert d['rough'] is False
     assert d['inlet'] == 'dsi'
     assert d['store_mount'] == 'internal'
@@ -334,10 +332,8 @@ def test_oswald_e_raw_swept_fighter_range():
 
 def test_wetted_area_factor_independent_switches():
     base = _f22()
-    bwb = Aircraft(**{**aircraft_to_dict(base), 'bwb': True})
     rough = Aircraft(**{**aircraft_to_dict(base), 'rough': True})
     w0 = wetted_area_factor(base)
-    assert wetted_area_factor(bwb) == pytest.approx(w0 * 0.90)
     assert wetted_area_factor(rough) == pytest.approx(w0 * BUMP_FRICTION_MULT)
     no_canopy = Aircraft(**{**aircraft_to_dict(base), 'canopy': False})
     assert wetted_area_factor(no_canopy) == pytest.approx(w0 * NO_CANOPY_MULT)
@@ -865,21 +861,17 @@ def test_canard_adds_supersonic_wave_drag():
     assert J20_SUPERCRUISE_MACH == pytest.approx(1.49)
 
 
-def test_tailless_and_bwb_discount_volume_wave_drag():
-    """无尾/翼身融合只打折体积波阻，升力波阻不变。"""
-    conv = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.5, 'layout': 'conventional', 'bwb': False})
+def test_tailless_discounts_volume_wave_drag():
+    """无尾只打折体积波阻，升力波阻不变。"""
+    conv = Aircraft(**{**aircraft_to_dict(_f22()), 'mach': 1.5, 'layout': 'conventional'})
     tail = Aircraft(**{**aircraft_to_dict(conv), 'layout': 'tailless'})
-    bwb = Aircraft(**{**aircraft_to_dict(conv), 'bwb': True})
     vol_conv = cd_wave_supersonic(1.5, conv, 0.0)
     vol_tail = cd_wave_supersonic(1.5, tail, 0.0)
-    vol_bwb = cd_wave_supersonic(1.5, bwb, 0.0)
     assert vol_tail == pytest.approx(vol_conv * CDW_TAILLESS)
-    assert vol_bwb == pytest.approx(vol_conv * CDW_BWB)
     lift_conv = cd_wave_supersonic(1.5, conv, 0.25) - vol_conv
     lift_tail = cd_wave_supersonic(1.5, tail, 0.25) - vol_tail
     assert lift_tail == pytest.approx(lift_conv)
     assert 0.5 < CDW_TAILLESS < 1.0
-    assert 0.5 < CDW_BWB < 1.0
 
 
 def test_layout_mult_only_conventional_canard_tailless():
@@ -1058,7 +1050,7 @@ def _j36_double_delta() -> Aircraft:
         'J-36', AR=2.49, sweep_deg=65.1, wing_loading=0.277,
         tc=0.043, mach=0.8, alt_m=12000,
         planform='double_delta', layout='tailless',
-        bwb=True, rough=False,
+        rough=False,
         sweep_inner_deg=67.8, sweep_outer_deg=55.3,
         length_m=18.9, wingspan_m=19.24, mach_angle_deg=27.7,
     )
@@ -1152,7 +1144,7 @@ def test_aircraft_from_dict_reads_double_delta_sweeps():
     ac = aircraft_from_dict({
         'name': '歼-36', 'AR': 2.49, 'sweep_deg': 65.1, 'wing_loading': 0.277,
         'tc': 0.043, 'mach': 0.8, 'alt_m': 12000,
-        'planform': 'double_delta', 'layout': 'tailless', 'bwb': 1, 'rough': 0,
+        'planform': 'double_delta', 'layout': 'tailless', 'rough': 0,
         'sweep_inner_deg': 67.8, 'sweep_outer_deg': 55.3,
     })
     assert ac.sweep_inner_deg == pytest.approx(67.8)
@@ -1202,7 +1194,7 @@ def _typhoon_store_ac(**over) -> Aircraft:
         name='台风', AR=2.34, sweep_deg=53.0, wing_loading=0.276,
         tc=0.05, mach=0.8, alt_m=12000,
         planform='delta', layout='canard',
-        bwb=False, rough=False, inlet='caret',
+        rough=False, inlet='caret',
         wing_area_m2=51.2, store_mount='semi_recessed', n_stores=4.0,
     )
     base.update(over)
@@ -1251,7 +1243,7 @@ def test_aircraft_from_dict_reads_store_fields():
     ac = aircraft_from_dict({
         'name': '台风', 'AR': 2.34, 'sweep_deg': 53, 'wing_loading': 0.276,
         'tc': 0.05, 'mach': 0.8, 'alt_m': 12000,
-        'planform': 'delta', 'layout': 'canard', 'bwb': 0, 'rough': 0,
+        'planform': 'delta', 'layout': 'canard', 'rough': 0,
         'wing_area_m2': 51.2, 'store_mount': '半埋', 'n_stores': 4,
     })
     assert ac.store_mount == 'semi_recessed'

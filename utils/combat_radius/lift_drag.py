@@ -117,9 +117,8 @@ CDW_TRANS_AMP = 0.018
 CDW_TRANS_PEAK = 1.08
 CDW_TRANS_WIDTH_LO = 0.12
 CDW_TRANS_WIDTH = 0.18
-# 无尾/翼身融合面积律更好，只打折体积波阻（机身+机翼项），升力波阻仍按 CL
+# 无尾面积律更好，只打折体积波阻（机身+机翼项），升力波阻仍按 CL
 CDW_TAILLESS = 0.72
-CDW_BWB = 0.90
 # 无座舱浸润折扣：去掉风挡/框与座舱鼓包，机头更圆滑（相对有座舱约 −3%）
 NO_CANOPY_MULT = 0.97
 # 机身截面参考：F-35 / 中型六代 3.5 m × 1.82 m（用户给定；其余机型按同类估算）
@@ -250,7 +249,6 @@ class Aircraft:
     alt_m: float
     planform: PlanformId
     layout: LayoutId
-    bwb: bool  # 翼身融合 —— 独立开关，与机型无绑定关系
     rough: bool  # 表面不平整（摩擦 + 形状阻力）—— 独立开关；肥胖已含在几何浸润里
     inlet: InletId = 'dsi'  # 进气道：dsi / caret（加莱特）；缺省 DSI
     length_m: float = 0.0  # 机身长度，未给马赫角时用于估算；缺省 0 表示不启用
@@ -441,7 +439,6 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         alt_m=float(data['alt_m']),
         planform=planform,  # type: ignore[arg-type]
         layout=layout,  # type: ignore[arg-type]
-        bwb=_as_bool(data.get('bwb'), False),
         rough=_as_bool(data.get('rough'), False),
         inlet=inlet,
         length_m=_optional_positive_float(data.get('length_m')),
@@ -776,8 +773,7 @@ def wetted_area_factor(ac: Aircraft) -> float:
     - 翼型越厚，浸润面积/摩擦阻力略增
     - 三角翼/双三角/钻石翼/兰姆达翼相比梯形翼浸润面积/参考面积略小；平直翼略大
     - 鸭式布局多一个升力面；无尾布局减少浸润
-    - 翼身融合 (bwb) 与表面不平整 (rough) 是两个完全独立的开关
-    - rough 乘 BUMP_FRICTION_MULT（不平整摩擦；形状阻力另乘 CD0；无肥胖乘数）
+    - 表面不平整 (rough) 乘 BUMP_FRICTION_MULT（不平整摩擦；形状阻力另乘 CD0；无肥胖乘数）
     - 无座舱（无人机）去掉风挡/框，机头更圆滑，浸润略减
     - 进气道：DSI 无隔道；加莱特隔道板/唇口抬高浸润
     - 有分段几何时：圆锥+圆台+长方体+升力面两面（含垂尾），相对 F-35A 的 S_wet/S_ref 归一化
@@ -785,7 +781,6 @@ def wetted_area_factor(ac: Aircraft) -> float:
     """
     planform_mult = PLANFORM_MULT[ac.planform]
     layout_mult = LAYOUT_MULT[ac.layout]
-    bwb_mult = 0.90 if ac.bwb else 1.00
     rough_mult = rough_wetted_mult(ac)
     canopy_mult = 1.0 if ac.canopy else NO_CANOPY_MULT
     inlet_mult = inlet_wetted_mult(ac.inlet)
@@ -793,7 +788,7 @@ def wetted_area_factor(ac: Aircraft) -> float:
     fuse_mult = fuse_wetted_factor(ac)
     return (
         thickness_mult * planform_mult * layout_mult
-        * bwb_mult * rough_mult * canopy_mult * inlet_mult * fuse_mult
+        * rough_mult * canopy_mult * inlet_mult * fuse_mult
     )
 
 
@@ -964,7 +959,7 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     """M>1 后的体积波阻 + 升力波阻 + 鸭翼附加 + rough 超音速附加。
 
     机身/升力/鸭翼项整机计算一次；机翼前缘项双三角按两段面积加权。
-    无尾/翼身融合/加莱特进气道只打折体积项，升力波阻与 rough 附加不打折。
+    无尾/加莱特进气道只打折体积项，升力波阻与 rough 附加不打折。
     机身项（(M-1)²）再乘截面积相对 F-35 参考的因子；超巡带后附加与机翼/升力波阻不乘。
     升力项在高空大 CL 时压低超音速 L/D，避免布雷盖半径超过亚音速；
     马赫因子在超巡带封顶，过了 1.76 再加重，峰值高度开始回落。
@@ -980,8 +975,6 @@ def cd_wave_supersonic(mach: float, ac: Aircraft, CL: float = 0.0) -> float:
     # 机身 (M-1)² 按截面缩放；超巡带后附加项是全机队极速标定，不乘截面
     cdw = CDW_SS_BODY * dm ** 2 * body_scale + cdw_wing + cd_wave_ss_body_post(mach)
     cdw *= LAYOUT_CDW_VOL[ac.layout]
-    if ac.bwb:
-        cdw *= CDW_BWB
     cdw *= inlet_cdw_vol_mult(ac.inlet)
     if ac.layout == 'canard':
         cdw += CDW_CANARD * dm ** 2
@@ -1109,13 +1102,13 @@ def default_ld_anchor_aircraft() -> tuple[Aircraft, float, Aircraft, float]:
         'F-35C', AR=2.77, sweep_deg=30.9, wing_loading=0.341,
         tc=0.0510, mach=0.8, alt_m=11300,
         planform='trapezoidal', layout='conventional',
-        bwb=False, rough=True, inlet='dsi',
+        rough=True, inlet='dsi',
     )
     f22 = Aircraft(
         'F-22', AR=2.37, sweep_deg=41.3, wing_loading=0.318,
         tc=0.0520, mach=0.8, alt_m=11800,
         planform='trapezoidal', layout='conventional',
-        bwb=False, rough=False, inlet='caret',
+        rough=False, inlet='caret',
     )
     cf0, k_e = model_coefficients()
     ld35, _ = predict_ld(f35c, cf0, k_e)

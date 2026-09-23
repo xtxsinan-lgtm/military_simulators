@@ -60,19 +60,19 @@ def _sample_params() -> dict:
         'anchor1': {
             'name': 'F-35C', 'AR': 2.77, 'sweep_deg': 30.9, 'wing_loading': 0.341,
             'tc': 0.051, 'mach': 0.8, 'alt_m': 11300,
-            'planform': 'trapezoidal', 'layout': 'conventional', 'bwb': False, 'rough': True,
+            'planform': 'trapezoidal', 'layout': 'conventional', 'rough': True,
         },
         'ld1_target': 8.8,
         'anchor2': {
             'name': 'F-22', 'AR': 2.37, 'sweep_deg': 41.3, 'wing_loading': 0.318,
             'tc': 0.052, 'mach': 0.8, 'alt_m': 11800,
-            'planform': 'trapezoidal', 'layout': 'conventional', 'bwb': False, 'rough': False,
+            'planform': 'trapezoidal', 'layout': 'conventional', 'rough': False,
         },
         'ld2_target': 8.0,
         'target': {
             'name': 'J-20', 'AR': 2.32, 'sweep_deg': 46.3, 'wing_loading': 0.329,
             'tc': 0.043, 'mach': 0.8, 'alt_m': 12000,
-            'planform': 'trapezoidal', 'layout': 'canard', 'bwb': False, 'rough': False,
+            'planform': 'trapezoidal', 'layout': 'canard', 'rough': False,
         },
     }
 
@@ -120,7 +120,7 @@ def test_format_ld_row_with_and_without_target():
     ac = Aircraft(
         'F-22', AR=2.37, sweep_deg=41.3, wing_loading=0.318,
         tc=0.052, mach=0.8, alt_m=11800,
-        planform='trapezoidal', layout='conventional', bwb=False, rough=False,
+        planform='trapezoidal', layout='conventional', rough=False,
     )
     params = _sample_params()
     r = run_predict_ld_from_params(params)

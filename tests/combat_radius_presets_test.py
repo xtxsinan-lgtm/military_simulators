@@ -85,7 +85,6 @@ def test_load_presets_contains_anchors_and_j20():
     assert j36['n_engines'] == 3
     assert j36['n_pilots'] == 2
     assert j36['planform'] == 'double_delta'
-    assert j36['bwb'] is True
     assert j36['empty_kg'] == pytest.approx(26000)
     assert j36['internal_fuel_kg'] == pytest.approx(26500)
     assert j36['wing_area_m2'] == pytest.approx(196.0)
@@ -97,7 +96,6 @@ def test_load_presets_contains_anchors_and_j20():
     uav535 = get_preset_by_id(presets, '53536')
     assert uav535 is not None
     assert uav535['planform'] == 'diamond'
-    assert uav535['bwb'] is True
     assert uav535['engine_id'] == 'ws10c'
     assert uav535['length_m'] == pytest.approx(16.7)
     assert uav535['wingspan_m'] == pytest.approx(9.11)

@@ -111,7 +111,7 @@ def _valid_land_row(**over: str) -> dict[str, str]:
         'type_label': 'conventional',
         'AR': '2.5', 'sweep_deg': '30', 'wing_loading': '0.3', 'tc': '0.05',
         'mach': '0.8', 'alt_m': '12000', 'planform': 'trapezoidal',
-        'layout': 'conventional', 'bwb': '0', 'rough': '0', 'inlet': 'dsi',
+        'layout': 'conventional', 'rough': '0', 'inlet': 'dsi',
         'wing_area_m2': '60', 'wingspan_m': '13',
         'empty_kg': '15000', 'internal_fuel_kg': '8000',
         'n_pilots': '1', 'missile_mass_kg': '150', 'n_engines': '1',
@@ -396,9 +396,7 @@ def test_load_combat_radius_aircraft_csv():
     assert uav535['internal_fuel_kg'] == pytest.approx(5690)
     assert uav535['fuse_width_m'] == pytest.approx(2.36)
     assert uav535['fuse_height_m'] == pytest.approx(1.61)
-    assert uav535['bwb'] is True
     assert uav535['engine_id'] == 'ws10c'
-    assert j36['bwb'] is True
 
 
 def test_parse_int_accepts_int_and_float_text():

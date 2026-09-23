@@ -344,7 +344,6 @@ def test_e2e_combat_radius_uav_and_j36_weight_fields():
     assert uav535['wing_area_m2'] == pytest.approx(53.04)
     assert uav535['empty_kg'] == pytest.approx(8000)
     assert uav535['internal_fuel_kg'] == pytest.approx(5690)
-    assert uav535['bwb'] is True
     assert uav535['planform'] == 'diamond'
     j35 = get_preset_by_id(presets, 'J-35')
     j35a = get_preset_by_id(presets, 'J-35A')
