@@ -1,4 +1,4 @@
-"""美军 Legacy 舰载机滑跃起飞端到端：A-6/A-7/S-3/C-2/A-3/A-5 进入机库并可仿真。"""
+"""美军 Legacy 舰载机滑跃起飞端到端：A-6/A-7/S-3/C-2/E-2/A-3/A-5 进入机库并可仿真。"""
 from __future__ import annotations
 
 import pytest
@@ -8,7 +8,7 @@ from scripts.frontend_catalog import build_catalog_payload
 from utils.database_csv import load_aircraft_csv, load_carriers_csv
 from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV
 
-_USN_LEGACY_IDS = ('A-6', 'A-7', 'S-3', 'C-2', 'A-3', 'A-5')
+_USN_LEGACY_IDS = ('A-6', 'A-7', 'S-3', 'C-2', 'E-2', 'A-3', 'A-5')
 
 
 @pytest.mark.e2e
@@ -66,6 +66,31 @@ def test_e2e_c2_ski_jump_constant_power_longer_than_static_thrust():
     assert r_power['success'] is True
     assert r_const['success'] is True
     assert r_power['distance_m'] > r_const['distance_m']
+
+
+@pytest.mark.e2e
+def test_e2e_e2_hawkeye_ski_jump_constant_power_longer_than_static_thrust():
+    """E-2 必须走恒定轴功率；如果把功率模型误当作常量推力，滑跃距离将明显缩短。"""
+    from dataclasses import replace
+
+    from apps.web_simulator import run_simulation
+    from utils.specs import uses_propeller_power
+
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)
+    carriers = load_carriers_csv(CARRIERS_CSV)
+    e2 = aircraft['E-2']
+    carrier = next(c for c in carriers if c.id == 'SHANDONG')
+    assert uses_propeller_power(e2) is True
+    r_power = run_simulation(
+        'ski_jump', e2, carrier, e2.a2a_mass_kg, 15.0, carrier.max_speed_kt,
+    )
+    e2_static = replace(e2, shaft_power_sl_w=None, prop_diameter_m=None)
+    r_static = run_simulation(
+        'ski_jump', e2_static, carrier, e2.a2a_mass_kg, 15.0, carrier.max_speed_kt,
+    )
+    assert r_power['success'] is True
+    assert r_static['success'] is True
+    assert r_power['distance_m'] > r_static['distance_m']
 
 
 @pytest.mark.e2e
