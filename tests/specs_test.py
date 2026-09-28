@@ -19,6 +19,23 @@ def test_a2a_mass_and_catalog_payload():
     assert ac.max_payload_kg == 6500
 
 
+def test_new_blended_wing_bomber_variants_use_bomber_mass_and_blended_wet_area():
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)
+    for aid in ('XGB-1', 'XGB-2', 'XGB-3'):
+        ac = aircraft[aid]
+        assert ac.aircraft_role == 'bomber'
+        assert ac.wing_body_blend is True
+        assert ac.max_payload_kg == pytest.approx(20000)
+        assert ac.a2a_mass_kg == pytest.approx(
+            ac.empty_kg + ac.internal_fuel_kg + ac.max_payload_kg + ac.n_pilots * PILOT_LOAD_KG
+        )
+        assert ac.wing_area_m2 > 0
+
+    assert aircraft['XGB-1'].wing_area_m2 == pytest.approx(658.0)
+    assert aircraft['XGB-2'].wing_area_m2 == pytest.approx(651.0)
+    assert aircraft['XGB-3'].wing_area_m2 == pytest.approx(562.0)
+
+
 def test_max_payload_kg_user_specified_chinese_types():
     aircraft = load_aircraft_csv(AIRCRAFT_CSV)
     assert aircraft['J-15'].max_payload_kg == 6500

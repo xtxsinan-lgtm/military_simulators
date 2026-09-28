@@ -55,16 +55,18 @@ class AircraftSpec:
     id: str
     name: str
     type_label: str  # 'conventional' | 'v/stol' | 'tiltrotor'
-    mtow_kg: float
-    empty_kg: float
-    internal_fuel_kg: float
-    max_payload_kg: float  # 最大外挂/载弹量（资料值，非 MTOW 推算）
-    bvr_missile: str
-    missile_mass_kg: float
     sweep_le_deg: float
     wingspan_m: float
     wing_area_m2: float
     wing_height_m: float
+    aircraft_role: str = 'fighter'  # 'fighter' | 'bomber'
+    wing_body_blend: bool = False
+    mtow_kg: float = 0.0
+    empty_kg: float = 0.0
+    internal_fuel_kg: float = 0.0
+    max_payload_kg: float = 0.0  # 最大外挂/载弹量（资料值，非 MTOW 推算）
+    bvr_missile: str = ''
+    missile_mass_kg: float = 0.0
     cd0: float = 0.039
     t_max_sl_n: float | None = None
     t_main_stovl_sl_n: float | None = None
@@ -144,10 +146,27 @@ class AircraftSpec:
         )
 
     @property
+    def is_fighter(self) -> bool:
+        """是否为战斗机角色。"""
+        return self.aircraft_role.lower() == 'fighter'
+
+    @property
+    def is_bomber(self) -> bool:
+        """是否为轰炸机角色。"""
+        return self.aircraft_role.lower() == 'bomber'
+
+    @property
+    def combat_payload_mass_kg(self) -> float:
+        """战斗/轰炸作战构型的有效载荷质量：轰炸机按最大载弹量。"""
+        if self.is_bomber:
+            return self.max_payload_kg
+        return A2A_MISSILE_COUNT * self.missile_mass_kg
+
+    @property
     def a2a_mass_kg(self) -> float:
-        """正常起飞重量：空重 + 满内油 + 飞行员×0.1 t + 4 枚中距弹。"""
+        """正常起飞重量：空重 + 满内油 + 飞行员×0.1 t + 战斗/轰炸有效载荷。"""
         return (self.empty_kg + self.internal_fuel_kg
-                + A2A_MISSILE_COUNT * self.missile_mass_kg
+                + self.combat_payload_mass_kg
                 + self.n_pilots * PILOT_LOAD_KG)
 
 
