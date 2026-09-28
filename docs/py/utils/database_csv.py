@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 # 统一机型库：作战半径几何 + 起飞字段；填写 mtow_kg 才进入起飞仿真（陆基机也可做滑跃假设）
 AIRCRAFT_CSV_COLUMNS = (
-    'id', 'name', 'nation', 'carrier', 'type_label',
+    'id', 'name', 'nation', 'carrier', 'type_label', 'aircraft_role', 'wing_body_blend',
     'AR', 'sweep_deg', 'sweep_inner_deg', 'sweep_outer_deg', 'sweep_kink_span_frac',
     'wing_loading', 'tc', 'mach', 'alt_m',
     'planform', 'layout', 'rough', 'inlet', 'store_mount', 'ld_known', 'notes',
@@ -125,6 +125,8 @@ def export_aircraft_csv(path: str | Path, aircraft: dict[str, 'AircraftSpec']) -
                 'id': ac.id,
                 'name': ac.name,
                 'type_label': ac.type_label,
+                'aircraft_role': ac.aircraft_role,
+                'wing_body_blend': _cell_str(ac.wing_body_blend),
                 'empty_kg': _cell_str(ac.empty_kg),
                 'internal_fuel_kg': _cell_str(ac.internal_fuel_kg),
                 'bvr_missile': ac.bvr_missile,
@@ -241,6 +243,18 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
     type_label = (row.get('type_label') or '').strip()
     if type_label:
         item['type_label'] = type_label
+    aircraft_role = (row.get('aircraft_role') or '').strip().lower()
+    if aircraft_role:
+        if aircraft_role not in {'fighter', 'bomber'}:
+            raise ValueError(f'{csv_path} 记录 {item_id} aircraft_role={aircraft_role!r} 非法，需为 fighter 或 bomber')
+        item['aircraft_role'] = aircraft_role
+    else:
+        item['aircraft_role'] = 'fighter'
+    wing_body_blend = row.get('wing_body_blend')
+    if wing_body_blend not in (None, ''):
+        item['wing_body_blend'] = _parse_bool(str(wing_body_blend))
+    else:
+        item['wing_body_blend'] = False
     from utils.combat_radius.cruise_load import apply_derived_planform_loads
 
     return apply_derived_planform_loads(item)
@@ -278,10 +292,15 @@ def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
         type_label = (row.get('type_label') or '').strip()
         if not type_label:
             raise ValueError(f'{csv_path} 起飞机型 {ac_id} 缺少 type_label')
+        aircraft_role = (row.get('aircraft_role') or '').strip().lower() or 'fighter'
+        if aircraft_role not in {'fighter', 'bomber'}:
+            raise ValueError(f'{csv_path} 记录 {ac_id} aircraft_role={aircraft_role!r} 非法，需为 fighter 或 bomber')
         aircraft[ac_id] = AircraftSpec(
             id=ac_id,
             name=row['name'].strip(),
             type_label=type_label,
+            aircraft_role=aircraft_role,
+            wing_body_blend=_parse_bool(row.get('wing_body_blend') or '0'),
             mtow_kg=_parse_float(row.get('mtow_kg') or '', 'mtow_kg'),
             empty_kg=cr_item['empty_kg'],
             internal_fuel_kg=cr_item['internal_fuel_kg'],

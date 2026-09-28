@@ -251,6 +251,8 @@ class Aircraft:
     layout: LayoutId
     rough: bool  # 表面不平整（摩擦 + 形状阻力）—— 独立开关；肥胖已含在几何浸润里
     inlet: InletId = 'dsi'  # 进气道：dsi / caret（加莱特）；缺省 DSI
+    aircraft_role: str = 'fighter'
+    wing_body_blend: bool = False
     length_m: float = 0.0  # 机身长度，未给马赫角时用于估算；缺省 0 表示不启用
     wingspan_m: float = 0.0  # 翼展；缺省 0 表示不启用
     fuse_width_m: float = 0.0  # 机身最大宽度 m；缺省 0 表示不按截面缩放
@@ -428,6 +430,9 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
     layout = str(data.get('layout') or 'conventional').strip()
     if layout not in LAYOUT_MULT:
         raise ValueError(f'未知布局 {layout!r}，可选: {", ".join(LAYOUT_MULT)}')
+    aircraft_role = str(data.get('aircraft_role') or 'fighter').strip().lower()
+    if aircraft_role not in {'fighter', 'bomber'}:
+        raise ValueError(f'未知机型角色 {aircraft_role!r}，可选: fighter, bomber')
     inlet = parse_inlet(data.get('inlet'))
     return Aircraft(
         name=str(data.get('name') or '未命名'),
@@ -441,6 +446,8 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         layout=layout,  # type: ignore[arg-type]
         rough=_as_bool(data.get('rough'), False),
         inlet=inlet,
+        aircraft_role=aircraft_role,
+        wing_body_blend=_as_bool(data.get('wing_body_blend'), False),
         length_m=_optional_positive_float(data.get('length_m')),
         wingspan_m=_optional_positive_float(data.get('wingspan_m')),
         fuse_width_m=_optional_positive_float(data.get('fuse_width_m')),
@@ -645,6 +652,8 @@ def box_surface_area_m2(length_m: float, width_m: float, height_m: float) -> flo
 
 def has_geometric_wetted(ac: Aircraft) -> bool:
     """是否具备完整分段几何，可用圆锥+圆台+长方体+升力面算浸润。"""
+    if ac.wing_body_blend and ac.wing_area_m2 > 0.0:
+        return True
     return (
         ac.nose_cone_length_m > 0.0
         and ac.nose_cone_diameter_m > 0.0
@@ -659,7 +668,9 @@ def has_geometric_wetted(ac: Aircraft) -> bool:
 
 
 def has_geometric_wetted_dict(data: dict[str, Any]) -> bool:
-    """字典版：作战半径机型筛选（须填充分段浸润字段）。"""
+    """字典版：翼身融合直接按投影面积×2 估算浸润，不需完整机身几何。"""
+    if bool(data.get('wing_body_blend')) and _optional_positive_float(data.get('wing_area_m2')) > 0.0:
+        return True
     for key in GEOMETRIC_WETTED_REQUIRED:
         raw = data.get(key)
         if raw in (None, ''):
@@ -695,7 +706,9 @@ def lifting_planform_wetted_m2(ac: Aircraft) -> float:
 
 
 def geometric_wetted_area_m2(ac: Aircraft) -> float:
-    """全机几何浸润面积 = 机身分段表面积 + 升力面上下两面。"""
+    """全机几何浸润面积：翼身融合直接按投影面积×2 计算。"""
+    if ac.wing_body_blend and ac.wing_area_m2 > 0.0:
+        return 2.0 * ac.wing_area_m2
     if not has_geometric_wetted(ac):
         raise ValueError('缺少完整分段几何，无法计算浸润面积')
     return fuselage_geometric_wetted_m2(ac) + lifting_planform_wetted_m2(ac)
