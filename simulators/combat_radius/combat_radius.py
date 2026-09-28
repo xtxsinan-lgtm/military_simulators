@@ -1129,11 +1129,25 @@ def _afterburner_best_altitude_profile(
     alt_max_m: float,
     coarse_m: float,
     refine_m: float,
+    fuel_adj: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    """在最大加力推力下，给各固定速度搜索最佳巡航高度。"""
+    """在最大加力推力下，给各固定速度搜索最佳巡航高度，并补齐该速度下的作战半径。"""
     ab_ctx = _optional_ab_context(ctx, params)
     if ab_ctx is None:
         return []
+    mass_initial_kg = None
+    mass_final_kg = None
+    usable_fuel_kg = None
+    if fuel_adj is not None:
+        try:
+            mass_initial_kg = float(fuel_adj['mass_initial_kg'])
+            mass_final_kg = float(fuel_adj['mass_final_kg'])
+            usable_fuel_kg = float(fuel_adj['usable_fuel_kg'])
+        except (KeyError, TypeError, ValueError):
+            mass_initial_kg = None
+            mass_final_kg = None
+            usable_fuel_kg = None
+
     rows: list[dict[str, Any]] = []
     for mach in FIXED_MACHS:
         try:
@@ -1153,6 +1167,9 @@ def _afterburner_best_altitude_profile(
                 'eta_p': None,
                 'eta_o': None,
                 'score': None,
+                'radius_m': None,
+                'radius_km': None,
+                'fuel_kg_per_km': None,
                 'thrust_mode': 'afterburner',
             })
             continue
@@ -1168,7 +1185,33 @@ def _afterburner_best_altitude_profile(
             'eta_p': scored.eta_p,
             'eta_o': scored.eta_o,
             'score': scored.score,
+            'radius_m': None,
+            'radius_km': None,
+            'fuel_kg_per_km': None,
         })
+        if (
+            packed.get('feasible')
+            and mass_initial_kg is not None
+            and mass_final_kg is not None
+            and usable_fuel_kg is not None
+            and scored.tsfc_kg_n_s is not None
+            and scored.v0 > 0
+            and scored.eta_o > 0
+        ):
+            try:
+                radius = combat_radius_m(
+                    scored.v0,
+                    scored.tsfc_kg_n_s,
+                    scored.ld,
+                    mass_initial_kg,
+                    mass_final_kg,
+                )
+            except ValueError:
+                radius = None
+            if radius is not None and radius > 0:
+                packed['radius_m'] = radius
+                packed['radius_km'] = radius / 1000.0
+                packed['fuel_kg_per_km'] = average_fuel_kg_per_km(usable_fuel_kg, radius)
         rows.append(packed)
     return rows
 
@@ -1237,7 +1280,13 @@ def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]
         coarse_m = float(params['alt_coarse_m']) if params.get('alt_coarse_m') not in (None, '') else ALT_COARSE_M
         refine_m = float(params['alt_refine_m']) if params.get('alt_refine_m') not in (None, '') else ALT_REFINE_M
         radius['afterburner_best_altitude'] = _afterburner_best_altitude_profile(
-            params, ctx, alt_min, alt_max, coarse_m, refine_m,
+            params,
+            ctx,
+            alt_min,
+            alt_max,
+            coarse_m,
+            refine_m,
+            fuel_adj=radius.get('mission_fuel'),
         )
     except Exception:
         radius['afterburner_best_altitude'] = []

@@ -957,6 +957,7 @@ def test_e2e_combat_radius_dashboard_http_and_mixed():
     assert ab08 is not None
     assert ab08['feasible'] is True
     assert ab08['alt_m'] > 0
+    assert ab08.get('radius_km') is not None and ab08['radius_km'] > 0
     assert ab08['thrust_mode'] == 'afterburner'
     assert any(pt['id'] == 'mach_2_0' for pt in result['points'])
     m20 = next(pt for pt in result['points'] if pt['id'] == 'mach_2_0')

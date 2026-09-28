@@ -1164,6 +1164,7 @@ def test_run_aircraft_dashboard_includes_afterburner_best_altitudes():
     assert m08['feasible'] is True
     assert m08['alt_m'] > 0
     assert m08['ld'] > 0
+    assert m08['radius_km'] is not None and m08['radius_km'] > 0
     assert m08['thrust_mode'] == 'afterburner'
     assert m08['thrust_avail_kN'] > 0
 

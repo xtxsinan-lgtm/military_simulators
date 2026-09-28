@@ -4656,6 +4656,8 @@ module.exports = {
             "eta_p": 0.603313,
             "eta_o": 0.144484,
             "score": 1.628242,
+            "radius_km": 1244.48,
+            "fuel_kg_per_km": 2.95,
             "thrust_mode": "afterburner"
           },
           {
@@ -4670,6 +4672,8 @@ module.exports = {
             "eta_p": 0.485056,
             "eta_o": 0.184247,
             "score": 1.458359,
+            "radius_km": 1114.63,
+            "fuel_kg_per_km": 3.294,
             "thrust_mode": "afterburner"
           },
           {
@@ -4684,6 +4688,8 @@ module.exports = {
             "eta_p": 0.446862,
             "eta_o": 0.19905,
             "score": 0.858334,
+            "radius_km": 656.03,
+            "fuel_kg_per_km": 5.597,
             "thrust_mode": "afterburner"
           },
           {
@@ -4698,6 +4704,8 @@ module.exports = {
             "eta_p": 0.488279,
             "eta_o": 0.220032,
             "score": 0.777179,
+            "radius_km": 594.0,
+            "fuel_kg_per_km": 6.181,
             "thrust_mode": "afterburner"
           },
           {
@@ -4712,6 +4720,8 @@ module.exports = {
             "eta_p": 0.52657,
             "eta_o": 0.239716,
             "score": 0.48345,
+            "radius_km": 369.5,
+            "fuel_kg_per_km": 9.937,
             "thrust_mode": "afterburner"
           },
           {
@@ -4726,6 +4736,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -4740,6 +4752,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -5015,6 +5029,8 @@ module.exports = {
             "eta_p": 0.672226,
             "eta_o": 0.146939,
             "score": 1.506612,
+            "radius_km": 911.04,
+            "fuel_kg_per_km": 3.732,
             "thrust_mode": "afterburner"
           },
           {
@@ -5029,6 +5045,8 @@ module.exports = {
             "eta_p": 0.578448,
             "eta_o": 0.216227,
             "score": 1.592304,
+            "radius_km": 962.86,
+            "fuel_kg_per_km": 3.531,
             "thrust_mode": "afterburner"
           },
           {
@@ -5043,6 +5061,8 @@ module.exports = {
             "eta_p": 0.515683,
             "eta_o": 0.252151,
             "score": 1.322222,
+            "radius_km": 799.54,
+            "fuel_kg_per_km": 4.253,
             "thrust_mode": "afterburner"
           },
           {
@@ -5057,6 +5077,8 @@ module.exports = {
             "eta_p": 0.557625,
             "eta_o": 0.275385,
             "score": 1.377358,
+            "radius_km": 832.88,
+            "fuel_kg_per_km": 4.082,
             "thrust_mode": "afterburner"
           },
           {
@@ -5071,6 +5093,8 @@ module.exports = {
             "eta_p": 0.602633,
             "eta_o": 0.296448,
             "score": 1.385577,
+            "radius_km": 837.85,
+            "fuel_kg_per_km": 4.058,
             "thrust_mode": "afterburner"
           },
           {
@@ -5085,6 +5109,8 @@ module.exports = {
             "eta_p": 0.663044,
             "eta_o": 0.325683,
             "score": 1.485281,
+            "radius_km": 898.14,
+            "fuel_kg_per_km": 3.786,
             "thrust_mode": "afterburner"
           },
           {
@@ -5099,6 +5125,8 @@ module.exports = {
             "eta_p": 0.741932,
             "eta_o": 0.33793,
             "score": 0.976979,
+            "radius_km": 590.77,
+            "fuel_kg_per_km": 5.755,
             "thrust_mode": "afterburner"
           }
         ]
@@ -5351,6 +5379,8 @@ module.exports = {
             "eta_p": 0.631552,
             "eta_o": 0.138858,
             "score": 1.362523,
+            "radius_km": 1186.33,
+            "fuel_kg_per_km": 3.024,
             "thrust_mode": "afterburner"
           },
           {
@@ -5365,6 +5395,8 @@ module.exports = {
             "eta_p": 0.537139,
             "eta_o": 0.184999,
             "score": 1.385839,
+            "radius_km": 1206.63,
+            "fuel_kg_per_km": 2.973,
             "thrust_mode": "afterburner"
           },
           {
@@ -5379,6 +5411,8 @@ module.exports = {
             "eta_p": 0.446465,
             "eta_o": 0.198966,
             "score": 0.900162,
+            "radius_km": 783.76,
+            "fuel_kg_per_km": 4.577,
             "thrust_mode": "afterburner"
           },
           {
@@ -5393,6 +5427,8 @@ module.exports = {
             "eta_p": 0.487586,
             "eta_o": 0.219901,
             "score": 0.788782,
+            "radius_km": 686.78,
+            "fuel_kg_per_km": 5.224,
             "thrust_mode": "afterburner"
           },
           {
@@ -5407,6 +5443,8 @@ module.exports = {
             "eta_p": 0.529248,
             "eta_o": 0.240138,
             "score": 0.564803,
+            "radius_km": 491.77,
+            "fuel_kg_per_km": 7.295,
             "thrust_mode": "afterburner"
           },
           {
@@ -5421,6 +5459,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -5435,6 +5475,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -5710,6 +5752,8 @@ module.exports = {
             "eta_p": 0.6582,
             "eta_o": 0.149425,
             "score": 1.411844,
+            "radius_km": 1122.82,
+            "fuel_kg_per_km": 3.847,
             "thrust_mode": "afterburner"
           },
           {
@@ -5724,6 +5768,8 @@ module.exports = {
             "eta_p": 0.588,
             "eta_o": 0.213273,
             "score": 1.516561,
+            "radius_km": 1206.1,
+            "fuel_kg_per_km": 3.582,
             "thrust_mode": "afterburner"
           },
           {
@@ -5738,6 +5784,8 @@ module.exports = {
             "eta_p": 0.529463,
             "eta_o": 0.252325,
             "score": 1.327424,
+            "radius_km": 1055.68,
+            "fuel_kg_per_km": 4.092,
             "thrust_mode": "afterburner"
           },
           {
@@ -5752,6 +5800,8 @@ module.exports = {
             "eta_p": 0.555396,
             "eta_o": 0.274603,
             "score": 1.335001,
+            "radius_km": 1061.71,
+            "fuel_kg_per_km": 4.069,
             "thrust_mode": "afterburner"
           },
           {
@@ -5766,6 +5816,8 @@ module.exports = {
             "eta_p": 0.599168,
             "eta_o": 0.29583,
             "score": 1.332252,
+            "radius_km": 1059.52,
+            "fuel_kg_per_km": 4.077,
             "thrust_mode": "afterburner"
           },
           {
@@ -5780,6 +5832,8 @@ module.exports = {
             "eta_p": 0.680206,
             "eta_o": 0.32176,
             "score": 1.386591,
+            "radius_km": 1102.74,
+            "fuel_kg_per_km": 3.917,
             "thrust_mode": "afterburner"
           },
           {
@@ -5794,6 +5848,8 @@ module.exports = {
             "eta_p": 0.763617,
             "eta_o": 0.326427,
             "score": 0.821713,
+            "radius_km": 653.5,
+            "fuel_kg_per_km": 6.61,
             "thrust_mode": "afterburner"
           }
         ]
@@ -6046,6 +6102,8 @@ module.exports = {
             "eta_p": 0.671729,
             "eta_o": 0.157955,
             "score": 1.439835,
+            "radius_km": 784.33,
+            "fuel_kg_per_km": 2.003,
             "thrust_mode": "afterburner"
           },
           {
@@ -6060,6 +6118,8 @@ module.exports = {
             "eta_p": 0.612089,
             "eta_o": 0.216737,
             "score": 1.679237,
+            "radius_km": 914.75,
+            "fuel_kg_per_km": 1.717,
             "thrust_mode": "afterburner"
           },
           {
@@ -6074,6 +6134,8 @@ module.exports = {
             "eta_p": 0.541235,
             "eta_o": 0.257557,
             "score": 1.413476,
+            "radius_km": 769.98,
+            "fuel_kg_per_km": 2.04,
             "thrust_mode": "afterburner"
           },
           {
@@ -6088,6 +6150,8 @@ module.exports = {
             "eta_p": 0.592583,
             "eta_o": 0.27921,
             "score": 1.237737,
+            "radius_km": 674.24,
+            "fuel_kg_per_km": 2.33,
             "thrust_mode": "afterburner"
           },
           {
@@ -6102,6 +6166,8 @@ module.exports = {
             "eta_p": 0.646878,
             "eta_o": 0.296352,
             "score": 1.03571,
+            "radius_km": 564.19,
+            "fuel_kg_per_km": 2.784,
             "thrust_mode": "afterburner"
           },
           {
@@ -6116,6 +6182,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -6130,6 +6198,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -6405,6 +6475,8 @@ module.exports = {
             "eta_p": 0.688555,
             "eta_o": 0.136553,
             "score": 1.661271,
+            "radius_km": 1696.18,
+            "fuel_kg_per_km": 3.482,
             "thrust_mode": "afterburner"
           },
           {
@@ -6419,6 +6491,8 @@ module.exports = {
             "eta_p": 0.614082,
             "eta_o": 0.206087,
             "score": 1.843614,
+            "radius_km": 1882.36,
+            "fuel_kg_per_km": 3.137,
             "thrust_mode": "afterburner"
           },
           {
@@ -6433,6 +6507,8 @@ module.exports = {
             "eta_p": 0.560166,
             "eta_o": 0.252341,
             "score": 1.649312,
+            "radius_km": 1683.97,
+            "fuel_kg_per_km": 3.507,
             "thrust_mode": "afterburner"
           },
           {
@@ -6447,6 +6523,8 @@ module.exports = {
             "eta_p": 0.587491,
             "eta_o": 0.274187,
             "score": 1.672223,
+            "radius_km": 1707.36,
+            "fuel_kg_per_km": 3.459,
             "thrust_mode": "afterburner"
           },
           {
@@ -6461,6 +6539,8 @@ module.exports = {
             "eta_p": 0.635628,
             "eta_o": 0.291728,
             "score": 1.689908,
+            "radius_km": 1725.42,
+            "fuel_kg_per_km": 3.423,
             "thrust_mode": "afterburner"
           },
           {
@@ -6475,6 +6555,8 @@ module.exports = {
             "eta_p": 0.73573,
             "eta_o": 0.300036,
             "score": 1.750186,
+            "radius_km": 1786.97,
+            "fuel_kg_per_km": 3.305,
             "thrust_mode": "afterburner"
           },
           {
@@ -6489,6 +6571,8 @@ module.exports = {
             "eta_p": 0.769781,
             "eta_o": 0.318709,
             "score": 1.263603,
+            "radius_km": 1290.16,
+            "fuel_kg_per_km": 4.577,
             "thrust_mode": "afterburner"
           }
         ]
@@ -6764,6 +6848,8 @@ module.exports = {
             "eta_p": 0.703178,
             "eta_o": 0.131122,
             "score": 1.693015,
+            "radius_km": 1522.72,
+            "fuel_kg_per_km": 3.68,
             "thrust_mode": "afterburner"
           },
           {
@@ -6778,6 +6864,8 @@ module.exports = {
             "eta_p": 0.609529,
             "eta_o": 0.207246,
             "score": 1.875206,
+            "radius_km": 1686.58,
+            "fuel_kg_per_km": 3.322,
             "thrust_mode": "afterburner"
           },
           {
@@ -6792,6 +6880,8 @@ module.exports = {
             "eta_p": 0.553411,
             "eta_o": 0.252653,
             "score": 1.656819,
+            "radius_km": 1490.16,
+            "fuel_kg_per_km": 3.76,
             "thrust_mode": "afterburner"
           },
           {
@@ -6806,6 +6896,8 @@ module.exports = {
             "eta_p": 0.588259,
             "eta_o": 0.274133,
             "score": 1.672189,
+            "radius_km": 1503.98,
+            "fuel_kg_per_km": 3.726,
             "thrust_mode": "afterburner"
           },
           {
@@ -6820,6 +6912,8 @@ module.exports = {
             "eta_p": 0.636426,
             "eta_o": 0.291598,
             "score": 1.689866,
+            "radius_km": 1519.88,
+            "fuel_kg_per_km": 3.687,
             "thrust_mode": "afterburner"
           },
           {
@@ -6834,6 +6928,8 @@ module.exports = {
             "eta_p": 0.723172,
             "eta_o": 0.305599,
             "score": 1.786104,
+            "radius_km": 1606.44,
+            "fuel_kg_per_km": 3.488,
             "thrust_mode": "afterburner"
           },
           {
@@ -6848,6 +6944,8 @@ module.exports = {
             "eta_p": 0.759127,
             "eta_o": 0.324769,
             "score": 1.295536,
+            "radius_km": 1165.22,
+            "fuel_kg_per_km": 4.809,
             "thrust_mode": "afterburner"
           }
         ]
@@ -7123,6 +7221,8 @@ module.exports = {
             "eta_p": 0.636707,
             "eta_o": 0.154204,
             "score": 1.640842,
+            "radius_km": 2265.67,
+            "fuel_kg_per_km": 5.429,
             "thrust_mode": "afterburner"
           },
           {
@@ -7137,6 +7237,8 @@ module.exports = {
             "eta_p": 0.488604,
             "eta_o": 0.221201,
             "score": 1.376836,
+            "radius_km": 1901.13,
+            "fuel_kg_per_km": 6.471,
             "thrust_mode": "afterburner"
           },
           {
@@ -7151,6 +7253,8 @@ module.exports = {
             "eta_p": 0.482495,
             "eta_o": 0.248595,
             "score": 1.188638,
+            "radius_km": 1641.27,
+            "fuel_kg_per_km": 7.495,
             "thrust_mode": "afterburner"
           },
           {
@@ -7165,6 +7269,8 @@ module.exports = {
             "eta_p": 0.553593,
             "eta_o": 0.274819,
             "score": 1.488992,
+            "radius_km": 2056.0,
+            "fuel_kg_per_km": 5.983,
             "thrust_mode": "afterburner"
           },
           {
@@ -7179,6 +7285,8 @@ module.exports = {
             "eta_p": 0.619272,
             "eta_o": 0.293928,
             "score": 1.664733,
+            "radius_km": 2298.66,
+            "fuel_kg_per_km": 5.352,
             "thrust_mode": "afterburner"
           },
           {
@@ -7193,6 +7301,8 @@ module.exports = {
             "eta_p": 0.722691,
             "eta_o": 0.305799,
             "score": 1.752024,
+            "radius_km": 2419.19,
+            "fuel_kg_per_km": 5.085,
             "thrust_mode": "afterburner"
           },
           {
@@ -7207,6 +7317,8 @@ module.exports = {
             "eta_p": 0.761207,
             "eta_o": 0.323632,
             "score": 1.281669,
+            "radius_km": 1769.73,
+            "fuel_kg_per_km": 6.951,
             "thrust_mode": "afterburner"
           }
         ]
@@ -7459,6 +7571,8 @@ module.exports = {
             "eta_p": 0.687119,
             "eta_o": 0.158626,
             "score": 1.684738,
+            "radius_km": 1212.16,
+            "fuel_kg_per_km": 2.717,
             "thrust_mode": "afterburner"
           },
           {
@@ -7473,6 +7587,8 @@ module.exports = {
             "eta_p": 0.583996,
             "eta_o": 0.224007,
             "score": 1.752466,
+            "radius_km": 1260.89,
+            "fuel_kg_per_km": 2.612,
             "thrust_mode": "afterburner"
           },
           {
@@ -7487,6 +7603,8 @@ module.exports = {
             "eta_p": 0.581806,
             "eta_o": 0.258188,
             "score": 1.163805,
+            "radius_km": 837.35,
+            "fuel_kg_per_km": 3.933,
             "thrust_mode": "afterburner"
           },
           {
@@ -7501,6 +7619,8 @@ module.exports = {
             "eta_p": 0.635862,
             "eta_o": 0.277345,
             "score": 1.266764,
+            "radius_km": 911.43,
+            "fuel_kg_per_km": 3.613,
             "thrust_mode": "afterburner"
           },
           {
@@ -7515,6 +7635,8 @@ module.exports = {
             "eta_p": 0.693438,
             "eta_o": 0.290151,
             "score": 1.233752,
+            "radius_km": 887.68,
+            "fuel_kg_per_km": 3.71,
             "thrust_mode": "afterburner"
           },
           {
@@ -7529,6 +7651,8 @@ module.exports = {
             "eta_p": 0.788892,
             "eta_o": 0.290504,
             "score": 0.967356,
+            "radius_km": 696.01,
+            "fuel_kg_per_km": 4.731,
             "thrust_mode": "afterburner"
           },
           {
@@ -7543,6 +7667,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -7818,6 +7944,8 @@ module.exports = {
             "eta_p": 0.675435,
             "eta_o": 0.149868,
             "score": 1.369506,
+            "radius_km": 1125.16,
+            "fuel_kg_per_km": 2.936,
             "thrust_mode": "afterburner"
           },
           {
@@ -7832,6 +7960,8 @@ module.exports = {
             "eta_p": 0.617361,
             "eta_o": 0.210952,
             "score": 1.570039,
+            "radius_km": 1289.92,
+            "fuel_kg_per_km": 2.561,
             "thrust_mode": "afterburner"
           },
           {
@@ -7846,6 +7976,8 @@ module.exports = {
             "eta_p": 0.549057,
             "eta_o": 0.256414,
             "score": 1.346498,
+            "radius_km": 1106.26,
+            "fuel_kg_per_km": 2.986,
             "thrust_mode": "afterburner"
           },
           {
@@ -7860,6 +7992,8 @@ module.exports = {
             "eta_p": 0.593305,
             "eta_o": 0.277049,
             "score": 1.338924,
+            "radius_km": 1100.04,
+            "fuel_kg_per_km": 3.003,
             "thrust_mode": "afterburner"
           },
           {
@@ -7874,6 +8008,8 @@ module.exports = {
             "eta_p": 0.646056,
             "eta_o": 0.292937,
             "score": 1.295846,
+            "radius_km": 1064.64,
+            "fuel_kg_per_km": 3.103,
             "thrust_mode": "afterburner"
           },
           {
@@ -7888,6 +8024,8 @@ module.exports = {
             "eta_p": 0.736495,
             "eta_o": 0.302927,
             "score": 1.280436,
+            "radius_km": 1051.98,
+            "fuel_kg_per_km": 3.14,
             "thrust_mode": "afterburner"
           },
           {
@@ -7902,6 +8040,8 @@ module.exports = {
             "eta_p": 0.844588,
             "eta_o": 0.265307,
             "score": 0.61806,
+            "radius_km": 507.79,
+            "fuel_kg_per_km": 6.506,
             "thrust_mode": "afterburner"
           }
         ]
@@ -8177,6 +8317,8 @@ module.exports = {
             "eta_p": 0.697931,
             "eta_o": 0.149458,
             "score": 1.667358,
+            "radius_km": 1472.48,
+            "fuel_kg_per_km": 1.486,
             "thrust_mode": "afterburner"
           },
           {
@@ -8191,6 +8333,8 @@ module.exports = {
             "eta_p": 0.642428,
             "eta_o": 0.209746,
             "score": 1.945339,
+            "radius_km": 1717.97,
+            "fuel_kg_per_km": 1.274,
             "thrust_mode": "afterburner"
           },
           {
@@ -8205,6 +8349,8 @@ module.exports = {
             "eta_p": 0.581165,
             "eta_o": 0.256847,
             "score": 1.745582,
+            "radius_km": 1541.56,
+            "fuel_kg_per_km": 1.42,
             "thrust_mode": "afterburner"
           },
           {
@@ -8219,6 +8365,8 @@ module.exports = {
             "eta_p": 0.609862,
             "eta_o": 0.278086,
             "score": 1.761743,
+            "radius_km": 1555.83,
+            "fuel_kg_per_km": 1.407,
             "thrust_mode": "afterburner"
           },
           {
@@ -8233,6 +8381,8 @@ module.exports = {
             "eta_p": 0.657408,
             "eta_o": 0.294624,
             "score": 1.738747,
+            "radius_km": 1535.52,
+            "fuel_kg_per_km": 1.425,
             "thrust_mode": "afterburner"
           },
           {
@@ -8247,6 +8397,8 @@ module.exports = {
             "eta_p": 0.764594,
             "eta_o": 0.296882,
             "score": 1.668257,
+            "radius_km": 1473.27,
+            "fuel_kg_per_km": 1.485,
             "thrust_mode": "afterburner"
           },
           {
@@ -8261,6 +8413,8 @@ module.exports = {
             "eta_p": 0.840701,
             "eta_o": 0.280267,
             "score": 1.09153,
+            "radius_km": 963.95,
+            "fuel_kg_per_km": 2.27,
             "thrust_mode": "afterburner"
           }
         ]
@@ -8536,6 +8690,8 @@ module.exports = {
             "eta_p": 0.692831,
             "eta_o": 0.151173,
             "score": 1.690808,
+            "radius_km": 1317.63,
+            "fuel_kg_per_km": 1.566,
             "thrust_mode": "afterburner"
           },
           {
@@ -8550,6 +8706,8 @@ module.exports = {
             "eta_p": 0.63877,
             "eta_o": 0.21068,
             "score": 1.971307,
+            "radius_km": 1536.22,
+            "fuel_kg_per_km": 1.343,
             "thrust_mode": "afterburner"
           },
           {
@@ -8564,6 +8722,8 @@ module.exports = {
             "eta_p": 0.575381,
             "eta_o": 0.257196,
             "score": 1.750446,
+            "radius_km": 1364.11,
+            "fuel_kg_per_km": 1.512,
             "thrust_mode": "afterburner"
           },
           {
@@ -8578,6 +8738,8 @@ module.exports = {
             "eta_p": 0.612882,
             "eta_o": 0.277806,
             "score": 1.761778,
+            "radius_km": 1372.94,
+            "fuel_kg_per_km": 1.503,
             "thrust_mode": "afterburner"
           },
           {
@@ -8592,6 +8754,8 @@ module.exports = {
             "eta_p": 0.650625,
             "eta_o": 0.295776,
             "score": 1.738763,
+            "radius_km": 1355.0,
+            "fuel_kg_per_km": 1.523,
             "thrust_mode": "afterburner"
           },
           {
@@ -8606,6 +8770,8 @@ module.exports = {
             "eta_p": 0.754105,
             "eta_o": 0.30202,
             "score": 1.707044,
+            "radius_km": 1330.28,
+            "fuel_kg_per_km": 1.551,
             "thrust_mode": "afterburner"
           },
           {
@@ -8620,6 +8786,8 @@ module.exports = {
             "eta_p": 0.84189,
             "eta_o": 0.279211,
             "score": 1.084442,
+            "radius_km": 845.09,
+            "fuel_kg_per_km": 2.441,
             "thrust_mode": "afterburner"
           }
         ]
@@ -8895,6 +9063,8 @@ module.exports = {
             "eta_p": 0.683035,
             "eta_o": 0.154384,
             "score": 1.681197,
+            "radius_km": 1650.42,
+            "fuel_kg_per_km": 1.564,
             "thrust_mode": "afterburner"
           },
           {
@@ -8909,6 +9079,8 @@ module.exports = {
             "eta_p": 0.607669,
             "eta_o": 0.21761,
             "score": 1.904148,
+            "radius_km": 1869.29,
+            "fuel_kg_per_km": 1.381,
             "thrust_mode": "afterburner"
           },
           {
@@ -8923,6 +9095,8 @@ module.exports = {
             "eta_p": 0.551698,
             "eta_o": 0.257755,
             "score": 1.682482,
+            "radius_km": 1651.68,
+            "fuel_kg_per_km": 1.563,
             "thrust_mode": "afterburner"
           },
           {
@@ -8937,6 +9111,8 @@ module.exports = {
             "eta_p": 0.602663,
             "eta_o": 0.278654,
             "score": 1.719513,
+            "radius_km": 1688.03,
+            "fuel_kg_per_km": 1.529,
             "thrust_mode": "afterburner"
           },
           {
@@ -8951,6 +9127,8 @@ module.exports = {
             "eta_p": 0.648439,
             "eta_o": 0.296118,
             "score": 1.636385,
+            "radius_km": 1606.43,
+            "fuel_kg_per_km": 1.607,
             "thrust_mode": "afterburner"
           },
           {
@@ -8965,6 +9143,8 @@ module.exports = {
             "eta_p": 0.745469,
             "eta_o": 0.305922,
             "score": 1.680082,
+            "radius_km": 1649.33,
+            "fuel_kg_per_km": 1.565,
             "thrust_mode": "afterburner"
           },
           {
@@ -8979,6 +9159,8 @@ module.exports = {
             "eta_p": 0.839094,
             "eta_o": 0.281681,
             "score": 1.019758,
+            "radius_km": 1001.09,
+            "fuel_kg_per_km": 2.578,
             "thrust_mode": "afterburner"
           }
         ]
@@ -9231,6 +9413,8 @@ module.exports = {
             "eta_p": 0.62595,
             "eta_o": 0.140041,
             "score": 1.400922,
+            "radius_km": 862.5,
+            "fuel_kg_per_km": 3.031,
             "thrust_mode": "afterburner"
           },
           {
@@ -9245,6 +9429,8 @@ module.exports = {
             "eta_p": 0.527742,
             "eta_o": 0.185231,
             "score": 1.396407,
+            "radius_km": 859.72,
+            "fuel_kg_per_km": 3.041,
             "thrust_mode": "afterburner"
           },
           {
@@ -9259,6 +9445,8 @@ module.exports = {
             "eta_p": 0.447054,
             "eta_o": 0.199091,
             "score": 0.880761,
+            "radius_km": 542.25,
+            "fuel_kg_per_km": 4.821,
             "thrust_mode": "afterburner"
           },
           {
@@ -9273,6 +9461,8 @@ module.exports = {
             "eta_p": 0.485908,
             "eta_o": 0.219582,
             "score": 0.763881,
+            "radius_km": 470.29,
+            "fuel_kg_per_km": 5.559,
             "thrust_mode": "afterburner"
           },
           {
@@ -9287,6 +9477,8 @@ module.exports = {
             "eta_p": 0.528395,
             "eta_o": 0.240005,
             "score": 0.499519,
+            "radius_km": 307.54,
+            "fuel_kg_per_km": 8.5,
             "thrust_mode": "afterburner"
           },
           {
@@ -9301,6 +9493,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -9315,6 +9509,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -9567,6 +9763,8 @@ module.exports = {
             "eta_p": 0.616913,
             "eta_o": 0.164793,
             "score": 1.533144,
+            "radius_km": 851.72,
+            "fuel_kg_per_km": 2.084,
             "thrust_mode": "afterburner"
           },
           {
@@ -9581,6 +9779,8 @@ module.exports = {
             "eta_p": 0.553888,
             "eta_o": 0.219644,
             "score": 1.65631,
+            "radius_km": 920.14,
+            "fuel_kg_per_km": 1.929,
             "thrust_mode": "afterburner"
           },
           {
@@ -9595,6 +9795,8 @@ module.exports = {
             "eta_p": 0.507404,
             "eta_o": 0.250904,
             "score": 1.340358,
+            "radius_km": 744.62,
+            "fuel_kg_per_km": 2.384,
             "thrust_mode": "afterburner"
           },
           {
@@ -9609,6 +9811,8 @@ module.exports = {
             "eta_p": 0.554215,
             "eta_o": 0.275001,
             "score": 1.216545,
+            "radius_km": 675.84,
+            "fuel_kg_per_km": 2.626,
             "thrust_mode": "afterburner"
           },
           {
@@ -9623,6 +9827,8 @@ module.exports = {
             "eta_p": 0.59792,
             "eta_o": 0.296618,
             "score": 1.107134,
+            "radius_km": 615.06,
+            "fuel_kg_per_km": 2.886,
             "thrust_mode": "afterburner"
           },
           {
@@ -9637,6 +9843,8 @@ module.exports = {
             "eta_p": 0.67454,
             "eta_o": 0.324508,
             "score": 0.588603,
+            "radius_km": 326.99,
+            "fuel_kg_per_km": 5.428,
             "thrust_mode": "afterburner"
           },
           {
@@ -9651,6 +9859,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -9903,6 +10113,8 @@ module.exports = {
             "eta_p": 0.616999,
             "eta_o": 0.164769,
             "score": 1.513804,
+            "radius_km": 990.97,
+            "fuel_kg_per_km": 1.989,
             "thrust_mode": "afterburner"
           },
           {
@@ -9917,6 +10129,8 @@ module.exports = {
             "eta_p": 0.554423,
             "eta_o": 0.219592,
             "score": 1.637934,
+            "radius_km": 1072.23,
+            "fuel_kg_per_km": 1.838,
             "thrust_mode": "afterburner"
           },
           {
@@ -9931,6 +10145,8 @@ module.exports = {
             "eta_p": 0.50411,
             "eta_o": 0.250522,
             "score": 1.346935,
+            "radius_km": 881.74,
+            "fuel_kg_per_km": 2.235,
             "thrust_mode": "afterburner"
           },
           {
@@ -9945,6 +10161,8 @@ module.exports = {
             "eta_p": 0.551134,
             "eta_o": 0.274808,
             "score": 1.224355,
+            "radius_km": 801.49,
+            "fuel_kg_per_km": 2.459,
             "thrust_mode": "afterburner"
           },
           {
@@ -9959,6 +10177,8 @@ module.exports = {
             "eta_p": 0.599798,
             "eta_o": 0.296602,
             "score": 1.10085,
+            "radius_km": 720.64,
+            "fuel_kg_per_km": 2.734,
             "thrust_mode": "afterburner"
           },
           {
@@ -9973,6 +10193,8 @@ module.exports = {
             "eta_p": 0.673878,
             "eta_o": 0.324626,
             "score": 0.598253,
+            "radius_km": 391.63,
+            "fuel_kg_per_km": 5.032,
             "thrust_mode": "afterburner"
           },
           {
@@ -9987,6 +10209,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -10262,6 +10486,8 @@ module.exports = {
             "eta_p": 0.622405,
             "eta_o": 0.158585,
             "score": 1.840407,
+            "radius_km": 1849.11,
+            "fuel_kg_per_km": 2.455,
             "thrust_mode": "afterburner"
           },
           {
@@ -10276,6 +10502,8 @@ module.exports = {
             "eta_p": 0.507405,
             "eta_o": 0.221294,
             "score": 1.756351,
+            "radius_km": 1764.66,
+            "fuel_kg_per_km": 2.572,
             "thrust_mode": "afterburner"
           },
           {
@@ -10290,6 +10518,8 @@ module.exports = {
             "eta_p": 0.482105,
             "eta_o": 0.248536,
             "score": 1.367154,
+            "radius_km": 1373.62,
+            "fuel_kg_per_km": 3.305,
             "thrust_mode": "afterburner"
           },
           {
@@ -10304,6 +10534,8 @@ module.exports = {
             "eta_p": 0.531598,
             "eta_o": 0.273479,
             "score": 1.428864,
+            "radius_km": 1435.62,
+            "fuel_kg_per_km": 3.162,
             "thrust_mode": "afterburner"
           },
           {
@@ -10318,6 +10550,8 @@ module.exports = {
             "eta_p": 0.580071,
             "eta_o": 0.295717,
             "score": 1.459758,
+            "radius_km": 1466.66,
+            "fuel_kg_per_km": 3.095,
             "thrust_mode": "afterburner"
           },
           {
@@ -10332,6 +10566,8 @@ module.exports = {
             "eta_p": 0.653751,
             "eta_o": 0.324823,
             "score": 1.541269,
+            "radius_km": 1548.56,
+            "fuel_kg_per_km": 2.931,
             "thrust_mode": "afterburner"
           },
           {
@@ -10346,6 +10582,8 @@ module.exports = {
             "eta_p": 0.732333,
             "eta_o": 0.337477,
             "score": 0.887814,
+            "radius_km": 892.01,
+            "fuel_kg_per_km": 5.089,
             "thrust_mode": "afterburner"
           }
         ]
@@ -10621,6 +10859,8 @@ module.exports = {
             "eta_p": 0.629498,
             "eta_o": 0.139296,
             "score": 1.497977,
+            "radius_km": 1141.11,
+            "fuel_kg_per_km": 2.724,
             "thrust_mode": "afterburner"
           },
           {
@@ -10635,6 +10875,8 @@ module.exports = {
             "eta_p": 0.516349,
             "eta_o": 0.185296,
             "score": 1.426658,
+            "radius_km": 1086.78,
+            "fuel_kg_per_km": 2.86,
             "thrust_mode": "afterburner"
           },
           {
@@ -10649,6 +10891,8 @@ module.exports = {
             "eta_p": 0.45215,
             "eta_o": 0.200142,
             "score": 1.086752,
+            "radius_km": 827.85,
+            "fuel_kg_per_km": 3.755,
             "thrust_mode": "afterburner"
           },
           {
@@ -10663,6 +10907,8 @@ module.exports = {
             "eta_p": 0.504733,
             "eta_o": 0.222863,
             "score": 1.098815,
+            "radius_km": 837.04,
+            "fuel_kg_per_km": 3.714,
             "thrust_mode": "afterburner"
           },
           {
@@ -10677,6 +10923,8 @@ module.exports = {
             "eta_p": 0.549502,
             "eta_o": 0.242857,
             "score": 1.123587,
+            "radius_km": 855.91,
+            "fuel_kg_per_km": 3.632,
             "thrust_mode": "afterburner"
           },
           {
@@ -10691,6 +10939,8 @@ module.exports = {
             "eta_p": 0.599299,
             "eta_o": 0.270663,
             "score": 1.227951,
+            "radius_km": 935.41,
+            "fuel_kg_per_km": 3.323,
             "thrust_mode": "afterburner"
           },
           {
@@ -10705,6 +10955,8 @@ module.exports = {
             "eta_p": 0.666118,
             "eta_o": 0.294402,
             "score": 0.841458,
+            "radius_km": 640.99,
+            "fuel_kg_per_km": 4.85,
             "thrust_mode": "afterburner"
           }
         ]
@@ -10980,6 +11232,8 @@ module.exports = {
             "eta_p": 0.634127,
             "eta_o": 0.155011,
             "score": 1.626316,
+            "radius_km": 1790.74,
+            "fuel_kg_per_km": 2.448,
             "thrust_mode": "afterburner"
           },
           {
@@ -10994,6 +11248,8 @@ module.exports = {
             "eta_p": 0.546365,
             "eta_o": 0.218762,
             "score": 1.679924,
+            "radius_km": 1849.76,
+            "fuel_kg_per_km": 2.37,
             "thrust_mode": "afterburner"
           },
           {
@@ -11008,6 +11264,8 @@ module.exports = {
             "eta_p": 0.486661,
             "eta_o": 0.249194,
             "score": 1.36748,
+            "radius_km": 1505.73,
+            "fuel_kg_per_km": 2.911,
             "thrust_mode": "afterburner"
           },
           {
@@ -11022,6 +11280,8 @@ module.exports = {
             "eta_p": 0.532834,
             "eta_o": 0.27359,
             "score": 1.364524,
+            "radius_km": 1502.48,
+            "fuel_kg_per_km": 2.917,
             "thrust_mode": "afterburner"
           },
           {
@@ -11036,6 +11296,8 @@ module.exports = {
             "eta_p": 0.578189,
             "eta_o": 0.295683,
             "score": 1.376773,
+            "radius_km": 1515.96,
+            "fuel_kg_per_km": 2.891,
             "thrust_mode": "afterburner"
           },
           {
@@ -11050,6 +11312,8 @@ module.exports = {
             "eta_p": 0.654839,
             "eta_o": 0.324666,
             "score": 1.470293,
+            "radius_km": 1618.94,
+            "fuel_kg_per_km": 2.707,
             "thrust_mode": "afterburner"
           },
           {
@@ -11064,6 +11328,8 @@ module.exports = {
             "eta_p": 0.733662,
             "eta_o": 0.33693,
             "score": 0.931586,
+            "radius_km": 1025.77,
+            "fuel_kg_per_km": 4.273,
             "thrust_mode": "afterburner"
           }
         ]
@@ -11339,6 +11605,8 @@ module.exports = {
             "eta_p": 0.646112,
             "eta_o": 0.15989,
             "score": 1.448932,
+            "radius_km": 827.35,
+            "fuel_kg_per_km": 2.224,
             "thrust_mode": "afterburner"
           },
           {
@@ -11353,6 +11621,8 @@ module.exports = {
             "eta_p": 0.599024,
             "eta_o": 0.215358,
             "score": 1.642699,
+            "radius_km": 937.99,
+            "fuel_kg_per_km": 1.962,
             "thrust_mode": "afterburner"
           },
           {
@@ -11367,6 +11637,8 @@ module.exports = {
             "eta_p": 0.53431,
             "eta_o": 0.254517,
             "score": 1.426219,
+            "radius_km": 814.38,
+            "fuel_kg_per_km": 2.26,
             "thrust_mode": "afterburner"
           },
           {
@@ -11381,6 +11653,8 @@ module.exports = {
             "eta_p": 0.576743,
             "eta_o": 0.277057,
             "score": 1.385762,
+            "radius_km": 791.28,
+            "fuel_kg_per_km": 2.326,
             "thrust_mode": "afterburner"
           },
           {
@@ -11395,6 +11669,8 @@ module.exports = {
             "eta_p": 0.625506,
             "eta_o": 0.296679,
             "score": 1.231105,
+            "radius_km": 702.97,
+            "fuel_kg_per_km": 2.618,
             "thrust_mode": "afterburner"
           },
           {
@@ -11409,6 +11685,8 @@ module.exports = {
             "eta_p": 0.705443,
             "eta_o": 0.318547,
             "score": 1.001791,
+            "radius_km": 572.03,
+            "fuel_kg_per_km": 3.217,
             "thrust_mode": "afterburner"
           },
           {
@@ -11423,6 +11701,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -11675,6 +11955,8 @@ module.exports = {
             "eta_p": 0.670545,
             "eta_o": 0.161819,
             "score": 1.512073,
+            "radius_km": 1160.42,
+            "fuel_kg_per_km": 3.625,
             "thrust_mode": "afterburner"
           },
           {
@@ -11689,6 +11971,8 @@ module.exports = {
             "eta_p": 0.560467,
             "eta_o": 0.224758,
             "score": 1.505373,
+            "radius_km": 1155.27,
+            "fuel_kg_per_km": 3.641,
             "thrust_mode": "afterburner"
           },
           {
@@ -11703,6 +11987,8 @@ module.exports = {
             "eta_p": 0.543352,
             "eta_o": 0.256508,
             "score": 1.216036,
+            "radius_km": 933.23,
+            "fuel_kg_per_km": 4.507,
             "thrust_mode": "afterburner"
           },
           {
@@ -11717,6 +12003,8 @@ module.exports = {
             "eta_p": 0.589151,
             "eta_o": 0.279264,
             "score": 1.274678,
+            "radius_km": 978.23,
+            "fuel_kg_per_km": 4.3,
             "thrust_mode": "afterburner"
           },
           {
@@ -11731,6 +12019,8 @@ module.exports = {
             "eta_p": 0.641584,
             "eta_o": 0.298638,
             "score": 1.300339,
+            "radius_km": 997.92,
+            "fuel_kg_per_km": 4.215,
             "thrust_mode": "afterburner"
           },
           {
@@ -11745,6 +12035,8 @@ module.exports = {
             "eta_p": 0.721008,
             "eta_o": 0.320034,
             "score": 1.315394,
+            "radius_km": 1009.48,
+            "fuel_kg_per_km": 4.167,
             "thrust_mode": "afterburner"
           },
           {
@@ -11759,6 +12051,8 @@ module.exports = {
             "eta_p": 0.810233,
             "eta_o": 0.313236,
             "score": 0.630568,
+            "radius_km": 483.92,
+            "fuel_kg_per_km": 8.692,
             "thrust_mode": "afterburner"
           }
         ]
@@ -12011,6 +12305,8 @@ module.exports = {
             "eta_p": 0.653839,
             "eta_o": 0.155213,
             "score": 1.340187,
+            "radius_km": 857.38,
+            "fuel_kg_per_km": 2.614,
             "thrust_mode": "afterburner"
           },
           {
@@ -12025,6 +12321,8 @@ module.exports = {
             "eta_p": 0.573395,
             "eta_o": 0.21863,
             "score": 1.451715,
+            "radius_km": 928.73,
+            "fuel_kg_per_km": 2.413,
             "thrust_mode": "afterburner"
           },
           {
@@ -12039,6 +12337,8 @@ module.exports = {
             "eta_p": 0.51807,
             "eta_o": 0.254192,
             "score": 1.239813,
+            "radius_km": 793.16,
+            "fuel_kg_per_km": 2.825,
             "thrust_mode": "afterburner"
           },
           {
@@ -12053,6 +12353,8 @@ module.exports = {
             "eta_p": 0.57185,
             "eta_o": 0.277055,
             "score": 1.177542,
+            "radius_km": 753.33,
+            "fuel_kg_per_km": 2.975,
             "thrust_mode": "afterburner"
           },
           {
@@ -12067,6 +12369,8 @@ module.exports = {
             "eta_p": 0.622816,
             "eta_o": 0.296019,
             "score": 1.082722,
+            "radius_km": 692.67,
+            "fuel_kg_per_km": 3.235,
             "thrust_mode": "afterburner"
           },
           {
@@ -12081,6 +12385,8 @@ module.exports = {
             "eta_p": 0.704666,
             "eta_o": 0.316001,
             "score": 0.723989,
+            "radius_km": 463.17,
+            "fuel_kg_per_km": 4.839,
             "thrust_mode": "afterburner"
           },
           {
@@ -12095,6 +12401,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -12347,6 +12655,8 @@ module.exports = {
             "eta_p": 0.688095,
             "eta_o": 0.158453,
             "score": 1.439455,
+            "radius_km": 935.4,
+            "fuel_kg_per_km": 3.617,
             "thrust_mode": "afterburner"
           },
           {
@@ -12361,6 +12671,8 @@ module.exports = {
             "eta_p": 0.602851,
             "eta_o": 0.221858,
             "score": 1.54146,
+            "radius_km": 1001.69,
+            "fuel_kg_per_km": 3.378,
             "thrust_mode": "afterburner"
           },
           {
@@ -12375,6 +12687,8 @@ module.exports = {
             "eta_p": 0.582338,
             "eta_o": 0.258969,
             "score": 1.178942,
+            "radius_km": 766.12,
+            "fuel_kg_per_km": 4.417,
             "thrust_mode": "afterburner"
           },
           {
@@ -12389,6 +12703,8 @@ module.exports = {
             "eta_p": 0.644233,
             "eta_o": 0.276057,
             "score": 1.222834,
+            "radius_km": 794.64,
+            "fuel_kg_per_km": 4.258,
             "thrust_mode": "afterburner"
           },
           {
@@ -12403,6 +12719,8 @@ module.exports = {
             "eta_p": 0.699279,
             "eta_o": 0.287511,
             "score": 1.203502,
+            "radius_km": 782.08,
+            "fuel_kg_per_km": 4.326,
             "thrust_mode": "afterburner"
           },
           {
@@ -12417,6 +12735,8 @@ module.exports = {
             "eta_p": 0.804076,
             "eta_o": 0.2785,
             "score": 0.989251,
+            "radius_km": 642.85,
+            "fuel_kg_per_km": 5.263,
             "thrust_mode": "afterburner"
           },
           {
@@ -12431,6 +12751,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -12683,6 +13005,8 @@ module.exports = {
             "eta_p": 0.605379,
             "eta_o": 0.165127,
             "score": 1.684099,
+            "radius_km": 1055.79,
+            "fuel_kg_per_km": 2.049,
             "thrust_mode": "afterburner"
           },
           {
@@ -12697,6 +13021,8 @@ module.exports = {
             "eta_p": 0.516193,
             "eta_o": 0.221962,
             "score": 1.666146,
+            "radius_km": 1044.53,
+            "fuel_kg_per_km": 2.071,
             "thrust_mode": "afterburner"
           },
           {
@@ -12711,6 +13037,8 @@ module.exports = {
             "eta_p": 0.501585,
             "eta_o": 0.251711,
             "score": 1.322433,
+            "radius_km": 829.05,
+            "fuel_kg_per_km": 2.61,
             "thrust_mode": "afterburner"
           },
           {
@@ -12725,6 +13053,8 @@ module.exports = {
             "eta_p": 0.546646,
             "eta_o": 0.275228,
             "score": 1.346299,
+            "radius_km": 844.01,
+            "fuel_kg_per_km": 2.563,
             "thrust_mode": "afterburner"
           },
           {
@@ -12739,6 +13069,8 @@ module.exports = {
             "eta_p": 0.596013,
             "eta_o": 0.296214,
             "score": 1.368194,
+            "radius_km": 857.74,
+            "fuel_kg_per_km": 2.522,
             "thrust_mode": "afterburner"
           },
           {
@@ -12753,6 +13085,8 @@ module.exports = {
             "eta_p": 0.676225,
             "eta_o": 0.321283,
             "score": 1.362545,
+            "radius_km": 854.2,
+            "fuel_kg_per_km": 2.533,
             "thrust_mode": "afterburner"
           },
           {
@@ -12767,6 +13101,8 @@ module.exports = {
             "eta_p": 0.761103,
             "eta_o": 0.324473,
             "score": 0.563899,
+            "radius_km": 353.52,
+            "fuel_kg_per_km": 6.12,
             "thrust_mode": "afterburner"
           }
         ]
@@ -13019,6 +13355,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13033,6 +13371,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13047,6 +13387,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13061,6 +13403,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13075,6 +13419,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13089,6 +13435,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13103,6 +13451,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -13355,6 +13705,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13369,6 +13721,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13383,6 +13737,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13397,6 +13753,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13411,6 +13769,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13425,6 +13785,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13439,6 +13801,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
@@ -13691,6 +14055,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13705,6 +14071,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13719,6 +14087,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13733,6 +14103,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13747,6 +14119,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13761,6 +14135,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           },
           {
@@ -13775,6 +14151,8 @@ module.exports = {
             "eta_p": null,
             "eta_o": null,
             "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
             "thrust_mode": "afterburner"
           }
         ]
