@@ -194,6 +194,29 @@
         <text class="td">{{item.mixed}}</text>
       </view>
       <view class="note">表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，再插一行「最大半径超音速巡航速度」。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。最佳巡航高度使升阻比×总效率最大。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力，高度可到海平面。极速按阻力等于全部加力（不留巡航裕度）；超过超巡带后附加体积波阻，避免光滑隐身机靠降高把极速估高。</view>
+      <view wx:if="{{dashAbRows.length}}" class="note">最大加力推力下各速度最佳高度（按 L/D×ηo 选高度，全部加力，不留巡航裕度）</view>
+      <block wx:if="{{dashAbRows.length}}">
+        <view class="tr scan th">
+          <text class="th">马赫</text>
+          <text class="th">高度km</text>
+          <text class="th">最佳 L/D</text>
+          <text class="th">加力kN</text>
+          <text class="th">负载</text>
+          <text class="th">热效率</text>
+          <text class="th">推进效率</text>
+          <text class="th">总效率</text>
+        </view>
+        <view class="tr scan" wx:for="{{dashAbRows}}" wx:key="key">
+          <text class="td {{item.ok ? 'target' : ''}}">{{item.mach}}</text>
+          <text class="td {{item.ok ? 'target' : ''}}">{{item.alt}}</text>
+          <text class="td {{item.ok ? 'target' : ''}}">{{item.ld}}</text>
+          <text class="td {{item.ok ? 'target' : ''}}">{{item.thrust}}</text>
+          <text class="td {{item.ok ? 'target' : ''}}">{{item.load}}</text>
+          <text class="td {{item.ok ? 'target' : ''}}">{{item.etaTh}}</text>
+          <text class="td {{item.ok ? 'target' : ''}}">{{item.etaP}}</text>
+          <text class="td {{item.ok ? 'target' : ''}}">{{item.etaO}}</text>
+        </view>
+      </block>
     </block>
   </view>
 

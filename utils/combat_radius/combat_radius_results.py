@@ -119,6 +119,23 @@ def sanitize_dashboard(result: dict[str, Any]) -> dict[str, Any]:
         } if mf else None,
         'points': [sanitize_cruise_point(p) for p in (result.get('points') or [])],
         'max_speed': sanitize_max_speed(result.get('max_speed')),
+        'afterburner_best_altitude': [
+            {
+                'mach': _round(p.get('mach'), 4),
+                'label': p.get('label'),
+                'feasible': bool(p.get('feasible')),
+                'alt_m': _round(p.get('alt_m'), 1),
+                'ld': _round(p.get('ld'), 4),
+                'thrust_avail_kN': _round(p.get('thrust_avail_kN'), 3),
+                'load': _round(p.get('load'), 4),
+                'eta_th': _round(p.get('eta_th'), 6),
+                'eta_p': _round(p.get('eta_p'), 6),
+                'eta_o': _round(p.get('eta_o'), 6),
+                'score': _round(p.get('score'), 6),
+                'thrust_mode': p.get('thrust_mode'),
+            }
+            for p in (result.get('afterburner_best_altitude') or [])
+        ],
     }
 
 

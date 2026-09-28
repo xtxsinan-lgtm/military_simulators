@@ -202,6 +202,21 @@ function dashRowsFrom(r) {
   });
 }
 
+function abBestRowsFrom(r) {
+  return (r.afterburner_best_altitude || []).map((p) => ({
+    key: `ab-${p.mach != null ? String(p.mach) : Math.random()}`,
+    mach: p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—',
+    alt: p.alt_m != null ? fmt(p.alt_m / 1000, 1) : '—',
+    ld: p.ld != null ? fmt(p.ld, 2) : '—',
+    thrust: p.thrust_avail_kN != null ? fmt(p.thrust_avail_kN, 1) : '—',
+    load: p.load != null ? `${fmt(100 * p.load, 1)}%` : '—',
+    etaTh: p.eta_th != null ? `${fmt(100 * p.eta_th, 1)}%` : '—',
+    etaP: p.eta_p != null ? `${fmt(100 * p.eta_p, 1)}%` : '—',
+    etaO: p.eta_o != null ? `${fmt(100 * p.eta_o, 1)}%` : '—',
+    ok: !!p.feasible,
+  }));
+}
+
 Page({
   data: {
     presets: [],
@@ -231,6 +246,7 @@ Page({
     dashMaxPossibleCruise: '—',
     dashVmax: '—',
     dashRows: [],
+    dashAbRows: [],
     resultsMap: {},
     q1Mach: '0.9',
     q1Text: '',
@@ -349,6 +365,7 @@ Page({
       dashMaxPossibleCruise: snap.max_possible_cruise_mach != null ? fmt(snap.max_possible_cruise_mach, 3) : '—',
       dashVmax: ms.feasible ? `${fmt(ms.max_speed_kmh, 0)} km/h` : (ms.fail_reason || '—'),
       dashRows: dashRowsFrom(snap),
+      dashAbRows: abBestRowsFrom(snap),
     });
   },
 
@@ -553,6 +570,7 @@ Page({
           dashMaxPossibleCruise: r.max_possible_cruise_mach != null ? fmt(r.max_possible_cruise_mach, 3) : '—',
           dashVmax: ms.feasible ? `${fmt(ms.max_speed_kmh, 0)} km/h` : (ms.fail_reason || '—'),
           dashRows: dashRowsFrom(r),
+          dashAbRows: abBestRowsFrom(r),
           running: false,
         });
         if (this._dashPending) this.runLiveDash();

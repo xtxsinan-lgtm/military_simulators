@@ -1152,6 +1152,22 @@ def test_run_aircraft_dashboard_from_params_reflects_modified_aircraft_and_engin
     assert l08['radius_km'] != b08['radius_km']
 
 
+def test_run_aircraft_dashboard_includes_afterburner_best_altitudes():
+    """仪表盘须给出各速度在最大加力推力下的最佳高度。"""
+    p = _radius_params()
+    p['max_tsl_kN'] = 156.0
+    dash = run_aircraft_dashboard_from_params(p)
+    assert dash['success'] is True
+    rows = dash['afterburner_best_altitude']
+    assert isinstance(rows, list) and rows
+    m08 = next(item for item in rows if item['mach'] == 0.8)
+    assert m08['feasible'] is True
+    assert m08['alt_m'] > 0
+    assert m08['ld'] > 0
+    assert m08['thrust_mode'] == 'afterburner'
+    assert m08['thrust_avail_kN'] > 0
+
+
 def test_run_aircraft_dashboard_f35c_ab_flyable_has_max_ld():
     """F-35C 加力可飞的 Ma 1.5 须有最大升阻比。"""
     from utils.combat_radius.combat_radius_results import dashboard_params_from_preset

@@ -951,6 +951,13 @@ def test_e2e_combat_radius_dashboard_http_and_mixed():
     result = json.loads(body.decode())
     assert result['success'] is True
     assert 'max_speed' in result
+    assert 'afterburner_best_altitude' in result
+    assert isinstance(result['afterburner_best_altitude'], list) and result['afterburner_best_altitude']
+    ab08 = next((pt for pt in result['afterburner_best_altitude'] if pt['mach'] == pytest.approx(0.8)), None)
+    assert ab08 is not None
+    assert ab08['feasible'] is True
+    assert ab08['alt_m'] > 0
+    assert ab08['thrust_mode'] == 'afterburner'
     assert any(pt['id'] == 'mach_2_0' for pt in result['points'])
     m20 = next(pt for pt in result['points'] if pt['id'] == 'mach_2_0')
     assert m20.get('max_ld') is not None and m20['max_ld'] > 0

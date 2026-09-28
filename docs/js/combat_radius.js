@@ -602,6 +602,27 @@ function renderDash(r, sourceLabel) {
       <td>${fmt(p.fuel_kg_per_km, 2)}</td>
     </tr>`;
   }).join('');
+  const abRows = (r.afterburner_best_altitude || []).map((p) => {
+    const alt = p.alt_m != null ? fmt(p.alt_m / 1000, 1) : '—';
+    const ld = p.ld != null ? fmt(p.ld, 2) : '—';
+    const thrust = p.thrust_avail_kN != null ? fmt(p.thrust_avail_kN, 1) : '—';
+    const load = p.load != null ? pct(p.load) : '—';
+    const etaTh = p.eta_th != null ? pct(p.eta_th) : '—';
+    const etaP = p.eta_p != null ? pct(p.eta_p) : '—';
+    const etaO = p.eta_o != null ? pct(p.eta_o) : '—';
+    const mach = p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—';
+    const rowClass = p.feasible ? 'target' : '';
+    return `<tr class="${rowClass}">
+      <td>${mach}</td>
+      <td>${alt}</td>
+      <td>${ld}</td>
+      <td>${thrust}</td>
+      <td>${load}</td>
+      <td>${etaTh}</td>
+      <td>${etaP}</td>
+      <td>${etaO}</td>
+    </tr>`;
+  }).join('');
   $('dashBox').innerHTML = `
     <div class="stat-row">
       <div class="stat"><div class="k">实用最大巡航速度</div><div class="v amber">${r.max_cruise_mach != null ? `Ma ${fmt(r.max_cruise_mach, 3)}` : '—'}</div></div>
@@ -616,6 +637,15 @@ function renderDash(r, sourceLabel) {
           <th>热效率</th><th>推进效率</th><th>总效率</th><th>半径 km</th><th>混合作战半径</th><th>平均油耗 kg/km</th>
         </tr></thead>
         <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="scroll-x" style="margin-top: 12px;">
+      <h3 style="margin: 0 0 8px; font-size: 14px; color: #f6c453;">最大加力推力下的各速度最佳高度</h3>
+      <table>
+        <thead><tr>
+          <th>马赫</th><th>高度 km</th><th>最佳 L/D</th><th>加力 kN</th><th>负载</th><th>热效率</th><th>推进效率</th><th>总效率</th>
+        </tr></thead>
+        <tbody>${abRows || '<tr><td colspan="8">无加力最佳高度数据</td></tr>'}</tbody>
       </table>
     </div>
     <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高。表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，再插一行「最大半径超音速巡航速度」。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力（不留巡航裕度），高度可到海平面。极速按阻力等于全部加力，各马赫取最大升阻比后再取真速最大点；超过超巡带后附加体积波阻，避免光滑隐身机靠降高把极速估高。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。</p>

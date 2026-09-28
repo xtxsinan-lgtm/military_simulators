@@ -1122,6 +1122,57 @@ def compact_max_speed(result: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _afterburner_best_altitude_profile(
+    params: dict[str, Any],
+    ctx: CruiseContext,
+    alt_min_m: float,
+    alt_max_m: float,
+    coarse_m: float,
+    refine_m: float,
+) -> list[dict[str, Any]]:
+    """在最大加力推力下，给各固定速度搜索最佳巡航高度。"""
+    ab_ctx = _optional_ab_context(ctx, params)
+    if ab_ctx is None:
+        return []
+    rows: list[dict[str, Any]] = []
+    for mach in FIXED_MACHS:
+        try:
+            scored = search_best_altitude(ab_ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m)
+        except ValueError:
+            scored = None
+        if scored is None:
+            rows.append({
+                'mach': mach,
+                'label': f'Ma {mach:g}',
+                'feasible': False,
+                'alt_m': None,
+                'ld': None,
+                'thrust_avail_kN': None,
+                'load': None,
+                'eta_th': None,
+                'eta_p': None,
+                'eta_o': None,
+                'score': None,
+                'thrust_mode': 'afterburner',
+            })
+            continue
+        packed = scored_to_dict(scored)
+        packed.update({
+            'mach': mach,
+            'label': f'Ma {mach:g}',
+            'feasible': bool(scored.feasible),
+            'thrust_mode': 'afterburner',
+            'thrust_avail_kN': scored.thrust_avail_N / 1000.0,
+            'load': scored.load,
+            'eta_th': scored.eta_th,
+            'eta_p': scored.eta_p,
+            'eta_o': scored.eta_o,
+            'score': scored.score,
+        })
+        rows.append(packed)
+    return rows
+
+
 def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """机型仪表盘：最大巡航、极速、各马赫作战半径与混合作战半径。
 
@@ -1147,6 +1198,49 @@ def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]
     except ValueError as exc:
         max_speed_block['fail_reason'] = str(exc)
     radius['max_speed'] = max_speed_block
+
+    try:
+        target, cf0, k_e = _calibrate_from_params(params)
+        n_engines = _optional_int(params.get('n_engines'), 1)
+        n_missiles = float(params.get('n_missiles', N_MISSILES_DEFAULT))
+        cruise_mass = combat_mass_breakdown(
+            empty_kg=float(params['empty_kg']),
+            internal_fuel_kg=float(params['internal_fuel_kg']),
+            n_pilots=float(params.get('n_pilots', 1)),
+            missile_mass_kg=float(params.get('missile_mass_kg', 0)),
+            n_missiles=n_missiles,
+            fuel_fraction=0.5,
+        )
+        t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
+        ctx = CruiseContext(
+            target=target,
+            cf0=cf0,
+            k_e=k_e,
+            mass_kg=cruise_mass['total_kg'],
+            n_engines=n_engines,
+            bpr=float(params['bpr']),
+            opr=float(params['opr']),
+            t4_K=t4max,
+            tsl_N=parse_sea_level_thrust_n(params),
+            eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
+            fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
+            fpr=_optional_float(params.get('FPR', params.get('fan_pr_override'))),
+            eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
+            etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
+            acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
+            t4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
+            thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
+            tsfc_install_mult=parse_tsfc_install_mult(params.get('tsfc_install_mult')),
+        )
+        alt_min = float(params['alt_min_m']) if params.get('alt_min_m') not in (None, '') else ALT_MIN_M
+        alt_max = float(params['alt_max_m']) if params.get('alt_max_m') not in (None, '') else ALT_MAX_M
+        coarse_m = float(params['alt_coarse_m']) if params.get('alt_coarse_m') not in (None, '') else ALT_COARSE_M
+        refine_m = float(params['alt_refine_m']) if params.get('alt_refine_m') not in (None, '') else ALT_REFINE_M
+        radius['afterburner_best_altitude'] = _afterburner_best_altitude_profile(
+            params, ctx, alt_min, alt_max, coarse_m, refine_m,
+        )
+    except Exception:
+        radius['afterburner_best_altitude'] = []
     return radius
 
 
