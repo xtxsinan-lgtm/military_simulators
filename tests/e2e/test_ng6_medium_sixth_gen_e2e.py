@@ -44,12 +44,12 @@ def test_e2e_ng6_catalog_and_combat_radius():
             tgt['n_pilots'], tgt['missile_mass_kg'],
         ), abs=1e-6), aid
 
-    assert aircraft['NG6C'].a2a_mass_kg == pytest.approx(14200 + 11360 + 100 + 840)
-    assert aircraft['NG6B'].a2a_mass_kg == pytest.approx(13840 + 9360 + 100 + 840)
+    assert aircraft['NG6C'].a2a_mass_kg == pytest.approx(15900 + 11360 + 100 + 840)
+    assert aircraft['NG6B'].a2a_mass_kg == pytest.approx(14900 + 9360 + 100 + 840)
     assert get_preset_by_id(presets, 'NG6B')['internal_fuel_kg'] == pytest.approx(9360)
     assert get_preset_by_id(presets, 'NG6A')['internal_fuel_kg'] == pytest.approx(10570)
-    assert get_preset_by_id(presets, 'NG6B')['empty_kg'] == pytest.approx(13840)
-    assert get_preset_by_id(presets, 'NG6A')['empty_kg'] == pytest.approx(12340)
+    assert get_preset_by_id(presets, 'NG6B')['empty_kg'] == pytest.approx(14900)
+    assert get_preset_by_id(presets, 'NG6A')['empty_kg'] == pytest.approx(13400)
 
     assert get_preset_by_id(presets, 'NG6C')['wing_area_m2'] == pytest.approx(70.8)
     assert get_preset_by_id(presets, 'NG6B')['wing_area_m2'] == pytest.approx(55.7)

@@ -281,7 +281,7 @@ def test_load_combat_radius_aircraft_csv():
         assert ng6['layout'] == 'conventional', aid
     ng6b = next(r for r in rows if r['id'] == 'NG6B')
     assert ng6b['internal_fuel_kg'] == pytest.approx(9360)
-    assert ng6b['empty_kg'] == pytest.approx(13840)
+    assert ng6b['empty_kg'] == pytest.approx(14900)
     assert 'J-15' in ids
     assert 'FA-18C' in ids
     assert 'AV-8B' not in ids
