@@ -13,7 +13,7 @@ import {
 
 const PYODIDE_VERSION = '0.26.4';
 /** 与 takeoff.html 中 app.js?v= 及 data.json?v= 同步递增，避免 CDN/浏览器缓存旧资源 */
-const APP_VERSION = 43;
+const APP_VERSION = 44;
 /** 让出主线程的毫秒数：须覆盖一次样式绘制，使按钮变灰与等待光标生效 */
 const UI_PAINT_YIELD_MS = 40;
 /** 引擎加载或仿真计算中，防止二次点击在阻塞前再次进入 */

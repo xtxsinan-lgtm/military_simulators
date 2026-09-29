@@ -307,34 +307,40 @@ def test_ng6_medium_sixth_gen_presets():
     assert a['name'] == '中型六代机空军型'
     assert c['planform'] == b['planform'] == a['planform'] == 'lambda'
     assert c['layout'] == b['layout'] == a['layout'] == 'conventional'
-    assert '15.4 m²' in c['notes'] and '常规构型' in c['notes']
-    assert '12.1 m²' in b['notes'] and '常规构型' in b['notes']
-    assert '12.1 m²' in a['notes'] and '常规构型' in a['notes']
-    assert c['engine_id'] == a['engine_id'] == 'ws15i'
-    assert b['engine_id'] == 'f135b'
+    assert '16.7 m²' in c['notes'] and '常规构型' in c['notes']
+    assert '13.1 m²' in b['notes'] and '常规构型' in b['notes']
+    assert '13.1 m²' in a['notes'] and '常规构型' in a['notes']
+    assert '折叠翼展 6.7 m' in c['notes'] and '弹仓长 5.1 m' in c['notes']
+    assert '折叠翼展 6.1 m' in b['notes'] and '弹仓长 4.4 m' in b['notes']
+    assert '弹仓长 5.7 m' in a['notes'] and '折叠翼展' not in a['notes']
+    assert c['engine_id'] == a['engine_id'] == 'ws15g'
+    assert b['engine_id'] == 'ws15gv'
     assert c['n_engines'] == b['n_engines'] == a['n_engines'] == 1
     assert c['carrier'] is True
     assert b['carrier'] is True
     assert a['carrier'] is False
-    assert c['length_m'] == b['length_m'] == a['length_m'] == pytest.approx(17.0)
-    assert c['wingspan_m'] == pytest.approx(12.8)
-    assert b['wingspan_m'] == a['wingspan_m'] == pytest.approx(11.6)
-    assert c['AR'] == pytest.approx(2.50, abs=0.01)
-    assert b['AR'] == a['AR'] == pytest.approx(11.6 ** 2 / 51.3, abs=0.005)
+    assert c['length_m'] == b['length_m'] == a['length_m'] == pytest.approx(17.7)
+    assert c['wingspan_m'] == pytest.approx(13.3)
+    assert b['wingspan_m'] == a['wingspan_m'] == pytest.approx(12.1)
+    assert c['AR'] == pytest.approx(13.3 ** 2 / 70.8, abs=0.005)
+    assert b['AR'] == a['AR'] == pytest.approx(12.1 ** 2 / 55.7, abs=0.005)
     assert c['fuse_width_m'] == b['fuse_width_m'] == a['fuse_width_m'] == pytest.approx(3.40)
     assert c['fuse_height_m'] == b['fuse_height_m'] == a['fuse_height_m'] == pytest.approx(1.97)
-    assert c['main_wing_area_m2'] == pytest.approx(36.0)
-    assert b['main_wing_area_m2'] == a['main_wing_area_m2'] == pytest.approx(28.7)
-    assert c['canard_htail_area_m2'] == pytest.approx(15.4)
-    assert b['canard_htail_area_m2'] == a['canard_htail_area_m2'] == pytest.approx(12.1)
-    assert c['wing_area_m2'] == pytest.approx(65.3)
-    assert b['wing_area_m2'] == a['wing_area_m2'] == pytest.approx(51.3)
-    assert c['empty_kg'] == pytest.approx(13800)
-    assert b['empty_kg'] == pytest.approx(13400)
-    assert a['empty_kg'] == pytest.approx(12000)
-    assert c['internal_fuel_kg'] == pytest.approx(10350)
-    assert b['internal_fuel_kg'] == pytest.approx(7250)
-    assert a['internal_fuel_kg'] == pytest.approx(9650)
+    assert c['main_wing_area_m2'] == pytest.approx(39.0)
+    assert b['main_wing_area_m2'] == a['main_wing_area_m2'] == pytest.approx(31.2)
+    assert c['canard_htail_area_m2'] == pytest.approx(16.7)
+    assert b['canard_htail_area_m2'] == a['canard_htail_area_m2'] == pytest.approx(13.1)
+    assert c['wing_area_m2'] == pytest.approx(70.8)
+    assert b['wing_area_m2'] == a['wing_area_m2'] == pytest.approx(55.7)
+    assert c['empty_kg'] == pytest.approx(14200)
+    assert b['empty_kg'] == pytest.approx(13840)
+    assert a['empty_kg'] == pytest.approx(12340)
+    assert c['internal_fuel_kg'] == pytest.approx(11360)
+    assert b['internal_fuel_kg'] == pytest.approx(9360)
+    assert a['internal_fuel_kg'] == pytest.approx(10570)
+    assert c['max_payload_kg'] == pytest.approx(3500)
+    assert b['max_payload_kg'] == pytest.approx(2700)
+    assert a['max_payload_kg'] == pytest.approx(3500)
     assert c['sweep_deg'] == pytest.approx(49.3)
     assert b['sweep_deg'] == a['sweep_deg'] == pytest.approx(48.0)
     assert c['mach_angle_deg'] == pytest.approx(29.3)
@@ -345,13 +351,13 @@ def test_ng6_medium_sixth_gen_presets():
     assert b['tc'] == a['tc'] == pytest.approx(0.05)
     from utils.combat_radius.cruise_load import wing_loading_t_m2
     assert c['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        13800, 10350, 65.3, 1, 210,
+        14200, 11360, 70.8, 1, 210,
     ), abs=1e-6)
     assert b['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        13400, 7250, 51.3, 1, 210,
+        13840, 9360, 55.7, 1, 210,
     ), abs=1e-6)
     assert a['wing_loading'] == pytest.approx(wing_loading_t_m2(
-        12000, 9650, 51.3, 1, 210,
+        12340, 10570, 55.7, 1, 210,
     ), abs=1e-6)
 
 
@@ -526,6 +532,8 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
     expected = {
         'ws15': (0.25, 25.5, 1841.0),
         'ws15i': (0.25, 29.0, 1975.0),
+        'ws15g': (0.475, 29.0, 1975.0),
+        'ws15gv': (0.475, 29.0, 1975.0),
         'ws19': (0.50, 35.0, 1850.0),
         'ws10c': (0.60, 30.0, 1800.0),
         'ws10b': (0.60, 30.0, 1800.0),
@@ -580,6 +588,17 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
     assert f135b['tsfc_install_mult'] == pytest.approx(1.22)
     assert f135b['tsl_kN'] == pytest.approx(120.0)
     assert f135b['max_tsl_kN'] == pytest.approx(182.0)
+    ws15g = get_preset_by_id(engines, 'ws15g')
+    ws15gv = get_preset_by_id(engines, 'ws15gv')
+    assert ws15g is not None and ws15gv is not None
+    assert ws15g['name'] == '涡扇15改'
+    assert ws15gv['name'] == '涡扇15改垂起'
+    assert ws15g['bpr'] == pytest.approx(0.475)
+    assert ws15gv['bpr'] == pytest.approx(0.475)
+    assert ws15g['tsl_kN'] == pytest.approx(14.6 * 9.80665, abs=0.05)
+    assert ws15g['max_tsl_kN'] == pytest.approx(21.8 * 9.80665, abs=0.05)
+    assert ws15gv['tsl_kN'] == pytest.approx(14.0 * 9.80665, abs=0.05)
+    assert ws15gv['max_tsl_kN'] == pytest.approx(20.7 * 9.80665, abs=0.05)
     al41 = get_preset_by_id(engines, 'al41f1')
     assert al41 is not None
     assert al41['name'] == 'AL-41F1'

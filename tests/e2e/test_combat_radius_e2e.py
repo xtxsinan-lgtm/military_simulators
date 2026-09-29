@@ -838,11 +838,11 @@ def test_e2e_f135_pw600_split_from_pw100():
     assert get_preset_by_id(presets, 'F-35A')['engine_id'] == 'f135'
     assert get_preset_by_id(presets, 'F-35C')['engine_id'] == 'f135'
     assert get_preset_by_id(presets, 'F-35B')['engine_id'] == 'f135b'
-    assert get_preset_by_id(presets, 'NG6B')['engine_id'] == 'f135b'
+    assert get_preset_by_id(presets, 'NG6B')['engine_id'] == 'ws15gv'
     ng6b = run_preset_dashboard('NG6B')
     f35b = run_preset_dashboard('F-35B')
     assert ng6b['success'] is True and f35b['success'] is True
-    assert 'F135-PW-600' in ng6b['name']
+    assert '涡扇15改垂起' in ng6b['name']
     assert 'F135-PW-600' in f35b['name']
     f35c = run_preset_dashboard('F-35C')
     assert 'F135-PW-100' in f35c['name']

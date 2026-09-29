@@ -77,8 +77,8 @@ def test_load_aircraft_csv_count():
     assert 'A-5' in aircraft
     assert aircraft['NG6C'].type_label == 'conventional'
     assert aircraft['NG6B'].type_label == 'v/stol'
-    assert aircraft['NG6C'].t_max_sl_n == pytest.approx(185000)
-    assert aircraft['NG6B'].t_liftfan_sl_n == pytest.approx(83260)
+    assert aircraft['NG6C'].t_max_sl_n == pytest.approx(round(21.8 * 1000 * 9.80665))
+    assert aircraft['NG6B'].t_liftfan_sl_n == pytest.approx(93317)
     assert aircraft['J-10C'].t_max_sl_n == pytest.approx(144000)
     assert aircraft['J-20'].t_max_sl_n == pytest.approx(312000)
     assert aircraft['F-35A'].t_max_sl_n == pytest.approx(191000)
@@ -274,14 +274,14 @@ def test_load_combat_radius_aircraft_csv():
     ]
     for aid in ('NG6C', 'NG6B', 'NG6A'):
         ng6 = next(r for r in rows if r['id'] == aid)
-        expected_htail = 15.4 if aid == 'NG6C' else 12.1
+        expected_htail = 16.7 if aid == 'NG6C' else 13.1
         assert ng6['canard_htail_area_m2'] == pytest.approx(expected_htail), aid
         expected_phi = 29.3 if aid == 'NG6C' else 27.3
         assert ng6['mach_angle_deg'] == pytest.approx(expected_phi), aid
         assert ng6['layout'] == 'conventional', aid
     ng6b = next(r for r in rows if r['id'] == 'NG6B')
-    assert ng6b['internal_fuel_kg'] == pytest.approx(7250)
-    assert ng6b['empty_kg'] == pytest.approx(13400)
+    assert ng6b['internal_fuel_kg'] == pytest.approx(9360)
+    assert ng6b['empty_kg'] == pytest.approx(13840)
     assert 'J-15' in ids
     assert 'FA-18C' in ids
     assert 'AV-8B' not in ids
