@@ -960,6 +960,9 @@ def test_e2e_combat_radius_dashboard_http_and_mixed():
     assert ab08.get('radius_km') is not None and ab08['radius_km'] > 0
     assert ab08['thrust_mode'] == 'military'
     assert ab08.get('reheat') is False
+    assert ab08.get('ab_ceiling_m') is not None and ab08['ab_ceiling_m'] > 0
+    assert ab08.get('ab_ceiling_km') is not None
+    assert ab08['ab_ceiling_km'] == pytest.approx(ab08['ab_ceiling_m'] / 1000.0, abs=1e-6)
     assert any(pt['id'] == 'mach_2_0' for pt in result['points'])
     m20 = next(pt for pt in result['points'] if pt['id'] == 'mach_2_0')
     assert m20.get('max_ld') is not None and m20['max_ld'] > 0
@@ -968,6 +971,62 @@ def test_e2e_combat_radius_dashboard_http_and_mixed():
     supers = [pt for pt in result['points'] if pt.get('feasible') and (pt.get('mach') or 0) > 1]
     if supers:
         assert any(pt.get('mixed_radius_km') for pt in supers)
+
+
+@pytest.mark.e2e
+def test_e2e_afterburner_ceiling_in_dashboard():
+    """aircraft_dashboard 仪表盘须为每个固定马赫点返回 ab_ceiling_m（加力升限）。"""
+    p = _radius_params()
+    p['max_tsl_kN'] = 156.0
+    result = run_combat_radius_json({'action': 'aircraft_dashboard', 'params': p})
+    assert result['success'] is True
+    ab_rows = result.get('afterburner_best_altitude', [])
+    assert ab_rows, '加力剖面不能为空'
+    for row in ab_rows:
+        mach = row.get('mach')
+        assert row.get('ab_ceiling_m') is not None, f'Ma {mach} 缺少 ab_ceiling_m'
+        assert row['ab_ceiling_m'] > 0, f'Ma {mach} 加力升限须为正'
+        assert row.get('ab_ceiling_km') == pytest.approx(row['ab_ceiling_m'] / 1000.0, abs=1e-6)
+    for row in ab_rows:
+        assert 0 < row['ab_ceiling_m'] <= 20000.0, f'Ma {row["mach"]} 加力升限须在 0–20 km'
+
+
+@pytest.mark.e2e
+def test_e2e_search_afterburner_ceiling_function():
+    """search_afterburner_ceiling 须返回加力可平飞的最大高度（92% 裕度）。"""
+    from utils.combat_radius.cruise_search import CruiseContext, search_afterburner_ceiling
+    from utils.combat_radius.lift_drag import aircraft_from_dict, model_coefficients
+    from utils.combat_radius.cruise_load import combat_mass_breakdown
+    from utils.combat_radius.max_speed_search import MAX_SPEED_THRUST_MARGIN
+
+    presets = load_presets()
+    engines = load_engine_presets()
+    f22 = get_preset_by_id(presets, 'F-22')
+    f119 = get_preset_by_id(engines, 'f119')
+    cf0, k_e = model_coefficients()
+    target = aircraft_from_dict(f22)
+    mass = combat_mass_breakdown(
+        empty_kg=f22['empty_kg'],
+        internal_fuel_kg=f22['internal_fuel_kg'],
+        n_pilots=f22['n_pilots'],
+        missile_mass_kg=f22['missile_mass_kg'],
+        n_missiles=4,
+        fuel_fraction=0.5,
+    )
+    ab_ctx = CruiseContext(
+        target=target, cf0=cf0, k_e=k_e,
+        mass_kg=mass['total_kg'],
+        n_engines=f22['n_engines'],
+        bpr=f119['bpr'], opr=f119['opr'], t4_K=f119['t4_K'],
+        tsl_N=f119['max_tsl_kN'] * 1000.0,
+        thrust_margin=MAX_SPEED_THRUST_MARGIN,
+    )
+    ceil08 = search_afterburner_ceiling(ab_ctx, 0.8)
+    ceil20 = search_afterburner_ceiling(ab_ctx, 2.0)
+    assert ceil08 is not None and ceil08 > 0
+    assert ceil08 <= 20000.0
+    assert ceil20 is not None and ceil20 > 0
+    assert ceil20 <= 20000.0
 
 
 @pytest.mark.e2e

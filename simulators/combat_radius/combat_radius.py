@@ -67,6 +67,7 @@ from utils.combat_radius.cruise_search import (
     scan_best_altitude_profile,
     score_cruise_point,
     scored_to_dict,
+    search_afterburner_ceiling,
     search_best_afterburner_altitude,
     search_best_altitude,
     search_max_possible_cruise_mach,
@@ -1163,6 +1164,18 @@ def _afterburner_best_altitude_profile(
             )
         except ValueError:
             scored = None
+        ab_ceiling_m: float | None = None
+        try:
+            ab_ceiling_m = search_afterburner_ceiling(
+                ab_ctx,
+                mach,
+                MAX_SPEED_ALT_MIN_M,
+                MAX_SPEED_ALT_MAX_M,
+                MAX_SPEED_ALT_COARSE_M,
+                MAX_SPEED_ALT_REFINE_M,
+            )
+        except ValueError:
+            ab_ceiling_m = None
         if scored is None:
             rows.append({
                 'mach': mach,
@@ -1181,6 +1194,8 @@ def _afterburner_best_altitude_profile(
                 'fuel_kg_per_km': None,
                 'reheat': False,
                 'thrust_mode': 'afterburner',
+                'ab_ceiling_m': ab_ceiling_m,
+                'ab_ceiling_km': ab_ceiling_m / 1000.0 if ab_ceiling_m is not None else None,
             })
             continue
         packed = scored_to_dict(scored)
@@ -1199,6 +1214,8 @@ def _afterburner_best_altitude_profile(
             'radius_m': None,
             'radius_km': None,
             'fuel_kg_per_km': None,
+            'ab_ceiling_m': ab_ceiling_m,
+            'ab_ceiling_km': ab_ceiling_m / 1000.0 if ab_ceiling_m is not None else None,
         })
         if (
             packed.get('feasible')

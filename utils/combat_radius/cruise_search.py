@@ -746,6 +746,33 @@ def build_altitude_scan(
     ]
 
 
+def search_afterburner_ceiling(
+    ab_ctx: CruiseContext,
+    mach: float,
+    alt_min_m: float = 0.0,
+    alt_max_m: float = 20000.0,
+    coarse_m: float = ALT_COARSE_M,
+    refine_m: float = ALT_REFINE_M,
+    ceiling_margin: float = THRUST_MARGIN_DEFAULT,
+) -> float | None:
+    """加力升限：该马赫下阻力不超过 ceiling_margin × 加力推力的最大飞行高度。"""
+    ceiling_ctx = replace(ab_ctx, thrust_margin=ceiling_margin)
+    best_alt: float | None = None
+    for alt in altitude_grid(alt_min_m, alt_max_m, coarse_m):
+        forces = try_cruise_forces(ceiling_ctx, mach, alt)
+        if forces is not None and forces.feasible:
+            best_alt = alt  # 升序网格，最后一个可行点即最高高度
+    if best_alt is None:
+        return None
+    lo = best_alt
+    hi = min(alt_max_m, best_alt + coarse_m)
+    for alt in altitude_grid(lo, hi, refine_m):
+        forces = try_cruise_forces(ceiling_ctx, mach, alt)
+        if forces is not None and forces.feasible:
+            best_alt = alt
+    return best_alt
+
+
 def scored_to_dict(point: CruiseScored) -> dict[str, Any]:
     """巡航评分点 → JSON 字段（不含布雷盖半径，由上层补）。"""
     return {

@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 79;
+const APP_VERSION = 80;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -575,18 +575,50 @@ function renderDash(r, sourceLabel) {
   const vmax = ms.feasible
     ? `${fmt(ms.max_speed_kmh, 0)} km/h · Ma ${fmt(ms.max_speed_mach, 3)}`
     : (ms.fail_reason || '不可用');
-  const rows = (r.points || []).map((p) => {
+
+  /** 加力剖面按马赫建索引，供合并表查找升限与备用行。 */
+  const abMap = {};
+  (r.afterburner_best_altitude || []).forEach((p) => {
+    if (p.mach != null) abMap[p.mach] = p;
+  });
+
+  const mergedRows = (r.points || []).map((p) => {
+    const speed = cruiseSpeedLabel(p);
+    const ab = abMap[p.mach];
+    const abCeiling = ab && ab.ab_ceiling_km != null ? fmt(ab.ab_ceiling_km, 1) : '—';
     const maxLd = p.max_ld != null ? fmt(p.max_ld, 2) : '—';
     const maxLdAlt = p.max_ld_alt_m != null ? fmt(p.max_ld_alt_m / 1000, 1) : '—';
-    const mode = thrustModeLabel(p.max_ld_thrust_mode);
-    const speed = cruiseSpeedLabel(p);
+    const maxLdMode = thrustModeLabel(p.max_ld_thrust_mode);
+
     if (!p.feasible) {
+      /** 军推无解：若加力可行则显示加力行 */
+      if (ab && ab.feasible) {
+        const mixed = ab.mach != null && ab.mach > 1 ? '—' : '不适用';
+        const mode = ab.reheat ? '加力' : '军推';
+        return `<tr class="target">
+          <td>${speed}</td>
+          <td>${mode}</td>
+          <td>${fmt((ab.alt_m || 0) / 1000, 1)}</td>
+          <td>${ab.ld != null ? fmt(ab.ld, 2) : '—'}</td>
+          <td>${maxLd}</td>
+          <td>${ab.thrust_avail_kN != null ? fmt(ab.thrust_avail_kN, 1) : '—'}</td>
+          <td>${ab.load != null ? pct(ab.load) : '—'}</td>
+          <td>${ab.eta_th != null ? pct(ab.eta_th) : '—'}</td>
+          <td>${ab.eta_p != null ? pct(ab.eta_p) : '—'}</td>
+          <td>${ab.eta_o != null ? pct(ab.eta_o) : '—'}</td>
+          <td>${ab.radius_km != null ? fmt(ab.radius_km, 0) : '—'}</td>
+          <td>${mixed}</td>
+          <td>${abCeiling}</td>
+          <td>${ab.fuel_kg_per_km != null ? fmt(ab.fuel_kg_per_km, 2) : '—'}</td>
+        </tr>`;
+      }
       return `<tr>
         <td>${speed}</td>
+        <td>—</td>
         <td>${maxLdAlt}</td>
         <td>—</td>
         <td>${maxLd}</td>
-        <td colspan="8">${mode}可飞 · ${p.fail_reason || '无满足 92% 推力裕度的高度'}</td>
+        <td colspan="9">${maxLdMode}可飞 · ${p.fail_reason || '无满足 92% 推力裕度的高度'}</td>
       </tr>`;
     }
     const mixed = p.mach != null && p.mach > 1
@@ -594,6 +626,7 @@ function renderDash(r, sourceLabel) {
       : '不适用';
     return `<tr class="target">
       <td>${speed}</td>
+      <td>军推</td>
       <td>${fmt((p.alt_m || 0) / 1000, 1)}</td>
       <td>${fmt(p.ld, 2)}</td>
       <td>${maxLd}</td>
@@ -604,36 +637,11 @@ function renderDash(r, sourceLabel) {
       <td>${pct(p.eta_o)}</td>
       <td>${fmt(p.radius_km, 0)}</td>
       <td>${mixed}</td>
+      <td>${abCeiling}</td>
       <td>${fmt(p.fuel_kg_per_km, 2)}</td>
     </tr>`;
   }).join('');
-  const abRows = (r.afterburner_best_altitude || []).map((p) => {
-    const alt = p.alt_m != null ? fmt(p.alt_m / 1000, 1) : '—';
-    const ld = p.ld != null ? fmt(p.ld, 2) : '—';
-    const thrust = p.thrust_avail_kN != null ? fmt(p.thrust_avail_kN, 1) : '—';
-    const load = p.load != null ? pct(p.load) : '—';
-    const etaTh = p.eta_th != null ? pct(p.eta_th) : '—';
-    const etaP = p.eta_p != null ? pct(p.eta_p) : '—';
-    const etaO = p.eta_o != null ? pct(p.eta_o) : '—';
-    const mach = p.mach != null ? `Ma ${fmt(p.mach, 3)}` : '—';
-    const radius = p.radius_km != null ? fmt(p.radius_km, 0) : '—';
-    const fuel = p.fuel_kg_per_km != null ? fmt(p.fuel_kg_per_km, 2) : '—';
-    const mode = p.feasible ? (p.reheat ? '加力' : '军推') : '—';
-    const rowClass = p.feasible ? 'target' : '';
-    return `<tr class="${rowClass}">
-      <td>${mach}</td>
-      <td>${alt}</td>
-      <td>${ld}</td>
-      <td>${thrust}</td>
-      <td>${load}</td>
-      <td>${etaTh}</td>
-      <td>${etaP}</td>
-      <td>${etaO}</td>
-      <td>${mode}</td>
-      <td>${radius}</td>
-      <td>${fuel}</td>
-    </tr>`;
-  }).join('');
+
   $('dashBox').innerHTML = `
     <div class="stat-row">
       <div class="stat"><div class="k">实用最大巡航速度</div><div class="v amber">${r.max_cruise_mach != null ? `Ma ${fmt(r.max_cruise_mach, 3)}` : '—'}</div></div>
@@ -644,23 +652,13 @@ function renderDash(r, sourceLabel) {
     <div class="scroll-x">
       <table>
         <thead><tr>
-          <th>速度/马赫</th><th>高度 km</th><th>最佳 L/D</th><th>最大 L/D</th><th>军推 kN</th><th>负载</th>
-          <th>热效率</th><th>推进效率</th><th>总效率</th><th>半径 km</th><th>混合作战半径</th><th>平均油耗 kg/km</th>
+          <th>速度/马赫</th><th>状态</th><th>高度 km</th><th>最佳 L/D</th><th>最大 L/D</th><th>推力 kN</th><th>负载</th>
+          <th>热效率</th><th>推进效率</th><th>总效率</th><th>半径 km</th><th>混合作战半径</th><th>加力升限 km</th><th>平均油耗 kg/km</th>
         </tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody>${mergedRows}</tbody>
       </table>
     </div>
-    <div class="scroll-x" style="margin-top: 12px;">
-      <h3 style="margin: 0 0 8px; font-size: 14px; color: #f6c453;">最大加力推力下的各速度最佳高度与作战半径</h3>
-      <table>
-        <thead><tr>
-          <th>马赫</th><th>高度 km</th><th>最佳 L/D</th><th>加力 kN</th><th>负载</th><th>热效率</th><th>推进效率</th><th>总效率</th>
-          <th>状态</th><th>半径 km</th><th>平均油耗 kg/km</th>
-        </tr></thead>
-        <tbody>${abRows || '<tr><td colspan="11">无加力最佳高度数据</td></tr>'}</tbody>
-      </table>
-    </div>
-    <p class="note">${sourceLabel} 最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高。表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，再插一行「最大半径超音速巡航速度」。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力（不留巡航裕度），高度可到海平面。极速按阻力等于全部加力，各马赫取最大升阻比后再取真速最大点；超过超巡带后附加体积波阻，避免光滑隐身机靠降高把极速估高。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。加力表高度与极速同一包线（可到海平面）。阻力不超过军推时不开加力，油耗按军推节流；超过军推才按加力燃油（全加力 TSFC 约为军推最大点的 2.2 倍）。负载是阻力占加力推力的比例。</p>
+    <p class="note">${sourceLabel} 状态「军推」表示该速度下军推可行（92% 裕度），「加力」表示军推不够、改用加力最佳高度。最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高。表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，再插一行「最大半径超音速巡航速度」。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力（不留巡航裕度），高度可到海平面。极速按阻力等于全部加力，各马赫取最大升阻比后再取真速最大点；超过超巡带后附加体积波阻，避免光滑隐身机靠降高把极速估高。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。加力升限按阻力不超过 92% 加力推力的最大飞行高度（与极速同一包线，可到海平面）。阻力不超过军推时不开加力，油耗按军推节流；超过军推才按加力燃油（全加力 TSFC 约为军推最大点的 2.2 倍）。负载是阻力占推力的比例。</p>
   `;
   $('dashStatus').textContent = 'READY';
 }
