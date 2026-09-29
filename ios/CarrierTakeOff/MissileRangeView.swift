@@ -10,7 +10,7 @@ struct MissileRangeView: View {
                 Text("导弹射程估算终端")
                     .font(.system(size: 16, weight: .semibold, design: .monospaced))
                     .foregroundStyle(MissileRangeTheme.green)
-                Text("HGV RANGE · BOOST + GLIDE")
+                Text("RANGE · HGV / RAM / CRUISE / BALLISTIC")
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(MissileRangeTheme.textDim)
                 Text(vm.statusText)
@@ -18,9 +18,17 @@ struct MissileRangeView: View {
                     .foregroundStyle(MissileRangeTheme.green)
 
                 panel(title: "弹体与发射条件", tag: "INPUT") {
-                    Text("选择预设后填入尺寸、战斗部、构型与空射条件。估算按两级固体助推与升阻比滑翔航程。点表中一行可切换预设。")
+                    Text(vm.classBlurb)
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(MissileRangeTheme.textDim)
+                    Picker("弹种", selection: $vm.missileClass) {
+                        ForEach(vm.classOptions) { item in
+                            Text(item.label).tag(item.id)
+                        }
+                    }
+                    .onChange(of: vm.missileClass) { _, newId in
+                        vm.setClass(newId)
+                    }
                     Picker("预设样本", selection: $vm.selectedId) {
                         ForEach(vm.cases) { item in
                             Text(item.name).tag(item.id)
@@ -34,12 +42,14 @@ struct MissileRangeView: View {
                     field("弹长 (m)", text: $vm.lengthM)
                     field("弹径 (m)", text: $vm.diameterM)
                     field("战斗部 (kg)", text: $vm.warheadKg)
-                    Picker("构型", selection: Binding(
-                        get: { vm.typeIndex },
-                        set: { vm.setTypeIndex($0) }
-                    )) {
-                        ForEach(vm.typeIds.indices, id: \.self) { index in
-                            Text(vm.typeLabels[index]).tag(index)
+                    if vm.missileClass == "hgv" {
+                        Picker("构型", selection: Binding(
+                            get: { vm.typeIndex },
+                            set: { vm.setTypeIndex($0) }
+                        )) {
+                            ForEach(vm.typeIds.indices, id: \.self) { index in
+                                Text(vm.typeLabels[index]).tag(index)
+                            }
                         }
                     }
                     field("发射马赫数", text: $vm.vMach)
@@ -62,10 +72,23 @@ struct MissileRangeView: View {
 
                 panel(title: "估算结果", tag: "OUTPUT") {
                     if let result = vm.result {
-                        statRow([
-                            ("估算射程 km", result.range_km, 1, false),
-                            ("关机马赫", result.v_burnout_mach, 2, true),
-                        ])
+                        if let high = result.range_high_km, let sea = result.range_sea_km {
+                            statRow([
+                                ("全高空 km", high, 1, false),
+                                ("全掠海 km", sea, 1, true),
+                            ])
+                        } else {
+                            statRow([
+                                ("估算射程 km", result.range_km, 1, false),
+                                (vm.missileClass == "ballistic" || vm.missileClass == "hgv" ? "关机马赫" : "巡航马赫", result.v_burnout_mach, 2, true),
+                            ])
+                        }
+                        if let dash = result.range_terminal_km {
+                            statRow([
+                                ("末端冲刺 km", dash, 1, false),
+                                ("巡航马赫", result.v_burnout_mach, 2, true),
+                            ])
+                        }
                         statRow([
                             ("升阻比", result.ld_ratio, 2, false),
                             ("起飞质量 t", result.m_0_t, 2, true),
@@ -75,6 +98,11 @@ struct MissileRangeView: View {
                             ("助推 m", result.l_booster_m, 2, false),
                             ("推进剂 kg", result.m_p_total_kg, 1, false),
                         ])
+                        if let note = result.note, !note.isEmpty {
+                            Text(note)
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundStyle(MissileRangeTheme.textDim)
+                        }
                     } else {
                         Text("选择预设后显示样本射程。")
                             .font(.system(size: 12, design: .monospaced))
@@ -111,8 +139,9 @@ struct MissileRangeView: View {
             cell("ID", width: 36, dim: true)
             cell("尺寸", width: 110, dim: true)
             cell("弹头", width: 56, dim: true)
-            cell("构型", width: 56, dim: true)
+            cell("弹种", width: 88, dim: true)
             cell("射程km", width: 72, dim: true)
+            cell("掠海km", width: 72, dim: true)
         }
         .padding(.vertical, 4)
     }
@@ -122,10 +151,18 @@ struct MissileRangeView: View {
             cell(String(row.id), width: 36, dim: false, highlight: on)
             cell(row.size_m ?? "", width: 110, dim: false, highlight: on)
             cell(fmt(row.warhead_kg, 0), width: 56, dim: false, highlight: on)
-            cell(row.type_label ?? row.hgv_type, width: 56, dim: false, highlight: on)
+            cell(kind(row), width: 88, dim: false, highlight: on)
             cell(fmt(row.range_km, 1), width: 72, dim: false, highlight: on)
+            cell(row.range_sea_km == nil ? "—" : fmt(row.range_sea_km, 1), width: 72, dim: false, highlight: on)
         }
         .padding(.vertical, 6)
+    }
+
+    private func kind(_ row: MissileRangeCase) -> String {
+        if (row.missile_class ?? "hgv") == "hgv" {
+            return row.type_label ?? row.hgv_type
+        }
+        return row.class_label ?? row.missile_class ?? ""
     }
 
     private func cell(_ text: String, width: CGFloat, dim: Bool, highlight: Bool = false) -> some View {

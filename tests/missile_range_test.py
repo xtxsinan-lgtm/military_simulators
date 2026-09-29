@@ -15,6 +15,8 @@ from simulators.missile_range.missile_range import (
 )
 from utils.missile_range.dataset import (
     MISSILE_DATASET,
+    PROPULSION_DATASET,
+    all_missile_cases,
     build_missile_range_catalog_payload,
     evaluate_case,
     evaluate_dataset,
@@ -257,12 +259,17 @@ def test_missile_case_label_and_evaluate_case():
 
 def test_evaluate_dataset_and_catalog():
     rows = evaluate_dataset()
-    assert len(rows) == 16
-    assert [r['id'] for r in rows] == list(range(1, 17))
+    assert len(rows) == len(all_missile_cases())
+    assert [r['id'] for r in rows] == list(range(1, len(rows) + 1))
     heavier = evaluate_dataset(isp_s=300, propellant_density=1900)
     assert heavier[0]['range_km'] != rows[0]['range_km']
     payload = build_missile_range_catalog_payload()
     assert payload['type_labels']['waverider'] == '乘波体'
+    assert payload['defaults']['missile_class'] == 'hgv'
+    assert {item['id'] for item in payload['classes']} >= {
+        'hgv', 'scramjet', 'ramjet', 'turbofan_stealth',
+        'turbojet_subsonic', 'turbofan_rocket', 'ballistic',
+    }
     assert payload['defaults']['isp_s'] == 264.0
     assert payload['cases'][0]['range_km'] == rows[0]['range_km']
     assert G0 == pytest.approx(9.80665)
@@ -289,12 +296,12 @@ def test_run_estimate_dataset_and_presets():
     })
     assert ok['success'] is True
     assert ok['result']['range_km'] == 6157.7
-    assert len(ok['rows']) == 16
+    assert len(ok['rows']) == len(all_missile_cases())
     table = run_dataset_from_params({'isp_s': '264'})
-    assert table['count'] == 16
+    assert table['count'] == len(all_missile_cases())
     presets = run_presets_from_params()
     assert presets['success'] is True
-    assert len(presets['cases']) == 16
+    assert len(presets['cases']) == len(all_missile_cases())
 
 
 def test_run_missile_range_json_actions():
@@ -302,7 +309,7 @@ def test_run_missile_range_json_actions():
     assert missing['success'] is False
     parsed = run_missile_range_json('{"action":"dataset"}')
     assert parsed['success'] is True
-    assert parsed['count'] == 16
+    assert parsed['count'] == len(all_missile_cases())
     bad_json = run_missile_range_json('{')
     assert bad_json['success'] is False
     assert run_missile_range_json([1, 2])['success'] is False
@@ -314,3 +321,158 @@ def test_run_missile_range_json_actions():
     })
     assert flat['result']['range_km'] == 6157.7
     assert run_missile_range_json({'action': 'estimate', 'params': []})['success'] is False
+
+
+def test_normalize_missile_class_and_labels():
+    from utils.missile_range.classes import class_blurb, class_label, normalize_missile_class
+
+    assert normalize_missile_class(' 超燃冲压 ') == 'scramjet'
+    assert normalize_missile_class('涡扇亚音速隐身巡航') == 'turbofan_stealth'
+    assert normalize_missile_class('亚超结合导弹') == 'turbofan_rocket'
+    assert class_label('ballistic') == '普通弹道导弹'
+    assert '全掠海' in class_blurb('turbojet_subsonic')
+    with pytest.raises(ValueError, match='未知弹种'):
+        normalize_missile_class('laser')
+
+
+def test_geometry_and_breguet_helpers():
+    import math
+
+    from utils.missile_range.classes import (
+        BODY_PACK,
+        G0,
+        LHV_J_KG,
+        _SUBSONIC_SPECS,
+        _base_fields,
+        _ideal_two_stage_dv,
+        achieved_boost_dv_m_s,
+        ballistic_burn_time_s,
+        ballistic_loss_m_s,
+        ballistic_range_km,
+        breguet_cruise_range_m,
+        body_volume_m3,
+        burnout_altitude_km,
+        clamp,
+        climb_fuel_kg,
+        drag_coast_range_m,
+        duct_ld,
+        energy_volume_m3,
+        engine_mass_kg,
+        fineness_ratio,
+        payload_mass_kg,
+        speed_of_sound_m_s,
+        split_boost_and_fuel,
+        structural_mass_kg,
+        subsonic_ld,
+        terminal_dash_range_m,
+    )
+
+    assert clamp(3, 1, 2) == 2
+    assert fineness_ratio(10, 0.5) == 20
+    with pytest.raises(ValueError):
+        fineness_ratio(0, 1)
+    sea = math.sqrt(1.4 * 287.05287 * 288.15)
+    assert speed_of_sound_m_s(0) == pytest.approx(sea)
+    assert speed_of_sound_m_s(10) < speed_of_sound_m_s(0)
+    with pytest.raises(ValueError):
+        speed_of_sound_m_s(-1)
+    assert body_volume_m3(8, 0.5) == pytest.approx(BODY_PACK * math.pi * 0.25 ** 2 * 8)
+    assert payload_mass_kg(100) == pytest.approx(118)
+    assert payload_mass_kg(10) == pytest.approx(28)
+    with pytest.raises(ValueError):
+        payload_mass_kg(-1)
+    assert structural_mass_kg(8, 0.5, 20) == pytest.approx(20 * math.pi * 0.5 * 8 * 1.15)
+    with pytest.raises(ValueError):
+        structural_mass_kg(8, 0.5, 0)
+    assert engine_mass_kg(8, 0.5, 100) == pytest.approx(100 * 0.25 * (8 ** 0.15))
+    volume = body_volume_m3(8, 0.6)
+    leftover = energy_volume_m3(volume, 200, 1500, 80, 500, 0.08)
+    assert leftover < volume
+    with pytest.raises(ValueError, match='放不下'):
+        energy_volume_m3(0.05, 500, 800, 40, 400, 0.1)
+    spec = _SUBSONIC_SPECS['turbofan_stealth']
+    assert subsonic_ld(6.2, 0.55, spec) == pytest.approx(clamp(4.4 + 0.16 * (6.2 / 0.55), 5.0, 6.8))
+    assert duct_ld(8.9, 0.7, {'ld_base': 1.9, 'ld_slope': 0.11, 'ld_min': 2.3, 'ld_max': 3.6}) > 2
+    span = breguet_cruise_range_m(250, 2e-5, 6, 1000, 800)
+    expect = (250 / (G0 * 2e-5)) * 6 * math.log(1000 / 800)
+    assert span == pytest.approx(expect)
+    with pytest.raises(ValueError):
+        breguet_cruise_range_m(250, 2e-5, 6, 800, 800)
+    climb = climb_fuel_kg(1000, 10000, 0, 0.3)
+    assert climb == pytest.approx(1000 * G0 * 10000 / (LHV_J_KG * 0.3))
+    prop, fuel, mass = split_boost_and_fuel(1.2, 800, 400, 260, 1760, 810, 0.3)
+    assert prop > 0 and fuel > 0 and mass > 800
+    assert achieved_boost_dv_m_s(prop, mass, 260) > 0
+    assert achieved_boost_dv_m_s(0, mass, 260) == 0
+    assert drag_coast_range_m(900, 400, 800, 0.5) > 0
+    assert drag_coast_range_m(300, 400, 800, 0.5) == 0
+    assert terminal_dash_range_m(1200, 250, 0.5, 260, 250) > 0
+    assert terminal_dash_range_m(1200, 0, 0.5, 260, 250) == 0
+    short = ballistic_range_km(900, 0)
+    assert 40 < short < 160
+    assert burnout_altitude_km(3000, 0) > burnout_altitude_km(1000, 0)
+    assert ballistic_loss_m_s(2000, 40, 0) > ballistic_loss_m_s(2000, 40, 12)
+    assert ballistic_burn_time_s(500, 1000, 250) == pytest.approx(500 * 250 / (2.3 * 1000))
+    dv = _ideal_two_stage_dv(1000, 600, 90, 2500)
+    assert dv > 0
+    packed = _base_fields('ramjet', 2000, 1.2, 6, 400, 3, 3.2, 800.04, '说明', range_high_km=None)
+    assert packed['range_km'] == 800.0
+    assert packed['class_label'] == '亚燃冲压导弹'
+    assert packed['range_high_km'] is None
+
+
+def test_six_classes_ranges_and_profiles():
+    from utils.missile_range.classes import (
+        estimate_ballistic,
+        estimate_by_class,
+        estimate_ducted,
+        estimate_subsonic_class,
+        estimate_turbofan_rocket,
+        terminal_propellant_for_dash,
+        _ROCKET_CRUISE,
+    )
+
+    same = dict(length_m=6.2, diameter_m=0.55, warhead_mass_kg=450, v_launch_mach=0.7, h_launch_km=0.2)
+    stealth = estimate_subsonic_class('涡扇隐身', **same)
+    plain = estimate_subsonic_class('涡喷', **same)
+    assert stealth['range_high_km'] == 2100.8
+    assert stealth['range_sea_km'] == 1368.6
+    assert stealth['range_high_km'] > stealth['range_sea_km']
+    assert plain['range_high_km'] == 1410.1
+    assert plain['range_sea_km'] == 889.1
+    assert stealth['range_high_km'] > plain['range_high_km']
+    heavier = estimate_subsonic_class('turbofan_stealth', 6.2, 0.55, 700, 0.7, 0.2)
+    assert heavier['range_km'] < stealth['range_km']
+
+    scram = estimate_ducted('scramjet', 9.2, 0.7, 180, 0.85, 12, 264, 1760)
+    ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
+    assert scram['range_km'] == 749.0
+    assert scram['cruise_mach'] == 5.5
+    assert ram['range_km'] == 1765.2
+    assert ram['v_burnout_mach'] == 3.0
+    assert scram['range_sea_km'] is None
+
+    prop, sized = terminal_propellant_for_dash(8.2, 0.53, 300, 0.7, 0.05, 264, 1760, _ROCKET_CRUISE)
+    assert prop > 0 and sized['fuel_kg'] > 0
+    combo = estimate_turbofan_rocket(8.2, 0.53, 300, 0.7, 0.05, 264, 1760)
+    assert combo['range_terminal_km'] == 20.8
+    assert combo['range_high_km'] > combo['range_sea_km']
+    assert combo['range_km'] == combo['range_high_km']
+    same_combo = estimate_turbofan_rocket(6.2, 0.55, 450, 0.7, 0.2, 264, 1760)
+    assert same_combo['range_high_km'] < stealth['range_high_km']
+
+    short = estimate_ballistic(4.8, 0.40, 200, 0, 0, 264, 1760)
+    long = estimate_ballistic(11.2, 0.88, 980, 0, 0, 264, 1760)
+    assert short['range_km'] == 164.4
+    assert long['range_km'] == 823.0
+    assert long['range_km'] > short['range_km']
+    assert '不含滑翔' in long['note']
+    assert estimate_by_class('hgv', 10.5, 1, 200)['range_km'] == 6157.7
+    with pytest.raises(ValueError):
+        estimate_subsonic_class('ramjet', 6, 0.5, 100, 0.7, 1)
+    assert len(PROPULSION_DATASET) == 12
+    labels = {row['missile_class'] for row in evaluate_dataset() if row['id'] >= 17}
+    assert labels == {
+        'scramjet', 'ramjet', 'turbofan_stealth',
+        'turbojet_subsonic', 'turbofan_rocket', 'ballistic',
+    }

@@ -11,7 +11,7 @@
 <header>
   <div>
     <div class="title">导弹射程估算终端</div>
-    <div class="subtitle">HGV RANGE · BOOST + GLIDE</div>
+    <div class="subtitle">RANGE · HGV / RAM / CRUISE / BALLISTIC</div>
   </div>
   <nav class="nav-links" aria-label="模拟器导航">
     <a class="nav-link" href="index.html">启动页</a>
@@ -27,7 +27,11 @@
   <div class="stack">
     <div class="panel">
       <div class="panel-head"><span>弹体与发射条件</span><span class="tag">INPUT</span></div>
-      <p class="note">选择预设后填入尺寸、战斗部、构型与空射条件。估算按两级固体助推扣除重力阻力损失，再用升阻比积分滑翔航程。比冲默认 264 s，推进剂密度默认 1760 kg/m³。点表中一行可切换预设。</p>
+      <p class="note" id="classBlurb">选择弹种和预设。比冲默认 264 s，推进剂密度默认 1760 kg/m³，只用于固体助推、末端火箭和弹道导弹。点表中一行可切换预设。</p>
+      <div class="field">
+        <label>弹种</label>
+        <select id="missileClass"></select>
+      </div>
       <div class="field">
         <label>预设样本</label>
         <select id="preset"></select>
@@ -38,7 +42,7 @@
       </div>
       <div class="pair">
         <div class="field"><label>战斗部 <span class="unit">kg</span></label><input type="number" id="warheadKg" step="1" min="0"></div>
-        <div class="field">
+        <div class="field" id="hgvWrap">
           <label>构型</label>
           <select id="hgvType">
             <option value="biconic">双锥体</option>
@@ -73,6 +77,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预设表来自 catalog · 改参数后由 Pyodide 重算</div>
-<script type="module" src="js/missile_range.js?v=1"></script>
+<script type="module" src="js/missile_range.js?v=2"></script>
 </body>
 </html>

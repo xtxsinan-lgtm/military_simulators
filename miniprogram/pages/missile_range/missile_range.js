@@ -8,8 +8,26 @@ function num(v, d) {
   return Number.isFinite(n) ? n : d;
 }
 
+function kindOf(row) {
+  if ((row.missile_class || 'hgv') === 'hgv') return row.type_label || row.hgv_type;
+  return row.class_label || row.missile_class;
+}
+
+function decorate(row) {
+  return {
+    ...row,
+    kind: kindOf(row),
+    seaText: row.range_sea_km == null ? '—' : String(row.range_sea_km),
+  };
+}
+
 Page({
   data: {
+    classes: [],
+    classNames: [],
+    classIndex: 0,
+    classBlurb: '选择弹种后估算射程。比冲与密度用于固体助推、末端火箭和弹道导弹。',
+    showHgvType: true,
     cases: [],
     rows: [],
     caseNames: [],
@@ -34,13 +52,16 @@ Page({
     api.loadSimulatorData()
       .then((catalog) => {
         const block = catalog.missile_range || {};
-        const cases = block.cases || [];
+        const cases = (block.cases || []).map(decorate);
         if (!cases.length) {
           this.setData({ statusText: 'data.json 缺少 missile_range，请运行 build_all.py' });
           return;
         }
+        const classes = block.classes || [];
         const defaults = block.defaults || {};
         this.setData({
+          classes,
+          classNames: classes.map((item) => item.label),
           cases,
           rows: cases,
           caseNames: cases.map((row) => row.name),
@@ -55,10 +76,22 @@ Page({
       });
   },
 
+  syncClass(missileClass) {
+    const classes = this.data.classes;
+    const classIndex = Math.max(0, classes.findIndex((item) => item.id === missileClass));
+    const found = classes[classIndex];
+    this.setData({
+      classIndex: found ? classIndex : 0,
+      classBlurb: (found && found.blurb) || this.data.classBlurb,
+      showHgvType: (missileClass || 'hgv') === 'hgv',
+    });
+  },
+
   applyCase(row) {
     if (!row) return;
     const typeIndex = Math.max(0, TYPE_IDS.indexOf(row.hgv_type));
     const caseIndex = Math.max(0, this.data.cases.findIndex((item) => item.id === row.id));
+    this.syncClass(row.missile_class || 'hgv');
     this.setData({
       caseIndex,
       typeIndex,
@@ -70,12 +103,17 @@ Page({
       activeId: row.id,
       result: {
         range_km: row.range_km,
+        range_high_km: row.range_high_km,
+        range_sea_km: row.range_sea_km,
+        range_terminal_km: row.range_terminal_km,
         v_burnout_mach: row.v_burnout_mach,
         ld_ratio: row.ld_ratio,
         m_0_t: row.m_0_t,
         l_head_m: row.l_head_m,
         l_booster_m: row.l_booster_m,
         m_p_total_kg: row.m_p_total_kg,
+        note: row.note,
+        missile_class: row.missile_class,
       },
       statusText: 'PRESET',
     });
@@ -84,6 +122,13 @@ Page({
   onPickCase(e) {
     const index = Number(e.detail.value);
     this.applyCase(this.data.cases[index]);
+  },
+
+  onPickClass(e) {
+    const index = Number(e.detail.value);
+    const found = this.data.classes[index];
+    if (!found) return;
+    this.syncClass(found.id);
   },
 
   onPickType(e) {
@@ -104,9 +149,11 @@ Page({
 
   onRun() {
     if (this.data.running) return;
+    const missileClass = (this.data.classes[this.data.classIndex] || {}).id || 'hgv';
     const payload = {
       action: 'estimate',
       params: {
+        missile_class: missileClass,
         length_m: num(this.data.lengthM, 0),
         diameter_m: num(this.data.diameterM, 0),
         warhead_kg: num(this.data.warheadKg, 0),
@@ -121,9 +168,14 @@ Page({
     api.runMissileRangeSimulation(payload)
       .then((res) => {
         if (!res.success) throw new Error(res.error || '估算失败');
+        const result = res.result || {};
+        if (result.range_sea_km === undefined) result.range_sea_km = null;
+        if (result.range_high_km === undefined) result.range_high_km = null;
+        if (result.range_terminal_km === undefined) result.range_terminal_km = null;
+        const rows = (res.rows && res.rows.length ? res.rows : this.data.rows).map(decorate);
         this.setData({
           result: res.result,
-          rows: res.rows && res.rows.length ? res.rows : this.data.rows,
+          rows,
           activeId: null,
           statusText: 'DONE',
           running: false,

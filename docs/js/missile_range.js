@@ -3,12 +3,13 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 1;
+const APP_VERSION = 2;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
   'utils/missile_range/__init__.py',
   'utils/missile_range/estimate.py',
+  'utils/missile_range/classes.py',
   'utils/missile_range/dataset.py',
   'simulators/__init__.py',
   'simulators/missile_range/__init__.py',
@@ -19,6 +20,7 @@ const MISSILE_RANGE_PY_FILES = [
 
 const MISSILE_RANGE_IMPORTS = [
   'utils.missile_range.estimate',
+  'utils.missile_range.classes',
   'utils.missile_range.dataset',
   'simulators.missile_range.missile_range',
   'apps.missile_range_web',
@@ -50,6 +52,7 @@ function fmt(n, d) {
 
 function readForm() {
   return {
+    missile_class: $('missileClass').value || 'hgv',
     length_m: num('lengthM', 0),
     diameter_m: num('diameterM', 0),
     warhead_kg: num('warheadKg', 0),
@@ -61,14 +64,33 @@ function readForm() {
   };
 }
 
+function classList() {
+  return (data && data.missile_range && data.missile_range.classes) || [];
+}
+
+function syncClassUi() {
+  const id = $('missileClass').value || 'hgv';
+  $('hgvWrap').hidden = id !== 'hgv';
+  const found = classList().find((item) => item.id === id);
+  if (found && found.blurb) $('classBlurb').textContent = found.blurb;
+}
+
 function fillForm(row) {
+  $('missileClass').value = row.missile_class || 'hgv';
   $('lengthM').value = row.length_m;
   $('diameterM').value = row.diameter_m;
   $('warheadKg').value = row.warhead_kg;
-  $('hgvType').value = row.hgv_type;
+  $('hgvType').value = row.hgv_type || 'biconic';
   $('vMach').value = row.v_mach;
   $('hKm').value = row.h_km;
   activeId = row.id;
+  syncClassUi();
+}
+
+function speedLabel(result) {
+  const id = result.missile_class || 'hgv';
+  if (id === 'hgv' || id === 'ballistic') return '关机马赫数';
+  return '巡航马赫数';
 }
 
 function renderResult(result, title) {
@@ -77,21 +99,35 @@ function renderResult(result, title) {
     $('resultBox').textContent = '无结果';
     return;
   }
+  const dual = result.range_high_km != null && result.range_sea_km != null;
+  const lead = dual
+    ? `<div class="stat"><div class="k">全高空射程</div><div class="v">${fmt(result.range_high_km, 1)}</div><div class="sub">km</div></div>
+       <div class="stat"><div class="k">全掠海射程</div><div class="v amber">${fmt(result.range_sea_km, 1)}</div><div class="sub">km</div></div>`
+    : `<div class="stat"><div class="k">估算射程</div><div class="v">${fmt(result.range_km, 1)}</div><div class="sub">km</div></div>`;
+  const terminal = result.range_terminal_km != null
+    ? `<div class="stat"><div class="k">末端冲刺</div><div class="v">${fmt(result.range_terminal_km, 1)}</div><div class="sub">km</div></div>`
+    : '';
   $('resultBox').className = '';
   $('resultBox').innerHTML = `
     <div class="stat-row">
-      <div class="stat"><div class="k">估算射程</div><div class="v">${fmt(result.range_km, 1)}</div><div class="sub">km</div></div>
-      <div class="stat"><div class="k">关机马赫数</div><div class="v amber">${fmt(result.v_burnout_mach, 2)}</div><div class="sub">Ma</div></div>
+      ${lead}
+      ${terminal}
+      <div class="stat"><div class="k">${speedLabel(result)}</div><div class="v amber">${fmt(result.v_burnout_mach, 2)}</div><div class="sub">Ma</div></div>
       <div class="stat"><div class="k">升阻比</div><div class="v">${fmt(result.ld_ratio, 2)}</div><div class="sub">L/D</div></div>
       <div class="stat"><div class="k">起飞质量</div><div class="v amber">${fmt(result.m_0_t, 2)}</div><div class="sub">t</div></div>
     </div>
     <div class="stat-row">
       <div class="stat"><div class="k">弹头长度</div><div class="v">${fmt(result.l_head_m, 2)}</div><div class="sub">m</div></div>
-      <div class="stat"><div class="k">助推长度</div><div class="v">${fmt(result.l_booster_m, 2)}</div><div class="sub">m</div></div>
-      <div class="stat"><div class="k">推进剂</div><div class="v">${fmt(result.m_p_total_kg, 1)}</div><div class="sub">kg</div></div>
+      <div class="stat"><div class="k">助推/弹体</div><div class="v">${fmt(result.l_booster_m, 2)}</div><div class="sub">m</div></div>
+      <div class="stat"><div class="k">燃料或推进剂</div><div class="v">${fmt(result.m_p_total_kg, 1)}</div><div class="sub">kg</div></div>
     </div>
-    <p class="note">${title || ''}</p>
+    <p class="note">${result.note || title || ''}</p>
   `;
+}
+
+function kindLabel(row) {
+  if ((row.missile_class || 'hgv') === 'hgv') return row.type_label || row.hgv_type;
+  return row.class_label || row.missile_class;
 }
 
 function renderTable() {
@@ -100,20 +136,20 @@ function renderTable() {
       <td>${row.id}</td>
       <td>${row.size_m}</td>
       <td>${row.warhead_kg}</td>
-      <td>${row.type_label}</td>
+      <td>${kindLabel(row)}</td>
       <td>${row.launch}</td>
       <td>${fmt(row.m_0_t, 2)}</td>
       <td>${fmt(row.v_burnout_mach, 2)}</td>
-      <td>${fmt(row.ld_ratio, 2)}</td>
       <td>${fmt(row.range_km, 1)}</td>
+      <td>${row.range_sea_km == null ? '—' : fmt(row.range_sea_km, 1)}</td>
     </tr>
   `).join('');
   $('tableBox').innerHTML = `
     <table>
       <thead>
         <tr>
-          <th>ID</th><th>尺寸 m</th><th>弹头 kg</th><th>构型</th><th>发射条件</th>
-          <th>起飞 t</th><th>关机 Ma</th><th>升阻比</th><th>射程 km</th>
+          <th>ID</th><th>尺寸 m</th><th>弹头 kg</th><th>弹种</th><th>发射条件</th>
+          <th>起飞 t</th><th>Ma</th><th>射程 km</th><th>掠海 km</th>
         </tr>
       </thead>
       <tbody>${body}</tbody>
@@ -121,10 +157,28 @@ function renderTable() {
   `;
 }
 
-function fillPresetSelect() {
-  $('preset').innerHTML = rows.map((row) => (
-    `<option value="${row.id}">${row.name}</option>`
+function fillClassSelect() {
+  const options = classList();
+  $('missileClass').innerHTML = options.map((item) => (
+    `<option value="${item.id}">${item.label}</option>`
   )).join('');
+}
+
+function fillPresetSelect() {
+  const classes = classList();
+  if (!classes.length) {
+    $('preset').innerHTML = rows.map((row) => (
+      `<option value="${row.id}">${row.name}</option>`
+    )).join('');
+    return;
+  }
+  $('preset').innerHTML = classes.map((item) => {
+    const opts = rows
+      .filter((row) => (row.missile_class || 'hgv') === item.id)
+      .map((row) => `<option value="${row.id}">${row.name}</option>`)
+      .join('');
+    return opts ? `<optgroup label="${item.label}">${opts}</optgroup>` : '';
+  }).join('');
 }
 
 function selectPreset(id) {
@@ -223,9 +277,11 @@ async function main() {
   const defaults = block.defaults || {};
   if (defaults.isp_s != null) $('ispS').value = defaults.isp_s;
   if (defaults.propellant_density != null) $('density').value = defaults.propellant_density;
+  fillClassSelect();
   fillPresetSelect();
   renderTable();
   selectPreset(rows[0].id);
+  $('missileClass').addEventListener('change', () => syncClassUi());
   $('preset').addEventListener('change', () => selectPreset($('preset').value));
   $('tableBox').addEventListener('click', (event) => {
     const tr = event.target.closest('tr[data-id]');

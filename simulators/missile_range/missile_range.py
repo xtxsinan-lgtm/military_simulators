@@ -1,17 +1,17 @@
-"""导弹射程仿真入口：单发估算，并按同一推进剂假设刷新样本表。"""
+"""导弹射程仿真入口：按弹种估算单发，并按同一推进剂假设刷新样本表。"""
 from __future__ import annotations
 
 from typing import Any
 
+from utils.missile_range.classes import estimate_by_class
 from utils.missile_range.dataset import (
-    MISSILE_DATASET,
+    all_missile_cases,
     build_missile_range_catalog_payload,
     evaluate_dataset,
 )
 from utils.missile_range.estimate import (
     DEFAULT_ISP_S,
     DEFAULT_PROPELLANT_DENSITY,
-    estimate_hgv,
 )
 
 
@@ -34,7 +34,8 @@ def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
     try:
         isp = opt_float(params.get('isp_s'), DEFAULT_ISP_S)
         density = opt_float(params.get('propellant_density'), DEFAULT_PROPELLANT_DENSITY)
-        result = estimate_hgv(
+        result = estimate_by_class(
+            missile_class=str(params.get('missile_class') or 'hgv'),
             length_m=_required_float(params, 'length_m'),
             diameter_m=_required_float(params, 'diameter_m'),
             warhead_mass_kg=_required_float(params, 'warhead_kg'),
@@ -60,7 +61,7 @@ def run_dataset_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
         )
     except (TypeError, ValueError) as exc:
         return {'success': False, 'error': str(exc)}
-    return {'success': True, 'rows': rows, 'count': len(MISSILE_DATASET)}
+    return {'success': True, 'rows': rows, 'count': len(all_missile_cases())}
 
 
 def run_presets_from_params(params: dict[str, Any] | None = None) -> dict[str, Any]:

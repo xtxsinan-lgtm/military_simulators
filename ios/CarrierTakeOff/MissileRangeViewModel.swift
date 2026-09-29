@@ -9,6 +9,9 @@ final class MissileRangeViewModel: ObservableObject {
     @Published var lengthM = "10.5"
     @Published var diameterM = "1"
     @Published var warheadKg = "200"
+    @Published var missileClass = "hgv"
+    @Published var classOptions: [MissileClassInfo] = []
+    @Published var classBlurb = "选择弹种后估算射程。比冲与密度用于固体助推、末端火箭和弹道导弹。"
     @Published var hgvType = "biconic"
     @Published var vMach = "0.85"
     @Published var hKm = "13"
@@ -36,6 +39,7 @@ final class MissileRangeViewModel: ObservableObject {
             }
             cases = loaded
             rows = loaded
+            classOptions = catalog.missile_range?.classes ?? []
             if let defaults = catalog.missile_range?.defaults {
                 if let isp = defaults.isp_s { ispS = text(isp) }
                 if let rho = defaults.propellant_density { density = text(rho) }
@@ -48,6 +52,7 @@ final class MissileRangeViewModel: ObservableObject {
 
     func applyCase(_ row: MissileRangeCase) {
         selectedId = row.id
+        missileClass = row.missile_class ?? "hgv"
         lengthM = text(row.length_m)
         diameterM = text(row.diameter_m)
         warheadKg = text(row.warhead_kg)
@@ -55,16 +60,32 @@ final class MissileRangeViewModel: ObservableObject {
         vMach = text(row.v_mach)
         hKm = text(row.h_km)
         activeId = row.id
+        if let info = classOptions.first(where: { $0.id == missileClass }) {
+            classBlurb = info.blurb ?? classBlurb
+        }
         result = MissileRangeEstimate(
+            missile_class: row.missile_class,
+            class_label: row.class_label,
             m_0_t: row.m_0_t,
             l_head_m: row.l_head_m,
             l_booster_m: row.l_booster_m,
             m_p_total_kg: row.m_p_total_kg,
             v_burnout_mach: row.v_burnout_mach,
             ld_ratio: row.ld_ratio,
-            range_km: row.range_km
+            range_km: row.range_km,
+            range_high_km: row.range_high_km,
+            range_sea_km: row.range_sea_km,
+            range_terminal_km: row.range_terminal_km,
+            note: row.note
         )
         statusText = "PRESET"
+    }
+
+    func setClass(_ id: String) {
+        missileClass = id
+        if let info = classOptions.first(where: { $0.id == id }) {
+            classBlurb = info.blurb ?? classBlurb
+        }
     }
 
     func setTypeIndex(_ index: Int) {
@@ -82,6 +103,7 @@ final class MissileRangeViewModel: ObservableObject {
                 "length_m": number(lengthM, 0),
                 "diameter_m": number(diameterM, 0),
                 "warhead_kg": number(warheadKg, 0),
+                "missile_class": missileClass,
                 "hgv_type": hgvType,
                 "v_launch_mach": number(vMach, 0.85),
                 "h_launch_km": number(hKm, 13),
