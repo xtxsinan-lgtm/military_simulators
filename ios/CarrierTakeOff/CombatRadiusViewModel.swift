@@ -282,8 +282,13 @@ final class CombatRadiusViewModel: ObservableObject {
         if let v = p.empty_kg { wtEmpty = String(format: "%.0f", v) }
         if let v = p.internal_fuel_kg { wtFuel = String(format: "%.0f", v) }
         if let v = p.n_pilots { wtPilots = String(v) }
-        if let v = p.missile_mass_kg { wtMissile = String(format: "%.0f", v) }
-        wtNMissiles = "4"
+        if p.aircraft_role == "bomber", let payload = p.max_payload_kg {
+            wtMissile = String(format: "%.0f", payload)
+            wtNMissiles = "1"
+        } else {
+            if let v = p.missile_mass_kg { wtMissile = String(format: "%.0f", v) }
+            wtNMissiles = "4"
+        }
         if let v = p.n_engines { wtEngines = String(v) }
         wtCarrier = p.carrier ?? false
     }

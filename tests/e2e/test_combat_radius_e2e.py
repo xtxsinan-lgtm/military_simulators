@@ -971,6 +971,28 @@ def test_e2e_combat_radius_dashboard_http_and_mixed():
 
 
 @pytest.mark.e2e
+def test_e2e_xgb_afterburner_cruise_with_given_thrust_and_payload():
+    """西工大轰炸机按 175/265 kN、涵道比 0.475、载重 17.6 t，加力 Ma 0.8 须有半径。"""
+    from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
+
+    ac = get_preset_by_id(load_presets(), 'XGB-1')
+    eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
+    params = dashboard_params_from_preset(ac, eng)
+    status, _, body = handle_request(
+        'POST', '/api/combat_radius/simulate',
+        json.dumps({'action': 'aircraft_dashboard', 'params': params}).encode(),
+    )
+    assert status == 200
+    result = json.loads(body.decode())
+    assert result['success'] is True
+    mil = next(pt for pt in result['points'] if pt['id'] == 'mach_0_8')
+    assert mil['feasible'] is False
+    ab = next(pt for pt in result['afterburner_best_altitude'] if pt['mach'] == pytest.approx(0.8))
+    assert ab['feasible'] is True
+    assert ab['radius_km'] > 0
+
+
+@pytest.mark.e2e
 def test_e2e_search_best_cruise_and_engine_cycle_http():
     p = _efficiency_params()
     p['mach'] = 0.8

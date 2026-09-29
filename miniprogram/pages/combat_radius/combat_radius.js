@@ -88,7 +88,12 @@ function weightFromPreset(p) {
   if (p.empty_kg != null) patch.wtEmpty = String(p.empty_kg);
   if (p.internal_fuel_kg != null) patch.wtFuel = String(p.internal_fuel_kg);
   if (p.n_pilots != null) patch.wtPilots = String(p.n_pilots);
-  if (p.missile_mass_kg != null) patch.wtMissile = String(p.missile_mass_kg);
+  if (p.aircraft_role === 'bomber' && p.max_payload_kg != null) {
+    patch.wtMissile = String(p.max_payload_kg);
+    patch.wtNMissiles = '1';
+  } else if (p.missile_mass_kg != null) {
+    patch.wtMissile = String(p.missile_mass_kg);
+  }
   if (p.n_engines != null) patch.wtEngines = String(p.n_engines);
   patch.wtCarrier = !!p.carrier;
   return patch;

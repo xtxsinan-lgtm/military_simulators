@@ -25,7 +25,7 @@ def test_new_blended_wing_bomber_variants_use_bomber_mass_and_blended_wet_area()
         ac = aircraft[aid]
         assert ac.aircraft_role == 'bomber'
         assert ac.wing_body_blend is True
-        assert ac.max_payload_kg == pytest.approx(20000)
+        assert ac.max_payload_kg == pytest.approx(17600)
         assert ac.a2a_mass_kg == pytest.approx(
             ac.empty_kg + ac.internal_fuel_kg + ac.max_payload_kg + ac.n_pilots * PILOT_LOAD_KG
         )

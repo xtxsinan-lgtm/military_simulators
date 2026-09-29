@@ -18,19 +18,37 @@ from utils.paths import COMBAT_RADIUS_RESULTS_JSON
 RESULTS_VERSION = 1
 
 
+def combat_weapon_load(aircraft: dict[str, Any]) -> tuple[float, float]:
+    """作战载荷：(单件质量 kg, 件数)。
+
+    战斗机按 4 枚中距弹。轰炸机按最大载弹量一件计入质量，
+    弹舱内埋，不再拆成多枚外挂。
+    """
+    role = str(aircraft.get('aircraft_role') or 'fighter')
+    payload = aircraft.get('max_payload_kg')
+    if role == 'bomber' and payload not in (None, ''):
+        return float(payload), 1.0
+    return float(aircraft.get('missile_mass_kg') or 0), float(N_MISSILES_DEFAULT)
+
+
 def dashboard_params_from_preset(
     aircraft: dict[str, Any],
     engine: dict[str, Any],
 ) -> dict[str, Any]:
     """由机型/发动机预设组装仪表盘请求（不含锚点，由核心默认填入）。"""
+    weapon_kg, n_weapons = combat_weapon_load(aircraft)
+    target = dict(aircraft)
+    if str(aircraft.get('aircraft_role') or '') == 'bomber':
+        # 载弹按质量计入，不按中距弹外挂几何加阻力
+        target['n_stores'] = 0
     params: dict[str, Any] = {
         'name': f'{aircraft["name"]} / {engine["name"]}',
-        'target': aircraft,
+        'target': target,
         'empty_kg': aircraft['empty_kg'],
         'internal_fuel_kg': aircraft['internal_fuel_kg'],
         'n_pilots': aircraft.get('n_pilots', 1),
-        'missile_mass_kg': aircraft.get('missile_mass_kg', 0),
-        'n_missiles': N_MISSILES_DEFAULT,
+        'missile_mass_kg': weapon_kg,
+        'n_missiles': n_weapons,
         'n_engines': aircraft.get('n_engines', 1),
         'carrier': bool(aircraft.get('carrier', False)),
         'type_label': aircraft.get('type_label'),

@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 75;
+const APP_VERSION = 76;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -283,8 +283,13 @@ function applyWeightFromPreset(p) {
   if (p.empty_kg != null) $('wtEmpty').value = p.empty_kg;
   if (p.internal_fuel_kg != null) $('wtFuel').value = p.internal_fuel_kg;
   if (p.n_pilots != null) $('wtPilots').value = p.n_pilots;
-  if (p.missile_mass_kg != null) $('wtMissile').value = p.missile_mass_kg;
-  $('wtNMissiles').value = 4;
+  if (p.aircraft_role === 'bomber' && p.max_payload_kg != null) {
+    $('wtMissile').value = p.max_payload_kg;
+    $('wtNMissiles').value = 1;
+  } else {
+    if (p.missile_mass_kg != null) $('wtMissile').value = p.missile_mass_kg;
+    $('wtNMissiles').value = 4;
+  }
   if (p.n_engines != null) $('wtEngines').value = p.n_engines;
   $('wtCarrier').checked = !!p.carrier;
   if (p.engine_id) {

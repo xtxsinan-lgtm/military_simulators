@@ -10,6 +10,7 @@ from utils.combat_radius.combat_radius_results import (
     build_combat_radius_results_catalog_payload,
     build_combat_radius_results_payload,
     dashboard_params_from_preset,
+    combat_weapon_load,
     load_combat_radius_results,
     run_preset_dashboard,
     sanitize_cruise_point,
@@ -38,6 +39,39 @@ def test_dashboard_params_from_preset_f22():
     assert p['n_engines'] == 2
     assert p['carrier'] is False
     assert p['target']['inlet'] == 'caret'
+
+
+def test_combat_weapon_load_bomber_is_payload_once():
+    """轰炸机载弹按最大载弹量一件，不乘 4 枚中距弹。"""
+    kg, n = combat_weapon_load({
+        'aircraft_role': 'bomber', 'max_payload_kg': 17600, 'missile_mass_kg': 200,
+    })
+    assert kg == pytest.approx(17600)
+    assert n == pytest.approx(1)
+    kg_f, n_f = combat_weapon_load({'missile_mass_kg': 161})
+    assert kg_f == pytest.approx(161)
+    assert n_f == pytest.approx(4)
+
+
+def test_xgb_dashboard_uses_new_engine_and_payload():
+    """西工大轰炸机按单台 175/265 kN、涵道比 0.475、载重 17.6 t 组装。"""
+    ac = get_preset_by_id(load_presets(), 'XGB-1')
+    eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
+    assert eng['bpr'] == pytest.approx(0.475)
+    assert eng['tsl_kN'] == pytest.approx(175)
+    assert eng['max_tsl_kN'] == pytest.approx(265)
+    p = dashboard_params_from_preset(ac, eng)
+    assert p['missile_mass_kg'] == pytest.approx(17600)
+    assert p['n_missiles'] == pytest.approx(1)
+    assert p['target']['n_stores'] == 0
+    dash = run_preset_dashboard('XGB-1')
+    assert dash['success'] is True
+    mil = next(item for item in dash['points'] if item['id'] == 'mach_0_8')
+    assert mil['feasible'] is False
+    ab = next(item for item in dash['afterburner_best_altitude'] if item['mach'] == pytest.approx(0.8))
+    assert ab['feasible'] is True
+    assert ab['reheat'] is True
+    assert ab['radius_km'] is not None and ab['radius_km'] > 0
     assert p['tsfc_install_mult'] == pytest.approx(1.0)
 
 

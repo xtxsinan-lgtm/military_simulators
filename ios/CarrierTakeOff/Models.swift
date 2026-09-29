@@ -181,6 +181,8 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var wing_area_m2: Double?
     var bvr_missile: String?
     var type_label: String?
+    var aircraft_role: String?
+    var max_payload_kg: Double?
 
     /// 选择器显示名：有国别时为「国别 · 名称」
     var selectLabel: String {
