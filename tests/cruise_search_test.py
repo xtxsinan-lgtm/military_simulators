@@ -17,7 +17,9 @@ from utils.combat_radius.cruise_search import (
     PEAK_ALT_DROP_M,
     PRACTICAL_MAX_CRUISE_MACH_LO,
     SUPERSONIC_MACH,
+    AB_TSFC_OVER_MIL,
     CruiseContext,
+    afterburner_tsfc_kg_n_s,
     any_feasible_altitude,
     altitude_grid,
     contiguous_peak_max_mach,
@@ -29,8 +31,10 @@ from utils.combat_radius.cruise_search import (
     scan_best_altitude_profile,
     scan_altitudes_at_mach,
     score_cruise_point,
+    score_afterburner_point,
     scored_to_dict,
     search_best_altitude,
+    search_best_afterburner_altitude,
     snap_mach,
     altitude_scan_fields,
     build_altitude_scan,
@@ -665,3 +669,94 @@ def test_search_max_cruise_mach_skips_transonic_peak():
     assert skipped is None
     f35c = search_max_cruise_mach(_csv_ctx('F-35C'))
     assert f35c is None
+
+
+def test_afterburner_tsfc_ramps_to_full_reheat_ratio():
+    """全加力有效 TSFC 等于 2.2 倍军推最大点；刚超过军推只略增。"""
+    tsfc_mil = 2.0e-5
+    t_mil = 100000.0
+    t_ab = 150000.0
+    full = afterburner_tsfc_kg_n_s(tsfc_mil, t_mil, t_ab, t_ab)
+    assert full == pytest.approx(AB_TSFC_OVER_MIL * tsfc_mil)
+    barely = afterburner_tsfc_kg_n_s(tsfc_mil, t_mil, t_ab, t_mil + 1000.0)
+    assert barely > tsfc_mil
+    assert barely < tsfc_mil * 1.15
+    with pytest.raises(ValueError, match='不应使用加力油耗'):
+        afterburner_tsfc_kg_n_s(tsfc_mil, t_mil, t_ab, t_mil)
+    with pytest.raises(ValueError, match='加力推力须大于军推'):
+        afterburner_tsfc_kg_n_s(tsfc_mil, t_mil, t_mil, t_mil)
+    with pytest.raises(ValueError, match='阻力超过加力'):
+        afterburner_tsfc_kg_n_s(tsfc_mil, t_mil, t_ab, t_ab + 1.0)
+
+
+def test_eta_o_from_tsfc_inverts_breguet_definition():
+    """对外总效率由 TSFC = V / (η·Q) 反推。"""
+    from utils.combat_radius.cruise_search import _eta_o_from_tsfc
+    from utils.combat_radius.engine_efficiency import FUEL_LHV_J_KG
+
+    eta = _eta_o_from_tsfc(250.0, 4.0e-5)
+    assert eta == pytest.approx(250.0 / (4.0e-5 * FUEL_LHV_J_KG))
+    with pytest.raises(ValueError, match='须为正'):
+        _eta_o_from_tsfc(0.0, 4.0e-5)
+
+
+def test_score_afterburner_point_stays_on_military_tsfc_when_dry_covers_drag():
+    """阻力不超过军推时，油耗必须是军推节流，不能按加力推力把负载打低。"""
+    from dataclasses import replace
+
+    mil = _f22_ctx()
+    ab = replace(mil, tsl_N=156000.0, thrust_margin=MAX_SPEED_THRUST_MARGIN)
+    ab_forces = evaluate_cruise_forces(ab, 0.8, 12000)
+    mil_full = replace(mil, thrust_margin=1.0)
+    mil_forces = evaluate_cruise_forces(mil_full, 0.8, 12000)
+    assert ab_forces.drag_N < mil_forces.thrust_avail_N
+    scored = score_afterburner_point(mil, ab_forces)
+    dry = score_cruise_point(mil_full, mil_forces)
+    wrong = score_cruise_point(ab, ab_forces)
+    assert scored.reheat is False
+    assert scored.tsfc_kg_n_s == pytest.approx(dry.tsfc_kg_n_s)
+    assert scored.tsfc_kg_n_s != pytest.approx(wrong.tsfc_kg_n_s, rel=1e-3)
+    assert scored.thrust_avail_N == pytest.approx(ab_forces.thrust_avail_N)
+
+
+def test_score_afterburner_point_reheat_raises_tsfc():
+    """必须开加力时，有效 TSFC 高于该点军推最大油耗。"""
+    from dataclasses import replace
+
+    mil = _f22_ctx()
+    ab = replace(mil, tsl_N=156000.0, thrust_margin=MAX_SPEED_THRUST_MARGIN)
+    found = None
+    for alt in altitude_grid(11000, 20000, 1000):
+        ab_forces = try_cruise_forces(ab, 2.0, alt)
+        mil_forces = try_cruise_forces(replace(mil, thrust_margin=1.0), 2.0, alt)
+        if (
+            ab_forces is not None
+            and mil_forces is not None
+            and ab_forces.feasible
+            and ab_forces.drag_N > mil_forces.thrust_avail_N
+        ):
+            found = (ab_forces, mil_forces)
+            break
+    assert found is not None
+    scored = score_afterburner_point(mil, found[0])
+    dry_max = score_cruise_point(
+        replace(mil, thrust_margin=1.0),
+        replace(found[1], load_raw=1.0, feasible=True),
+    )
+    assert scored.reheat is True
+    assert scored.tsfc_kg_n_s > dry_max.tsfc_kg_n_s
+    assert scored.eta_o < dry_max.eta_o
+
+
+def test_search_best_afterburner_altitude_f22_subsonic_stays_high():
+    """亚音速加力包线扩到海平面后，F-22 最佳高度仍留在平流层。"""
+    from dataclasses import replace
+
+    mil = _f22_ctx()
+    ab = replace(mil, tsl_N=156000.0, thrust_margin=MAX_SPEED_THRUST_MARGIN)
+    best = search_best_afterburner_altitude(mil, ab, 0.8, 0.0, 20000.0, 1000.0, 200.0)
+    assert best is not None and best.feasible is True
+    assert best.alt_m >= 11000
+    assert best.reheat is False
+    with pytest.raises(ValueError, match='马赫'):
+        search_best_afterburner_altitude(mil, ab, 0.0)

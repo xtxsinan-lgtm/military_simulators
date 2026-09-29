@@ -67,6 +67,7 @@ from utils.combat_radius.cruise_search import (
     scan_best_altitude_profile,
     score_cruise_point,
     scored_to_dict,
+    search_best_afterburner_altitude,
     search_best_altitude,
     search_max_possible_cruise_mach,
     search_max_ld_altitude,
@@ -1125,13 +1126,13 @@ def compact_max_speed(result: dict[str, Any]) -> dict[str, Any]:
 def _afterburner_best_altitude_profile(
     params: dict[str, Any],
     ctx: CruiseContext,
-    alt_min_m: float,
-    alt_max_m: float,
-    coarse_m: float,
-    refine_m: float,
     fuel_adj: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    """在最大加力推力下，给各固定速度搜索最佳巡航高度，并补齐该速度下的作战半径。"""
+    """在最大加力推力下，给各固定速度搜索最佳巡航高度，并补齐该速度下的作战半径。
+
+    高度带到海平面，与极速同一包线。阻力不超过军推时按军推节流；
+    超过军推才计入加力燃油，因此加力半径不会靠「更大的军推」虚高。
+    """
     ab_ctx = _optional_ab_context(ctx, params)
     if ab_ctx is None:
         return []
@@ -1151,7 +1152,15 @@ def _afterburner_best_altitude_profile(
     rows: list[dict[str, Any]] = []
     for mach in FIXED_MACHS:
         try:
-            scored = search_best_altitude(ab_ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m)
+            scored = search_best_afterburner_altitude(
+                ctx,
+                ab_ctx,
+                mach,
+                MAX_SPEED_ALT_MIN_M,
+                MAX_SPEED_ALT_MAX_M,
+                MAX_SPEED_ALT_COARSE_M,
+                MAX_SPEED_ALT_REFINE_M,
+            )
         except ValueError:
             scored = None
         if scored is None:
@@ -1170,6 +1179,7 @@ def _afterburner_best_altitude_profile(
                 'radius_m': None,
                 'radius_km': None,
                 'fuel_kg_per_km': None,
+                'reheat': False,
                 'thrust_mode': 'afterburner',
             })
             continue
@@ -1178,7 +1188,8 @@ def _afterburner_best_altitude_profile(
             'mach': mach,
             'label': f'Ma {mach:g}',
             'feasible': bool(scored.feasible),
-            'thrust_mode': 'afterburner',
+            'reheat': bool(scored.reheat),
+            'thrust_mode': 'afterburner' if scored.reheat else 'military',
             'thrust_avail_kN': scored.thrust_avail_N / 1000.0,
             'load': scored.load,
             'eta_th': scored.eta_th,
@@ -1275,17 +1286,9 @@ def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]
             thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
             tsfc_install_mult=parse_tsfc_install_mult(params.get('tsfc_install_mult')),
         )
-        alt_min = float(params['alt_min_m']) if params.get('alt_min_m') not in (None, '') else ALT_MIN_M
-        alt_max = float(params['alt_max_m']) if params.get('alt_max_m') not in (None, '') else ALT_MAX_M
-        coarse_m = float(params['alt_coarse_m']) if params.get('alt_coarse_m') not in (None, '') else ALT_COARSE_M
-        refine_m = float(params['alt_refine_m']) if params.get('alt_refine_m') not in (None, '') else ALT_REFINE_M
         radius['afterburner_best_altitude'] = _afterburner_best_altitude_profile(
             params,
             ctx,
-            alt_min,
-            alt_max,
-            coarse_m,
-            refine_m,
             fuel_adj=radius.get('mission_fuel'),
         )
     except Exception:

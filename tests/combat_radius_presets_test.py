@@ -29,6 +29,7 @@ EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
     'NG6C', 'NG6B', 'NG6A',
     'Typhoon',
     'Su-57', 'KF-21', 'KAAN', 'Su-75',
+    'XGB-1', 'XGB-2', 'XGB-3',
 ]
 
 

@@ -268,6 +268,7 @@ def test_load_combat_radius_aircraft_csv():
         'NG6C', 'NG6B', 'NG6A',
         'Typhoon',
         'Su-57', 'KF-21', 'KAAN', 'Su-75',
+        'XGB-1', 'XGB-2', 'XGB-3',
     ]
     for aid in ('NG6C', 'NG6B', 'NG6A'):
         ng6 = next(r for r in rows if r['id'] == aid)

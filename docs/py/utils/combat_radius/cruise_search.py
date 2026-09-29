@@ -21,6 +21,7 @@ from utils.combat_radius.engine_efficiency import (
     ACC_FRAC_DEFAULT,
     EPS_DEFAULT,
     ETAN_DEFAULT,
+    FUEL_LHV_J_KG,
     T4IDLE_DEFAULT,
     TSFC_INSTALL_MULT_DEFAULT,
     compute_engine_efficiency,
@@ -31,6 +32,10 @@ from utils.combat_radius.lift_drag import SUPERCRUISE_BAND_HI, Aircraft, predict
 from utils.combat_radius.military_thrust import ETA_C_DEFAULT, estimate_military_thrust
 
 THRUST_MARGIN_DEFAULT = 0.92
+# 全加力 TSFC / 军推最大点 TSFC。公开涡扇海平面静止大约 2.5–2.8
+# （如 F100 军推 0.73、加力约 2.0），有来流后推进效率更好，巡航取 2.2。
+# 只用于阻力已经超过军推的点；未超过军推时仍按军推节流，不开加力。
+AB_TSFC_OVER_MIL = 2.2
 ALT_MIN_M = 11000.0
 ALT_MAX_M = 20000.0
 ALT_COARSE_M = 1000.0
@@ -100,6 +105,8 @@ class CruiseScored(CruiseForces):
     tsfc_lb_lbf_h: float | None = None
     score: float = 0.0
     warning: str | None = None
+    # 阻力超过该高度军推、必须打开加力时为 True。仅加力最佳高度使用。
+    reheat: bool = False
 
 
 @dataclass
@@ -197,6 +204,147 @@ def score_cruise_point(ctx: CruiseContext, forces: CruiseForces) -> CruiseScored
         score=score,
         warning=warning,
     )
+
+
+def afterburner_tsfc_kg_n_s(
+    tsfc_mil_max: float,
+    thrust_mil_n: float,
+    thrust_ab_n: float,
+    drag_n: float,
+) -> float:
+    """阻力超过军推时的有效 TSFC（kg/(N·s)）。
+
+    核心停在军推最大点，燃油流量随推力从军推最大线性增到全加力。
+    全加力 TSFC = AB_TSFC_OVER_MIL × 军推最大 TSFC。未超过军推不能调用。
+    """
+    if tsfc_mil_max <= 0 or thrust_mil_n <= 0 or drag_n <= 0:
+        raise ValueError('加力油耗参数须为正')
+    if thrust_ab_n <= thrust_mil_n:
+        raise ValueError('加力推力须大于军推')
+    if drag_n <= thrust_mil_n:
+        raise ValueError('阻力未超过军推，不应使用加力油耗')
+    if drag_n > thrust_ab_n * (1.0 + 1e-9):
+        raise ValueError('阻力超过加力推力')
+    fuel_mil = tsfc_mil_max * thrust_mil_n
+    fuel_full = AB_TSFC_OVER_MIL * tsfc_mil_max * thrust_ab_n
+    frac = (drag_n - thrust_mil_n) / (thrust_ab_n - thrust_mil_n)
+    return (fuel_mil + (fuel_full - fuel_mil) * frac) / drag_n
+
+
+def _eta_o_from_tsfc(v0: float, tsfc_kg_n_s: float) -> float:
+    """由已含安装乘数的 TSFC 反推对外总效率：η_o = V / (TSFC·Q)。"""
+    if v0 <= 0 or tsfc_kg_n_s <= 0:
+        raise ValueError('速度与 TSFC 须为正才能反推总效率')
+    return v0 / (tsfc_kg_n_s * FUEL_LHV_J_KG)
+
+
+def score_afterburner_point(mil_ctx: CruiseContext, ab_forces: CruiseForces) -> CruiseScored:
+    """给加力可飞点评分。
+
+    可用推力按加力上下文。阻力不超过军推时按军推节流，reheat=False，
+    油耗与军推循环相同。超过军推才把差额算作加力燃油，总效率随之下跌。
+    负载按阻力/加力推力，与表上的「加力 kN」一致。
+    """
+    if ab_forces.drag_N <= 0 or ab_forces.thrust_avail_N <= 0:
+        raise ValueError('加力点的阻力与可用推力须为正')
+    mil_full = replace(mil_ctx, thrust_margin=1.0)
+    mil_forces = evaluate_cruise_forces(mil_full, ab_forces.mach, ab_forces.alt_m)
+    t_mil = mil_forces.thrust_avail_N
+    t_ab = ab_forces.thrust_avail_N
+    drag = ab_forces.drag_N
+    ab_load = drag / t_ab
+    if drag <= t_mil:
+        scored = score_cruise_point(mil_full, mil_forces)
+        return replace(
+            scored,
+            thrust_avail_N=t_ab,
+            load_raw=ab_load,
+            load=clamp_load(ab_load),
+            feasible=ab_forces.feasible,
+            reheat=False,
+        )
+    core = score_cruise_point(mil_full, replace(mil_forces, load_raw=1.0, feasible=True))
+    if (
+        core.tsfc_kg_n_s is None
+        or core.v0 <= 0
+        or t_ab <= t_mil
+        or not ab_forces.feasible
+    ):
+        return replace(
+            core,
+            thrust_avail_N=t_ab,
+            load_raw=ab_load,
+            load=clamp_load(ab_load),
+            feasible=ab_forces.feasible,
+            ld=ab_forces.ld,
+            drag_N=drag,
+            reheat=True,
+            score=-1.0,
+        )
+    tsfc = afterburner_tsfc_kg_n_s(core.tsfc_kg_n_s, t_mil, t_ab, drag)
+    eta_o = _eta_o_from_tsfc(core.v0, tsfc)
+    pack = tsfc_from_eta_o(core.v0, eta_o, install_mult=1.0)
+    return replace(
+        core,
+        thrust_avail_N=t_ab,
+        load_raw=ab_load,
+        load=clamp_load(ab_load),
+        feasible=True,
+        ld=ab_forces.ld,
+        drag_N=drag,
+        cd_breakdown=ab_forces.cd_breakdown,
+        eta_o=eta_o,
+        tsfc_kg_n_s=pack['tsfc_kg_n_s'],
+        tsfc_mg_n_s=pack['tsfc_mg_n_s'],
+        tsfc_lb_lbf_h=pack['tsfc_lb_lbf_h'],
+        score=ab_forces.ld * eta_o,
+        reheat=True,
+        warning=None,
+    )
+
+
+def search_best_afterburner_altitude(
+    mil_ctx: CruiseContext,
+    ab_ctx: CruiseContext,
+    mach: float,
+    alt_min_m: float = 0.0,
+    alt_max_m: float = 20000.0,
+    coarse_m: float = ALT_COARSE_M,
+    refine_m: float = ALT_REFINE_M,
+) -> CruiseScored | None:
+    """在加力包线内搜索使 L/D×含加力油耗的总效率最大的高度。
+
+    默认可到海平面，与极速同一高度带，不能停在 11 km 军推巡航地板。
+    只接受阻力不超过全部加力推力的点。
+    """
+    if mach <= 0:
+        raise ValueError('马赫数须为正')
+    best: CruiseScored | None = None
+    for alt in altitude_grid(alt_min_m, alt_max_m, coarse_m):
+        forces = try_cruise_forces(ab_ctx, mach, alt)
+        if forces is None or not forces.feasible:
+            continue
+        try:
+            scored = score_afterburner_point(mil_ctx, forces)
+        except ValueError:
+            continue
+        if scored.score > (best.score if best is not None else -1.0):
+            best = scored
+    if best is None:
+        return None
+    lo = max(alt_min_m, best.alt_m - coarse_m)
+    hi = min(alt_max_m, best.alt_m + coarse_m)
+    for alt in altitude_grid(lo, hi, refine_m):
+        forces = try_cruise_forces(ab_ctx, mach, alt)
+        if forces is None or not forces.feasible:
+            continue
+        try:
+            scored = score_afterburner_point(mil_ctx, forces)
+        except ValueError:
+            continue
+        if scored.score > best.score:
+            best = scored
+    return best
 
 
 def cruise_point_feasible(ctx: CruiseContext, mach: float, alt_m: float) -> bool:
@@ -620,6 +768,7 @@ def scored_to_dict(point: CruiseScored) -> dict[str, Any]:
         'tsfc_lb_lbf_h': point.tsfc_lb_lbf_h,
         'score': point.score,
         'warning': point.warning,
+        'reheat': point.reheat,
         'CL': point.cd_breakdown.get('CL'),
         'CD0': point.cd_breakdown.get('CD0'),
         'CDi': point.cd_breakdown.get('CDi'),

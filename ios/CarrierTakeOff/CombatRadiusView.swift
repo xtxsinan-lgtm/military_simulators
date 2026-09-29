@@ -245,6 +245,31 @@ struct CombatRadiusView: View {
             Text("表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，再插一行「最大半径超音速巡航速度」。最佳巡航高度使升阻比×总效率最大。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力，高度可到海平面。极速按阻力等于全部加力（不留巡航裕度）；超过超巡带后附加体积波阻，避免光滑隐身机靠降高把极速估高。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。")
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(CombatRadiusTheme.textDim)
+            if let abRows = r.afterburner_best_altitude, !abRows.isEmpty {
+                Text("最大加力推力下各速度最佳高度与作战半径")
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.amber)
+                ForEach(abRows) { p in
+                    HStack {
+                        Text(p.mach.map { String(format: "Ma %.3f", $0) } ?? "—")
+                            .foregroundStyle(CombatRadiusTheme.green)
+                        Spacer()
+                        if p.feasible == true, let km = p.radius_km {
+                            let alt = (p.alt_m ?? 0) / 1000
+                            let mode = p.reheat == true ? "加力" : "军推"
+                            Text(String(format: "%@ %.1f km · %.0f km", mode, alt, km))
+                                .foregroundStyle(CombatRadiusTheme.text)
+                        } else {
+                            Text("不可飞")
+                                .foregroundStyle(CombatRadiusTheme.textDim)
+                        }
+                    }
+                    .font(.system(size: 11, design: .monospaced))
+                }
+                Text("高度与极速同一包线，可到海平面。阻力不超过军推时不开加力；超过军推才按加力燃油（全加力 TSFC 约为军推最大点的 2.2 倍）。")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.textDim)
+            }
         }
     }
 

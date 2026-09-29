@@ -1165,8 +1165,54 @@ def test_run_aircraft_dashboard_includes_afterburner_best_altitudes():
     assert m08['alt_m'] > 0
     assert m08['ld'] > 0
     assert m08['radius_km'] is not None and m08['radius_km'] > 0
-    assert m08['thrust_mode'] == 'afterburner'
+    assert m08['thrust_mode'] == 'military'
     assert m08['thrust_avail_kN'] > 0
+    assert m08['reheat'] is False
+
+
+def test_xgb3_afterburner_best_altitude_is_below_cruise_floor():
+    """中六极速在 11 km 以下，加力最佳高度不能被军推巡航地板整表判不可飞。"""
+    from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+
+    ac = get_preset_by_id(load_presets(), 'XGB-3')
+    eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
+    dash = run_aircraft_dashboard_from_params(dashboard_params_from_preset(ac, eng))
+    assert dash['success'] is True
+    m08 = next(item for item in dash['afterburner_best_altitude'] if item['mach'] == 0.8)
+    assert m08['feasible'] is True
+    assert m08['alt_m'] < 11000
+    assert m08['radius_km'] is not None and m08['radius_km'] > 0
+
+
+def test_f22_afterburner_radius_does_not_exceed_military_at_same_speed():
+    """同速度军推可飞时，加力表半径不能高于军推（以前把加力当成更大的军推）。"""
+    from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+
+    ac = get_preset_by_id(load_presets(), 'F-22')
+    eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
+    dash = run_aircraft_dashboard_from_params(dashboard_params_from_preset(ac, eng))
+    assert dash['success'] is True
+    for mach in (0.8, 1.0):
+        ab = next(item for item in dash['afterburner_best_altitude'] if item['mach'] == mach)
+        mil = next(item for item in dash['points'] if item['id'] == f'mach_{str(mach).replace(".", "_")}')
+        assert mil['feasible'] is True and ab['feasible'] is True
+        assert ab['reheat'] is False
+        assert ab['radius_km'] == pytest.approx(mil['radius_km'], rel=0.02)
+        assert ab['alt_m'] == pytest.approx(mil['alt_m'], abs=1.0)
+    mil175 = next(item for item in dash['points'] if item['id'] == 'mach_1_75')
+    for mach in (1.2, 1.35, 1.5, 1.75):
+        ab = next(item for item in dash['afterburner_best_altitude'] if item['mach'] == mach)
+        mil = next(item for item in dash['points'] if item.get('mach') == mach and str(item['id']).startswith('mach'))
+        assert mil['feasible'] is True and ab['feasible'] is True
+        assert ab['alt_m'] + 1.0 >= mil['alt_m']
+    high = next(item for item in dash['afterburner_best_altitude'] if item['mach'] == 2.0)
+    mil20 = next(item for item in dash['points'] if item['id'] == 'mach_2_0')
+    assert mil20['feasible'] is False
+    assert high['feasible'] is True
+    assert high['reheat'] is True
+    assert high['radius_km'] < mil175['radius_km']
 
 
 def test_run_aircraft_dashboard_f35c_ab_flyable_has_max_ld():

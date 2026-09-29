@@ -213,6 +213,9 @@ function abBestRowsFrom(r) {
     etaTh: p.eta_th != null ? `${fmt(100 * p.eta_th, 1)}%` : '—',
     etaP: p.eta_p != null ? `${fmt(100 * p.eta_p, 1)}%` : '—',
     etaO: p.eta_o != null ? `${fmt(100 * p.eta_o, 1)}%` : '—',
+    mode: p.feasible ? (p.reheat ? '加力' : '军推') : '—',
+    radius: p.radius_km != null ? fmt(p.radius_km, 0) : '—',
+    fuel: p.fuel_kg_per_km != null ? fmt(p.fuel_kg_per_km, 2) : '—',
     ok: !!p.feasible,
   }));
 }
