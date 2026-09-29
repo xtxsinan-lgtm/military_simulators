@@ -257,17 +257,19 @@ def test_missile_interception_radar_csv_missing_nation_raises(tmp_path):
 
 
 def test_load_combat_radius_aircraft_csv():
-    """作战半径机型须含分段浸润几何，且不含歼-15 等起飞专用机。"""
+    """作战半径机型须含分段浸润几何；未填几何的 AV-8B 仍排除。"""
     rows = load_combat_radius_aircraft_csv(COMBAT_RADIUS_AIRCRAFT_CSV)
     ids = [r['id'] for r in rows]
     assert ids == [
         'F-35C', 'F-22', 'F-35A', 'J-20', 'J-10C', 'J-50', 'J-50N', 'J-36',
         'J-35', 'J-35A', '53636', '53636N', '53536',
         'F-35B',
-        'Rafale-M', 'Rafale',
+        'J-15', 'J-15T', 'MiG-29K', 'Rafale-M', 'Rafale', 'Mirage-2000',
+        'FA-18E', 'FA-18C', 'F-14',
         'NG6C', 'NG6B', 'NG6A',
-        'Typhoon',
-        'Su-57', 'KF-21', 'KAAN', 'Su-75',
+        'F-15', 'F-15E', 'F-16', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
+        'F-CK-1', 'FC-1', 'L-15B', 'Tejas',
+        'Su-57', 'KF-21', 'FA-50', 'KAAN', 'Su-75',
         'XGB-1', 'XGB-2', 'XGB-3',
     ]
     for aid in ('NG6C', 'NG6B', 'NG6A'):
@@ -280,9 +282,9 @@ def test_load_combat_radius_aircraft_csv():
     ng6b = next(r for r in rows if r['id'] == 'NG6B')
     assert ng6b['internal_fuel_kg'] == pytest.approx(7250)
     assert ng6b['empty_kg'] == pytest.approx(13400)
-    assert 'J-15' not in ids
+    assert 'J-15' in ids
+    assert 'FA-18C' in ids
     assert 'AV-8B' not in ids
-    assert 'FA-18C' not in ids
     f35b = next(r for r in rows if r['id'] == 'F-35B')
     assert f35b['engine_id'] == 'f135b'
     assert f35b['canard_htail_area_m2'] == pytest.approx(5.56 * 2)

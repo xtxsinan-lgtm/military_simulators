@@ -51,16 +51,18 @@ def test_e2e_land_fighters_ski_jump_on_shandong():
 
 @pytest.mark.e2e
 def test_e2e_land_fighters_remain_land_based_in_combat_radius():
-    """作战半径仍按陆基；起飞选项不把歼-20 / F-35A 改成舰载机。新机型无分段浸润则不进作战半径。"""
+    """作战半径仍按陆基；补齐分段几何后这些陆基战斗机进入作战半径。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
 
     presets = load_presets()
-    for aid in ('J-10C', 'J-20', 'F-35A', 'Typhoon', 'Rafale', 'Su-57', 'KF-21', 'KAAN', 'Su-75', '53636'):
+    land_ids = (
+        'J-10C', 'J-20', 'F-35A', 'Typhoon', 'Rafale', 'Su-57', 'KF-21', 'KAAN', 'Su-75', '53636',
+        'F-15', 'F-16', 'Gripen-CD', 'Gripen-EF', 'F-CK-1', 'FC-1', 'Tejas',
+    )
+    for aid in land_ids:
         row = get_preset_by_id(presets, aid)
         assert row is not None, aid
         assert row['carrier'] is False, aid
     rafale_m = get_preset_by_id(presets, 'Rafale-M')
     assert rafale_m is not None
     assert rafale_m['carrier'] is True
-    for aid in ('F-15', 'F-16', 'Gripen-CD', 'Gripen-EF', 'F-CK-1', 'FC-1', 'Tejas'):
-        assert get_preset_by_id(presets, aid) is None, aid

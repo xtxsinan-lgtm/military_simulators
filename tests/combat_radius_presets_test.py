@@ -20,15 +20,17 @@ from utils.combat_radius.combat_radius_presets import (
 )
 from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV, COMBAT_RADIUS_ENGINE_CSV
 
-# 作战半径仅含分段浸润几何机型（起飞专用的歼-15 等不入选）
+# 作战半径仅含分段浸润几何机型（未填几何的 AV-8B 等仍不入选）
 EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
     'F-35C', 'F-22', 'F-35A', 'J-20', 'J-10C', 'J-50', 'J-50N', 'J-36',
     'J-35', 'J-35A', '53636', '53636N', '53536',
     'F-35B',
-    'Rafale-M', 'Rafale',
+    'J-15', 'J-15T', 'MiG-29K', 'Rafale-M', 'Rafale', 'Mirage-2000',
+    'FA-18E', 'FA-18C', 'F-14',
     'NG6C', 'NG6B', 'NG6A',
-    'Typhoon',
-    'Su-57', 'KF-21', 'KAAN', 'Su-75',
+    'F-15', 'F-15E', 'F-16', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
+    'F-CK-1', 'FC-1', 'L-15B', 'Tejas',
+    'Su-57', 'KF-21', 'FA-50', 'KAAN', 'Su-75',
     'XGB-1', 'XGB-2', 'XGB-3',
 ]
 
@@ -114,7 +116,10 @@ def test_load_presets_contains_anchors_and_j20():
     ac36 = preset_to_aircraft(j36)
     assert ac36.sweep_inner_deg == pytest.approx(67.8)
     assert ac36.sweep_outer_deg == pytest.approx(55.3)
-    assert get_preset_by_id(presets, 'J-15') is None
+    j15 = get_preset_by_id(presets, 'J-15')
+    assert j15 is not None
+    assert j15['store_mount'] == 'pylon'
+    assert j15['layout'] == 'conventional'
     f22 = get_preset_by_id(presets, 'F-22')
     assert f22['carrier'] is False
     assert f22['inlet'] == 'caret'
@@ -549,6 +554,10 @@ def test_load_engine_presets_contains_f119_and_optional_tsl():
         'f404in20': (0.34, 26.0, 1700.0),
         'al41f1': (0.59, 23.5, 1750.0),
         'al51f1': (0.30, 30.0, 1920.0),
+        'f100229': (0.36, 32.0, 1750.0),
+        'm53p2': (0.32, 9.8, 1700.0),
+        'f404ge102': (0.34, 26.0, 1700.0),
+        'ai222k25f': (1.19, 15.43, 1470.0),
     }
     for eid, (bpr, opr, t4) in expected.items():
         row = get_preset_by_id(engines, eid)

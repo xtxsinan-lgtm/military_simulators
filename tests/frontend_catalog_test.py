@@ -50,7 +50,7 @@ def test_build_catalog_payload_modes():
     assert payload['combat_radius_config']['store_mount_labels']['pylon'] == '挂架'
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-50' for p in payload['combat_radius_presets'])
-    assert all(p['id'] != 'J-15' for p in payload['combat_radius_presets'])
+    assert any(p['id'] == 'J-15' for p in payload['combat_radius_presets'])
     assert any(p['id'] == '53636' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'Typhoon' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'Rafale' for p in payload['combat_radius_presets'])

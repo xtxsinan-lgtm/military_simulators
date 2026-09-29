@@ -544,12 +544,13 @@ def test_has_geometric_wetted_dict_requires_all_fields():
     assert has_geometric_wetted_dict({}) is False
 
 
-def test_csv_presets_use_geometric_wetted_and_exclude_j15():
-    """CSV 作战半径机型走分段浸润；歼-15 不在列表。"""
+def test_csv_presets_use_geometric_wetted_and_include_j15():
+    """CSV 作战半径机型走分段浸润；补齐几何后歼-15 进入列表。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets, preset_to_aircraft
 
     presets = load_presets()
-    assert get_preset_by_id(presets, 'J-15') is None
+    j15 = preset_to_aircraft(get_preset_by_id(presets, 'J-15'))
+    assert has_geometric_wetted(j15) is True
     f35a = preset_to_aircraft(get_preset_by_id(presets, 'F-35A'))
     assert has_geometric_wetted(f35a) is True
     assert fuse_wetted_factor(f35a) == pytest.approx(1.0)

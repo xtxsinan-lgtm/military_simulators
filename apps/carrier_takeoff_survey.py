@@ -124,8 +124,8 @@ AIRCRAFT: dict[str, AircraftSpec] = {
         notes='2×F404-GE-402 加力各 78.3 kN（15°C SL）；Classic Hornet',
     ),
     'F-14': AircraftSpec(
-        id='F-14', name='F-14 Tomcat', type_label='conventional',
-        mtow_kg=33724, empty_kg=18955, internal_fuel_kg=7348, max_payload_kg=6700,
+        id='F-14', name='F-14D Tomcat', type_label='conventional',
+        mtow_kg=33724, empty_kg=19838, internal_fuel_kg=7348, max_payload_kg=6700,
         bvr_missile='AIM-120C AMRAAM', missile_mass_kg=152.0,
         sweep_le_deg=20, wingspan_m=19.54, wing_area_m2=52.49, wing_height_m=2.10,
         cd0=0.046, t_max_sl_n=250900,

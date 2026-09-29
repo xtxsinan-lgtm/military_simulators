@@ -95,10 +95,9 @@ def test_e2e_e2_hawkeye_ski_jump_constant_power_longer_than_static_thrust():
 
 @pytest.mark.e2e
 def test_e2e_usn_legacy_stay_out_of_combat_radius():
-    """未填分段浸润几何，作战半径库不含这六型（与歼-15 等起飞专用机一致）。"""
+    """未填分段浸润几何，作战半径库不含这六型攻击/支援机。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
 
     presets = load_presets()
     for aid in _USN_LEGACY_IDS:
         assert get_preset_by_id(presets, aid) is None, aid
-        assert get_preset_by_id(presets, 'J-15') is None

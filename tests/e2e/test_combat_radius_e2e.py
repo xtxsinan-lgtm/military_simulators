@@ -269,7 +269,7 @@ def test_e2e_combat_radius_expanded_fleet_predict_ld():
 
 @pytest.mark.e2e
 def test_e2e_combat_radius_geometric_wetted_and_fleet_filter():
-    """分段浸润进入升阻比；作战半径可选机型不含歼-15 等起飞专用机。"""
+    """分段浸润进入升阻比；未填几何的 AV-8B 仍不进作战半径。"""
     from utils.combat_radius.lift_drag import (
         aircraft_from_dict,
         fuse_wetted_factor,
@@ -280,7 +280,7 @@ def test_e2e_combat_radius_geometric_wetted_and_fleet_filter():
     )
 
     presets = load_presets()
-    assert get_preset_by_id(presets, 'J-15') is None
+    assert get_preset_by_id(presets, 'J-15') is not None
     assert get_preset_by_id(presets, 'AV-8B') is None
     f35a = get_preset_by_id(presets, 'F-35A')
     ac = aircraft_from_dict(f35a)
@@ -897,9 +897,9 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert f35c['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
     f35c_m15 = next(p for p in f35c['points'] if p['id'] == 'mach_1_5')
     assert f35c_m15['max_ld'] is not None and f35c_m15['max_ld'] > 0
-    assert 'J-15' not in stored['aircraft']
+    assert 'J-15' in stored['aircraft']
+    assert 'FA-18C' in stored['aircraft']
     assert 'AV-8B' not in stored['aircraft']
-    assert 'FA-18C' not in stored['aircraft']
     f35a = stored['aircraft']['F-35A']
     assert f35a['success'] is True
     assert f35a['max_speed']['max_speed_mach'] == pytest.approx(F35_MAX_SPEED_MACH, abs=0.12)
