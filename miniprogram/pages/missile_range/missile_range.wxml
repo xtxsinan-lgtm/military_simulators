@@ -1,0 +1,92 @@
+<view class="mr-page">
+  <text class="mr-title">导弹射程估算终端</text>
+  <text class="mr-sub">HGV RANGE · BOOST + GLIDE</text>
+
+  <view class="panel">
+    <view class="panel-head">弹体与发射条件 · INPUT</view>
+    <text class="note">选择预设后可改尺寸、战斗部、构型与空射条件。点「估算射程」按当前比冲与密度重算这一发，并刷新右侧样本表。</text>
+    <view class="field">
+      <view class="field-label"><text>预设样本</text></view>
+      <picker mode="selector" range="{{caseNames}}" value="{{caseIndex}}" bindchange="onPickCase">
+        <view class="picker-val">{{caseNames[caseIndex] || '加载中…'}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>弹长</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{lengthM}}" data-key="lengthM" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <view class="field-label"><text>弹径</text><text class="unit">m</text></view>
+      <input class="input" type="digit" value="{{diameterM}}" data-key="diameterM" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <view class="field-label"><text>战斗部</text><text class="unit">kg</text></view>
+      <input class="input" type="digit" value="{{warheadKg}}" data-key="warheadKg" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <view class="field-label"><text>构型</text></view>
+      <picker mode="selector" range="{{typeNames}}" value="{{typeIndex}}" bindchange="onPickType">
+        <view class="picker-val">{{typeNames[typeIndex]}}</view>
+      </picker>
+    </view>
+    <view class="section cyan">▸ 发射条件</view>
+    <view class="field">
+      <view class="field-label"><text>发射马赫数</text></view>
+      <input class="input" type="digit" value="{{vMach}}" data-key="vMach" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <view class="field-label"><text>发射高度</text><text class="unit">km</text></view>
+      <input class="input" type="digit" value="{{hKm}}" data-key="hKm" bindinput="onInput" />
+    </view>
+    <view class="section amber">▸ 推进剂</view>
+    <view class="field">
+      <view class="field-label"><text>比冲</text><text class="unit">s</text></view>
+      <input class="input" type="digit" value="{{ispS}}" data-key="ispS" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <view class="field-label"><text>密度</text><text class="unit">kg/m³</text></view>
+      <input class="input" type="digit" value="{{density}}" data-key="density" bindinput="onInput" />
+    </view>
+    <view class="btn" bindtap="onRun">▶ 估算射程</view>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">估算结果 · OUTPUT</view>
+    <view class="status">{{statusText}}</view>
+    <view class="stat-row" wx:if="{{result}}">
+      <view class="stat"><view class="k">估算射程 km</view><view class="v">{{result.range_km}}</view></view>
+      <view class="stat"><view class="k">关机马赫</view><view class="v amber">{{result.v_burnout_mach}}</view></view>
+    </view>
+    <view class="stat-row" wx:if="{{result}}">
+      <view class="stat"><view class="k">升阻比</view><view class="v">{{result.ld_ratio}}</view></view>
+      <view class="stat"><view class="k">起飞质量 t</view><view class="v amber">{{result.m_0_t}}</view></view>
+    </view>
+    <view class="stat-row" wx:if="{{result}}">
+      <view class="stat"><view class="k">弹头 m</view><view class="v">{{result.l_head_m}}</view></view>
+      <view class="stat"><view class="k">助推 m</view><view class="v">{{result.l_booster_m}}</view></view>
+      <view class="stat"><view class="k">推进剂 kg</view><view class="v">{{result.m_p_total_kg}}</view></view>
+    </view>
+  </view>
+
+  <view class="panel">
+    <view class="panel-head">预设样本表 · TABLE</view>
+    <scroll-view scroll-x class="scroll-x">
+      <view class="table">
+        <view class="tr th">
+          <text class="col">ID</text>
+          <text class="col wide">尺寸</text>
+          <text class="col">弹头</text>
+          <text class="col">构型</text>
+          <text class="col">射程km</text>
+        </view>
+        <view class="tr {{item.id === activeId ? 'on' : ''}}" wx:for="{{rows}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapRow">
+          <text class="td col">{{item.id}}</text>
+          <text class="td col wide">{{item.size_m}}</text>
+          <text class="td col">{{item.warhead_kg}}</text>
+          <text class="td col">{{item.type_label}}</text>
+          <text class="td col">{{item.range_km}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

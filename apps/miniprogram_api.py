@@ -18,6 +18,7 @@ if str(_ROOT) not in sys.path:
 
 from apps.combat_radius_web import run_combat_radius_json
 from apps.missile_interception_strike_web import run_missile_interception_json
+from apps.missile_range_web import run_missile_range_json
 from apps.web_simulator import run_simulation_json
 
 
@@ -121,6 +122,25 @@ def handle_request(method: str, path: str, body: bytes | None) -> tuple[int, dic
         headers = {**cors, 'Content-Type': 'application/json; charset=utf-8'}
         return 200, headers, body_bytes
 
+    if method == 'POST' and route == '/api/missile_range/simulate':
+        if not body:
+            err = {'success': False, 'error': '请求体为空'}
+            return 400, {**cors, 'Content-Type': 'application/json'}, json.dumps(err).encode()
+        try:
+            payload = json.loads(body.decode('utf-8'))
+        except json.JSONDecodeError as exc:
+            err = {'success': False, 'error': f'JSON 解析失败: {exc}'}
+            return 400, {**cors, 'Content-Type': 'application/json'}, json.dumps(err).encode()
+        try:
+            result = run_missile_range_json(payload)
+            body_bytes = json.dumps(result, ensure_ascii=False).encode('utf-8')
+        except Exception as exc:
+            print(f'[miniprogram_api] 导弹射程未捕获异常: {exc}', flush=True)
+            err = {'success': False, 'error': f'服务器内部错误: {exc}'}
+            body_bytes = json.dumps(err, ensure_ascii=False).encode('utf-8')
+        headers = {**cors, 'Content-Type': 'application/json; charset=utf-8'}
+        return 200, headers, body_bytes
+
     err = {'error': 'Not Found'}
     return 404, {**cors, 'Content-Type': 'application/json'}, json.dumps(err).encode()
 
@@ -171,6 +191,7 @@ def serve(host: str = '127.0.0.1', port: int = 8765) -> None:
     print('  POST /api/simulate              — 起飞仿真', flush=True)
     print('  POST /api/missile_interception/simulate   — 饱和打击仿真', flush=True)
     print('  POST /api/combat_radius/simulate          — 作战半径仪表盘 / 巡航搜索 / 效率循环', flush=True)
+    print('  POST /api/missile_range/simulate          — 导弹射程估算', flush=True)
     print('  （iOS App 不使用本服务，在设备本地 Pyodide 计算）', flush=True)
     if host in ('0.0.0.0', '::'):
         lan = _guess_lan_ip()

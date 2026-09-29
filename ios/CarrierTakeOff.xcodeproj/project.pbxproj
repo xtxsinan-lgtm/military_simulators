@@ -21,6 +21,9 @@
 		A9B9E0F570125357B2111FF3 /* MissileInterceptionStrikeView.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 60D4E63FA5B8577F9F05896A /* MissileInterceptionStrikeView.swift */; };
 		319BBF79CB6254A9B2010667 /* MissileInterceptionTheme.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 54A20C04E4635D679854FBBE /* MissileInterceptionTheme.swift */; };
 		87DBC22E8B455C19BAC9D5A1 /* MissileInterceptionViewModel.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = BCF90243468E533F80155B10 /* MissileInterceptionViewModel.swift */; };
+		C1F7D353D9B55DFA91084E91 /* MissileRangeTheme.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 60569E002D9D597FB0981F73 /* MissileRangeTheme.swift */; };
+		8288E222BB0D55DDB3F255DA /* MissileRangeView.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 76B22AAF0FD158F7B4EB30B9 /* MissileRangeView.swift */; };
+		7C5914257EFF5C788A153B41 /* MissileRangeViewModel.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 0707B2F15231511D83FED582 /* MissileRangeViewModel.swift */; };
 		083462D684ED58EE89A06F94 /* Models.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 828F37BC1B845EB6B4221C97 /* Models.swift */; };
 		DF995F993536557BB6E61BC0 /* Physics.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 69214A43FA7A5B09862DC795 /* Physics.swift */; };
 		1F13E61D1D055C788FD7B9F3 /* SimulatorViewModel.swift in Sources/Resources */ = {isa = PBXBuildFile; fileRef = 8F8BE49FBB77582C83FF99D8 /* SimulatorViewModel.swift */; };
@@ -48,6 +51,9 @@
 		60D4E63FA5B8577F9F05896A /* MissileInterceptionStrikeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MissileInterceptionStrikeView.swift"; sourceTree = "<group>"; };
 		54A20C04E4635D679854FBBE /* MissileInterceptionTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MissileInterceptionTheme.swift"; sourceTree = "<group>"; };
 		BCF90243468E533F80155B10 /* MissileInterceptionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MissileInterceptionViewModel.swift"; sourceTree = "<group>"; };
+		60569E002D9D597FB0981F73 /* MissileRangeTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MissileRangeTheme.swift"; sourceTree = "<group>"; };
+		76B22AAF0FD158F7B4EB30B9 /* MissileRangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MissileRangeView.swift"; sourceTree = "<group>"; };
+		0707B2F15231511D83FED582 /* MissileRangeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MissileRangeViewModel.swift"; sourceTree = "<group>"; };
 		828F37BC1B845EB6B4221C97 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models.swift"; sourceTree = "<group>"; };
 		69214A43FA7A5B09862DC795 /* Physics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Physics.swift"; sourceTree = "<group>"; };
 		8F8BE49FBB77582C83FF99D8 /* SimulatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SimulatorViewModel.swift"; sourceTree = "<group>"; };
@@ -91,6 +97,9 @@
 				60D4E63FA5B8577F9F05896A /* MissileInterceptionStrikeView.swift */,
 				54A20C04E4635D679854FBBE /* MissileInterceptionTheme.swift */,
 				BCF90243468E533F80155B10 /* MissileInterceptionViewModel.swift */,
+				60569E002D9D597FB0981F73 /* MissileRangeTheme.swift */,
+				76B22AAF0FD158F7B4EB30B9 /* MissileRangeView.swift */,
+				0707B2F15231511D83FED582 /* MissileRangeViewModel.swift */,
 				828F37BC1B845EB6B4221C97 /* Models.swift */,
 				69214A43FA7A5B09862DC795 /* Physics.swift */,
 				8F8BE49FBB77582C83FF99D8 /* SimulatorViewModel.swift */,
@@ -192,6 +201,9 @@
 				A9B9E0F570125357B2111FF3 /* MissileInterceptionStrikeView.swift in Sources */,
 				319BBF79CB6254A9B2010667 /* MissileInterceptionTheme.swift in Sources */,
 				87DBC22E8B455C19BAC9D5A1 /* MissileInterceptionViewModel.swift in Sources */,
+				C1F7D353D9B55DFA91084E91 /* MissileRangeTheme.swift in Sources */,
+				8288E222BB0D55DDB3F255DA /* MissileRangeView.swift in Sources */,
+				7C5914257EFF5C788A153B41 /* MissileRangeViewModel.swift in Sources */,
 				083462D684ED58EE89A06F94 /* Models.swift in Sources */,
 				DF995F993536557BB6E61BC0 /* Physics.swift in Sources */,
 				1F13E61D1D055C788FD7B9F3 /* SimulatorViewModel.swift in Sources */,

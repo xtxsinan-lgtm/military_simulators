@@ -78,6 +78,7 @@ html, body {
 .sim-card.takeoff { border-top: 3px solid var(--blue); }
 .sim-card.missile_interception { border-top: 3px solid var(--amber); }
 .sim-card.combat_radius { border-top: 3px solid #3ddc84; }
+.sim-card.missile_range { border-top: 3px solid #c084fc; }
 
 .sim-id {
   font-family: var(--mono);

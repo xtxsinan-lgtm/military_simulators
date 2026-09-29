@@ -118,6 +118,32 @@ final class LocalSimulatorEngine: NSObject, WKScriptMessageHandler {
         return try JSONDecoder().decode(CombatRadiusResult.self, from: data)
     }
 
+    /// 在本地 Pyodide 中运行导弹射程估算
+    func runMissileRange(payload: [String: Any]) async throws -> MissileRangeResult {
+        try await prepare()
+        guard let webView else {
+            throw NSError(
+                domain: "LocalSimulatorEngine",
+                code: 2,
+                userInfo: [NSLocalizedDescriptionKey: "仿真引擎 WebView 未初始化"]
+            )
+        }
+        let result = try await webView.callAsyncJavaScript(
+            "return await window.__missileRangeSim.run(payload);",
+            arguments: ["payload": payload],
+            contentWorld: .page
+        )
+        guard let obj = result else {
+            throw NSError(
+                domain: "LocalSimulatorEngine",
+                code: 4,
+                userInfo: [NSLocalizedDescriptionKey: "导弹射程估算无返回"]
+            )
+        }
+        let data = try JSONSerialization.data(withJSONObject: obj)
+        return try JSONDecoder().decode(MissileRangeResult.self, from: data)
+    }
+
     nonisolated func userContentController(
         _ userContentController: WKUserContentController,
         didReceive message: WKScriptMessage

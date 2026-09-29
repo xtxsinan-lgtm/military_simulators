@@ -9,6 +9,7 @@ from utils.takeoff.takeoff_config import build_takeoff_config_payload
 from utils.takeoff.takeoff_physics import PITCH_MAX_DEG
 from utils.combat_radius.combat_radius_config import build_combat_radius_config_payload
 from utils.missile_interception.missile_interception_config import build_missile_interception_config_payload
+from utils.missile_range.dataset import build_missile_range_catalog_payload
 
 MODES = {
     'ski_jump': '滑跃起飞',
@@ -29,7 +30,7 @@ TILTROTOR_STRATEGIES = {
 }
 
 # data.json 结构版本；字段变更时递增
-DATA_VERSION = 35
+DATA_VERSION = 36
 
 # 启动页可选模拟器（HTML / 小程序 / iOS 同源）
 SIMULATORS = [
@@ -59,6 +60,15 @@ SIMULATORS = [
         'html': 'combat-radius.html',
         'miniprogram_page': '/pages/combat_radius/combat_radius',
         'ios_route': 'combat_radius',
+    },
+    {
+        'id': 'missile_range',
+        'name': '导弹射程估算',
+        'eyebrow': 'HGV RANGE',
+        'subtitle': '助推-滑翔 · 双锥 / 乘波 · 比冲与装填',
+        'html': 'missile-range.html',
+        'miniprogram_page': '/pages/missile_range/missile_range',
+        'ios_route': 'missile_range',
     },
 ]
 
@@ -123,4 +133,5 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'combat_radius_engine_presets': build_combat_radius_engine_presets_payload(),
         'combat_radius_config': build_combat_radius_config_payload(),
         'combat_radius_results': build_combat_radius_results_catalog_payload(),
+        'missile_range': build_missile_range_catalog_payload(),
     }

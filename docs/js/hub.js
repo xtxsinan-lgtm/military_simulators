@@ -1,7 +1,7 @@
 /**
  * 启动页：从 data.json.simulators 动态列出可选模拟器。
  */
-const HUB_VERSION = 4;
+const HUB_VERSION = 5;
 
 async function main() {
   const grid = document.getElementById('simGrid');

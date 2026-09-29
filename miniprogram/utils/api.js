@@ -138,6 +138,36 @@ function runCombatRadiusSimulation(payload) {
     });
   });
 }
+/** 调用后端导弹射程估算 API */
+function runMissileRangeSimulation(payload) {
+  const base = config.apiBaseUrl;
+  if (!base) {
+    return Promise.reject(
+      new Error('未配置 apiBaseUrl。请在 config.js 填写后端地址，或运行 python3 apps/miniprogram_api.py')
+    );
+  }
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: `${base}/api/missile_range/simulate`,
+      method: 'POST',
+      header: { 'content-type': 'application/json' },
+      data: payload,
+      timeout: 60000,
+      success(res) {
+        if (res.statusCode >= 200 && res.statusCode < 300 && res.data) {
+          resolve(res.data);
+        } else {
+          const msg = (res.data && res.data.error) || `导弹射程请求失败 (${res.statusCode})`;
+          reject(new Error(msg));
+        }
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '导弹射程网络请求失败'));
+      },
+    });
+  });
+}
+
 function modesToList(modes) {
   const src = modes || {};
   return Object.keys(src).map((id) => ({ id, label: src[id] }));
@@ -149,5 +179,6 @@ module.exports = {
   runSimulation,
   runMissileInterceptionSimulation,
   runCombatRadiusSimulation,
+  runMissileRangeSimulation,
   modesToList,
 };

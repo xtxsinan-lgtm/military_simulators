@@ -70,6 +70,8 @@ struct HubView: View {
             MissileInterceptionStrikeView()
         case "combat_radius":
             CombatRadiusView()
+        case "missile_range":
+            MissileRangeView()
         default:
             ContentView()
         }
@@ -81,6 +83,8 @@ struct HubView: View {
             return Color(hex: 0xFFB020)
         case "combat_radius":
             return Color(hex: 0x3DDC84)
+        case "missile_range":
+            return Color(hex: 0xC084FC)
         default:
             return Color(hex: 0x38BDF8)
         }

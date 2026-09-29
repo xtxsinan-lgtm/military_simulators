@@ -3,7 +3,8 @@
     "pages/home/home",
     "pages/index/index",
     "pages/missile_interception/missile_interception",
-    "pages/combat_radius/combat_radius"
+    "pages/combat_radius/combat_radius",
+    "pages/missile_range/missile_range"
   ],
   "window": {
     "navigationBarTitleText": "舰载作战仿真",
@@ -42,6 +43,12 @@
         "text": "作战半径",
         "iconPath": "assets/tab-combat-radius.png",
         "selectedIconPath": "assets/tab-combat-radius-active.png"
+      },
+      {
+        "pagePath": "pages/missile_range/missile_range",
+        "text": "导弹射程",
+        "iconPath": "assets/tab-missile-range.png",
+        "selectedIconPath": "assets/tab-missile-range-active.png"
       }
     ]
   },

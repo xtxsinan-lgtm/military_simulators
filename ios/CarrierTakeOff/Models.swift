@@ -16,6 +16,7 @@ struct CatalogPayload: Codable {
     var combat_radius_engine_presets: [CombatRadiusEnginePresetItem]?
     var combat_radius_config: CombatRadiusConfigPayload?
     var combat_radius_results: CombatRadiusResultsPayload?
+    var missile_range: MissileRangePayload?
 }
 
 struct TakeoffConfigPayload: Codable {
@@ -610,4 +611,63 @@ extension Encodable {
         }
         return dict
     }
+}
+
+/// 导弹射程目录：构型名、默认值与预设样本
+struct MissileRangePayload: Codable {
+    var type_labels: [String: String]?
+    var defaults: MissileRangeDefaults?
+    var cases: [MissileRangeCase]?
+}
+
+struct MissileRangeDefaults: Codable {
+    var isp_s: Double?
+    var propellant_density: Double?
+    var length_m: Double?
+    var diameter_m: Double?
+    var warhead_kg: Double?
+    var hgv_type: String?
+    var v_launch_mach: Double?
+    var h_launch_km: Double?
+}
+
+/// 单条预设或重算后的样本行
+struct MissileRangeCase: Codable, Identifiable, Hashable {
+    var id: Int
+    var name: String
+    var length_m: Double
+    var diameter_m: Double
+    var warhead_kg: Double
+    var hgv_type: String
+    var type_label: String?
+    var v_mach: Double
+    var h_km: Double
+    var size_m: String?
+    var launch: String?
+    var m_0_t: Double?
+    var l_head_m: Double?
+    var l_booster_m: Double?
+    var m_p_total_kg: Double?
+    var v_burnout_mach: Double?
+    var ld_ratio: Double?
+    var range_km: Double?
+}
+
+/// 单次估算返回的质量、速度与射程
+struct MissileRangeEstimate: Codable {
+    var m_0_t: Double?
+    var l_head_m: Double?
+    var l_booster_m: Double?
+    var m_p_total_kg: Double?
+    var v_burnout_mach: Double?
+    var ld_ratio: Double?
+    var range_km: Double?
+}
+
+/// 本地 Pyodide 导弹射程接口返回值
+struct MissileRangeResult: Codable {
+    var success: Bool
+    var error: String?
+    var result: MissileRangeEstimate?
+    var rows: [MissileRangeCase]?
 }

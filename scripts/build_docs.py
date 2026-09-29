@@ -59,10 +59,16 @@ PY_LOAD_ORDER = [
     'simulators/missile_interception/missile_interception_strike.py',
     'simulators/combat_radius/__init__.py',
     'simulators/combat_radius/combat_radius.py',
+    'utils/missile_range/__init__.py',
+    'utils/missile_range/estimate.py',
+    'utils/missile_range/dataset.py',
+    'simulators/missile_range/__init__.py',
+    'simulators/missile_range/missile_range.py',
     'apps/__init__.py',
     'apps/web_simulator.py',
     'apps/missile_interception_strike_web.py',
     'apps/combat_radius_web.py',
+    'apps/missile_range_web.py',
 ]
 
 PY_IMPORT_ORDER = [
@@ -101,9 +107,13 @@ PY_IMPORT_ORDER = [
     'simulators.takeoff.tiltrotor_short_take_off',
     'simulators.missile_interception.missile_interception_strike',
     'simulators.combat_radius.combat_radius',
+    'utils.missile_range.estimate',
+    'utils.missile_range.dataset',
+    'simulators.missile_range.missile_range',
     'apps.web_simulator',
     'apps.missile_interception_strike_web',
     'apps.combat_radius_web',
+    'apps.missile_range_web',
 ]
 
 

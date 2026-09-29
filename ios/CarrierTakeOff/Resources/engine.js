@@ -142,8 +142,29 @@ window.__missileInterceptionSim = {
   isReady: () => ready,
 };
 
+/**
+ * 运行导弹射程估算：payload 含 action 与 params。
+ */
+async function runMissileRange(payload) {
+  if (!ready || !pyodide) {
+    throw new Error('仿真引擎尚未就绪');
+  }
+  pyodide.globals.set('_missile_range_payload_json', JSON.stringify(payload));
+  const raw = pyodide.runPython(`
+import json
+from apps.missile_range_web import run_missile_range_json
+json.dumps(run_missile_range_json(_missile_range_payload_json), ensure_ascii=False)
+`);
+  return JSON.parse(raw);
+}
+
 window.__combatRadiusSim = {
   run: runCombatRadius,
+  isReady: () => ready,
+};
+
+window.__missileRangeSim = {
+  run: runMissileRange,
   isReady: () => ready,
 };
 
