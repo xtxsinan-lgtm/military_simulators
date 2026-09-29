@@ -34,9 +34,14 @@ TERMINAL_CD = 0.40
 
 MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
-        'id': 'hgv',
-        'label': '助推滑翔弹',
-        'blurb': '两级固体助推，扣除重力阻力损失后按升阻比积分滑翔航程。',
+        'id': 'hgv_biconic',
+        'label': '双锥体助推滑翔',
+        'blurb': '两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。',
+    },
+    {
+        'id': 'hgv_waverider',
+        'label': '乘波体助推滑翔',
+        'blurb': '两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。',
     },
     {
         'id': 'scramjet',
@@ -70,11 +75,20 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     },
 ]
 
+# 未写明双锥或乘波时，这些名字只表示「助推滑翔」，再由构型参数区分
+_GENERIC_HGV = {'hgv', '滑翔', '助推滑翔', '助推滑翔弹'}
+
 _CLASS_ALIASES = {
-    'hgv': 'hgv',
-    '滑翔': 'hgv',
-    '助推滑翔': 'hgv',
-    '助推滑翔弹': 'hgv',
+    'hgv_biconic': 'hgv_biconic',
+    'biconic': 'hgv_biconic',
+    '双锥': 'hgv_biconic',
+    '双锥体': 'hgv_biconic',
+    '双锥体助推滑翔': 'hgv_biconic',
+    'hgv_waverider': 'hgv_waverider',
+    'waverider': 'hgv_waverider',
+    '乘波': 'hgv_waverider',
+    '乘波体': 'hgv_waverider',
+    '乘波体助推滑翔': 'hgv_waverider',
     'scramjet': 'scramjet',
     '超燃': 'scramjet',
     '超燃冲压': 'scramjet',
@@ -230,12 +244,32 @@ def class_blurb(missile_class: str) -> str:
 
 
 def normalize_missile_class(missile_class: str) -> str:
-    """把弹种名规范成内部 id。"""
+    """把弹种名规范成内部 id。未写明双锥或乘波的滑翔弹不在这里解析。"""
     raw = str(missile_class).strip()
     canon = _CLASS_ALIASES.get(raw.lower()) or _CLASS_ALIASES.get(raw)
     if canon is None:
         raise ValueError(f'未知弹种: {missile_class}')
     return canon
+
+
+def glide_shape(missile_class: str) -> str | None:
+    """助推滑翔弹种对应的构型；其他弹种返回 None。"""
+    canon = normalize_missile_class(missile_class)
+    if canon == 'hgv_biconic':
+        return 'biconic'
+    if canon == 'hgv_waverider':
+        return 'waverider'
+    return None
+
+
+def resolve_missile_class(missile_class: str, hgv_type: str = 'biconic') -> str:
+    """把弹种和可选构型收成一个 id。旧的「助推滑翔」仍看 hgv_type。"""
+    raw = str(missile_class).strip()
+    if raw.lower() in _GENERIC_HGV or raw in _GENERIC_HGV:
+        from utils.missile_range.estimate import normalize_hgv_type
+        shape = normalize_hgv_type(hgv_type)
+        return 'hgv_waverider' if shape == 'waverider' else 'hgv_biconic'
+    return normalize_missile_class(missile_class)
 
 
 def clamp(value: float, low: float, high: float) -> float:
@@ -894,14 +928,20 @@ def estimate_by_class(
     isp_s: float = DEFAULT_ISP_S,
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
 ) -> dict:
-    """按弹种估算。助推滑翔仍走原有模型。"""
-    canon = normalize_missile_class(missile_class)
-    if canon == 'hgv':
+    """按弹种估算。双锥体和乘波体助推滑翔仍走原有模型。"""
+    canon = resolve_missile_class(missile_class, hgv_type)
+    shape = glide_shape(canon)
+    if shape is not None:
         from utils.missile_range.estimate import estimate_hgv
-        return estimate_hgv(
-            length_m, diameter_m, warhead_mass_kg, hgv_type,
+        result = estimate_hgv(
+            length_m, diameter_m, warhead_mass_kg, shape,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
         )
+        result = dict(result)
+        result['missile_class'] = canon
+        result['class_label'] = class_label(canon)
+        result['note'] = class_blurb(canon)
+        return result
     if canon in _SUBSONIC_SPECS:
         return estimate_subsonic_class(
             canon, length_m, diameter_m, warhead_mass_kg, v_launch_mach, h_launch_km,

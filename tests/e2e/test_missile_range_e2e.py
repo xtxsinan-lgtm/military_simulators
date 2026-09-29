@@ -33,13 +33,13 @@ def test_e2e_missile_range_api_matches_dataset():
     assert status == 200
     data = json.loads(body.decode())
     assert data['success'] is True
-    assert data['result'] == {
-        k: evaluate_case(case)[k]
-        for k in (
-            'm_0_t', 'l_head_m', 'l_booster_m', 'm_p_total_kg',
-            'v_burnout_mach', 'ld_ratio', 'range_km',
-        )
-    }
+    expected = evaluate_case(case)
+    numeric = (
+        'm_0_t', 'l_head_m', 'l_booster_m', 'm_p_total_kg',
+        'v_burnout_mach', 'ld_ratio', 'range_km',
+    )
+    assert {k: data['result'][k] for k in numeric} == {k: expected[k] for k in numeric}
+    assert data['result']['missile_class'] == 'hgv_biconic'
     assert len(data['rows']) == len(MISSILE_DATASET) + 12
 
     empty_status, _, empty_body = handle_request('POST', '/api/missile_range/simulate', b'')
@@ -63,12 +63,15 @@ def test_e2e_missile_range_catalog_and_pages():
     assert any(s['id'] == 'missile_range' for s in api['simulators'])
     assert len(api['missile_range']['cases']) == len(all_missile_cases())
     class_ids = {item['id'] for item in api['missile_range']['classes']}
-    assert {'scramjet', 'ramjet', 'turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ballistic'} <= class_ids
+    assert {'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ballistic'} <= class_ids
+    assert 'hgv' not in class_ids
 
     html = (ROOT / 'docs' / 'missile-range.html').read_text(encoding='utf-8')
     js = (ROOT / 'docs' / 'js' / 'missile_range.js').read_text(encoding='utf-8')
     assert 'missile_range.js' in html
     assert 'missileClass' in html
+    assert 'hgvType' not in html
+    assert '构型' not in html
     assert 'run_missile_range_json' in js
     assert 'utils/missile_range/classes.py' in js
     assert '全高空' in js

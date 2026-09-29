@@ -1,15 +1,11 @@
 const api = require('../../utils/api.js');
 
-const TYPE_IDS = ['biconic', 'waverider'];
-const TYPE_NAMES = ['双锥体', '乘波体'];
-
 function num(v, d) {
   const n = Number(v);
   return Number.isFinite(n) ? n : d;
 }
 
 function kindOf(row) {
-  if ((row.missile_class || 'hgv') === 'hgv') return row.type_label || row.hgv_type;
   return row.class_label || row.missile_class;
 }
 
@@ -27,13 +23,10 @@ Page({
     classNames: [],
     classIndex: 0,
     classBlurb: '选择弹种后估算射程。比冲与密度用于固体助推、末端火箭和弹道导弹。',
-    showHgvType: true,
     cases: [],
     rows: [],
     caseNames: [],
     caseIndex: 0,
-    typeNames: TYPE_NAMES,
-    typeIndex: 0,
     lengthM: '',
     diameterM: '',
     warheadKg: '',
@@ -83,18 +76,15 @@ Page({
     this.setData({
       classIndex: found ? classIndex : 0,
       classBlurb: (found && found.blurb) || this.data.classBlurb,
-      showHgvType: (missileClass || 'hgv') === 'hgv',
     });
   },
 
   applyCase(row) {
     if (!row) return;
-    const typeIndex = Math.max(0, TYPE_IDS.indexOf(row.hgv_type));
     const caseIndex = Math.max(0, this.data.cases.findIndex((item) => item.id === row.id));
-    this.syncClass(row.missile_class || 'hgv');
+    this.syncClass(row.missile_class || 'hgv_biconic');
     this.setData({
       caseIndex,
-      typeIndex,
       lengthM: String(row.length_m),
       diameterM: String(row.diameter_m),
       warheadKg: String(row.warhead_kg),
@@ -131,10 +121,6 @@ Page({
     this.syncClass(found.id);
   },
 
-  onPickType(e) {
-    this.setData({ typeIndex: Number(e.detail.value) });
-  },
-
   onInput(e) {
     const key = e.currentTarget.dataset.key;
     this.setData({ [key]: e.detail.value });
@@ -149,7 +135,7 @@ Page({
 
   onRun() {
     if (this.data.running) return;
-    const missileClass = (this.data.classes[this.data.classIndex] || {}).id || 'hgv';
+    const missileClass = (this.data.classes[this.data.classIndex] || {}).id || 'hgv_biconic';
     const payload = {
       action: 'estimate',
       params: {
@@ -157,7 +143,6 @@ Page({
         length_m: num(this.data.lengthM, 0),
         diameter_m: num(this.data.diameterM, 0),
         warhead_kg: num(this.data.warheadKg, 0),
-        hgv_type: TYPE_IDS[this.data.typeIndex] || 'biconic',
         v_launch_mach: num(this.data.vMach, 0.85),
         h_launch_km: num(this.data.hKm, 13),
         isp_s: num(this.data.ispS, 264),

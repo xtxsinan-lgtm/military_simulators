@@ -40,16 +40,7 @@
         <div class="field"><label>弹长 <span class="unit">m</span></label><input type="number" id="lengthM" step="0.01" min="0.1"></div>
         <div class="field"><label>弹径 <span class="unit">m</span></label><input type="number" id="diameterM" step="0.001" min="0.05"></div>
       </div>
-      <div class="pair">
-        <div class="field"><label>战斗部 <span class="unit">kg</span></label><input type="number" id="warheadKg" step="1" min="0"></div>
-        <div class="field" id="hgvWrap">
-          <label>构型</label>
-          <select id="hgvType">
-            <option value="biconic">双锥体</option>
-            <option value="waverider">乘波体</option>
-          </select>
-        </div>
-      </div>
+      <div class="field"><label>战斗部 <span class="unit">kg</span></label><input type="number" id="warheadKg" step="1" min="0"></div>
       <div class="section-label cyan">▸ 发射条件</div>
       <div class="pair">
         <div class="field"><label>发射马赫数</label><input type="number" id="vMach" step="0.05" min="0"></div>
@@ -77,6 +68,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预设表来自 catalog · 改参数后由 Pyodide 重算</div>
-<script type="module" src="js/missile_range.js?v=2"></script>
+<script type="module" src="js/missile_range.js?v=3"></script>
 </body>
 </html>

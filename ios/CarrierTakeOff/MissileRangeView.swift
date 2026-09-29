@@ -42,16 +42,6 @@ struct MissileRangeView: View {
                     field("弹长 (m)", text: $vm.lengthM)
                     field("弹径 (m)", text: $vm.diameterM)
                     field("战斗部 (kg)", text: $vm.warheadKg)
-                    if vm.missileClass == "hgv" {
-                        Picker("构型", selection: Binding(
-                            get: { vm.typeIndex },
-                            set: { vm.setTypeIndex($0) }
-                        )) {
-                            ForEach(vm.typeIds.indices, id: \.self) { index in
-                                Text(vm.typeLabels[index]).tag(index)
-                            }
-                        }
-                    }
                     field("发射马赫数", text: $vm.vMach)
                     field("发射高度 (km)", text: $vm.hKm)
                     field("比冲 (s)", text: $vm.ispS)
@@ -80,7 +70,7 @@ struct MissileRangeView: View {
                         } else {
                             statRow([
                                 ("估算射程 km", result.range_km, 1, false),
-                                (vm.missileClass == "ballistic" || vm.missileClass == "hgv" ? "关机马赫" : "巡航马赫", result.v_burnout_mach, 2, true),
+                                (vm.missileClass == "ballistic" || vm.missileClass.hasPrefix("hgv") ? "关机马赫" : "巡航马赫", result.v_burnout_mach, 2, true),
                             ])
                         }
                         if let dash = result.range_terminal_km {
@@ -139,7 +129,7 @@ struct MissileRangeView: View {
             cell("ID", width: 36, dim: true)
             cell("尺寸", width: 110, dim: true)
             cell("弹头", width: 56, dim: true)
-            cell("弹种", width: 88, dim: true)
+            cell("弹种", width: 120, dim: true)
             cell("射程km", width: 72, dim: true)
             cell("掠海km", width: 72, dim: true)
         }
@@ -151,7 +141,7 @@ struct MissileRangeView: View {
             cell(String(row.id), width: 36, dim: false, highlight: on)
             cell(row.size_m ?? "", width: 110, dim: false, highlight: on)
             cell(fmt(row.warhead_kg, 0), width: 56, dim: false, highlight: on)
-            cell(kind(row), width: 88, dim: false, highlight: on)
+            cell(kind(row), width: 120, dim: false, highlight: on)
             cell(fmt(row.range_km, 1), width: 72, dim: false, highlight: on)
             cell(row.range_sea_km == nil ? "—" : fmt(row.range_sea_km, 1), width: 72, dim: false, highlight: on)
         }
@@ -159,10 +149,7 @@ struct MissileRangeView: View {
     }
 
     private func kind(_ row: MissileRangeCase) -> String {
-        if (row.missile_class ?? "hgv") == "hgv" {
-            return row.type_label ?? row.hgv_type
-        }
-        return row.class_label ?? row.missile_class ?? ""
+        row.class_label ?? row.missile_class ?? ""
     }
 
     private func cell(_ text: String, width: CGFloat, dim: Bool, highlight: Bool = false) -> some View {

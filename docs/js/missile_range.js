@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 2;
+const APP_VERSION = 3;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -52,11 +52,10 @@ function fmt(n, d) {
 
 function readForm() {
   return {
-    missile_class: $('missileClass').value || 'hgv',
+    missile_class: $('missileClass').value || 'hgv_biconic',
     length_m: num('lengthM', 0),
     diameter_m: num('diameterM', 0),
     warhead_kg: num('warheadKg', 0),
-    hgv_type: $('hgvType').value,
     v_launch_mach: num('vMach', 0.85),
     h_launch_km: num('hKm', 13),
     isp_s: num('ispS', 264),
@@ -69,18 +68,16 @@ function classList() {
 }
 
 function syncClassUi() {
-  const id = $('missileClass').value || 'hgv';
-  $('hgvWrap').hidden = id !== 'hgv';
+  const id = $('missileClass').value || 'hgv_biconic';
   const found = classList().find((item) => item.id === id);
   if (found && found.blurb) $('classBlurb').textContent = found.blurb;
 }
 
 function fillForm(row) {
-  $('missileClass').value = row.missile_class || 'hgv';
+  $('missileClass').value = row.missile_class || 'hgv_biconic';
   $('lengthM').value = row.length_m;
   $('diameterM').value = row.diameter_m;
   $('warheadKg').value = row.warhead_kg;
-  $('hgvType').value = row.hgv_type || 'biconic';
   $('vMach').value = row.v_mach;
   $('hKm').value = row.h_km;
   activeId = row.id;
@@ -88,8 +85,8 @@ function fillForm(row) {
 }
 
 function speedLabel(result) {
-  const id = result.missile_class || 'hgv';
-  if (id === 'hgv' || id === 'ballistic') return '关机马赫数';
+  const id = result.missile_class || '';
+  if (id === 'ballistic' || id.indexOf('hgv') === 0) return '关机马赫数';
   return '巡航马赫数';
 }
 
@@ -126,7 +123,6 @@ function renderResult(result, title) {
 }
 
 function kindLabel(row) {
-  if ((row.missile_class || 'hgv') === 'hgv') return row.type_label || row.hgv_type;
   return row.class_label || row.missile_class;
 }
 
@@ -174,7 +170,7 @@ function fillPresetSelect() {
   }
   $('preset').innerHTML = classes.map((item) => {
     const opts = rows
-      .filter((row) => (row.missile_class || 'hgv') === item.id)
+      .filter((row) => row.missile_class === item.id)
       .map((row) => `<option value="${row.id}">${row.name}</option>`)
       .join('');
     return opts ? `<optgroup label="${item.label}">${opts}</optgroup>` : '';

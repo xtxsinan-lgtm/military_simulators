@@ -254,6 +254,8 @@ def test_missile_case_label_and_evaluate_case():
     row = evaluate_case(case)
     assert row['id'] == 1
     assert row['type_label'] == '双锥体'
+    assert row['missile_class'] == 'hgv_biconic'
+    assert row['class_label'] == '双锥体助推滑翔'
     assert row['range_km'] == 6157.7
 
 
@@ -265,11 +267,14 @@ def test_evaluate_dataset_and_catalog():
     assert heavier[0]['range_km'] != rows[0]['range_km']
     payload = build_missile_range_catalog_payload()
     assert payload['type_labels']['waverider'] == '乘波体'
-    assert payload['defaults']['missile_class'] == 'hgv'
+    assert payload['defaults']['missile_class'] == 'hgv_biconic'
     assert {item['id'] for item in payload['classes']} >= {
-        'hgv', 'scramjet', 'ramjet', 'turbofan_stealth',
+        'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'turbofan_stealth',
         'turbojet_subsonic', 'turbofan_rocket', 'ballistic',
     }
+    assert 'hgv' not in {item['id'] for item in payload['classes']}
+    assert rows[0]['missile_class'] == 'hgv_biconic'
+    assert rows[1]['missile_class'] == 'hgv_waverider'
     assert payload['defaults']['isp_s'] == 264.0
     assert payload['cases'][0]['range_km'] == rows[0]['range_km']
     assert G0 == pytest.approx(9.80665)
@@ -324,15 +329,33 @@ def test_run_missile_range_json_actions():
 
 
 def test_normalize_missile_class_and_labels():
-    from utils.missile_range.classes import class_blurb, class_label, normalize_missile_class
+    from utils.missile_range.classes import (
+        class_blurb,
+        class_label,
+        glide_shape,
+        normalize_missile_class,
+        resolve_missile_class,
+    )
 
     assert normalize_missile_class(' 超燃冲压 ') == 'scramjet'
     assert normalize_missile_class('涡扇亚音速隐身巡航') == 'turbofan_stealth'
     assert normalize_missile_class('亚超结合导弹') == 'turbofan_rocket'
+    assert normalize_missile_class('双锥体助推滑翔') == 'hgv_biconic'
+    assert normalize_missile_class('乘波体') == 'hgv_waverider'
     assert class_label('ballistic') == '普通弹道导弹'
+    assert class_label('hgv_biconic') == '双锥体助推滑翔'
+    assert class_label('hgv_waverider') == '乘波体助推滑翔'
     assert '全掠海' in class_blurb('turbojet_subsonic')
+    assert glide_shape('hgv_biconic') == 'biconic'
+    assert glide_shape('hgv_waverider') == 'waverider'
+    assert glide_shape('scramjet') is None
+    assert resolve_missile_class('hgv', 'waverider') == 'hgv_waverider'
+    assert resolve_missile_class('助推滑翔弹', 'biconic') == 'hgv_biconic'
+    assert resolve_missile_class('乘波体助推滑翔') == 'hgv_waverider'
     with pytest.raises(ValueError, match='未知弹种'):
         normalize_missile_class('laser')
+    with pytest.raises(ValueError, match='未知弹种'):
+        normalize_missile_class('hgv')
 
 
 def test_geometry_and_breguet_helpers():
@@ -467,7 +490,13 @@ def test_six_classes_ranges_and_profiles():
     assert long['range_km'] == 823.0
     assert long['range_km'] > short['range_km']
     assert '不含滑翔' in long['note']
-    assert estimate_by_class('hgv', 10.5, 1, 200)['range_km'] == 6157.7
+    legacy = estimate_by_class('hgv', 10.5, 1, 200)
+    assert legacy['range_km'] == 6157.7
+    assert legacy['missile_class'] == 'hgv_biconic'
+    wave = estimate_by_class('乘波体助推滑翔', 10.5, 1, 200, 'biconic', 0.85, 13, 264, 1760)
+    assert wave['missile_class'] == 'hgv_waverider'
+    assert wave['range_km'] == estimate_hgv(10.5, 1, 200, 'waverider')['range_km']
+    assert wave['range_km'] != legacy['range_km']
     with pytest.raises(ValueError):
         estimate_subsonic_class('ramjet', 6, 0.5, 100, 0.7, 1)
     assert len(PROPULSION_DATASET) == 12

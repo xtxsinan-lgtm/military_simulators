@@ -29,12 +29,6 @@
       <view class="field-label"><text>战斗部</text><text class="unit">kg</text></view>
       <input class="input" type="digit" value="{{warheadKg}}" data-key="warheadKg" bindinput="onInput" />
     </view>
-    <view class="field" wx:if="{{showHgvType}}">
-      <view class="field-label"><text>构型</text></view>
-      <picker mode="selector" range="{{typeNames}}" value="{{typeIndex}}" bindchange="onPickType">
-        <view class="picker-val">{{typeNames[typeIndex]}}</view>
-      </picker>
-    </view>
     <view class="section cyan">▸ 发射条件</view>
     <view class="field">
       <view class="field-label"><text>发射马赫数</text></view>

@@ -9,10 +9,9 @@ final class MissileRangeViewModel: ObservableObject {
     @Published var lengthM = "10.5"
     @Published var diameterM = "1"
     @Published var warheadKg = "200"
-    @Published var missileClass = "hgv"
+    @Published var missileClass = "hgv_biconic"
     @Published var classOptions: [MissileClassInfo] = []
     @Published var classBlurb = "选择弹种后估算射程。比冲与密度用于固体助推、末端火箭和弹道导弹。"
-    @Published var hgvType = "biconic"
     @Published var vMach = "0.85"
     @Published var hKm = "13"
     @Published var ispS = "264"
@@ -21,13 +20,6 @@ final class MissileRangeViewModel: ObservableObject {
     @Published var result: MissileRangeEstimate?
     @Published var statusText = "加载中…"
     @Published var running = false
-
-    let typeIds = ["biconic", "waverider"]
-    let typeLabels = ["双锥体", "乘波体"]
-
-    var typeIndex: Int {
-        typeIds.firstIndex(of: hgvType) ?? 0
-    }
 
     func load() {
         do {
@@ -52,11 +44,10 @@ final class MissileRangeViewModel: ObservableObject {
 
     func applyCase(_ row: MissileRangeCase) {
         selectedId = row.id
-        missileClass = row.missile_class ?? "hgv"
+        missileClass = row.missile_class ?? "hgv_biconic"
         lengthM = text(row.length_m)
         diameterM = text(row.diameter_m)
         warheadKg = text(row.warhead_kg)
-        hgvType = row.hgv_type
         vMach = text(row.v_mach)
         hKm = text(row.h_km)
         activeId = row.id
@@ -88,11 +79,6 @@ final class MissileRangeViewModel: ObservableObject {
         }
     }
 
-    func setTypeIndex(_ index: Int) {
-        guard typeIds.indices.contains(index) else { return }
-        hgvType = typeIds[index]
-    }
-
     func estimate() async {
         if running { return }
         running = true
@@ -104,7 +90,6 @@ final class MissileRangeViewModel: ObservableObject {
                 "diameter_m": number(diameterM, 0),
                 "warhead_kg": number(warheadKg, 0),
                 "missile_class": missileClass,
-                "hgv_type": hgvType,
                 "v_launch_mach": number(vMach, 0.85),
                 "h_launch_km": number(hKm, 13),
                 "isp_s": number(ispS, 264),

@@ -8,7 +8,8 @@ from utils.missile_range.classes import (
     class_blurb,
     class_label,
     estimate_by_class,
-    normalize_missile_class,
+    glide_shape,
+    resolve_missile_class,
 )
 from utils.missile_range.estimate import (
     DEFAULT_ISP_S,
@@ -58,7 +59,10 @@ def all_missile_cases() -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for case in MISSILE_DATASET:
         item = dict(case)
-        item.setdefault('missile_class', 'hgv')
+        item['missile_class'] = resolve_missile_class(
+            str(item.get('missile_class') or 'hgv'),
+            str(item.get('type') or 'biconic'),
+        )
         rows.append(item)
     rows.extend(dict(case) for case in PROPULSION_DATASET)
     return rows
@@ -75,12 +79,12 @@ def format_launch(v_mach: float, h_km: float) -> str:
 
 
 def missile_case_label(case: dict[str, Any]) -> str:
-    """选择器显示名。滑翔弹带构型，其余弹种带推进方式。"""
-    canon = normalize_missile_class(str(case.get('missile_class') or 'hgv'))
-    if canon == 'hgv':
-        kind = HGV_TYPE_LABELS.get(str(case['type']), str(case['type']))
-    else:
-        kind = class_label(canon)
+    """选择器显示名，弹种名里已经包含双锥或乘波。"""
+    canon = resolve_missile_class(
+        str(case.get('missile_class') or 'hgv'),
+        str(case.get('type') or 'biconic'),
+    )
+    kind = class_label(canon)
     return (
         f"#{int(case['id'])}  {format_size_m(float(case['length']), float(case['diameter']))}"
         f" · {int(case['warhead'])}kg · {kind}"
@@ -94,8 +98,11 @@ def evaluate_case(
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
 ) -> dict[str, Any]:
     """计算单条预设，并附上界面用的尺寸、弹种与构型字段。"""
-    canon = normalize_missile_class(str(case.get('missile_class') or 'hgv'))
-    hgv_type = str(case.get('type') or 'biconic')
+    canon = resolve_missile_class(
+        str(case.get('missile_class') or 'hgv'),
+        str(case.get('type') or 'biconic'),
+    )
+    hgv_type = glide_shape(canon) or str(case.get('type') or 'biconic')
     result = estimate_by_class(
         missile_class=canon,
         length_m=float(case['length']),
@@ -155,7 +162,7 @@ def build_missile_range_catalog_payload() -> dict[str, Any]:
             'diameter_m': 1.000,
             'warhead_kg': 200,
             'hgv_type': 'biconic',
-            'missile_class': 'hgv',
+            'missile_class': 'hgv_biconic',
             'v_launch_mach': 0.85,
             'h_launch_km': 13.0,
         },

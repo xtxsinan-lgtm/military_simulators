@@ -65,7 +65,7 @@ def run_dataset_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
 
 
 def run_presets_from_params(params: dict[str, Any] | None = None) -> dict[str, Any]:
-    """返回目录中的构型名、默认值和默认推进剂下的样本表。"""
+    """返回目录中的弹种、默认值和默认推进剂下的样本表。"""
     del params
     payload = build_missile_range_catalog_payload()
     return {'success': True, **payload}
