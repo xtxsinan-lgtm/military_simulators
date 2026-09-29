@@ -53,8 +53,15 @@ def test_combat_weapon_load_bomber_is_payload_once():
     assert n_f == pytest.approx(4)
 
 
-def test_xgb_dashboard_uses_new_engine_and_payload():
-    """西工大轰炸机按单台 175/265 kN、涵道比 0.475、载重 17.6 t 组装。"""
+def test_xgb_dashboard_uses_j36_thickness_and_sweep_mach_angles():
+    """西工大三态厚弦比同歼-36；前掠/中间/后掠马赫角为 39.7°/30.2°/21.1°。"""
+    expected_phi = {'XGB-1': 39.7, 'XGB-2': 30.2, 'XGB-3': 21.1}
+    j36 = get_preset_by_id(load_presets(), 'J-36')
+    for aid, phi in expected_phi.items():
+        ac = get_preset_by_id(load_presets(), aid)
+        assert ac['tc'] == pytest.approx(j36['tc'])
+        assert ac['tc'] == pytest.approx(0.043)
+        assert ac['mach_angle_deg'] == pytest.approx(phi)
     ac = get_preset_by_id(load_presets(), 'XGB-1')
     eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
     assert eng['bpr'] == pytest.approx(0.475)
@@ -67,11 +74,12 @@ def test_xgb_dashboard_uses_new_engine_and_payload():
     dash = run_preset_dashboard('XGB-1')
     assert dash['success'] is True
     mil = next(item for item in dash['points'] if item['id'] == 'mach_0_8')
-    assert mil['feasible'] is False
+    assert mil['feasible'] is True
+    assert mil['radius_km'] > 0
     ab = next(item for item in dash['afterburner_best_altitude'] if item['mach'] == pytest.approx(0.8))
     assert ab['feasible'] is True
-    assert ab['reheat'] is True
-    assert ab['radius_km'] is not None and ab['radius_km'] > 0
+    assert ab['reheat'] is False
+    assert ab['radius_km'] == pytest.approx(mil['radius_km'], rel=0.02)
     assert p['tsfc_install_mult'] == pytest.approx(1.0)
 
 

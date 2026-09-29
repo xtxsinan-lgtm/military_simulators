@@ -972,10 +972,12 @@ def test_e2e_combat_radius_dashboard_http_and_mixed():
 
 @pytest.mark.e2e
 def test_e2e_xgb_afterburner_cruise_with_given_thrust_and_payload():
-    """西工大轰炸机按 175/265 kN、涵道比 0.475、载重 17.6 t，加力 Ma 0.8 须有半径。"""
+    """西工大轰炸机厚弦比 0.043、前掠马赫角 39.7° 后，Ma 0.8 军推须有半径。"""
     from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
 
     ac = get_preset_by_id(load_presets(), 'XGB-1')
+    assert ac['tc'] == pytest.approx(0.043)
+    assert ac['mach_angle_deg'] == pytest.approx(39.7)
     eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
     params = dashboard_params_from_preset(ac, eng)
     status, _, body = handle_request(
@@ -986,10 +988,11 @@ def test_e2e_xgb_afterburner_cruise_with_given_thrust_and_payload():
     result = json.loads(body.decode())
     assert result['success'] is True
     mil = next(pt for pt in result['points'] if pt['id'] == 'mach_0_8')
-    assert mil['feasible'] is False
+    assert mil['feasible'] is True
+    assert mil['radius_km'] > 0
     ab = next(pt for pt in result['afterburner_best_altitude'] if pt['mach'] == pytest.approx(0.8))
     assert ab['feasible'] is True
-    assert ab['radius_km'] > 0
+    assert ab['reheat'] is False
 
 
 @pytest.mark.e2e
