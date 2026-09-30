@@ -123,26 +123,26 @@ _CLASS_ALIASES = {
 
 _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
     'turbofan_stealth': {
-        # 对照战斧 Block IV 巡航弹体（不含助推器）：5.56 m × 0.52 m、战斗部 450 kg、
-        # 质量约 1.3 t、Ma 0.74。公开掠海射程约 1600 km，早期高空型约 2400 km。
-        # 耗油率取 F107 量级，燃油按 JP-10。JSM 是小型涡喷，不作为本档锚点。
+        # 对照 LRASM：4.26 m × 0.55 m、战斗部 450 kg、空射 Ma 0.85 @ 10 km，质量约 1.2 t。
+        # 隐身修形、S 形进气道和传感器舱压低升阻比并占掉装油容积，全高空约 950 km。
+        # 耗油率在 F107 基础上计入进气损失，燃油按 JP-10。
         'body_pack': 0.66,
-        'areal': 30.0,
+        'areal': 44.0,
         'eng_coeff': 180.0,
         'eng_density': 900.0,
         'payload_density': 2800.0,
-        'void_frac': 0.10,
+        'void_frac': 0.16,
         'fuel_density': 940.0,
-        'tsfc': 1.95e-5,
+        'tsfc': 2.15e-5,
         'mach': 0.74,
         'alt_km': 10.0,
-        'ld_base': 4.6,
-        'ld_slope': 0.32,
-        'ld_min': 6.0,
-        'ld_max': 8.0,
+        'ld_base': 4.2,
+        'ld_slope': 0.16,
+        'ld_min': 4.6,
+        'ld_max': 6.6,
         'eta': 0.32,
         'sea_ld_factor': 0.58,
-        'sea_tsfc_factor': 1.06,
+        'sea_tsfc_factor': 1.08,
         'reserve': 0.08,
         'sea_alt_km': 0.03,
         'folded_wing': 1.0,
