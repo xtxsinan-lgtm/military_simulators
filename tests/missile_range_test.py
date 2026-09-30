@@ -493,7 +493,7 @@ def test_six_classes_ranges_and_profiles():
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
     assert scram['range_km'] == 2727.4
     assert scram['cruise_mach'] == 6.2
-    assert ram['range_km'] == 626.2
+    assert ram['range_km'] == 808.1
     assert ram['v_burnout_mach'] == 2.8
     assert scram['range_sea_km'] is None
     assert ram['range_high_km'] > ram['range_sea_km'] > 0
@@ -681,8 +681,17 @@ def test_public_airbreathing_ranges_match_open_sources():
     from utils.missile_range.classes import estimate_by_class
 
     brahmos = estimate_by_class('ramjet', 8.4, 0.70, 250, 0.0, 0.0)
-    assert 280 <= brahmos['range_km'] <= 550
-    assert 80 <= brahmos['range_sea_km'] <= 180
+    # 全高空高于出口型高低结合约 290 km，低于增程型公开上限约 800 km；全掠海贴近约 120 km
+    assert 480 <= brahmos['range_km'] <= 750
+    assert 110 <= brahmos['range_sea_km'] <= 190
+    kh31 = estimate_by_class('ramjet', 5.2, 0.36, 90, 0.9, 10.0)
+    assert 120 <= kh31['range_km'] <= 280
+    assert 45 <= kh31['range_sea_km'] <= 100
+    moskit = estimate_by_class('ramjet', 9.4, 0.76, 320, 0.0, 0.0)
+    assert 120 <= moskit['range_sea_km'] <= 230
+    fighter = estimate_by_class('ramjet', 4.25, 0.345, 90, 2.2, 19.0)
+    assert fighter['range_km'] > kh31['range_sea_km']
+    assert fighter['range_km'] > 200
     yj18 = estimate_by_class('turbofan_rocket', 8.2, 0.514, 200, 0.0, 0.0)
     assert 220 <= yj18['range_sea_km'] <= 650
     assert 15 <= yj18['range_terminal_km'] <= 60

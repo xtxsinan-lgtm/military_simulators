@@ -173,12 +173,16 @@ _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
 
 _DUCT_SPECS: dict[str, dict[str, float]] = {
     'ramjet': {
-        # 对照 BrahMos / P-800：进气道与燃烧室占容积，高空约 300 km 量级、掠海明显更短
+        # 整体式火箭冲压：进气道仍按 void 留空，发动机按金属密度占容积，避免空腔扣两次。
+        # 对照布拉莫斯 / P-800（约 8.4 m×0.70 m、战斗部 250 kg、舰面）：
+        # 出口型高低结合约 290 km、全掠海约 120 km，增程型高空公开约 450–800 km。
+        # 对照 Kh-31（约 5.2 m×0.36 m、战斗部 90 kg、空射）：高空约 110–250 km，掠海约 50–70 km。
+        # ASMP-A 同尺寸高空约 500 km，但巡航接近 Ma 3，本模型固定 Ma 2.8，会短一截。
         'body_pack': 0.64,
         'areal': 28.0,
         'eng_coeff': 180.0,
-        'eng_density': 320.0,
-        'payload_density': 1900.0,
+        'eng_density': 800.0,
+        'payload_density': 2800.0,
         'void_frac': 0.28,
         'fuel_density': 820.0,
         'tsfc': 1.05e-4,
@@ -188,7 +192,7 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'ld_base': 1.7,
         'ld_slope': 0.08,
         'ld_min': 2.1,
-        'ld_max': 2.7,
+        'ld_max': 2.85,
         'eta': 0.18,
         'reserve': 0.08,
         'loss_frac': 0.16,
