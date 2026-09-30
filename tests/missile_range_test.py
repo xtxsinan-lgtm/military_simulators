@@ -479,10 +479,10 @@ def test_six_classes_ranges_and_profiles():
     same = dict(length_m=6.2, diameter_m=0.55, warhead_mass_kg=450, v_launch_mach=0.7, h_launch_km=0.2)
     stealth = estimate_subsonic_class('涡扇隐身', **same)
     plain = estimate_subsonic_class('涡喷', **same)
-    assert stealth['range_high_km'] == 429.9
-    assert stealth['range_sea_km'] == 135.8
-    assert stealth['m_wing_kg'] == 66.6
-    assert stealth['m_dead_kg'] == 544.4
+    assert stealth['range_high_km'] == 3023.0
+    assert stealth['range_sea_km'] == 1930.5
+    assert stealth['m_wing_kg'] == 94.1
+    assert stealth['m_dead_kg'] == 589.3
     assert '折叠弹翼' in stealth['note']
     assert stealth['range_high_km'] > stealth['range_sea_km']
     assert plain['range_high_km'] > plain['range_sea_km']
@@ -696,10 +696,12 @@ def test_public_airbreathing_ranges_match_open_sources():
     assert 220 <= yj18['range_sea_km'] <= 650
     assert 15 <= yj18['range_terminal_km'] <= 60
     assert 1.2 <= yj18['m_0_t'] <= 2.0
-    jsm = estimate_by_class('turbofan_stealth', 4.0, 0.48, 120, 0.85, 10.0)
-    assert 400 <= jsm['range_km'] <= 750
-    assert 100 <= jsm['range_sea_km'] <= 250
-    assert 0.40 <= jsm['m_0_t'] <= 0.80
+    # 战斧 Block IV 巡航弹体：掠海贴近公开约 1600 km，质量贴近约 1.3 t；高空高于掠海
+    tlam = estimate_by_class('turbofan_stealth', 5.56, 0.52, 450, 0.0, 0.0)
+    assert 1400 <= tlam['range_sea_km'] <= 1800
+    assert tlam['range_high_km'] > tlam['range_sea_km']
+    assert 2000 <= tlam['range_high_km'] <= 2800
+    assert 1.15 <= tlam['m_0_t'] <= 1.45
     cj = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
     assert 3500 <= cj['range_km'] <= 6500
     assert cj['cruise_mach'] >= 6.0
