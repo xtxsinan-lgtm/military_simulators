@@ -46,3 +46,4 @@ page {
 .table { min-width: 980rpx; }
 .col { width: 110rpx; flex: none; }
 .col.wide { width: 220rpx; }
+.col.bay { width: 220rpx; }

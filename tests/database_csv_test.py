@@ -22,6 +22,7 @@ from utils.database_csv import (
     load_missile_interception_missile_csv,
     load_missile_interception_presets_csv,
     load_missile_interception_radar_csv,
+    load_missile_range_preset_csv,
 )
 from utils.paths import (
     AIRCRAFT_CSV,
@@ -30,6 +31,7 @@ from utils.paths import (
     COMBAT_RADIUS_ENGINE_CSV,
     MISSILE_INTERCEPTION_MISSILE_CSV,
     MISSILE_INTERCEPTION_RADAR_CSV,
+    MISSILE_RANGE_PRESET_CSV,
 )
 
 
@@ -188,6 +190,44 @@ def test_load_missile_interception_presets_csv_merges():
     assert set(data) == {'asm', 'aew', 'ship', 'sam'}
     assert data['asm'][0]['id'] == 'exocet'
     assert data['aew'][0]['id'] == 'e2d'
+
+
+def test_load_missile_range_preset_csv():
+    """射程预设 CSV 含超音速与亚音速弹仓，且含垂发与鱼雷管。"""
+    rows = load_missile_range_preset_csv(MISSILE_RANGE_PRESET_CSV)
+    groups = {row['speed_group'] for row in rows}
+    assert groups == {'supersonic', 'subsonic'}
+    bays = {row['bay'] for row in rows}
+    assert '轰-6机腹' in bays
+    assert '1280垂发' in bays
+    assert '533mm鱼雷' in bays
+    assert any(row['speed_group'] == 'subsonic' and row['bay'] == '歼-36弹仓' for row in rows)
+
+
+def test_load_missile_range_preset_csv_rejects_bad_file(tmp_path):
+    """缺文件、缺列或未知速度组应拒绝。"""
+    with pytest.raises(ValueError, match='不存在'):
+        load_missile_range_preset_csv(tmp_path / 'missing.csv')
+    bad = tmp_path / 'bad.csv'
+    bad.write_text('speed_group,bay\nsupersonic,试验\n', encoding='utf-8')
+    with pytest.raises(ValueError, match='缺少列'):
+        load_missile_range_preset_csv(bad)
+    unknown = tmp_path / 'unknown.csv'
+    unknown.write_text(
+        'speed_group,bay,length_m,diameter_m,warhead_kg,v_launch_mach,h_launch_km,notes\n'
+        'orbital,试验,4,0.4,100,0,0,\n',
+        encoding='utf-8',
+    )
+    with pytest.raises(ValueError, match='未知 speed_group'):
+        load_missile_range_preset_csv(unknown)
+    half = tmp_path / 'half.csv'
+    half.write_text(
+        'speed_group,bay,length_m,diameter_m,warhead_kg,v_launch_mach,h_launch_km,notes\n'
+        'supersonic,试验,4,0.4,100,0,0,\n',
+        encoding='utf-8',
+    )
+    with pytest.raises(ValueError, match='缺少速度组'):
+        load_missile_range_preset_csv(half)
 
 
 def test_list_model_ids_from_missile_interception_csv():

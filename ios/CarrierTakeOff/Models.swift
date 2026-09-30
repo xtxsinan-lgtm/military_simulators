@@ -619,10 +619,9 @@ struct MissileClassInfo: Codable, Hashable, Identifiable {
     var blurb: String?
 }
 
-/// 导弹射程目录：弹种、构型名、默认值与预设样本
+/// 导弹射程目录：弹种、默认值与预设样本
 struct MissileRangePayload: Codable {
     var classes: [MissileClassInfo]?
-    var type_labels: [String: String]?
     var defaults: MissileRangeDefaults?
     var cases: [MissileRangeCase]?
 }
@@ -633,7 +632,6 @@ struct MissileRangeDefaults: Codable {
     var length_m: Double?
     var diameter_m: Double?
     var warhead_kg: Double?
-    var hgv_type: String?
     var missile_class: String?
     var v_launch_mach: Double?
     var h_launch_km: Double?
@@ -646,12 +644,11 @@ struct MissileRangeCase: Codable, Identifiable, Hashable {
     var length_m: Double
     var diameter_m: Double
     var warhead_kg: Double
-    var hgv_type: String
-    var type_label: String?
     var missile_class: String?
     var class_label: String?
     var v_mach: Double
     var h_km: Double
+    var bay: String?
     var size_m: String?
     var launch: String?
     var m_0_t: Double?
@@ -684,6 +681,8 @@ struct MissileRangeEstimate: Codable {
     var range_terminal_km: Double? = nil
     var cruise_mach: Double? = nil
     var cruise_alt_km: Double? = nil
+    var m_dead_kg: Double? = nil
+    var m_wing_kg: Double? = nil
     var note: String? = nil
 }
 

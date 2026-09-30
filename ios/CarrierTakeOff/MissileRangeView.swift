@@ -79,6 +79,12 @@ struct MissileRangeView: View {
                                 ("巡航马赫", result.v_burnout_mach, 2, true),
                             ])
                         }
+                        if let wing = result.m_wing_kg, let dead = result.m_dead_kg {
+                            statRow([
+                                ("折叠弹翼 kg", wing, 0, false),
+                                ("死重 kg", dead, 0, true),
+                            ])
+                        }
                         statRow([
                             ("升阻比", result.ld_ratio, 2, false),
                             ("起飞质量 t", result.m_0_t, 2, true),
@@ -128,6 +134,7 @@ struct MissileRangeView: View {
         HStack(spacing: 8) {
             cell("ID", width: 36, dim: true)
             cell("尺寸", width: 110, dim: true)
+            cell("载机", width: 132, dim: true)
             cell("弹头", width: 56, dim: true)
             cell("弹种", width: 120, dim: true)
             cell("射程km", width: 72, dim: true)
@@ -140,6 +147,7 @@ struct MissileRangeView: View {
         HStack(spacing: 8) {
             cell(String(row.id), width: 36, dim: false, highlight: on)
             cell(row.size_m ?? "", width: 110, dim: false, highlight: on)
+            cell(row.bay ?? "—", width: 132, dim: false, highlight: on)
             cell(fmt(row.warhead_kg, 0), width: 56, dim: false, highlight: on)
             cell(kind(row), width: 120, dim: false, highlight: on)
             cell(fmt(row.range_km, 1), width: 72, dim: false, highlight: on)

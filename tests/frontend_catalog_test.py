@@ -263,6 +263,25 @@ def test_pyodide_bundles_missile_interception_presets_csv_deps():
     assert 'utils/takeoff/takeoff_input.py' in PY_LOAD_ORDER
 
 
+def test_pyodide_bundles_missile_range_preset_csv():
+    """导弹射程页须加载 paths、database_csv 与预设 CSV。"""
+    from scripts.build_docs import PY_DATA_FILES
+    from utils.paths import ROOT
+
+    assert 'data/missile_range_preset_database.csv' in PY_DATA_FILES
+    js = (ROOT / 'docs' / 'js' / 'missile_range.js').read_text(encoding='utf-8')
+    assert 'utils/paths.py' in js
+    assert 'utils/database_csv.py' in js
+    assert 'data/missile_range_preset_database.csv' in js
+    assert 'utils.database_csv' in js
+    engine = (ROOT / 'ios' / 'CarrierTakeOff' / 'Resources' / 'engine.js').read_text(encoding='utf-8')
+    assert 'py_data_files' in engine
+    from scripts.build_docs import collect_py_sources
+    sources = collect_py_sources()
+    assert 'data/missile_range_preset_database.csv' in sources
+    assert 'utils/missile_range/dataset.py' in sources
+
+
 def test_build_catalog_payload_includes_simulators_and_csv_presets():
     """catalog 须含启动页模拟器列表，且饱和预设与 CSV 一致。"""
     from utils.database_csv import load_missile_interception_presets_csv

@@ -58,6 +58,25 @@ if '/py' not in sys.path:
     }
     pyodide.FS.writeFile(`/py/${name}`, code);
   }
+  for (const name of catalog.py_data_files || []) {
+    const code = catalog.py_sources[name];
+    if (code === undefined || code === null) {
+      throw new Error(`缺少数据文件: ${name}`);
+    }
+    const parts = name.split('/');
+    if (parts.length > 1) {
+      let dir = '/py';
+      for (let i = 0; i < parts.length - 1; i++) {
+        dir += `/${parts[i]}`;
+        try {
+          pyodide.FS.mkdir(dir);
+        } catch {
+          /* already exists */
+        }
+      }
+    }
+    pyodide.FS.writeFile(`/py/${name}`, code);
+  }
 
   const importOrder =
     catalog.py_import_order ||

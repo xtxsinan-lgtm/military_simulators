@@ -22,7 +22,7 @@ def test_e2e_missile_range_api_matches_dataset():
             'length_m': case['length'],
             'diameter_m': case['diameter'],
             'warhead_kg': case['warhead'],
-            'hgv_type': case['type'],
+            'missile_class': 'hgv_biconic',
             'v_launch_mach': case['v_mach'],
             'h_launch_km': case['h_km'],
         },
@@ -40,7 +40,7 @@ def test_e2e_missile_range_api_matches_dataset():
     )
     assert {k: data['result'][k] for k in numeric} == {k: expected[k] for k in numeric}
     assert data['result']['missile_class'] == 'hgv_biconic'
-    assert len(data['rows']) == len(MISSILE_DATASET) + 12
+    assert len(data['rows']) == len(all_missile_cases())
 
     empty_status, _, empty_body = handle_request('POST', '/api/missile_range/simulate', b'')
     assert empty_status == 400
@@ -56,6 +56,9 @@ def test_e2e_missile_range_catalog_and_pages():
     )
     assert any(s['id'] == 'missile_range' for s in SIMULATORS)
     assert payload['missile_range']['cases'][0]['range_km'] == evaluate_case(MISSILE_DATASET[0])['range_km']
+    assert 'type_labels' not in payload['missile_range']
+    assert 'hgv_type' not in payload['missile_range']['defaults']
+    assert (ROOT / 'data' / 'missile_range_preset_database.csv').is_file()
 
     status, _, body = handle_request('GET', '/api/data', None)
     api = json.loads(body.decode())
@@ -73,9 +76,13 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'hgvType' not in html
     assert '构型' not in html
     assert 'run_missile_range_json' in js
-    assert 'utils/missile_range/classes.py' in js
+    assert 'utils/database_csv.py' in js
+    assert 'data/missile_range_preset_database.csv' in js
+    assert 'py_data_files' in (ROOT / 'ios' / 'CarrierTakeOff' / 'Resources' / 'engine.js').read_text(encoding='utf-8')
     assert '全高空' in js
     assert '全掠海' in js
+    assert '载机' in js
+    assert '折叠弹翼' in js
     assert 'missile-range.html' in (ROOT / 'docs' / 'takeoff.html').read_text(encoding='utf-8')
     assert 'missile-range.html' in (ROOT / 'docs' / 'combat-radius.html').read_text(encoding='utf-8')
     mini = json.loads((ROOT / 'miniprogram' / 'app.json').read_text(encoding='utf-8'))
@@ -84,8 +91,13 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'MissileRangeView' in hub
     view = (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileRangeView.swift').read_text(encoding='utf-8')
     assert '全掠海' in view
+    assert '载机' in view
+    assert '折叠弹翼' in view
     mini_js = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.js').read_text(encoding='utf-8')
     assert 'missile_class' in mini_js
+    mini_wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
+    assert '载机' in mini_wxml
+    assert '折叠弹翼' in mini_wxml
 
 
 @pytest.mark.e2e
@@ -119,7 +131,48 @@ def test_e2e_missile_range_six_classes():
         assert data['success'] is True, data
         assert data['result']['missile_class'] == missile_class
         assert data['result']['range_km'] > 0
-        if missile_class in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket'):
+        if missile_class in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ramjet'):
             assert data['result']['range_high_km'] > data['result']['range_sea_km'] > 0
         if missile_class == 'turbofan_rocket':
             assert data['result']['range_terminal_km'] > 0
+
+
+@pytest.mark.e2e
+def test_e2e_airbreathing_presets_differ_from_glide_and_ballistic():
+    """同一套几何下，吸气式射程不沿用助推滑翔或弹道结果。"""
+    from utils.missile_range.dataset import evaluate_dataset
+
+    rows = evaluate_dataset()
+    shared = [
+        row for row in rows
+        if row['length_m'] == 10.5 and row['diameter_m'] == 1.1 and row['warhead_kg'] == 200
+    ]
+    by_class = {row['missile_class']: row for row in shared}
+    assert by_class['hgv_biconic']['range_km'] != by_class['scramjet']['range_km']
+    assert by_class['scramjet']['range_km'] != by_class['ramjet']['range_km']
+    assert by_class['ramjet']['range_km'] != by_class['ballistic']['range_km']
+    assert by_class['scramjet']['range_sea_km'] is None
+    assert by_class['ballistic']['range_sea_km'] is None
+    subsonic = next(row for row in rows if row['missile_class'] == 'turbofan_stealth')
+    assert subsonic['m_wing_kg'] > 0
+    assert subsonic['range_high_km'] > subsonic['range_sea_km']
+    assert '折叠弹翼' in subsonic['note']
+    payload = {
+        'action': 'estimate',
+        'params': {
+            'missile_class': 'turbofan_stealth',
+            'length_m': subsonic['length_m'],
+            'diameter_m': subsonic['diameter_m'],
+            'warhead_kg': subsonic['warhead_kg'],
+            'v_launch_mach': subsonic['v_mach'],
+            'h_launch_km': subsonic['h_km'],
+        },
+    }
+    status, _, body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    data = json.loads(body.decode())
+    assert data['result']['range_km'] == subsonic['range_km']
+    assert data['result']['m_wing_kg'] == subsonic['m_wing_kg']
+    assert data['result']['missile_class'] == 'turbofan_stealth'

@@ -22,6 +22,14 @@ from utils.missile_range.estimate import (
 )
 
 LHV_J_KG = 43.0e6
+ISA_R = 287.05287
+# 折叠弹翼：高空巡航设计升力系数、展弦比、相对厚度，面密度含折叠铰链
+FOLDED_WING_CL = 0.65
+FOLDED_WING_AR = 5.0
+FOLDED_WING_TC = 0.08
+FOLDED_WING_AREAL_KG_M2 = 42.0
+# 折进弹体后，翼盒厚度不得超过弹径的这一比例
+FOLDED_WING_THICKNESS_FRAC = 0.45
 BODY_PACK = 0.68
 BOOST_FILL = 0.76
 TERMINAL_FILL = 0.78
@@ -46,27 +54,27 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'scramjet',
         'label': '超燃冲压导弹',
-        'blurb': '固体火箭助推到接力马赫数，超燃冲压在设计高度巡航。比冲与密度只作用于助推药。',
+        'blurb': '固体火箭助推到接力马赫数，超燃冲压在高空巡航。进气道与燃烧室占去大量容积，比冲与密度只作用于助推药。',
     },
     {
         'id': 'ramjet',
         'label': '亚燃冲压导弹',
-        'blurb': '固体火箭助推到接力马赫数，亚燃冲压在设计高度巡航。比冲与密度只作用于助推药。',
+        'blurb': '固体火箭助推后亚燃冲压巡航。分别给出高空巡航与掠海巡航；进气道占容积，比冲与密度只作用于助推药。',
     },
     {
         'id': 'turbofan_stealth',
         'label': '涡扇亚音速隐身巡航',
-        'blurb': '涡扇耗油率较低，隐身进气道与涂层降低升阻比并占用容积。分别给出全高空与全掠海射程。',
+        'blurb': '涡扇耗油率较低，隐身进气道与涂层降低升阻比并占用容积。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'turbojet_subsonic',
         'label': '涡喷亚音速非隐身巡航',
-        'blurb': '涡喷耗油率较高，常规气动升阻比更好、油箱更满。分别给出全高空与全掠海射程。',
+        'blurb': '涡喷耗油率较高，常规气动升阻比更好、油箱更满。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'turbofan_rocket',
         'label': '亚超结合导弹',
-        'blurb': '巡航段为涡扇，末端为固体火箭低空冲刺。全高空与全掠海都加上同一段末端航程。',
+        'blurb': '巡航段为涡扇，末端为固体火箭低空冲刺。全高空与全掠海都加上同一段末端航程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'ballistic',
@@ -115,113 +123,134 @@ _CLASS_ALIASES = {
 
 _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
     'turbofan_stealth': {
-        'areal': 24.0,
-        'eng_coeff': 250.0,
-        'eng_density': 520.0,
-        'payload_density': 1500.0,
-        'void_frac': 0.09,
+        # 对照 JSM：4.0 m × 0.48 m、战斗部 120 kg、质量约 416 kg，
+        # 高高空约 555 km、低低空约 185 km
+        'body_pack': 0.58,
+        'areal': 26.0,
+        'eng_coeff': 260.0,
+        'eng_density': 680.0,
+        'payload_density': 2800.0,
+        'void_frac': 0.16,
         'fuel_density': 800.0,
-        'tsfc': 1.75e-5,
-        'mach': 0.75,
+        'tsfc': 5.4e-5,
+        'mach': 0.80,
         'alt_km': 10.0,
-        'ld_base': 4.4,
-        'ld_slope': 0.16,
-        'ld_min': 5.0,
-        'ld_max': 6.8,
-        'eta': 0.32,
-        'sea_ld_factor': 0.60,
-        'sea_tsfc_factor': 1.08,
+        'ld_base': 3.7,
+        'ld_slope': 0.10,
+        'ld_min': 4.2,
+        'ld_max': 5.4,
+        'eta': 0.30,
+        'sea_ld_factor': 0.32,
+        'sea_tsfc_factor': 1.20,
         'reserve': 0.08,
         'sea_alt_km': 0.03,
+        'folded_wing': 1.0,
     },
     'turbojet_subsonic': {
-        'areal': 16.0,
-        'eng_coeff': 190.0,
-        'eng_density': 560.0,
-        'payload_density': 1600.0,
-        'void_frac': 0.05,
+        # 对照 Harpoon / Exocet 公开航程：小涡喷耗油率更高、升阻比更低
+        'body_pack': 0.64,
+        'areal': 18.0,
+        'eng_coeff': 210.0,
+        'eng_density': 580.0,
+        'payload_density': 2100.0,
+        'void_frac': 0.10,
         'fuel_density': 800.0,
-        'tsfc': 4.6e-5,
+        'tsfc': 6.8e-5,
         'mach': 0.80,
-        'alt_km': 8.0,
-        'ld_base': 4.8,
-        'ld_slope': 0.20,
-        'ld_min': 5.2,
-        'ld_max': 7.4,
-        'eta': 0.24,
-        'sea_ld_factor': 0.60,
-        'sea_tsfc_factor': 1.08,
+        'alt_km': 6.0,
+        'ld_base': 3.6,
+        'ld_slope': 0.12,
+        'ld_min': 4.0,
+        'ld_max': 5.8,
+        'eta': 0.22,
+        'sea_ld_factor': 0.58,
+        'sea_tsfc_factor': 1.15,
         'reserve': 0.08,
         'sea_alt_km': 0.03,
+        'folded_wing': 1.0,
     },
 }
 
 _DUCT_SPECS: dict[str, dict[str, float]] = {
     'ramjet': {
+        # 对照 BrahMos / P-800：进气道与燃烧室占容积，高空约 300 km 量级、掠海明显更短
+        'body_pack': 0.64,
         'areal': 28.0,
-        'eng_coeff': 210.0,
-        'eng_density': 380.0,
-        'payload_density': 1450.0,
-        'void_frac': 0.06,
+        'eng_coeff': 180.0,
+        'eng_density': 320.0,
+        'payload_density': 1900.0,
+        'void_frac': 0.28,
         'fuel_density': 820.0,
-        'tsfc': 8.2e-5,
-        'mach_takeover': 2.05,
-        'mach_cruise': 3.0,
-        'alt_km': 18.0,
-        'ld_base': 1.9,
-        'ld_slope': 0.11,
-        'ld_min': 2.3,
-        'ld_max': 3.6,
-        'eta': 0.20,
+        'tsfc': 1.05e-4,
+        'mach_takeover': 1.95,
+        'mach_cruise': 2.8,
+        'alt_km': 14.0,
+        'ld_base': 1.7,
+        'ld_slope': 0.08,
+        'ld_min': 2.1,
+        'ld_max': 2.7,
+        'eta': 0.18,
         'reserve': 0.08,
-        'loss_frac': 0.18,
-        'accel_excess': 0.32,
-        'fuel_floor_frac': 0.30,
+        'loss_frac': 0.16,
+        'accel_excess': 0.30,
+        'fuel_floor_frac': 0.28,
+        'sea_alt_km': 0.015,
+        'sea_mach': 2.0,
+        'sea_ld_factor': 0.38,
+        'sea_tsfc_factor': 1.45,
     },
     'scramjet': {
-        'areal': 36.0,
-        'eng_coeff': 240.0,
-        'eng_density': 420.0,
-        'payload_density': 1400.0,
-        'void_frac': 0.05,
+        # 对照长剑-1000：地面发射、约 10 m × 1 m、巡航 Ma 6、30–50 km、射程约 5000–6000 km。
+        # 固定进气道容积让较小弹油箱更小。
+        'body_pack': 0.74,
+        'areal': 22.0,
+        'eng_coeff': 120.0,
+        'eng_density': 300.0,
+        'payload_density': 1800.0,
+        'void_frac': 0.04,
+        'fixed_void_m3': 0.85,
         'fuel_density': 840.0,
-        'tsfc': 1.12e-4,
-        'mach_takeover': 4.2,
-        'mach_cruise': 5.5,
-        'alt_km': 28.0,
-        'ld_base': 1.7,
-        'ld_slope': 0.09,
-        'ld_min': 2.2,
-        'ld_max': 3.4,
-        'eta': 0.16,
+        'tsfc': 5.2e-5,
+        'mach_takeover': 3.6,
+        'mach_cruise': 6.2,
+        'alt_km': 36.0,
+        'ld_base': 2.4,
+        'ld_slope': 0.05,
+        'ld_min': 2.8,
+        'ld_max': 3.8,
+        'eta': 0.35,
         'reserve': 0.08,
-        'loss_frac': 0.22,
-        'accel_excess': 0.26,
-        'fuel_floor_frac': 0.22,
+        'loss_frac': 0.08,
+        'accel_excess': 0.45,
+        'fuel_floor_frac': 0.42,
     },
 }
 
 _ROCKET_CRUISE = {
+    # 对照鹰击-18：垂发约 8.2 m × 0.51 m、战斗部约 200 kg、质量约 1.6 t，
+    # 亚音速巡航后末端冲刺，公开射程约 220–540 km，冲刺约 40 km
+    'body_pack': 0.62,
     'areal': 22.0,
-    'eng_coeff': 230.0,
-    'eng_density': 520.0,
-    'payload_density': 1500.0,
-    'void_frac': 0.06,
+    'eng_coeff': 200.0,
+    'eng_density': 650.0,
+    'payload_density': 2600.0,
+    'void_frac': 0.10,
     'fuel_density': 800.0,
-    'tsfc': 1.85e-5,
-    'mach': 0.75,
-    'alt_km': 9.0,
-    'ld_base': 4.3,
-    'ld_slope': 0.15,
-    'ld_min': 4.8,
-    'ld_max': 6.5,
-    'eta': 0.30,
-    'sea_ld_factor': 0.60,
+    'tsfc': 5.4e-5,
+    'mach': 0.80,
+    'alt_km': 6.0,
+    'ld_base': 3.4,
+    'ld_slope': 0.08,
+    'ld_min': 3.8,
+    'ld_max': 5.0,
+    'eta': 0.28,
+    'sea_ld_factor': 0.90,
     'sea_tsfc_factor': 1.08,
     'reserve': 0.08,
-    'sea_alt_km': 0.03,
-    'terminal_dv_m_s': 860.0,
-    'terminal_volume_cap_frac': 0.18,
+    'sea_alt_km': 0.02,
+    'folded_wing': 1.0,
+    'terminal_dv_m_s': 1900.0,
+    'terminal_volume_cap_frac': 0.28,
 }
 
 
@@ -262,13 +291,11 @@ def glide_shape(missile_class: str) -> str | None:
     return None
 
 
-def resolve_missile_class(missile_class: str, hgv_type: str = 'biconic') -> str:
-    """把弹种和可选构型收成一个 id。旧的「助推滑翔」仍看 hgv_type。"""
+def resolve_missile_class(missile_class: str) -> str:
+    """把弹种名收成内部 id。旧的「助推滑翔」视为双锥体助推滑翔。"""
     raw = str(missile_class).strip()
     if raw.lower() in _GENERIC_HGV or raw in _GENERIC_HGV:
-        from utils.missile_range.estimate import normalize_hgv_type
-        shape = normalize_hgv_type(hgv_type)
-        return 'hgv_waverider' if shape == 'waverider' else 'hgv_biconic'
+        return 'hgv_biconic'
     return normalize_missile_class(missile_class)
 
 
@@ -297,13 +324,105 @@ def speed_of_sound_m_s(altitude_km: float) -> float:
         temperature = 216.65 + 0.001 * (height_m - 20000.0)
     else:
         temperature = 228.65 + 0.0028 * (min(height_m, 47000.0) - 32000.0)
-    return math.sqrt(1.4 * 287.05287 * temperature)
+    return math.sqrt(1.4 * ISA_R * temperature)
 
 
-def body_volume_m3(length_m: float, diameter_m: float) -> float:
-    """弹体外形对应的可用内部容积。"""
+
+def isa_density_kg_m3(altitude_km: float) -> float:
+    """国际标准大气密度。11 km 以下按对流层，其上按平流层等温层。"""
+    if altitude_km < 0:
+        raise ValueError('高度不能为负')
+    height_m = altitude_km * 1000.0
+    lapse = 0.0065
+    if height_m <= 11000.0:
+        temperature = 288.15 - lapse * height_m
+        pressure = 101325.0 * (temperature / 288.15) ** (G0 / (ISA_R * lapse))
+    else:
+        temperature = 216.65
+        pressure_11 = 101325.0 * (216.65 / 288.15) ** (G0 / (ISA_R * lapse))
+        pressure = pressure_11 * math.exp(-G0 * (min(height_m, 47000.0) - 11000.0) / (ISA_R * temperature))
+    return pressure / (ISA_R * temperature)
+
+
+def folded_wing_package(
+    mass_kg: float,
+    mach: float,
+    altitude_km: float,
+    diameter_m: float,
+) -> tuple[float, float, float]:
+    """按巡航重量定折叠弹翼，返回面积、质量和弹内占用容积。
+
+    翼面收在给定弹径以内，所以厚度受弹径限制；质量和容积都算死重，不算出外露翼。
+    """
+    if mass_kg <= 0 or mach <= 0 or diameter_m <= 0:
+        raise ValueError('折叠弹翼的质量、马赫数与弹径必须大于 0')
+    if altitude_km < 0:
+        raise ValueError('高度不能为负')
+    speed = mach * speed_of_sound_m_s(altitude_km)
+    dynamic = 0.5 * isa_density_kg_m3(altitude_km) * speed * speed
+    if dynamic <= 1.0:
+        raise ValueError('巡航动压过低，无法确定弹翼面积')
+    area = mass_kg * G0 / (dynamic * FOLDED_WING_CL)
+    chord = math.sqrt(area / FOLDED_WING_AR)
+    thickness = FOLDED_WING_TC * chord
+    limit = FOLDED_WING_THICKNESS_FRAC * diameter_m
+    if thickness > limit:
+        raise ValueError('弹翼厚度超过弹径，无法折进弹体')
+    volume = area * thickness
+    mass = FOLDED_WING_AREAL_KG_M2 * area
+    return area, mass, volume
+
+
+def stow_folded_wing(
+    mass_kg: float,
+    mach: float,
+    altitude_km: float,
+    diameter_m: float,
+    volume_budget_m3: float,
+) -> tuple[float, float, float, float]:
+    """把设计弹翼收进剩余燃油舱。
+
+    舱内容不下整翼时，按容积把面积缩小（容积约随面积的 1.5 次方），
+    质量和占用容积仍计入死重。返回面积、质量、容积，以及相对设计面积的比例。
+    """
+    if volume_budget_m3 <= 0:
+        raise ValueError('折叠弹翼占用的容积超过燃油舱')
+    area, mass, volume = folded_wing_package(mass_kg, mach, altitude_km, diameter_m)
+    if volume <= volume_budget_m3:
+        return area, mass, volume, 1.0
+    factor = (volume_budget_m3 / volume) ** (2.0 / 3.0)
+    area *= factor
+    mass *= factor
+    chord = math.sqrt(area / FOLDED_WING_AR)
+    volume = area * FOLDED_WING_TC * chord
+    if volume > volume_budget_m3:
+        volume = volume_budget_m3
+    return area, mass, volume, factor
+
+
+def deadweight_kg(
+    launch_mass_kg: float,
+    fuel_kg: float,
+    warhead_mass_kg: float,
+    propellant_kg: float = 0.0,
+) -> float:
+    """死重：起飞质量去掉燃油、战斗部和仍要燃烧的固体装药。折叠弹翼留在死重里。"""
+    if launch_mass_kg <= 0:
+        raise ValueError('起飞质量必须大于 0')
+    if fuel_kg < 0 or warhead_mass_kg < 0 or propellant_kg < 0:
+        raise ValueError('质量不能为负')
+    dead = launch_mass_kg - fuel_kg - warhead_mass_kg - propellant_kg
+    if dead <= 0:
+        raise ValueError('死重必须大于 0')
+    return dead
+
+
+def body_volume_m3(length_m: float, diameter_m: float, pack: float = BODY_PACK) -> float:
+    """弹体外形对应的可用内部容积。冲压弹进气道更大时 pack 更小。"""
+    if not 0.3 <= pack <= 0.9:
+        raise ValueError('弹体装填系数须在 0.3 到 0.9 之间')
     fineness_ratio(length_m, diameter_m)
-    return BODY_PACK * math.pi * (diameter_m / 2.0) ** 2 * length_m
+    return pack * math.pi * (diameter_m / 2.0) ** 2 * length_m
 
 
 def payload_mass_kg(warhead_mass_kg: float) -> float:
@@ -336,17 +455,26 @@ def energy_volume_m3(
     engine_mass: float,
     engine_density: float,
     void_frac: float,
+    fixed_void_m3: float = 0.0,
 ) -> float:
-    """扣掉战斗部、发动机和空腔后，留给燃油或助推药的容积。"""
+    """扣掉战斗部、发动机和空腔后，留给燃油或助推药的容积。
+
+    fixed_void_m3 是不随弹体放大的进气道/隔离段，小弹会因此少装油。
+    """
     if payload_density <= 0 or engine_density <= 0:
         raise ValueError('密度必须大于 0')
-    if not 0.0 <= void_frac < 0.5:
-        raise ValueError('空腔比例须在 0 到 0.5 之间')
+    if not 0.0 <= void_frac < 0.55:
+        raise ValueError('空腔比例须在 0 到 0.55 之间')
+    if fixed_void_m3 < 0:
+        raise ValueError('固定空腔容积不能为负')
+    # 进气道再长也不能超过弹体四成，否则小口径弹会没有油箱
+    fixed_void_m3 = min(fixed_void_m3, 0.40 * body_volume)
     leftover = (
         body_volume
         - payload_mass / payload_density
         - engine_mass / engine_density
         - void_frac * body_volume
+        - fixed_void_m3
     )
     if leftover <= 0.02:
         raise ValueError('弹体容积放不下战斗部与发动机')
@@ -405,25 +533,52 @@ def cruise_range_pair_km(
     reserved_volume_m3: float = 0.0,
     inert_mass_kg: float = 0.0,
 ) -> dict[str, float]:
-    """全高空与全掠海巡航航程。预留容积和惰性质量给末端火箭。"""
+    """全高空与全掠海巡航航程。预留容积和惰性质量给末端火箭。
+
+    亚音速弹种带折叠弹翼时，翼面质量和占用容积从燃油舱里扣出，计入死重。
+    """
     if v_launch_mach < 0 or h_launch_km < 0:
         raise ValueError('发射马赫数与高度不能为负')
     if reserved_volume_m3 < 0 or inert_mass_kg < 0:
         raise ValueError('预留容积与附加质量不能为负')
-    volume = body_volume_m3(length_m, diameter_m)
+    volume = body_volume_m3(length_m, diameter_m, spec.get('body_pack', BODY_PACK))
     payload = payload_mass_kg(warhead_mass_kg)
     structure = structural_mass_kg(length_m, diameter_m, spec['areal'])
     engine = engine_mass_kg(length_m, diameter_m, spec['eng_coeff'])
     tank = energy_volume_m3(
         volume, payload, spec['payload_density'], engine, spec['eng_density'], spec['void_frac'],
+        spec.get('fixed_void_m3', 0.0),
     )
-    if reserved_volume_m3 >= tank:
-        raise ValueError('末端火箭占用的容积超过燃油舱')
-    fuel_kg = (tank - reserved_volume_m3) * spec['fuel_density']
+    wing_area = 0.0
+    wing_mass = 0.0
+    wing_volume = 0.0
+    wing_fill = 1.0
+    fuel_slot_m3 = 0.006
+    if spec.get('folded_wing', 0.0) > 0.0:
+        guess = payload + structure + engine + tank * spec['fuel_density'] + inert_mass_kg
+        fuel_kg = 0.0
+        for _ in range(12):
+            budget = tank - reserved_volume_m3 - fuel_slot_m3
+            wing_area, wing_mass, wing_volume, wing_fill = stow_folded_wing(
+                guess, spec['mach'], spec['alt_km'], diameter_m, budget,
+            )
+            free = tank - wing_volume
+            if reserved_volume_m3 >= free:
+                raise ValueError('末端火箭占用的容积超过燃油舱')
+            fuel_kg = (free - reserved_volume_m3) * spec['fuel_density']
+            updated = payload + structure + engine + fuel_kg + inert_mass_kg + wing_mass
+            guess = 0.35 * guess + 0.65 * updated
+        launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg + wing_mass
+    else:
+        if reserved_volume_m3 >= tank:
+            raise ValueError('末端火箭占用的容积超过燃油舱')
+        fuel_kg = (tank - reserved_volume_m3) * spec['fuel_density']
+        launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg
     if fuel_kg <= 1.0:
         raise ValueError('燃油过少，无法巡航')
-    launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg
     ld = subsonic_ld(length_m, diameter_m, spec)
+    if wing_fill < 1.0:
+        ld *= 0.55 + 0.45 * wing_fill
     sound_hi = speed_of_sound_m_s(spec['alt_km'])
     sound_sea = speed_of_sound_m_s(spec['sea_alt_km'])
     speed_hi = spec['mach'] * sound_hi
@@ -461,6 +616,12 @@ def cruise_range_pair_km(
         'cruise_mach': spec['mach'],
         'cruise_alt_km': spec['alt_km'],
         'm_engine': engine,
+        'm_structure': structure,
+        'm_payload': payload,
+        'm_wing_kg': wing_mass,
+        'wing_area_m2': wing_area,
+        'wing_volume_m3': wing_volume,
+        'wing_fill': wing_fill,
         'usable_high_kg': usable_hi,
         'usable_sea_kg': usable_sea,
     }
@@ -650,6 +811,8 @@ def _base_fields(
     range_terminal_km: float | None = None,
     cruise_mach: float | None = None,
     cruise_alt_km: float | None = None,
+    m_dead_kg: float | None = None,
+    m_wing_kg: float | None = None,
 ) -> dict:
     return {
         'missile_class': missile_class,
@@ -667,6 +830,8 @@ def _base_fields(
         'range_terminal_km': None if range_terminal_km is None else round(range_terminal_km, 1),
         'cruise_mach': None if cruise_mach is None else round(cruise_mach, 2),
         'cruise_alt_km': None if cruise_alt_km is None else round(cruise_alt_km, 1),
+        'm_dead_kg': None if m_dead_kg is None else round(m_dead_kg, 1),
+        'm_wing_kg': None if m_wing_kg is None else round(m_wing_kg, 1),
         'note': note,
     }
 
@@ -694,16 +859,20 @@ def estimate_subsonic_class(
     )
     high_km = sized['range_high_m'] / 1000.0
     sea_km = sized['range_sea_m'] / 1000.0
+    dead = deadweight_kg(sized['m_0'], sized['fuel_kg'], warhead_mass_kg)
+    fit = '' if sized['wing_fill'] >= 0.995 else f"弹舱只能放下设计翼面积的 {sized['wing_fill'] * 100:.0f}%。"
     note = (
         f"{class_label(canon)}：主射程为全高空 {spec['alt_km']:.0f} km、"
         f"Ma {spec['mach']:.2f}；全掠海为 {spec['sea_alt_km'] * 1000:.0f} m。"
         f"升阻比 {sized['ld']:.2f}，耗油率按弹种固定。"
+        f"折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
     )
     return _base_fields(
         canon, sized['m_0'], sized['l_head_m'], length_m - sized['l_head_m'],
         sized['fuel_kg'], spec['mach'], sized['ld'], high_km, note,
         range_high_km=high_km, range_sea_km=sea_km,
         range_cruise_km=high_km, cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],
+        m_dead_kg=dead, m_wing_kg=sized['m_wing_kg'],
     )
 
 
@@ -726,12 +895,13 @@ def estimate_ducted(
         raise ValueError('比冲与推进剂密度必须大于 0')
     if v_launch_mach < 0 or h_launch_km < 0:
         raise ValueError('发射马赫数与高度不能为负')
-    volume = body_volume_m3(length_m, diameter_m)
+    volume = body_volume_m3(length_m, diameter_m, spec.get('body_pack', BODY_PACK))
     payload = payload_mass_kg(warhead_mass_kg)
     structure = structural_mass_kg(length_m, diameter_m, spec['areal'])
     engine = engine_mass_kg(length_m, diameter_m, spec['eng_coeff'])
     tank = energy_volume_m3(
         volume, payload, spec['payload_density'], engine, spec['eng_density'], spec['void_frac'],
+        spec.get('fixed_void_m3', 0.0),
     )
     sound = speed_of_sound_m_s(spec['alt_km'])
     launch_speed = v_launch_mach * speed_of_sound_m_s(h_launch_km)
@@ -758,7 +928,14 @@ def estimate_ducted(
     mass_after_boost = launch_mass - propellant
     accel_frac = 0.0 if accel <= 1.0 else 1.0 - math.exp(-accel / (isp_air * G0 * spec['accel_excess']))
     accel_fuel = min(fuel * 0.65, accel_frac * mass_after_boost)
-    cruise_fuel = max(0.0, fuel - accel_fuel) * (1.0 - spec['reserve'])
+    climb = climb_fuel_kg(
+        mass_after_boost,
+        (spec['alt_km'] - h_launch_km) * 1000.0,
+        cruise_speed ** 2 - speed_after ** 2,
+        spec['eta'],
+    )
+    climb = min(climb, max(0.0, fuel - accel_fuel) * 0.40)
+    cruise_fuel = max(0.0, fuel - accel_fuel - climb) * (1.0 - spec['reserve'])
     if cruise_fuel <= 1.0:
         raise ValueError('冲压燃油不足以完成巡航')
     ld = duct_ld(length_m, diameter_m, spec)
@@ -767,20 +944,38 @@ def estimate_ducted(
     )
     burn_time = ballistic_burn_time_s(propellant, launch_mass, isp_s) if propellant > 0 else 0.0
     boost_range = 0.5 * (launch_speed + min(speed_after, cruise_speed)) * burn_time
-    total_km = (cruise_m + boost_range) / 1000.0
+    high_km = (cruise_m + boost_range) / 1000.0
+    sea_km = None
+    if spec.get('sea_alt_km') is not None:
+        sea_sound = speed_of_sound_m_s(spec['sea_alt_km'])
+        sea_speed = spec.get('sea_mach', 2.0) * sea_sound
+        sea_ld = ld * spec.get('sea_ld_factor', 0.42)
+        sea_tsfc = spec['tsfc'] * spec.get('sea_tsfc_factor', 1.3)
+        sea_fuel = max(0.0, fuel - accel_fuel) * (1.0 - spec['reserve'])
+        if sea_fuel > 1.0 and sea_ld > 0:
+            sea_m = breguet_cruise_range_m(
+                sea_speed, sea_tsfc, sea_ld, mass_after_boost, mass_after_boost - sea_fuel,
+            )
+            sea_km = (sea_m + boost_range) / 1000.0
+    dead = deadweight_kg(launch_mass, fuel, warhead_mass_kg, propellant)
     bay = payload / spec['payload_density']
     section = math.pi * (diameter_m / 2.0) ** 2
     head_len = min(length_m * 0.45, bay / section)
     trimmed = '' if reached else '接力装药不足，巡航马赫已下调。'
+    sea_txt = '' if sea_km is None else f'全掠海 {sea_km:.0f} km。'
     note = (
-        f"{class_label(canon)}：设计巡航 Ma {spec['mach_cruise']:.1f} @ {spec['alt_km']:.0f} km，"
-        f"本次巡航 Ma {cruise_mach:.2f}。{trimmed}"
+        f"{class_label(canon)}：高空巡航 Ma {cruise_mach:.2f} @ {spec['alt_km']:.0f} km，"
+        f"设计 Ma {spec['mach_cruise']:.1f}。{trimmed}{sea_txt}"
+        f"死重 {dead:.0f} kg。"
     )
     return _base_fields(
         canon, launch_mass, head_len, length_m - head_len, fuel + propellant,
-        cruise_mach, ld, total_km, note,
+        cruise_mach, ld, high_km, note,
+        range_high_km=high_km if sea_km is not None else None,
+        range_sea_km=sea_km,
         range_cruise_km=cruise_m / 1000.0,
         cruise_mach=cruise_mach, cruise_alt_km=spec['alt_km'],
+        m_dead_kg=dead,
     )
 
 
@@ -794,40 +989,56 @@ def terminal_propellant_for_dash(
     propellant_density: float,
     spec: dict[str, float],
 ) -> tuple[float, dict[str, float]]:
-    """按较重的巡航终点质量迭代末端装药，容积不超过弹体上限。"""
-    volume = body_volume_m3(length_m, diameter_m)
+    """按较重的巡航终点质量迭代末端装药。折叠弹翼先占燃油舱，装药不得挤掉弹翼。"""
+    volume = body_volume_m3(length_m, diameter_m, spec.get('body_pack', BODY_PACK))
     propellant_cap = volume * spec['terminal_volume_cap_frac'] * TERMINAL_FILL * propellant_density
     ve = isp_s * G0
     propellant = 0.0
     sized: dict[str, float] = {}
-    for _ in range(10):
+    for _ in range(16):
         reserved = propellant / (TERMINAL_FILL * propellant_density) if propellant > 0 else 0.0
         case_mass = propellant * (1.0 - TERMINAL_PMF) / TERMINAL_PMF
-        sized = cruise_range_pair_km(
-            length_m=length_m,
-            diameter_m=diameter_m,
-            warhead_mass_kg=warhead_mass_kg,
-            v_launch_mach=v_launch_mach,
-            h_launch_km=h_launch_km,
-            spec=spec,
-            reserved_volume_m3=reserved,
-            inert_mass_kg=propellant + case_mass,
-        )
+        try:
+            sized = cruise_range_pair_km(
+                length_m=length_m,
+                diameter_m=diameter_m,
+                warhead_mass_kg=warhead_mass_kg,
+                v_launch_mach=v_launch_mach,
+                h_launch_km=h_launch_km,
+                spec=spec,
+                reserved_volume_m3=reserved,
+                inert_mass_kg=propellant + case_mass,
+            )
+        except ValueError as exc:
+            if '容积' not in str(exc):
+                raise
+            propellant_cap *= 0.55
+            propellant = min(propellant, propellant_cap) * 0.55
+            continue
         mass_ign = sized['m_0'] - sized['usable_high_kg']
         needed = mass_ign * (1.0 - math.exp(-spec['terminal_dv_m_s'] / ve))
         propellant = min(propellant_cap, 0.5 * propellant + 0.5 * needed)
-    reserved = propellant / (TERMINAL_FILL * propellant_density)
-    case_mass = propellant * (1.0 - TERMINAL_PMF) / TERMINAL_PMF
-    sized = cruise_range_pair_km(
-        length_m=length_m,
-        diameter_m=diameter_m,
-        warhead_mass_kg=warhead_mass_kg,
-        v_launch_mach=v_launch_mach,
-        h_launch_km=h_launch_km,
-        spec=spec,
-        reserved_volume_m3=reserved,
-        inert_mass_kg=propellant + case_mass,
-    )
+    for _ in range(8):
+        reserved = propellant / (TERMINAL_FILL * propellant_density) if propellant > 0 else 0.0
+        case_mass = propellant * (1.0 - TERMINAL_PMF) / TERMINAL_PMF
+        try:
+            sized = cruise_range_pair_km(
+                length_m=length_m,
+                diameter_m=diameter_m,
+                warhead_mass_kg=warhead_mass_kg,
+                v_launch_mach=v_launch_mach,
+                h_launch_km=h_launch_km,
+                spec=spec,
+                reserved_volume_m3=reserved,
+                inert_mass_kg=propellant + case_mass,
+            )
+            break
+        except ValueError as exc:
+            if '容积' not in str(exc) or propellant <= 0.5:
+                raise
+            propellant *= 0.5
+    else:
+        raise ValueError('折叠弹翼占用的容积超过燃油舱')
     return propellant, sized
 
 
@@ -853,10 +1064,13 @@ def estimate_turbofan_rocket(
     dash = terminal_dash_range_m(mass_ign, propellant, diameter_m, isp_s, entry)
     high_km = sized['range_high_m'] / 1000.0 + dash / 1000.0
     sea_km = sized['range_sea_m'] / 1000.0 + dash / 1000.0
+    dead = deadweight_kg(sized['m_0'], sized['fuel_kg'], warhead_mass_kg, propellant)
+    fit = '' if sized['wing_fill'] >= 0.995 else f"弹舱只能放下设计翼面积的 {sized['wing_fill'] * 100:.0f}%。"
     note = (
         f"亚超结合：涡扇巡航 Ma {spec['mach']:.2f}，"
         f"全高空 {spec['alt_km']:.0f} km / 全掠海 {spec['sea_alt_km'] * 1000:.0f} m，"
         f"末端火箭冲刺 {dash / 1000.0:.1f} km。"
+        f"折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
     )
     return _base_fields(
         'turbofan_rocket', sized['m_0'], sized['l_head_m'], length_m - sized['l_head_m'],
@@ -865,6 +1079,7 @@ def estimate_turbofan_rocket(
         range_cruise_km=sized['range_high_m'] / 1000.0,
         range_terminal_km=dash / 1000.0,
         cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],
+        m_dead_kg=dead, m_wing_kg=sized['m_wing_kg'],
     )
 
 
@@ -922,14 +1137,13 @@ def estimate_by_class(
     length_m: float,
     diameter_m: float,
     warhead_mass_kg: float,
-    hgv_type: str = 'biconic',
     v_launch_mach: float = 0.85,
     h_launch_km: float = 13.0,
     isp_s: float = DEFAULT_ISP_S,
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
 ) -> dict:
-    """按弹种估算。双锥体和乘波体助推滑翔仍走原有模型。"""
-    canon = resolve_missile_class(missile_class, hgv_type)
+    """按弹种估算。双锥体和乘波体助推滑翔由 missile_class 区分。"""
+    canon = resolve_missile_class(missile_class)
     shape = glide_shape(canon)
     if shape is not None:
         from utils.missile_range.estimate import estimate_hgv

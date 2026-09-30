@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
 
 # Pyodide 按依赖顺序加载（路径相对项目根）
 # missile_interception_presets 依赖 paths + database_csv（CSV 在浏览器中不存在时返回空分组）
+# 导弹射程预设 CSV 写入 py_sources，供 Pyodide 在 /py/data/ 下读取
 PY_LOAD_ORDER = [
     'utils/__init__.py',
     'utils/paths.py',
@@ -118,6 +119,22 @@ PY_IMPORT_ORDER = [
     'apps.missile_range_web',
 ]
 
+# 非 Python 数据文件：写入虚拟文件系统，不参与 import
+PY_DATA_FILES = (
+    'data/missile_range_preset_database.csv',
+)
+
+
+def collect_py_sources() -> dict[str, str]:
+    """打包仿真 Python 与射程预设 CSV。"""
+    sources: dict[str, str] = {}
+    for rel in list(PY_LOAD_ORDER) + list(PY_DATA_FILES):
+        src = ROOT / rel
+        if not src.is_file():
+            raise FileNotFoundError(src)
+        sources[rel] = src.read_text(encoding='utf-8')
+    return sources
+
 
 def main() -> None:
     from scripts.frontend_catalog import build_catalog_payload
@@ -130,19 +147,16 @@ def main() -> None:
     aircraft = load_aircraft_csv(AIRCRAFT_CSV)
     carriers = load_carriers_csv(CARRIERS_CSV)
 
-    py_sources = {}
-    for rel in PY_LOAD_ORDER:
-        src = ROOT / rel
-        if not src.is_file():
-            raise FileNotFoundError(src)
-        py_sources[rel] = src.read_text(encoding='utf-8')
+    py_sources = collect_py_sources()
+    for rel, text in py_sources.items():
         dest = PY_DEST / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(py_sources[rel], encoding='utf-8')
+        dest.write_text(text, encoding='utf-8')
 
     data = build_catalog_payload(aircraft, carriers)
     data['py_load_order'] = PY_LOAD_ORDER
     data['py_import_order'] = PY_IMPORT_ORDER
+    data['py_data_files'] = list(PY_DATA_FILES)
     data['py_sources'] = py_sources
 
     (DOCS / 'data.json').write_text(

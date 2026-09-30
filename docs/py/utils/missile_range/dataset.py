@@ -3,54 +3,112 @@ from __future__ import annotations
 
 from typing import Any
 
+from utils.database_csv import load_missile_range_preset_csv
 from utils.missile_range.classes import (
     MISSILE_CLASS_ORDER,
     class_blurb,
     class_label,
     estimate_by_class,
-    glide_shape,
     resolve_missile_class,
 )
 from utils.missile_range.estimate import (
     DEFAULT_ISP_S,
     DEFAULT_PROPELLANT_DENSITY,
-    HGV_TYPE_LABELS,
 )
 
-# 预设样本：几何、战斗部、构型与空射条件
-MISSILE_DATASET: list[dict[str, Any]] = [
-    {'id': 1, 'length': 10.50, 'diameter': 1.000, 'warhead': 200, 'type': 'biconic', 'v_mach': 0.85, 'h_km': 13.0},
-    {'id': 2, 'length': 11.30, 'diameter': 0.860, 'warhead': 200, 'type': 'waverider', 'v_mach': 2.20, 'h_km': 19.0},
-    {'id': 3, 'length': 11.30, 'diameter': 0.860, 'warhead': 800, 'type': 'waverider', 'v_mach': 2.20, 'h_km': 19.0},
-    {'id': 4, 'length': 11.30, 'diameter': 0.860, 'warhead': 800, 'type': 'biconic', 'v_mach': 2.20, 'h_km': 19.0},
-    {'id': 5, 'length': 11.30, 'diameter': 0.860, 'warhead': 200, 'type': 'waverider', 'v_mach': 0.85, 'h_km': 13.0},
-    {'id': 6, 'length': 11.30, 'diameter': 0.860, 'warhead': 800, 'type': 'waverider', 'v_mach': 0.85, 'h_km': 13.0},
-    {'id': 7, 'length': 11.30, 'diameter': 0.860, 'warhead': 800, 'type': 'biconic', 'v_mach': 0.85, 'h_km': 13.0},
-    {'id': 8, 'length': 6.35, 'diameter': 0.840, 'warhead': 150, 'type': 'waverider', 'v_mach': 0.85, 'h_km': 15.0},
-    {'id': 9, 'length': 6.35, 'diameter': 0.840, 'warhead': 500, 'type': 'waverider', 'v_mach': 0.85, 'h_km': 15.0},
-    {'id': 10, 'length': 6.35, 'diameter': 0.840, 'warhead': 500, 'type': 'biconic', 'v_mach': 0.85, 'h_km': 15.0},
-    {'id': 11, 'length': 6.50, 'diameter': 0.600, 'warhead': 300, 'type': 'waverider', 'v_mach': 2.20, 'h_km': 19.0},
-    {'id': 12, 'length': 6.50, 'diameter': 0.600, 'warhead': 300, 'type': 'biconic', 'v_mach': 2.20, 'h_km': 19.0},
-    {'id': 13, 'length': 6.35, 'diameter': 0.460, 'warhead': 300, 'type': 'waverider', 'v_mach': 2.20, 'h_km': 19.0},
-    {'id': 14, 'length': 6.35, 'diameter': 0.460, 'warhead': 300, 'type': 'biconic', 'v_mach': 2.20, 'h_km': 19.0},
-    {'id': 15, 'length': 4.90, 'diameter': 0.415, 'warhead': 160, 'type': 'waverider', 'v_mach': 2.20, 'h_km': 19.0},
-    {'id': 16, 'length': 4.25, 'diameter': 0.345, 'warhead': 90, 'type': 'waverider', 'v_mach': 2.20, 'h_km': 19.0},
-]
+# 超音速弹种（不含亚超结合，含普通弹道）共用 CSV 中 speed_group=supersonic 的弹仓。
+SUPERSONIC_CLASSES = (
+    'hgv_biconic',
+    'hgv_waverider',
+    'scramjet',
+    'ramjet',
+    'ballistic',
+)
+# 亚音速弹种（含亚超结合）。弹翼按折叠在弹体内估算。
+SUBSONIC_CLASSES = (
+    'turbofan_stealth',
+    'turbojet_subsonic',
+    'turbofan_rocket',
+)
+SPEED_GROUP_CLASSES = {
+    'supersonic': SUPERSONIC_CLASSES,
+    'subsonic': SUBSONIC_CLASSES,
+}
 
-# 六类推进方式的代表尺寸。几何与战斗部只用于估算，不对应具体型号。
+
+def grouped_preset_bays(
+    preset_rows: list[dict[str, Any]] | None = None,
+) -> dict[str, list[dict[str, Any]]]:
+    """把 CSV 行收成速度组 -> 弹仓列表（同一弹仓连续多行视为多发战斗部）。"""
+    rows = preset_rows if preset_rows is not None else load_missile_range_preset_csv()
+    grouped: dict[str, list[dict[str, Any]]] = {name: [] for name in SPEED_GROUP_CLASSES}
+    last_key: dict[str, tuple[Any, ...] | None] = {name: None for name in grouped}
+    for row in rows:
+        group = str(row['speed_group'])
+        if group not in grouped:
+            raise ValueError(f'未知速度组 {group}')
+        key = (row['bay'], float(row['v_launch_mach']), float(row['h_launch_km']))
+        if last_key[group] != key:
+            grouped[group].append({
+                'bay': str(row['bay']),
+                'v_mach': float(row['v_launch_mach']),
+                'h_km': float(row['h_launch_km']),
+                'rounds': [],
+            })
+            last_key[group] = key
+        grouped[group][-1]['rounds'].append((
+            float(row['length_m']),
+            float(row['diameter_m']),
+            int(row['warhead_kg']),
+        ))
+    for group, bays in grouped.items():
+        if not bays:
+            raise ValueError(f'弹种速度组 {group} 没有预设弹仓')
+        for bay in bays:
+            bay['rounds'] = tuple(bay['rounds'])
+    return grouped
+
+
+def build_preset_cases(
+    preset_rows: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """按弹种目录顺序展开载机弹仓样本，编号从 1 连续增加。"""
+    grouped = grouped_preset_bays(preset_rows)
+    bays_for: dict[str, list[dict[str, Any]]] = {}
+    for group, names in SPEED_GROUP_CLASSES.items():
+        for name in names:
+            bays_for[name] = grouped[group]
+    rows: list[dict[str, Any]] = []
+    number = 1
+    for item in MISSILE_CLASS_ORDER:
+        missile_class = item['id']
+        bays = bays_for.get(missile_class)
+        if bays is None:
+            raise ValueError(f'弹种 {missile_class} 没有预设弹仓')
+        for bay in bays:
+            for length, diameter, warhead in bay['rounds']:
+                rows.append({
+                    'id': number,
+                    'missile_class': missile_class,
+                    'bay': bay['bay'],
+                    'length': float(length),
+                    'diameter': float(diameter),
+                    'warhead': int(warhead),
+                    'v_mach': float(bay['v_mach']),
+                    'h_km': float(bay['h_km']),
+                })
+                number += 1
+    return rows
+
+
+_PRESET_CASES = build_preset_cases()
+# 助推滑翔样本仍单独列出，便于对照原有滑翔公式
+MISSILE_DATASET: list[dict[str, Any]] = [
+    case for case in _PRESET_CASES if str(case['missile_class']).startswith('hgv')
+]
+# 冲压、亚音速、亚超结合与弹道
 PROPULSION_DATASET: list[dict[str, Any]] = [
-    {'id': 17, 'missile_class': 'scramjet', 'length': 9.20, 'diameter': 0.700, 'warhead': 180, 'type': 'biconic', 'v_mach': 0.85, 'h_km': 12.0},
-    {'id': 18, 'missile_class': 'scramjet', 'length': 7.60, 'diameter': 0.550, 'warhead': 120, 'type': 'biconic', 'v_mach': 2.00, 'h_km': 18.0},
-    {'id': 19, 'missile_class': 'ramjet', 'length': 8.90, 'diameter': 0.700, 'warhead': 250, 'type': 'biconic', 'v_mach': 0.85, 'h_km': 12.0},
-    {'id': 20, 'missile_class': 'ramjet', 'length': 6.20, 'diameter': 0.450, 'warhead': 150, 'type': 'biconic', 'v_mach': 0.90, 'h_km': 10.0},
-    {'id': 21, 'missile_class': 'turbofan_stealth', 'length': 6.20, 'diameter': 0.550, 'warhead': 450, 'type': 'biconic', 'v_mach': 0.70, 'h_km': 0.2},
-    {'id': 22, 'missile_class': 'turbofan_stealth', 'length': 4.30, 'diameter': 0.450, 'warhead': 240, 'type': 'biconic', 'v_mach': 0.75, 'h_km': 8.0},
-    {'id': 23, 'missile_class': 'turbojet_subsonic', 'length': 6.20, 'diameter': 0.550, 'warhead': 450, 'type': 'biconic', 'v_mach': 0.70, 'h_km': 0.2},
-    {'id': 24, 'missile_class': 'turbojet_subsonic', 'length': 4.60, 'diameter': 0.340, 'warhead': 220, 'type': 'biconic', 'v_mach': 0.75, 'h_km': 0.2},
-    {'id': 25, 'missile_class': 'turbofan_rocket', 'length': 8.20, 'diameter': 0.530, 'warhead': 300, 'type': 'biconic', 'v_mach': 0.70, 'h_km': 0.05},
-    {'id': 26, 'missile_class': 'turbofan_rocket', 'length': 6.30, 'diameter': 0.500, 'warhead': 200, 'type': 'biconic', 'v_mach': 0.75, 'h_km': 8.0},
-    {'id': 27, 'missile_class': 'ballistic', 'length': 11.20, 'diameter': 0.880, 'warhead': 980, 'type': 'biconic', 'v_mach': 0.0, 'h_km': 0.0},
-    {'id': 28, 'missile_class': 'ballistic', 'length': 7.30, 'diameter': 0.920, 'warhead': 480, 'type': 'biconic', 'v_mach': 0.0, 'h_km': 0.0},
+    case for case in _PRESET_CASES if not str(case['missile_class']).startswith('hgv')
 ]
 
 
@@ -59,10 +117,7 @@ def all_missile_cases() -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for case in MISSILE_DATASET:
         item = dict(case)
-        item['missile_class'] = resolve_missile_class(
-            str(item.get('missile_class') or 'hgv'),
-            str(item.get('type') or 'biconic'),
-        )
+        item['missile_class'] = resolve_missile_class(str(item.get('missile_class') or 'hgv_biconic'))
         rows.append(item)
     rows.extend(dict(case) for case in PROPULSION_DATASET)
     return rows
@@ -79,14 +134,14 @@ def format_launch(v_mach: float, h_km: float) -> str:
 
 
 def missile_case_label(case: dict[str, Any]) -> str:
-    """选择器显示名，弹种名里已经包含双锥或乘波。"""
-    canon = resolve_missile_class(
-        str(case.get('missile_class') or 'hgv'),
-        str(case.get('type') or 'biconic'),
-    )
+    """选择器显示名：载机弹仓、尺寸、弹种与发射条件。"""
+    canon = resolve_missile_class(str(case.get('missile_class') or 'hgv_biconic'))
     kind = class_label(canon)
+    bay = str(case.get('bay') or '').strip()
+    place = f'{bay} · ' if bay else ''
     return (
-        f"#{int(case['id'])}  {format_size_m(float(case['length']), float(case['diameter']))}"
+        f"#{int(case['id'])}  {place}"
+        f"{format_size_m(float(case['length']), float(case['diameter']))}"
         f" · {int(case['warhead'])}kg · {kind}"
         f" · {format_launch(float(case['v_mach']), float(case['h_km']))}"
     )
@@ -97,18 +152,13 @@ def evaluate_case(
     isp_s: float = DEFAULT_ISP_S,
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
 ) -> dict[str, Any]:
-    """计算单条预设，并附上界面用的尺寸、弹种与构型字段。"""
-    canon = resolve_missile_class(
-        str(case.get('missile_class') or 'hgv'),
-        str(case.get('type') or 'biconic'),
-    )
-    hgv_type = glide_shape(canon) or str(case.get('type') or 'biconic')
+    """计算单条预设，并附上界面用的尺寸与弹种字段。"""
+    canon = resolve_missile_class(str(case.get('missile_class') or 'hgv_biconic'))
     result = estimate_by_class(
         missile_class=canon,
         length_m=float(case['length']),
         diameter_m=float(case['diameter']),
         warhead_mass_kg=float(case['warhead']),
-        hgv_type=hgv_type,
         v_launch_mach=float(case['v_mach']),
         h_launch_km=float(case['h_km']),
         isp_s=isp_s,
@@ -122,10 +172,9 @@ def evaluate_case(
         'length_m': float(case['length']),
         'diameter_m': float(case['diameter']),
         'warhead_kg': float(case['warhead']),
-        'hgv_type': hgv_type,
-        'type_label': HGV_TYPE_LABELS.get(hgv_type, hgv_type),
         'v_mach': float(case['v_mach']),
         'h_km': float(case['h_km']),
+        'bay': str(case.get('bay') or ''),
         'size_m': format_size_m(float(case['length']), float(case['diameter'])),
         'launch': format_launch(float(case['v_mach']), float(case['h_km'])),
         'range_high_km': None,
@@ -153,15 +202,13 @@ def evaluate_dataset(
 def build_missile_range_catalog_payload() -> dict[str, Any]:
     """构建 Web / 小程序 / iOS 共用的预设与默认估算表。"""
     return {
-        'type_labels': dict(HGV_TYPE_LABELS),
         'classes': [dict(item) for item in MISSILE_CLASS_ORDER],
         'defaults': {
             'isp_s': DEFAULT_ISP_S,
             'propellant_density': DEFAULT_PROPELLANT_DENSITY,
             'length_m': 10.50,
-            'diameter_m': 1.000,
+            'diameter_m': 1.100,
             'warhead_kg': 200,
-            'hgv_type': 'biconic',
             'missile_class': 'hgv_biconic',
             'v_launch_mach': 0.85,
             'h_launch_km': 13.0,

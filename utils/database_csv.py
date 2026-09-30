@@ -53,6 +53,13 @@ MISSILE_INTERCEPTION_MISSILE_CATEGORIES = ('asm', 'sam')
 MISSILE_INTERCEPTION_RADAR_CATEGORIES = ('aew', 'ship')
 MISSILE_INTERCEPTION_CATEGORIES = ('asm', 'aew', 'ship', 'sam')
 
+# 导弹射程预设：按速度组展开到各弹种
+MISSILE_RANGE_PRESET_CSV_COLUMNS = (
+    'speed_group', 'bay', 'length_m', 'diameter_m', 'warhead_kg',
+    'v_launch_mach', 'h_launch_km', 'notes',
+)
+MISSILE_RANGE_SPEED_GROUPS = ('supersonic', 'subsonic')
+
 COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
     'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'max_tsl_kN',
     'tsfc_install_mult', 'notes',
@@ -481,6 +488,54 @@ def load_missile_interception_presets_csv(
         'ship': radars['ship'],
         'sam': missiles['sam'],
     }
+
+
+def load_missile_range_preset_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从射程计算器预设 CSV 加载弹仓样本行。"""
+    from utils.paths import MISSILE_RANGE_PRESET_CSV
+
+    csv_path = Path(path) if path is not None else MISSILE_RANGE_PRESET_CSV
+    if not csv_path.is_file():
+        raise ValueError(f'{csv_path} 不存在')
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in MISSILE_RANGE_PRESET_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            group = (row.get('speed_group') or '').strip().lower()
+            bay = (row.get('bay') or '').strip()
+            if not group and not bay:
+                continue
+            if group not in MISSILE_RANGE_SPEED_GROUPS:
+                raise ValueError(
+                    f'{csv_path} 未知 speed_group={group!r}（仅允许 {"/".join(MISSILE_RANGE_SPEED_GROUPS)}）'
+                )
+            if not bay:
+                raise ValueError(f'{csv_path} 存在空的 bay')
+            item: dict[str, Any] = {
+                'speed_group': group,
+                'bay': bay,
+                'length_m': _parse_float(row.get('length_m') or '', 'length_m'),
+                'diameter_m': _parse_float(row.get('diameter_m') or '', 'diameter_m'),
+                'warhead_kg': _parse_float(row.get('warhead_kg') or '', 'warhead_kg'),
+                'v_launch_mach': _parse_float(row.get('v_launch_mach') or '', 'v_launch_mach'),
+                'h_launch_km': _parse_float(row.get('h_launch_km') or '', 'h_launch_km'),
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效射程预设')
+    found = {item['speed_group'] for item in rows}
+    missing_groups = [g for g in MISSILE_RANGE_SPEED_GROUPS if g not in found]
+    if missing_groups:
+        raise ValueError(f'{csv_path} 缺少速度组: {missing_groups}')
+    return rows
 
 
 def load_combat_radius_aircraft_csv(path: str | Path | None = None) -> list[dict[str, Any]]:

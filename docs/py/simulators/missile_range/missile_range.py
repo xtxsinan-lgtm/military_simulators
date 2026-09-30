@@ -35,11 +35,10 @@ def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
         isp = opt_float(params.get('isp_s'), DEFAULT_ISP_S)
         density = opt_float(params.get('propellant_density'), DEFAULT_PROPELLANT_DENSITY)
         result = estimate_by_class(
-            missile_class=str(params.get('missile_class') or 'hgv'),
+            missile_class=str(params.get('missile_class') or 'hgv_biconic'),
             length_m=_required_float(params, 'length_m'),
             diameter_m=_required_float(params, 'diameter_m'),
             warhead_mass_kg=_required_float(params, 'warhead_kg'),
-            hgv_type=str(params.get('hgv_type') or 'biconic'),
             v_launch_mach=opt_float(params.get('v_launch_mach'), 0.85),
             h_launch_km=opt_float(params.get('h_launch_km'), 13.0),
             isp_s=isp,

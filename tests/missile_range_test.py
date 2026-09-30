@@ -218,16 +218,18 @@ def test_estimate_hgv_matches_reference_dataset():
         'range_km': 6157.7,
     }
     for case in MISSILE_DATASET:
+        from utils.missile_range.classes import glide_shape
+        shape = glide_shape(case['missile_class'])
         got = estimate_hgv(
             length_m=case['length'],
             diameter_m=case['diameter'],
             warhead_mass_kg=case['warhead'],
-            hgv_type=case['type'],
+            hgv_type=shape,
             v_launch_mach=case['v_mach'],
             h_launch_km=case['h_km'],
         )
         assert got == _oracle(
-            case['length'], case['diameter'], case['warhead'], case['type'],
+            case['length'], case['diameter'], case['warhead'], shape,
             case['v_mach'], case['h_km'],
         )
     custom = estimate_hgv(8.0, 0.7, 400, 'waverider', 1.2, 15.0, isp_s=280, propellant_density=1800)
@@ -250,13 +252,20 @@ def test_format_size_and_launch():
 
 def test_missile_case_label_and_evaluate_case():
     case = MISSILE_DATASET[0]
-    assert missile_case_label(case).startswith('#1  10.50 x 1.000')
+    assert case['bay'] == '轰-6机腹'
+    assert case['diameter'] == 1.1
+    assert missile_case_label(case).startswith('#1  轰-6机腹 · 10.50 x 1.100')
     row = evaluate_case(case)
     assert row['id'] == 1
-    assert row['type_label'] == '双锥体'
+    assert row['bay'] == '轰-6机腹'
+    assert 'type_label' not in row
+    assert 'hgv_type' not in row
     assert row['missile_class'] == 'hgv_biconic'
     assert row['class_label'] == '双锥体助推滑翔'
-    assert row['range_km'] == 6157.7
+    assert row['range_km'] == _oracle(
+        case['length'], case['diameter'], case['warhead'], 'biconic',
+        case['v_mach'], case['h_km'],
+    )['range_km']
 
 
 def test_evaluate_dataset_and_catalog():
@@ -266,15 +275,18 @@ def test_evaluate_dataset_and_catalog():
     heavier = evaluate_dataset(isp_s=300, propellant_density=1900)
     assert heavier[0]['range_km'] != rows[0]['range_km']
     payload = build_missile_range_catalog_payload()
-    assert payload['type_labels']['waverider'] == '乘波体'
+    assert 'type_labels' not in payload
     assert payload['defaults']['missile_class'] == 'hgv_biconic'
+    assert 'hgv_type' not in payload['defaults']
     assert {item['id'] for item in payload['classes']} >= {
         'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'turbofan_stealth',
         'turbojet_subsonic', 'turbofan_rocket', 'ballistic',
     }
     assert 'hgv' not in {item['id'] for item in payload['classes']}
     assert rows[0]['missile_class'] == 'hgv_biconic'
-    assert rows[1]['missile_class'] == 'hgv_waverider'
+    waverider = next(r for r in rows if r['missile_class'] == 'hgv_waverider')
+    assert waverider['id'] == 13
+    assert waverider['bay'] == '轰-6机腹'
     assert payload['defaults']['isp_s'] == 264.0
     assert payload['cases'][0]['range_km'] == rows[0]['range_km']
     assert G0 == pytest.approx(9.80665)
@@ -297,7 +309,7 @@ def test_run_estimate_dataset_and_presets():
         'length_m': 10.5,
         'diameter_m': 1,
         'warhead_kg': 200,
-        'hgv_type': '双锥体',
+        'missile_class': 'hgv_biconic',
     })
     assert ok['success'] is True
     assert ok['result']['range_km'] == 6157.7
@@ -349,8 +361,8 @@ def test_normalize_missile_class_and_labels():
     assert glide_shape('hgv_biconic') == 'biconic'
     assert glide_shape('hgv_waverider') == 'waverider'
     assert glide_shape('scramjet') is None
-    assert resolve_missile_class('hgv', 'waverider') == 'hgv_waverider'
-    assert resolve_missile_class('助推滑翔弹', 'biconic') == 'hgv_biconic'
+    assert resolve_missile_class('hgv') == 'hgv_biconic'
+    assert resolve_missile_class('助推滑翔弹') == 'hgv_biconic'
     assert resolve_missile_class('乘波体助推滑翔') == 'hgv_waverider'
     with pytest.raises(ValueError, match='未知弹种'):
         normalize_missile_class('laser')
@@ -400,6 +412,8 @@ def test_geometry_and_breguet_helpers():
     with pytest.raises(ValueError):
         speed_of_sound_m_s(-1)
     assert body_volume_m3(8, 0.5) == pytest.approx(BODY_PACK * math.pi * 0.25 ** 2 * 8)
+    with pytest.raises(ValueError, match='装填系数'):
+        body_volume_m3(8, 0.5, pack=0.2)
     assert payload_mass_kg(100) == pytest.approx(118)
     assert payload_mass_kg(10) == pytest.approx(28)
     with pytest.raises(ValueError):
@@ -411,10 +425,17 @@ def test_geometry_and_breguet_helpers():
     volume = body_volume_m3(8, 0.6)
     leftover = energy_volume_m3(volume, 200, 1500, 80, 500, 0.08)
     assert leftover < volume
+    tighter = energy_volume_m3(volume, 200, 1500, 80, 500, 0.08, fixed_void_m3=0.05)
+    assert tighter < leftover
+    with pytest.raises(ValueError, match='固定空腔'):
+        energy_volume_m3(volume, 200, 1500, 80, 500, 0.08, fixed_void_m3=-0.1)
     with pytest.raises(ValueError, match='放不下'):
         energy_volume_m3(0.05, 500, 800, 40, 400, 0.1)
     spec = _SUBSONIC_SPECS['turbofan_stealth']
-    assert subsonic_ld(6.2, 0.55, spec) == pytest.approx(clamp(4.4 + 0.16 * (6.2 / 0.55), 5.0, 6.8))
+    fineness = 6.2 / 0.55
+    assert subsonic_ld(6.2, 0.55, spec) == pytest.approx(
+        clamp(spec['ld_base'] + spec['ld_slope'] * fineness, spec['ld_min'], spec['ld_max'])
+    )
     assert duct_ld(8.9, 0.7, {'ld_base': 1.9, 'ld_slope': 0.11, 'ld_min': 2.3, 'ld_max': 3.6}) > 2
     span = breguet_cruise_range_m(250, 2e-5, 6, 1000, 800)
     expect = (250 / (G0 * 2e-5)) * 6 * math.log(1000 / 800)
@@ -458,27 +479,29 @@ def test_six_classes_ranges_and_profiles():
     same = dict(length_m=6.2, diameter_m=0.55, warhead_mass_kg=450, v_launch_mach=0.7, h_launch_km=0.2)
     stealth = estimate_subsonic_class('涡扇隐身', **same)
     plain = estimate_subsonic_class('涡喷', **same)
-    assert stealth['range_high_km'] == 2100.8
-    assert stealth['range_sea_km'] == 1368.6
+    assert stealth['range_high_km'] == 429.9
+    assert stealth['range_sea_km'] == 135.8
+    assert stealth['m_wing_kg'] == 66.6
+    assert stealth['m_dead_kg'] == 544.4
+    assert '折叠弹翼' in stealth['note']
     assert stealth['range_high_km'] > stealth['range_sea_km']
-    assert plain['range_high_km'] == 1410.1
-    assert plain['range_sea_km'] == 889.1
-    assert stealth['range_high_km'] > plain['range_high_km']
+    assert plain['range_high_km'] > plain['range_sea_km']
     heavier = estimate_subsonic_class('turbofan_stealth', 6.2, 0.55, 700, 0.7, 0.2)
     assert heavier['range_km'] < stealth['range_km']
 
     scram = estimate_ducted('scramjet', 9.2, 0.7, 180, 0.85, 12, 264, 1760)
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
-    assert scram['range_km'] == 749.0
-    assert scram['cruise_mach'] == 5.5
-    assert ram['range_km'] == 1765.2
-    assert ram['v_burnout_mach'] == 3.0
+    assert scram['range_km'] == 2727.4
+    assert scram['cruise_mach'] == 6.2
+    assert ram['range_km'] == 626.2
+    assert ram['v_burnout_mach'] == 2.8
     assert scram['range_sea_km'] is None
+    assert ram['range_high_km'] > ram['range_sea_km'] > 0
 
     prop, sized = terminal_propellant_for_dash(8.2, 0.53, 300, 0.7, 0.05, 264, 1760, _ROCKET_CRUISE)
     assert prop > 0 and sized['fuel_kg'] > 0
     combo = estimate_turbofan_rocket(8.2, 0.53, 300, 0.7, 0.05, 264, 1760)
-    assert combo['range_terminal_km'] == 20.8
+    assert combo['range_terminal_km'] == 29.0
     assert combo['range_high_km'] > combo['range_sea_km']
     assert combo['range_km'] == combo['range_high_km']
     same_combo = estimate_turbofan_rocket(6.2, 0.55, 450, 0.7, 0.2, 264, 1760)
@@ -493,15 +516,190 @@ def test_six_classes_ranges_and_profiles():
     legacy = estimate_by_class('hgv', 10.5, 1, 200)
     assert legacy['range_km'] == 6157.7
     assert legacy['missile_class'] == 'hgv_biconic'
-    wave = estimate_by_class('乘波体助推滑翔', 10.5, 1, 200, 'biconic', 0.85, 13, 264, 1760)
+    wave = estimate_by_class('乘波体助推滑翔', 10.5, 1, 200, 0.85, 13, 264, 1760)
     assert wave['missile_class'] == 'hgv_waverider'
     assert wave['range_km'] == estimate_hgv(10.5, 1, 200, 'waverider')['range_km']
     assert wave['range_km'] != legacy['range_km']
     with pytest.raises(ValueError):
         estimate_subsonic_class('ramjet', 6, 0.5, 100, 0.7, 1)
-    assert len(PROPULSION_DATASET) == 12
-    labels = {row['missile_class'] for row in evaluate_dataset() if row['id'] >= 17}
+    assert len(PROPULSION_DATASET) == 57
+    labels = {row['missile_class'] for row in PROPULSION_DATASET}
     assert labels == {
         'scramjet', 'ramjet', 'turbofan_stealth',
         'turbojet_subsonic', 'turbofan_rocket', 'ballistic',
     }
+
+
+def test_folded_wing_mass_occupies_fuel_and_deadweight():
+    """弹翼折进弹体：质量进入死重，容积挤占燃油。"""
+    from utils.missile_range.classes import (
+        _SUBSONIC_SPECS,
+        cruise_range_pair_km,
+        deadweight_kg,
+        folded_wing_package,
+        isa_density_kg_m3,
+        stow_folded_wing,
+    )
+
+    assert isa_density_kg_m3(0) == pytest.approx(1.225, rel=1e-3)
+    assert isa_density_kg_m3(10) < isa_density_kg_m3(0)
+    with pytest.raises(ValueError):
+        isa_density_kg_m3(-1)
+    area, mass, volume = folded_wing_package(1000, 0.75, 10, 0.7)
+    assert area > 0 and mass > 0 and volume > 0
+    with pytest.raises(ValueError):
+        folded_wing_package(0, 0.75, 10, 0.7)
+    with pytest.raises(ValueError, match='折进弹体'):
+        folded_wing_package(8000, 0.75, 10, 0.05)
+    shrunk_area, _, shrunk_volume, fill = stow_folded_wing(800, 0.75, 10, 0.48, 0.01)
+    assert fill < 1
+    assert shrunk_area < area
+    assert shrunk_volume <= 0.01 + 1e-9
+    with pytest.raises(ValueError, match='燃油舱'):
+        stow_folded_wing(400, 0.75, 10, 0.5, 0)
+    assert deadweight_kg(1000, 200, 100, 50) == 650
+    with pytest.raises(ValueError):
+        deadweight_kg(10, 20, 5)
+
+    kwargs = dict(length_m=6.35, diameter_m=0.69, warhead_mass_kg=1000, v_launch_mach=0.85, h_launch_km=15)
+    spec = dict(_SUBSONIC_SPECS['turbofan_stealth'])
+    folded = cruise_range_pair_km(spec=spec, **kwargs)
+    spec['folded_wing'] = 0
+    bare = cruise_range_pair_km(spec=spec, **kwargs)
+    assert folded['m_wing_kg'] > 0
+    assert folded['fuel_kg'] < bare['fuel_kg']
+    assert deadweight_kg(folded['m_0'], folded['fuel_kg'], 1000) > deadweight_kg(
+        bare['m_0'], bare['fuel_kg'], 1000,
+    )
+
+
+def test_presets_follow_bay_list_for_each_speed_class():
+    """超音速弹种共用 CSV 超音速弹仓，亚音速（含亚超结合）共用亚音速弹仓。"""
+    from utils.missile_range.dataset import (
+        SUBSONIC_CLASSES,
+        SUPERSONIC_CLASSES,
+        build_preset_cases,
+        grouped_preset_bays,
+    )
+
+    grouped = grouped_preset_bays()
+    cases = build_preset_cases()
+    assert [case['id'] for case in cases] == list(range(1, 82))
+    super_rounds = [
+        (bay['bay'], length, diameter, warhead, bay['v_mach'], bay['h_km'])
+        for bay in grouped['supersonic']
+        for length, diameter, warhead in bay['rounds']
+    ]
+    sub_rounds = [
+        (bay['bay'], length, diameter, warhead, bay['v_mach'], bay['h_km'])
+        for bay in grouped['subsonic']
+        for length, diameter, warhead in bay['rounds']
+    ]
+    assert len(super_rounds) == 12
+    assert len(sub_rounds) == 7
+    assert any(item[0] == '1280垂发' for item in super_rounds)
+    assert any(item[0] == '533mm鱼雷' for item in sub_rounds)
+    assert 'ballistic' in SUPERSONIC_CLASSES
+    assert 'turbofan_rocket' in SUBSONIC_CLASSES
+    assert 'turbofan_rocket' not in SUPERSONIC_CLASSES
+    for missile_class in SUPERSONIC_CLASSES:
+        got = [
+            (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
+            for case in cases if case['missile_class'] == missile_class
+        ]
+        assert got == super_rounds
+    for missile_class in SUBSONIC_CLASSES:
+        got = [
+            (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
+            for case in cases if case['missile_class'] == missile_class
+        ]
+        assert got == sub_rounds
+    assert all(row['range_km'] > 0 for row in evaluate_dataset())
+
+
+def test_airbreathing_range_model_differs_from_boost_and_ballistic():
+    """吸气式走巡航航程，助推滑翔和弹道不走同一套。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    geom = dict(length_m=10.5, diameter_m=1.1, warhead_mass_kg=200, v_launch_mach=0.85, h_launch_km=13.0)
+    hgv = estimate_by_class('hgv_biconic', **geom)
+    ballistic = estimate_by_class('ballistic', **geom)
+    scram = estimate_by_class('scramjet', **geom)
+    ram = estimate_by_class('ramjet', **geom)
+    fan = estimate_by_class('turbofan_stealth', **geom)
+    ranges = {hgv['range_km'], ballistic['range_km'], scram['range_km'], ram['range_km'], fan['range_km']}
+    assert len(ranges) == 5
+    assert hgv.get('range_sea_km') is None
+    assert ballistic.get('range_sea_km') is None
+    assert '不含滑翔' in ballistic['note']
+    assert scram['range_sea_km'] is None
+    assert scram['cruise_alt_km'] == 36.0
+    assert ram['cruise_alt_km'] == 14.0
+    assert scram.get('m_wing_kg') is None
+    assert ram['range_high_km'] > ram['range_sea_km'] > 0
+    assert fan['range_high_km'] > fan['range_sea_km'] > 0
+    assert fan['m_wing_kg'] > 0
+    assert fan['m_dead_kg'] > fan['m_wing_kg']
+    assert '折叠弹翼' in fan['note']
+    slow = estimate_by_class('turbojet_subsonic', **geom, isp_s=180)
+    fast = estimate_by_class('turbojet_subsonic', **geom, isp_s=320)
+    assert slow['range_km'] == fast['range_km']
+    assert estimate_by_class('hgv_biconic', **geom, isp_s=180)['range_km'] != estimate_by_class(
+        'hgv_biconic', **geom, isp_s=320,
+    )['range_km']
+    assert estimate_by_class('ramjet', **geom, isp_s=180)['range_km'] != estimate_by_class(
+        'ramjet', **geom, isp_s=320,
+    )['range_km']
+
+
+def test_build_preset_cases_rejects_unknown_class(monkeypatch):
+    import utils.missile_range.dataset as dataset
+
+    monkeypatch.setattr(dataset, 'MISSILE_CLASS_ORDER', [{'id': 'laser', 'label': '激光', 'blurb': ''}])
+    with pytest.raises(ValueError, match='没有预设弹仓'):
+        dataset.build_preset_cases()
+
+
+def test_grouped_preset_bays_rejects_unknown_speed_group():
+    """CSV 速度组必须是超音速或亚音速。"""
+    from utils.missile_range.dataset import grouped_preset_bays
+
+    with pytest.raises(ValueError, match='未知速度组'):
+        grouped_preset_bays([{
+            'speed_group': 'hypersonic',
+            'bay': '试验',
+            'length_m': 4.0,
+            'diameter_m': 0.4,
+            'warhead_kg': 100,
+            'v_launch_mach': 0.0,
+            'h_launch_km': 0.0,
+        }])
+
+
+def test_public_airbreathing_ranges_match_open_sources():
+    """用公开弹种核对吸气式航程，并检查垂发零速零高。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    brahmos = estimate_by_class('ramjet', 8.4, 0.70, 250, 0.0, 0.0)
+    assert 280 <= brahmos['range_km'] <= 550
+    assert 80 <= brahmos['range_sea_km'] <= 180
+    yj18 = estimate_by_class('turbofan_rocket', 8.2, 0.514, 200, 0.0, 0.0)
+    assert 220 <= yj18['range_sea_km'] <= 650
+    assert 15 <= yj18['range_terminal_km'] <= 60
+    assert 1.2 <= yj18['m_0_t'] <= 2.0
+    jsm = estimate_by_class('turbofan_stealth', 4.0, 0.48, 120, 0.85, 10.0)
+    assert 400 <= jsm['range_km'] <= 750
+    assert 100 <= jsm['range_sea_km'] <= 250
+    assert 0.40 <= jsm['m_0_t'] <= 0.80
+    cj = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
+    assert 3500 <= cj['range_km'] <= 6500
+    assert cj['cruise_mach'] >= 6.0
+    big_vls = estimate_by_class('scramjet', 11.5, 1.2, 500, 0.0, 0.0)
+    assert big_vls['cruise_mach'] >= 6.0
+    assert big_vls['range_km'] > cj['range_km']
+    small = estimate_by_class('scramjet', 6.35, 0.51, 160, 0.0, 0.0)
+    assert small['range_km'] > 0
+    assert small['cruise_mach'] < 4.0
+    tube_ram = estimate_by_class('ramjet', 6.35, 0.51, 160, 0.0, 0.0)
+    assert tube_ram['range_km'] < brahmos['range_km']
+

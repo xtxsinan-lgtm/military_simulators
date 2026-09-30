@@ -3,10 +3,12 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 3;
+const APP_VERSION = 5;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
+  'utils/paths.py',
+  'utils/database_csv.py',
   'utils/missile_range/__init__.py',
   'utils/missile_range/estimate.py',
   'utils/missile_range/classes.py',
@@ -18,7 +20,13 @@ const MISSILE_RANGE_PY_FILES = [
   'apps/missile_range_web.py',
 ];
 
+const MISSILE_RANGE_DATA_FILES = [
+  'data/missile_range_preset_database.csv',
+];
+
 const MISSILE_RANGE_IMPORTS = [
+  'utils.paths',
+  'utils.database_csv',
   'utils.missile_range.estimate',
   'utils.missile_range.classes',
   'utils.missile_range.dataset',
@@ -101,6 +109,10 @@ function renderResult(result, title) {
     ? `<div class="stat"><div class="k">全高空射程</div><div class="v">${fmt(result.range_high_km, 1)}</div><div class="sub">km</div></div>
        <div class="stat"><div class="k">全掠海射程</div><div class="v amber">${fmt(result.range_sea_km, 1)}</div><div class="sub">km</div></div>`
     : `<div class="stat"><div class="k">估算射程</div><div class="v">${fmt(result.range_km, 1)}</div><div class="sub">km</div></div>`;
+  const wing = result.m_wing_kg != null
+    ? `<div class="stat"><div class="k">折叠弹翼</div><div class="v">${fmt(result.m_wing_kg, 0)}</div><div class="sub">kg</div></div>
+       <div class="stat"><div class="k">死重</div><div class="v amber">${fmt(result.m_dead_kg, 0)}</div><div class="sub">kg</div></div>`
+    : '';
   const terminal = result.range_terminal_km != null
     ? `<div class="stat"><div class="k">末端冲刺</div><div class="v">${fmt(result.range_terminal_km, 1)}</div><div class="sub">km</div></div>`
     : '';
@@ -109,6 +121,7 @@ function renderResult(result, title) {
     <div class="stat-row">
       ${lead}
       ${terminal}
+      ${wing}
       <div class="stat"><div class="k">${speedLabel(result)}</div><div class="v amber">${fmt(result.v_burnout_mach, 2)}</div><div class="sub">Ma</div></div>
       <div class="stat"><div class="k">升阻比</div><div class="v">${fmt(result.ld_ratio, 2)}</div><div class="sub">L/D</div></div>
       <div class="stat"><div class="k">起飞质量</div><div class="v amber">${fmt(result.m_0_t, 2)}</div><div class="sub">t</div></div>
@@ -131,6 +144,7 @@ function renderTable() {
     <tr data-id="${row.id}" class="${row.id === activeId ? 'on' : ''}">
       <td>${row.id}</td>
       <td>${row.size_m}</td>
+      <td>${row.bay || '—'}</td>
       <td>${row.warhead_kg}</td>
       <td>${kindLabel(row)}</td>
       <td>${row.launch}</td>
@@ -144,7 +158,7 @@ function renderTable() {
     <table>
       <thead>
         <tr>
-          <th>ID</th><th>尺寸 m</th><th>弹头 kg</th><th>弹种</th><th>发射条件</th>
+          <th>ID</th><th>尺寸 m</th><th>载机</th><th>弹头 kg</th><th>弹种</th><th>发射条件</th>
           <th>起飞 t</th><th>Ma</th><th>射程 km</th><th>掠海 km</th>
         </tr>
       </thead>
@@ -198,6 +212,17 @@ if '/py' not in sys.path:
   for (const name of MISSILE_RANGE_PY_FILES) {
     const code = data.py_sources[name];
     if (!code) throw new Error(`缺少 Python 模块: ${name}`);
+    const parts = name.split('/');
+    let dir = '/py';
+    for (let i = 0; i < parts.length - 1; i += 1) {
+      dir += `/${parts[i]}`;
+      try { pyodide.FS.mkdir(dir); } catch { /* 目录已存在 */ }
+    }
+    pyodide.FS.writeFile(`/py/${name}`, code);
+  }
+  for (const name of (data.py_data_files || MISSILE_RANGE_DATA_FILES)) {
+    const code = data.py_sources[name];
+    if (!code) throw new Error(`缺少数据文件: ${name}`);
     const parts = name.split('/');
     let dir = '/py';
     for (let i = 0; i < parts.length - 1; i += 1) {
