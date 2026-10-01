@@ -93,7 +93,7 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'turbofan_stealth',
         'label': '涡扇亚音速隐身巡航',
-        'blurb': '涡扇耗油率较低，隐身进气道与涂层降低升阻比并占用容积。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
+        'blurb': '涡扇耗油率较低，隐身进气道与涂层降低升阻比并占用容积。弹体按扁五边形而不是圆。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'turbojet_subsonic',
@@ -152,11 +152,17 @@ _CLASS_ALIASES = {
 
 _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
     'turbofan_stealth': {
-        # 对照 LRASM：4.26 m × 0.55 m、战斗部 450 kg、空射 Ma 0.85 @ 10 km，质量约 1.2 t。
-        # 隐身修形、S 形进气道和传感器舱压低升阻比并占掉装油容积，全高空约 950 km。
+        # 截面是扁五边形，不是圆。只给弹径时，弹径是最大外廓，短边按 LRASM 的高/宽。
+        # LRASM：长 4.26 m、宽 0.635 m、高 0.450 m、战斗部 450 kg，公开质量约 1.20–1.25 t。
+        # JSM：长 4.00 m、宽 0.480 m、高 0.520 m、战斗部 120 kg，公开质量 416 kg。
+        # 两发外廓体积接近，但 JSM 公开质量只有 416 kg，同样装填会到约 0.84 t。
+        # 装填和面密度按装得满的 LRASM 标定到约 1.21 t、全高空约 970 km；
+        # 五边形去掉“用最大边长当圆直径”多出来的容积。
         # 耗油率在 F107 基础上计入进气损失，燃油按 JP-10。
         'body_pack': 0.66,
-        'areal': 44.0,
+        'pentagon_shoulder': 0.66,
+        'minor_over_major': 0.450 / 0.635,
+        'areal': 38.0,
         'eng_coeff': 180.0,
         'eng_density': 900.0,
         'payload_density': 2800.0,
@@ -456,8 +462,84 @@ def deadweight_kg(
     return dead
 
 
+def pentagon_cross_section(
+    width_m: float,
+    height_m: float,
+    shoulder: float,
+) -> tuple[float, float]:
+    """扁五边形截面的面积和周长。
+
+    底边等于全宽，两侧升到肩部，肩以上收到顶部中点的棱。
+    肩高比是肩部高度占全高的比例。LRASM、JSM 都是这种宽高不同的五边形，不是圆。
+    """
+    if width_m <= 0 or height_m <= 0:
+        raise ValueError('截面宽和高必须大于 0')
+    if not 0.05 <= shoulder <= 0.95:
+        raise ValueError('五边形肩高比须在 0.05 到 0.95 之间')
+    area = width_m * height_m * (0.5 + 0.5 * shoulder)
+    roof = (1.0 - shoulder) * height_m
+    slope = math.hypot(width_m / 2.0, roof)
+    perimeter = width_m + 2.0 * shoulder * height_m + 2.0 * slope
+    return area, perimeter
+
+
+def outer_cross_section(
+    diameter_m: float,
+    spec: dict[str, float],
+    width_m: float | None = None,
+    height_m: float | None = None,
+) -> dict[str, float]:
+    """弹体外廓截面。隐身涡扇用扁五边形，其余弹种仍用圆。
+
+    只给弹径时，弹径是最大外廓，短边按弹种的高宽比缩进去，所以装不满同一个圆。
+    同时给出宽和高时，用真实外廓，不再把较长的一边当成圆直径。
+    """
+    shoulder = spec.get('pentagon_shoulder')
+    if shoulder:
+        if width_m is None and height_m is None:
+            if diameter_m <= 0:
+                raise ValueError('弹长与弹径必须大于 0')
+            width_m = diameter_m
+            height_m = diameter_m * spec['minor_over_major']
+        elif width_m is None or height_m is None:
+            raise ValueError('五边形截面的宽和高必须同时给出')
+        area, perimeter = pentagon_cross_section(width_m, height_m, shoulder)
+        minor = min(width_m, height_m)
+    else:
+        if diameter_m <= 0:
+            raise ValueError('弹长与弹径必须大于 0')
+        area = math.pi * (diameter_m / 2.0) ** 2
+        perimeter = math.pi * diameter_m
+        minor = diameter_m
+    equivalent = 2.0 * math.sqrt(area / math.pi)
+    return {
+        'area': area,
+        'perimeter': perimeter,
+        'minor': minor,
+        'd_eq': equivalent,
+    }
+
+
+def packed_section_volume_m3(area_m2: float, length_m: float, pack: float = BODY_PACK) -> float:
+    """按外廓截面积乘弹长，再乘装填系数，得到可用内部容积。"""
+    if area_m2 <= 0 or length_m <= 0:
+        raise ValueError('截面积与弹长必须大于 0')
+    if not 0.3 <= pack <= 0.9:
+        raise ValueError('弹体装填系数须在 0.3 到 0.9 之间')
+    return pack * area_m2 * length_m
+
+
+def skin_mass_kg(perimeter_m: float, length_m: float, areal_kg_m2: float) -> float:
+    """蒙皮、舵面与加强框。侧面积用截面周长，1.15 计入头尾封头。"""
+    if perimeter_m <= 0 or length_m <= 0:
+        raise ValueError('截面周长与弹长必须大于 0')
+    if areal_kg_m2 <= 0:
+        raise ValueError('结构面密度必须大于 0')
+    return areal_kg_m2 * perimeter_m * length_m * 1.15
+
+
 def body_volume_m3(length_m: float, diameter_m: float, pack: float = BODY_PACK) -> float:
-    """弹体外形对应的可用内部容积。冲压弹进气道更大时 pack 更小。"""
+    """圆截面弹体外形对应的可用内部容积。冲压弹进气道更大时 pack 更小。"""
     if not 0.3 <= pack <= 0.9:
         raise ValueError('弹体装填系数须在 0.3 到 0.9 之间')
     fineness_ratio(length_m, diameter_m)
@@ -613,20 +695,28 @@ def cruise_range_pair_km(
     spec: dict[str, float],
     reserved_volume_m3: float = 0.0,
     inert_mass_kg: float = 0.0,
+    width_m: float | None = None,
+    height_m: float | None = None,
 ) -> dict[str, float]:
     """全高空与全掠海巡航航程。预留容积和惰性质量给末端火箭。
 
     亚音速弹种带折叠弹翼时，翼面质量和占用容积从燃油舱里扣出，计入死重。
     发射速度低于接力马赫数时，可抛弃助推器再占一截燃油舱，巡航质量不含助推器。
+    隐身涡扇可另给宽和高，按扁五边形算容积，不再把较长的一边当成圆直径。
     """
     if v_launch_mach < 0 or h_launch_km < 0:
         raise ValueError('发射马赫数与高度不能为负')
     if reserved_volume_m3 < 0 or inert_mass_kg < 0:
         raise ValueError('预留容积与附加质量不能为负')
-    volume = body_volume_m3(length_m, diameter_m, spec.get('body_pack', BODY_PACK))
+    if length_m <= 0:
+        raise ValueError('弹长与弹径必须大于 0')
+    section = outer_cross_section(diameter_m, spec, width_m, height_m)
+    volume = packed_section_volume_m3(
+        section['area'], length_m, spec.get('body_pack', BODY_PACK),
+    )
     payload = payload_mass_kg(warhead_mass_kg)
-    structure = structural_mass_kg(length_m, diameter_m, spec['areal'])
-    engine = engine_mass_kg(length_m, diameter_m, spec['eng_coeff'])
+    structure = skin_mass_kg(section['perimeter'], length_m, spec['areal'])
+    engine = engine_mass_kg(length_m, section['d_eq'], spec['eng_coeff'])
     tank = energy_volume_m3(
         volume, payload, spec['payload_density'], engine, spec['eng_density'], spec['void_frac'],
         spec.get('fixed_void_m3', 0.0),
@@ -647,7 +737,7 @@ def cruise_range_pair_km(
             if budget <= 0.02:
                 raise ValueError('助推器占用的容积超过燃油舱')
             wing_area, wing_mass, wing_volume, wing_fill = stow_folded_wing(
-                guess, spec['mach'], spec['alt_km'], diameter_m, budget,
+                guess, spec['mach'], spec['alt_km'], section['minor'], budget,
             )
             free = tank - wing_volume - booster_volume
             if reserved_volume_m3 >= free:
@@ -688,7 +778,7 @@ def cruise_range_pair_km(
     if fuel_kg <= 1.0:
         raise ValueError('燃油过少，无法巡航')
     booster_mass = booster_prop * (1.0 + BOOST_CASE_FRAC)
-    ld = subsonic_ld(length_m, diameter_m, spec)
+    ld = subsonic_ld(length_m, section['d_eq'], spec)
     if wing_fill < 1.0:
         ld *= 0.55 + 0.45 * wing_fill
     sound_hi = speed_of_sound_m_s(spec['alt_km'])
@@ -728,8 +818,7 @@ def cruise_range_pair_km(
         launch_mass - usable_sea,
     )
     bay = payload / spec['payload_density']
-    section = math.pi * (diameter_m / 2.0) ** 2
-    head_len = min(length_m * 0.45, bay / max(section, 1e-6))
+    head_len = min(length_m * 0.45, bay / max(section['area'], 1e-6))
     return {
         'm_0': launch_mass,
         'fuel_kg': fuel_kg,
@@ -988,8 +1077,13 @@ def estimate_subsonic_class(
     warhead_mass_kg: float,
     v_launch_mach: float,
     h_launch_km: float,
+    width_m: float | None = None,
+    height_m: float | None = None,
 ) -> dict:
-    """涡扇隐身或涡喷非隐身的全高空、全掠海射程。"""
+    """涡扇隐身或涡喷非隐身的全高空、全掠海射程。
+
+    隐身涡扇可另给宽和高。不给时，弹径是最大外廓，短边按弹种高宽比收成扁五边形。
+    """
     canon = normalize_missile_class(missile_class)
     if canon not in _SUBSONIC_SPECS:
         raise ValueError('该函数只用于亚音速巡航弹')
@@ -1001,6 +1095,8 @@ def estimate_subsonic_class(
         v_launch_mach=v_launch_mach,
         h_launch_km=h_launch_km,
         spec=spec,
+        width_m=width_m,
+        height_m=height_m,
     )
     high_km = sized['range_high_m'] / 1000.0
     sea_km = sized['range_sea_m'] / 1000.0
@@ -1301,8 +1397,13 @@ def estimate_by_class(
     h_launch_km: float = 13.0,
     isp_s: float = DEFAULT_ISP_S,
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
+    width_m: float | None = None,
+    height_m: float | None = None,
 ) -> dict:
-    """按弹种估算。双锥体和乘波体助推滑翔由 missile_class 区分。"""
+    """按弹种估算。双锥体和乘波体助推滑翔由 missile_class 区分。
+
+    隐身涡扇的宽和高可选。给出后按扁五边形外廓算质量，不再把弹径当成圆。
+    """
     canon = resolve_missile_class(missile_class)
     shape = glide_shape(canon)
     if shape is not None:
@@ -1319,6 +1420,7 @@ def estimate_by_class(
     if canon in _SUBSONIC_SPECS:
         return estimate_subsonic_class(
             canon, length_m, diameter_m, warhead_mass_kg, v_launch_mach, h_launch_km,
+            width_m, height_m,
         )
     if canon in _DUCT_SPECS:
         return estimate_ducted(

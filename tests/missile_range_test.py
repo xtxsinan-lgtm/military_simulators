@@ -532,10 +532,10 @@ def test_six_classes_ranges_and_profiles():
     same = dict(length_m=6.2, diameter_m=0.55, warhead_mass_kg=450, v_launch_mach=0.7, h_launch_km=0.2)
     stealth = estimate_subsonic_class('涡扇隐身', **same)
     plain = estimate_subsonic_class('涡喷', **same)
-    assert stealth['range_high_km'] == 1568.4
-    assert stealth['range_sea_km'] == 987.5
-    assert stealth['m_wing_kg'] == 101.1
-    assert stealth['m_dead_kg'] == 768.8
+    assert stealth['range_high_km'] == 1203.9
+    assert stealth['range_sea_km'] == 764.5
+    assert stealth['m_wing_kg'] == 84.4
+    assert stealth['m_dead_kg'] == 645.8
     assert '折叠弹翼' in stealth['note']
     assert stealth['range_high_km'] > stealth['range_sea_km']
     assert plain['range_high_km'] > plain['range_sea_km']
@@ -785,9 +785,10 @@ def test_surface_static_launch_pays_booster_and_drag():
     assert surface['range_km'] < air['range_km']
     assert surface['range_sea_km'] < air['range_sea_km']
     assert '助推器' in surface['note']
+    # 弹径是扁五边形的最大外廓，不是战斧的圆截面，同长度会比圆弹短一截。
     tomahawk = estimate_by_class('turbofan_stealth', 6.25, 0.52, 450, 0.0, 0.0)
-    assert 1000 <= tomahawk['range_high_km'] <= 1500
-    assert tomahawk['range_sea_km'] < 900
+    assert 700 <= tomahawk['range_high_km'] <= 1100
+    assert tomahawk['range_sea_km'] < tomahawk['range_high_km']
     prsm = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
     assert prsm['range_km'] == 499.0
     iskander = estimate_ballistic(7.3, 0.92, 480, 0, 0, 264, 1760)
@@ -795,6 +796,60 @@ def test_surface_static_launch_pays_booster_and_drag():
     df15 = estimate_ballistic(9.1, 1.0, 500, 0, 0, 264, 1760)
     assert 520 <= df15['range_km'] <= 800
     assert '单级' in df15['note']
+
+
+def test_stealth_pentagon_section_is_lighter_than_a_circle():
+    """隐身巡航弹按宽高不同的五边形计容积，不用最大边长当圆直径。"""
+    import math
+
+    from utils.missile_range.classes import (
+        estimate_by_class,
+        outer_cross_section,
+        packed_section_volume_m3,
+        pentagon_cross_section,
+        skin_mass_kg,
+        _SUBSONIC_SPECS,
+    )
+
+    shoulder = _SUBSONIC_SPECS['turbofan_stealth']['pentagon_shoulder']
+    area, perimeter = pentagon_cross_section(0.635, 0.450, shoulder)
+    expect_area = 0.635 * 0.450 * (0.5 + 0.5 * shoulder)
+    roof = (1.0 - shoulder) * 0.450
+    expect_peri = 0.635 + 2.0 * shoulder * 0.450 + 2.0 * math.hypot(0.635 / 2.0, roof)
+    assert area == pytest.approx(expect_area)
+    assert perimeter == pytest.approx(expect_peri)
+    assert area < math.pi * (0.635 / 2.0) ** 2
+    with pytest.raises(ValueError):
+        pentagon_cross_section(0, 0.4, shoulder)
+    with pytest.raises(ValueError):
+        pentagon_cross_section(0.4, 0.4, 0.01)
+    circle = math.pi * (0.5 / 2.0) ** 2
+    plain = outer_cross_section(0.5, {'areal': 1.0})
+    assert plain['area'] == pytest.approx(circle)
+    assert plain['d_eq'] == pytest.approx(0.5)
+    stealth = outer_cross_section(0.635, _SUBSONIC_SPECS['turbofan_stealth'])
+    explicit = outer_cross_section(
+        0.635, _SUBSONIC_SPECS['turbofan_stealth'], width_m=0.635, height_m=0.450,
+    )
+    assert stealth['area'] == pytest.approx(explicit['area'])
+    assert stealth['area'] < math.pi * (0.635 / 2.0) ** 2
+    with pytest.raises(ValueError, match='同时给出'):
+        outer_cross_section(0.5, _SUBSONIC_SPECS['turbofan_stealth'], width_m=0.5)
+    assert packed_section_volume_m3(area, 4.26, 0.66) == pytest.approx(0.66 * area * 4.26)
+    with pytest.raises(ValueError, match='装填系数'):
+        packed_section_volume_m3(area, 4.26, 0.2)
+    assert skin_mass_kg(perimeter, 4.26, 38.0) == pytest.approx(38.0 * perimeter * 4.26 * 1.15)
+    with pytest.raises(ValueError):
+        skin_mass_kg(perimeter, 4.26, 0)
+    # JSM：宽 0.48 m、高 0.52 m。公开质量 416 kg，但外廓体积和 LRASM 接近，
+    # 按同一套装填只能落到大约 0.84 t，仍高于公开值。
+    jsm_area, _ = pentagon_cross_section(0.480, 0.520, shoulder)
+    assert jsm_area < math.pi * (0.520 / 2.0) ** 2
+    jsm = estimate_by_class(
+        'turbofan_stealth', 4.00, 0.52, 120, 0.85, 10.0, width_m=0.480, height_m=0.520,
+    )
+    assert jsm['m_0_t'] == pytest.approx(0.84, abs=0.06)
+    assert jsm['range_high_km'] > jsm['range_sea_km'] > 0
 
 
 def test_public_airbreathing_ranges_match_open_sources():
@@ -817,12 +872,18 @@ def test_public_airbreathing_ranges_match_open_sources():
     assert 220 <= yj18['range_sea_km'] <= 650
     assert 15 <= yj18['range_terminal_km'] <= 60
     assert 1.2 <= yj18['m_0_t'] <= 2.0
-    # LRASM：空射全高空贴近约 950 km，质量贴近约 1.25 t，掠海更短
-    lrasm = estimate_by_class('turbofan_stealth', 4.26, 0.55, 450, 0.85, 10.0)
-    assert 880 <= lrasm['range_high_km'] <= 1020
+    # LRASM：宽 0.635 m、高 0.450 m 的扁五边形，不是 0.55 m 圆。空射质量约 1.21 t，全高空约 970 km。
+    lrasm = estimate_by_class(
+        'turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0, width_m=0.635, height_m=0.450,
+    )
+    assert 900 <= lrasm['range_high_km'] <= 1050
     assert lrasm['range_sea_km'] < lrasm['range_high_km']
-    assert 450 <= lrasm['range_sea_km'] <= 750
-    assert 1.05 <= lrasm['m_0_t'] <= 1.40
+    assert 500 <= lrasm['range_sea_km'] <= 700
+    assert lrasm['m_0_t'] == pytest.approx(1.21, abs=0.06)
+    # 只给最大外廓时，短边按 LRASM 高宽比收进去，应和显式宽高一致。
+    from_major = estimate_by_class('turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0)
+    assert from_major['m_0_t'] == lrasm['m_0_t']
+    assert from_major['range_high_km'] == lrasm['range_high_km']
     cj = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
     assert 3500 <= cj['range_km'] <= 6500
     assert cj['cruise_mach'] >= 6.0
