@@ -148,6 +148,7 @@ def test_e2e_airbreathing_presets_differ_from_glide_and_ballistic():
         if row['length_m'] == 10.5 and row['diameter_m'] == 1.1 and row['warhead_kg'] == 200
     ]
     by_class = {row['missile_class']: row for row in shared}
+    assert by_class['hgv_biconic']['range_km'] - by_class['ballistic']['range_km'] > 1000
     assert by_class['hgv_biconic']['range_km'] != by_class['scramjet']['range_km']
     assert by_class['scramjet']['range_km'] != by_class['ramjet']['range_km']
     assert by_class['ramjet']['range_km'] != by_class['ballistic']['range_km']

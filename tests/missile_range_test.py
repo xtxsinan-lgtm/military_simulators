@@ -382,6 +382,7 @@ def test_geometry_and_breguet_helpers():
         _ideal_two_stage_dv,
         achieved_boost_dv_m_s,
         ballistic_burn_time_s,
+        ballistic_liftoff_twr,
         ballistic_loss_m_s,
         ballistic_range_km,
         breguet_cruise_range_m,
@@ -456,7 +457,15 @@ def test_geometry_and_breguet_helpers():
     assert 40 < short < 160
     assert burnout_altitude_km(3000, 0) > burnout_altitude_km(1000, 0)
     assert ballistic_loss_m_s(2000, 40, 0) > ballistic_loss_m_s(2000, 40, 12)
+    assert ballistic_liftoff_twr(400) > ballistic_liftoff_twr(8000)
+    assert ballistic_liftoff_twr(20000) == pytest.approx(2.3, abs=0.05)
+    with pytest.raises(ValueError):
+        ballistic_liftoff_twr(0)
     assert ballistic_burn_time_s(500, 1000, 250) == pytest.approx(500 * 250 / (2.3 * 1000))
+    light_twr = ballistic_liftoff_twr(500)
+    assert ballistic_burn_time_s(500, 1000, 250, light_twr) == pytest.approx(
+        500 * 250 / (light_twr * 1000)
+    )
     dv = _ideal_two_stage_dv(1000, 600, 90, 2500)
     assert dv > 0
     packed = _base_fields('ramjet', 2000, 1.2, 6, 400, 3, 3.2, 800.04, '说明', range_high_km=None)
@@ -509,10 +518,17 @@ def test_six_classes_ranges_and_profiles():
 
     short = estimate_ballistic(4.8, 0.40, 200, 0, 0, 264, 1760)
     long = estimate_ballistic(11.2, 0.88, 980, 0, 0, 264, 1760)
-    assert short['range_km'] == 164.4
-    assert long['range_km'] == 823.0
+    assert short['range_km'] == 187.4
+    assert long['range_km'] == 762.0
     assert long['range_km'] > short['range_km']
     assert '不含滑翔' in long['note']
+    # PrSM Increment 1：4.0 m × 0.43 m、战斗部 91 kg、地面发射，公开射程 499 km
+    prsm = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
+    assert prsm['range_km'] == 499.0
+    same = dict(length_m=10.5, diameter_m=1.1, warhead_mass_kg=200, v_launch_mach=0.85, h_launch_km=13.0)
+    glide = estimate_by_class('hgv_biconic', **same)
+    ballistic_air = estimate_by_class('ballistic', **same)
+    assert glide['range_km'] - ballistic_air['range_km'] > 1000
     legacy = estimate_by_class('hgv', 10.5, 1, 200)
     assert legacy['range_km'] == 6157.7
     assert legacy['missile_class'] == 'hgv_biconic'

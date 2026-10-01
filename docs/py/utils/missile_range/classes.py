@@ -4,6 +4,8 @@
 冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。
 亚超结合在涡扇巡航之后加一段低空固体火箭冲刺。
 普通弹道导弹沿用弹体装药估算，关机后取最大射程弹道。
+空射仍按燃烧时间计重力损失，不再借用滑翔弹的固定损失。
+轻型战术弹推重比更高，地面 4 m 级用 PrSM 的 499 km 标定。
 """
 from __future__ import annotations
 
@@ -15,7 +17,6 @@ from utils.missile_range.estimate import (
     G0,
     PROPELLANT_MASS_FRACTION,
     R_EARTH_M,
-    gravity_drag_loss_m_s,
     head_and_booster_lengths_m,
     head_total_mass_kg,
     propellant_mass_kg,
@@ -36,6 +37,17 @@ TERMINAL_FILL = 0.78
 TERMINAL_PMF = 0.85
 BOOST_CASE_FRAC = 0.12
 BALLISTIC_TWO_STAGE_M = 6.0
+# 重型弹道弹起飞推重比。轻弹按质量再加上一截：战术固体火箭燃烧更短。
+# 4.0 m × 0.43 m、战斗部 91 kg、地面静止发射，标定到 PrSM 公开射程 499 km。
+BALLISTIC_TWR_HEAVY = 2.30
+BALLISTIC_TWR_LIGHT_EXTRA = 2.4
+BALLISTIC_TWR_SCALE_KG = 1400.0
+# 燃烧段平均仰角的正弦。最大射程的重力转弯大约在 0.5 到 0.7。
+BALLISTIC_GRAVITY_FACTOR = 0.64
+# 海平面阻力。高度按大气标高衰减；空射不再改用滑翔弹那一档 180–320 m/s。
+BALLISTIC_DRAG_FRACTION = 0.078
+BALLISTIC_DRAG_BIAS_M_S = 44.0
+BALLISTIC_DRAG_SCALE_KM = 8.5
 TERMINAL_COAST_CAP_M = 150000.0
 RHO_SEA_KG_M3 = 1.225
 TERMINAL_CD = 0.40
@@ -79,7 +91,7 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'ballistic',
         'label': '普通弹道导弹',
-        'blurb': '按弹体容积估算固体装药，地面或空射关机后取最优弹道弧，不含滑翔增程。',
+        'blurb': '按弹体容积估算固体装药。空射仍扣除燃烧段重力损失，关机后取最优弹道弧，不含滑翔增程。',
     },
 ]
 
@@ -771,20 +783,37 @@ def burnout_altitude_km(speed_m_s: float, launch_altitude_km: float) -> float:
     return min(280.0, launch_altitude_km + climb)
 
 
+def ballistic_liftoff_twr(launch_mass_kg: float) -> float:
+    """起飞推重比：轻型战术弹更高，重弹趋近 2.3。"""
+    if launch_mass_kg <= 0:
+        raise ValueError('起飞质量必须大于 0')
+    extra = BALLISTIC_TWR_LIGHT_EXTRA * math.exp(-launch_mass_kg / BALLISTIC_TWR_SCALE_KG)
+    return BALLISTIC_TWR_HEAVY + extra
+
+
 def ballistic_loss_m_s(dv_ideal_m_s: float, burn_time_s: float, launch_altitude_km: float) -> float:
-    """地面发射按燃烧时间估重力损失；高空发射沿用滑翔弹的损失模型。"""
+    """重力损失按燃烧时间计，阻力随发射高度按大气标高衰减。
+
+    高度够高时不再改用滑翔弹的固定损失，否则空射弹道会和双锥体贴到同一关机速度。
+    """
     if dv_ideal_m_s < 0 or burn_time_s < 0 or launch_altitude_km < 0:
         raise ValueError('速度增量、燃烧时间与高度不能为负')
-    if launch_altitude_km >= 8.0:
-        return gravity_drag_loss_m_s(launch_altitude_km)
-    return G0 * burn_time_s * 0.58 + 0.06 * dv_ideal_m_s + 50.0
+    drag_scale = math.exp(-launch_altitude_km / BALLISTIC_DRAG_SCALE_KM)
+    gravity = G0 * burn_time_s * BALLISTIC_GRAVITY_FACTOR
+    drag = (BALLISTIC_DRAG_FRACTION * dv_ideal_m_s + BALLISTIC_DRAG_BIAS_M_S) * drag_scale
+    return gravity + drag
 
 
-def ballistic_burn_time_s(propellant_kg: float, launch_mass_kg: float, isp_s: float) -> float:
-    """起飞推重比约 2.3 时的燃烧时间。"""
-    if launch_mass_kg <= 0 or propellant_kg < 0 or isp_s <= 0:
+def ballistic_burn_time_s(
+    propellant_kg: float,
+    launch_mass_kg: float,
+    isp_s: float,
+    twr: float = BALLISTIC_TWR_HEAVY,
+) -> float:
+    """按起飞推重比估算燃烧时间。弹道弹传入轻弹更高的推重比；冲压助推沿用 2.3。"""
+    if launch_mass_kg <= 0 or propellant_kg < 0 or isp_s <= 0 or twr <= 0:
         raise ValueError('弹道弹燃烧时间参数无效')
-    return propellant_kg * isp_s / (2.3 * launch_mass_kg)
+    return propellant_kg * isp_s / (twr * launch_mass_kg)
 
 
 def _ideal_two_stage_dv(launch_mass: float, propellant: float, booster_dry: float, ve: float) -> float:
@@ -1120,7 +1149,9 @@ def estimate_ballistic(
             raise ValueError('推进剂质量超过起飞质量')
         dv_ideal = ve * math.log(launch_mass / (launch_mass - propellant))
         stages = '单级'
-    burn_time = ballistic_burn_time_s(propellant, launch_mass, isp_s)
+    burn_time = ballistic_burn_time_s(
+        propellant, launch_mass, isp_s, ballistic_liftoff_twr(launch_mass),
+    )
     loss = ballistic_loss_m_s(dv_ideal, burn_time, h_launch_km)
     launch_speed = v_launch_mach * speed_of_sound_m_s(h_launch_km)
     speed = max(50.0, launch_speed + dv_ideal - loss)
