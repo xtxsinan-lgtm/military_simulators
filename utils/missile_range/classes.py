@@ -176,7 +176,9 @@ _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
         'ld_min': 4.6,
         'ld_max': 6.6,
         'eta': 0.32,
-        'sea_ld_factor': 0.58,
+        # 掠海升阻比按 LRASM 空射标定：全掠海 / 全高空 = 400/950。
+        # 高空耗油率和升阻比不动。发射高度只通过爬升耗油和助推器改变可用燃油，不进这个系数。
+        'sea_ld_factor': 0.40031,
         'sea_tsfc_factor': 1.08,
         'reserve': 0.08,
         'sea_alt_km': 0.03,

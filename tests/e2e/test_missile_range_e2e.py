@@ -168,6 +168,13 @@ def test_e2e_russian_ramjet_and_dual_mode_anchors():
     kalibr = _estimate_via_api('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
     assert 550 <= kalibr['range_sea_km'] <= 680
     assert 18 <= kalibr['range_terminal_km'] <= 26
+    # 只给最大外廓时按 LRASM 高宽比收成扁五边形。掠海/全高空取 400/950，高空航程不因这次标定改动。
+    lrasm = _estimate_via_api('turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0)
+    assert lrasm['range_high_km'] == 967.6
+    assert lrasm['range_sea_km'] / lrasm['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
+    low = _estimate_via_api('turbofan_stealth', 4.26, 0.635, 450, 0.85, 0.2)
+    assert low['range_sea_km'] == lrasm['range_sea_km']
+    assert low['range_high_km'] < lrasm['range_high_km']
 
 
 @pytest.mark.e2e

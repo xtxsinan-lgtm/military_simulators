@@ -533,7 +533,7 @@ def test_six_classes_ranges_and_profiles():
     stealth = estimate_subsonic_class('涡扇隐身', **same)
     plain = estimate_subsonic_class('涡喷', **same)
     assert stealth['range_high_km'] == 1203.9
-    assert stealth['range_sea_km'] == 764.5
+    assert stealth['range_sea_km'] == 527.7
     assert stealth['m_wing_kg'] == 84.4
     assert stealth['m_dead_kg'] == 645.8
     assert '折叠弹翼' in stealth['note']
@@ -908,14 +908,25 @@ def test_public_airbreathing_ranges_match_open_sources():
     assert 400 <= yj18['range_sea_km'] <= 700
     assert 15 <= yj18['range_terminal_km'] <= 40
     assert 1.5 <= yj18['m_0_t'] <= 2.2
-    # LRASM：宽 0.635 m、高 0.450 m 的扁五边形，不是 0.55 m 圆。空射质量约 1.21 t，全高空约 970 km。
+    # LRASM：宽 0.635 m、高 0.450 m 的扁五边形，不是 0.55 m 圆。空射质量约 1.21 t。
+    # 全高空仍约 970 km；掠海按 400/950 标定，发射高度不改这一比值的巡航系数。
     lrasm = estimate_by_class(
         'turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0, width_m=0.635, height_m=0.450,
     )
-    assert 900 <= lrasm['range_high_km'] <= 1050
-    assert lrasm['range_sea_km'] < lrasm['range_high_km']
-    assert 500 <= lrasm['range_sea_km'] <= 700
+    assert lrasm['range_high_km'] == 967.6
+    assert lrasm['range_sea_km'] / lrasm['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
     assert lrasm['m_0_t'] == pytest.approx(1.21, abs=0.06)
+    lower = estimate_by_class(
+        'turbofan_stealth', 4.26, 0.635, 450, 0.85, 0.2, width_m=0.635, height_m=0.450,
+    )
+    surface = estimate_by_class(
+        'turbofan_stealth', 4.26, 0.635, 450, 0.0, 0.0, width_m=0.635, height_m=0.450,
+    )
+    # 已经高于掠海、又快过接力速度时，掠海航程不随发射高度变；高空航程会少一段爬升油。
+    assert lower['range_sea_km'] == lrasm['range_sea_km']
+    assert lower['range_high_km'] < lrasm['range_high_km']
+    assert surface['range_sea_km'] < lrasm['range_sea_km']
+    assert surface['range_high_km'] < lower['range_high_km']
     # 只给最大外廓时，短边按 LRASM 高宽比收进去，应和显式宽高一致。
     from_major = estimate_by_class('turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0)
     assert from_major['m_0_t'] == lrasm['m_0_t']
