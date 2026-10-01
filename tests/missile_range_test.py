@@ -502,7 +502,7 @@ def test_six_classes_ranges_and_profiles():
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
     assert scram['range_km'] == 2727.4
     assert scram['cruise_mach'] == 6.2
-    assert ram['range_km'] == 808.1
+    assert ram['range_km'] == 744.6
     assert ram['v_burnout_mach'] == 2.8
     assert scram['range_sea_km'] is None
     assert ram['range_high_km'] > ram['range_sea_km'] > 0
@@ -690,6 +690,18 @@ def test_grouped_preset_bays_rejects_unknown_speed_group():
             'v_launch_mach': 0.0,
             'h_launch_km': 0.0,
         }])
+
+
+def test_ramjet_launch_mass_matches_yj91():
+    """鹰击-91：4.7 m × 0.36 m、战斗部 90 kg、空射，起飞质量约 600 kg。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    yj91 = estimate_by_class('ramjet', 4.7, 0.36, 90, 0.9, 10.0)
+    assert yj91['m_0_t'] == pytest.approx(0.60, abs=0.01)
+    fighter = estimate_by_class('ramjet', 4.25, 0.34, 90, 2.2, 19.0)
+    assert fighter['m_0_t'] == pytest.approx(0.48, abs=0.02)
+    scram = estimate_by_class('scramjet', 4.7, 0.36, 90, 0.9, 10.0)
+    assert scram['m_0_t'] < 0.40
 
 
 def test_public_airbreathing_ranges_match_open_sources():
