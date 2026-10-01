@@ -546,7 +546,7 @@ def test_six_classes_ranges_and_profiles():
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
     assert scram['range_km'] == 2727.4
     assert scram['cruise_mach'] == 6.2
-    assert ram['range_km'] == 1189.2
+    assert ram['range_km'] == 1300.6
     assert ram['v_burnout_mach'] == 2.8
     assert scram['range_sea_km'] is None
     assert ram['range_high_km'] > ram['range_sea_km'] > 0
@@ -737,13 +737,13 @@ def test_grouped_preset_bays_rejects_unknown_speed_group():
 
 
 def test_ramjet_launch_mass_matches_yj91():
-    """鹰击-91：4.7 m × 0.36 m、战斗部 90 kg、空射，起飞质量约 600 kg。"""
+    """鹰击-91 仍按 4.7 m×0.36 m 估算。质量锚在鹰击-15 后，这一发约为 0.66 t。"""
     from utils.missile_range.classes import estimate_by_class
 
     yj91 = estimate_by_class('ramjet', 4.7, 0.36, 90, 0.9, 10.0)
-    assert yj91['m_0_t'] == pytest.approx(0.60, abs=0.01)
+    assert yj91['m_0_t'] == pytest.approx(0.66, abs=0.02)
     fighter = estimate_by_class('ramjet', 4.25, 0.34, 90, 2.2, 19.0)
-    assert fighter['m_0_t'] == pytest.approx(0.48, abs=0.02)
+    assert fighter['m_0_t'] == pytest.approx(0.52, abs=0.03)
     scram = estimate_by_class('scramjet', 4.7, 0.36, 90, 0.9, 10.0)
     assert scram['m_0_t'] < 0.40
 
@@ -853,14 +853,15 @@ def test_stealth_pentagon_section_is_lighter_than_a_circle():
 
 
 def test_duct_cruise_tsfc_penalizes_narrow_ramjets():
-    """亚燃细弹更费油；弹径超过缟玛瑙后耗油率不再下降。超燃不随弹径改。"""
+    """亚燃在 0.50 m 及以上共用鹰击-15 的耗油率，更细的弹更费油。超燃不随弹径改。"""
     from utils.missile_range.classes import _DUCT_SPECS, duct_cruise_tsfc
 
     ram = _DUCT_SPECS['ramjet']
     narrow = duct_cruise_tsfc('ramjet', 0.36, ram)
+    yj15 = duct_cruise_tsfc('ramjet', 0.50, ram)
     oniks = duct_cruise_tsfc('ramjet', 0.70, ram)
     wide = duct_cruise_tsfc('ramjet', 1.20, ram)
-    assert narrow > oniks == wide == pytest.approx(7.2e-5)
+    assert narrow > yj15 == oniks == wide == pytest.approx(8.15e-5)
     assert duct_cruise_tsfc('scramjet', 0.36, _DUCT_SPECS['scramjet']) == pytest.approx(5.2e-5)
     assert duct_cruise_tsfc('ramjet', 0.50, {'tsfc': 1.0e-4}) == pytest.approx(1.0e-4)
     with pytest.raises(ValueError):
@@ -873,18 +874,23 @@ def test_public_airbreathing_ranges_match_open_sources():
     """用公开弹种核对吸气式航程，并检查垂发零速零高。"""
     from utils.missile_range.classes import estimate_by_class
 
-    # 缟玛瑙-M：8.9 m×0.70 m、约 3 t、战斗部 300 kg、舰面。高弹道 800 km，低弹道约 120 km。
+    # 鹰击-15：6.5 m×0.50 m、战斗部 200 kg、Ma 0.9 @ 12 km。约 1.5 t，高空约 800 km。
+    yj15 = estimate_by_class('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
+    assert yj15['m_0_t'] == pytest.approx(1.50, abs=0.05)
+    assert 770 <= yj15['range_high_km'] <= 830
+    assert 100 <= yj15['range_sea_km'] <= 150
+    # 缟玛瑙级弹径共用同一耗油率，装填按鹰击-15 加满后高空会长于 800 km。
     oniks_m = estimate_by_class('ramjet', 8.9, 0.70, 300, 0.0, 0.0)
-    assert oniks_m['m_0_t'] == pytest.approx(3.0, abs=0.3)
-    assert 760 <= oniks_m['range_high_km'] <= 860
-    assert 110 <= oniks_m['range_sea_km'] <= 160
+    assert oniks_m['m_0_t'] == pytest.approx(3.7, abs=0.3)
+    assert 880 <= oniks_m['range_high_km'] <= 1040
+    assert 120 <= oniks_m['range_sea_km'] <= 180
     # Kh-31PD：5.34 m×0.36 m、战斗部 110 kg，Ma 1.5 @ 15 km，最大 180–250 km。
     kh31pd = estimate_by_class('ramjet', 5.34, 0.36, 110, 1.5, 15.0)
     assert kh31pd['m_0_t'] == pytest.approx(0.72, abs=0.08)
     assert 180 <= kh31pd['range_high_km'] <= 250
     brahmos = estimate_by_class('ramjet', 8.4, 0.70, 250, 0.0, 0.0)
-    assert 700 <= brahmos['range_km'] <= 920
-    assert 110 <= brahmos['range_sea_km'] <= 190
+    assert 850 <= brahmos['range_km'] <= 1100
+    assert 120 <= brahmos['range_sea_km'] <= 180
     kh31 = estimate_by_class('ramjet', 5.2, 0.36, 90, 0.9, 10.0)
     assert 100 <= kh31['range_km'] <= 220
     assert kh31['range_sea_km'] < kh31['range_high_km']

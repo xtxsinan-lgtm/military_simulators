@@ -161,10 +161,10 @@ def _estimate_via_api(missile_class, length, diameter, warhead, mach, height):
 
 @pytest.mark.e2e
 def test_e2e_russian_ramjet_and_dual_mode_anchors():
-    """API 上缟玛瑙-M 高空约 800 km，3M54K 掠海约 550–660 km。"""
-    oniks = _estimate_via_api('ramjet', 8.9, 0.70, 300, 0.0, 0.0)
-    assert 760 <= oniks['range_high_km'] <= 860
-    assert 110 <= oniks['range_sea_km'] <= 160
+    """API 上鹰击-15 高空约 800 km、约 1.5 t，3M54K 掠海约 550–660 km。"""
+    yj15 = _estimate_via_api('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
+    assert 770 <= yj15['range_high_km'] <= 830
+    assert abs(yj15['m_0_t'] - 1.50) <= 0.05
     kalibr = _estimate_via_api('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
     assert 550 <= kalibr['range_sea_km'] <= 680
     assert 18 <= kalibr['range_terminal_km'] <= 26

@@ -215,21 +215,22 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         # （面密度、发动机系数、发动机密度同比例，发动机容积不变），
         # 空腔从 0.28 降到 0.14，让出的容积改装煤油和助推药，燃油质量比基本不动。
         # 超燃不共用这组系数：气道里没有固体药柱，体密度应更低。
-        # 苏俄标定用同尺寸的最新型，不用出口型的 MTCR 上限。
-        # 缟玛瑙-M：与 P-800 同为约 8.9 m×0.70 m、约 3 t、战斗部 300 kg、舰面，
-        # 塔斯社称重量尺寸和最大速度不变，最大射程 800 km（高弹道）。低弹道仍约 120 km。
-        # Kh-31PD：5.34 m×0.36 m、715 kg、战斗部 110 kg，Ma 1.5 @ 15 km 时最大 180–250 km。
-        # 小口径进气道在 Ma 2.8、14 km 更费油，耗油率相对 0.70 m 按弹径放大，大弹不再额外省油。
-        'body_pack': 0.64,
+        # 质量与高空射程锚在鹰击-15：简氏外形约 6.5 m×0.50 m、战斗部 200 kg、
+        # Ma 0.9 @ 12 km 空射，公开估计约 1.5 t、高空约 800 km。
+        # 装填提高到 0.805 才够这发装到 1.5 t；鹰击-91 会因此略重于公开的 600 kg。
+        # 0.50 m 及以上共用这一代耗油率。更细的弹（Kh-31PD，Ma 1.5 @ 15 km，180–250 km）
+        # 按弹径加耗油，避免小弹跟着变远。
+        'body_pack': 0.805,
         'areal': 40.9,
         'eng_coeff': 263.0,
         'eng_density': 1168.0,
         'payload_density': 2800.0,
         'void_frac': 0.14,
         'fuel_density': 820.0,
-        'tsfc': 7.2e-5,
-        'tsfc_ref_diameter_m': 0.70,
-        'tsfc_diameter_exponent': 0.90,
+        'tsfc': 8.15e-5,
+        'tsfc_ref_diameter_m': 0.50,
+        'tsfc_diameter_exponent': 2.2,
+        'tsfc_wide_exponent': 0.0,
         'tsfc_scale_min': 1.0,
         'tsfc_scale_max': 2.5,
         'mach_takeover': 1.95,
@@ -247,7 +248,7 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'sea_alt_km': 0.015,
         'sea_mach': 2.0,
         'sea_ld_factor': 0.38,
-        # 高弹道 800 km、低弹道约 120 km，掠海耗油按这个落差加重。
+        # 鹰击-15 高空约 800 km、全掠海约 120 km，掠海耗油按这个落差加重。
         'sea_tsfc_factor': 2.45,
     },
     'scramjet': {
@@ -898,20 +899,24 @@ def achieved_boost_dv_m_s(
 
 
 def duct_cruise_tsfc(missile_class: str, diameter_m: float, spec: dict[str, float]) -> float:
-    """巡航耗油率。亚燃相对参考弹径放大细弹的进气道损失。
+    """巡航耗油率。亚燃在参考弹径及以上用同一耗油率，更细则更费油。
 
-    弹径大于参考值时耗油率不再下降，大弹只靠燃油比变远。
+    参考弹径是鹰击-15。更细的进气道损失更大，避免小弹跟着这一代耗油率变远。
     """
     tsfc = spec['tsfc']
-    exponent = spec.get('tsfc_diameter_exponent', 0.0)
-    if exponent <= 0:
+    narrow = spec.get('tsfc_diameter_exponent', 0.0)
+    wide = spec.get('tsfc_wide_exponent', 0.0)
+    if narrow <= 0 and wide <= 0:
         return tsfc
     if diameter_m <= 0:
         raise ValueError('弹径必须大于 0')
     ref = spec.get('tsfc_ref_diameter_m', diameter_m)
     if ref <= 0:
         raise ValueError('耗油率参考弹径必须大于 0')
-    scale = (ref / diameter_m) ** exponent
+    if diameter_m <= ref:
+        scale = (ref / diameter_m) ** narrow
+    else:
+        scale = (diameter_m / ref) ** wide
     return tsfc * clamp(
         scale,
         spec.get('tsfc_scale_min', 1.0),
