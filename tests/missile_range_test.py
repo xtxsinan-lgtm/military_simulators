@@ -899,15 +899,25 @@ def test_public_airbreathing_ranges_match_open_sources():
     fighter = estimate_by_class('ramjet', 4.25, 0.345, 90, 2.2, 19.0)
     assert fighter['range_km'] > kh31['range_sea_km']
     assert fighter['range_km'] > 200
-    # 3M54K：8.22 m×0.533 m、战斗部 200 kg、全重约 1.95 t。国内型掠海 550–660 km，末端约 20 km。
+    # 3M54K：8.22 m×0.533 m、战斗部 200 kg、全重约 1.95 t。舰面发射全掠海/全高空取 400/950，末端约 20 km。
     kalibr = estimate_by_class('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
     assert kalibr['m_0_t'] == pytest.approx(1.95, abs=0.15)
-    assert 550 <= kalibr['range_sea_km'] <= 680
+    assert kalibr['range_high_km'] == 664.9
+    assert kalibr['range_sea_km'] / kalibr['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
     assert 18 <= kalibr['range_terminal_km'] <= 26
+    air_kalibr = estimate_by_class('turbofan_rocket', 8.22, 0.533, 200, 0.85, 6.0)
+    assert air_kalibr['range_high_km'] > kalibr['range_high_km']
+    assert air_kalibr['range_sea_km'] > kalibr['range_sea_km']
     yj18 = estimate_by_class('turbofan_rocket', 8.2, 0.514, 200, 0.0, 0.0)
-    assert 400 <= yj18['range_sea_km'] <= 700
+    assert yj18['range_high_km'] > yj18['range_sea_km'] > 0
     assert 15 <= yj18['range_terminal_km'] <= 40
     assert 1.5 <= yj18['m_0_t'] <= 2.2
+    # 涡喷在 6 km 巡航高度、已超过接力速度时，全掠海/全高空也是 400/950。降低发射高度只少高空爬升油。
+    jet = estimate_by_class('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 6.0)
+    jet_low = estimate_by_class('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 0.2)
+    assert jet['range_sea_km'] / jet['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
+    assert jet_low['range_sea_km'] == jet['range_sea_km']
+    assert jet_low['range_high_km'] < jet['range_high_km']
     # LRASM：宽 0.635 m、高 0.450 m 的扁五边形，不是 0.55 m 圆。空射质量约 1.21 t。
     # 全高空仍约 970 km；掠海按 400/950 标定，发射高度不改这一比值的巡航系数。
     lrasm = estimate_by_class(

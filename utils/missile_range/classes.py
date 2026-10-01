@@ -201,7 +201,9 @@ _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
         'ld_min': 4.0,
         'ld_max': 5.8,
         'eta': 0.22,
-        'sea_ld_factor': 0.58,
+        # 掠海升阻比与涡扇隐身同一条比值：全掠海 / 全高空 = 400/950。
+        # 巡航高度是 6 km，所以系数和 10 km 的涡扇不同。高空耗油率不动。
+        'sea_ld_factor': 0.45057,
         'sea_tsfc_factor': 1.15,
         'reserve': 0.08,
         'sea_alt_km': 0.03,
@@ -282,8 +284,9 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
 
 _ROCKET_CRUISE = {
     # 对照 3M54K：8.22 m×0.533 m、战斗部 200 kg、舰面/潜射，出口型 3M54E 全重 1951 kg。
-    # 国内型公开估计 550–660 km，全程掠海，末端固体级约 20 km、Ma 2.9。
-    # 出口型 220 km 是 MTCR 上限，不拿来标定。末端级最多占弹体两成容积，冲刺才落在 20 km 附近。
+    # 末端固体级约 20 km、Ma 2.9。出口型 220 km 是 MTCR 上限，不拿来标定。
+    # 末端级最多占弹体两成容积，冲刺才落在 20 km 附近。
+    # 掠海升阻比按全掠海 / 全高空 = 400/950 标定在这发舰面发射上；冲刺段两边相同，不进这个系数。
     'body_pack': 0.62,
     'areal': 36.0,
     'eng_coeff': 200.0,
@@ -299,7 +302,7 @@ _ROCKET_CRUISE = {
     'ld_min': 3.8,
     'ld_max': 5.0,
     'eta': 0.28,
-    'sea_ld_factor': 0.90,
+    'sea_ld_factor': 0.39384,
     'sea_tsfc_factor': 1.08,
     'reserve': 0.08,
     'sea_alt_km': 0.02,

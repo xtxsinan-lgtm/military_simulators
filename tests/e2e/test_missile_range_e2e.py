@@ -161,13 +161,19 @@ def _estimate_via_api(missile_class, length, diameter, warhead, mach, height):
 
 @pytest.mark.e2e
 def test_e2e_russian_ramjet_and_dual_mode_anchors():
-    """API 上鹰击-15 高空约 800 km、约 1.5 t，3M54K 掠海约 550–660 km。"""
+    """API 上鹰击-15 高空约 800 km、约 1.5 t；涡喷与 3M54K 的掠海/全高空为 400/950。"""
     yj15 = _estimate_via_api('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
     assert 770 <= yj15['range_high_km'] <= 830
     assert abs(yj15['m_0_t'] - 1.50) <= 0.05
     kalibr = _estimate_via_api('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
-    assert 550 <= kalibr['range_sea_km'] <= 680
+    assert kalibr['range_high_km'] == 664.9
+    assert kalibr['range_sea_km'] / kalibr['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
     assert 18 <= kalibr['range_terminal_km'] <= 26
+    jet = _estimate_via_api('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 6.0)
+    jet_low = _estimate_via_api('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 0.2)
+    assert jet['range_sea_km'] / jet['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
+    assert jet_low['range_sea_km'] == jet['range_sea_km']
+    assert jet_low['range_high_km'] < jet['range_high_km']
     # 只给最大外廓时按 LRASM 高宽比收成扁五边形。掠海/全高空取 400/950，高空航程不因这次标定改动。
     lrasm = _estimate_via_api('turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0)
     assert lrasm['range_high_km'] == 967.6
