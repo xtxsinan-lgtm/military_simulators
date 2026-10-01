@@ -1,10 +1,11 @@
 """六类导弹的射程估算：超燃、亚燃、涡扇隐身、涡喷非隐身、亚超结合、弹道。
 
 亚音速与冲压巡航用布雷盖航程；全高空与全掠海只改巡航高度、升阻比和耗油率。
-冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。
+低速发射的亚音速弹先扣一截可抛弃固体助推器，助推器占燃油舱、不带进巡航质量。
+冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。亚燃在 10 km 以下按稠密大气加大助推损失。
 亚超结合在涡扇巡航之后加一段低空固体火箭冲刺。
 普通弹道导弹沿用弹体装药估算，关机后取最大射程弹道。
-空射仍按燃烧时间计重力损失，不再借用滑翔弹的固定损失。
+助推段不足 8.5 m 按单级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
 轻型战术弹推重比更高，地面 4 m 级用 PrSM 的 499 km 标定。
 """
 from __future__ import annotations
@@ -36,7 +37,8 @@ BOOST_FILL = 0.76
 TERMINAL_FILL = 0.78
 TERMINAL_PMF = 0.85
 BOOST_CASE_FRAC = 0.12
-BALLISTIC_TWO_STAGE_M = 6.0
+# 助推段达到这一长度才按两级。8.5 m 以下仍是单级，东风-15、850 垂发这一档不会被加成。
+BALLISTIC_TWO_STAGE_M = 8.5
 # 重型弹道弹起飞推重比。轻弹按质量再加上一截：战术固体火箭燃烧更短。
 # 4.0 m × 0.43 m、战斗部 91 kg、地面静止发射，标定到 PrSM 公开射程 499 km。
 BALLISTIC_TWR_HEAVY = 2.30
@@ -48,6 +50,21 @@ BALLISTIC_GRAVITY_FACTOR = 0.64
 BALLISTIC_DRAG_FRACTION = 0.078
 BALLISTIC_DRAG_BIAS_M_S = 44.0
 BALLISTIC_DRAG_SCALE_KM = 8.5
+# PrSM 地面发射燃烧约 42 s，这段阻力已经含在上面的份额里。
+# 更久的燃烧还留在稠密大气中，海平面每多 1 秒再损失 16 m/s。
+# 略高于 PrSM 的 42.2 s，标定弹本身不再多扣。
+BALLISTIC_LONG_BURN_S = 43.0
+BALLISTIC_LONG_BURN_DRAG_M_S = 16.0
+# 亚音速发动机接力马赫数。更慢的发射要带可抛弃固体助推器。
+SUBSONIC_TAKEOVER_MACH = 0.62
+SUBSONIC_BOOSTER_ISP_S = 235.0
+# 海平面从静止推到接力速度时，重力与阻力约占理想速度增量的 45%，随高度衰减。
+SUBSONIC_BOOSTER_LOSS = 0.45
+# 药柱只有一部分挤占燃油舱，喷管和尾裙落在油箱以外。
+BOOSTER_TANK_SHARE = 0.50
+# 亚燃助推损失在 10 km 标定高度以上不变；海平面提高到约 1.8 倍。超燃地面发射是另一条标定，不加。
+RAMJET_LOSS_REF_KM = 10.0
+RAMJET_SURFACE_LOSS_GAIN = 0.80
 TERMINAL_COAST_CAP_M = 150000.0
 RHO_SEA_KG_M3 = 1.225
 TERMINAL_CD = 0.40
@@ -544,6 +561,48 @@ def climb_fuel_kg(
     return energy / (LHV_J_KG * eta)
 
 
+def jettisoned_booster_propellant_kg(
+    cruise_mass_kg: float,
+    launch_speed_m_s: float,
+    h_launch_km: float,
+) -> float:
+    """低速发射所需的可抛弃固体助推药。
+
+    发射速度已经达到接力马赫数时返回 0。助推器随后抛弃，不进入巡航质量。
+    """
+    if cruise_mass_kg <= 0:
+        raise ValueError('巡航质量必须大于 0')
+    if launch_speed_m_s < 0 or h_launch_km < 0:
+        raise ValueError('发射速度与高度不能为负')
+    takeover = SUBSONIC_TAKEOVER_MACH * speed_of_sound_m_s(h_launch_km)
+    if launch_speed_m_s >= takeover:
+        return 0.0
+    loss = SUBSONIC_BOOSTER_LOSS * math.exp(-h_launch_km / BALLISTIC_DRAG_SCALE_KM)
+    dv = (takeover - launch_speed_m_s) * (1.0 + loss)
+    ve = SUBSONIC_BOOSTER_ISP_S * G0
+    return cruise_mass_kg * (math.exp(dv / ve) - 1.0)
+
+
+def booster_grain_volume_m3(propellant_kg: float) -> float:
+    """助推药挤占的燃油舱容积。喷管在油箱外，只计入药柱容积的一部分。"""
+    if propellant_kg < 0:
+        raise ValueError('助推药质量不能为负')
+    if propellant_kg == 0:
+        return 0.0
+    grain = propellant_kg / (DEFAULT_PROPELLANT_DENSITY * BOOST_FILL)
+    return grain * BOOSTER_TANK_SHARE
+
+
+def dense_air_loss_frac(loss_frac: float, h_launch_km: float) -> float:
+    """亚燃助推损失份额：10 km 及以上不变，海平面约为该值的 1.8 倍。"""
+    if loss_frac < 0 or h_launch_km < 0:
+        raise ValueError('损失份额与高度不能为负')
+    at_ref = math.exp(-RAMJET_LOSS_REF_KM / BALLISTIC_DRAG_SCALE_KM)
+    extra = max(0.0, math.exp(-h_launch_km / BALLISTIC_DRAG_SCALE_KM) - at_ref)
+    span = 1.0 - at_ref
+    return loss_frac * (1.0 + RAMJET_SURFACE_LOSS_GAIN * extra / span)
+
+
 def cruise_range_pair_km(
     *,
     length_m: float,
@@ -558,6 +617,7 @@ def cruise_range_pair_km(
     """全高空与全掠海巡航航程。预留容积和惰性质量给末端火箭。
 
     亚音速弹种带折叠弹翼时，翼面质量和占用容积从燃油舱里扣出，计入死重。
+    发射速度低于接力马赫数时，可抛弃助推器再占一截燃油舱，巡航质量不含助推器。
     """
     if v_launch_mach < 0 or h_launch_km < 0:
         raise ValueError('发射马赫数与高度不能为负')
@@ -571,33 +631,63 @@ def cruise_range_pair_km(
         volume, payload, spec['payload_density'], engine, spec['eng_density'], spec['void_frac'],
         spec.get('fixed_void_m3', 0.0),
     )
+    launch_speed = v_launch_mach * speed_of_sound_m_s(h_launch_km)
     wing_area = 0.0
     wing_mass = 0.0
     wing_volume = 0.0
     wing_fill = 1.0
     fuel_slot_m3 = 0.006
+    booster_prop = 0.0
     if spec.get('folded_wing', 0.0) > 0.0:
         guess = payload + structure + engine + tank * spec['fuel_density'] + inert_mass_kg
         fuel_kg = 0.0
         for _ in range(12):
-            budget = tank - reserved_volume_m3 - fuel_slot_m3
+            booster_volume = booster_grain_volume_m3(booster_prop)
+            budget = tank - reserved_volume_m3 - fuel_slot_m3 - booster_volume
+            if budget <= 0.02:
+                raise ValueError('助推器占用的容积超过燃油舱')
             wing_area, wing_mass, wing_volume, wing_fill = stow_folded_wing(
                 guess, spec['mach'], spec['alt_km'], diameter_m, budget,
             )
-            free = tank - wing_volume
+            free = tank - wing_volume - booster_volume
             if reserved_volume_m3 >= free:
                 raise ValueError('末端火箭占用的容积超过燃油舱')
             fuel_kg = (free - reserved_volume_m3) * spec['fuel_density']
-            updated = payload + structure + engine + fuel_kg + inert_mass_kg + wing_mass
-            guess = 0.35 * guess + 0.65 * updated
-        launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg + wing_mass
-    else:
-        if reserved_volume_m3 >= tank:
+            cruise_mass = payload + structure + engine + fuel_kg + inert_mass_kg + wing_mass
+            booster_prop = jettisoned_booster_propellant_kg(
+                cruise_mass, launch_speed, h_launch_km,
+            )
+            guess = 0.35 * guess + 0.65 * cruise_mass
+        booster_volume = booster_grain_volume_m3(booster_prop)
+        free = tank - wing_volume - booster_volume
+        if reserved_volume_m3 >= free:
             raise ValueError('末端火箭占用的容积超过燃油舱')
-        fuel_kg = (tank - reserved_volume_m3) * spec['fuel_density']
+        fuel_kg = (free - reserved_volume_m3) * spec['fuel_density']
+        launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg + wing_mass
+        booster_prop = jettisoned_booster_propellant_kg(launch_mass, launch_speed, h_launch_km)
+    else:
+        launch_mass = payload + structure + engine + inert_mass_kg
+        fuel_kg = 0.0
+        for _ in range(8):
+            booster_volume = booster_grain_volume_m3(booster_prop)
+            free = tank - booster_volume
+            if reserved_volume_m3 >= free:
+                raise ValueError('末端火箭占用的容积超过燃油舱')
+            fuel_kg = (free - reserved_volume_m3) * spec['fuel_density']
+            launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg
+            booster_prop = jettisoned_booster_propellant_kg(
+                launch_mass, launch_speed, h_launch_km,
+            )
+        booster_volume = booster_grain_volume_m3(booster_prop)
+        free = tank - booster_volume
+        if reserved_volume_m3 >= free:
+            raise ValueError('末端火箭占用的容积超过燃油舱')
+        fuel_kg = (free - reserved_volume_m3) * spec['fuel_density']
         launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg
+        booster_prop = jettisoned_booster_propellant_kg(launch_mass, launch_speed, h_launch_km)
     if fuel_kg <= 1.0:
         raise ValueError('燃油过少，无法巡航')
+    booster_mass = booster_prop * (1.0 + BOOST_CASE_FRAC)
     ld = subsonic_ld(length_m, diameter_m, spec)
     if wing_fill < 1.0:
         ld *= 0.55 + 0.45 * wing_fill
@@ -605,16 +695,28 @@ def cruise_range_pair_km(
     sound_sea = speed_of_sound_m_s(spec['sea_alt_km'])
     speed_hi = spec['mach'] * sound_hi
     speed_sea = spec['mach'] * sound_sea
-    launch_speed = v_launch_mach * speed_of_sound_m_s(h_launch_km)
+    # 助推器把弹推到接力速度后抛弃，涡扇只补剩余的加速和爬升。
+    speed_after_boost = launch_speed
+    if booster_prop > 0.0:
+        speed_after_boost = max(
+            launch_speed, SUBSONIC_TAKEOVER_MACH * speed_of_sound_m_s(h_launch_km),
+        )
     climb = climb_fuel_kg(
         launch_mass,
         (spec['alt_km'] - h_launch_km) * 1000.0,
-        speed_hi ** 2 - launch_speed ** 2,
+        speed_hi ** 2 - speed_after_boost ** 2,
         spec['eta'],
     )
     climb = min(climb, fuel_kg * 0.40)
+    climb_sea = climb_fuel_kg(
+        launch_mass,
+        (spec['sea_alt_km'] - h_launch_km) * 1000.0,
+        speed_sea ** 2 - speed_after_boost ** 2,
+        spec['eta'],
+    )
+    climb_sea = min(climb_sea, fuel_kg * 0.40)
     usable_hi = max(0.0, fuel_kg - climb) * (1.0 - spec['reserve'])
-    usable_sea = fuel_kg * (1.0 - spec['reserve'])
+    usable_sea = max(0.0, fuel_kg - climb_sea) * (1.0 - spec['reserve'])
     range_high = breguet_cruise_range_m(
         speed_hi, spec['tsfc'], ld, launch_mass, launch_mass - usable_hi,
     )
@@ -646,6 +748,7 @@ def cruise_range_pair_km(
         'wing_fill': wing_fill,
         'usable_high_kg': usable_hi,
         'usable_sea_kg': usable_sea,
+        'm_booster_kg': booster_mass,
     }
 
 
@@ -799,13 +902,16 @@ def ballistic_liftoff_twr(launch_mass_kg: float) -> float:
 def ballistic_loss_m_s(dv_ideal_m_s: float, burn_time_s: float, launch_altitude_km: float) -> float:
     """重力损失按燃烧时间计，阻力随发射高度按大气标高衰减。
 
-    高度够高时不再改用滑翔弹的固定损失，否则空射弹道会和双锥体贴到同一关机速度。
+    燃烧明显长于地面标定弹时，海平面再加一段与超时成正比的阻力。
+    高度够高时这一项随大气变薄，空射不再改用滑翔弹的固定损失。
     """
     if dv_ideal_m_s < 0 or burn_time_s < 0 or launch_altitude_km < 0:
         raise ValueError('速度增量、燃烧时间与高度不能为负')
     drag_scale = math.exp(-launch_altitude_km / BALLISTIC_DRAG_SCALE_KM)
     gravity = G0 * burn_time_s * BALLISTIC_GRAVITY_FACTOR
     drag = (BALLISTIC_DRAG_FRACTION * dv_ideal_m_s + BALLISTIC_DRAG_BIAS_M_S) * drag_scale
+    extra_burn = max(0.0, burn_time_s - BALLISTIC_LONG_BURN_S)
+    drag += extra_burn * BALLISTIC_LONG_BURN_DRAG_M_S * drag_scale
     return gravity + drag
 
 
@@ -898,16 +1004,20 @@ def estimate_subsonic_class(
     )
     high_km = sized['range_high_m'] / 1000.0
     sea_km = sized['range_sea_m'] / 1000.0
-    dead = deadweight_kg(sized['m_0'], sized['fuel_kg'], warhead_mass_kg)
+    ignition = sized['m_0'] + sized['m_booster_kg']
+    dead = deadweight_kg(ignition, sized['fuel_kg'], warhead_mass_kg, sized['m_booster_kg'])
     fit = '' if sized['wing_fill'] >= 0.995 else f"弹舱只能放下设计翼面积的 {sized['wing_fill'] * 100:.0f}%。"
+    boost_txt = ''
+    if sized['m_booster_kg'] > 1.0:
+        boost_txt = f"可抛弃助推器 {sized['m_booster_kg']:.0f} kg。"
     note = (
         f"{class_label(canon)}：主射程为全高空 {spec['alt_km']:.0f} km、"
         f"Ma {spec['mach']:.2f}；全掠海为 {spec['sea_alt_km'] * 1000:.0f} m。"
         f"升阻比 {sized['ld']:.2f}，耗油率按弹种固定。"
-        f"折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
+        f"{boost_txt}折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
     )
     return _base_fields(
-        canon, sized['m_0'], sized['l_head_m'], length_m - sized['l_head_m'],
+        canon, ignition, sized['l_head_m'], length_m - sized['l_head_m'],
         sized['fuel_kg'], spec['mach'], sized['ld'], high_km, note,
         range_high_km=high_km, range_sea_km=sea_km,
         range_cruise_km=high_km, cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],
@@ -946,7 +1056,10 @@ def estimate_ducted(
     launch_speed = v_launch_mach * speed_of_sound_m_s(h_launch_km)
     takeover_speed = spec['mach_takeover'] * sound
     gap = max(0.0, takeover_speed - launch_speed)
-    dv_need = gap * (1.0 + spec['loss_frac']) + (0.0 if gap == 0 else 80.0)
+    loss_frac = spec['loss_frac']
+    if canon == 'ramjet':
+        loss_frac = dense_air_loss_frac(loss_frac, h_launch_km)
+    dv_need = gap * (1.0 + loss_frac) + (0.0 if gap == 0 else 80.0)
     fixed = payload + structure + engine
     propellant, fuel, launch_mass = split_boost_and_fuel(
         tank, fixed, dv_need, isp_s, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
@@ -1103,16 +1216,22 @@ def estimate_turbofan_rocket(
     dash = terminal_dash_range_m(mass_ign, propellant, diameter_m, isp_s, entry)
     high_km = sized['range_high_m'] / 1000.0 + dash / 1000.0
     sea_km = sized['range_sea_m'] / 1000.0 + dash / 1000.0
-    dead = deadweight_kg(sized['m_0'], sized['fuel_kg'], warhead_mass_kg, propellant)
+    ignition = sized['m_0'] + sized['m_booster_kg']
+    dead = deadweight_kg(
+        ignition, sized['fuel_kg'], warhead_mass_kg, propellant + sized['m_booster_kg'],
+    )
     fit = '' if sized['wing_fill'] >= 0.995 else f"弹舱只能放下设计翼面积的 {sized['wing_fill'] * 100:.0f}%。"
+    boost_txt = ''
+    if sized['m_booster_kg'] > 1.0:
+        boost_txt = f"可抛弃助推器 {sized['m_booster_kg']:.0f} kg。"
     note = (
         f"亚超结合：涡扇巡航 Ma {spec['mach']:.2f}，"
         f"全高空 {spec['alt_km']:.0f} km / 全掠海 {spec['sea_alt_km'] * 1000:.0f} m，"
         f"末端火箭冲刺 {dash / 1000.0:.1f} km。"
-        f"折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
+        f"{boost_txt}折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
     )
     return _base_fields(
-        'turbofan_rocket', sized['m_0'], sized['l_head_m'], length_m - sized['l_head_m'],
+        'turbofan_rocket', ignition, sized['l_head_m'], length_m - sized['l_head_m'],
         sized['fuel_kg'] + propellant, spec['mach'], sized['ld'], high_km, note,
         range_high_km=high_km, range_sea_km=sea_km,
         range_cruise_km=sized['range_high_m'] / 1000.0,

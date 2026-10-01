@@ -11,6 +11,20 @@ DEFAULT_PROPELLANT_DENSITY = 1760.0
 GLIDE_EFF = 0.513
 PROPELLANT_MASS_FRACTION = 0.87
 CHAMBER_FILL = 0.81
+# 13 km、约 9.05 t、弹径 1 m 的参考弹损失为 320 m/s，其中阻力约 80 m/s。
+# 海平面同一发参考弹提到 1000 m/s；更轻、更细的弹再按弹道系数放大阻力。
+HGV_LOSS_AT_13_M_S = 320.0
+HGV_LOSS_PER_KM_ABOVE_13 = 15.0
+HGV_LOSS_FLOOR_M_S = 180.0
+HGV_LOSS_AT_SEA_M_S = 1000.0
+HGV_DRAG_AT_13_M_S = 80.0
+HGV_DRAG_SCALE_KM = 8.5
+# 10.5 m × 1.0 m、战斗部 200 kg 的参考弹起飞质量，用来固定 13 km 损失仍为 320 m/s。
+HGV_REF_MASS_KG = 9054.733123679523
+HGV_REF_DIAMETER_M = 1.0
+HGV_DRAG_SHARE_CAP = 0.72
+HGV_BETA_SCALE_MIN = 0.50
+HGV_BETA_SCALE_MAX = 2.60
 
 HGV_TYPE_LABELS = {
     'biconic': '双锥体',
@@ -102,9 +116,42 @@ def propellant_mass_kg(
     return volume * propellant_density
 
 
-def gravity_drag_loss_m_s(h_launch_km: float) -> float:
-    """重力与阻力速度损失：发射高度越高损失越小，下限 180 m/s。"""
-    return max(180.0, 320.0 - (h_launch_km - 13.0) * 15.0)
+def hgv_altitude_loss_m_s(h_launch_km: float) -> float:
+    """参考弹的重力加阻力：13 km 及以上沿用原曲线，更低处抬到海平面约 1000 m/s。"""
+    if h_launch_km < 0:
+        raise ValueError('发射高度不能为负')
+    if h_launch_km >= 13.0:
+        return max(
+            HGV_LOSS_FLOOR_M_S,
+            HGV_LOSS_AT_13_M_S - (h_launch_km - 13.0) * HGV_LOSS_PER_KM_ABOVE_13,
+        )
+    span = HGV_LOSS_AT_SEA_M_S - HGV_LOSS_AT_13_M_S
+    return HGV_LOSS_AT_13_M_S + (13.0 - h_launch_km) * span / 13.0
+
+
+def gravity_drag_loss_m_s(
+    h_launch_km: float,
+    mass_kg: float | None = None,
+    diameter_m: float | None = None,
+) -> float:
+    """重力与阻力速度损失。
+
+    不给质量时按参考弹。给出质量后，阻力按弹道系数相对参考弹缩放，
+    轻而细的弹在海平面多损失一截，13 km 的参考弹仍是 320 m/s。
+    """
+    baseline = hgv_altitude_loss_m_s(h_launch_km)
+    if mass_kg is None and diameter_m is None:
+        return baseline
+    if mass_kg is None or diameter_m is None:
+        raise ValueError('质量与弹径必须同时给出')
+    if mass_kg <= 0 or diameter_m <= 0:
+        raise ValueError('质量与弹径必须大于 0')
+    drag_ref = HGV_DRAG_AT_13_M_S * math.exp(-(h_launch_km - 13.0) / HGV_DRAG_SCALE_KM)
+    drag_ref = min(drag_ref, baseline * HGV_DRAG_SHARE_CAP)
+    beta_ref = HGV_REF_MASS_KG / (math.pi * (HGV_REF_DIAMETER_M / 2.0) ** 2)
+    beta = mass_kg / (math.pi * (diameter_m / 2.0) ** 2)
+    scale = min(HGV_BETA_SCALE_MAX, max(HGV_BETA_SCALE_MIN, beta_ref / beta))
+    return baseline - drag_ref + drag_ref * scale
 
 
 def lift_drag_ratio(length_m: float, diameter_m: float, hgv_type: str) -> float:
@@ -181,7 +228,9 @@ def estimate_hgv(
 
     dv1 = v_e * math.log(m_stg1_in / m_stg1_out)
     dv2 = v_e * math.log(m_stg2_in / m_stg2_out)
-    v_burnout = v_launch_ms + (dv1 + dv2) - gravity_drag_loss_m_s(h_launch_km)
+    v_burnout = v_launch_ms + (dv1 + dv2) - gravity_drag_loss_m_s(
+        h_launch_km, m_0, diameter_m,
+    )
 
     ld_ratio = lift_drag_ratio(length_m, diameter_m, hgv_type)
     v_eff2 = v_burnout ** 2 + 2.0 * G0 * (h_launch_km * 1000.0)

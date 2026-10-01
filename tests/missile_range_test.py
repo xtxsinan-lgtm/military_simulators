@@ -27,6 +27,17 @@ from utils.missile_range.dataset import (
 from utils.missile_range.estimate import (
     G0,
     GLIDE_EFF,
+    HGV_BETA_SCALE_MAX,
+    HGV_BETA_SCALE_MIN,
+    HGV_DRAG_AT_13_M_S,
+    HGV_DRAG_SCALE_KM,
+    HGV_DRAG_SHARE_CAP,
+    HGV_LOSS_AT_13_M_S,
+    HGV_LOSS_AT_SEA_M_S,
+    HGV_LOSS_FLOOR_M_S,
+    HGV_LOSS_PER_KM_ABOVE_13,
+    HGV_REF_DIAMETER_M,
+    HGV_REF_MASS_KG,
     R_EARTH_M,
     SOUND_SPEED_M_S,
     _require_non_negative,
@@ -39,12 +50,31 @@ from utils.missile_range.estimate import (
     head_density_kg_m3,
     head_total_mass_kg,
     head_volume_m3,
+    hgv_altitude_loss_m_s,
     lift_drag_ratio,
     motor_cross_section_m2,
     normalize_hgv_type,
     propellant_mass_kg,
     uncapped_head_length_m,
 )
+
+
+def _reference_hgv_loss(h_launch_km: float, mass_kg: float, diameter_m: float) -> float:
+    """与 gravity_drag_loss_m_s 对照的独立公式。"""
+    if h_launch_km >= 13.0:
+        baseline = max(
+            HGV_LOSS_FLOOR_M_S,
+            HGV_LOSS_AT_13_M_S - (h_launch_km - 13.0) * HGV_LOSS_PER_KM_ABOVE_13,
+        )
+    else:
+        span = HGV_LOSS_AT_SEA_M_S - HGV_LOSS_AT_13_M_S
+        baseline = HGV_LOSS_AT_13_M_S + (13.0 - h_launch_km) * span / 13.0
+    drag_ref = HGV_DRAG_AT_13_M_S * math.exp(-(h_launch_km - 13.0) / HGV_DRAG_SCALE_KM)
+    drag_ref = min(drag_ref, baseline * HGV_DRAG_SHARE_CAP)
+    beta_ref = HGV_REF_MASS_KG / (math.pi * (HGV_REF_DIAMETER_M / 2.0) ** 2)
+    beta = mass_kg / (math.pi * (diameter_m / 2.0) ** 2)
+    scale = min(HGV_BETA_SCALE_MAX, max(HGV_BETA_SCALE_MIN, beta_ref / beta))
+    return baseline - drag_ref + drag_ref * scale
 
 
 def _oracle(
@@ -87,7 +117,7 @@ def _oracle(
     dv1 = v_e * math.log(m_0 / m_stg1_out)
     m_stg2_in = m_stg1_out - m_s1
     dv2 = v_e * math.log(m_stg2_in / (m_stg2_in - m_p2))
-    gravity_drag_loss = max(180.0, 320.0 - (h_launch_km - 13.0) * 15.0)
+    gravity_drag_loss = _reference_hgv_loss(h_launch_km, m_0, diameter_m)
     v_burnout = v_launch_ms + (dv1 + dv2) - gravity_drag_loss
     fineness = length_m / diameter_m
     if hgv_type == 'biconic':
@@ -176,9 +206,23 @@ def test_propellant_mass_kg_positive():
 
 
 def test_gravity_drag_loss_m_s_clamps():
+    assert hgv_altitude_loss_m_s(13.0) == pytest.approx(320.0)
+    assert hgv_altitude_loss_m_s(0.0) == pytest.approx(1000.0)
     assert gravity_drag_loss_m_s(13.0) == pytest.approx(320.0)
     assert gravity_drag_loss_m_s(19.0) == pytest.approx(230.0)
     assert gravity_drag_loss_m_s(40.0) == pytest.approx(180.0)
+    assert gravity_drag_loss_m_s(0.0) == pytest.approx(1000.0)
+    reference = gravity_drag_loss_m_s(13.0, HGV_REF_MASS_KG, HGV_REF_DIAMETER_M)
+    assert reference == pytest.approx(320.0)
+    light = gravity_drag_loss_m_s(0.0, 1100.0, 0.51)
+    heavy = gravity_drag_loss_m_s(0.0, HGV_REF_MASS_KG, HGV_REF_DIAMETER_M)
+    assert light > heavy
+    with pytest.raises(ValueError):
+        hgv_altitude_loss_m_s(-1)
+    with pytest.raises(ValueError):
+        gravity_drag_loss_m_s(0.0, 1000.0, None)
+    with pytest.raises(ValueError):
+        gravity_drag_loss_m_s(0.0, 0.0, 1.0)
 
 
 def test_lift_drag_ratio_bounds():
@@ -489,7 +533,7 @@ def test_six_classes_ranges_and_profiles():
     stealth = estimate_subsonic_class('涡扇隐身', **same)
     plain = estimate_subsonic_class('涡喷', **same)
     assert stealth['range_high_km'] == 1568.4
-    assert stealth['range_sea_km'] == 988.7
+    assert stealth['range_sea_km'] == 987.5
     assert stealth['m_wing_kg'] == 101.1
     assert stealth['m_dead_kg'] == 768.8
     assert '折叠弹翼' in stealth['note']
@@ -519,7 +563,7 @@ def test_six_classes_ranges_and_profiles():
     short = estimate_ballistic(4.8, 0.40, 200, 0, 0, 264, 1760)
     long = estimate_ballistic(11.2, 0.88, 980, 0, 0, 264, 1760)
     assert short['range_km'] == 187.4
-    assert long['range_km'] == 762.0
+    assert long['range_km'] == 331.1
     assert long['range_km'] > short['range_km']
     assert '不含滑翔' in long['note']
     # PrSM Increment 1：4.0 m × 0.43 m、战斗部 91 kg、地面发射，公开射程 499 km
@@ -702,6 +746,55 @@ def test_ramjet_launch_mass_matches_yj91():
     assert fighter['m_0_t'] == pytest.approx(0.48, abs=0.02)
     scram = estimate_by_class('scramjet', 4.7, 0.36, 90, 0.9, 10.0)
     assert scram['m_0_t'] < 0.40
+
+
+def test_surface_static_launch_pays_booster_and_drag():
+    """海面静止发射要比空射短：亚音速带可抛弃助推器，弹道多扣长时间燃烧的阻力。"""
+    from utils.missile_range.classes import (
+        ballistic_loss_m_s,
+        booster_grain_volume_m3,
+        dense_air_loss_frac,
+        estimate_ballistic,
+        estimate_by_class,
+        jettisoned_booster_propellant_kg,
+    )
+
+    assert jettisoned_booster_propellant_kg(1200, 400, 10) == 0.0
+    sea_prop = jettisoned_booster_propellant_kg(1200, 0, 0)
+    high_prop = jettisoned_booster_propellant_kg(1200, 0, 10)
+    assert sea_prop > high_prop > 0
+    with pytest.raises(ValueError):
+        jettisoned_booster_propellant_kg(0, 0, 0)
+    with pytest.raises(ValueError):
+        jettisoned_booster_propellant_kg(1000, -1, 0)
+    assert booster_grain_volume_m3(0) == 0.0
+    assert booster_grain_volume_m3(200) > 0
+    with pytest.raises(ValueError):
+        booster_grain_volume_m3(-1)
+    assert dense_air_loss_frac(0.16, 10) == pytest.approx(0.16)
+    assert dense_air_loss_frac(0.16, 14) == pytest.approx(0.16)
+    assert dense_air_loss_frac(0.16, 0) == pytest.approx(0.16 * 1.8)
+    with pytest.raises(ValueError):
+        dense_air_loss_frac(-0.1, 0)
+    assert ballistic_loss_m_s(3000, 80, 0) > ballistic_loss_m_s(3000, 40, 0) + 400
+
+    tube = dict(length_m=6.35, diameter_m=0.51, warhead_mass_kg=160)
+    surface = estimate_by_class('turbofan_stealth', **tube, v_launch_mach=0.0, h_launch_km=0.0)
+    air = estimate_by_class('turbofan_stealth', **tube, v_launch_mach=0.85, h_launch_km=10.0)
+    assert surface['m_0_t'] > air['m_0_t']
+    assert surface['range_km'] < air['range_km']
+    assert surface['range_sea_km'] < air['range_sea_km']
+    assert '助推器' in surface['note']
+    tomahawk = estimate_by_class('turbofan_stealth', 6.25, 0.52, 450, 0.0, 0.0)
+    assert 1000 <= tomahawk['range_high_km'] <= 1500
+    assert tomahawk['range_sea_km'] < 900
+    prsm = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
+    assert prsm['range_km'] == 499.0
+    iskander = estimate_ballistic(7.3, 0.92, 480, 0, 0, 264, 1760)
+    assert 420 <= iskander['range_km'] <= 620
+    df15 = estimate_ballistic(9.1, 1.0, 500, 0, 0, 264, 1760)
+    assert 520 <= df15['range_km'] <= 800
+    assert '单级' in df15['note']
 
 
 def test_public_airbreathing_ranges_match_open_sources():
