@@ -215,10 +215,11 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         # （面密度、发动机系数、发动机密度同比例，发动机容积不变），
         # 空腔从 0.28 降到 0.14，让出的容积改装煤油和助推药，燃油质量比基本不动。
         # 超燃不共用这组系数：气道里没有固体药柱，体密度应更低。
-        # 对照布拉莫斯 / P-800（约 8.4 m×0.70 m、战斗部 250 kg、舰面）：
-        # 出口型高低结合约 290 km、全掠海约 120 km，增程型高空公开约 450–800 km。
-        # 对照 Kh-31（约 5.2 m×0.36 m、战斗部 90 kg、空射）：高空约 110–250 km，掠海约 50–70 km。
-        # ASMP-A 同尺寸高空约 500 km，但巡航接近 Ma 3，本模型固定 Ma 2.8，会短一截。
+        # 苏俄标定用同尺寸的最新型，不用出口型的 MTCR 上限。
+        # 缟玛瑙-M：与 P-800 同为约 8.9 m×0.70 m、约 3 t、战斗部 300 kg、舰面，
+        # 塔斯社称重量尺寸和最大速度不变，最大射程 800 km（高弹道）。低弹道仍约 120 km。
+        # Kh-31PD：5.34 m×0.36 m、715 kg、战斗部 110 kg，Ma 1.5 @ 15 km 时最大 180–250 km。
+        # 小口径进气道在 Ma 2.8、14 km 更费油，耗油率相对 0.70 m 按弹径放大，大弹不再额外省油。
         'body_pack': 0.64,
         'areal': 40.9,
         'eng_coeff': 263.0,
@@ -226,7 +227,11 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'payload_density': 2800.0,
         'void_frac': 0.14,
         'fuel_density': 820.0,
-        'tsfc': 1.05e-4,
+        'tsfc': 7.2e-5,
+        'tsfc_ref_diameter_m': 0.70,
+        'tsfc_diameter_exponent': 0.90,
+        'tsfc_scale_min': 1.0,
+        'tsfc_scale_max': 2.5,
         'mach_takeover': 1.95,
         'mach_cruise': 2.8,
         'alt_km': 14.0,
@@ -242,7 +247,8 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'sea_alt_km': 0.015,
         'sea_mach': 2.0,
         'sea_ld_factor': 0.38,
-        'sea_tsfc_factor': 1.45,
+        # 高弹道 800 km、低弹道约 120 km，掠海耗油按这个落差加重。
+        'sea_tsfc_factor': 2.45,
     },
     'scramjet': {
         # 对照长剑-1000：地面发射、约 10 m × 1 m、巡航 Ma 6、30–50 km、射程约 5000–6000 km。
@@ -272,16 +278,17 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
 }
 
 _ROCKET_CRUISE = {
-    # 对照鹰击-18：垂发约 8.2 m × 0.51 m、战斗部约 200 kg、质量约 1.6 t，
-    # 亚音速巡航后末端冲刺，公开射程约 220–540 km，冲刺约 40 km
+    # 对照 3M54K：8.22 m×0.533 m、战斗部 200 kg、舰面/潜射，出口型 3M54E 全重 1951 kg。
+    # 国内型公开估计 550–660 km，全程掠海，末端固体级约 20 km、Ma 2.9。
+    # 出口型 220 km 是 MTCR 上限，不拿来标定。末端级最多占弹体两成容积，冲刺才落在 20 km 附近。
     'body_pack': 0.62,
-    'areal': 22.0,
+    'areal': 36.0,
     'eng_coeff': 200.0,
     'eng_density': 650.0,
     'payload_density': 2600.0,
     'void_frac': 0.10,
     'fuel_density': 800.0,
-    'tsfc': 5.4e-5,
+    'tsfc': 3.95e-5,
     'mach': 0.80,
     'alt_km': 6.0,
     'ld_base': 3.4,
@@ -295,7 +302,7 @@ _ROCKET_CRUISE = {
     'sea_alt_km': 0.02,
     'folded_wing': 1.0,
     'terminal_dv_m_s': 1900.0,
-    'terminal_volume_cap_frac': 0.28,
+    'terminal_volume_cap_frac': 0.21,
 }
 
 
@@ -890,6 +897,28 @@ def achieved_boost_dv_m_s(
     return isp_s * G0 * math.log(launch_mass_kg / (launch_mass_kg - propellant_kg))
 
 
+def duct_cruise_tsfc(missile_class: str, diameter_m: float, spec: dict[str, float]) -> float:
+    """巡航耗油率。亚燃相对参考弹径放大细弹的进气道损失。
+
+    弹径大于参考值时耗油率不再下降，大弹只靠燃油比变远。
+    """
+    tsfc = spec['tsfc']
+    exponent = spec.get('tsfc_diameter_exponent', 0.0)
+    if exponent <= 0:
+        return tsfc
+    if diameter_m <= 0:
+        raise ValueError('弹径必须大于 0')
+    ref = spec.get('tsfc_ref_diameter_m', diameter_m)
+    if ref <= 0:
+        raise ValueError('耗油率参考弹径必须大于 0')
+    scale = (ref / diameter_m) ** exponent
+    return tsfc * clamp(
+        scale,
+        spec.get('tsfc_scale_min', 1.0),
+        spec.get('tsfc_scale_max', 2.5),
+    )
+
+
 def duct_ld(length_m: float, diameter_m: float, spec: dict[str, float]) -> float:
     """冲压弹巡航升阻比。"""
     return subsonic_ld(length_m, diameter_m, spec)
@@ -1172,7 +1201,8 @@ def estimate_ducted(
         cruise_speed = max(speed_after, sound * 1.3)
     cruise_mach = cruise_speed / sound
     accel = max(0.0, cruise_speed - speed_after) if reached else 0.0
-    isp_air = 1.0 / (spec['tsfc'] * G0)
+    tsfc = duct_cruise_tsfc(canon, diameter_m, spec)
+    isp_air = 1.0 / (tsfc * G0)
     mass_after_boost = launch_mass - propellant
     accel_frac = 0.0 if accel <= 1.0 else 1.0 - math.exp(-accel / (isp_air * G0 * spec['accel_excess']))
     accel_fuel = min(fuel * 0.65, accel_frac * mass_after_boost)
@@ -1188,7 +1218,7 @@ def estimate_ducted(
         raise ValueError('冲压燃油不足以完成巡航')
     ld = duct_ld(length_m, diameter_m, spec)
     cruise_m = breguet_cruise_range_m(
-        cruise_speed, spec['tsfc'], ld, mass_after_boost, mass_after_boost - cruise_fuel,
+        cruise_speed, tsfc, ld, mass_after_boost, mass_after_boost - cruise_fuel,
     )
     burn_time = ballistic_burn_time_s(propellant, launch_mass, isp_s) if propellant > 0 else 0.0
     boost_range = 0.5 * (launch_speed + min(speed_after, cruise_speed)) * burn_time
@@ -1198,7 +1228,7 @@ def estimate_ducted(
         sea_sound = speed_of_sound_m_s(spec['sea_alt_km'])
         sea_speed = spec.get('sea_mach', 2.0) * sea_sound
         sea_ld = ld * spec.get('sea_ld_factor', 0.42)
-        sea_tsfc = spec['tsfc'] * spec.get('sea_tsfc_factor', 1.3)
+        sea_tsfc = tsfc * spec.get('sea_tsfc_factor', 1.3)
         sea_fuel = max(0.0, fuel - accel_fuel) * (1.0 - spec['reserve'])
         if sea_fuel > 1.0 and sea_ld > 0:
             sea_m = breguet_cruise_range_m(

@@ -546,7 +546,7 @@ def test_six_classes_ranges_and_profiles():
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
     assert scram['range_km'] == 2727.4
     assert scram['cruise_mach'] == 6.2
-    assert ram['range_km'] == 744.6
+    assert ram['range_km'] == 1189.2
     assert ram['v_burnout_mach'] == 2.8
     assert scram['range_sea_km'] is None
     assert ram['range_high_km'] > ram['range_sea_km'] > 0
@@ -554,7 +554,7 @@ def test_six_classes_ranges_and_profiles():
     prop, sized = terminal_propellant_for_dash(8.2, 0.53, 300, 0.7, 0.05, 264, 1760, _ROCKET_CRUISE)
     assert prop > 0 and sized['fuel_kg'] > 0
     combo = estimate_turbofan_rocket(8.2, 0.53, 300, 0.7, 0.05, 264, 1760)
-    assert combo['range_terminal_km'] == 29.0
+    assert combo['range_terminal_km'] == 21.0
     assert combo['range_high_km'] > combo['range_sea_km']
     assert combo['range_km'] == combo['range_high_km']
     same_combo = estimate_turbofan_rocket(6.2, 0.55, 450, 0.7, 0.2, 264, 1760)
@@ -852,26 +852,56 @@ def test_stealth_pentagon_section_is_lighter_than_a_circle():
     assert jsm['range_high_km'] > jsm['range_sea_km'] > 0
 
 
+def test_duct_cruise_tsfc_penalizes_narrow_ramjets():
+    """亚燃细弹更费油；弹径超过缟玛瑙后耗油率不再下降。超燃不随弹径改。"""
+    from utils.missile_range.classes import _DUCT_SPECS, duct_cruise_tsfc
+
+    ram = _DUCT_SPECS['ramjet']
+    narrow = duct_cruise_tsfc('ramjet', 0.36, ram)
+    oniks = duct_cruise_tsfc('ramjet', 0.70, ram)
+    wide = duct_cruise_tsfc('ramjet', 1.20, ram)
+    assert narrow > oniks == wide == pytest.approx(7.2e-5)
+    assert duct_cruise_tsfc('scramjet', 0.36, _DUCT_SPECS['scramjet']) == pytest.approx(5.2e-5)
+    assert duct_cruise_tsfc('ramjet', 0.50, {'tsfc': 1.0e-4}) == pytest.approx(1.0e-4)
+    with pytest.raises(ValueError):
+        duct_cruise_tsfc('ramjet', 0, ram)
+    with pytest.raises(ValueError):
+        duct_cruise_tsfc('ramjet', 0.5, {**ram, 'tsfc_ref_diameter_m': 0})
+
+
 def test_public_airbreathing_ranges_match_open_sources():
     """用公开弹种核对吸气式航程，并检查垂发零速零高。"""
     from utils.missile_range.classes import estimate_by_class
 
+    # 缟玛瑙-M：8.9 m×0.70 m、约 3 t、战斗部 300 kg、舰面。高弹道 800 km，低弹道约 120 km。
+    oniks_m = estimate_by_class('ramjet', 8.9, 0.70, 300, 0.0, 0.0)
+    assert oniks_m['m_0_t'] == pytest.approx(3.0, abs=0.3)
+    assert 760 <= oniks_m['range_high_km'] <= 860
+    assert 110 <= oniks_m['range_sea_km'] <= 160
+    # Kh-31PD：5.34 m×0.36 m、战斗部 110 kg，Ma 1.5 @ 15 km，最大 180–250 km。
+    kh31pd = estimate_by_class('ramjet', 5.34, 0.36, 110, 1.5, 15.0)
+    assert kh31pd['m_0_t'] == pytest.approx(0.72, abs=0.08)
+    assert 180 <= kh31pd['range_high_km'] <= 250
     brahmos = estimate_by_class('ramjet', 8.4, 0.70, 250, 0.0, 0.0)
-    # 全高空高于出口型高低结合约 290 km，低于增程型公开上限约 800 km；全掠海贴近约 120 km
-    assert 480 <= brahmos['range_km'] <= 750
+    assert 700 <= brahmos['range_km'] <= 920
     assert 110 <= brahmos['range_sea_km'] <= 190
     kh31 = estimate_by_class('ramjet', 5.2, 0.36, 90, 0.9, 10.0)
-    assert 120 <= kh31['range_km'] <= 280
-    assert 45 <= kh31['range_sea_km'] <= 100
+    assert 100 <= kh31['range_km'] <= 220
+    assert kh31['range_sea_km'] < kh31['range_high_km']
     moskit = estimate_by_class('ramjet', 9.4, 0.76, 320, 0.0, 0.0)
     assert 120 <= moskit['range_sea_km'] <= 230
     fighter = estimate_by_class('ramjet', 4.25, 0.345, 90, 2.2, 19.0)
     assert fighter['range_km'] > kh31['range_sea_km']
     assert fighter['range_km'] > 200
+    # 3M54K：8.22 m×0.533 m、战斗部 200 kg、全重约 1.95 t。国内型掠海 550–660 km，末端约 20 km。
+    kalibr = estimate_by_class('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
+    assert kalibr['m_0_t'] == pytest.approx(1.95, abs=0.15)
+    assert 550 <= kalibr['range_sea_km'] <= 680
+    assert 18 <= kalibr['range_terminal_km'] <= 26
     yj18 = estimate_by_class('turbofan_rocket', 8.2, 0.514, 200, 0.0, 0.0)
-    assert 220 <= yj18['range_sea_km'] <= 650
-    assert 15 <= yj18['range_terminal_km'] <= 60
-    assert 1.2 <= yj18['m_0_t'] <= 2.0
+    assert 400 <= yj18['range_sea_km'] <= 700
+    assert 15 <= yj18['range_terminal_km'] <= 40
+    assert 1.5 <= yj18['m_0_t'] <= 2.2
     # LRASM：宽 0.635 m、高 0.450 m 的扁五边形，不是 0.55 m 圆。空射质量约 1.21 t，全高空约 970 km。
     lrasm = estimate_by_class(
         'turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0, width_m=0.635, height_m=0.450,

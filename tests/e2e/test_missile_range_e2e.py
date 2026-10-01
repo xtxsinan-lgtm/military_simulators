@@ -137,6 +137,39 @@ def test_e2e_missile_range_six_classes():
             assert data['result']['range_terminal_km'] > 0
 
 
+def _estimate_via_api(missile_class, length, diameter, warhead, mach, height):
+    """走小程序 API 估算一发导弹。"""
+    payload = {
+        'action': 'estimate',
+        'params': {
+            'missile_class': missile_class,
+            'length_m': length,
+            'diameter_m': diameter,
+            'warhead_kg': warhead,
+            'v_launch_mach': mach,
+            'h_launch_km': height,
+        },
+    }
+    status, _, body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    data = json.loads(body.decode())
+    assert data['success'] is True, data
+    return data['result']
+
+
+@pytest.mark.e2e
+def test_e2e_russian_ramjet_and_dual_mode_anchors():
+    """API 上缟玛瑙-M 高空约 800 km，3M54K 掠海约 550–660 km。"""
+    oniks = _estimate_via_api('ramjet', 8.9, 0.70, 300, 0.0, 0.0)
+    assert 760 <= oniks['range_high_km'] <= 860
+    assert 110 <= oniks['range_sea_km'] <= 160
+    kalibr = _estimate_via_api('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
+    assert 550 <= kalibr['range_sea_km'] <= 680
+    assert 18 <= kalibr['range_terminal_km'] <= 26
+
+
 @pytest.mark.e2e
 def test_e2e_airbreathing_presets_differ_from_glide_and_ballistic():
     """同一套几何下，吸气式射程不沿用助推滑翔或弹道结果。"""
