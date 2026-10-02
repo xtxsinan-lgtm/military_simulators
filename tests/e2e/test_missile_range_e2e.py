@@ -219,6 +219,9 @@ def test_e2e_ballistic_cylinder_warhead_matches_published_rockets():
     gmlrs = _estimate_via_api('ballistic', 3.96, 0.227, 90, 0.0, 0.0)
     assert 70.0 <= gmlrs['range_km'] <= 92.0
     assert gmlrs['l_head_m'] > 0.5
+    df15 = _estimate_via_api('ballistic', 9.1, 1.0, 500, 0.0, 0.0)
+    assert df15['range_km'] == 831.9
+    assert df15['m_p_total_kg'] == pytest.approx(4857.1, abs=0.2)
     payload = {
         'action': 'estimate',
         'params': {

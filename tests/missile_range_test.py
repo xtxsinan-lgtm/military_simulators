@@ -613,6 +613,26 @@ def test_ballistic_nose_holds_guidance_and_warhead():
     gmlrs_head, _, _ = ballistic_head_lengths_m(3.96, 0.227, 90)
     assert gmlrs_head > ballistic_nose_length_m(3.96, 0.227)
     assert gmlrs_head < 3.96 * 0.65
+    from utils.missile_range.classes import (
+        ballistic_nose_propellant_kg,
+        ballistic_nose_propellant_volume_m3,
+    )
+    from utils.missile_range.estimate import CHAMBER_FILL, motor_cross_section_m2
+
+    assert ballistic_nose_propellant_volume_m3(4.0, 0.43, 91) == 0.0
+    assert ballistic_nose_propellant_kg(4.0, 0.43, 91, 1760) == 0.0
+    leftover = ballistic_nose_propellant_volume_m3(9.1, 1.0, 500)
+    assert leftover > 0.1
+    body_area = math.pi * (1.0 / 2.0) ** 2
+    grain = motor_cross_section_m2(1.0) / body_area * CHAMBER_FILL
+    assert ballistic_nose_propellant_kg(9.1, 1.0, 500, 1760) == pytest.approx(leftover * grain * 1760)
+    df15 = estimate_ballistic(9.1, 1.0, 500, 0, 0, 264, 1760)
+    assert df15['m_p_total_kg'] > 4625.0
+    assert df15['range_km'] == 831.9
+    with pytest.raises(ValueError):
+        ballistic_nose_propellant_volume_m3(0, 1.0, 10)
+    with pytest.raises(ValueError):
+        ballistic_nose_propellant_kg(9.1, 1.0, 500, 0)
     with pytest.raises(ValueError):
         ballistic_nose_length_m(0, 0.4)
     with pytest.raises(ValueError):

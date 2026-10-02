@@ -9,7 +9,7 @@
 超燃不是双模态，燃烧室留空，固体助推器单独占舱，燃油用高密度吸热型液体碳氢燃料。
 亚燃高空大约是掠海的 2 到 2.5 倍。亚燃在 10 km 以下按稠密大气加大助推损失。超燃地面发射不加这一档。
 亚超结合的巡航比冲与涡扇同一档，末端固体火箭另计。
-普通弹道导弹只在前方用头锥：按长径比算圆锥容积，制导和战斗部从弹体容积里扣，其余才是圆柱发动机。
+普通弹道导弹只在前方用头锥：按长径比算圆锥容积，制导和战斗部先扣掉头锥，剩下的头锥和后面的圆柱都装药。
 弹道弹是否两级由显式开关控制，默认两级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
 关机后的真空弹道再按弹道系数折减大气滑行阻力。
 轻型战术弹推重比更高，地面 4 m 级默认两级时按 PrSM 的 499 km 标定。
@@ -22,10 +22,12 @@ from utils.missile_range.estimate import (
     DEFAULT_ISP_S,
     DEFAULT_PROPELLANT_DENSITY,
     G0,
+    CHAMBER_FILL,
     PROPELLANT_MASS_FRACTION,
     R_EARTH_M,
     head_and_booster_lengths_m,
     head_total_mass_kg,
+    motor_cross_section_m2,
     propellant_mass_kg,
 )
 
@@ -136,7 +138,7 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'ballistic',
         'label': '普通弹道导弹',
-        'blurb': '头锥按长径比占一段容积，制导和战斗部从弹体容积扣除，其余装固体药。关机后取最优弹道弧并计入大气滑行阻力，不含滑翔增程。',
+        'blurb': '头锥按长径比占一段容积，制导和战斗部从中扣除，剩下的头锥和后面的圆柱都装固体药。关机后取最优弹道弧并计入大气滑行阻力，不含滑翔增程。',
     },
 ]
 
@@ -1257,8 +1259,8 @@ def ballistic_head_lengths_m(
 ) -> tuple[float, float, float]:
     """头锥按长径比占一段，制导和战斗部先扣掉头锥容积，装不下再占用后面的圆柱。
 
-    返回弹头段长度、发动机长度、制导与控制质量。
-    头锥里没被用掉的容积不再装药，发动机从弹头段之后才开始。
+    返回弹头段长度、圆柱发动机长度、制导与控制质量。
+    头锥里没用掉的容积另计装药，不缩短这段头锥。
     """
     if length_m <= 0 or diameter_m <= 0:
         raise ValueError('弹长与弹径必须大于 0')
@@ -1278,6 +1280,42 @@ def ballistic_head_lengths_m(
         head = nose + (payload_volume - cone_volume) / area
     head = min(head, length_m * BALLISTIC_HEAD_LENGTH_CAP)
     return head, length_m - head, guidance
+
+
+def ballistic_nose_propellant_volume_m3(
+    length_m: float,
+    diameter_m: float,
+    warhead_mass_kg: float,
+) -> float:
+    """头锥扣掉制导和战斗部后还能装药的几何容积。载荷超出头锥时这里为零。"""
+    if length_m <= 0 or diameter_m <= 0:
+        raise ValueError('弹长与弹径必须大于 0')
+    if warhead_mass_kg < 0:
+        raise ValueError('战斗部质量不能为负')
+    nose = ballistic_nose_length_m(length_m, diameter_m)
+    area = math.pi * (diameter_m / 2.0) ** 2
+    cone_volume = area * nose / 3.0
+    guidance = ballistic_guidance_mass_kg(diameter_m)
+    payload_volume = (
+        warhead_mass_kg / BALLISTIC_WARHEAD_DENSITY_KG_M3
+        + guidance / BALLISTIC_GUIDANCE_DENSITY_KG_M3
+    )
+    return max(0.0, cone_volume - payload_volume)
+
+
+def ballistic_nose_propellant_kg(
+    length_m: float,
+    diameter_m: float,
+    warhead_mass_kg: float,
+    propellant_density: float,
+) -> float:
+    """剩余头锥按圆柱药柱的同样弹径收缩和装填系数装药。"""
+    if propellant_density <= 0:
+        raise ValueError('推进剂密度必须大于 0')
+    leftover = ballistic_nose_propellant_volume_m3(length_m, diameter_m, warhead_mass_kg)
+    body_area = math.pi * (diameter_m / 2.0) ** 2
+    grain_frac = motor_cross_section_m2(diameter_m) / body_area * CHAMBER_FILL
+    return leftover * grain_frac * propellant_density
 
 
 def ballistic_coast_range_km(
@@ -1725,7 +1763,7 @@ def estimate_ballistic(
     coast_drag: bool = True,
     two_stage: bool = True,
 ) -> dict:
-    """普通弹道导弹：头锥容积扣掉制导和战斗部后装药，再计重力阻力与大气滑行。
+    """普通弹道导弹：头锥扣掉制导和战斗部后的剩余容积与圆柱段一起装药，再计重力阻力与大气滑行。
 
     warhead_section 为 biconic 或 waverider 时沿用滑翔体弹头，供同一助推器的弹道弧对照。
     coast_drag 为假时保留真空弹道，滑翔弹的下限对照用这一档。
@@ -1737,11 +1775,15 @@ def estimate_ballistic(
         raise ValueError('战斗部、发射马赫数与高度不能为负')
     if isp_s <= 0 or propellant_density <= 0:
         raise ValueError('比冲与推进剂密度必须大于 0')
+    nose_propellant = 0.0
     if warhead_section == 'cylinder':
         head_len, booster_len, guidance = ballistic_head_lengths_m(
             length_m, diameter_m, warhead_mass_kg,
         )
         payload_mass = warhead_mass_kg + guidance
+        nose_propellant = ballistic_nose_propellant_kg(
+            length_m, diameter_m, warhead_mass_kg, propellant_density,
+        )
     elif warhead_section in ('biconic', 'waverider'):
         head_len, booster_len = head_and_booster_lengths_m(
             length_m, diameter_m, warhead_mass_kg, warhead_section,
@@ -1749,7 +1791,7 @@ def estimate_ballistic(
         payload_mass = head_total_mass_kg(warhead_mass_kg)
     else:
         raise ValueError(f'未知战斗部截面: {warhead_section}')
-    propellant = propellant_mass_kg(diameter_m, booster_len, propellant_density)
+    propellant = propellant_mass_kg(diameter_m, booster_len, propellant_density) + nose_propellant
     dry = propellant * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
     launch_mass = payload_mass + dry + propellant
     ve = isp_s * G0
