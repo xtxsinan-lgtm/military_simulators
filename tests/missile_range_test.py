@@ -9,6 +9,7 @@ from apps.missile_range_web import run_missile_range, run_missile_range_json
 from simulators.missile_range.missile_range import (
     _required_float,
     opt_float,
+    opt_optional_float,
     run_dataset_from_params,
     run_estimate_from_params,
     run_presets_from_params,
@@ -341,6 +342,9 @@ def test_opt_float_and_required_float():
     assert opt_float('', 1.5) == 1.5
     assert opt_float(None, 2) == 2
     assert opt_float('3.5', 1) == 3.5
+    assert opt_optional_float(None) is None
+    assert opt_optional_float('') is None
+    assert opt_optional_float('1500') == 1500.0
     assert _required_float({'length_m': '4'}, 'length_m') == 4
     with pytest.raises(ValueError, match='缺少参数'):
         _required_float({}, 'length_m')
@@ -704,6 +708,8 @@ def test_airbreathing_range_model_differs_from_boost_and_ballistic():
     slow = estimate_by_class('turbojet_subsonic', **geom, isp_s=180)
     fast = estimate_by_class('turbojet_subsonic', **geom, isp_s=320)
     assert slow['range_km'] == fast['range_km']
+    assert slow['isp_cruise_s'] == fast['isp_cruise_s']
+    assert slow['isp_cruise_s'] > 264
     assert estimate_by_class('hgv_biconic', **geom, isp_s=180)['range_km'] != estimate_by_class(
         'hgv_biconic', **geom, isp_s=320,
     )['range_km']
@@ -952,4 +958,83 @@ def test_public_airbreathing_ranges_match_open_sources():
     assert small['cruise_mach'] < 4.0
     tube_ram = estimate_by_class('ramjet', 6.35, 0.51, 160, 0.0, 0.0)
     assert tube_ram['range_km'] < brahmos['range_km']
+
+
+def test_isp_from_tsfc_round_trip():
+    """吸气比冲与耗油率互为倒数，非法输入拒绝。"""
+    from utils.missile_range.classes import isp_from_tsfc_s, tsfc_from_isp_s
+
+    assert isp_from_tsfc_s(2.15e-5) == pytest.approx(1.0 / (2.15e-5 * 9.80665))
+    assert tsfc_from_isp_s(isp_from_tsfc_s(6.8e-5)) == pytest.approx(6.8e-5)
+    with pytest.raises(ValueError):
+        isp_from_tsfc_s(0)
+    with pytest.raises(ValueError):
+        tsfc_from_isp_s(-1)
+
+
+def test_cruise_tsfc_base_keeps_calibrated_value():
+    """吸气比冲与标定值很接近时不改耗油率；差得多才换算。"""
+    from utils.missile_range.classes import _DUCT_SPECS, cruise_tsfc_base, isp_from_tsfc_s
+
+    ram = _DUCT_SPECS['ramjet']
+    nominal = isp_from_tsfc_s(ram['tsfc'])
+    assert cruise_tsfc_base(ram, None) == ram['tsfc']
+    assert cruise_tsfc_base(ram, round(nominal, 1)) == ram['tsfc']
+    assert cruise_tsfc_base(ram, 2000) != ram['tsfc']
+    with pytest.raises(ValueError):
+        cruise_tsfc_base({'tsfc': 0}, None)
+    with pytest.raises(ValueError):
+        cruise_tsfc_base(ram, 0)
+
+
+def test_airbreathing_stage_isp_splits_booster_and_cruise():
+    """吸气弹巡航比冲高于固体助推；纯火箭不拆这两段。"""
+    from utils.missile_range.classes import (
+        SUBSONIC_BOOSTER_ISP_S,
+        airbreathing_stage_isp,
+        class_isp_defaults,
+        estimate_by_class,
+    )
+
+    ram = airbreathing_stage_isp('ramjet', 0.50, 264)
+    narrow = airbreathing_stage_isp('ramjet', 0.36, 264)
+    scram = airbreathing_stage_isp('scramjet', 0.36, 264)
+    fan = airbreathing_stage_isp('turbofan_stealth', 0.63, 264)
+    jet = airbreathing_stage_isp('turbojet_subsonic', 0.55, 264)
+    combo = airbreathing_stage_isp('turbofan_rocket', 0.53, 264)
+    assert ram['isp_boost_s'] == 264
+    assert ram['isp_cruise_s'] > ram['isp_boost_s']
+    assert narrow['isp_cruise_s'] < ram['isp_cruise_s']
+    assert scram['isp_cruise_s'] == airbreathing_stage_isp('scramjet', 1.2, 264)['isp_cruise_s']
+    assert fan['isp_cruise_s'] > jet['isp_cruise_s'] > 264
+    assert fan['isp_boost_s'] == SUBSONIC_BOOSTER_ISP_S
+    assert combo['isp_rocket_s'] == 264
+    assert combo['isp_cruise_s'] > combo['isp_rocket_s'] > combo['isp_boost_s']
+    with pytest.raises(ValueError, match='没有吸气巡航'):
+        airbreathing_stage_isp('ballistic', 1.0, 264)
+    with pytest.raises(ValueError):
+        airbreathing_stage_isp('ramjet', 0.5, 0)
+    defaults = class_isp_defaults('hgv_biconic')
+    assert defaults['isp_cruise_s'] is None
+    assert defaults['isp_rocket_s'] == 264.0
+    assert class_isp_defaults('ramjet')['isp_cruise_s'] > class_isp_defaults('ramjet')['isp_boost_s']
+    low = estimate_by_class('ramjet', 6.5, 0.5, 200, 0.9, 12, isp_s=180)
+    high = estimate_by_class('ramjet', 6.5, 0.5, 200, 0.9, 12, isp_s=320)
+    assert low['isp_cruise_s'] == high['isp_cruise_s']
+    assert low['isp_boost_s'] == 180
+    assert high['isp_boost_s'] == 320
+    base = estimate_by_class('ramjet', 6.5, 0.5, 200, 0.9, 12)
+    farther = estimate_by_class('ramjet', 6.5, 0.5, 200, 0.9, 12, isp_air_s=2000)
+    assert farther['range_high_km'] > base['range_high_km']
+    assert farther['isp_cruise_s'] > base['isp_cruise_s']
+    surface = estimate_by_class('turbofan_stealth', 6.25, 0.52, 450, 0.0, 0.0)
+    assert surface['isp_boost_s'] == SUBSONIC_BOOSTER_ISP_S
+    assert surface['isp_cruise_s'] > surface['isp_boost_s']
+    from utils.missile_range.classes import _air_spec, resolved_cruise_tsfc
+    assert _air_spec('ramjet')['tsfc'] == 8.15e-5
+    assert _air_spec('ballistic') is None
+    assert resolved_cruise_tsfc('ramjet', 0.50) == pytest.approx(8.15e-5)
+    assert resolved_cruise_tsfc('ramjet', 0.36) > resolved_cruise_tsfc('ramjet', 0.50)
+    with pytest.raises(ValueError, match='没有吸气巡航'):
+        resolved_cruise_tsfc('ballistic', 1.0)
 

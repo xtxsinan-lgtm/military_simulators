@@ -21400,42 +21400,66 @@ module.exports = {
       {
         "id": "hgv_biconic",
         "label": "双锥体助推滑翔",
-        "blurb": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。"
+        "blurb": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": "hgv_waverider",
         "label": "乘波体助推滑翔",
-        "blurb": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。"
+        "blurb": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": "scramjet",
         "label": "超燃冲压导弹",
-        "blurb": "固体火箭助推到接力马赫数，超燃冲压在高空巡航。进气道与燃烧室占去大量容积，比冲与密度只作用于助推药。"
+        "blurb": "固体火箭助推到接力马赫数，超燃冲压在高空巡航。助推用固体比冲，巡航用更高的吸气比冲，两段分开算。进气道与燃烧室占去大量容积。",
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": "ramjet",
         "label": "亚燃冲压导弹",
-        "blurb": "固体火箭助推后亚燃冲压巡航。分别给出高空巡航与掠海巡航；进气道占容积，比冲与密度只作用于助推药。"
+        "blurb": "固体火箭助推后亚燃冲压巡航。助推用固体比冲，巡航用更高的吸气比冲，两段分开算。分别给出高空巡航与掠海巡航；更细的弹巡航比冲按弹径下降。",
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": "turbofan_stealth",
         "label": "涡扇亚音速隐身巡航",
-        "blurb": "涡扇耗油率较低，隐身进气道与涂层降低升阻比并占用容积。弹体按扁五边形而不是圆。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。"
+        "blurb": "涡扇吸气比冲远高于固体火箭。低速发射另加一截可抛弃固体助推器，助推与巡航比冲分开算。弹体按扁五边形而不是圆。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。",
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 4742.9,
+        "isp_rocket_s": null
       },
       {
         "id": "turbojet_subsonic",
         "label": "涡喷亚音速非隐身巡航",
-        "blurb": "涡喷耗油率较高，常规气动升阻比更好、油箱更满。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。"
+        "blurb": "涡喷吸气比冲高于固体火箭，但低于涡扇。低速发射的可抛弃助推器另按固体比冲计。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。",
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 1499.6,
+        "isp_rocket_s": null
       },
       {
         "id": "turbofan_rocket",
         "label": "亚超结合导弹",
-        "blurb": "巡航段为涡扇，末端为固体火箭低空冲刺。全高空与全掠海都加上同一段末端航程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。"
+        "blurb": "巡航段用涡扇吸气比冲，末端冲刺用固体比冲，两段分开。低速发射还可再带一截比冲更低的可抛弃助推器。全高空与全掠海都加上同一段末端航程。弹翼折叠在弹体内。",
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 2581.6,
+        "isp_rocket_s": 264.0
       },
       {
         "id": "ballistic",
         "label": "普通弹道导弹",
-        "blurb": "按弹体容积估算固体装药。空射仍扣除燃烧段重力损失，关机后取最优弹道弧，不含滑翔增程。"
+        "blurb": "按弹体容积估算固体装药。空射仍扣除燃烧段重力损失，关机后取最优弹道弧，不含滑翔增程。",
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       }
     ],
     "defaults": {
@@ -21465,14 +21489,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 11.02,
         "l_head_m": 0.47,
         "l_booster_m": 10.03,
         "m_p_total_kg": 9356.8,
         "v_burnout_mach": 21.05,
         "ld_ratio": 3.22,
-        "range_km": 6435.6
+        "range_km": 6435.6,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 2,
@@ -21490,14 +21517,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 9.8,
         "l_head_m": 2.24,
         "l_booster_m": 8.26,
         "m_p_total_kg": 7413.0,
         "v_burnout_mach": 13.86,
         "ld_ratio": 3.22,
-        "range_km": 1981.4
+        "range_km": 1981.4,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 3,
@@ -21515,14 +21545,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 7.26,
         "l_head_m": 0.7,
         "l_booster_m": 10.6,
         "m_p_total_kg": 6105.8,
         "v_burnout_mach": 21.8,
         "ld_ratio": 3.5,
-        "range_km": 8030.0
+        "range_km": 8030.0,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 4,
@@ -21540,14 +21573,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 6.78,
         "l_head_m": 1.84,
         "l_booster_m": 9.46,
         "m_p_total_kg": 5341.8,
         "v_burnout_mach": 17.36,
         "ld_ratio": 3.5,
-        "range_km": 3857.0
+        "range_km": 3857.0,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 5,
@@ -21565,14 +21601,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 3.37,
         "l_head_m": 0.61,
         "l_booster_m": 5.74,
         "m_p_total_kg": 2755.4,
         "v_burnout_mach": 17.81,
         "ld_ratio": 2.86,
-        "range_km": 3393.0
+        "range_km": 3393.0,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 6,
@@ -21590,14 +21629,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 3.08,
         "l_head_m": 1.92,
         "l_booster_m": 4.43,
         "m_p_total_kg": 2123.9,
         "v_burnout_mach": 10.89,
         "ld_ratio": 2.86,
-        "range_km": 1055.7
+        "range_km": 1055.7,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 7,
@@ -21615,14 +21657,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 0.96,
         "l_head_m": 2.86,
         "l_booster_m": 3.49,
         "m_p_total_kg": 502.7,
         "v_burnout_mach": 8.07,
         "ld_ratio": 3.5,
-        "range_km": 730.6
+        "range_km": 730.6,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 8,
@@ -21640,14 +21685,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 0.58,
         "l_head_m": 2.21,
         "l_booster_m": 2.7,
         "m_p_total_kg": 315.7,
         "v_burnout_mach": 8.47,
         "ld_ratio": 3.5,
-        "range_km": 796.6
+        "range_km": 796.6,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 9,
@@ -21665,14 +21713,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 0.35,
         "l_head_m": 1.91,
         "l_booster_m": 2.34,
         "m_p_total_kg": 189.2,
         "v_burnout_mach": 8.45,
         "ld_ratio": 3.5,
-        "range_km": 793.6
+        "range_km": 793.6,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 10,
@@ -21690,14 +21741,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 14.24,
         "l_head_m": 0.94,
         "l_booster_m": 10.56,
         "m_p_total_kg": 11828.0,
         "v_burnout_mach": 16.05,
         "ld_ratio": 3.23,
-        "range_km": 2776.6
+        "range_km": 2776.6,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 11,
@@ -21715,14 +21769,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 4.24,
         "l_head_m": 1.27,
         "l_booster_m": 7.28,
         "m_p_total_kg": 3353.0,
         "v_burnout_mach": 12.3,
         "ld_ratio": 3.42,
-        "range_km": 1532.0
+        "range_km": 1532.0,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 12,
@@ -21740,14 +21797,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，双锥体升阻比，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 1.15,
         "l_head_m": 1.76,
         "l_booster_m": 4.59,
         "m_p_total_kg": 811.7,
         "v_burnout_mach": 7.19,
         "ld_ratio": 3.5,
-        "range_km": 501.8
+        "range_km": 501.8,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 13,
@@ -21765,14 +21825,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 10.64,
         "l_head_m": 0.77,
         "l_booster_m": 9.73,
         "m_p_total_kg": 9026.0,
         "v_burnout_mach": 20.95,
         "ld_ratio": 4.87,
-        "range_km": 9461.2
+        "range_km": 9461.2,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 14,
@@ -21790,14 +21853,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 8.0,
         "l_head_m": 3.67,
         "l_booster_m": 6.83,
         "m_p_total_kg": 5844.6,
         "v_burnout_mach": 12.57,
         "ld_ratio": 4.87,
-        "range_km": 2323.8
+        "range_km": 2323.8,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 15,
@@ -21815,14 +21881,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 6.92,
         "l_head_m": 1.14,
         "l_booster_m": 10.16,
         "m_p_total_kg": 5808.1,
         "v_burnout_mach": 21.64,
         "ld_ratio": 5.0,
-        "range_km": 11035.3
+        "range_km": 11035.3,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 16,
@@ -21840,14 +21909,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 5.88,
         "l_head_m": 3.01,
         "l_booster_m": 8.29,
         "m_p_total_kg": 4557.6,
         "v_burnout_mach": 16.57,
         "ld_ratio": 5.0,
-        "range_km": 4765.0
+        "range_km": 4765.0,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 17,
@@ -21865,14 +21937,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 3.16,
         "l_head_m": 1.0,
         "l_booster_m": 5.35,
         "m_p_total_kg": 2569.3,
         "v_burnout_mach": 17.49,
         "ld_ratio": 4.32,
-        "range_km": 4766.1
+        "range_km": 4766.1,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 18,
@@ -21890,14 +21965,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 2.57,
         "l_head_m": 2.86,
         "l_booster_m": 3.49,
         "m_p_total_kg": 1676.2,
         "v_burnout_mach": 9.59,
         "ld_ratio": 4.32,
-        "range_km": 1174.8
+        "range_km": 1174.8,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 19,
@@ -21915,14 +21993,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 0.96,
         "l_head_m": 2.86,
         "l_booster_m": 3.49,
         "m_p_total_kg": 502.7,
         "v_burnout_mach": 8.07,
         "ld_ratio": 5.0,
-        "range_km": 988.5
+        "range_km": 988.5,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 20,
@@ -21940,14 +22021,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 0.58,
         "l_head_m": 2.21,
         "l_booster_m": 2.7,
         "m_p_total_kg": 315.7,
         "v_burnout_mach": 8.47,
         "ld_ratio": 5.0,
-        "range_km": 1081.3
+        "range_km": 1081.3,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 21,
@@ -21965,14 +22049,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 0.35,
         "l_head_m": 1.91,
         "l_booster_m": 2.34,
         "m_p_total_kg": 189.2,
         "v_burnout_mach": 8.45,
         "ld_ratio": 5.0,
-        "range_km": 1077.0
+        "range_km": 1077.0,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 22,
@@ -21990,14 +22077,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 13.33,
         "l_head_m": 1.54,
         "l_booster_m": 9.96,
         "m_p_total_kg": 11043.8,
         "v_burnout_mach": 15.71,
         "ld_ratio": 4.88,
-        "range_km": 3908.0
+        "range_km": 3908.0,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 23,
@@ -22015,14 +22105,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 3.7,
         "l_head_m": 2.08,
         "l_booster_m": 6.47,
         "m_p_total_kg": 2882.5,
         "v_burnout_mach": 11.32,
         "ld_ratio": 5.0,
-        "range_km": 1808.6
+        "range_km": 1808.6,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 24,
@@ -22040,14 +22133,17 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。",
+        "note": "两级固体助推，乘波体升阻比更高，扣除重力阻力损失后积分滑翔航程。 固体比冲 264 s。",
         "m_0_t": 0.93,
         "l_head_m": 2.86,
         "l_booster_m": 3.49,
         "m_p_total_kg": 617.9,
         "v_burnout_mach": 5.17,
         "ld_ratio": 5.0,
-        "range_km": 359.8
+        "range_km": 359.8,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 25,
@@ -22065,7 +22161,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1422 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1422 kg。",
         "m_0_t": 7.03,
         "l_head_m": 0.13,
         "l_booster_m": 10.37,
@@ -22077,7 +22173,10 @@ module.exports = {
         "cruise_mach": 6.2,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 1422.5,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 26,
@@ -22095,7 +22194,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1541 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1541 kg。",
         "m_0_t": 7.6,
         "l_head_m": 0.65,
         "l_booster_m": 9.85,
@@ -22107,7 +22206,10 @@ module.exports = {
         "cruise_mach": 6.2,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 1540.6,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 27,
@@ -22125,7 +22227,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1026 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1026 kg。",
         "m_0_t": 4.28,
         "l_head_m": 0.19,
         "l_booster_m": 11.11,
@@ -22137,7 +22239,10 @@ module.exports = {
         "cruise_mach": 6.2,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 1025.7,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 28,
@@ -22155,7 +22260,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1069 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1069 kg。",
         "m_0_t": 4.49,
         "l_head_m": 0.54,
         "l_booster_m": 10.76,
@@ -22167,7 +22272,10 @@ module.exports = {
         "cruise_mach": 6.2,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 1069.3,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 29,
@@ -22185,7 +22293,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 632 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 632 kg。",
         "m_0_t": 2.02,
         "l_head_m": 0.17,
         "l_booster_m": 6.18,
@@ -22197,7 +22305,10 @@ module.exports = {
         "cruise_mach": 6.2,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 632.4,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 30,
@@ -22215,7 +22326,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 684 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 684 kg。",
         "m_0_t": 2.27,
         "l_head_m": 0.56,
         "l_booster_m": 5.79,
@@ -22227,7 +22338,10 @@ module.exports = {
         "cruise_mach": 6.2,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 684.1,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 31,
@@ -22245,7 +22359,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 3.09 @ 36 km，设计 Ma 6.2。接力装药不足，巡航马赫已下调。死重 315 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 3.09 @ 36 km，设计 Ma 6.2。接力装药不足，巡航马赫已下调。死重 315 kg。",
         "m_0_t": 0.77,
         "l_head_m": 1.12,
         "l_booster_m": 5.23,
@@ -22257,7 +22371,10 @@ module.exports = {
         "cruise_mach": 3.09,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 314.6,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 32,
@@ -22275,7 +22392,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 3.12 @ 36 km，设计 Ma 6.2。接力装药不足，巡航马赫已下调。死重 215 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 3.12 @ 36 km，设计 Ma 6.2。接力装药不足，巡航马赫已下调。死重 215 kg。",
         "m_0_t": 0.47,
         "l_head_m": 0.74,
         "l_booster_m": 4.16,
@@ -22287,7 +22404,10 @@ module.exports = {
         "cruise_mach": 3.12,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 215.2,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 33,
@@ -22305,7 +22425,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 2.93 @ 36 km，设计 Ma 6.2。接力装药不足，巡航马赫已下调。死重 157 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 2.93 @ 36 km，设计 Ma 6.2。接力装药不足，巡航马赫已下调。死重 157 kg。",
         "m_0_t": 0.3,
         "l_head_m": 0.64,
         "l_booster_m": 3.61,
@@ -22317,7 +22437,10 @@ module.exports = {
         "cruise_mach": 2.93,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 156.5,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 34,
@@ -22335,7 +22458,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1872 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 1872 kg。",
         "m_0_t": 9.9,
         "l_head_m": 0.28,
         "l_booster_m": 11.22,
@@ -22347,7 +22470,10 @@ module.exports = {
         "cruise_mach": 6.2,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 1871.6,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 35,
@@ -22365,7 +22491,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 824 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 6.20 @ 36 km，设计 Ma 6.2。死重 824 kg。",
         "m_0_t": 2.95,
         "l_head_m": 0.37,
         "l_booster_m": 8.18,
@@ -22377,7 +22503,10 @@ module.exports = {
         "cruise_mach": 6.2,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 824.4,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 36,
@@ -22395,7 +22524,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "超燃冲压导弹：高空巡航 Ma 2.34 @ 36 km，设计 Ma 6.2。接力装药不足，巡航马赫已下调。死重 346 kg。",
+        "note": "超燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1961 s。高空巡航 Ma 2.34 @ 36 km，设计 Ma 6.2。接力装药不足，巡航马赫已下调。死重 346 kg。",
         "m_0_t": 0.85,
         "l_head_m": 0.49,
         "l_booster_m": 5.86,
@@ -22407,7 +22536,10 @@ module.exports = {
         "cruise_mach": 2.34,
         "cruise_alt_km": 36.0,
         "m_dead_kg": 345.8,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1961.0,
+        "isp_rocket_s": null
       },
       {
         "id": 37,
@@ -22425,7 +22557,7 @@ module.exports = {
         "range_high_km": 1787.0,
         "range_sea_km": 249.7,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 250 km。死重 2345 kg。",
+        "note": "亚燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1251 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 250 km。死重 2345 kg。",
         "m_0_t": 8.35,
         "l_head_m": 0.08,
         "l_booster_m": 10.42,
@@ -22437,7 +22569,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 2345.5,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": 38,
@@ -22455,7 +22590,7 @@ module.exports = {
         "range_high_km": 1385.7,
         "range_sea_km": 196.3,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 196 km。死重 2455 kg。",
+        "note": "亚燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1251 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 196 km。死重 2455 kg。",
         "m_0_t": 9.04,
         "l_head_m": 0.42,
         "l_booster_m": 10.08,
@@ -22467,7 +22602,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 2454.8,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": 39,
@@ -22485,7 +22623,7 @@ module.exports = {
         "range_high_km": 2170.9,
         "range_sea_km": 289.6,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 290 km。死重 1737 kg。",
+        "note": "亚燃冲压导弹：巡航吸气比冲 1251 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 290 km。死重 1737 kg。",
         "m_0_t": 5.39,
         "l_head_m": 0.12,
         "l_booster_m": 11.18,
@@ -22497,7 +22635,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 1737.4,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": 40,
@@ -22515,7 +22656,7 @@ module.exports = {
         "range_high_km": 1915.8,
         "range_sea_km": 256.0,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 256 km。死重 1776 kg。",
+        "note": "亚燃冲压导弹：巡航吸气比冲 1251 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 256 km。死重 1776 kg。",
         "m_0_t": 5.64,
         "l_head_m": 0.34,
         "l_booster_m": 10.96,
@@ -22527,7 +22668,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 1775.8,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": 41,
@@ -22545,7 +22689,7 @@ module.exports = {
         "range_high_km": 1268.2,
         "range_sea_km": 179.7,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 180 km。死重 1114 kg。",
+        "note": "亚燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1251 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 180 km。死重 1114 kg。",
         "m_0_t": 3.24,
         "l_head_m": 0.11,
         "l_booster_m": 6.24,
@@ -22557,7 +22701,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 1114.0,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": 42,
@@ -22575,7 +22722,7 @@ module.exports = {
         "range_high_km": 941.0,
         "range_sea_km": 136.5,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 136 km。死重 1162 kg。",
+        "note": "亚燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1251 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 136 km。死重 1162 kg。",
         "m_0_t": 3.55,
         "l_head_m": 0.36,
         "l_booster_m": 5.99,
@@ -22587,7 +22734,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 1161.8,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": 43,
@@ -22605,7 +22755,7 @@ module.exports = {
         "range_high_km": 704.2,
         "range_sea_km": 96.4,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 96 km。死重 541 kg。",
+        "note": "亚燃冲压导弹：巡航吸气比冲 1041 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 96 km。死重 541 kg。",
         "m_0_t": 1.29,
         "l_head_m": 0.72,
         "l_booster_m": 5.63,
@@ -22617,7 +22767,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 541.1,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": 1041.5,
+        "isp_rocket_s": null
       },
       {
         "id": 44,
@@ -22635,7 +22788,7 @@ module.exports = {
         "range_high_km": 493.0,
         "range_sea_km": 67.7,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 68 km。死重 377 kg。",
+        "note": "亚燃冲压导弹：巡航吸气比冲 830 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 68 km。死重 377 kg。",
         "m_0_t": 0.82,
         "l_head_m": 0.47,
         "l_booster_m": 4.43,
@@ -22647,7 +22800,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 377.2,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": 830.4,
+        "isp_rocket_s": null
       },
       {
         "id": 45,
@@ -22665,7 +22821,7 @@ module.exports = {
         "range_high_km": 241.7,
         "range_sea_km": 33.9,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 34 km。死重 274 kg。",
+        "note": "亚燃冲压导弹：巡航吸气比冲 553 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 34 km。死重 274 kg。",
         "m_0_t": 0.53,
         "l_head_m": 0.41,
         "l_booster_m": 3.84,
@@ -22677,7 +22833,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 273.6,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": 553.1,
+        "isp_rocket_s": null
       },
       {
         "id": 46,
@@ -22695,7 +22854,7 @@ module.exports = {
         "range_high_km": 1477.1,
         "range_sea_km": 218.8,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 219 km。死重 3023 kg。",
+        "note": "亚燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1251 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 219 km。死重 3023 kg。",
         "m_0_t": 11.58,
         "l_head_m": 0.18,
         "l_booster_m": 11.32,
@@ -22707,7 +22866,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 3023.0,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": 47,
@@ -22725,7 +22887,7 @@ module.exports = {
         "range_high_km": 1040.1,
         "range_sea_km": 159.8,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 160 km。死重 1421 kg。",
+        "note": "亚燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1251 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 160 km。死重 1421 kg。",
         "m_0_t": 4.36,
         "l_head_m": 0.24,
         "l_booster_m": 8.31,
@@ -22737,7 +22899,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 1421.1,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": 48,
@@ -22755,7 +22920,7 @@ module.exports = {
         "range_high_km": 581.2,
         "range_sea_km": 98.7,
         "range_terminal_km": null,
-        "note": "亚燃冲压导弹：高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 99 km。死重 640 kg。",
+        "note": "亚燃冲压导弹：助推固体比冲 264 s，巡航吸气比冲 1251 s。高空巡航 Ma 2.80 @ 14 km，设计 Ma 2.8。全掠海 99 km。死重 640 kg。",
         "m_0_t": 1.59,
         "l_head_m": 0.31,
         "l_booster_m": 6.04,
@@ -22767,7 +22932,10 @@ module.exports = {
         "cruise_mach": 2.8,
         "cruise_alt_km": 14.0,
         "m_dead_kg": 639.8,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": 264.0,
+        "isp_cruise_s": 1251.2,
+        "isp_rocket_s": null
       },
       {
         "id": 49,
@@ -22785,7 +22953,7 @@ module.exports = {
         "range_high_km": 730.6,
         "range_sea_km": 307.6,
         "range_terminal_km": null,
-        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 5.90，耗油率按弹种固定。折叠弹翼 137 kg，死重 925 kg。",
+        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 5.90，巡航吸气比冲 4743 s。折叠弹翼 137 kg，死重 925 kg。",
         "m_0_t": 2.19,
         "l_head_m": 1.43,
         "l_booster_m": 4.92,
@@ -22797,7 +22965,10 @@ module.exports = {
         "cruise_mach": 0.74,
         "cruise_alt_km": 10.0,
         "m_dead_kg": 924.7,
-        "m_wing_kg": 136.9
+        "m_wing_kg": 136.9,
+        "isp_boost_s": null,
+        "isp_cruise_s": 4742.9,
+        "isp_rocket_s": null
       },
       {
         "id": 50,
@@ -22815,7 +22986,7 @@ module.exports = {
         "range_high_km": 448.5,
         "range_sea_km": 188.8,
         "range_terminal_km": null,
-        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 5.99，耗油率按弹种固定。折叠弹翼 68 kg，死重 501 kg。",
+        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 5.99，巡航吸气比冲 4743 s。折叠弹翼 68 kg，死重 501 kg。",
         "m_0_t": 1.08,
         "l_head_m": 1.33,
         "l_booster_m": 3.57,
@@ -22827,7 +22998,10 @@ module.exports = {
         "cruise_mach": 0.74,
         "cruise_alt_km": 10.0,
         "m_dead_kg": 500.6,
-        "m_wing_kg": 67.6
+        "m_wing_kg": 67.6,
+        "isp_boost_s": null,
+        "isp_cruise_s": 4742.9,
+        "isp_rocket_s": null
       },
       {
         "id": 51,
@@ -22845,7 +23019,7 @@ module.exports = {
         "range_high_km": 310.5,
         "range_sea_km": 130.7,
         "range_terminal_km": null,
-        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 6.09，耗油率按弹种固定。折叠弹翼 64 kg，死重 477 kg。",
+        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 6.09，巡航吸气比冲 4743 s。折叠弹翼 64 kg，死重 477 kg。",
         "m_0_t": 1.03,
         "l_head_m": 1.48,
         "l_booster_m": 3.42,
@@ -22857,7 +23031,10 @@ module.exports = {
         "cruise_mach": 0.74,
         "cruise_alt_km": 10.0,
         "m_dead_kg": 476.8,
-        "m_wing_kg": 64.4
+        "m_wing_kg": 64.4,
+        "isp_boost_s": null,
+        "isp_cruise_s": 4742.9,
+        "isp_rocket_s": null
       },
       {
         "id": 52,
@@ -22875,7 +23052,7 @@ module.exports = {
         "range_high_km": 1563.3,
         "range_sea_km": 658.2,
         "range_terminal_km": null,
-        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 5.99，耗油率按弹种固定。折叠弹翼 38 kg，死重 337 kg。",
+        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 5.99，巡航吸气比冲 4743 s。折叠弹翼 38 kg，死重 337 kg。",
         "m_0_t": 0.6,
         "l_head_m": 0.43,
         "l_booster_m": 3.82,
@@ -22887,7 +23064,10 @@ module.exports = {
         "cruise_mach": 0.74,
         "cruise_alt_km": 10.0,
         "m_dead_kg": 336.8,
-        "m_wing_kg": 37.5
+        "m_wing_kg": 37.5,
+        "isp_boost_s": null,
+        "isp_cruise_s": 4742.9,
+        "isp_rocket_s": null
       },
       {
         "id": 53,
@@ -22905,7 +23085,7 @@ module.exports = {
         "range_high_km": 3975.6,
         "range_sea_km": 1704.3,
         "range_terminal_km": null,
-        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 5.97，耗油率按弹种固定。可抛弃助推器 1013 kg。折叠弹翼 398 kg，死重 2575 kg。",
+        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 5.97，巡航吸气比冲 4743 s。可抛弃助推器 1013 kg，固体比冲 235 s。折叠弹翼 398 kg，死重 2575 kg。",
         "m_0_t": 7.38,
         "l_head_m": 0.24,
         "l_booster_m": 11.26,
@@ -22917,7 +23097,10 @@ module.exports = {
         "cruise_mach": 0.74,
         "cruise_alt_km": 10.0,
         "m_dead_kg": 2575.0,
-        "m_wing_kg": 398.4
+        "m_wing_kg": 398.4,
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 4742.9,
+        "isp_rocket_s": null
       },
       {
         "id": 54,
@@ -22935,7 +23118,7 @@ module.exports = {
         "range_high_km": 2996.3,
         "range_sea_km": 1288.0,
         "range_terminal_km": null,
-        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 6.18，耗油率按弹种固定。可抛弃助推器 411 kg。折叠弹翼 162 kg，死重 1227 kg。",
+        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 6.18，巡航吸气比冲 4743 s。可抛弃助推器 411 kg，固体比冲 235 s。折叠弹翼 162 kg，死重 1227 kg。",
         "m_0_t": 3.0,
         "l_head_m": 0.32,
         "l_booster_m": 8.23,
@@ -22947,7 +23130,10 @@ module.exports = {
         "cruise_mach": 0.74,
         "cruise_alt_km": 10.0,
         "m_dead_kg": 1227.0,
-        "m_wing_kg": 161.6
+        "m_wing_kg": 161.6,
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 4742.9,
+        "isp_rocket_s": null
       },
       {
         "id": 55,
@@ -22965,7 +23151,7 @@ module.exports = {
         "range_high_km": 2012.1,
         "range_sea_km": 870.7,
         "range_terminal_km": null,
-        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 6.50，耗油率按弹种固定。可抛弃助推器 160 kg。折叠弹翼 63 kg，死重 559 kg。",
+        "note": "涡扇亚音速隐身巡航：主射程为全高空 10 km、Ma 0.74；全掠海为 30 m。升阻比 6.50，巡航吸气比冲 4743 s。可抛弃助推器 160 kg，固体比冲 235 s。折叠弹翼 63 kg，死重 559 kg。",
         "m_0_t": 1.17,
         "l_head_m": 0.42,
         "l_booster_m": 5.93,
@@ -22977,7 +23163,10 @@ module.exports = {
         "cruise_mach": 0.74,
         "cruise_alt_km": 10.0,
         "m_dead_kg": 559.3,
-        "m_wing_kg": 62.9
+        "m_wing_kg": 62.9,
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 4742.9,
+        "isp_rocket_s": null
       },
       {
         "id": 56,
@@ -22995,7 +23184,7 @@ module.exports = {
         "range_high_km": 391.8,
         "range_sea_km": 164.6,
         "range_terminal_km": null,
-        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.70，耗油率按弹种固定。折叠弹翼 61 kg，死重 598 kg。",
+        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.70，巡航吸气比冲 1500 s。折叠弹翼 61 kg，死重 598 kg。",
         "m_0_t": 2.03,
         "l_head_m": 1.43,
         "l_booster_m": 4.92,
@@ -23007,7 +23196,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 597.8,
-        "m_wing_kg": 61.0
+        "m_wing_kg": 61.0,
+        "isp_boost_s": null,
+        "isp_cruise_s": 1499.6,
+        "isp_rocket_s": null
       },
       {
         "id": 57,
@@ -23025,7 +23217,7 @@ module.exports = {
         "range_high_km": 242.7,
         "range_sea_km": 101.8,
         "range_terminal_km": null,
-        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.76，耗油率按弹种固定。折叠弹翼 28 kg，死重 317 kg。",
+        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.76，巡航吸气比冲 1500 s。折叠弹翼 28 kg，死重 317 kg。",
         "m_0_t": 0.95,
         "l_head_m": 1.33,
         "l_booster_m": 3.57,
@@ -23037,7 +23229,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 317.3,
-        "m_wing_kg": 28.4
+        "m_wing_kg": 28.4,
+        "isp_boost_s": null,
+        "isp_cruise_s": 1499.6,
+        "isp_rocket_s": null
       },
       {
         "id": 58,
@@ -23055,7 +23250,7 @@ module.exports = {
         "range_high_km": 189.5,
         "range_sea_km": 79.4,
         "range_terminal_km": null,
-        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.83，耗油率按弹种固定。折叠弹翼 27 kg，死重 301 kg。",
+        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.83，巡航吸气比冲 1500 s。折叠弹翼 27 kg，死重 301 kg。",
         "m_0_t": 0.9,
         "l_head_m": 1.47,
         "l_booster_m": 3.43,
@@ -23067,7 +23262,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 301.3,
-        "m_wing_kg": 26.9
+        "m_wing_kg": 26.9,
+        "isp_boost_s": null,
+        "isp_cruise_s": 1499.6,
+        "isp_rocket_s": null
       },
       {
         "id": 59,
@@ -23085,7 +23283,7 @@ module.exports = {
         "range_high_km": 684.5,
         "range_sea_km": 287.8,
         "range_terminal_km": null,
-        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.76，耗油率按弹种固定。折叠弹翼 15 kg，死重 205 kg。",
+        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.76，巡航吸气比冲 1500 s。折叠弹翼 15 kg，死重 205 kg。",
         "m_0_t": 0.49,
         "l_head_m": 0.43,
         "l_booster_m": 3.82,
@@ -23097,7 +23295,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 204.9,
-        "m_wing_kg": 14.8
+        "m_wing_kg": 14.8,
+        "isp_boost_s": null,
+        "isp_cruise_s": 1499.6,
+        "isp_rocket_s": null
       },
       {
         "id": 60,
@@ -23115,7 +23316,7 @@ module.exports = {
         "range_high_km": 1770.2,
         "range_sea_km": 756.2,
         "range_terminal_km": null,
-        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.75，耗油率按弹种固定。可抛弃助推器 1064 kg。折叠弹翼 201 kg，死重 1594 kg。",
+        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.75，巡航吸气比冲 1500 s。可抛弃助推器 1064 kg，固体比冲 235 s。折叠弹翼 201 kg，死重 1594 kg。",
         "m_0_t": 7.75,
         "l_head_m": 0.24,
         "l_booster_m": 11.26,
@@ -23127,7 +23328,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 1594.2,
-        "m_wing_kg": 200.6
+        "m_wing_kg": 200.6,
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 1499.6,
+        "isp_rocket_s": null
       },
       {
         "id": 61,
@@ -23145,7 +23349,7 @@ module.exports = {
         "range_high_km": 1380.4,
         "range_sea_km": 590.0,
         "range_terminal_km": null,
-        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.88，耗油率按弹种固定。可抛弃助推器 392 kg。折叠弹翼 74 kg，死重 740 kg。",
+        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 4.88，巡航吸气比冲 1500 s。可抛弃助推器 392 kg，固体比冲 235 s。折叠弹翼 74 kg，死重 740 kg。",
         "m_0_t": 2.86,
         "l_head_m": 0.32,
         "l_booster_m": 8.23,
@@ -23157,7 +23361,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 740.2,
-        "m_wing_kg": 73.9
+        "m_wing_kg": 73.9,
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 1499.6,
+        "isp_rocket_s": null
       },
       {
         "id": 62,
@@ -23175,7 +23382,7 @@ module.exports = {
         "range_high_km": 974.1,
         "range_sea_km": 417.4,
         "range_terminal_km": null,
-        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 5.09，耗油率按弹种固定。可抛弃助推器 138 kg。折叠弹翼 26 kg，死重 328 kg。",
+        "note": "涡喷亚音速非隐身巡航：主射程为全高空 6 km、Ma 0.80；全掠海为 30 m。升阻比 5.09，巡航吸气比冲 1500 s。可抛弃助推器 138 kg，固体比冲 235 s。折叠弹翼 26 kg，死重 328 kg。",
         "m_0_t": 1.01,
         "l_head_m": 0.42,
         "l_booster_m": 5.93,
@@ -23187,7 +23394,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 327.9,
-        "m_wing_kg": 26.0
+        "m_wing_kg": 26.0,
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 1499.6,
+        "isp_rocket_s": null
       },
       {
         "id": 63,
@@ -23205,7 +23415,7 @@ module.exports = {
         "range_high_km": 251.3,
         "range_sea_km": 107.3,
         "range_terminal_km": 15.1,
-        "note": "亚超结合：涡扇巡航 Ma 0.80，全高空 6 km / 全掠海 20 m，末端火箭冲刺 15.1 km。折叠弹翼 79 kg，死重 969 kg。",
+        "note": "亚超结合：涡扇巡航 Ma 0.80，吸气比冲 2582 s，末端固体比冲 264 s。全高空 6 km / 全掠海 20 m，末端火箭冲刺 15.1 km。折叠弹翼 79 kg，死重 969 kg。",
         "m_0_t": 2.63,
         "l_head_m": 1.15,
         "l_booster_m": 5.2,
@@ -23217,7 +23427,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 969.4,
-        "m_wing_kg": 78.9
+        "m_wing_kg": 78.9,
+        "isp_boost_s": null,
+        "isp_cruise_s": 2581.6,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 64,
@@ -23235,7 +23448,7 @@ module.exports = {
         "range_high_km": 133.1,
         "range_sea_km": 58.2,
         "range_terminal_km": 10.5,
-        "note": "亚超结合：涡扇巡航 Ma 0.80，全高空 6 km / 全掠海 20 m，末端火箭冲刺 10.5 km。折叠弹翼 37 kg，死重 515 kg。",
+        "note": "亚超结合：涡扇巡航 Ma 0.80，吸气比冲 2582 s，末端固体比冲 264 s。全高空 6 km / 全掠海 20 m，末端火箭冲刺 10.5 km。折叠弹翼 37 kg，死重 515 kg。",
         "m_0_t": 1.25,
         "l_head_m": 1.08,
         "l_booster_m": 3.82,
@@ -23247,7 +23460,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 515.0,
-        "m_wing_kg": 37.5
+        "m_wing_kg": 37.5,
+        "isp_boost_s": null,
+        "isp_cruise_s": 2581.6,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 65,
@@ -23265,7 +23481,7 @@ module.exports = {
         "range_high_km": 89.9,
         "range_sea_km": 40.7,
         "range_terminal_km": 9.7,
-        "note": "亚超结合：涡扇巡航 Ma 0.80，全高空 6 km / 全掠海 20 m，末端火箭冲刺 9.7 km。折叠弹翼 35 kg，死重 488 kg。",
+        "note": "亚超结合：涡扇巡航 Ma 0.80，吸气比冲 2582 s，末端固体比冲 264 s。全高空 6 km / 全掠海 20 m，末端火箭冲刺 9.7 km。折叠弹翼 35 kg，死重 488 kg。",
         "m_0_t": 1.18,
         "l_head_m": 1.19,
         "l_booster_m": 3.71,
@@ -23277,7 +23493,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 487.8,
-        "m_wing_kg": 35.5
+        "m_wing_kg": 35.5,
+        "isp_boost_s": null,
+        "isp_cruise_s": 2581.6,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 66,
@@ -23295,7 +23514,7 @@ module.exports = {
         "range_high_km": 438.6,
         "range_sea_km": 178.9,
         "range_terminal_km": 12.1,
-        "note": "亚超结合：涡扇巡航 Ma 0.80，全高空 6 km / 全掠海 20 m，末端火箭冲刺 12.1 km。折叠弹翼 21 kg，死重 351 kg。",
+        "note": "亚超结合：涡扇巡航 Ma 0.80，吸气比冲 2582 s，末端固体比冲 264 s。全高空 6 km / 全掠海 20 m，末端火箭冲刺 12.1 km。折叠弹翼 21 kg，死重 351 kg。",
         "m_0_t": 0.7,
         "l_head_m": 0.35,
         "l_booster_m": 3.9,
@@ -23307,7 +23526,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 350.6,
-        "m_wing_kg": 20.9
+        "m_wing_kg": 20.9,
+        "isp_boost_s": null,
+        "isp_cruise_s": 2581.6,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 67,
@@ -23325,7 +23547,7 @@ module.exports = {
         "range_high_km": 1027.8,
         "range_sea_km": 428.7,
         "range_terminal_km": 31.9,
-        "note": "亚超结合：涡扇巡航 Ma 0.80，全高空 6 km / 全掠海 20 m，末端火箭冲刺 31.9 km。可抛弃助推器 1386 kg。折叠弹翼 261 kg，死重 2942 kg。",
+        "note": "亚超结合：涡扇巡航 Ma 0.80，吸气比冲 2582 s，末端固体比冲 264 s。全高空 6 km / 全掠海 20 m，末端火箭冲刺 31.9 km。可抛弃助推器 1386 kg，固体比冲 235 s。折叠弹翼 261 kg，死重 2942 kg。",
         "m_0_t": 10.11,
         "l_head_m": 0.19,
         "l_booster_m": 11.31,
@@ -23337,7 +23559,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 2941.9,
-        "m_wing_kg": 261.4
+        "m_wing_kg": 261.4,
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 2581.6,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 68,
@@ -23355,7 +23580,7 @@ module.exports = {
         "range_high_km": 811.0,
         "range_sea_km": 338.7,
         "range_terminal_km": 24.4,
-        "note": "亚超结合：涡扇巡航 Ma 0.80，全高空 6 km / 全掠海 20 m，末端火箭冲刺 24.4 km。可抛弃助推器 526 kg。折叠弹翼 99 kg，死重 1337 kg。",
+        "note": "亚超结合：涡扇巡航 Ma 0.80，吸气比冲 2582 s，末端固体比冲 264 s。全高空 6 km / 全掠海 20 m，末端火箭冲刺 24.4 km。可抛弃助推器 526 kg，固体比冲 235 s。折叠弹翼 99 kg，死重 1337 kg。",
         "m_0_t": 3.84,
         "l_head_m": 0.26,
         "l_booster_m": 8.29,
@@ -23367,7 +23592,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 1337.0,
-        "m_wing_kg": 99.3
+        "m_wing_kg": 99.3,
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 2581.6,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 69,
@@ -23385,7 +23613,7 @@ module.exports = {
         "range_high_km": 553.0,
         "range_sea_km": 233.1,
         "range_terminal_km": 17.7,
-        "note": "亚超结合：涡扇巡航 Ma 0.80，全高空 6 km / 全掠海 20 m，末端火箭冲刺 17.7 km。可抛弃助推器 192 kg。折叠弹翼 36 kg，死重 586 kg。",
+        "note": "亚超结合：涡扇巡航 Ma 0.80，吸气比冲 2582 s，末端固体比冲 264 s。全高空 6 km / 全掠海 20 m，末端火箭冲刺 17.7 km。可抛弃助推器 192 kg，固体比冲 235 s。折叠弹翼 36 kg，死重 586 kg。",
         "m_0_t": 1.4,
         "l_head_m": 0.34,
         "l_booster_m": 6.01,
@@ -23397,7 +23625,10 @@ module.exports = {
         "cruise_mach": 0.8,
         "cruise_alt_km": 6.0,
         "m_dead_kg": 586.2,
-        "m_wing_kg": 36.2
+        "m_wing_kg": 36.2,
+        "isp_boost_s": 235.0,
+        "isp_cruise_s": 2581.6,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 70,
@@ -23415,7 +23646,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：两级固体，关机速度 5.61 km/s，关机高度 105 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：两级固体，比冲 264 s，关机速度 5.61 km/s，关机高度 105 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 11.02,
         "l_head_m": 0.47,
         "l_booster_m": 10.03,
@@ -23427,7 +23658,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 104.5,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 71,
@@ -23445,7 +23679,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：单级固体，关机速度 3.14 km/s，关机高度 52 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：单级固体，比冲 264 s，关机速度 3.14 km/s，关机高度 52 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 9.8,
         "l_head_m": 2.24,
         "l_booster_m": 8.26,
@@ -23457,7 +23691,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 52.4,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 72,
@@ -23475,7 +23712,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：两级固体，关机速度 5.91 km/s，关机高度 118 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：两级固体，比冲 264 s，关机速度 5.91 km/s，关机高度 118 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 7.26,
         "l_head_m": 0.7,
         "l_booster_m": 10.6,
@@ -23487,7 +23724,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 117.6,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 73,
@@ -23505,7 +23745,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：两级固体，关机速度 4.66 km/s，关机高度 89 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：两级固体，比冲 264 s，关机速度 4.66 km/s，关机高度 89 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 6.78,
         "l_head_m": 1.84,
         "l_booster_m": 9.46,
@@ -23517,7 +23757,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 89.0,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 74,
@@ -23535,7 +23778,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：单级固体，关机速度 3.94 km/s，关机高度 70 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：单级固体，比冲 264 s，关机速度 3.94 km/s，关机高度 70 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 3.37,
         "l_head_m": 0.61,
         "l_booster_m": 5.74,
@@ -23547,7 +23790,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 69.7,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 75,
@@ -23565,7 +23811,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：单级固体，关机速度 2.71 km/s，关机高度 47 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：单级固体，比冲 264 s，关机速度 2.71 km/s，关机高度 47 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 3.08,
         "l_head_m": 1.92,
         "l_booster_m": 4.43,
@@ -23577,7 +23823,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 46.8,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 76,
@@ -23595,7 +23844,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：单级固体，关机速度 2.30 km/s，关机高度 44 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：单级固体，比冲 264 s，关机速度 2.30 km/s，关机高度 44 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 0.96,
         "l_head_m": 2.86,
         "l_booster_m": 3.49,
@@ -23607,7 +23856,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 44.0,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 77,
@@ -23625,7 +23877,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：单级固体，关机速度 2.44 km/s，关机高度 46 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：单级固体，比冲 264 s，关机速度 2.44 km/s，关机高度 46 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 0.58,
         "l_head_m": 2.21,
         "l_booster_m": 2.7,
@@ -23637,7 +23889,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 46.3,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 78,
@@ -23655,7 +23910,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：单级固体，关机速度 2.45 km/s，关机高度 46 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：单级固体，比冲 264 s，关机速度 2.45 km/s，关机高度 46 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 0.35,
         "l_head_m": 1.91,
         "l_booster_m": 2.34,
@@ -23667,7 +23922,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 46.5,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 79,
@@ -23685,7 +23943,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：两级固体，关机速度 3.78 km/s，关机高度 52 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：两级固体，比冲 264 s，关机速度 3.78 km/s，关机高度 52 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 14.24,
         "l_head_m": 0.94,
         "l_booster_m": 10.56,
@@ -23697,7 +23955,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 51.5,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 80,
@@ -23715,7 +23976,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：单级固体，关机速度 2.46 km/s，关机高度 28 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：单级固体，比冲 264 s，关机速度 2.46 km/s，关机高度 28 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 4.24,
         "l_head_m": 1.27,
         "l_booster_m": 7.28,
@@ -23727,7 +23988,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 27.6,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       },
       {
         "id": 81,
@@ -23745,7 +24009,7 @@ module.exports = {
         "range_high_km": null,
         "range_sea_km": null,
         "range_terminal_km": null,
-        "note": "普通弹道导弹：单级固体，关机速度 2.33 km/s，关机高度 26 km，按最优倾角取射程，不含滑翔。",
+        "note": "普通弹道导弹：单级固体，比冲 264 s，关机速度 2.33 km/s，关机高度 26 km，按最优倾角取射程，不含滑翔。",
         "m_0_t": 1.15,
         "l_head_m": 1.76,
         "l_booster_m": 4.59,
@@ -23757,7 +24021,10 @@ module.exports = {
         "cruise_mach": null,
         "cruise_alt_km": 25.6,
         "m_dead_kg": null,
-        "m_wing_kg": null
+        "m_wing_kg": null,
+        "isp_boost_s": null,
+        "isp_cruise_s": null,
+        "isp_rocket_s": 264.0
       }
     ]
   }

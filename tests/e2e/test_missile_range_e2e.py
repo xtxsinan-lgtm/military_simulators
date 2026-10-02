@@ -81,6 +81,9 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'py_data_files' in (ROOT / 'ios' / 'CarrierTakeOff' / 'Resources' / 'engine.js').read_text(encoding='utf-8')
     assert '全高空' in js
     assert '全掠海' in js
+    assert '吸气比冲' in html
+    assert 'isp_air_s' in js
+    assert '吸气比冲' in js
     assert '载机' in js
     assert '折叠弹翼' in js
     assert 'missile-range.html' in (ROOT / 'docs' / 'takeoff.html').read_text(encoding='utf-8')
@@ -93,11 +96,13 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '全掠海' in view
     assert '载机' in view
     assert '折叠弹翼' in view
+    assert '吸气比冲' in view
     mini_js = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.js').read_text(encoding='utf-8')
     assert 'missile_class' in mini_js
     mini_wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
     assert '载机' in mini_wxml
     assert '折叠弹翼' in mini_wxml
+    assert '吸气比冲' in mini_wxml
 
 
 @pytest.mark.e2e
@@ -135,6 +140,12 @@ def test_e2e_missile_range_six_classes():
             assert data['result']['range_high_km'] > data['result']['range_sea_km'] > 0
         if missile_class == 'turbofan_rocket':
             assert data['result']['range_terminal_km'] > 0
+            assert data['result']['isp_cruise_s'] > data['result']['isp_rocket_s']
+        if missile_class in ('ramjet', 'scramjet'):
+            assert data['result']['isp_cruise_s'] > data['result']['isp_boost_s']
+        if missile_class == 'ballistic':
+            assert data['result']['isp_cruise_s'] is None
+            assert data['result']['isp_rocket_s'] == 264.0
 
 
 def _estimate_via_api(missile_class, length, diameter, warhead, mach, height):

@@ -7,6 +7,7 @@ from utils.database_csv import load_missile_range_preset_csv
 from utils.missile_range.classes import (
     MISSILE_CLASS_ORDER,
     class_blurb,
+    class_isp_defaults,
     class_label,
     estimate_by_class,
     resolve_missile_class,
@@ -201,8 +202,13 @@ def evaluate_dataset(
 
 def build_missile_range_catalog_payload() -> dict[str, Any]:
     """构建 Web / 小程序 / iOS 共用的预设与默认估算表。"""
+    classes = []
+    for item in MISSILE_CLASS_ORDER:
+        row = dict(item)
+        row.update(class_isp_defaults(item['id']))
+        classes.append(row)
     return {
-        'classes': [dict(item) for item in MISSILE_CLASS_ORDER],
+        'classes': classes,
         'defaults': {
             'isp_s': DEFAULT_ISP_S,
             'propellant_density': DEFAULT_PROPELLANT_DENSITY,

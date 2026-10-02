@@ -1,9 +1,11 @@
 """六类导弹的射程估算：超燃、亚燃、涡扇隐身、涡喷非隐身、亚超结合、弹道。
 
-亚音速与冲压巡航用布雷盖航程；全高空与全掠海只改巡航高度、升阻比和耗油率。
+亚音速与冲压巡航用布雷盖航程，比冲由吸气耗油率换算，明显高于固体火箭。
+带助推器的吸气弹把比冲拆成两段：助推用固体比冲，巡航用吸气比冲。
+全高空与全掠海只改巡航高度、升阻比和耗油率。
 低速发射的亚音速弹先扣一截可抛弃固体助推器，助推器占燃油舱、不带进巡航质量。
 冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。亚燃在 10 km 以下按稠密大气加大助推损失。
-亚超结合在涡扇巡航之后加一段低空固体火箭冲刺。
+亚超结合在涡扇巡航之后加一段低空固体火箭冲刺，末端火箭另用固体比冲。
 普通弹道导弹沿用弹体装药估算，关机后取最大射程弹道。
 助推段不足 8.5 m 按单级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
 轻型战术弹推重比更高，地面 4 m 级用 PrSM 的 499 km 标定。
@@ -58,6 +60,8 @@ BALLISTIC_LONG_BURN_DRAG_M_S = 16.0
 # 亚音速发动机接力马赫数。更慢的发射要带可抛弃固体助推器。
 SUBSONIC_TAKEOVER_MACH = 0.62
 SUBSONIC_BOOSTER_ISP_S = 235.0
+# 表单把吸气比冲圆到 0.1 s 再送回时，仍用标定耗油率，避免航程被小数往返带动。
+ISP_MATCH_TOL_S = 0.25
 # 海平面从静止推到接力速度时，重力与阻力约占理想速度增量的 45%，随高度衰减。
 SUBSONIC_BOOSTER_LOSS = 0.45
 # 药柱只有一部分挤占燃油舱，喷管和尾裙落在油箱以外。
@@ -83,27 +87,27 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'scramjet',
         'label': '超燃冲压导弹',
-        'blurb': '固体火箭助推到接力马赫数，超燃冲压在高空巡航。进气道与燃烧室占去大量容积，比冲与密度只作用于助推药。',
+        'blurb': '固体火箭助推到接力马赫数，超燃冲压在高空巡航。助推用固体比冲，巡航用更高的吸气比冲，两段分开算。进气道与燃烧室占去大量容积。',
     },
     {
         'id': 'ramjet',
         'label': '亚燃冲压导弹',
-        'blurb': '固体火箭助推后亚燃冲压巡航。分别给出高空巡航与掠海巡航；进气道占容积，比冲与密度只作用于助推药。',
+        'blurb': '固体火箭助推后亚燃冲压巡航。助推用固体比冲，巡航用更高的吸气比冲，两段分开算。分别给出高空巡航与掠海巡航；更细的弹巡航比冲按弹径下降。',
     },
     {
         'id': 'turbofan_stealth',
         'label': '涡扇亚音速隐身巡航',
-        'blurb': '涡扇耗油率较低，隐身进气道与涂层降低升阻比并占用容积。弹体按扁五边形而不是圆。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
+        'blurb': '涡扇吸气比冲远高于固体火箭。低速发射另加一截可抛弃固体助推器，助推与巡航比冲分开算。弹体按扁五边形而不是圆。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'turbojet_subsonic',
         'label': '涡喷亚音速非隐身巡航',
-        'blurb': '涡喷耗油率较高，常规气动升阻比更好、油箱更满。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
+        'blurb': '涡喷吸气比冲高于固体火箭，但低于涡扇。低速发射的可抛弃助推器另按固体比冲计。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'turbofan_rocket',
         'label': '亚超结合导弹',
-        'blurb': '巡航段为涡扇，末端为固体火箭低空冲刺。全高空与全掠海都加上同一段末端航程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
+        'blurb': '巡航段用涡扇吸气比冲，末端冲刺用固体比冲，两段分开。低速发射还可再带一截比冲更低的可抛弃助推器。全高空与全掠海都加上同一段末端航程。弹翼折叠在弹体内。',
     },
     {
         'id': 'ballistic',
@@ -641,6 +645,32 @@ def breguet_cruise_range_m(
     return (speed_m_s / (G0 * tsfc_kg_n_s)) * ld * math.log(mass_initial_kg / mass_final_kg)
 
 
+def isp_from_tsfc_s(tsfc_kg_n_s: float) -> float:
+    """耗油率 kg/(N·s) 换成比冲（秒）。吸气发动机 Isp = 1/(g·TSFC)。"""
+    if tsfc_kg_n_s <= 0:
+        raise ValueError('耗油率必须大于 0')
+    return 1.0 / (tsfc_kg_n_s * G0)
+
+
+def tsfc_from_isp_s(isp_s: float) -> float:
+    """比冲（秒）换成耗油率 kg/(N·s)。"""
+    if isp_s <= 0:
+        raise ValueError('比冲必须大于 0')
+    return 1.0 / (isp_s * G0)
+
+
+def cruise_tsfc_base(spec: dict[str, float], isp_air_s: float | None) -> float:
+    """巡航耗油率。未给吸气比冲、或与弹种默认值很接近时，用标定耗油率。"""
+    nominal = spec['tsfc']
+    if nominal <= 0:
+        raise ValueError('耗油率必须大于 0')
+    if isp_air_s is None:
+        return nominal
+    if abs(float(isp_air_s) - isp_from_tsfc_s(nominal)) <= ISP_MATCH_TOL_S:
+        return nominal
+    return tsfc_from_isp_s(isp_air_s)
+
+
 def climb_fuel_kg(
     mass_kg: float,
     delta_height_m: float,
@@ -710,12 +740,14 @@ def cruise_range_pair_km(
     inert_mass_kg: float = 0.0,
     width_m: float | None = None,
     height_m: float | None = None,
+    cruise_tsfc: float | None = None,
 ) -> dict[str, float]:
     """全高空与全掠海巡航航程。预留容积和惰性质量给末端火箭。
 
     亚音速弹种带折叠弹翼时，翼面质量和占用容积从燃油舱里扣出，计入死重。
     发射速度低于接力马赫数时，可抛弃助推器再占一截燃油舱，巡航质量不含助推器。
     隐身涡扇可另给宽和高，按扁五边形算容积，不再把较长的一边当成圆直径。
+    cruise_tsfc 覆盖弹种标定耗油率，用来代入另一档吸气比冲。
     """
     if v_launch_mach < 0 or h_launch_km < 0:
         raise ValueError('发射马赫数与高度不能为负')
@@ -790,6 +822,9 @@ def cruise_range_pair_km(
         booster_prop = jettisoned_booster_propellant_kg(launch_mass, launch_speed, h_launch_km)
     if fuel_kg <= 1.0:
         raise ValueError('燃油过少，无法巡航')
+    tsfc_hi = spec['tsfc'] if cruise_tsfc is None else cruise_tsfc
+    if tsfc_hi <= 0:
+        raise ValueError('耗油率必须大于 0')
     booster_mass = booster_prop * (1.0 + BOOST_CASE_FRAC)
     ld = subsonic_ld(length_m, section['d_eq'], spec)
     if wing_fill < 1.0:
@@ -821,11 +856,11 @@ def cruise_range_pair_km(
     usable_hi = max(0.0, fuel_kg - climb) * (1.0 - spec['reserve'])
     usable_sea = max(0.0, fuel_kg - climb_sea) * (1.0 - spec['reserve'])
     range_high = breguet_cruise_range_m(
-        speed_hi, spec['tsfc'], ld, launch_mass, launch_mass - usable_hi,
+        speed_hi, tsfc_hi, ld, launch_mass, launch_mass - usable_hi,
     )
     range_sea = breguet_cruise_range_m(
         speed_sea,
-        spec['tsfc'] * spec['sea_tsfc_factor'],
+        tsfc_hi * spec['sea_tsfc_factor'],
         ld * spec['sea_ld_factor'],
         launch_mass,
         launch_mass - usable_sea,
@@ -851,6 +886,8 @@ def cruise_range_pair_km(
         'usable_high_kg': usable_hi,
         'usable_sea_kg': usable_sea,
         'm_booster_kg': booster_mass,
+        'isp_cruise_s': isp_from_tsfc_s(tsfc_hi),
+        'isp_sea_s': isp_from_tsfc_s(tsfc_hi * spec['sea_tsfc_factor']),
     }
 
 
@@ -927,6 +964,88 @@ def duct_cruise_tsfc(missile_class: str, diameter_m: float, spec: dict[str, floa
         spec.get('tsfc_scale_min', 1.0),
         spec.get('tsfc_scale_max', 2.5),
     )
+
+
+def _air_spec(missile_class: str) -> dict[str, float] | None:
+    """吸气式弹种的标定。纯火箭返回 None。"""
+    canon = normalize_missile_class(missile_class)
+    if canon in _SUBSONIC_SPECS:
+        return _SUBSONIC_SPECS[canon]
+    if canon in _DUCT_SPECS:
+        return _DUCT_SPECS[canon]
+    if canon == 'turbofan_rocket':
+        return _ROCKET_CRUISE
+    return None
+
+
+def resolved_cruise_tsfc(
+    missile_class: str,
+    diameter_m: float,
+    isp_air_s: float | None = None,
+) -> float:
+    """巡航耗油率。冲压弹再按弹径修正；亚音速只用吸气比冲对应的耗油率。"""
+    canon = normalize_missile_class(missile_class)
+    spec = _air_spec(canon)
+    if spec is None:
+        raise ValueError('该弹种没有吸气巡航')
+    base = dict(spec)
+    base['tsfc'] = cruise_tsfc_base(spec, isp_air_s)
+    if canon in _DUCT_SPECS:
+        return duct_cruise_tsfc(canon, diameter_m, base)
+    return base['tsfc']
+
+
+def airbreathing_stage_isp(
+    missile_class: str,
+    diameter_m: float,
+    isp_rocket_s: float = DEFAULT_ISP_S,
+    isp_air_s: float | None = None,
+) -> dict[str, float | None]:
+    """吸气式导弹的比冲拆成助推固体和巡航吸气两段。
+
+    冲压弹助推跟固体火箭比冲走，巡航比冲更高，细弹再按弹径下降。
+    亚音速可抛弃助推器固定用较低的固体比冲，不跟弹道弹的比冲走。
+    亚超结合的末端火箭另记一档固体比冲，和可抛弃助推器不是同一段。
+    """
+    canon = normalize_missile_class(missile_class)
+    if _air_spec(canon) is None:
+        raise ValueError('该弹种没有吸气巡航')
+    if isp_rocket_s <= 0:
+        raise ValueError('比冲必须大于 0')
+    cruise = isp_from_tsfc_s(resolved_cruise_tsfc(canon, diameter_m, isp_air_s))
+    if canon in _DUCT_SPECS:
+        return {
+            'isp_boost_s': float(isp_rocket_s),
+            'isp_cruise_s': cruise,
+            'isp_rocket_s': None,
+        }
+    if canon == 'turbofan_rocket':
+        return {
+            'isp_boost_s': SUBSONIC_BOOSTER_ISP_S,
+            'isp_cruise_s': cruise,
+            'isp_rocket_s': float(isp_rocket_s),
+        }
+    return {
+        'isp_boost_s': SUBSONIC_BOOSTER_ISP_S,
+        'isp_cruise_s': cruise,
+        'isp_rocket_s': None,
+    }
+
+
+def class_isp_defaults(missile_class: str) -> dict[str, float | None]:
+    """弹种默认比冲，供表单和目录使用。吸气巡航取参考弹径，不含细弹惩罚。"""
+    canon = resolve_missile_class(missile_class)
+    if _air_spec(canon) is None:
+        return {
+            'isp_boost_s': None,
+            'isp_cruise_s': None,
+            'isp_rocket_s': round(DEFAULT_ISP_S, 1),
+        }
+    stages = airbreathing_stage_isp(canon, 1.0, DEFAULT_ISP_S, None)
+    return {
+        key: None if value is None else round(float(value), 1)
+        for key, value in stages.items()
+    }
 
 
 def duct_ld(length_m: float, diameter_m: float, spec: dict[str, float]) -> float:
@@ -1086,6 +1205,9 @@ def _base_fields(
     cruise_alt_km: float | None = None,
     m_dead_kg: float | None = None,
     m_wing_kg: float | None = None,
+    isp_boost_s: float | None = None,
+    isp_cruise_s: float | None = None,
+    isp_rocket_s: float | None = None,
 ) -> dict:
     return {
         'missile_class': missile_class,
@@ -1105,6 +1227,9 @@ def _base_fields(
         'cruise_alt_km': None if cruise_alt_km is None else round(cruise_alt_km, 1),
         'm_dead_kg': None if m_dead_kg is None else round(m_dead_kg, 1),
         'm_wing_kg': None if m_wing_kg is None else round(m_wing_kg, 1),
+        'isp_boost_s': None if isp_boost_s is None else round(isp_boost_s, 1),
+        'isp_cruise_s': None if isp_cruise_s is None else round(isp_cruise_s, 1),
+        'isp_rocket_s': None if isp_rocket_s is None else round(isp_rocket_s, 1),
         'note': note,
     }
 
@@ -1118,15 +1243,18 @@ def estimate_subsonic_class(
     h_launch_km: float,
     width_m: float | None = None,
     height_m: float | None = None,
+    isp_air_s: float | None = None,
 ) -> dict:
     """涡扇隐身或涡喷非隐身的全高空、全掠海射程。
 
     隐身涡扇可另给宽和高。不给时，弹径是最大外廓，短边按弹种高宽比收成扁五边形。
+    巡航用吸气比冲。低速发射的可抛弃助推器另用较低的固体比冲。
     """
     canon = normalize_missile_class(missile_class)
     if canon not in _SUBSONIC_SPECS:
         raise ValueError('该函数只用于亚音速巡航弹')
     spec = _SUBSONIC_SPECS[canon]
+    cruise_tsfc = resolved_cruise_tsfc(canon, diameter_m, isp_air_s)
     sized = cruise_range_pair_km(
         length_m=length_m,
         diameter_m=diameter_m,
@@ -1136,19 +1264,22 @@ def estimate_subsonic_class(
         spec=spec,
         width_m=width_m,
         height_m=height_m,
+        cruise_tsfc=cruise_tsfc,
     )
     high_km = sized['range_high_m'] / 1000.0
     sea_km = sized['range_sea_m'] / 1000.0
     ignition = sized['m_0'] + sized['m_booster_kg']
     dead = deadweight_kg(ignition, sized['fuel_kg'], warhead_mass_kg, sized['m_booster_kg'])
     fit = '' if sized['wing_fill'] >= 0.995 else f"弹舱只能放下设计翼面积的 {sized['wing_fill'] * 100:.0f}%。"
+    isp_boost = None
     boost_txt = ''
     if sized['m_booster_kg'] > 1.0:
-        boost_txt = f"可抛弃助推器 {sized['m_booster_kg']:.0f} kg。"
+        isp_boost = SUBSONIC_BOOSTER_ISP_S
+        boost_txt = f"可抛弃助推器 {sized['m_booster_kg']:.0f} kg，固体比冲 {isp_boost:.0f} s。"
     note = (
         f"{class_label(canon)}：主射程为全高空 {spec['alt_km']:.0f} km、"
         f"Ma {spec['mach']:.2f}；全掠海为 {spec['sea_alt_km'] * 1000:.0f} m。"
-        f"升阻比 {sized['ld']:.2f}，耗油率按弹种固定。"
+        f"升阻比 {sized['ld']:.2f}，巡航吸气比冲 {sized['isp_cruise_s']:.0f} s。"
         f"{boost_txt}折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
     )
     return _base_fields(
@@ -1157,6 +1288,7 @@ def estimate_subsonic_class(
         range_high_km=high_km, range_sea_km=sea_km,
         range_cruise_km=high_km, cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],
         m_dead_kg=dead, m_wing_kg=sized['m_wing_kg'],
+        isp_boost_s=isp_boost, isp_cruise_s=sized['isp_cruise_s'],
     )
 
 
@@ -1169,8 +1301,9 @@ def estimate_ducted(
     h_launch_km: float,
     isp_s: float,
     propellant_density: float,
+    isp_air_s: float | None = None,
 ) -> dict:
-    """超燃或亚燃：助推到实际能达到的马赫数，再用剩余燃油巡航。"""
+    """超燃或亚燃：固体助推和吸气巡航分开计比冲。"""
     canon = normalize_missile_class(missile_class)
     spec = _DUCT_SPECS.get(canon)
     if spec is None:
@@ -1196,10 +1329,12 @@ def estimate_ducted(
         loss_frac = dense_air_loss_frac(loss_frac, h_launch_km)
     dv_need = gap * (1.0 + loss_frac) + (0.0 if gap == 0 else 80.0)
     fixed = payload + structure + engine
+    stages = airbreathing_stage_isp(canon, diameter_m, isp_s, isp_air_s)
+    isp_boost = float(stages['isp_boost_s'])
     propellant, fuel, launch_mass = split_boost_and_fuel(
-        tank, fixed, dv_need, isp_s, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
+        tank, fixed, dv_need, isp_boost, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
     )
-    ideal = achieved_boost_dv_m_s(propellant, launch_mass, isp_s)
+    ideal = achieved_boost_dv_m_s(propellant, launch_mass, isp_boost)
     if dv_need <= 1.0:
         speed_after = launch_speed
     else:
@@ -1211,10 +1346,10 @@ def estimate_ducted(
         cruise_speed = max(speed_after, sound * 1.3)
     cruise_mach = cruise_speed / sound
     accel = max(0.0, cruise_speed - speed_after) if reached else 0.0
-    tsfc = duct_cruise_tsfc(canon, diameter_m, spec)
-    isp_air = 1.0 / (tsfc * G0)
+    tsfc = resolved_cruise_tsfc(canon, diameter_m, isp_air_s)
+    isp_cruise = isp_from_tsfc_s(tsfc)
     mass_after_boost = launch_mass - propellant
-    accel_frac = 0.0 if accel <= 1.0 else 1.0 - math.exp(-accel / (isp_air * G0 * spec['accel_excess']))
+    accel_frac = 0.0 if accel <= 1.0 else 1.0 - math.exp(-accel / (isp_cruise * G0 * spec['accel_excess']))
     accel_fuel = min(fuel * 0.65, accel_frac * mass_after_boost)
     climb = climb_fuel_kg(
         mass_after_boost,
@@ -1230,7 +1365,7 @@ def estimate_ducted(
     cruise_m = breguet_cruise_range_m(
         cruise_speed, tsfc, ld, mass_after_boost, mass_after_boost - cruise_fuel,
     )
-    burn_time = ballistic_burn_time_s(propellant, launch_mass, isp_s) if propellant > 0 else 0.0
+    burn_time = ballistic_burn_time_s(propellant, launch_mass, isp_boost) if propellant > 0 else 0.0
     boost_range = 0.5 * (launch_speed + min(speed_after, cruise_speed)) * burn_time
     high_km = (cruise_m + boost_range) / 1000.0
     sea_km = None
@@ -1251,8 +1386,14 @@ def estimate_ducted(
     head_len = min(length_m * 0.45, bay / section)
     trimmed = '' if reached else '接力装药不足，巡航马赫已下调。'
     sea_txt = '' if sea_km is None else f'全掠海 {sea_km:.0f} km。'
+    boost_txt = ''
+    isp_boost_out = None
+    if propellant > 1.0:
+        isp_boost_out = isp_boost
+        boost_txt = f"助推固体比冲 {isp_boost:.0f} s，"
     note = (
-        f"{class_label(canon)}：高空巡航 Ma {cruise_mach:.2f} @ {spec['alt_km']:.0f} km，"
+        f"{class_label(canon)}：{boost_txt}巡航吸气比冲 {isp_cruise:.0f} s。"
+        f"高空巡航 Ma {cruise_mach:.2f} @ {spec['alt_km']:.0f} km，"
         f"设计 Ma {spec['mach_cruise']:.1f}。{trimmed}{sea_txt}"
         f"死重 {dead:.0f} kg。"
     )
@@ -1264,6 +1405,7 @@ def estimate_ducted(
         range_cruise_km=cruise_m / 1000.0,
         cruise_mach=cruise_mach, cruise_alt_km=spec['alt_km'],
         m_dead_kg=dead,
+        isp_boost_s=isp_boost_out, isp_cruise_s=isp_cruise,
     )
 
 
@@ -1276,8 +1418,12 @@ def terminal_propellant_for_dash(
     isp_s: float,
     propellant_density: float,
     spec: dict[str, float],
+    cruise_tsfc: float | None = None,
 ) -> tuple[float, dict[str, float]]:
-    """按较重的巡航终点质量迭代末端装药。折叠弹翼先占燃油舱，装药不得挤掉弹翼。"""
+    """按较重的巡航终点质量迭代末端装药。折叠弹翼先占燃油舱，装药不得挤掉弹翼。
+
+    末端火箭用固体比冲。巡航耗油率另传，对应更高的吸气比冲。
+    """
     volume = body_volume_m3(length_m, diameter_m, spec.get('body_pack', BODY_PACK))
     propellant_cap = volume * spec['terminal_volume_cap_frac'] * TERMINAL_FILL * propellant_density
     ve = isp_s * G0
@@ -1296,6 +1442,7 @@ def terminal_propellant_for_dash(
                 spec=spec,
                 reserved_volume_m3=reserved,
                 inert_mass_kg=propellant + case_mass,
+                cruise_tsfc=cruise_tsfc,
             )
         except ValueError as exc:
             if '容积' not in str(exc):
@@ -1319,6 +1466,7 @@ def terminal_propellant_for_dash(
                 spec=spec,
                 reserved_volume_m3=reserved,
                 inert_mass_kg=propellant + case_mass,
+                cruise_tsfc=cruise_tsfc,
             )
             break
         except ValueError as exc:
@@ -1338,14 +1486,16 @@ def estimate_turbofan_rocket(
     h_launch_km: float,
     isp_s: float,
     propellant_density: float,
+    isp_air_s: float | None = None,
 ) -> dict:
-    """涡扇巡航加上末端固体火箭。全高空、全掠海都包含同一段冲刺。"""
+    """涡扇巡航加上末端固体火箭。巡航吸气比冲与末端固体比冲分开。"""
     if isp_s <= 0 or propellant_density <= 0:
         raise ValueError('比冲与推进剂密度必须大于 0')
     spec = _ROCKET_CRUISE
+    cruise_tsfc = resolved_cruise_tsfc('turbofan_rocket', diameter_m, isp_air_s)
     propellant, sized = terminal_propellant_for_dash(
         length_m, diameter_m, warhead_mass_kg, v_launch_mach, h_launch_km,
-        isp_s, propellant_density, spec,
+        isp_s, propellant_density, spec, cruise_tsfc,
     )
     entry = spec['mach'] * speed_of_sound_m_s(spec['sea_alt_km'])
     mass_ign = sized['m_0'] - sized['usable_high_kg']
@@ -1357,11 +1507,14 @@ def estimate_turbofan_rocket(
         ignition, sized['fuel_kg'], warhead_mass_kg, propellant + sized['m_booster_kg'],
     )
     fit = '' if sized['wing_fill'] >= 0.995 else f"弹舱只能放下设计翼面积的 {sized['wing_fill'] * 100:.0f}%。"
+    isp_boost = None
     boost_txt = ''
     if sized['m_booster_kg'] > 1.0:
-        boost_txt = f"可抛弃助推器 {sized['m_booster_kg']:.0f} kg。"
+        isp_boost = SUBSONIC_BOOSTER_ISP_S
+        boost_txt = f"可抛弃助推器 {sized['m_booster_kg']:.0f} kg，固体比冲 {isp_boost:.0f} s。"
     note = (
-        f"亚超结合：涡扇巡航 Ma {spec['mach']:.2f}，"
+        f"亚超结合：涡扇巡航 Ma {spec['mach']:.2f}，吸气比冲 {sized['isp_cruise_s']:.0f} s，"
+        f"末端固体比冲 {isp_s:.0f} s。"
         f"全高空 {spec['alt_km']:.0f} km / 全掠海 {spec['sea_alt_km'] * 1000:.0f} m，"
         f"末端火箭冲刺 {dash / 1000.0:.1f} km。"
         f"{boost_txt}折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
@@ -1374,6 +1527,7 @@ def estimate_turbofan_rocket(
         range_terminal_km=dash / 1000.0,
         cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],
         m_dead_kg=dead, m_wing_kg=sized['m_wing_kg'],
+        isp_boost_s=isp_boost, isp_cruise_s=sized['isp_cruise_s'], isp_rocket_s=isp_s,
     )
 
 
@@ -1418,13 +1572,15 @@ def estimate_ballistic(
     altitude = burnout_altitude_km(speed, h_launch_km)
     ground_km = ballistic_range_km(speed, altitude)
     note = (
-        f"普通弹道导弹：{stages}固体，关机速度 {speed / 1000.0:.2f} km/s，"
+        f"普通弹道导弹：{stages}固体，比冲 {isp_s:.0f} s，"
+        f"关机速度 {speed / 1000.0:.2f} km/s，"
         f"关机高度 {altitude:.0f} km，按最优倾角取射程，不含滑翔。"
     )
     return _base_fields(
         'ballistic', launch_mass, head_len, booster_len, propellant,
         speed / speed_of_sound_m_s(0.0), None, ground_km, note,
         cruise_alt_km=altitude,
+        isp_rocket_s=isp_s,
     )
 
 
@@ -1439,10 +1595,12 @@ def estimate_by_class(
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
     width_m: float | None = None,
     height_m: float | None = None,
+    isp_air_s: float | None = None,
 ) -> dict:
     """按弹种估算。双锥体和乘波体助推滑翔由 missile_class 区分。
 
     隐身涡扇的宽和高可选。给出后按扁五边形外廓算质量，不再把弹径当成圆。
+    isp_s 是固体火箭比冲。isp_air_s 只覆盖吸气巡航；不给时用弹种自己的吸气比冲。
     """
     canon = resolve_missile_class(missile_class)
     shape = glide_shape(canon)
@@ -1455,22 +1613,25 @@ def estimate_by_class(
         result = dict(result)
         result['missile_class'] = canon
         result['class_label'] = class_label(canon)
-        result['note'] = class_blurb(canon)
+        result['note'] = class_blurb(canon) + f' 固体比冲 {isp_s:.0f} s。'
+        result['isp_boost_s'] = None
+        result['isp_cruise_s'] = None
+        result['isp_rocket_s'] = round(isp_s, 1)
         return result
     if canon in _SUBSONIC_SPECS:
         return estimate_subsonic_class(
             canon, length_m, diameter_m, warhead_mass_kg, v_launch_mach, h_launch_km,
-            width_m, height_m,
+            width_m, height_m, isp_air_s,
         )
     if canon in _DUCT_SPECS:
         return estimate_ducted(
             canon, length_m, diameter_m, warhead_mass_kg,
-            v_launch_mach, h_launch_km, isp_s, propellant_density,
+            v_launch_mach, h_launch_km, isp_s, propellant_density, isp_air_s,
         )
     if canon == 'turbofan_rocket':
         return estimate_turbofan_rocket(
             length_m, diameter_m, warhead_mass_kg,
-            v_launch_mach, h_launch_km, isp_s, propellant_density,
+            v_launch_mach, h_launch_km, isp_s, propellant_density, isp_air_s,
         )
     if canon == 'ballistic':
         return estimate_ballistic(

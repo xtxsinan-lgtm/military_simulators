@@ -22,6 +22,13 @@ def opt_float(value: Any, default: float) -> float:
     return float(value)
 
 
+def opt_optional_float(value: Any) -> float | None:
+    """空值表示不覆盖；有值则转成浮点。"""
+    if value is None or value == '':
+        return None
+    return float(value)
+
+
 def _required_float(params: dict[str, Any], key: str) -> float:
     if key not in params or params[key] is None or params[key] == '':
         raise ValueError(f'缺少参数 {key}')
@@ -29,7 +36,7 @@ def _required_float(params: dict[str, Any], key: str) -> float:
 
 
 def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
-    """按表单参数估算一发，并用同一比冲/密度重算预设表。"""
+    """按表单参数估算一发。固体比冲重算预设表；吸气比冲只作用于当前这一发。"""
     params = params or {}
     try:
         isp = opt_float(params.get('isp_s'), DEFAULT_ISP_S)
@@ -43,6 +50,7 @@ def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
             h_launch_km=opt_float(params.get('h_launch_km'), 13.0),
             isp_s=isp,
             propellant_density=density,
+            isp_air_s=opt_optional_float(params.get('isp_air_s')),
         )
         rows = evaluate_dataset(isp_s=isp, propellant_density=density)
     except (TypeError, ValueError) as exc:

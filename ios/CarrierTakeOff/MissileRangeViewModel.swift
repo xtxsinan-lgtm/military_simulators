@@ -11,10 +11,12 @@ final class MissileRangeViewModel: ObservableObject {
     @Published var warheadKg = "200"
     @Published var missileClass = "hgv_biconic"
     @Published var classOptions: [MissileClassInfo] = []
-    @Published var classBlurb = "选择弹种后估算射程。比冲与密度用于固体助推、末端火箭和弹道导弹。"
+    @Published var classBlurb = "选择弹种后估算射程。固体比冲用于火箭级，吸气巡航用更高的比冲。"
     @Published var vMach = "0.85"
     @Published var hKm = "13"
     @Published var ispS = "264"
+    @Published var ispAir = ""
+    @Published var showAirIsp = false
     @Published var density = "1760"
     @Published var activeId: Int?
     @Published var result: MissileRangeEstimate?
@@ -53,6 +55,12 @@ final class MissileRangeViewModel: ObservableObject {
         activeId = row.id
         if let info = classOptions.first(where: { $0.id == missileClass }) {
             classBlurb = info.blurb ?? classBlurb
+            if let cruise = info.isp_cruise_s {
+                ispAir = text(cruise)
+                showAirIsp = true
+            } else {
+                showAirIsp = false
+            }
         }
         result = MissileRangeEstimate(
             missile_class: row.missile_class,
@@ -67,7 +75,10 @@ final class MissileRangeViewModel: ObservableObject {
             range_high_km: row.range_high_km,
             range_sea_km: row.range_sea_km,
             range_terminal_km: row.range_terminal_km,
-            note: row.note
+            note: row.note,
+            isp_boost_s: row.isp_boost_s,
+            isp_cruise_s: row.isp_cruise_s,
+            isp_rocket_s: row.isp_rocket_s
         )
         statusText = "PRESET"
     }
@@ -76,6 +87,12 @@ final class MissileRangeViewModel: ObservableObject {
         missileClass = id
         if let info = classOptions.first(where: { $0.id == id }) {
             classBlurb = info.blurb ?? classBlurb
+            if let cruise = info.isp_cruise_s {
+                ispAir = text(cruise)
+                showAirIsp = true
+            } else {
+                showAirIsp = false
+            }
         }
     }
 
@@ -83,18 +100,22 @@ final class MissileRangeViewModel: ObservableObject {
         if running { return }
         running = true
         statusText = "RUNNING"
+        var params: [String: Any] = [
+            "length_m": number(lengthM, 0),
+            "diameter_m": number(diameterM, 0),
+            "warhead_kg": number(warheadKg, 0),
+            "missile_class": missileClass,
+            "v_launch_mach": number(vMach, 0.85),
+            "h_launch_km": number(hKm, 13),
+            "isp_s": number(ispS, 264),
+            "propellant_density": number(density, 1760),
+        ]
+        if showAirIsp {
+            params["isp_air_s"] = number(ispAir, 0)
+        }
         let payload: [String: Any] = [
             "action": "estimate",
-            "params": [
-                "length_m": number(lengthM, 0),
-                "diameter_m": number(diameterM, 0),
-                "warhead_kg": number(warheadKg, 0),
-                "missile_class": missileClass,
-                "v_launch_mach": number(vMach, 0.85),
-                "h_launch_km": number(hKm, 13),
-                "isp_s": number(ispS, 264),
-                "propellant_density": number(density, 1760),
-            ],
+            "params": params,
         ]
         do {
             let res = try await LocalSimulatorEngine.shared.runMissileRange(payload: payload)

@@ -9,11 +9,26 @@ function kindOf(row) {
   return row.class_label || row.missile_class;
 }
 
+function ispTextOf(row) {
+  const boost = row.isp_boost_s;
+  const cruise = row.isp_cruise_s;
+  const rocket = row.isp_rocket_s;
+  const n = (v) => String(Math.round(Number(v)));
+  if (cruise != null && boost != null && rocket != null) return `${n(boost)}+${n(cruise)}/${n(rocket)}`;
+  if (cruise != null && boost != null) return `${n(boost)}+${n(cruise)}`;
+  if (cruise != null && rocket != null) return `${n(cruise)}/${n(rocket)}`;
+  if (cruise != null) return n(cruise);
+  if (rocket != null) return n(rocket);
+  if (boost != null) return n(boost);
+  return '—';
+}
+
 function decorate(row) {
   return {
     ...row,
     kind: kindOf(row),
     seaText: row.range_sea_km == null ? '—' : String(row.range_sea_km),
+    ispText: ispTextOf(row),
   };
 }
 
@@ -22,7 +37,7 @@ Page({
     classes: [],
     classNames: [],
     classIndex: 0,
-    classBlurb: '选择弹种后估算射程。比冲与密度用于固体助推、末端火箭和弹道导弹。',
+    classBlurb: '选择弹种后估算射程。固体比冲用于火箭级，吸气巡航用更高的比冲。',
     cases: [],
     rows: [],
     caseNames: [],
@@ -33,6 +48,8 @@ Page({
     vMach: '0.85',
     hKm: '13',
     ispS: '264',
+    ispAir: '',
+    showAirIsp: false,
     density: '1760',
     activeId: null,
     result: null,
@@ -73,9 +90,12 @@ Page({
     const classes = this.data.classes;
     const classIndex = Math.max(0, classes.findIndex((item) => item.id === missileClass));
     const found = classes[classIndex];
+    const showAir = !!(found && found.isp_cruise_s != null);
     this.setData({
       classIndex: found ? classIndex : 0,
       classBlurb: (found && found.blurb) || this.data.classBlurb,
+      showAirIsp: showAir,
+      ispAir: showAir ? String(found.isp_cruise_s) : '',
     });
   },
 
@@ -104,6 +124,9 @@ Page({
         m_p_total_kg: row.m_p_total_kg,
         note: row.note,
         missile_class: row.missile_class,
+        isp_boost_s: row.isp_boost_s,
+        isp_cruise_s: row.isp_cruise_s,
+        isp_rocket_s: row.isp_rocket_s,
       },
       statusText: 'PRESET',
     });
@@ -149,6 +172,7 @@ Page({
         propellant_density: num(this.data.density, 1760),
       },
     };
+    if (this.data.showAirIsp) payload.params.isp_air_s = num(this.data.ispAir, 0);
     this.setData({ running: true, statusText: 'RUNNING' });
     api.runMissileRangeSimulation(payload)
       .then((res) => {

@@ -27,7 +27,7 @@
   <div class="stack">
     <div class="panel">
       <div class="panel-head"><span>弹体与发射条件</span><span class="tag">INPUT</span></div>
-      <p class="note" id="classBlurb">选择弹种和预设。比冲默认 264 s，推进剂密度默认 1760 kg/m³，只用于固体助推、末端火箭和弹道导弹。点表中一行可切换预设。</p>
+      <p class="note" id="classBlurb">选择弹种和预设。固体比冲默认 264 s，用于助推滑翔、弹道、冲压助推和末端火箭。吸气巡航另有更高的比冲，随弹种变化；带助推器时两段分开算。点表中一行可切换预设。</p>
       <div class="field">
         <label>弹种</label>
         <select id="missileClass"></select>
@@ -48,9 +48,10 @@
       </div>
       <div class="section-label amber">▸ 推进剂</div>
       <div class="pair">
-        <div class="field"><label>比冲 <span class="unit">s</span></label><input type="number" id="ispS" step="1" min="1" value="264"></div>
-        <div class="field"><label>密度 <span class="unit">kg/m³</span></label><input type="number" id="density" step="10" min="1" value="1760"></div>
+        <div class="field"><label>固体比冲 <span class="unit">s</span></label><input type="number" id="ispS" step="1" min="1" value="264"></div>
+        <div class="field" id="ispAirField" hidden><label>吸气比冲 <span class="unit">s</span></label><input type="number" id="ispAir" step="1" min="1" value="1500"></div>
       </div>
+      <div class="field"><label>密度 <span class="unit">kg/m³</span></label><input type="number" id="density" step="10" min="1" value="1760"></div>
       <button class="run" id="runBtn" type="button">▶ 估算射程</button>
     </div>
   </div>
@@ -68,6 +69,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预设表来自 catalog · 改参数后由 Pyodide 重算</div>
-<script type="module" src="js/missile_range.js?v=12"></script>
+<script type="module" src="js/missile_range.js?v=13"></script>
 </body>
 </html>

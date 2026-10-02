@@ -44,7 +44,10 @@ struct MissileRangeView: View {
                     field("战斗部 (kg)", text: $vm.warheadKg)
                     field("发射马赫数", text: $vm.vMach)
                     field("发射高度 (km)", text: $vm.hKm)
-                    field("比冲 (s)", text: $vm.ispS)
+                    field("固体比冲 (s)", text: $vm.ispS)
+                    if vm.showAirIsp {
+                        field("吸气比冲 (s)", text: $vm.ispAir)
+                    }
                     field("推进剂密度 (kg/m³)", text: $vm.density)
                     Button {
                         Task { await vm.estimate() }
@@ -94,6 +97,7 @@ struct MissileRangeView: View {
                             ("助推 m", result.l_booster_m, 2, false),
                             ("推进剂 kg", result.m_p_total_kg, 1, false),
                         ])
+                        ispStatRow(result)
                         if let note = result.note, !note.isEmpty {
                             Text(note)
                                 .font(.system(size: 10, design: .monospaced))
@@ -137,6 +141,7 @@ struct MissileRangeView: View {
             cell("载机", width: 132, dim: true)
             cell("弹头", width: 56, dim: true)
             cell("弹种", width: 120, dim: true)
+            cell("比冲s", width: 108, dim: true)
             cell("射程km", width: 72, dim: true)
             cell("掠海km", width: 72, dim: true)
         }
@@ -150,6 +155,7 @@ struct MissileRangeView: View {
             cell(row.bay ?? "—", width: 132, dim: false, highlight: on)
             cell(fmt(row.warhead_kg, 0), width: 56, dim: false, highlight: on)
             cell(kind(row), width: 120, dim: false, highlight: on)
+            cell(ispText(row), width: 108, dim: false, highlight: on)
             cell(fmt(row.range_km, 1), width: 72, dim: false, highlight: on)
             cell(row.range_sea_km == nil ? "—" : fmt(row.range_sea_km, 1), width: 72, dim: false, highlight: on)
         }
@@ -158,6 +164,45 @@ struct MissileRangeView: View {
 
     private func kind(_ row: MissileRangeCase) -> String {
         row.class_label ?? row.missile_class ?? ""
+    }
+
+    private func ispText(_ row: MissileRangeCase) -> String {
+        ispParts(boost: row.isp_boost_s, cruise: row.isp_cruise_s, rocket: row.isp_rocket_s)
+    }
+
+    private func ispParts(boost: Double?, cruise: Double?, rocket: Double?) -> String {
+        let n: (Double) -> String = { String(Int($0.rounded())) }
+        if let cruise, let boost, let rocket {
+            return "\(n(boost))+\(n(cruise))/\(n(rocket))"
+        }
+        if let cruise, let boost { return "\(n(boost))+\(n(cruise))" }
+        if let cruise, let rocket { return "\(n(cruise))/\(n(rocket))" }
+        if let cruise { return n(cruise) }
+        if let rocket { return n(rocket) }
+        if let boost { return n(boost) }
+        return "—"
+    }
+
+    @ViewBuilder
+    private func ispStatRow(_ result: MissileRangeEstimate) -> some View {
+        let items = ispStatItems(result)
+        if !items.isEmpty {
+            statRow(items)
+        }
+    }
+
+    private func ispStatItems(_ result: MissileRangeEstimate) -> [(String, Double?, Int, Bool)] {
+        var items: [(String, Double?, Int, Bool)] = []
+        if let boost = result.isp_boost_s {
+            items.append(("助推比冲 s", boost, 0, false))
+        }
+        if let cruise = result.isp_cruise_s {
+            items.append(("吸气比冲 s", cruise, 0, true))
+        }
+        if let rocket = result.isp_rocket_s {
+            items.append(("固体比冲 s", rocket, 0, false))
+        }
+        return items
     }
 
     private func cell(_ text: String, width: CGFloat, dim: Bool, highlight: Bool = false) -> some View {

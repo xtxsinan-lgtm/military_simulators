@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 12;
+const APP_VERSION = 13;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -59,7 +59,7 @@ function fmt(n, d) {
 }
 
 function readForm() {
-  return {
+  const params = {
     missile_class: $('missileClass').value || 'hgv_biconic',
     length_m: num('lengthM', 0),
     diameter_m: num('diameterM', 0),
@@ -69,6 +69,8 @@ function readForm() {
     isp_s: num('ispS', 264),
     propellant_density: num('density', 1760),
   };
+  if (!$('ispAirField').hidden) params.isp_air_s = num('ispAir', 0);
+  return params;
 }
 
 function classList() {
@@ -79,6 +81,28 @@ function syncClassUi() {
   const id = $('missileClass').value || 'hgv_biconic';
   const found = classList().find((item) => item.id === id);
   if (found && found.blurb) $('classBlurb').textContent = found.blurb;
+  const air = $('ispAirField');
+  if (found && found.isp_cruise_s != null) {
+    air.hidden = false;
+    $('ispAir').value = found.isp_cruise_s;
+  } else {
+    air.hidden = true;
+  }
+}
+
+function ispLabel(row) {
+  const boost = row.isp_boost_s;
+  const cruise = row.isp_cruise_s;
+  const rocket = row.isp_rocket_s;
+  if (cruise != null && boost != null && rocket != null) {
+    return `${fmt(boost, 0)}+${fmt(cruise, 0)}/${fmt(rocket, 0)}`;
+  }
+  if (cruise != null && boost != null) return `${fmt(boost, 0)}+${fmt(cruise, 0)}`;
+  if (cruise != null && rocket != null) return `${fmt(cruise, 0)}/${fmt(rocket, 0)}`;
+  if (cruise != null) return fmt(cruise, 0);
+  if (rocket != null) return fmt(rocket, 0);
+  if (boost != null) return fmt(boost, 0);
+  return '—';
 }
 
 function fillForm(row) {
@@ -130,6 +154,9 @@ function renderResult(result, title) {
       <div class="stat"><div class="k">弹头长度</div><div class="v">${fmt(result.l_head_m, 2)}</div><div class="sub">m</div></div>
       <div class="stat"><div class="k">助推/弹体</div><div class="v">${fmt(result.l_booster_m, 2)}</div><div class="sub">m</div></div>
       <div class="stat"><div class="k">燃料或推进剂</div><div class="v">${fmt(result.m_p_total_kg, 1)}</div><div class="sub">kg</div></div>
+      ${result.isp_boost_s != null ? `<div class="stat"><div class="k">助推比冲</div><div class="v">${fmt(result.isp_boost_s, 0)}</div><div class="sub">s</div></div>` : ''}
+      ${result.isp_cruise_s != null ? `<div class="stat"><div class="k">吸气比冲</div><div class="v amber">${fmt(result.isp_cruise_s, 0)}</div><div class="sub">s</div></div>` : ''}
+      ${result.isp_rocket_s != null ? `<div class="stat"><div class="k">固体比冲</div><div class="v">${fmt(result.isp_rocket_s, 0)}</div><div class="sub">s</div></div>` : ''}
     </div>
     <p class="note">${result.note || title || ''}</p>
   `;
@@ -150,8 +177,9 @@ function renderTable() {
       <td>${row.launch}</td>
       <td>${fmt(row.m_0_t, 2)}</td>
       <td>${fmt(row.v_burnout_mach, 2)}</td>
-      <td>${fmt(row.range_km, 1)}</td>
-      <td>${row.range_sea_km == null ? '—' : fmt(row.range_sea_km, 1)}</td>
+          <td>${ispLabel(row)}</td>
+          <td>${fmt(row.range_km, 1)}</td>
+          <td>${row.range_sea_km == null ? '—' : fmt(row.range_sea_km, 1)}</td>
     </tr>
   `).join('');
   $('tableBox').innerHTML = `
@@ -159,7 +187,7 @@ function renderTable() {
       <thead>
         <tr>
           <th>ID</th><th>尺寸 m</th><th>载机</th><th>弹头 kg</th><th>弹种</th><th>发射条件</th>
-          <th>起飞 t</th><th>Ma</th><th>射程 km</th><th>掠海 km</th>
+          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>掠海 km</th>
         </tr>
       </thead>
       <tbody>${body}</tbody>

@@ -617,6 +617,9 @@ struct MissileClassInfo: Codable, Hashable, Identifiable {
     var id: String
     var label: String
     var blurb: String?
+    var isp_boost_s: Double?
+    var isp_cruise_s: Double?
+    var isp_rocket_s: Double?
 }
 
 /// 导弹射程目录：弹种、默认值与预设样本
@@ -662,6 +665,9 @@ struct MissileRangeCase: Codable, Identifiable, Hashable {
     var range_sea_km: Double?
     var range_terminal_km: Double?
     var note: String?
+    var isp_boost_s: Double?
+    var isp_cruise_s: Double?
+    var isp_rocket_s: Double?
 }
 
 /// 单次估算返回的质量、速度与射程
@@ -684,6 +690,9 @@ struct MissileRangeEstimate: Codable {
     var m_dead_kg: Double? = nil
     var m_wing_kg: Double? = nil
     var note: String? = nil
+    var isp_boost_s: Double? = nil
+    var isp_cruise_s: Double? = nil
+    var isp_rocket_s: Double? = nil
 }
 
 /// 本地 Pyodide 导弹射程接口返回值
