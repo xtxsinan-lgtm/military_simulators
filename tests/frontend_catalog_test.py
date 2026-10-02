@@ -158,7 +158,7 @@ def test_docs_combat_radius_page_exists_and_links():
     assert '<th>Ma</th>' not in js_text
     assert '<th>kg/km</th>' not in js_text
     assert '锚点' not in html
-    assert 'Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0' in html
+    assert 'Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0 / 2.15' in html
     assert '表尾多一行最大半径超音速巡航速度' in html
     assert 'combat-radius.html' in takeoff.read_text(encoding='utf-8')
     assert 'combat-radius.html' in sat.read_text(encoding='utf-8')

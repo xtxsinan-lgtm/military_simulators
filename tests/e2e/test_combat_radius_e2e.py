@@ -456,7 +456,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert 'run_combat_radius_json' in js_text
     assert 'aircraft_dashboard' in js_text
     assert 'combat_radius.js' in html_text
-    assert 'Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0' in html_text
+    assert 'Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0 / 2.15' in html_text
     wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in wxml
     assert '搜索最佳升阻比和巡航高度' in wxml

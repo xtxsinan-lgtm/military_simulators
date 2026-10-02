@@ -40,7 +40,7 @@ ALT_MIN_M = 11000.0
 ALT_MAX_M = 20000.0
 ALT_COARSE_M = 1000.0
 ALT_REFINE_M = 200.0
-FIXED_MACHS = (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0)
+FIXED_MACHS = (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0, 2.15)
 SUPERSONIC_MACH = 1.0
 MACH_SEARCH_LO = 0.50
 # 实用最大巡航按高度极值搜索时，只看 Ma 1.2 以上（跳过跨声速鼓包前的峰值）
