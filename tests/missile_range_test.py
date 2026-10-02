@@ -120,7 +120,7 @@ def _oracle(
     dv2 = v_e * math.log(m_stg2_in / (m_stg2_in - m_p2))
     gravity_drag_loss = _reference_hgv_loss(h_launch_km, m_0, diameter_m)
     v_burnout = v_launch_ms + (dv1 + dv2) - gravity_drag_loss
-    fineness = length_m / diameter_m
+    fineness = l_head / diameter_m
     if hgv_type == 'biconic':
         ld_ratio = max(1.8, min(3.5, 1.5 + 0.18 * fineness))
     else:
@@ -227,10 +227,14 @@ def test_gravity_drag_loss_m_s_clamps():
 
 
 def test_lift_drag_ratio_bounds():
-    assert lift_drag_ratio(10.5, 1.0, 'biconic') == pytest.approx(3.39)
-    assert lift_drag_ratio(11.3, 0.86, 'waverider') == pytest.approx(5.0)
+    """升阻比用滑翔体自身长细比；过短落到下限，过长封在上限。"""
+    assert lift_drag_ratio(0.57, 1.0, 'biconic') == pytest.approx(1.8)
+    assert lift_drag_ratio(4.0, 0.8, 'waverider') == pytest.approx(3.6)
+    assert lift_drag_ratio(20.0, 0.86, 'waverider') == pytest.approx(5.0)
     with pytest.raises(ValueError):
         lift_drag_ratio(10, 0, 'biconic')
+    with pytest.raises(ValueError):
+        lift_drag_ratio(0, 1.0, 'biconic')
 
 
 def test_glide_range_m_cap_and_formula():
@@ -259,8 +263,8 @@ def test_estimate_hgv_matches_reference_dataset():
         'l_booster_m': 9.93,
         'm_p_total_kg': 7642.7,
         'v_burnout_mach': 20.49,
-        'ld_ratio': 3.39,
-        'range_km': 6157.7,
+        'ld_ratio': 1.8,
+        'range_km': 3370.3,
     }
     for case in MISSILE_DATASET:
         from utils.missile_range.classes import glide_shape
@@ -307,10 +311,13 @@ def test_missile_case_label_and_evaluate_case():
     assert 'hgv_type' not in row
     assert row['missile_class'] == 'hgv_biconic'
     assert row['class_label'] == '双锥体助推滑翔'
-    assert row['range_km'] == _oracle(
-        case['length'], case['diameter'], case['warhead'], 'biconic',
+    from utils.missile_range.classes import estimate_by_class
+    expected = estimate_by_class(
+        'hgv_biconic', case['length'], case['diameter'], case['warhead'],
         case['v_mach'], case['h_km'],
-    )['range_km']
+    )
+    assert row['range_km'] == expected['range_km']
+    assert row['ld_ratio'] == lift_drag_ratio(expected['l_head_m'], case['diameter'], 'biconic')
 
 
 def test_evaluate_dataset_and_catalog():
@@ -321,7 +328,15 @@ def test_evaluate_dataset_and_catalog():
     assert rows[1]['bay'] == '1280垂发'
     assert rows[0]['range_km'] >= rows[1]['range_km']
     heavier = evaluate_dataset(isp_s=300, propellant_density=1900)
-    assert heavier[0]['range_km'] != rows[0]['range_km']
+    glide = next(row for row in rows if row['missile_class'] == 'hgv_biconic')
+    glide_heavier = next(
+        row for row in heavier
+        if row['missile_class'] == 'hgv_biconic'
+        and row['bay'] == glide['bay']
+        and row['length_m'] == glide['length_m']
+        and row['warhead_kg'] == glide['warhead_kg']
+    )
+    assert glide_heavier['range_km'] != glide['range_km']
     payload = build_missile_range_catalog_payload()
     assert 'type_labels' not in payload
     assert payload['defaults']['missile_class'] == 'hgv_biconic'
@@ -412,7 +427,7 @@ def test_run_estimate_dataset_and_presets():
         'missile_class': 'hgv_biconic',
     })
     assert ok['success'] is True
-    assert ok['result']['range_km'] == 6157.7
+    assert ok['result']['range_km'] == 4560.5
     assert len(ok['rows']) == len(all_missile_cases())
     table = run_dataset_from_params({'isp_s': '264'})
     assert table['count'] == len(all_missile_cases())
@@ -436,7 +451,7 @@ def test_run_missile_range_json_actions():
         'diameter_m': 1,
         'warhead_kg': 200,
     })
-    assert flat['result']['range_km'] == 6157.7
+    assert flat['result']['range_km'] == 4560.5
     assert run_missile_range_json({'action': 'estimate', 'params': []})['success'] is False
 
 
@@ -728,7 +743,7 @@ def test_six_classes_ranges_and_profiles():
     ballistic_air = estimate_by_class('ballistic', **same)
     assert glide['range_km'] - ballistic_air['range_km'] > 1000
     legacy = estimate_by_class('hgv', 10.5, 1, 200)
-    assert legacy['range_km'] == 6157.7
+    assert legacy['range_km'] == 4560.5
     assert legacy['missile_class'] == 'hgv_biconic'
     wave = estimate_by_class('乘波体助推滑翔', 10.5, 1, 200, 0.85, 13, 264, 1760)
     assert wave['missile_class'] == 'hgv_waverider'
@@ -1442,4 +1457,20 @@ def test_airbreathing_stage_isp_splits_booster_and_cruise():
     assert resolved_cruise_tsfc('ramjet', 0.36) > resolved_cruise_tsfc('ramjet', 0.50)
     with pytest.raises(ValueError, match='没有吸气巡航'):
         resolved_cruise_tsfc('ballistic', 1.0)
+
+
+def test_bomber_small_warhead_presets_are_150kg():
+    """轰-6机腹与隐身超音速轰炸机较小的战斗部预设应为 150kg。"""
+    from utils.missile_range.dataset import grouped_preset_bays
+
+    grouped = grouped_preset_bays()
+    h6_bay = next(b for b in grouped['supersonic'] if b['bay'] == '轰-6机腹' and b.get('missile_class') is None)
+    stealth_bay = next(b for b in grouped['supersonic'] if b['bay'] == '隐身超音速轰炸机弹仓' and b.get('missile_class') is None)
+
+    h6_warheads = [r[2] for r in h6_bay['rounds']]
+    assert h6_warheads == [150, 600]
+
+    stealth_warheads = [r[2] for r in stealth_bay['rounds']]
+    assert stealth_warheads == [150, 500]
+
 

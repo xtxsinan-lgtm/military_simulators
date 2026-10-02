@@ -86,6 +86,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'py_data_files' in (ROOT / 'ios' / 'CarrierTakeOff' / 'Resources' / 'engine.js').read_text(encoding='utf-8')
     assert '全高空' in js
     assert '全掠海' in js
+    assert '末端射程' in js
     assert '吸气比冲' in html
     assert 'isp_air_s' in js
     assert '吸气比冲' in js
@@ -108,6 +109,7 @@ def test_e2e_missile_range_catalog_and_pages():
     mini_wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
     assert '载机' in mini_wxml
     assert '折叠弹翼' in mini_wxml
+    assert '末端射程' in mini_wxml
     assert '吸气比冲' in mini_wxml
     assert '是否两级' in mini_wxml
 
@@ -250,7 +252,7 @@ def test_e2e_airbreathing_presets_differ_from_glide_and_ballistic():
     rows = evaluate_dataset()
     shared = [
         row for row in rows
-        if row['length_m'] == 10.5 and row['diameter_m'] == 1.1 and row['warhead_kg'] == 200
+        if row['length_m'] == 10.5 and row['diameter_m'] == 1.1 and row['warhead_kg'] == 150
     ]
     by_class = {row['missile_class']: row for row in shared}
     assert by_class['hgv_biconic']['range_km'] - by_class['ballistic']['range_km'] > 1000
@@ -282,3 +284,23 @@ def test_e2e_airbreathing_presets_differ_from_glide_and_ballistic():
     assert data['result']['range_km'] == subsonic['range_km']
     assert data['result']['m_wing_kg'] == subsonic['m_wing_kg']
     assert data['result']['missile_class'] == 'turbofan_stealth'
+
+
+@pytest.mark.e2e
+def test_e2e_bomber_small_warhead_presets_150kg():
+    """轰-6机腹与隐身超音速轰炸机较小战斗部预设均为 150kg。"""
+    payload = {'action': 'presets'}
+    status, _, body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    data = json.loads(body.decode())
+    assert data['success'] is True
+
+    cases = data['cases']
+    h6_warheads = sorted({int(c['warhead_kg']) for c in cases if c['bay'] == '轰-6机腹'})
+    assert h6_warheads == [150, 600]
+
+    stealth_warheads = sorted({int(c['warhead_kg']) for c in cases if c['bay'] == '隐身超音速轰炸机弹仓'})
+    assert stealth_warheads == [150, 500]
+

@@ -154,11 +154,11 @@ def gravity_drag_loss_m_s(
     return baseline - drag_ref + drag_ref * scale
 
 
-def lift_drag_ratio(length_m: float, diameter_m: float, hgv_type: str) -> float:
-    """按长细比夹在构型允许的升阻比区间内。"""
-    if diameter_m <= 0:
-        raise ValueError('弹径必须大于 0')
-    fineness = length_m / diameter_m
+def lift_drag_ratio(glide_length_m: float, diameter_m: float, hgv_type: str) -> float:
+    """按抛掉助推级之后的滑翔体长细比，夹在构型允许的升阻比区间内。"""
+    if glide_length_m <= 0 or diameter_m <= 0:
+        raise ValueError('滑翔体长度与弹径必须大于 0')
+    fineness = glide_length_m / diameter_m
     if normalize_hgv_type(hgv_type) == 'biconic':
         return max(1.8, min(3.5, 1.5 + 0.18 * fineness))
     return max(2.8, min(5.0, 2.2 + 0.28 * fineness))
@@ -235,7 +235,7 @@ def estimate_hgv(
         h_launch_km, m_0, diameter_m,
     )
 
-    ld_ratio = lift_drag_ratio(length_m, diameter_m, hgv_type)
+    ld_ratio = lift_drag_ratio(l_head, diameter_m, hgv_type)
     v_eff2 = v_burnout ** 2 + 2.0 * G0 * (h_launch_km * 1000.0)
     ratio_v2 = v_eff2 / (G0 * R_EARTH_M)
     glide_m = glide_range_m(ratio_v2, ld_ratio)
