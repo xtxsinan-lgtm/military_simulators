@@ -276,7 +276,7 @@ def build_missile_range_catalog_payload() -> dict[str, Any]:
             'diameter_m': 1.100,
             'warhead_kg': 200,
             'missile_class': 'hgv_biconic',
-        'ballistic_two_stage': True,
+            'ballistic_two_stage': True,
             'v_launch_mach': 0.85,
             'h_launch_km': 13.0,
         },
