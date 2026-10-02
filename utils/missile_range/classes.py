@@ -11,9 +11,10 @@
 亚燃在 10 km 以下按稠密大气加大助推损失。超燃地面发射不加这一档，巡航高度仍按超燃设计点，不改到 10 km。
 亚超结合的巡航比冲与涡扇同一档，末端冲刺统一按伯克级雷达对掠海目标的视距计入。
 普通弹道导弹只在前方用头锥：按长径比算圆锥容积，制导和战斗部先扣掉头锥，剩下的头锥和后面的圆柱都装药。
-弹道弹是否两级由显式开关控制，默认两级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
+助推滑翔和普通弹道默认在单级、两级、三级里按射程搜索推进剂分配。每多一级计入喷管、分离和级间段死重，燃烧变长后再加重力损失。
+普通弹道可锁定单级，锁定后不再搜索。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
 关机后的真空弹道再按弹道系数折减大气滑行阻力。
-轻型战术弹推重比更高，地面 4 m 级默认两级时按 PrSM 的 499 km 标定。
+轻型战术弹推重比更高。地面 4 m 级的单级对照仍按改分级搜索之前的弹道公式。
 """
 from __future__ import annotations
 
@@ -31,6 +32,8 @@ from utils.missile_range.estimate import (
     head_total_mass_kg,
     motor_cross_section_m2,
     propellant_mass_kg,
+    search_booster_stages,
+    stage_result_sentence,
 )
 
 LHV_J_KG = 43.0e6
@@ -54,11 +57,9 @@ BOOST_FILL = 0.76
 TERMINAL_FILL = 0.78
 TERMINAL_PMF = 0.85
 BOOST_CASE_FRAC = 0.12
-# 重型弹道弹起飞推重比。轻弹按质量再加上一截：战术固体火箭燃烧更短。
-# 4.0 m × 0.43 m、战斗部 91 kg、地面静止发射，默认两级时标定到 PrSM 的 499 km。
+# 重型弹道弹起飞推重比。轻弹燃烧更短，公式在 booster_liftoff_twr。
+# 4.0 m × 0.43 m、战斗部 91 kg、地面静止发射的单级对照为 410.5 km。
 BALLISTIC_TWR_HEAVY = 2.30
-BALLISTIC_TWR_LIGHT_EXTRA = 2.4
-BALLISTIC_TWR_SCALE_KG = 1400.0
 # 燃烧段平均仰角的正弦。最大射程的重力转弯大约在 0.5 到 0.7。
 BALLISTIC_GRAVITY_FACTOR = 0.64
 # 海平面阻力。高度按大气标高衰减；空射不再改用滑翔弹那一档 180–320 m/s。
@@ -81,7 +82,7 @@ BALLISTIC_GUIDANCE_AREA_KG_M2 = 160.0
 # 头锥加战斗部舱最长占全长的这一比例，其余留给发动机。
 BALLISTIC_HEAD_LENGTH_CAP = 0.65
 # 关机后大气滑行。动压高、弹道系数低、关机高度低的弹减得多。
-# 系数使 4.0 m × 0.43 m、战斗部 91 kg 的地面发射在默认两级时为 PrSM 的 499 km。
+# 系数沿用单级对照：4.0 m × 0.43 m、战斗部 91 kg 的地面发射锁单级时为 410.5 km。
 BALLISTIC_COAST_K = 0.0011945
 # 亚音速发动机接力马赫数。更慢的发射要带可抛弃固体助推器。
 SUBSONIC_TAKEOVER_MACH = 0.62
@@ -116,12 +117,12 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'hgv_biconic',
         'label': '双锥体助推滑翔',
-        'blurb': '两级固体助推。滑翔体在弹径以内搜索长度与等效直径：先保证战斗部、制导与控制组件容积和气动长细比，再把剩余长度留给助推级，按抛掉助推级后的双锥体升阻比积分滑翔航程。',
+        'blurb': '固体助推在单级、两级、三级里按射程搜索分配。每多一级计入喷管、分离和级间段死重，并按更长的燃烧增加重力损失。滑翔体在弹径以内搜索长度与等效直径：先保证战斗部、制导与控制组件容积和气动长细比，再把剩余长度留给助推级，按抛掉助推级后的双锥体升阻比积分滑翔航程。',
     },
     {
         'id': 'hgv_waverider',
         'label': '乘波体助推滑翔',
-        'blurb': '两级固体助推。滑翔体在弹径以内搜索长度与等效直径：乘波体升阻比高于双锥体，容积系数更小，同样战斗部会更长；再把剩余长度留给助推级并积分滑翔航程。',
+        'blurb': '固体助推在单级、两级、三级里按射程搜索分配。每多一级计入喷管、分离和级间段死重，并按更长的燃烧增加重力损失。滑翔体在弹径以内搜索长度与等效直径：乘波体升阻比高于双锥体，容积系数更小，同样战斗部会更长；再把剩余长度留给助推级并积分滑翔航程。',
     },
     {
         'id': 'scramjet',
@@ -151,7 +152,7 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'ballistic',
         'label': '普通弹道导弹',
-        'blurb': '头锥按长径比占一段容积，制导和战斗部从中扣除，剩下的头锥和后面的圆柱都装固体药。关机后取最优弹道弧并计入大气滑行阻力，不含滑翔增程。',
+        'blurb': '头锥按长径比占一段容积，制导和战斗部从中扣除，剩下的头锥和后面的圆柱都装固体药。助推在单级、两级、三级里按射程搜索；勾选仅单级后不再搜索。每多一级计入喷管、分离和级间段死重，并按更长的燃烧增加重力损失。关机后取最优弹道弧并计入大气滑行阻力，不含滑翔增程。',
     },
 ]
 
@@ -1587,11 +1588,9 @@ def burnout_altitude_km(speed_m_s: float, launch_altitude_km: float) -> float:
 
 
 def ballistic_liftoff_twr(launch_mass_kg: float) -> float:
-    """起飞推重比：轻型战术弹更高，重弹趋近 2.3。"""
-    if launch_mass_kg <= 0:
-        raise ValueError('起飞质量必须大于 0')
-    extra = BALLISTIC_TWR_LIGHT_EXTRA * math.exp(-launch_mass_kg / BALLISTIC_TWR_SCALE_KG)
-    return BALLISTIC_TWR_HEAVY + extra
+    """起飞推重比：轻型战术弹更高，重弹趋近 2.3。与助推分级搜索共用同一公式。"""
+    from utils.missile_range.estimate import booster_liftoff_twr
+    return booster_liftoff_twr(launch_mass_kg)
 
 
 def ballistic_loss_m_s(dv_ideal_m_s: float, burn_time_s: float, launch_altitude_km: float) -> float:
@@ -1735,7 +1734,7 @@ def ballistic_burn_time_s(
 
 
 def _ideal_two_stage_dv(launch_mass: float, propellant: float, booster_dry: float, ve: float) -> float:
-    """与滑翔弹相同的 58/42 两级速度增量。"""
+    """旧的 58/42 两级速度增量，只留给对照测试。新估算走 search_booster_stages。"""
     first = propellant * 0.58
     second = propellant * 0.42
     stage1_dry_drop = booster_dry * 0.60
@@ -2257,13 +2256,14 @@ def estimate_ballistic(
     propellant_density: float,
     warhead_section: str = 'cylinder',
     coast_drag: bool = True,
-    two_stage: bool = True,
+    single_stage: bool = False,
 ) -> dict:
     """普通弹道导弹：头锥扣掉制导和战斗部后的剩余容积与圆柱段一起装药，再计重力阻力与大气滑行。
 
     warhead_section 为 biconic 或 waverider 时沿用滑翔体弹头，供同一助推器的弹道弧对照。
     coast_drag 为假时保留真空弹道，滑翔弹的下限对照用这一档。
-    two_stage 控制固体助推是否按两级分段；默认两级，不再按弹长自动切换。
+    默认在单级、两级、三级里按地面射程搜索推进剂分配。single_stage 为真时只算单级。
+    每多一级计入喷管、分离和级间段死重，燃烧时间变长后重力损失跟着增加。
     """
     if length_m <= 0 or diameter_m <= 0:
         raise ValueError('弹长与弹径必须大于 0')
@@ -2288,24 +2288,34 @@ def estimate_ballistic(
     else:
         raise ValueError(f'未知战斗部截面: {warhead_section}')
     propellant = propellant_mass_kg(diameter_m, booster_len, propellant_density) + nose_propellant
-    dry = propellant * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
-    launch_mass = payload_mass + dry + propellant
-    ve = isp_s * G0
-    if two_stage:
-        dv_ideal = _ideal_two_stage_dv(launch_mass, propellant, dry, ve)
-        burnout_mass = launch_mass - propellant - dry * 0.60
-        stages = '两级'
-    else:
-        if propellant >= launch_mass:
-            raise ValueError('推进剂质量超过起飞质量')
-        dv_ideal = ve * math.log(launch_mass / (launch_mass - propellant))
-        burnout_mass = launch_mass - propellant
-        stages = '单级'
-    burn_time = ballistic_burn_time_s(
-        propellant, launch_mass, isp_s, ballistic_liftoff_twr(launch_mass),
-    )
-    loss = ballistic_loss_m_s(dv_ideal, burn_time, h_launch_km)
+
     launch_speed = v_launch_mach * speed_of_sound_m_s(h_launch_km)
+
+    def score_plan(plan: dict) -> float:
+        loss = ballistic_loss_m_s(plan['dv_m_s'], plan['burn_time_s'], h_launch_km)
+        speed_i = max(50.0, launch_speed + plan['dv_m_s'] - loss)
+        altitude_i = burnout_altitude_km(speed_i, h_launch_km)
+        try:
+            ground_i = ballistic_range_km(speed_i, altitude_i)
+        except ValueError:
+            return -1.0
+        if coast_drag:
+            ground_i = ballistic_coast_range_km(
+                ground_i, speed_i, altitude_i, plan['burnout_mass_kg'], diameter_m,
+            )
+        return ground_i
+
+    stage = search_booster_stages(
+        payload_mass, propellant, diameter_m, isp_s, propellant_density, score_plan,
+        stages=1 if single_stage else None,
+        tie_tol=0.05,
+    )
+    launch_mass = stage['launch_mass_kg']
+    propellant = stage['propellant_kg']
+    burnout_mass = stage['burnout_mass_kg']
+    dv_ideal = stage['dv_m_s']
+    burn_time = stage['burn_time_s']
+    loss = ballistic_loss_m_s(dv_ideal, burn_time, h_launch_km)
     speed = max(50.0, launch_speed + dv_ideal - loss)
     altitude = burnout_altitude_km(speed, h_launch_km)
     ground_km = ballistic_range_km(speed, altitude)
@@ -2315,16 +2325,23 @@ def estimate_ballistic(
         )
     section = '头锥扣除制导与战斗部，' if warhead_section == 'cylinder' else ''
     note = (
-        f"普通弹道导弹：{stages}固体，{section}比冲 {isp_s:.0f} s，"
+        f"普通弹道导弹：{stage_result_sentence(stage)}{section}比冲 {isp_s:.0f} s，"
         f"关机速度 {speed / 1000.0:.2f} km/s，"
         f"关机高度 {altitude:.0f} km，按最优倾角取射程，不含滑翔。"
     )
-    return _base_fields(
+    fields = _base_fields(
         'ballistic', launch_mass, head_len, booster_len, propellant,
         speed / speed_of_sound_m_s(0.0), None, ground_km, note,
         cruise_alt_km=altitude,
         isp_rocket_s=isp_s,
     )
+    fields['n_stages'] = stage['n_stages']
+    fields['stage_split'] = stage['stage_split']
+    fields['stage_hardware_kg'] = round(stage['hardware_kg'], 1)
+    fields['burn_time_s'] = round(stage['burn_time_s'], 1)
+    fields['extra_gravity_m_s'] = round(stage['extra_gravity_m_s'], 1)
+    fields['stage_locked'] = bool(stage['stage_locked'])
+    return fields
 
 
 def glide_floor_range_km(glide_range_km: float, ballistic_km: float, ld_ratio: float) -> float:
@@ -2351,7 +2368,7 @@ def estimate_by_class(
     width_m: float | None = None,
     height_m: float | None = None,
     isp_air_s: float | None = None,
-    ballistic_two_stage: bool = True,
+    ballistic_single_stage: bool = False,
     optimize_geometry: bool = True,
     l_head_m: float | None = None,
     d_head_m: float | None = None,
@@ -2374,20 +2391,19 @@ def estimate_by_class(
             optimize_geometry=use_opt,
         )
         result = dict(result)
-        # 滑翔下限仍对照双锥体助推器的真空弹道，弹道基线固定按默认两级。
+        # 滑翔下限对照同一外形的弹道弧，助推分级同样按射程搜索。
         ballistic = estimate_ballistic(
             length_m, diameter_m, warhead_mass_kg,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
             warhead_section='biconic',
             coast_drag=False,
-            two_stage=True,
         )
         floored = glide_floor_range_km(
             float(result['range_km']), float(ballistic['range_km']), float(result['ld_ratio']),
         )
         result['missile_class'] = canon
         result['class_label'] = class_label(canon)
-        note = class_blurb(canon) + f' 固体比冲 {isp_s:.0f} s。'
+        note = class_blurb(canon) + ' ' + stage_result_sentence(result) + f' 固体比冲 {isp_s:.0f} s。'
         if result.get('optimal_geometry'):
             note += (
                 f" 经几何搜索寻优：滑翔体长 {result['l_head_m']:.2f} m、"
@@ -2422,6 +2438,6 @@ def estimate_by_class(
         return estimate_ballistic(
             length_m, diameter_m, warhead_mass_kg,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
-            two_stage=ballistic_two_stage,
+            single_stage=ballistic_single_stage,
         )
     raise ValueError(f'未知弹种: {missile_class}')

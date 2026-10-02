@@ -30,6 +30,27 @@ def opt_optional_float(value: Any) -> float | None:
     return float(value)
 
 
+def opt_bool(value: Any, default: bool) -> bool:
+    """解析可选布尔。字符串按常见开关词处理。"""
+    if value is None or value == '':
+        return default
+    if isinstance(value, str):
+        return value.strip().lower() not in {'', '0', 'false', 'no', 'off'}
+    return bool(value)
+
+
+def resolve_ballistic_single_stage(params: dict[str, Any]) -> bool:
+    """普通弹道是否锁定单级。
+
+    ballistic_single_stage 优先。旧字段 ballistic_two_stage 为假时同样锁定单级。
+    """
+    if 'ballistic_single_stage' in params and params.get('ballistic_single_stage') not in (None, ''):
+        return opt_bool(params.get('ballistic_single_stage'), False)
+    if 'ballistic_two_stage' in params and params.get('ballistic_two_stage') not in (None, ''):
+        return not opt_bool(params.get('ballistic_two_stage'), True)
+    return False
+
+
 def _required_float(params: dict[str, Any], key: str) -> float:
     if key not in params or params[key] is None or params[key] == '':
         raise ValueError(f'缺少参数 {key}')
@@ -42,11 +63,7 @@ def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
     try:
         isp = opt_float(params.get('isp_s'), DEFAULT_ISP_S)
         density = opt_float(params.get('propellant_density'), DEFAULT_PROPELLANT_DENSITY)
-        ballistic_two_stage_raw = params.get('ballistic_two_stage', True)
-        if isinstance(ballistic_two_stage_raw, str):
-            ballistic_two_stage = ballistic_two_stage_raw.strip().lower() not in {'', '0', 'false', 'no', 'off'}
-        else:
-            ballistic_two_stage = bool(ballistic_two_stage_raw)
+        ballistic_single_stage = resolve_ballistic_single_stage(params)
         opt_geom_raw = params.get('optimize_geometry', True)
         if isinstance(opt_geom_raw, str):
             optimize_geometry = opt_geom_raw.strip().lower() in {'1', 'true', 'yes', 'on'}
@@ -62,7 +79,7 @@ def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
             isp_s=isp,
             propellant_density=density,
             isp_air_s=opt_optional_float(params.get('isp_air_s')),
-            ballistic_two_stage=ballistic_two_stage,
+            ballistic_single_stage=ballistic_single_stage,
             optimize_geometry=optimize_geometry,
             l_head_m=opt_optional_float(params.get('l_head_m')),
             d_head_m=opt_optional_float(params.get('d_head_m')),

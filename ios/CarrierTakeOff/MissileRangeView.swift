@@ -49,7 +49,7 @@ struct MissileRangeView: View {
                         field("吸气比冲 (s)", text: $vm.ispAir)
                     }
                     if vm.missileClass == "ballistic" {
-                        Toggle("是否两级", isOn: $vm.ballisticTwoStage)
+                        Toggle("仅单级", isOn: $vm.ballisticSingleStage)
                             .font(.system(size: 13, design: .monospaced))
                             .foregroundStyle(MissileRangeTheme.text)
                     }
@@ -154,6 +154,11 @@ struct MissileRangeView: View {
                             ])
                         }
                         ispStatRow(result)
+                        if let stages = result.n_stages {
+                            Text(stageCaption(stages, split: result.stage_split, locked: result.stage_locked))
+                                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                                .foregroundStyle(MissileRangeTheme.green)
+                        }
                         if let note = result.note, !note.isEmpty {
                             Text(note)
                                 .font(.system(size: 10, design: .monospaced))
@@ -208,6 +213,7 @@ struct MissileRangeView: View {
             cell("弹种", width: 120, dim: true)
             cell("比冲s", width: 108, dim: true)
             cell("射程km", width: 72, dim: true)
+            cell("分级", width: 108, dim: true)
             cell("混合km", width: 72, dim: true)
             cell("掠海km", width: 72, dim: true)
         }
@@ -223,10 +229,25 @@ struct MissileRangeView: View {
             cell(kind(row), width: 120, dim: false, highlight: on)
             cell(ispText(row), width: 108, dim: false, highlight: on)
             cell(fmt(row.range_km, 1), width: 72, dim: false, highlight: on)
+            cell(stageCaption(row.n_stages, split: row.stage_split, locked: row.stage_locked), width: 108, dim: false, highlight: on)
             cell(row.range_mixed_km == nil ? "—" : fmt(row.range_mixed_km, 1), width: 72, dim: false, highlight: on)
             cell(row.range_sea_km == nil ? "—" : fmt(row.range_sea_km, 1), width: 72, dim: false, highlight: on)
         }
         .padding(.vertical, 6)
+    }
+
+    private func stageCaption(_ stages: Int?, split: String?, locked: Bool?) -> String {
+        guard let stages else { return "—" }
+        let name: String
+        switch stages {
+        case 1: name = "单级"
+        case 2: name = "两级"
+        case 3: name = "三级"
+        default: name = "\(stages)级"
+        }
+        if stages == 1 { return locked == true ? "\(name)·锁定" : name }
+        let ratio = split ?? ""
+        return ratio.isEmpty ? name : "\(name) \(ratio)"
     }
 
     private func kind(_ row: MissileRangeCase) -> String {

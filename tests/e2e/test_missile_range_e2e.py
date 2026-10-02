@@ -86,7 +86,7 @@ def test_e2e_missile_range_catalog_and_pages():
     _assert_bays_sorted_by_size_then_range(payload['missile_range']['cases'])
     assert 'type_labels' not in payload['missile_range']
     assert 'hgv_type' not in payload['missile_range']['defaults']
-    assert payload['missile_range']['defaults']['ballistic_two_stage'] is True
+    assert payload['missile_range']['defaults']['ballistic_single_stage'] is False
     assert (ROOT / 'data' / 'missile_range_preset_database.csv').is_file()
 
     status, _, body = handle_request('GET', '/api/data', None)
@@ -107,7 +107,8 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'missileClass' in html
     assert 'hgvType' not in html
     assert '构型' not in html
-    assert '是否两级' in html
+    assert '仅单级' in html
+    assert '助推分级' in js
     assert 'optimizeGeometry' in html
     assert '寻优滑翔体尺寸' in html
     assert 'optimize_geometry' in js
@@ -136,7 +137,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '载机' in view
     assert '折叠弹翼' in view
     assert '吸气比冲' in view
-    assert '是否两级' in view
+    assert '仅单级' in view
     assert '寻优滑翔体尺寸' in view
     mini_js = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.js').read_text(encoding='utf-8')
     assert 'missile_class' in mini_js
@@ -147,7 +148,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '末端射程' not in mini_wxml
     assert '末端冲刺' not in view
     assert '吸气比冲' in mini_wxml
-    assert '是否两级' in mini_wxml
+    assert '仅单级' in mini_wxml
     assert '寻优滑翔体' in mini_wxml
     assert 'optimize_geometry' in mini_js
 
@@ -260,19 +261,45 @@ def test_e2e_russian_ramjet_anchors():
 
 @pytest.mark.e2e
 def test_e2e_ballistic_cylinder_warhead_matches_published_rockets():
-    """普通弹道用头锥扣制导和战斗部：默认两级时 PrSM 为 499 km，GMLRS 落在 70–92 km。"""
+    """普通弹道用头锥扣制导和战斗部。地面 PrSM 搜索后取单级 410.5 km。"""
     prsm = _estimate_via_api('ballistic', 4.0, 0.43, 91, 0.0, 0.0)
-    assert prsm['range_km'] == 499.0
+    assert prsm['range_km'] == 410.5
+    assert prsm['n_stages'] == 1
     assert prsm['l_head_m'] == pytest.approx(1.35, abs=0.02)
-    assert '两级' in prsm['note']
+    assert '单级' in prsm['note']
     assert '头锥扣除制导与战斗部' in prsm['note']
     gmlrs = _estimate_via_api('ballistic', 3.96, 0.227, 90, 0.0, 0.0)
-    assert 70.0 <= gmlrs['range_km'] <= 92.0
+    assert 65.0 <= gmlrs['range_km'] <= 92.0
     assert gmlrs['l_head_m'] > 0.5
     df15 = _estimate_via_api('ballistic', 9.1, 1.0, 500, 0.0, 0.0)
-    assert df15['range_km'] == 831.9
+    assert df15['range_km'] == 487.2
     assert df15['m_p_total_kg'] == pytest.approx(4857.1, abs=0.2)
     payload = {
+        'action': 'estimate',
+        'params': {
+            'missile_class': 'ballistic',
+            'length_m': 11.3,
+            'diameter_m': 0.86,
+            'warhead_kg': 150,
+            'v_launch_mach': 0.85,
+            'h_launch_km': 13.0,
+            'ballistic_single_stage': True,
+        },
+    }
+    status, _, body = handle_request('POST', '/api/missile_range/simulate', json.dumps(payload).encode())
+    assert status == 200
+    locked = json.loads(body.decode())
+    assert locked['success'] is True
+    assert locked['result']['n_stages'] == 1
+    assert '已锁定单级' in locked['result']['note']
+    searched = _estimate_via_api('ballistic', 11.3, 0.86, 150, 0.85, 13.0)
+    assert searched['n_stages'] == 3
+    assert searched['stage_split']
+    assert searched['range_km'] > locked['result']['range_km']
+    glide = _estimate_via_api('hgv_biconic', 10.5, 1.1, 150, 0.85, 13.0)
+    assert glide['n_stages'] in (2, 3)
+    assert '/' in glide['stage_split']
+    legacy_payload = {
         'action': 'estimate',
         'params': {
             'missile_class': 'ballistic',
@@ -284,7 +311,7 @@ def test_e2e_ballistic_cylinder_warhead_matches_published_rockets():
             'ballistic_two_stage': False,
         },
     }
-    status, _, body = handle_request('POST', '/api/missile_range/simulate', json.dumps(payload).encode())
+    status, _, body = handle_request('POST', '/api/missile_range/simulate', json.dumps(legacy_payload).encode())
     assert status == 200
     legacy = json.loads(body.decode())
     assert legacy['success'] is True

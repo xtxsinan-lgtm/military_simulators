@@ -17,7 +17,7 @@ final class MissileRangeViewModel: ObservableObject {
     @Published var ispS = "264"
     @Published var ispAir = ""
     @Published var showAirIsp = false
-    @Published var ballisticTwoStage = true
+    @Published var ballisticSingleStage = false
     @Published var optimizeGeometry = true
     @Published var density = "1760"
     @Published var activeId: Int?
@@ -52,7 +52,7 @@ final class MissileRangeViewModel: ObservableObject {
             if let defaults = catalog.missile_range?.defaults {
                 if let isp = defaults.isp_s { ispS = text(isp) }
                 if let rho = defaults.propellant_density { density = text(rho) }
-                if let twoStage = defaults.ballistic_two_stage { ballisticTwoStage = twoStage }
+                if let singleStage = defaults.ballistic_single_stage { ballisticSingleStage = singleStage }
             }
             applyCase(loaded[0])
         } catch {
@@ -68,7 +68,7 @@ final class MissileRangeViewModel: ObservableObject {
         warheadKg = text(row.warhead_kg)
         vMach = text(row.v_mach)
         hKm = text(row.h_km)
-        ballisticTwoStage = row.missile_class == "ballistic"
+        ballisticSingleStage = false
         activeId = row.id
         if let info = classOptions.first(where: { $0.id == missileClass }) {
             classBlurb = info.blurb ?? classBlurb
@@ -128,7 +128,7 @@ final class MissileRangeViewModel: ObservableObject {
                 showAirIsp = false
             }
         }
-        ballisticTwoStage = id == "ballistic"
+        ballisticSingleStage = false
     }
 
     func estimate() async {
@@ -144,7 +144,7 @@ final class MissileRangeViewModel: ObservableObject {
             "h_launch_km": number(hKm, 13),
             "isp_s": number(ispS, 264),
             "propellant_density": number(density, 1760),
-            "ballistic_two_stage": ballisticTwoStage,
+            "ballistic_single_stage": ballisticSingleStage,
             "optimize_geometry": optimizeGeometry,
         ]
         if showAirIsp {

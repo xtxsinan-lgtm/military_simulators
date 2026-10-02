@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 39;
+const APP_VERSION = 40;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -72,7 +72,7 @@ function readForm() {
     h_launch_km: num('hKm', 13),
     isp_s: num('ispS', 264),
     propellant_density: num('density', 1760),
-    ballistic_two_stage: $('ballisticTwoStage').checked,
+    ballistic_single_stage: $('ballisticSingleStage').checked,
     optimize_geometry: $('optimizeGeometry') ? $('optimizeGeometry').checked : true,
   };
   if (!$('ispAirField').hidden) params.isp_air_s = num('ispAir', 0);
@@ -88,7 +88,7 @@ function syncClassUi() {
   const found = classList().find((item) => item.id === id);
   if (found && found.blurb) $('classBlurb').textContent = found.blurb;
   const air = $('ispAirField');
-  const ballistic = $('ballisticTwoStageField');
+  const ballistic = $('ballisticSingleStageField');
   const optGeom = $('optimizeGeometryField');
   if (found && found.isp_cruise_s != null) {
     air.hidden = false;
@@ -98,9 +98,9 @@ function syncClassUi() {
   }
   if (id === 'ballistic') {
     ballistic.hidden = false;
-    $('ballisticTwoStage').checked = true;
   } else {
     ballistic.hidden = true;
+    $('ballisticSingleStage').checked = false;
   }
   if (optGeom) {
     optGeom.hidden = !id.startsWith('hgv');
@@ -129,7 +129,7 @@ function fillForm(row) {
   $('warheadKg').value = row.warhead_kg;
   $('vMach').value = row.v_mach;
   $('hKm').value = row.h_km;
-  $('ballisticTwoStage').checked = row.missile_class === 'ballistic';
+  $('ballisticSingleStage').checked = false;
   activeId = row.id;
   syncClassUi();
 }
@@ -166,6 +166,14 @@ function takeoverSummaryHtml() {
   const ok = rows.filter((row) => row.reached_takeover === true).length;
   if (!failed && !ok) return '';
   return `冲压接力：已接入 ${ok} 发 · <span class="sum-fail">未达工作速度 ${failed} 发</span>。勾选筛选或点红色标签，查看只计弹道弧的短射程。`;
+}
+
+function stageText(result) {
+  if (!result || result.n_stages == null) return null;
+  const names = { 1: '单级', 2: '两级', 3: '三级' };
+  const name = names[result.n_stages] || `${result.n_stages}级`;
+  if (result.n_stages === 1) return name;
+  return `${name} ${result.stage_split || ''}`;
 }
 
 function speedLabel(result) {
@@ -212,6 +220,10 @@ function renderResult(result, title) {
   const dHead = result.d_head_m != null
     ? `<div class="stat"><div class="k">滑翔体直径</div><div class="v">${fmt(result.d_head_m, 3)}</div><div class="sub">m</div></div>`
     : '';
+  const stage = stageText(result);
+  const stageStat = stage
+    ? `<div class="stat"><div class="k">助推分级</div><div class="v cyan">${stage}</div><div class="sub">${result.stage_locked ? '已锁定' : '按射程'}</div></div>`
+    : '';
   const fineness = result.fineness != null
     ? `<div class="stat"><div class="k">滑翔长细比</div><div class="v">${fmt(result.fineness, 2)}</div><div class="sub">L/D_geom</div></div>`
     : '';
@@ -233,6 +245,7 @@ function renderResult(result, title) {
     ${takeoverRow}
     <div class="stat-row">
       ${lead}
+      ${stageStat}
       ${gain}
       ${wing}
       <div class="stat"><div class="k">${speedLabel(result)}</div><div class="v ${isFailedTakeover ? 'red' : 'amber'}">${fmt(result.v_burnout_mach, 2)}</div><div class="sub">Ma</div></div>
@@ -289,6 +302,7 @@ function renderTable() {
       <td>${fmt(row.v_burnout_mach, 2)}</td>
       <td>${ispLabel(row)}</td>
       <td>${fmt(row.range_km, 1)}${rangeSub}</td>
+      <td>${stageText(row) || '—'}</td>
       <td>${row.range_mixed_km == null ? '—' : fmt(row.range_mixed_km, 1)}</td>
       <td>${row.range_sea_km == null ? '—' : fmt(row.range_sea_km, 1)}</td>
     </tr>
@@ -299,7 +313,7 @@ function renderTable() {
       <thead>
         <tr>
           <th>ID</th><th>尺寸 m</th><th>载机</th><th>弹头 kg</th><th>弹种</th><th>发射条件</th>
-          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>混合 km</th><th>掠海 km</th>
+          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>助推分级</th><th>混合 km</th><th>掠海 km</th>
         </tr>
       </thead>
       <tbody>${body}</tbody>
@@ -453,7 +467,7 @@ async function main() {
   const defaults = block.defaults || {};
   if (defaults.isp_s != null) $('ispS').value = defaults.isp_s;
   if (defaults.propellant_density != null) $('density').value = defaults.propellant_density;
-  if (defaults.ballistic_two_stage != null) $('ballisticTwoStage').checked = !!defaults.ballistic_two_stage;
+  if (defaults.ballistic_single_stage != null) $('ballisticSingleStage').checked = !!defaults.ballistic_single_stage;
   fillClassSelect();
   fillPresetSelect();
   renderTable();

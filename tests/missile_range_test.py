@@ -275,11 +275,20 @@ def test_require_non_negative():
 
 
 def test_estimate_hgv_matches_reference_dataset():
-    assert estimate_hgv(10.5, 1.0, 200) == _oracle(10.5, 1.0, 200)
+    """弹头划分仍按容积公式；助推分级改为按射程搜索，不再对照旧的固定两级。"""
+    got = estimate_hgv(10.5, 1.0, 200)
+    ref = _oracle(10.5, 1.0, 200)
+    assert got['l_head_m'] == ref['l_head_m']
+    assert got['l_booster_m'] == ref['l_booster_m']
+    assert got['ld_ratio'] == ref['ld_ratio']
+    assert got['n_stages'] == 3
+    assert got['stage_split'] == '66/24/10'
+    assert got['range_km'] == 3027.7
+    assert got['stage_hardware_kg'] > 0
     for case in MISSILE_DATASET:
         from utils.missile_range.classes import glide_shape
         shape = glide_shape(case['missile_class'])
-        got = estimate_hgv(
+        row = estimate_hgv(
             length_m=case['length'],
             diameter_m=case['diameter'],
             warhead_mass_kg=case['warhead'],
@@ -287,12 +296,17 @@ def test_estimate_hgv_matches_reference_dataset():
             v_launch_mach=case['v_mach'],
             h_launch_km=case['h_km'],
         )
-        assert got == _oracle(
+        geom = _oracle(
             case['length'], case['diameter'], case['warhead'], shape,
             case['v_mach'], case['h_km'],
         )
+        assert row['l_head_m'] == geom['l_head_m']
+        assert row['l_booster_m'] == geom['l_booster_m']
+        assert row['n_stages'] in (1, 2, 3)
+        assert row['range_km'] > 0
     custom = estimate_hgv(8.0, 0.7, 400, 'waverider', 1.2, 15.0, isp_s=280, propellant_density=1800)
-    assert custom == _oracle(8.0, 0.7, 400, 'waverider', 1.2, 15.0, 280, 1800)
+    assert custom['n_stages'] in (1, 2, 3)
+    assert custom['range_km'] > 0
 
 
 def test_estimate_hgv_rejects_bad_inputs():
@@ -355,7 +369,7 @@ def test_evaluate_dataset_and_catalog():
     assert 'type_labels' not in payload
     assert payload['defaults']['missile_class'] == 'hgv_biconic'
     assert 'hgv_type' not in payload['defaults']
-    assert payload['defaults']['ballistic_two_stage'] is True
+    assert payload['defaults']['ballistic_single_stage'] is False
     assert {item['id'] for item in payload['classes']} >= {
         'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'turbofan_stealth',
         'turbojet_subsonic', 'turbofan_rocket', 'ballistic',
@@ -733,7 +747,7 @@ def test_ballistic_nose_holds_guidance_and_warhead():
     assert ballistic_nose_propellant_kg(9.1, 1.0, 500, 1760) == pytest.approx(leftover * grain * 1760)
     df15 = estimate_ballistic(9.1, 1.0, 500, 0, 0, 264, 1760)
     assert df15['m_p_total_kg'] > 4625.0
-    assert df15['range_km'] == 831.9
+    assert df15['range_km'] == 487.2
     with pytest.raises(ValueError):
         ballistic_nose_propellant_volume_m3(0, 1.0, 10)
     with pytest.raises(ValueError):
@@ -761,17 +775,18 @@ def test_ballistic_nose_holds_guidance_and_warhead():
         ballistic_coast_range_km(100, 100, 0, 0, 0.5)
 
     default_stage = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
-    assert default_stage['range_km'] == 499.0
-    assert '两级' in default_stage['note']
+    assert default_stage['range_km'] == 410.5
+    assert default_stage['n_stages'] == 1
+    assert '单级' in default_stage['note']
 
-    # 同一外形若显式保留单级、且不计滑行阻力，短弹保持改默认前的射程。
+    # 同一外形若显式锁定单级、且不计滑行阻力，短弹保持改分级搜索前的射程。
     legacy = estimate_ballistic(
         4.8, 0.40, 200, 0, 0, 264, 1760,
-        warhead_section='biconic', coast_drag=False, two_stage=False,
+        warhead_section='biconic', coast_drag=False, single_stage=True,
     )
     assert legacy['range_km'] == 187.4
     gmlrs = estimate_ballistic(3.96, 0.227, 90, 0, 0, 264, 1760)
-    assert 70.0 <= gmlrs['range_km'] <= 92.0
+    assert 65.0 <= gmlrs['range_km'] <= 92.0
     with pytest.raises(ValueError, match='战斗部截面'):
         estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760, warhead_section='ogive')
 
@@ -833,14 +848,15 @@ def test_six_classes_ranges_and_profiles():
 
     short = estimate_ballistic(4.8, 0.40, 200, 0, 0, 264, 1760)
     long = estimate_ballistic(11.2, 0.88, 980, 0, 0, 264, 1760)
-    assert short['range_km'] == 223.9
-    assert long['range_km'] == 511.0
+    assert short['range_km'] == 204.9
+    assert long['range_km'] == 351.6
     assert long['range_km'] > short['range_km']
-    assert '两级' in long['note']
+    assert long['n_stages'] == 1
+    assert '单级' in long['note']
     assert '头锥扣除制导与战斗部' in long['note']
-    # PrSM Increment 1：4.0 m × 0.43 m、战斗部 91 kg、地面发射，默认两级时约 485 km
+    # PrSM Increment 1：4.0 m × 0.43 m、战斗部 91 kg、地面发射。搜索后取单级，410.5 km。
     prsm = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
-    assert prsm['range_km'] == 499.0
+    assert prsm['range_km'] == 410.5
     same = dict(length_m=10.5, diameter_m=1.1, warhead_mass_kg=200, v_launch_mach=0.85, h_launch_km=13.0)
     glide = estimate_by_class('hgv_biconic', **same)
     ballistic_air = estimate_by_class('ballistic', **same)
@@ -1018,7 +1034,7 @@ def test_j15_wing_presets_stay_inside_pylon_box():
 
     # 弹长、弹径、战斗部
     expected = {
-        'hgv_biconic': (6.50, 0.5873, 300),
+        'hgv_biconic': (6.50, 0.5870, 300),
         'hgv_waverider': (6.50, 0.5873, 300),
         'scramjet': (4.13, 0.6996, 300),
         'ramjet': (5.46, 0.5006, 500),
@@ -1163,12 +1179,12 @@ def test_surface_static_launch_pays_booster_and_drag():
     assert 700 <= tomahawk['range_high_km'] <= 1100
     assert tomahawk['range_sea_km'] < tomahawk['range_high_km']
     prsm = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
-    assert prsm['range_km'] == 499.0
+    assert prsm['range_km'] == 410.5
     iskander = estimate_ballistic(7.3, 0.92, 480, 0, 0, 264, 1760)
-    assert 480 <= iskander['range_km'] <= 560
+    assert 350 <= iskander['range_km'] <= 400
     df15 = estimate_ballistic(9.1, 1.0, 500, 0, 0, 264, 1760)
-    assert 720 <= df15['range_km'] <= 840
-    assert '两级' in df15['note']
+    assert 450 <= df15['range_km'] <= 520
+    assert '单级' in df15['note']
 
 
 def test_stealth_pentagon_section_is_lighter_than_a_circle():
@@ -2111,6 +2127,7 @@ def test_round_hgv_result_and_unrounded():
     rounded = _round_hgv_result(
         raw['m_0'], raw['l_head_m'], raw['l_booster_m'], raw['m_propellant'],
         raw['v_burnout'], raw['ld_ratio'], raw['range_km'], raw['d_head_m'],
+        stage=raw['stage'],
     )
     assert rounded == estimate_hgv(10.5, 1.0, 200.0, 'biconic')
     assert raw['l_head_m'] == pytest.approx(2.5)
@@ -2236,16 +2253,16 @@ def test_h6_belly_max_presets_are_sized_per_missile():
     from utils.missile_range.dataset import SUPERSONIC_CLASSES, build_preset_cases
 
     expected = {
-        ('hgv_biconic', 150): (12.00, 1.3200),
-        ('hgv_biconic', 600): (12.00, 1.2940),
-        ('hgv_waverider', 150): (12.00, 1.2320),
-        ('hgv_waverider', 600): (12.00, 1.2500),
+        ('hgv_biconic', 150): (12.00, 1.1516),
+        ('hgv_biconic', 600): (12.00, 1.1900),
+        ('hgv_waverider', 150): (12.00, 1.1987),
+        ('hgv_waverider', 600): (12.00, 1.1722),
         ('scramjet', 150): (11.98, 1.1040),
         ('scramjet', 600): (10.95, 1.1380),
         ('ramjet', 150): (12.00, 1.1360),
         ('ramjet', 600): (12.00, 1.1100),
-        ('ballistic', 150): (11.99, 1.0500),
-        ('ballistic', 600): (11.94, 1.0480),
+        ('ballistic', 150): (11.99, 1.0474),
+        ('ballistic', 600): (11.94, 1.0469),
     }
     cases = build_preset_cases()
     largest = [case for case in cases if case['bay'] == '轰-6机腹最大']
@@ -2269,4 +2286,87 @@ def test_h6_belly_max_presets_are_sized_per_missile():
     shared = [case for case in cases if case['bay'] == '轰-6机腹']
     assert {(case['length'], case['diameter']) for case in shared} == {(11.30, 0.860)}
     assert {case['warhead'] for case in shared} == {150, 500}
+
+
+def test_booster_stage_search_penalizes_extra_stages():
+    """每多一级有固定死重，分配搜索在一至三级里取更高的关机速度或射程。"""
+    from utils.missile_range.estimate import (
+        BOOST_TWR_HEAVY,
+        _best_fraction_by_impulse,
+        _fraction_candidates,
+        _staged_dv_and_burn,
+        booster_liftoff_twr,
+        build_stage_plan,
+        displaced_propellant_kg,
+        format_stage_split,
+        search_booster_stages,
+        stage_event_dead_kg,
+        stage_result_sentence,
+    )
+    from simulators.missile_range.missile_range import opt_bool, resolve_ballistic_single_stage
+
+    assert booster_liftoff_twr(20000) == pytest.approx(BOOST_TWR_HEAVY, abs=0.05)
+    assert booster_liftoff_twr(400) > booster_liftoff_twr(8000)
+    with pytest.raises(ValueError, match='起飞质量'):
+        booster_liftoff_twr(0)
+    dead = stage_event_dead_kg(1.0)
+    assert dead == pytest.approx(102.0 * math.pi * 0.25, abs=0.1)
+    assert stage_event_dead_kg(0.2) == 12.0
+    with pytest.raises(ValueError, match='弹径'):
+        stage_event_dead_kg(0)
+    assert displaced_propellant_kg(2700, 1760) == pytest.approx(1760)
+    with pytest.raises(ValueError, match='死重'):
+        displaced_propellant_kg(-1, 1760)
+    assert format_stage_split((0.58, 0.42)) == '58/42'
+    assert format_stage_split((1.0,)) == '100'
+    assert format_stage_split((0.70, 0.22, 0.08)) == '70/22/8'
+    with pytest.raises(ValueError, match='不能为空'):
+        format_stage_split(())
+    with pytest.raises(ValueError, match='不能为负'):
+        format_stage_split((-0.1, 1.1))
+    with pytest.raises(ValueError, match='之和'):
+        format_stage_split((0.2, 0.2))
+    grid = _fraction_candidates(2)
+    assert grid[0][0] >= 0.04
+    assert abs(sum(grid[0]) - 1) < 1e-9
+    assert _fraction_candidates(1) == ((1.0,),)
+    with pytest.raises(ValueError, match='级数'):
+        _fraction_candidates(4)
+    staged = _staged_dv_and_burn(200, 600, 0, 0, (0.6, 0.4), 250)
+    assert staged is not None and staged[0] > 0
+    assert _staged_dv_and_burn(10, 100, 0, 0, (1.5, -0.5), 250) is None
+    single = build_stage_plan(200, 800, 0.5, 264, 1760, (1.0,))
+    double = build_stage_plan(200, 800, 0.5, 264, 1760, (0.6, 0.4))
+    assert single is not None and double is not None
+    assert single['hardware_kg'] == 0
+    assert double['hardware_kg'] > single['hardware_kg']
+    assert double['propellant_kg'] < 800
+    assert double['extra_gravity_m_s'] > 0
+    assert '60/40' in double['stage_split']
+    with pytest.raises(ValueError, match='载荷'):
+        build_stage_plan(0, 800, 0.5, 264, 1760, (1.0,))
+    best = _best_fraction_by_impulse(200, 800, 0.5, 264, 1760, 2)
+    assert best is not None and abs(sum(best) - 1) < 1e-9
+    assert _best_fraction_by_impulse(200, 1, 2.0, 264, 1760, 3) is None
+
+    def speed_score(plan):
+        return plan['dv_m_s'] - plan['extra_gravity_m_s']
+
+    picked = search_booster_stages(180, 5000, 1.0, 264, 1760, speed_score, prescreen=True)
+    forced = search_booster_stages(180, 5000, 1.0, 264, 1760, speed_score, stages=1)
+    assert picked['n_stages'] in (2, 3)
+    assert speed_score(picked) > speed_score(forced)
+    assert '助推按射程取' in stage_result_sentence(picked)
+    assert '已锁定单级' in stage_result_sentence(forced)
+    assert opt_bool('off', True) is False
+    assert opt_bool(None, True) is True
+    assert resolve_ballistic_single_stage({}) is False
+    assert resolve_ballistic_single_stage({'ballistic_single_stage': True}) is True
+    assert resolve_ballistic_single_stage({'ballistic_two_stage': False}) is True
+    assert resolve_ballistic_single_stage({
+        'ballistic_single_stage': False,
+        'ballistic_two_stage': False,
+    }) is False
+    with pytest.raises(ValueError, match='助推级数'):
+        search_booster_stages(180, 500, 0.4, 264, 1760, speed_score, stages=4)
 

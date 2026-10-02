@@ -51,8 +51,8 @@
         <div class="field"><label>固体比冲 <span class="unit">s</span></label><input type="number" id="ispS" step="1" min="1" value="264"></div>
         <div class="field" id="ispAirField" hidden><label>吸气比冲 <span class="unit">s</span></label><input type="number" id="ispAir" step="1" min="1" value="1500"></div>
       </div>
-      <div class="field" id="ballisticTwoStageField" hidden>
-        <label><input type="checkbox" id="ballisticTwoStage" checked> 是否两级</label>
+      <div class="field" id="ballisticSingleStageField" hidden>
+        <label><input type="checkbox" id="ballisticSingleStage"> 仅单级（不搜索两级、三级）</label>
       </div>
       <div class="field" id="optimizeGeometryField">
         <label><input type="checkbox" id="optimizeGeometry" checked> 寻优滑翔体尺寸（容积、升阻比与助推装药最大化射程）</label>
@@ -80,6 +80,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预设表来自 catalog · 改参数后由 Pyodide 重算</div>
-<script type="module" src="js/missile_range.js?v=39"></script>
+<script type="module" src="js/missile_range.js?v=40"></script>
 </body>
 </html>

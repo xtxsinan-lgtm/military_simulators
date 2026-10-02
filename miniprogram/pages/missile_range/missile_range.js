@@ -23,6 +23,13 @@ function ispTextOf(row) {
   return '—';
 }
 
+function stageTextOf(row) {
+  if (!row || row.n_stages == null) return '—';
+  const names = { 1: '单级', 2: '两级', 3: '三级' };
+  const name = names[row.n_stages] || `${row.n_stages}级`;
+  if (row.n_stages === 1) return name;
+  return `${name} ${row.stage_split || ''}`;
+}
 function decorate(row) {
   return {
     ...row,
@@ -30,6 +37,7 @@ function decorate(row) {
     seaText: row.range_sea_km == null ? '—' : String(row.range_sea_km),
     mixedText: row.range_mixed_km == null ? '—' : String(row.range_mixed_km),
     ispText: ispTextOf(row),
+    stageText: stageTextOf(row),
   };
 }
 
@@ -59,8 +67,8 @@ Page({
     ispS: '264',
     ispAir: '',
     showAirIsp: false,
-    ballisticTwoStage: true,
-    showBallisticTwoStage: false,
+    ballisticSingleStage: false,
+    showBallisticSingleStage: false,
     optimizeGeometry: true,
     showOptimizeGeometry: true,
     density: '1760',
@@ -94,7 +102,7 @@ Page({
           caseNames: cases.map((row) => row.name),
           ispS: defaults.isp_s != null ? String(defaults.isp_s) : '264',
           density: defaults.propellant_density != null ? String(defaults.propellant_density) : '1760',
-          ballisticTwoStage: defaults.ballistic_two_stage !== false,
+          ballisticSingleStage: defaults.ballistic_single_stage === true,
           failCount: cases.filter((row) => row.reached_takeover === false).length,
           okCount: cases.filter((row) => row.reached_takeover === true).length,
           statusText: 'STANDBY',
@@ -117,8 +125,8 @@ Page({
       classBlurb: (found && found.blurb) || this.data.classBlurb,
       showAirIsp: showAir,
       ispAir: showAir ? String(found.isp_cruise_s) : '',
-      showBallisticTwoStage: showBallistic,
-      ballisticTwoStage: showBallistic ? true : this.data.ballisticTwoStage,
+      showBallisticSingleStage: showBallistic,
+      ballisticSingleStage: false,
       showOptimizeGeometry: String(missileClass).indexOf('hgv') === 0,
     });
   },
@@ -135,7 +143,7 @@ Page({
       vMach: String(row.v_mach),
       hKm: String(row.h_km),
       activeId: row.id,
-      ballisticTwoStage: row.missile_class === 'ballistic',
+      ballisticSingleStage: false,
       result: {
         range_km: row.range_km,
         range_high_km: row.range_high_km,
@@ -152,6 +160,9 @@ Page({
         l_booster_m: row.l_booster_m,
         m_p_total_kg: row.m_p_total_kg,
         note: row.note,
+        n_stages: row.n_stages,
+        stage_split: row.stage_split,
+        stage_locked: row.stage_locked,
         missile_class: row.missile_class,
         isp_boost_s: row.isp_boost_s,
         isp_cruise_s: row.isp_cruise_s,
@@ -185,8 +196,8 @@ Page({
     this.setData({ [key]: e.detail.value });
   },
 
-  onBallisticTwoStageChange(e) {
-    this.setData({ ballisticTwoStage: !!e.detail.value });
+  onBallisticSingleStageChange(e) {
+    this.setData({ ballisticSingleStage: !!e.detail.value });
   },
 
   onOptimizeGeometryChange(e) {
@@ -226,7 +237,7 @@ Page({
         h_launch_km: num(this.data.hKm, 13),
         isp_s: num(this.data.ispS, 264),
         propellant_density: num(this.data.density, 1760),
-        ballistic_two_stage: !!this.data.ballisticTwoStage,
+        ballistic_single_stage: !!this.data.ballisticSingleStage,
         optimize_geometry: !!this.data.optimizeGeometry,
       },
     };

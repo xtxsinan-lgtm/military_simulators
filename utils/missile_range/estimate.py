@@ -1,4 +1,4 @@
-"""助推-滑翔弹射程估算（弹头容积、两级推进剂、滑翔航程）。"""
+"""助推-滑翔弹射程估算（弹头容积、一至三级固体助推、滑翔航程）。"""
 from __future__ import annotations
 
 import copy
@@ -27,6 +27,25 @@ HGV_REF_DIAMETER_M = 1.0
 HGV_DRAG_SHARE_CAP = 0.72
 HGV_BETA_SCALE_MIN = 0.50
 HGV_BETA_SCALE_MAX = 2.60
+# 每多一级的喷管、分离机构和级间段。按弹体截面积计，不随装药比例变。
+# 1 m 弹径约 80 kg；更细的弹有 12 kg 下限，避免级间段轻于一圈螺栓。
+STAGE_EVENT_AERAL_KG_M2 = 102.0
+STAGE_EVENT_FLOOR_KG = 12.0
+# 金属级间段比药柱密，同样质量占的容积更小，只挤掉这一密度对应的推进剂。
+STAGE_HARDWARE_DENSITY_KG_M3 = 2700.0
+# 固定死重里留到本级烧完的喷管份额，其余分离与级间段在下一级点火前抛掉。
+STAGE_NOZZLE_SHARE = 0.50
+# 每次分离的无动力滑行。重力损失按这段时间另计，不重复计算气动阻力。
+STAGE_SEPARATION_COAST_S = 3.5
+# 重力转弯平均仰角的正弦，与弹道弹燃烧损失同一档。
+STAGING_GRAVITY_FACTOR = 0.64
+# 推进剂分配搜索步长与单级最小份额。步长 2%，避免上面一级被收成没有喷管的空壳。
+STAGE_FRACTION_STEP = 0.02
+STAGE_FRACTION_MIN = 0.04
+# 起飞推重比与弹道弹共用：轻弹燃烧更短，重弹趋近 2.3。
+BOOST_TWR_HEAVY = 2.30
+BOOST_TWR_LIGHT_EXTRA = 2.4
+BOOST_TWR_SCALE_KG = 1400.0
 
 HGV_TYPE_LABELS = {
     'biconic': '双锥体',
@@ -183,6 +202,277 @@ def propellant_mass_kg(
     return volume * propellant_density
 
 
+def booster_liftoff_twr(launch_mass_kg: float) -> float:
+    """起飞推重比：轻型战术弹更高，重弹趋近 2.3。"""
+    if launch_mass_kg <= 0:
+        raise ValueError('起飞质量必须大于 0')
+    extra = BOOST_TWR_LIGHT_EXTRA * math.exp(-launch_mass_kg / BOOST_TWR_SCALE_KG)
+    return BOOST_TWR_HEAVY + extra
+
+
+def stage_event_dead_kg(diameter_m: float) -> float:
+    """多一级时新增的喷管、分离机构与级间段质量。"""
+    if diameter_m <= 0:
+        raise ValueError('弹径必须大于 0')
+    area = math.pi * (diameter_m / 2.0) ** 2
+    return max(STAGE_EVENT_FLOOR_KG, STAGE_EVENT_AERAL_KG_M2 * area)
+
+
+def displaced_propellant_kg(hardware_kg: float, propellant_density: float) -> float:
+    """级间死重占掉的推进剂。结构更密，挤掉的药比死重本身轻。"""
+    if hardware_kg < 0 or propellant_density <= 0:
+        raise ValueError('死重与推进剂密度无效')
+    return hardware_kg * propellant_density / STAGE_HARDWARE_DENSITY_KG_M3
+
+
+def format_stage_split(fractions: tuple[float, ...] | list[float]) -> str:
+    """把推进剂份额收成和为 100 的整数百分比，例如 64/26/10。"""
+    if not fractions:
+        raise ValueError('推进剂分配不能为空')
+    if any(part < 0 for part in fractions):
+        raise ValueError('推进剂份额不能为负')
+    if abs(sum(fractions) - 1.0) > 1e-6:
+        raise ValueError('推进剂份额之和必须为 1')
+    if len(fractions) == 1:
+        return '100'
+    pcts = [int(round(part * 100.0)) for part in fractions]
+    pcts[-1] += 100 - sum(pcts)
+    if any(part <= 0 for part in pcts):
+        raise ValueError('推进剂分配圆整后出现空级')
+    return '/'.join(str(part) for part in pcts)
+
+
+@lru_cache(maxsize=4)
+def _fraction_candidates(n_stages: int) -> tuple[tuple[float, ...], ...]:
+    """一至三级的推进剂份额格点。单级只有 100%。"""
+    if n_stages < 1 or n_stages > 3:
+        raise ValueError('助推级数只能是 1、2 或 3')
+    if n_stages == 1:
+        return ((1.0,),)
+    units = int(round(1.0 / STAGE_FRACTION_STEP))
+    min_units = int(round(STAGE_FRACTION_MIN / STAGE_FRACTION_STEP))
+    found: list[tuple[float, ...]] = []
+
+    def walk(slots: int, remaining: int, prefix: tuple[int, ...]) -> None:
+        if slots == 1:
+            if remaining >= min_units:
+                parts = prefix + (remaining,)
+                found.append(tuple(part / units for part in parts))
+            return
+        upper = remaining - min_units * (slots - 1)
+        for used in range(min_units, upper + 1):
+            walk(slots - 1, remaining - used, prefix + (used,))
+
+    walk(n_stages, units, ())
+    return tuple(found)
+
+
+def _staged_dv_and_burn(
+    payload_kg: float,
+    propellant_kg: float,
+    hardware_kg: float,
+    event_dead_kg: float,
+    fractions: tuple[float, ...],
+    isp_s: float,
+) -> tuple[float, float, float, float] | None:
+    """给定分配，返回理想速度增量、燃烧时间、关机质量和起飞质量。
+
+    质量组合烧穿或结构比药还重时返回 None。
+    """
+    n_stages = len(fractions)
+    dry_prop = propellant_kg * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
+    launch_mass = payload_kg + dry_prop + hardware_kg + propellant_kg
+    if launch_mass <= propellant_kg:
+        return None
+    ve = isp_s * G0
+    mass = launch_mass
+    dv = 0.0
+    burn_time = 0.0
+    burnout = launch_mass
+    for index, share in enumerate(fractions):
+        prop = share * propellant_kg
+        dry = share * dry_prop
+        if n_stages > 1 and index > 0:
+            dry += event_dead_kg * STAGE_NOZZLE_SHARE
+        if n_stages > 1 and index < n_stages - 1:
+            dry += event_dead_kg * (1.0 - STAGE_NOZZLE_SHARE)
+        mass_out = mass - prop
+        if mass_out <= 0.0 or mass <= 0.0:
+            return None
+        dv += ve * math.log(mass / mass_out)
+        twr = booster_liftoff_twr(mass)
+        burn_time += prop * isp_s / (twr * mass)
+        burnout = mass_out
+        if index < n_stages - 1:
+            mass = mass_out - dry
+            if mass <= 0.0:
+                return None
+    burn_time += STAGE_SEPARATION_COAST_S * (n_stages - 1)
+    return dv, burn_time, burnout, launch_mass
+
+
+def build_stage_plan(
+    payload_kg: float,
+    propellant_kg: float,
+    diameter_m: float,
+    isp_s: float,
+    propellant_density: float,
+    fractions: tuple[float, ...],
+    locked: bool = False,
+) -> dict | None:
+    """把一份推进剂分配收成质量、速度增量和燃烧时间。装不下死重时返回 None。"""
+    if payload_kg <= 0 or propellant_kg <= 0 or diameter_m <= 0:
+        raise ValueError('载荷、推进剂与弹径必须大于 0')
+    if isp_s <= 0 or propellant_density <= 0:
+        raise ValueError('比冲与推进剂密度必须大于 0')
+    n_stages = len(fractions)
+    if n_stages < 1 or n_stages > 3:
+        raise ValueError('助推级数只能是 1、2 或 3')
+    event = 0.0 if n_stages == 1 else stage_event_dead_kg(diameter_m)
+    hardware = event * (n_stages - 1)
+    displaced = displaced_propellant_kg(hardware, propellant_density)
+    if displaced >= propellant_kg:
+        return None
+    burned = propellant_kg - displaced
+    staged = _staged_dv_and_burn(payload_kg, burned, hardware, event, fractions, isp_s)
+    if staged is None:
+        return None
+    dv, burn_time, burnout, launch_mass = staged
+    single_time = burned * isp_s / (booster_liftoff_twr(launch_mass) * launch_mass)
+    extra_gravity = G0 * STAGING_GRAVITY_FACTOR * max(0.0, burn_time - single_time)
+    return {
+        'n_stages': n_stages,
+        'fractions': fractions,
+        'stage_split': format_stage_split(fractions),
+        'propellant_kg': burned,
+        'hardware_kg': hardware,
+        'launch_mass_kg': launch_mass,
+        'dv_m_s': dv,
+        'burn_time_s': burn_time,
+        'burnout_mass_kg': burnout,
+        'extra_gravity_m_s': extra_gravity,
+        'stage_locked': locked,
+    }
+
+
+def _best_fraction_by_impulse(
+    payload_kg: float,
+    propellant_kg: float,
+    diameter_m: float,
+    isp_s: float,
+    propellant_density: float,
+    n_stages: int,
+) -> tuple[float, ...] | None:
+    """固定级数时，按理想速度增量减去额外重力损失选择分配。
+
+    同一级数的起飞质量不变，滑翔弹的气动损失也不变，所以这一指标就是关机速度。
+    """
+    event = 0.0 if n_stages == 1 else stage_event_dead_kg(diameter_m)
+    hardware = event * (n_stages - 1)
+    displaced = displaced_propellant_kg(hardware, propellant_density)
+    if displaced >= propellant_kg:
+        return None
+    burned = propellant_kg - displaced
+    single_twr = booster_liftoff_twr(
+        payload_kg + burned * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
+        + hardware + burned,
+    )
+    single_time = burned * isp_s / (
+        single_twr * (
+            payload_kg
+            + burned * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
+            + hardware
+            + burned
+        )
+    )
+    best: tuple[float, ...] | None = None
+    best_metric: float | None = None
+    for fractions in _fraction_candidates(n_stages):
+        staged = _staged_dv_and_burn(
+            payload_kg, burned, hardware, event, fractions, isp_s,
+        )
+        if staged is None:
+            continue
+        dv, burn_time, _burnout, _launch_mass = staged
+        extra_gravity = G0 * STAGING_GRAVITY_FACTOR * max(0.0, burn_time - single_time)
+        metric = dv - extra_gravity
+        if best_metric is None or metric > best_metric + 1e-6:
+            best = fractions
+            best_metric = metric
+    return best
+
+
+def search_booster_stages(
+    payload_kg: float,
+    propellant_kg: float,
+    diameter_m: float,
+    isp_s: float,
+    propellant_density: float,
+    score_fn,
+    stages: int | None = None,
+    tie_tol: float = 0.5,
+    prescreen: bool = False,
+) -> dict:
+    """在给定级数里搜索推进剂分配，取得分最高的方案。
+
+    stages 为空时比较单级、两级和三级。得分相同则保留级数更少的方案。
+    prescreen 为真时，每一级只把关机速度最高的分配送去评分，供滑翔弹使用。
+    """
+    if stages is None:
+        stage_counts = (1, 2, 3)
+        locked = False
+    else:
+        if stages not in (1, 2, 3):
+            raise ValueError('助推级数只能是 1、2 或 3')
+        stage_counts = (stages,)
+        locked = True
+    best: dict | None = None
+    best_score: float | None = None
+    for n_stages in stage_counts:
+        if prescreen:
+            chosen = _best_fraction_by_impulse(
+                payload_kg, propellant_kg, diameter_m, isp_s, propellant_density, n_stages,
+            )
+            fraction_list = () if chosen is None else (chosen,)
+        else:
+            fraction_list = _fraction_candidates(n_stages)
+        for fractions in fraction_list:
+            plan = build_stage_plan(
+                payload_kg, propellant_kg, diameter_m, isp_s, propellant_density,
+                fractions, locked=locked,
+            )
+            if plan is None:
+                continue
+            score = float(score_fn(plan))
+            if best_score is None or score > best_score + tie_tol:
+                best = plan
+                best_score = score
+    if best is None or best_score is None:
+        raise ValueError('没有可用的助推分级')
+    best['score'] = best_score
+    return best
+
+
+def stage_result_sentence(plan: dict) -> str:
+    """结果说明里的分级、分配、死重和额外重力损失。"""
+    n_stages = int(plan['n_stages'])
+    names = {1: '单级', 2: '两级', 3: '三级'}
+    name = names.get(n_stages, f'{n_stages}级')
+    hardware = float(plan.get('hardware_kg', plan.get('stage_hardware_kg', 0.0)))
+    burn_time = float(plan['burn_time_s'])
+    extra_gravity = float(plan.get('extra_gravity_m_s', 0.0))
+    if plan.get('stage_locked') and n_stages == 1:
+        return f"已锁定{name}，推进剂一次烧完，燃烧时间 {burn_time:.0f} s。"
+    if n_stages == 1:
+        return f"助推按射程取{name}，推进剂一次烧完，燃烧时间 {burn_time:.0f} s。"
+    return (
+        f"助推按射程取{name}，推进剂分配 {plan['stage_split']}。"
+        f"喷管、分离与级间段死重 {hardware:.0f} kg，"
+        f"燃烧时间 {burn_time:.0f} s，"
+        f"比按单级烧完多损失 {extra_gravity:.0f} m/s。"
+    )
+
+
 def hgv_altitude_loss_m_s(h_launch_km: float) -> float:
     """参考弹的重力加阻力：13 km 及以上沿用原曲线，更低处抬到海平面约 1000 m/s。"""
     if h_launch_km < 0:
@@ -260,9 +550,10 @@ def _round_hgv_result(
     ld_ratio: float,
     total_range_km: float,
     d_head: float,
+    stage: dict | None = None,
 ) -> dict:
     """把内部未舍入的助推滑翔结果收成对外字段。"""
-    return {
+    result = {
         'm_0_t': round(m_0 / 1000.0, 2),
         'l_head_m': round(l_head, 2),
         'l_booster_m': round(l_booster, 2),
@@ -273,6 +564,14 @@ def _round_hgv_result(
         'd_head_m': round(d_head, 3),
         'fineness': round(l_head / d_head, 2),
     }
+    if stage is not None:
+        result['n_stages'] = int(stage['n_stages'])
+        result['stage_split'] = stage['stage_split']
+        result['stage_hardware_kg'] = round(float(stage['hardware_kg']), 1)
+        result['burn_time_s'] = round(float(stage['burn_time_s']), 1)
+        result['extra_gravity_m_s'] = round(float(stage['extra_gravity_m_s']), 1)
+        result['stage_locked'] = bool(stage.get('stage_locked'))
+    return result
 
 
 def estimate_hgv_unrounded(
@@ -319,26 +618,20 @@ def estimate_hgv_unrounded(
 
     v_launch_ms = v_launch_mach * SOUND_SPEED_M_S
     m_head_total = head_total_mass_kg(warhead_mass_kg)
-    m_propellant = propellant_mass_kg(diameter_m, l_booster, propellant_density)
-    pmf = PROPELLANT_MASS_FRACTION
-    m_booster_dry = m_propellant * (1.0 - pmf) / pmf
-    m_0 = m_head_total + m_booster_dry + m_propellant
+    m_propellant_geom = propellant_mass_kg(diameter_m, l_booster, propellant_density)
 
-    v_e = isp_s * G0
-    m_p1 = m_propellant * 0.58
-    m_p2 = m_propellant * 0.42
-    m_s1 = m_booster_dry * 0.60
-    m_stg1_out = m_0 - m_p1
-    m_stg2_in = m_stg1_out - m_s1
-    m_stg2_out = m_stg2_in - m_p2
-    if min(m_stg1_out, m_stg2_in, m_stg2_out) <= 0:
-        raise ValueError('推进剂或结构质量组合无效，无法计算速度增量')
+    def score_plan(plan: dict) -> float:
+        # 关机速度已经含分级死重和更长燃烧的重力损失，滑翔航程随它单调增加。
+        loss = gravity_drag_loss_m_s(h_launch_km, plan['launch_mass_kg'], diameter_m)
+        return v_launch_ms + plan['dv_m_s'] - loss - plan['extra_gravity_m_s']
 
-    dv1 = v_e * math.log(m_0 / m_stg1_out)
-    dv2 = v_e * math.log(m_stg2_in / m_stg2_out)
-    v_burnout = v_launch_ms + (dv1 + dv2) - gravity_drag_loss_m_s(
-        h_launch_km, m_0, diameter_m,
+    stage = search_booster_stages(
+        m_head_total, m_propellant_geom, diameter_m, isp_s, propellant_density, score_plan,
+        prescreen=True,
     )
+    m_0 = stage['launch_mass_kg']
+    m_propellant = stage['propellant_kg']
+    v_burnout = float(stage['score'])
     ld_ratio = lift_drag_ratio(l_head, d_head, hgv_type)
     v_eff2 = v_burnout ** 2 + 2.0 * G0 * (h_launch_km * 1000.0)
     ratio_v2 = v_eff2 / (G0 * R_EARTH_M)
@@ -355,6 +648,7 @@ def estimate_hgv_unrounded(
         'range_km': total_range_km,
         'd_head_m': d_head,
         'fineness': l_head / d_head,
+        'stage': stage,
     }
 
 
@@ -410,6 +704,7 @@ def estimate_hgv(
     return _round_hgv_result(
         raw['m_0'], raw['l_head_m'], raw['l_booster_m'], raw['m_propellant'],
         raw['v_burnout'], raw['ld_ratio'], raw['range_km'], raw['d_head_m'],
+        stage=raw['stage'],
     )
 
 
@@ -522,12 +817,12 @@ def _optimize_hgv_geometry_compute(
     base = _round_hgv_result(
         base_raw['m_0'], base_raw['l_head_m'], base_raw['l_booster_m'],
         base_raw['m_propellant'], base_raw['v_burnout'], base_raw['ld_ratio'],
-        base_raw['range_km'], base_raw['d_head_m'],
+        base_raw['range_km'], base_raw['d_head_m'], stage=base_raw['stage'],
     )
     best_res = _round_hgv_result(
         best_raw['m_0'], best_raw['l_head_m'], best_raw['l_booster_m'],
         best_raw['m_propellant'], best_raw['v_burnout'], best_raw['ld_ratio'],
-        best_raw['range_km'], best_raw['d_head_m'],
+        best_raw['range_km'], best_raw['d_head_m'], stage=best_raw['stage'],
     )
     best_lh = best_raw['l_head_m']
     best_dh = best_raw['d_head_m']
