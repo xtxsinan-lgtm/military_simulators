@@ -116,11 +116,8 @@ struct MissileRangeView: View {
                                 ("助推实际", result.mach_boost ?? result.v_burnout_mach, 2, true),
                             ])
                         }
-                        if let high = result.range_high_km, let sea = result.range_sea_km {
-                            statRow([
-                                ("全高空 km", high, 1, false),
-                                ("全掠海 km", sea, 1, true),
-                            ])
+                        if result.range_high_km != nil, result.range_sea_km != nil {
+                            statRow(rangeStatItems(result))
                         } else {
                             statRow([
                                 (result.reached_takeover == false ? "弹道滑行 km" : "估算射程 km", result.range_km, 1, false),
@@ -211,6 +208,7 @@ struct MissileRangeView: View {
             cell("弹种", width: 120, dim: true)
             cell("比冲s", width: 108, dim: true)
             cell("射程km", width: 72, dim: true)
+            cell("混合km", width: 72, dim: true)
             cell("掠海km", width: 72, dim: true)
         }
         .padding(.vertical, 4)
@@ -225,6 +223,7 @@ struct MissileRangeView: View {
             cell(kind(row), width: 120, dim: false, highlight: on)
             cell(ispText(row), width: 108, dim: false, highlight: on)
             cell(fmt(row.range_km, 1), width: 72, dim: false, highlight: on)
+            cell(row.range_mixed_km == nil ? "—" : fmt(row.range_mixed_km, 1), width: 72, dim: false, highlight: on)
             cell(row.range_sea_km == nil ? "—" : fmt(row.range_sea_km, 1), width: 72, dim: false, highlight: on)
         }
         .padding(.vertical, 6)
@@ -261,6 +260,16 @@ struct MissileRangeView: View {
         if !items.isEmpty {
             statRow(items)
         }
+    }
+
+    private func rangeStatItems(_ result: MissileRangeEstimate) -> [(String, Double?, Int, Bool)] {
+        guard let high = result.range_high_km, let sea = result.range_sea_km else { return [] }
+        var items: [(String, Double?, Int, Bool)] = [("全高空 km", high, 1, false)]
+        if let mixed = result.range_mixed_km {
+            items.append(("混合弹道 km", mixed, 1, false))
+        }
+        items.append(("全掠海 km", sea, 1, true))
+        return items
     }
 
     private func ispStatItems(_ result: MissileRangeEstimate) -> [(String, Double?, Int, Bool)] {

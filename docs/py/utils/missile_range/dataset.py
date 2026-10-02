@@ -239,6 +239,7 @@ def evaluate_case(
         'launch': format_launch(float(case['v_mach']), float(case['h_km'])),
         'range_high_km': None,
         'range_sea_km': None,
+        'range_mixed_km': None,
         'range_terminal_km': None,
         'note': class_blurb(canon),
     }

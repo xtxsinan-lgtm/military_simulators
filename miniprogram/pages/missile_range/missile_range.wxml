@@ -87,6 +87,7 @@
     </view>
     <view class="stat-row" wx:if="{{result && result.range_sea_km != null}}">
       <view class="stat"><view class="k">全高空 km</view><view class="v">{{result.range_high_km}}</view></view>
+      <view class="stat" wx:if="{{result.range_mixed_km != null}}"><view class="k">混合弹道 km</view><view class="v">{{result.range_mixed_km}}</view></view>
       <view class="stat"><view class="k">全掠海 km</view><view class="v amber">{{result.range_sea_km}}</view></view>
     </view>
     <view class="stat-row" wx:if="{{result && result.range_sea_km == null}}">
@@ -134,6 +135,7 @@
           <text class="col">弹种</text>
           <text class="col isp">比冲</text>
           <text class="col">射程</text>
+          <text class="col">混合</text>
           <text class="col">掠海</text>
         </view>
         <view class="tr {{item.id === activeId ? 'on' : ''}} {{item.reached_takeover === false ? 'fail-takeover' : ''}}" wx:for="{{rows}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapRow">
@@ -144,6 +146,7 @@
           <text class="td col">{{item.kind}}<text class="tag-alert" wx:if="{{item.reached_takeover === false}}">未达速</text></text>
           <text class="td col isp">{{item.ispText}}</text>
           <text class="td col">{{item.range_km}}</text>
+          <text class="td col">{{item.mixedText}}</text>
           <text class="td col">{{item.seaText}}</text>
         </view>
       </view>

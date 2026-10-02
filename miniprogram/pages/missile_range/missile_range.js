@@ -28,6 +28,7 @@ function decorate(row) {
     ...row,
     kind: kindOf(row),
     seaText: row.range_sea_km == null ? '—' : String(row.range_sea_km),
+    mixedText: row.range_mixed_km == null ? '—' : String(row.range_mixed_km),
     ispText: ispTextOf(row),
   };
 }
@@ -139,6 +140,7 @@ Page({
         range_km: row.range_km,
         range_high_km: row.range_high_km,
         range_sea_km: row.range_sea_km,
+        range_mixed_km: row.range_mixed_km,
         range_terminal_km: row.range_terminal_km,
         v_burnout_mach: row.v_burnout_mach,
         ld_ratio: row.ld_ratio,
@@ -236,6 +238,7 @@ Page({
         const result = res.result || {};
         if (result.range_sea_km === undefined) result.range_sea_km = null;
         if (result.range_high_km === undefined) result.range_high_km = null;
+        if (result.range_mixed_km === undefined) result.range_mixed_km = null;
         if (result.range_terminal_km === undefined) result.range_terminal_km = null;
         const rows = (res.rows && res.rows.length ? res.rows : this.data.cases).map(decorate);
         const visible = this.data.failOnly

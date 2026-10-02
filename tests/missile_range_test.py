@@ -489,6 +489,9 @@ def test_normalize_missile_class_and_labels():
     assert class_label('hgv_biconic') == '双锥体助推滑翔'
     assert class_label('hgv_waverider') == '乘波体助推滑翔'
     assert '全掠海' in class_blurb('turbojet_subsonic')
+    assert '混合弹道' in class_blurb('turbojet_subsonic')
+    assert '混合弹道' in class_blurb('ramjet')
+    assert '视距' in class_blurb('turbofan_rocket')
     assert glide_shape('hgv_biconic') == 'biconic'
     assert glide_shape('hgv_waverider') == 'waverider'
     assert glide_shape('scramjet') is None
@@ -724,8 +727,10 @@ def test_six_classes_ranges_and_profiles():
     assert stealth['m_wing_kg'] == 84.4
     assert stealth['m_dead_kg'] == 645.8
     assert '折叠弹翼' in stealth['note']
-    assert stealth['range_high_km'] > stealth['range_sea_km']
-    assert plain['range_high_km'] > plain['range_sea_km']
+    assert stealth['range_high_km'] > stealth['range_mixed_km'] > stealth['range_sea_km']
+    assert '混合弹道' in stealth['note']
+    assert '中空 380 m' in stealth['note']
+    assert plain['range_high_km'] > plain['range_mixed_km'] > plain['range_sea_km']
     heavier = estimate_subsonic_class('turbofan_stealth', 6.2, 0.55, 700, 0.7, 0.2)
     assert heavier['range_km'] < stealth['range_km']
 
@@ -737,15 +742,21 @@ def test_six_classes_ranges_and_profiles():
     assert ram['cruise_alt_km'] == 10.0
     assert ram['v_burnout_mach'] == 2.8
     assert scram['range_sea_km'] is None
-    assert ram['range_high_km'] > ram['range_sea_km'] > 0
+    assert scram['range_mixed_km'] is None
+    assert ram['range_high_km'] > ram['range_mixed_km'] > ram['range_sea_km'] > 0
+    assert '混合弹道' in ram['note']
 
     prop, sized = terminal_propellant_for_dash(8.2, 0.53, 300, 0.7, 0.05, 264, 1760, _ROCKET_CRUISE)
     assert prop > 0 and sized['fuel_kg'] > 0
     combo = estimate_turbofan_rocket(8.2, 0.53, 300, 0.7, 0.05, 264, 1760)
     assert combo['range_terminal_km'] is None
     assert combo['range_high_km'] - combo['range_cruise_km'] == pytest.approx(33.6, abs=0.2)
-    assert combo['range_high_km'] > combo['range_sea_km']
+    assert combo['range_high_km'] > combo['range_mixed_km'] > combo['range_sea_km']
     assert combo['range_km'] == combo['range_high_km']
+    assert '视距冲刺' in combo['note']
+    assert combo['range_high_km'] - combo['range_mixed_km'] < 0.5 * (
+        combo['range_high_km'] - combo['range_sea_km']
+    )
     same_combo = estimate_turbofan_rocket(6.2, 0.55, 450, 0.7, 0.2, 264, 1760)
     assert same_combo['range_high_km'] < stealth['range_high_km']
 
@@ -973,14 +984,17 @@ def test_airbreathing_range_model_differs_from_boost_and_ballistic():
     ranges = {hgv['range_km'], ballistic['range_km'], scram['range_km'], ram['range_km'], fan['range_km']}
     assert len(ranges) == 5
     assert hgv.get('range_sea_km') is None
+    assert hgv.get('range_mixed_km') is None
     assert ballistic.get('range_sea_km') is None
+    assert ballistic.get('range_mixed_km') is None
     assert '不含滑翔' in ballistic['note']
     assert scram['range_sea_km'] is None
+    assert scram['range_mixed_km'] is None
     assert scram['cruise_alt_km'] == 24.0
     assert ram['cruise_alt_km'] == 10.0
     assert scram.get('m_wing_kg') is None
-    assert ram['range_high_km'] > ram['range_sea_km'] > 0
-    assert fan['range_high_km'] > fan['range_sea_km'] > 0
+    assert ram['range_high_km'] > ram['range_mixed_km'] > ram['range_sea_km'] > 0
+    assert fan['range_high_km'] > fan['range_mixed_km'] > fan['range_sea_km'] > 0
     assert fan['m_wing_kg'] > 0
     assert fan['m_dead_kg'] > fan['m_wing_kg']
     assert '折叠弹翼' in fan['note']
@@ -1174,6 +1188,173 @@ def test_burke_radar_los_km_matches_horizon():
     assert burke_radar_los_km() == pytest.approx(radar_horizon_km(25.0, 10.0))
     with pytest.raises(ValueError):
         burke_radar_los_km(radar_height_m=-1)
+
+
+def test_mixed_guidance_profile_splits_fuel_from_the_end():
+    """混合弹道按视距定中低段，燃油从终点往回扣；油不够时先缩短中段。"""
+    import math
+
+    from utils.missile_interception.missile_interception_radar import radar_horizon_km
+    from utils.missile_range.classes import (
+        G0,
+        GUIDANCE_SEARCH_HORIZON_FACTOR,
+        breguet_cruise_range_m,
+        breguet_fuel_for_range_kg,
+        burke_radar_los_km,
+        guidance_medium_altitude_m,
+        guidance_search_horizon_km,
+        mixed_guidance_legs_m,
+        mixed_guidance_range_m,
+        mixed_profile_sentence,
+    )
+
+    low = burke_radar_los_km()
+    search = guidance_search_horizon_km()
+    assert search == pytest.approx(GUIDANCE_SEARCH_HORIZON_FACTOR * low)
+    alt_m = guidance_medium_altitude_m()
+    assert alt_m == pytest.approx(379.7, abs=0.2)
+    assert radar_horizon_km(alt_m, 25.0) == pytest.approx(search)
+    with pytest.raises(ValueError, match='搜索视距倍数'):
+        guidance_search_horizon_km(search_factor=0)
+    with pytest.raises(ValueError, match='舰桅'):
+        guidance_medium_altitude_m(radar_height_m=-1)
+    with pytest.raises(ValueError, match='搜索视距必须大于 0'):
+        guidance_medium_altitude_m(search_horizon_km=0)
+    with pytest.raises(ValueError, match='无法反解'):
+        guidance_medium_altitude_m(search_horizon_km=1.0)
+
+    fuel = breguet_fuel_for_range_kg(80000, 250, 2e-5, 6, 800)
+    assert fuel == pytest.approx(800 * math.expm1(80000 * G0 * 2e-5 / (250 * 6)))
+    assert breguet_fuel_for_range_kg(0, 250, 2e-5, 6, 800) == 0
+    recovered = breguet_cruise_range_m(250, 2e-5, 6, 800 + fuel, 800)
+    assert recovered == pytest.approx(80000)
+    with pytest.raises(ValueError, match='航程不能为负'):
+        breguet_fuel_for_range_kg(-1, 250, 2e-5, 6, 800)
+    with pytest.raises(ValueError, match='终点质量'):
+        breguet_fuel_for_range_kg(1000, 250, 2e-5, 6, 0)
+
+    full = mixed_guidance_legs_m(
+        400, 600, 2e-5, 250, 6.0, 240, 3.0, 230, 2.0, 30000, 80000,
+    )
+    assert full['low_shortened'] is False and full['med_shortened'] is False
+    assert full['range_low_m'] == 30000
+    assert full['range_med_m'] == 80000
+    assert full['range_high_m'] > 0
+    assert full['range_m'] == pytest.approx(
+        full['range_high_m'] + full['range_med_m'] + full['range_low_m']
+    )
+    all_high = breguet_cruise_range_m(250, 2e-5, 6.0, 1000, 600)
+    all_low = breguet_cruise_range_m(230, 2e-5, 2.0, 1000, 600)
+    assert all_low < full['range_m'] < all_high
+
+    short_med = mixed_guidance_legs_m(
+        80, 920, 2e-5, 250, 6.0, 240, 3.0, 230, 2.0, 20000, 500000,
+    )
+    assert short_med['low_shortened'] is False
+    assert short_med['med_shortened'] is True
+    assert short_med['range_high_m'] == 0
+    assert 0 < short_med['range_med_m'] < 500000
+    assert short_med['range_low_m'] == 20000
+
+    short_low = mixed_guidance_legs_m(
+        5, 995, 2e-5, 250, 6.0, 240, 3.0, 230, 2.0, 400000, 100000,
+    )
+    assert short_low['low_shortened'] is True
+    assert short_low['med_shortened'] is True
+    assert short_low['range_high_m'] == 0 and short_low['range_med_m'] == 0
+    assert short_low['range_low_m'] == pytest.approx(
+        breguet_cruise_range_m(230, 2e-5, 2.0, 1000, 995)
+    )
+    empty = mixed_guidance_legs_m(0, 1000, 2e-5, 250, 6, 240, 3, 230, 2, 1000, 1000)
+    assert empty['range_m'] == 0 and empty['med_shortened'] is True
+    with pytest.raises(ValueError, match='可用燃油'):
+        mixed_guidance_legs_m(-1, 1000, 2e-5, 250, 6, 240, 3, 230, 2, 0, 0)
+    with pytest.raises(ValueError, match='末端航段'):
+        mixed_guidance_legs_m(10, 1000, 2e-5, 250, 6, 240, 3, 230, 2, -1, 0)
+    with pytest.raises(ValueError, match='升阻比'):
+        mixed_guidance_legs_m(10, 1000, 2e-5, 250, 0, 240, 3, 230, 2, 0, 0)
+
+    profile = mixed_guidance_range_m(
+        length_m=6.2,
+        launch_mass_kg=1200,
+        usable_fuel_kg=280,
+        tsfc_kg_n_s=2.15e-5,
+        ld_high=6.0,
+        mach_high=0.8,
+        alt_high_km=10.0,
+        ld_low=2.4,
+        mach_low=0.8,
+        alt_low_km=0.03,
+        cl_design=0.65,
+        aspect_ratio=5.0,
+        oswald=0.75,
+    )
+    assert profile['med_shortened'] is False and profile['low_shortened'] is False
+    assert profile['range_low_m'] == pytest.approx(low * 1000)
+    assert profile['range_med_m'] == pytest.approx(search * 1000)
+    assert profile['alt_med_km'] == pytest.approx(alt_m / 1000.0)
+    assert 2.0 < profile['ld_med'] < 6.0
+    no_low = mixed_guidance_range_m(
+        length_m=6.2,
+        launch_mass_kg=1200,
+        usable_fuel_kg=280,
+        tsfc_kg_n_s=2.15e-5,
+        ld_high=6.0,
+        mach_high=0.8,
+        alt_high_km=10.0,
+        ld_low=2.4,
+        mach_low=0.8,
+        alt_low_km=0.03,
+        cl_design=0.65,
+        aspect_ratio=5.0,
+        oswald=0.75,
+        include_low_leg=False,
+    )
+    assert no_low['range_low_m'] == 0
+    assert no_low['range_m'] > profile['range_m']
+    fast_med = mixed_guidance_range_m(
+        length_m=6.2,
+        launch_mass_kg=1200,
+        usable_fuel_kg=280,
+        tsfc_kg_n_s=2.15e-5,
+        ld_high=6.0,
+        mach_high=2.8,
+        alt_high_km=10.0,
+        ld_low=2.4,
+        mach_low=2.0,
+        alt_low_km=0.03,
+        cl_design=0.40,
+        aspect_ratio=2.5,
+        oswald=0.70,
+        mach_med=2.0,
+    )
+    assert fast_med['ld_med'] < 6.0
+    assert fast_med['range_m'] > 0
+    with pytest.raises(ValueError, match='终点质量'):
+        mixed_guidance_range_m(
+            length_m=6.2, launch_mass_kg=200, usable_fuel_kg=200, tsfc_kg_n_s=2e-5,
+            ld_high=5, mach_high=0.8, alt_high_km=10, ld_low=2, mach_low=0.8, alt_low_km=0.03,
+            cl_design=0.6, aspect_ratio=5, oswald=0.7,
+        )
+    with pytest.raises(ValueError, match='中空马赫数'):
+        mixed_guidance_range_m(
+            length_m=6.2, launch_mass_kg=1200, usable_fuel_kg=200, tsfc_kg_n_s=2e-5,
+            ld_high=5, mach_high=0.8, alt_high_km=10, ld_low=2, mach_low=0.8, alt_low_km=0.03,
+            cl_design=0.6, aspect_ratio=5, oswald=0.7, mach_med=0,
+        )
+
+    sentence = mixed_profile_sentence(1073.4, alt_m, search, low, 2.84)
+    assert '混合弹道 1073 km' in sentence
+    assert '中空 380 m' in sentence
+    assert '末段 34 km 掠海' in sentence
+    dash = mixed_profile_sentence(832, alt_m, search, low, 1.87, dash_replaces_low=True)
+    assert '视距冲刺' in dash
+    short_txt = mixed_profile_sentence(
+        40, alt_m, 12, 8, 2.1, med_shortened=True, low_shortened=True,
+    )
+    assert '搜索段缩短' in short_txt and '掠海段缩短' in short_txt
+    with pytest.raises(ValueError, match='升阻比无效'):
+        mixed_profile_sentence(10, alt_m, search, low, 0)
 
 
 def test_sea_skim_ld_follows_dynamic_pressure():

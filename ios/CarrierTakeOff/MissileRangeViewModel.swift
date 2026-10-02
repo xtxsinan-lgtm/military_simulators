@@ -94,6 +94,7 @@ final class MissileRangeViewModel: ObservableObject {
             range_km: row.range_km,
             range_high_km: row.range_high_km,
             range_sea_km: row.range_sea_km,
+            range_mixed_km: row.range_mixed_km,
             range_terminal_km: row.range_terminal_km,
             note: row.note,
             isp_boost_s: row.isp_boost_s,

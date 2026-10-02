@@ -89,6 +89,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'py_data_files' in (ROOT / 'ios' / 'CarrierTakeOff' / 'Resources' / 'engine.js').read_text(encoding='utf-8')
     assert '全高空' in js
     assert '全掠海' in js
+    assert '混合弹道' in js
     assert '末端射程' not in js
     assert '吸气比冲' in html
     assert 'isp_air_s' in js
@@ -103,6 +104,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'MissileRangeView' in hub
     view = (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileRangeView.swift').read_text(encoding='utf-8')
     assert '全掠海' in view
+    assert '混合弹道' in view
     assert '载机' in view
     assert '折叠弹翼' in view
     assert '吸气比冲' in view
@@ -112,6 +114,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'missile_class' in mini_js
     mini_wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
     assert '载机' in mini_wxml
+    assert '混合弹道' in mini_wxml
     assert '折叠弹翼' in mini_wxml
     assert '末端射程' not in mini_wxml
     assert '末端冲刺' not in view
@@ -153,7 +156,10 @@ def test_e2e_missile_range_six_classes():
         assert data['result']['missile_class'] == missile_class
         assert data['result']['range_km'] > 0
         if missile_class in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ramjet'):
-            assert data['result']['range_high_km'] > data['result']['range_sea_km'] > 0
+            assert data['result']['range_high_km'] > data['result']['range_mixed_km'] > data['result']['range_sea_km'] > 0
+            assert '混合弹道' in data['result']['note']
+        if missile_class in ('scramjet', 'ballistic'):
+            assert data['result']['range_mixed_km'] is None
         if missile_class == 'turbofan_rocket':
             assert data['result']['range_terminal_km'] is None
             assert data['result']['range_high_km'] - data['result']['range_cruise_km'] == pytest.approx(33.6, abs=0.2)

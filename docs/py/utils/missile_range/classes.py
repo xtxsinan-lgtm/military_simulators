@@ -3,6 +3,7 @@
 亚音速与冲压巡航用布雷盖航程，比冲由吸气耗油率换算，明显高于固体火箭。
 带助推器的吸气弹把比冲拆成两段：助推用固体比冲，巡航用吸气比冲。
 全高空统一 10 km，全掠海统一 30 m。掠海升阻比按该高度的动压、废阻和诱导阻力计算，不再用固定的全掠海/全高空射程比去缩放。
+非高超巡航弹另给一条混合弹道：大部分燃油在 10 km 飞，中空搜索和末段掠海的长度由雷达视距决定，燃油从终点往回扣。
 低速发射的亚音速弹先扣一截可抛弃固体助推器，助推器占燃油舱、不带进巡航质量。
 冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。接不上接力马赫数时只计助推后的弹道弧。
 亚燃是固冲一体：药柱铸在燃烧室里，和煤油分同一块能源容积。
@@ -43,6 +44,8 @@ FOLDED_WING_TC = 0.08
 # 有全高空/全掠海两档的弹种共用这一对高度。超燃没有掠海档，不使用。
 CRUISE_HIGH_ALT_KM = 10.0
 CRUISE_SEA_ALT_KM = 0.030
+# 中空搜索视距取掠海末段的倍数，用来罩住高空巡航积下的惯导散布。
+GUIDANCE_SEARCH_HORIZON_FACTOR = 3.0
 FOLDED_WING_AREAL_KG_M2 = 42.0
 # 折进弹体后，翼盒厚度不得超过弹径的这一比例
 FOLDED_WING_THICKNESS_FRAC = 0.45
@@ -128,22 +131,22 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'ramjet',
         'label': '亚燃冲压导弹',
-        'blurb': '固冲一体：固体药柱铸在亚燃燃烧室里，和煤油分同一块能源容积。助推用固体比冲，巡航用更高的吸气比冲。全高空 10 km 与全掠海 30 m 分开算，掠海升阻比按动压下的阻力，不按固定射程比缩放；更细的弹巡航比冲按弹径下降。',
+        'blurb': '固冲一体：固体药柱铸在亚燃燃烧室里，和煤油分同一块能源容积。助推用固体比冲，巡航用更高的吸气比冲。全高空 10 km 与全掠海 30 m 分开算，掠海升阻比按动压下的阻力，不按固定射程比缩放；更细的弹巡航比冲按弹径下降。另给高空巡航、中空搜索、末段掠海的混合弹道，两段末端长度由雷达视距决定。',
     },
     {
         'id': 'turbofan_stealth',
         'label': '涡扇亚音速隐身巡航',
-        'blurb': '涡扇吸气比冲远高于固体火箭。低速发射另加一截可抛弃固体助推器，助推与巡航比冲分开算。弹体按扁五边形而不是圆。全高空 10 km 与全掠海 30 m 分开算，掠海升阻比按动压下的阻力。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
+        'blurb': '涡扇吸气比冲远高于固体火箭。低速发射另加一截可抛弃固体助推器，助推与巡航比冲分开算。弹体按扁五边形而不是圆。全高空 10 km 与全掠海 30 m 分开算，掠海升阻比按动压下的阻力。另给高空巡航、中空搜索、末段掠海的混合弹道，两段末端长度由雷达视距决定。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'turbojet_subsonic',
         'label': '涡喷亚音速非隐身巡航',
-        'blurb': '涡喷吸气比冲高于固体火箭，但低于涡扇。低速发射的可抛弃助推器另按固体比冲计。全高空 10 km 与全掠海 30 m 分开算，掠海升阻比按动压下的阻力。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
+        'blurb': '涡喷吸气比冲高于固体火箭，但低于涡扇。低速发射的可抛弃助推器另按固体比冲计。全高空 10 km 与全掠海 30 m 分开算，掠海升阻比按动压下的阻力。另给高空巡航、中空搜索、末段掠海的混合弹道，两段末端长度由雷达视距决定。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'turbofan_rocket',
         'label': '亚超结合导弹',
-        'blurb': '巡航段用涡扇吸气比冲。末端冲刺不单列，统一按伯克级雷达对掠海目标的地球曲率视距加进总射程。低速发射还可再带一截比冲更低的可抛弃助推器。全高空 10 km 与全掠海 30 m 都加上同一段视距，掠海升阻比按动压下的阻力。弹翼折叠在弹体内。',
+        'blurb': '巡航段用涡扇吸气比冲。末端冲刺不单列，统一按伯克级雷达对掠海目标的地球曲率视距加进总射程。低速发射还可再带一截比冲更低的可抛弃助推器。全高空 10 km 与全掠海 30 m 都加上同一段视距，掠海升阻比按动压下的阻力。混合弹道在高空巡航后做中空搜索，末段仍用这一段视距，不再另飞亚音速掠海。弹翼折叠在弹体内。',
     },
     {
         'id': 'ballistic',
@@ -781,6 +784,24 @@ def breguet_cruise_range_m(
     return (speed_m_s / (G0 * tsfc_kg_n_s)) * ld * math.log(mass_initial_kg / mass_final_kg)
 
 
+def breguet_fuel_for_range_kg(
+    range_m: float,
+    speed_m_s: float,
+    tsfc_kg_n_s: float,
+    ld: float,
+    mass_final_kg: float,
+) -> float:
+    """飞完固定距离所需燃油。由较轻的终点质量往回推到起点。"""
+    if range_m < 0:
+        raise ValueError('航程不能为负')
+    if speed_m_s <= 0 or tsfc_kg_n_s <= 0 or ld <= 0 or mass_final_kg <= 0:
+        raise ValueError('速度、耗油率、升阻比与终点质量必须大于 0')
+    if range_m == 0.0:
+        return 0.0
+    exponent = range_m * G0 * tsfc_kg_n_s / (speed_m_s * ld)
+    return mass_final_kg * math.expm1(exponent)
+
+
 def isp_from_tsfc_s(tsfc_kg_n_s: float) -> float:
     """耗油率 kg/(N·s) 换成比冲（秒）。吸气发动机 Isp = 1/(g·TSFC)。"""
     if tsfc_kg_n_s <= 0:
@@ -878,7 +899,7 @@ def cruise_range_pair_km(
     height_m: float | None = None,
     cruise_tsfc: float | None = None,
 ) -> dict[str, float]:
-    """全高空与全掠海巡航航程。预留容积和惰性质量给末端火箭。
+    """全高空、全掠海与高中低混合巡航航程。预留容积和惰性质量给末端火箭。
 
     亚音速弹种带折叠弹翼时，翼面质量和占用容积从燃油舱里扣出，计入死重。
     发射速度低于接力马赫数时，可抛弃助推器再占一截燃油舱，巡航质量不含助推器。
@@ -1003,6 +1024,21 @@ def cruise_range_pair_km(
     range_sea = breguet_cruise_range_m(
         speed_sea, tsfc_hi, ld_sea, launch_mass, launch_mass - usable_sea,
     )
+    mixed = mixed_guidance_range_m(
+        length_m=length_m,
+        launch_mass_kg=launch_mass,
+        usable_fuel_kg=usable_hi,
+        tsfc_kg_n_s=tsfc_hi,
+        ld_high=ld,
+        mach_high=spec['mach'],
+        alt_high_km=spec['alt_km'],
+        ld_low=ld_sea,
+        mach_low=mach_sea,
+        alt_low_km=spec['sea_alt_km'],
+        cl_design=cl_design,
+        aspect_ratio=aspect,
+        oswald=oswald,
+    )
     bay = payload / spec['payload_density']
     head_len = min(length_m * 0.45, bay / max(section['area'], 1e-6))
     return {
@@ -1012,6 +1048,13 @@ def cruise_range_pair_km(
         'ld_sea': ld_sea,
         'range_high_m': range_high,
         'range_sea_m': range_sea,
+        'range_mixed_m': mixed['range_m'],
+        'ld_med': mixed['ld_med'],
+        'alt_med_km': mixed['alt_med_km'],
+        'range_med_m': mixed['range_med_m'],
+        'range_low_m': mixed['range_low_m'],
+        'med_shortened': mixed['med_shortened'],
+        'low_shortened': mixed['low_shortened'],
         'l_head_m': head_len,
         'cruise_mach': spec['mach'],
         'cruise_alt_km': spec['alt_km'],
@@ -1267,6 +1310,215 @@ def burke_radar_los_km(
     return radar_horizon_km(radar_height_m, target_height_m)
 
 
+def guidance_search_horizon_km(
+    radar_height_m: float = BURKE_RADAR_HEIGHT_M,
+    target_height_m: float = BURKE_SEA_TARGET_HEIGHT_M,
+    search_factor: float = GUIDANCE_SEARCH_HORIZON_FACTOR,
+) -> float:
+    """中空搜索视距（公里）：掠海末段视距乘以搜索倍数。"""
+    if search_factor <= 0:
+        raise ValueError('搜索视距倍数必须大于 0')
+    return search_factor * burke_radar_los_km(radar_height_m, target_height_m)
+
+
+def guidance_medium_altitude_m(
+    radar_height_m: float = BURKE_RADAR_HEIGHT_M,
+    search_horizon_km: float | None = None,
+) -> float:
+    """由导引头对舰桅的视距反解中空高度（米）。"""
+    if radar_height_m < 0:
+        raise ValueError('舰桅高度不能为负')
+    if search_horizon_km is None:
+        horizon = guidance_search_horizon_km(radar_height_m)
+    else:
+        horizon = float(search_horizon_km)
+    if horizon <= 0:
+        raise ValueError('搜索视距必须大于 0')
+    # 与 radar_horizon_km 同一系数：视距 = k·(√h + √桅高)，k 取高度 1 m、桅高 0。
+    scale = radar_horizon_km(1.0, 0.0)
+    if scale <= 0:
+        raise ValueError('雷达视距系数无效')
+    inside = horizon / scale - math.sqrt(radar_height_m)
+    if inside <= 0:
+        raise ValueError('搜索视距短于舰桅自身视距，无法反解高度')
+    return inside * inside
+
+
+def mixed_guidance_legs_m(
+    usable_fuel_kg: float,
+    mass_final_kg: float,
+    tsfc_kg_n_s: float,
+    speed_high_m_s: float,
+    ld_high: float,
+    speed_med_m_s: float,
+    ld_med: float,
+    speed_low_m_s: float,
+    ld_low: float,
+    low_leg_m: float,
+    med_leg_m: float,
+) -> dict:
+    """从终点往回分配高、中、低三段航程。油不够时先缩短中段，再缩短低段。"""
+    if usable_fuel_kg < 0 or mass_final_kg <= 0:
+        raise ValueError('可用燃油不能为负，终点质量必须大于 0')
+    if low_leg_m < 0 or med_leg_m < 0:
+        raise ValueError('末端航段不能为负')
+    if min(speed_high_m_s, speed_med_m_s, speed_low_m_s, ld_high, ld_med, ld_low, tsfc_kg_n_s) <= 0:
+        raise ValueError('速度、升阻比与耗油率必须大于 0')
+    mass_start = mass_final_kg + usable_fuel_kg
+    if usable_fuel_kg == 0.0:
+        return {
+            'range_high_m': 0.0,
+            'range_med_m': 0.0,
+            'range_low_m': 0.0,
+            'range_m': 0.0,
+            'med_shortened': med_leg_m > 0.0,
+            'low_shortened': low_leg_m > 0.0,
+        }
+
+    fuel_low = breguet_fuel_for_range_kg(
+        low_leg_m, speed_low_m_s, tsfc_kg_n_s, ld_low, mass_final_kg,
+    )
+    if fuel_low > usable_fuel_kg + 1e-9:
+        flown_low = breguet_cruise_range_m(
+            speed_low_m_s, tsfc_kg_n_s, ld_low, mass_start, mass_final_kg,
+        )
+        return {
+            'range_high_m': 0.0,
+            'range_med_m': 0.0,
+            'range_low_m': flown_low,
+            'range_m': flown_low,
+            'med_shortened': med_leg_m > 0.0,
+            'low_shortened': True,
+        }
+
+    mass_before_low = mass_final_kg + fuel_low
+    fuel_left = usable_fuel_kg - fuel_low
+    fuel_med = breguet_fuel_for_range_kg(
+        med_leg_m, speed_med_m_s, tsfc_kg_n_s, ld_med, mass_before_low,
+    )
+    if fuel_med > fuel_left + 1e-9:
+        if fuel_left <= 1e-9:
+            flown_med = 0.0
+        else:
+            flown_med = breguet_cruise_range_m(
+                speed_med_m_s, tsfc_kg_n_s, ld_med,
+                mass_before_low + fuel_left, mass_before_low,
+            )
+        return {
+            'range_high_m': 0.0,
+            'range_med_m': flown_med,
+            'range_low_m': low_leg_m,
+            'range_m': flown_med + low_leg_m,
+            'med_shortened': True,
+            'low_shortened': False,
+        }
+
+    mass_before_med = mass_before_low + fuel_med
+    if mass_start <= mass_before_med + 1e-6:
+        flown_high = 0.0
+    else:
+        flown_high = breguet_cruise_range_m(
+            speed_high_m_s, tsfc_kg_n_s, ld_high, mass_start, mass_before_med,
+        )
+    return {
+        'range_high_m': flown_high,
+        'range_med_m': med_leg_m,
+        'range_low_m': low_leg_m,
+        'range_m': flown_high + med_leg_m + low_leg_m,
+        'med_shortened': False,
+        'low_shortened': False,
+    }
+
+
+def mixed_guidance_range_m(
+    *,
+    length_m: float,
+    launch_mass_kg: float,
+    usable_fuel_kg: float,
+    tsfc_kg_n_s: float,
+    ld_high: float,
+    mach_high: float,
+    alt_high_km: float,
+    ld_low: float,
+    mach_low: float,
+    alt_low_km: float,
+    cl_design: float,
+    aspect_ratio: float,
+    oswald: float,
+    include_low_leg: bool = True,
+    mach_med: float | None = None,
+) -> dict:
+    """高空巡航、中空搜索、末段掠海的混合航程。
+
+    爬升耗油已经从可用燃油里扣掉。中空升阻比按该高度的动压计算。
+    亚超结合把末段掠海换成固体冲刺时，include_low_leg 取 False，冲刺距离由调用方另加。
+    稠密大气里飞不了高空设计马赫数时，传入较低的 mach_med。
+    """
+    if usable_fuel_kg < 0 or launch_mass_kg <= usable_fuel_kg:
+        raise ValueError('巡航终点质量必须大于 0')
+    if length_m <= 0 or mach_high <= 0 or mach_low <= 0:
+        raise ValueError('弹长与马赫数必须大于 0')
+    if alt_high_km < 0 or alt_low_km < 0:
+        raise ValueError('高度不能为负')
+    mach_at_med = mach_low if mach_med is None else float(mach_med)
+    if mach_at_med <= 0:
+        raise ValueError('中空马赫数必须大于 0')
+    alt_med_km = guidance_medium_altitude_m() / 1000.0
+    ld_med = sea_skim_ld(
+        ld_high, mach_high, alt_high_km, mach_at_med, alt_med_km, length_m,
+        cl_design, aspect_ratio, oswald,
+    )
+    low_leg_m = burke_radar_los_km() * 1000.0 if include_low_leg else 0.0
+    med_leg_m = guidance_search_horizon_km() * 1000.0
+    legs = mixed_guidance_legs_m(
+        usable_fuel_kg,
+        launch_mass_kg - usable_fuel_kg,
+        tsfc_kg_n_s,
+        mach_high * speed_of_sound_m_s(alt_high_km),
+        ld_high,
+        mach_at_med * speed_of_sound_m_s(alt_med_km),
+        ld_med,
+        mach_low * speed_of_sound_m_s(alt_low_km),
+        ld_low,
+        low_leg_m,
+        med_leg_m,
+    )
+    legs['alt_med_km'] = alt_med_km
+    legs['ld_med'] = ld_med
+    legs['med_leg_requested_m'] = med_leg_m
+    legs['low_leg_requested_m'] = low_leg_m
+    return legs
+
+
+def mixed_profile_sentence(
+    range_mixed_km: float,
+    alt_med_m: float,
+    med_leg_km: float,
+    low_leg_km: float,
+    ld_med: float,
+    *,
+    dash_replaces_low: bool = False,
+    med_shortened: bool = False,
+    low_shortened: bool = False,
+) -> str:
+    """混合弹道的一句说明：中空高度、两段末端和中空升阻比。"""
+    if range_mixed_km < 0 or alt_med_m < 0 or med_leg_km < 0 or low_leg_km < 0 or ld_med <= 0:
+        raise ValueError('混合弹道说明的射程、高度与升阻比无效')
+    med_txt = f"中空 {alt_med_m:.0f} m 搜索 {med_leg_km:.0f} km"
+    if med_shortened:
+        med_txt += "（燃油不足，搜索段缩短）"
+    if dash_replaces_low:
+        low_txt = "末段为伯克级雷达视距冲刺"
+    else:
+        low_txt = f"末段 {low_leg_km:.0f} km 掠海"
+        if low_shortened:
+            low_txt += "（燃油不足，掠海段缩短）"
+    return (
+        f"混合弹道 {range_mixed_km:.0f} km：高空巡航后{med_txt}，{low_txt}，"
+        f"中空升阻比 {ld_med:.2f}。"
+    )
+
+
 def terminal_dash_range_m(
     mass_ignition_kg: float,
     propellant_kg: float,
@@ -1507,6 +1759,7 @@ def _base_fields(
     note: str,
     range_high_km: float | None = None,
     range_sea_km: float | None = None,
+    range_mixed_km: float | None = None,
     range_cruise_km: float | None = None,
     range_terminal_km: float | None = None,
     cruise_mach: float | None = None,
@@ -1535,6 +1788,7 @@ def _base_fields(
         'range_km': round(range_km, 1),
         'range_high_km': None if range_high_km is None else round(range_high_km, 1),
         'range_sea_km': None if range_sea_km is None else round(range_sea_km, 1),
+        'range_mixed_km': None if range_mixed_km is None else round(range_mixed_km, 1),
         'range_cruise_km': None if range_cruise_km is None else round(range_cruise_km, 1),
         'range_terminal_km': None if range_terminal_km is None else round(range_terminal_km, 1),
         'cruise_mach': None if cruise_mach is None else round(cruise_mach, 2),
@@ -1588,6 +1842,16 @@ def estimate_subsonic_class(
     )
     high_km = sized['range_high_m'] / 1000.0
     sea_km = sized['range_sea_m'] / 1000.0
+    mixed_km = sized['range_mixed_m'] / 1000.0
+    mix_txt = mixed_profile_sentence(
+        mixed_km,
+        sized['alt_med_km'] * 1000.0,
+        sized['range_med_m'] / 1000.0,
+        sized['range_low_m'] / 1000.0,
+        sized['ld_med'],
+        med_shortened=bool(sized['med_shortened']),
+        low_shortened=bool(sized['low_shortened']),
+    )
     ignition = sized['m_0'] + sized['m_booster_kg']
     dead = deadweight_kg(ignition, sized['fuel_kg'], warhead_mass_kg, sized['m_booster_kg'])
     fit = '' if sized['wing_fill'] >= 0.995 else f"弹舱只能放下设计翼面积的 {sized['wing_fill'] * 100:.0f}%。"
@@ -1602,11 +1866,12 @@ def estimate_subsonic_class(
         f"高空升阻比 {sized['ld']:.2f}，掠海升阻比 {sized['ld_sea']:.2f}，"
         f"巡航吸气比冲 {sized['isp_cruise_s']:.0f} s。"
         f"{boost_txt}折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
+        f"{mix_txt}"
     )
     return _base_fields(
         canon, ignition, sized['l_head_m'], length_m - sized['l_head_m'],
         sized['fuel_kg'], spec['mach'], sized['ld'], high_km, note,
-        range_high_km=high_km, range_sea_km=sea_km,
+        range_high_km=high_km, range_sea_km=sea_km, range_mixed_km=mixed_km,
         range_cruise_km=high_km, cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],
         m_dead_kg=dead, m_wing_kg=sized['m_wing_kg'],
         isp_boost_s=isp_boost, isp_cruise_s=sized['isp_cruise_s'],
@@ -1694,6 +1959,8 @@ def estimate_ducted(
     mach_takeover = spec['mach_takeover']
     booster_mass = propellant * (1.0 + BOOST_CASE_FRAC) if propellant > 0 else 0.0
     sea_ld = None
+    mixed_km = None
+    mix_txt = ''
     if not reached:
         # 接不上接力马赫数时，不能在高空用巡航速度做布雷盖。
         burnout_alt = burnout_altitude_km(max(speed_after, 50.0), h_launch_km)
@@ -1759,6 +2026,32 @@ def estimate_ducted(
                     sea_speed, tsfc, sea_ld, mass_after_boost, mass_after_boost - sea_fuel,
                 )
                 sea_km = (sea_m + boost_range) / 1000.0
+                mixed = mixed_guidance_range_m(
+                    length_m=length_m,
+                    launch_mass_kg=mass_after_boost,
+                    usable_fuel_kg=cruise_fuel,
+                    tsfc_kg_n_s=tsfc,
+                    ld_high=ld,
+                    mach_high=spec['mach_cruise'],
+                    alt_high_km=cruise_alt,
+                    ld_low=sea_ld,
+                    mach_low=sea_mach,
+                    alt_low_km=spec['sea_alt_km'],
+                    cl_design=cl_design,
+                    aspect_ratio=aspect,
+                    oswald=oswald,
+                    mach_med=sea_mach,
+                )
+                mixed_km = (mixed['range_m'] + boost_range) / 1000.0
+                mix_txt = mixed_profile_sentence(
+                    mixed_km,
+                    mixed['alt_med_km'] * 1000.0,
+                    mixed['range_med_m'] / 1000.0,
+                    mixed['range_low_m'] / 1000.0,
+                    mixed['ld_med'],
+                    med_shortened=bool(mixed['med_shortened']),
+                    low_shortened=bool(mixed['low_shortened']),
+                )
     dead = deadweight_kg(launch_mass, fuel, warhead_mass_kg, propellant)
     bay = payload / spec['payload_density']
     section = math.pi * (diameter_m / 2.0) ** 2
@@ -1781,7 +2074,7 @@ def estimate_ducted(
     note = (
         f"{class_label(canon)}：{layout}{boost_txt}巡航吸气比冲 {isp_cruise:.0f} s。"
         f"高空巡航 Ma {cruise_mach:.2f} @ {cruise_alt:.0f} km，"
-        f"设计 Ma {spec['mach_cruise']:.1f}。{trimmed}{sea_txt}"
+        f"设计 Ma {spec['mach_cruise']:.1f}。{trimmed}{sea_txt}{mix_txt}"
         f"死重 {dead:.0f} kg。"
     )
     return _base_fields(
@@ -1789,6 +2082,7 @@ def estimate_ducted(
         cruise_mach, ld, high_km, note,
         range_high_km=high_km if sea_km is not None else None,
         range_sea_km=sea_km,
+        range_mixed_km=mixed_km,
         range_cruise_km=cruise_m / 1000.0,
         cruise_mach=cruise_mach, cruise_alt_km=cruise_alt,
         m_dead_kg=dead,
@@ -1812,7 +2106,7 @@ def terminal_propellant_for_dash(
     propellant_density: float,
     spec: dict[str, float],
     cruise_tsfc: float | None = None,
-) -> tuple[float, dict[str, float]]:
+) -> tuple[float, dict]:
     """按较重的巡航终点质量迭代末端装药。折叠弹翼先占燃油舱，装药不得挤掉弹翼。
 
     末端火箭用固体比冲。巡航耗油率另传，对应更高的吸气比冲。
@@ -1893,6 +2187,34 @@ def estimate_turbofan_rocket(
     dash_km = burke_radar_los_km()
     high_km = sized['range_high_m'] / 1000.0 + dash_km
     sea_km = sized['range_sea_m'] / 1000.0 + dash_km
+    # 末段冲刺就是掠海视距，混合弹道不再另扣一段亚音速掠海燃油。
+    cl_design, aspect, oswald = wing_polar(spec)
+    mixed = mixed_guidance_range_m(
+        length_m=length_m,
+        launch_mass_kg=sized['m_0'],
+        usable_fuel_kg=sized['usable_high_kg'],
+        tsfc_kg_n_s=cruise_tsfc,
+        ld_high=sized['ld'],
+        mach_high=spec['mach'],
+        alt_high_km=spec['alt_km'],
+        ld_low=sized['ld_sea'],
+        mach_low=spec.get('sea_mach', spec['mach']),
+        alt_low_km=spec['sea_alt_km'],
+        cl_design=cl_design,
+        aspect_ratio=aspect,
+        oswald=oswald,
+        include_low_leg=False,
+    )
+    mixed_km = mixed['range_m'] / 1000.0 + dash_km
+    mix_txt = mixed_profile_sentence(
+        mixed_km,
+        mixed['alt_med_km'] * 1000.0,
+        mixed['range_med_m'] / 1000.0,
+        dash_km,
+        mixed['ld_med'],
+        dash_replaces_low=True,
+        med_shortened=bool(mixed['med_shortened']),
+    )
     ignition = sized['m_0'] + sized['m_booster_kg']
     dead = deadweight_kg(
         ignition, sized['fuel_kg'], warhead_mass_kg, propellant + sized['m_booster_kg'],
@@ -1909,12 +2231,13 @@ def estimate_turbofan_rocket(
         f"全高空 {spec['alt_km']:.0f} km / 全掠海 {spec['sea_alt_km'] * 1000:.0f} m，"
         f"高空升阻比 {sized['ld']:.2f}，掠海升阻比 {sized['ld_sea']:.2f}。"
         f"末端冲刺按伯克级雷达视距计入总射程。"
+        f"{mix_txt}"
         f"{boost_txt}折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
     )
     return _base_fields(
         'turbofan_rocket', ignition, sized['l_head_m'], length_m - sized['l_head_m'],
         sized['fuel_kg'] + propellant, spec['mach'], sized['ld'], high_km, note,
-        range_high_km=high_km, range_sea_km=sea_km,
+        range_high_km=high_km, range_sea_km=sea_km, range_mixed_km=mixed_km,
         range_cruise_km=sized['range_high_m'] / 1000.0,
         range_terminal_km=None,
         cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],

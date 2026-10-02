@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 33;
+const APP_VERSION = 34;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -194,8 +194,12 @@ function renderResult(result, title) {
     : '';
 
   const dual = result.range_high_km != null && result.range_sea_km != null;
+  const mixed = result.range_mixed_km != null
+    ? `<div class="stat"><div class="k">混合弹道</div><div class="v">${fmt(result.range_mixed_km, 1)}</div><div class="sub">km</div></div>`
+    : '';
   const lead = dual
     ? `<div class="stat"><div class="k">全高空射程</div><div class="v">${fmt(result.range_high_km, 1)}</div><div class="sub">km</div></div>
+       ${mixed}
        <div class="stat"><div class="k">全掠海射程</div><div class="v amber">${fmt(result.range_sea_km, 1)}</div><div class="sub">km</div></div>`
     : `<div class="stat"><div class="k">${isFailedTakeover ? '弹道滑行射程' : '估算射程'}</div><div class="v ${isFailedTakeover ? 'amber' : ''}">${fmt(result.range_km, 1)}</div><div class="sub">${isFailedTakeover ? 'km (冲压未启动)' : 'km'}</div></div>`;
   const wing = result.m_wing_kg != null
@@ -285,6 +289,7 @@ function renderTable() {
       <td>${fmt(row.v_burnout_mach, 2)}</td>
       <td>${ispLabel(row)}</td>
       <td>${fmt(row.range_km, 1)}${rangeSub}</td>
+      <td>${row.range_mixed_km == null ? '—' : fmt(row.range_mixed_km, 1)}</td>
       <td>${row.range_sea_km == null ? '—' : fmt(row.range_sea_km, 1)}</td>
     </tr>
   `;
@@ -294,7 +299,7 @@ function renderTable() {
       <thead>
         <tr>
           <th>ID</th><th>尺寸 m</th><th>载机</th><th>弹头 kg</th><th>弹种</th><th>发射条件</th>
-          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>掠海 km</th>
+          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>混合 km</th><th>掠海 km</th>
         </tr>
       </thead>
       <tbody>${body}</tbody>

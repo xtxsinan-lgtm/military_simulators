@@ -668,6 +668,7 @@ struct MissileRangeCase: Codable, Identifiable, Hashable {
     var range_km: Double?
     var range_high_km: Double?
     var range_sea_km: Double?
+    var range_mixed_km: Double?
     var range_terminal_km: Double?
     var note: String?
     var isp_boost_s: Double?
@@ -697,6 +698,7 @@ struct MissileRangeEstimate: Codable {
     var range_km: Double?
     var range_high_km: Double? = nil
     var range_sea_km: Double? = nil
+    var range_mixed_km: Double? = nil
     var range_cruise_km: Double? = nil
     var range_terminal_km: Double? = nil
     var cruise_mach: Double? = nil
