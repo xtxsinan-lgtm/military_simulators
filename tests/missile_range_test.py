@@ -734,26 +734,31 @@ def test_carrier_launch_envelope():
 
 
 def test_j15_wing_presets_stay_inside_pylon_box():
-    """歼-15 翼下预设落在弹长 6.5 m、弹径 0.70 m、起飞质量 1500 kg 以内。"""
+    """歼-15 翼下预设落在弹长 6.5 m、弹径 0.70 m、起飞质量 1500 kg 以内。
+
+    亚音速、亚燃、亚超结合和普通弹道用 500 kg 战斗部，其余翼下弹种仍是 300 kg。
+    """
     from utils.missile_range.classes import estimate_by_class
     from utils.missile_range.dataset import build_preset_cases
 
+    # 弹长、弹径、战斗部
     expected = {
-        'hgv_biconic': (6.50, 0.5873),
-        'hgv_waverider': (6.50, 0.5873),
-        'scramjet': (6.35, 0.6999),
-        'ramjet': (6.32, 0.5001),
-        'ballistic': (4.58, 0.6997),
-        'turbofan_stealth': (6.50, 0.6188),
-        'turbojet_subsonic': (6.50, 0.6661),
-        'turbofan_rocket': (6.50, 0.5381),
+        'hgv_biconic': (6.50, 0.5873, 300),
+        'hgv_waverider': (6.50, 0.5873, 300),
+        'scramjet': (6.35, 0.6999, 300),
+        'ramjet': (5.46, 0.5006, 500),
+        'ballistic': (4.15, 0.6942, 500),
+        'turbofan_stealth': (6.50, 0.5727, 500),
+        'turbojet_subsonic': (6.50, 0.6244, 500),
+        'turbofan_rocket': (6.50, 0.4962, 500),
     }
     wings = [case for case in build_preset_cases() if case['bay'] == '歼-15翼下']
     assert {case['missile_class'] for case in wings} == set(expected)
     for case in wings:
-        length, diameter = expected[case['missile_class']]
+        length, diameter, warhead = expected[case['missile_class']]
         assert case['length'] == pytest.approx(length)
         assert case['diameter'] == pytest.approx(diameter)
+        assert case['warhead'] == warhead
         assert case['length'] <= 6.5
         assert case['diameter'] <= 0.70
         result = estimate_by_class(
