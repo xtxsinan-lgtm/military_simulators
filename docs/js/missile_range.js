@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 35;
+const APP_VERSION = 34;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -210,7 +210,7 @@ function renderResult(result, title) {
     ? `<div class="stat"><div class="k">几何增程</div><div class="v cyan">+${fmt(result.range_gain_km, 1)}</div><div class="sub">km</div></div>`
     : '';
   const dHead = result.d_head_m != null
-    ? `<div class="stat"><div class="k">滑翔底径</div><div class="v">${fmt(result.d_head_m, 3)}</div><div class="sub">m · 后缘或底圆</div></div>`
+    ? `<div class="stat"><div class="k">滑翔体直径</div><div class="v">${fmt(result.d_head_m, 3)}</div><div class="sub">m</div></div>`
     : '';
   const fineness = result.fineness != null
     ? `<div class="stat"><div class="k">滑翔长细比</div><div class="v">${fmt(result.fineness, 2)}</div><div class="sub">L/D_geom</div></div>`

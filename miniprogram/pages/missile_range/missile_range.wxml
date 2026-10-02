@@ -104,7 +104,7 @@
     </view>
     <view class="stat-row" wx:if="{{result}}">
       <view class="stat"><view class="k">弹头 m</view><view class="v">{{result.l_head_m}}</view></view>
-      <view class="stat" wx:if="{{result.d_head_m != null}}"><view class="k">底径 m</view><view class="v">{{result.d_head_m}}</view></view>
+      <view class="stat" wx:if="{{result.d_head_m != null}}"><view class="k">滑翔径 m</view><view class="v">{{result.d_head_m}}</view></view>
       <view class="stat" wx:if="{{result.fineness != null}}"><view class="k">长细比</view><view class="v">{{result.fineness}}</view></view>
       <view class="stat" wx:if="{{result.range_gain_km != null && result.range_gain_km > 0}}"><view class="k">几何增程 km</view><view class="v">{{result.range_gain_km}}</view></view>
       <view class="stat"><view class="k">助推 m</view><view class="v">{{result.l_booster_m}}</view></view>

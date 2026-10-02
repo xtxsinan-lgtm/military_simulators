@@ -137,7 +137,7 @@ struct MissileRangeView: View {
                         if let dHead = result.d_head_m {
                             statRow([
                                 ("弹头 m", result.l_head_m, 2, false),
-                                ("底径 m", dHead, 3, false),
+                                ("滑翔径 m", dHead, 3, false),
                                 ("助推 m", result.l_booster_m, 2, false),
                             ])
                             if result.fineness != nil || (result.range_gain_km ?? 0) > 0 {

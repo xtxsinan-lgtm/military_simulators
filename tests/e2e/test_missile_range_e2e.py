@@ -275,10 +275,7 @@ def test_e2e_airbreathing_presets_differ_from_glide_and_ballistic():
         if row['length_m'] == 10.5 and row['diameter_m'] == 1.1 and row['warhead_kg'] == 150
     ]
     by_class = {row['missile_class']: row for row in shared}
-    assert by_class['hgv_waverider']['d_head_m'] == pytest.approx(1.1)
-    assert by_class['hgv_biconic']['d_head_m'] == pytest.approx(1.1)
-    assert by_class['hgv_waverider']['range_km'] > by_class['hgv_biconic']['range_km']
-    assert by_class['hgv_biconic']['range_km'] != by_class['ballistic']['range_km']
+    assert by_class['hgv_biconic']['range_km'] - by_class['ballistic']['range_km'] > 1000
     assert by_class['hgv_biconic']['range_km'] != by_class['scramjet']['range_km']
     assert by_class['scramjet']['range_km'] != by_class['ramjet']['range_km']
     assert by_class['ramjet']['range_km'] != by_class['ballistic']['range_km']
@@ -424,9 +421,10 @@ def test_e2e_missile_range_hgv_geometry_optimization():
     data = json.loads(body.decode())
     assert data['success'] is True
     opt = data['optimization']
-    assert opt['best_d_head_m'] == pytest.approx(1.0)
-    assert opt['baseline_d_head_m'] == pytest.approx(1.0)
-    assert opt['max_range_km'] >= opt['baseline_range_km']
+    assert opt['range_gain_km'] > 500.0
+    assert opt['best_l_head_m'] > opt['baseline_l_head_m']
+    assert opt['best_d_head_m'] <= 1.0
+    assert opt['best_ld_ratio'] > opt['baseline_ld_ratio']
     assert opt['best_fineness'] >= 2.5
 
     # 常规 estimate 不传开关时，助推滑翔默认寻优
@@ -472,9 +470,9 @@ def test_e2e_missile_range_hgv_geometry_optimization():
     assert est_data['success'] is True
     res = est_data['result']
     assert res['optimal_geometry'] is True
-    assert res['d_head_m'] == pytest.approx(1.0)
-    assert '底径' in res['note']
+    assert res['range_gain_km'] > 500.0
     assert '几何搜索寻优' in res['note']
+    assert res['d_head_m'] <= 1.0
 
 
 @pytest.mark.e2e

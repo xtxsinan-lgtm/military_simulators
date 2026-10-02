@@ -28,7 +28,7 @@ from utils.missile_range.estimate import (
     PROPELLANT_MASS_FRACTION,
     R_EARTH_M,
     head_and_booster_lengths_m,
-    glide_body_mass_kg,
+    head_total_mass_kg,
     motor_cross_section_m2,
     propellant_mass_kg,
 )
@@ -116,12 +116,12 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'hgv_biconic',
         'label': '双锥体助推滑翔',
-        'blurb': '两级固体助推。双锥体底径锁定为弹径，只搜索长度：先保证战斗部、制导与控制组件容积和气动长细比，壳体质量按实际容积计，再把剩余长度留给助推级，按底径对应的半锥角估算升阻比并积分滑翔航程。',
+        'blurb': '两级固体助推。滑翔体在弹径以内搜索长度与等效直径：先保证战斗部、制导与控制组件容积和气动长细比，再把剩余长度留给助推级，按抛掉助推级后的双锥体升阻比积分滑翔航程。',
     },
     {
         'id': 'hgv_waverider',
         'label': '乘波体助推滑翔',
-        'blurb': '两级固体助推。乘波体前段为扁平三角，后缘锁定为弹径，只搜索长度。升阻比高于同长的双锥体，容积更扁，同样战斗部会更长；壳体质量按实际容积计，剩余长度留给助推级并积分滑翔航程。',
+        'blurb': '两级固体助推。滑翔体在弹径以内搜索长度与等效直径：乘波体升阻比高于双锥体，容积系数更小，同样战斗部会更长；再把剩余长度留给助推级并积分滑翔航程。',
     },
     {
         'id': 'scramjet',
@@ -2284,9 +2284,7 @@ def estimate_ballistic(
         head_len, booster_len = head_and_booster_lengths_m(
             length_m, diameter_m, warhead_mass_kg, warhead_section,
         )
-        payload_mass = glide_body_mass_kg(
-            head_len, diameter_m, warhead_mass_kg, warhead_section,
-        )
+        payload_mass = head_total_mass_kg(warhead_mass_kg)
     else:
         raise ValueError(f'未知战斗部截面: {warhead_section}')
     propellant = propellant_mass_kg(diameter_m, booster_len, propellant_density) + nose_propellant
@@ -2362,7 +2360,7 @@ def estimate_by_class(
 
     隐身涡扇的宽和高可选。给出后按扁五边形外廓算质量，不再把弹径当成圆。
     isp_s 是固体火箭比冲。isp_air_s 只覆盖吸气巡航；不给时用弹种自己的吸气比冲。
-    助推滑翔默认在底径锁定为弹径时搜索滑翔体长度；也可指定独立 l_head_m / d_head_m，或关闭 optimize_geometry。
+    助推滑翔默认搜索滑翔体最优长宽；也可指定独立 l_head_m / d_head_m，或关闭 optimize_geometry。
     """
     canon = resolve_missile_class(missile_class)
     shape = glide_shape(canon)
@@ -2391,11 +2389,10 @@ def estimate_by_class(
         result['class_label'] = class_label(canon)
         note = class_blurb(canon) + f' 固体比冲 {isp_s:.0f} s。'
         if result.get('optimal_geometry'):
-            span_name = '后缘宽度' if shape == 'waverider' else '底径'
             note += (
                 f" 经几何搜索寻优：滑翔体长 {result['l_head_m']:.2f} m、"
-                f"{span_name} {result['d_head_m']:.3f} m（长细比 {result['fineness']:.2f}，"
-                f"升阻比 {result['ld_ratio']:.2f}），"
+                f"等效直径 {result['d_head_m']:.3f} m（长细比 {result['fineness']:.2f}，"
+                f"升阻比提升至 {result['ld_ratio']:.2f}），"
                 f"总射程相比基线提升 {result['range_gain_km']:.1f} km (+{result['range_gain_pct']:.1f}%)。"
             )
         if floored > float(result['range_km']) + 0.05:

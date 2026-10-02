@@ -39,11 +39,8 @@ from utils.missile_range.estimate import (
     HGV_LOSS_AT_SEA_M_S,
     HGV_LOSS_FLOOR_M_S,
     HGV_LOSS_PER_KM_ABOVE_13,
-    BICONIC_FRICTION_CD0,
     HGV_REF_DIAMETER_M,
     HGV_REF_MASS_KG,
-    HGV_WAVE_DRAG_K,
-    WAVERIDER_FRICTION_CD0,
     R_EARTH_M,
     SOUND_SPEED_M_S,
     _require_non_negative,
@@ -60,8 +57,6 @@ from utils.missile_range.estimate import (
     head_total_mass_kg,
     head_volume_factor,
     head_volume_m3,
-    glide_body_mass_kg,
-    hypersonic_flatplate_ld,
     hgv_altitude_loss_m_s,
     hgv_head_diameter_bounds,
     hgv_min_fineness,
@@ -72,8 +67,6 @@ from utils.missile_range.estimate import (
     optimize_hgv_geometry,
     propellant_mass_kg,
     uncapped_head_length_m,
-    waverider_thickness_m,
-    waverider_thickness_to_span,
     _optimize_geometry_cache_key,
     _optimize_hgv_geometry_cached,
     _optimize_hgv_geometry_compute,
@@ -133,9 +126,7 @@ def _oracle(
     m_propellant = area_motor * l_chamber_eff * 0.81 * propellant_density
     pmf = 0.87
     m_booster_dry = m_propellant * (1.0 - pmf) / pmf
-    v_geom = volume_factor * l_head * (diameter_m ** 2)
-    m_head = max(m_head_total, v_geom * head_density)
-    m_0 = m_head + m_booster_dry + m_propellant
+    m_0 = m_head_total + m_booster_dry + m_propellant
     v_e = isp_s * g0
     m_p1, m_p2 = m_propellant * 0.58, m_propellant * 0.42
     m_s1 = m_booster_dry * 0.60
@@ -145,14 +136,11 @@ def _oracle(
     dv2 = v_e * math.log(m_stg2_in / (m_stg2_in - m_p2))
     gravity_drag_loss = _reference_hgv_loss(h_launch_km, m_0, diameter_m)
     v_burnout = v_launch_ms + (dv1 + dv2) - gravity_drag_loss
+    fineness = l_head / diameter_m
     if hgv_type == 'biconic':
-        half_angle = math.atan((diameter_m / 2.0) / l_head)
-        cd0 = 0.0045 + 0.55 * half_angle * half_angle
+        ld_ratio = max(1.8, min(3.5, 1.5 + 0.18 * fineness))
     else:
-        thickness = diameter_m * (0.1745 / 0.2618)
-        half_angle = math.atan((thickness / 2.0) / l_head)
-        cd0 = 0.0020 + 0.55 * half_angle * half_angle
-    ld_ratio = 2.0 / (3.0 * cd0 ** (1.0 / 3.0))
+        ld_ratio = max(2.8, min(5.0, 2.2 + 0.28 * fineness))
     v_eff2 = v_burnout ** 2 + 2.0 * g0 * (h_launch_km * 1000.0)
     ratio_v2 = v_eff2 / (g0 * r_e)
     glide_eff = 0.513
@@ -256,45 +244,11 @@ def test_gravity_drag_loss_m_s_clamps():
         gravity_drag_loss_m_s(0.0, 0.0, 1.0)
 
 
-def test_waverider_thickness_follows_volume_ratio():
-    """乘波体后缘厚度由相对圆锥的容积系数压扁，后缘宽度单独传入。"""
-    ratio = waverider_thickness_to_span()
-    assert ratio == pytest.approx(0.1745 / 0.2618)
-    assert waverider_thickness_m(1.1) == pytest.approx(1.1 * ratio)
-    with pytest.raises(ValueError, match='后缘宽度'):
-        waverider_thickness_m(0)
-
-
-def test_hypersonic_flatplate_ld():
-    """牛顿平板最优升阻比随零升阻力升高而下降。"""
-    assert hypersonic_flatplate_ld(0.008) == pytest.approx(2.0 / (3.0 * 0.008 ** (1.0 / 3.0)))
-    assert hypersonic_flatplate_ld(0.02) < hypersonic_flatplate_ld(0.008)
-    with pytest.raises(ValueError, match='零升阻力'):
-        hypersonic_flatplate_ld(0)
-
-
-def test_glide_body_mass_kg_charges_oversized_shell():
-    """外形大于战斗部所需容积时，质量按壳体容积而不是只按战斗部。"""
-    payload = head_total_mass_kg(150)
-    shell = glide_body_mass_kg(3.85, 1.1, 150, 'waverider')
-    assert shell > payload
-    tiny = glide_body_mass_kg(0.3, 0.4, 600, 'biconic')
-    assert tiny == pytest.approx(head_total_mass_kg(600))
-    with pytest.raises(ValueError, match='必须大于 0'):
-        glide_body_mass_kg(0, 1.0, 100, 'biconic')
-
-
-def test_lift_drag_ratio_uses_fixed_base():
-    """升阻比以后缘或底径为宽度：乘波体高于同长双锥，更长则更高。"""
-    assert WAVERIDER_FRICTION_CD0 < BICONIC_FRICTION_CD0
-    assert HGV_WAVE_DRAG_K == pytest.approx(0.55)
-    wave = lift_drag_ratio(3.85, 1.1, 'waverider')
-    bi = lift_drag_ratio(2.75, 1.1, 'biconic')
-    assert wave > bi
-    assert lift_drag_ratio(4.7, 1.1, 'waverider') > wave
-    assert lift_drag_ratio(4.0, 1.1, 'biconic') > bi
-    # 扁平三角的半厚度角小于同长圆底的半锥角，所以同样长宽比乘波体升阻比更高。
-    assert lift_drag_ratio(4.0, 1.1, 'waverider') > lift_drag_ratio(4.0, 1.1, 'biconic')
+def test_lift_drag_ratio_bounds():
+    """升阻比用滑翔体自身长细比；过短落到下限，过长封在上限。"""
+    assert lift_drag_ratio(0.57, 1.0, 'biconic') == pytest.approx(1.8)
+    assert lift_drag_ratio(4.0, 0.8, 'waverider') == pytest.approx(3.6)
+    assert lift_drag_ratio(20.0, 0.86, 'waverider') == pytest.approx(5.0)
     with pytest.raises(ValueError):
         lift_drag_ratio(10, 0, 'biconic')
     with pytest.raises(ValueError):
@@ -819,14 +773,11 @@ def test_six_classes_ranges_and_profiles():
     same = dict(length_m=10.5, diameter_m=1.1, warhead_mass_kg=200, v_launch_mach=0.85, h_launch_km=13.0)
     glide = estimate_by_class('hgv_biconic', **same)
     ballistic_air = estimate_by_class('ballistic', **same)
-    # 底径锁定后滑翔体带上壳体质量，不再靠细杆质量比超过装满药的弹道弹。
-    assert glide['d_head_m'] == pytest.approx(1.1)
-    assert glide['range_km'] > 0
-    assert glide['range_km'] != ballistic_air['range_km']
+    assert glide['range_km'] - ballistic_air['range_km'] > 1000
     legacy = estimate_by_class('hgv', 10.5, 1, 200)
     assert legacy['optimal_geometry'] is True
-    assert legacy['d_head_m'] == pytest.approx(1.0)
-    assert legacy['range_km'] > 0
+    assert legacy['d_head_m'] < 1.0
+    assert legacy['range_km'] > 4000
     assert legacy['missile_class'] == 'hgv_biconic'
     wave = estimate_by_class('乘波体助推滑翔', 10.5, 1, 200, 0.85, 13, 264, 1760)
     assert wave['missile_class'] == 'hgv_waverider'
@@ -1559,20 +1510,18 @@ def test_public_airbreathing_ranges_match_open_sources():
     assert tube_ram['range_km'] < brahmos['range_km']
 
 
-def test_optimistic_duct_ranges_stay_distinct_from_same_size_hgv():
-    """同外形下吸气弹与助推滑翔射程分开；乘波体仍远于双锥体。"""
+def test_optimistic_duct_ranges_stay_below_same_size_hgv():
+    """超燃、亚燃取偏乐观的吸气效率，同外形大弹仍短于助推滑翔。"""
     from utils.missile_range.classes import estimate_by_class
 
     geom = dict(length_m=10.5, diameter_m=1.1, warhead_mass_kg=200, v_launch_mach=0.85, h_launch_km=13.0)
     hgv = estimate_by_class('hgv_biconic', **geom)
-    wave = estimate_by_class('hgv_waverider', **geom)
     scram = estimate_by_class('scramjet', **geom)
     ram = estimate_by_class('ramjet', **geom)
     assert scram['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
     assert ram['isp_cruise_s'] == pytest.approx(1500.0, abs=0.2)
     assert scram['cruise_mach'] == pytest.approx(5.2, abs=0.05)
-    assert wave['range_km'] > hgv['range_km']
-    assert len({hgv['range_km'], scram['range_km'], ram['range_km']}) == 3
+    assert hgv['range_km'] > scram['range_km'] > ram['range_km']
     assert scram['range_km'] > 2500
     assert ram['range_km'] > 2200
     small = estimate_by_class('scramjet', 4.25, 0.345, 90, 2.2, 19.0)
@@ -1956,19 +1905,22 @@ def test_head_and_booster_lengths_m_with_fineness():
 
 
 def test_optimize_hgv_geometry():
-    """底径锁定为弹径后只搜索长度，不再靠缩小直径抬升阻比。"""
+    """测试滑翔体最优长宽搜索：综合权衡升阻比与助推器装药最大化射程。"""
+    # 10.5m x 1.0m, 200kg 弹头（双锥体）
     opt_bi = optimize_hgv_geometry(10.5, 1.0, 200.0, 'biconic')
-    assert opt_bi['best_d_head_m'] == pytest.approx(1.0)
-    assert opt_bi['baseline_d_head_m'] == pytest.approx(1.0)
+    assert opt_bi['max_range_km'] > opt_bi['baseline_range_km'] + 500.0
+    assert opt_bi['range_gain_km'] > 500.0
+    assert opt_bi['best_l_head_m'] > opt_bi['baseline_l_head_m']
+    assert opt_bi['best_d_head_m'] < 1.0
+    assert opt_bi['best_ld_ratio'] > opt_bi['baseline_ld_ratio']
     assert opt_bi['best_fineness'] >= 2.5
-    assert opt_bi['max_range_km'] >= opt_bi['baseline_range_km']
     assert opt_bi['result']['optimal_geometry'] is True
 
+    # 10.5m x 1.0m, 200kg 弹头（乘波体）
     opt_wave = optimize_hgv_geometry(10.5, 1.0, 200.0, 'waverider')
-    assert opt_wave['best_d_head_m'] == pytest.approx(1.0)
+    assert opt_wave['max_range_km'] > opt_wave['baseline_range_km'] + 500.0
     assert opt_wave['best_fineness'] >= 3.5
-    assert opt_wave['best_ld_ratio'] > opt_bi['best_ld_ratio']
-    assert opt_wave['result']['m_0_t'] > 6.0
+    assert opt_wave['best_ld_ratio'] > 4.0
 
     # 异常输入校验
     with pytest.raises(ValueError, match='长细比下限'):
@@ -1985,13 +1937,13 @@ def test_estimate_hgv_custom_geometry_and_optimization():
     assert custom['d_head_m'] == 0.5
     assert custom['fineness'] == 7.0
     assert custom['l_booster_m'] == 7.0
-    assert custom['ld_ratio'] == pytest.approx(lift_drag_ratio(3.5, 0.5, 'biconic'), abs=0.01)
+    assert custom['ld_ratio'] == pytest.approx(1.5 + 0.18 * 7.0, abs=0.01)
 
-    # 开启 optimize_geometry：底径保持弹径
+    # 开启 optimize_geometry
     optimized = estimate_hgv(10.5, 1.0, 200.0, 'biconic', optimize_geometry=True)
     assert optimized['optimal_geometry'] is True
-    assert optimized['d_head_m'] == pytest.approx(1.0)
-    assert optimized['range_km'] > 0
+    assert optimized['range_gain_km'] > 500.0
+    assert optimized['range_km'] > 4000.0
 
     # 边界非法参数校验
     with pytest.raises(ValueError, match='不超过弹体直径'):
@@ -2008,14 +1960,11 @@ def test_estimate_by_class_with_geometry_optimization():
 
     res = estimate_by_class('hgv_biconic', 10.5, 1.0, 200.0, optimize_geometry=True)
     assert res['optimal_geometry'] is True
-    assert res['d_head_m'] == pytest.approx(1.0)
-    assert '底径' in res['note']
+    assert res['range_gain_km'] > 500.0
     assert '几何搜索寻优' in res['note']
 
     wave = estimate_by_class('hgv_waverider', 10.5, 1.0, 200.0, optimize_geometry=True)
     assert wave['optimal_geometry'] is True
-    assert wave['d_head_m'] == pytest.approx(1.0)
-    assert '后缘宽度' in wave['note']
     assert '几何搜索寻优' in wave['note']
 
 
@@ -2034,8 +1983,7 @@ def test_run_optimize_geometry_from_params():
         'warhead_kg': 200.0,
     })
     assert opt_res['success'] is True
-    assert opt_res['optimization']['best_d_head_m'] == pytest.approx(1.0)
-    assert opt_res['optimization']['max_range_km'] > 0
+    assert opt_res['optimization']['range_gain_km'] > 500.0
 
     # 非 HGV 弹种报错
     err_res = run_optimize_geometry_from_params({
@@ -2071,10 +2019,10 @@ def test_head_volume_factor_and_packaging_volume():
 
 
 def test_hgv_head_diameter_bounds():
-    """默认后缘或底径锁在弹径上；调用方仍可收窄。"""
+    """滑翔体直径搜索区间不超过弹径，且有装填口径下限。"""
     d_min, d_max = hgv_head_diameter_bounds(1.0)
     assert d_max == pytest.approx(1.0)
-    assert d_min == pytest.approx(1.0)
+    assert d_min == pytest.approx(0.35)
     tight_min, tight_max = hgv_head_diameter_bounds(1.0, min_d_head_m=0.6, max_d_head_m=0.9)
     assert tight_min == pytest.approx(0.6)
     assert tight_max == pytest.approx(0.9)
@@ -2121,8 +2069,8 @@ def test_estimate_by_class_defaults_to_geometry_search():
     default = estimate_by_class('hgv_biconic', 10.5, 1.0, 200.0)
     packed = estimate_by_class('hgv_biconic', 10.5, 1.0, 200.0, optimize_geometry=False)
     assert default['optimal_geometry'] is True
-    assert default['d_head_m'] == pytest.approx(packed['d_head_m'])
-    assert default['range_km'] >= packed['range_km']
+    assert default['d_head_m'] < packed['d_head_m']
+    assert default['range_km'] > packed['range_km']
     assert packed.get('optimal_geometry') is None
     with pytest.raises(ValueError, match='搜索网格点数'):
         optimize_hgv_geometry(10.5, 1.0, 200.0, grid_points_d=0)
