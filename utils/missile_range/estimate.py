@@ -42,8 +42,14 @@ HGV_VOLUME_FACTOR: dict[str, float] = {
     'waverider': 0.1745,
 }
 HGV_MAX_HEAD_LENGTH_RATIO = 0.45
-HGV_DEFAULT_MIN_DIAMETER_RATIO = 0.35
+# 后缘/底径默认等于弹径，不再把滑翔体缩成细杆去抬升阻比。
+HGV_DEFAULT_MIN_DIAMETER_RATIO = 1.0
 HGV_ABSOLUTE_MIN_DIAMETER_M = 0.25
+# 牛顿平板最优升阻比用的零升阻力。扁平三角摩擦小，旋成双锥湿面积更大。
+WAVERIDER_FRICTION_CD0 = 0.0020
+BICONIC_FRICTION_CD0 = 0.0045
+# 零升波阻系数：乘以半厚度角或半锥角（弧度）的平方。
+HGV_WAVE_DRAG_K = 0.55
 
 _TYPE_ALIASES = {
     'biconic': 'biconic',
@@ -108,12 +114,52 @@ def hgv_min_fineness(hgv_type: str) -> float:
     return HGV_MIN_FINENESS[normalize_hgv_type(hgv_type)]
 
 
+def waverider_thickness_to_span() -> float:
+    """扁平三角后缘厚度与后缘宽度之比。
+
+    双锥容积系数就是同底径圆锥。乘波体容积更小，相当于把这个圆锥
+    沿铅垂方向压扁，后缘仍等于弹径。
+    """
+    return HGV_VOLUME_FACTOR['waverider'] / HGV_VOLUME_FACTOR['biconic']
+
+
+def waverider_thickness_m(trailing_edge_m: float) -> float:
+    """乘波体后缘厚度。后缘宽度应等于弹径。"""
+    if trailing_edge_m <= 0:
+        raise ValueError('后缘宽度必须大于 0')
+    return trailing_edge_m * waverider_thickness_to_span()
+
+
+def glide_body_mass_kg(
+    length_m: float,
+    diameter_m: float,
+    warhead_mass_kg: float,
+    hgv_type: str,
+) -> float:
+    """滑翔体质量按实际外形容积计，且不低于战斗部加制控。
+
+    长细比把外形撑得比战斗部所需更大时，多出来的壳体和防热要算进起飞质量。
+    """
+    if length_m <= 0 or diameter_m <= 0:
+        raise ValueError('滑翔体长度与直径必须大于 0')
+    payload = head_total_mass_kg(warhead_mass_kg)
+    shell = head_packaging_volume_m3(length_m, diameter_m, hgv_type) * head_density_kg_m3(hgv_type)
+    return max(payload, shell)
+
+
+def hypersonic_flatplate_ld(cd0: float) -> float:
+    """小迎角牛顿平板的最优升阻比：2 / (3 · CD0^(1/3))。"""
+    if cd0 <= 0:
+        raise ValueError('零升阻力系数必须大于 0')
+    return 2.0 / (3.0 * cd0 ** (1.0 / 3.0))
+
+
 def hgv_head_diameter_bounds(
     diameter_m: float,
     min_d_head_m: float | None = None,
     max_d_head_m: float | None = None,
 ) -> tuple[float, float]:
-    """滑翔体等效直径搜索区间：不超过弹体直径，且不低于装填/导引头口径。"""
+    """后缘或底径的搜索区间。默认锁在弹径上，调用方仍可收窄。"""
     if diameter_m <= 0:
         raise ValueError('弹径必须大于 0')
     d_max = diameter_m if max_d_head_m is None else min(diameter_m, float(max_d_head_m))
@@ -222,13 +268,22 @@ def gravity_drag_loss_m_s(
 
 
 def lift_drag_ratio(glide_length_m: float, diameter_m: float, hgv_type: str) -> float:
-    """按抛掉助推级之后的滑翔体长细比，夹在构型允许的升阻比区间内。"""
+    """按后缘或底径等于给定宽度来估算升阻比。
+
+    乘波体前段是较扁的等腰三角，后缘宽度就是这个直径，厚度由容积系数
+    相对圆锥压扁得到。波阻用铅垂半厚度角。
+    双锥体是旋成体，底圆直径同样取这个值，波阻用半锥角；湿面积更大，摩擦更高。
+    两者都把零升阻力放进牛顿平板的最优迎角，不再靠缩小直径抬升阻比。
+    """
     if glide_length_m <= 0 or diameter_m <= 0:
         raise ValueError('滑翔体长度与弹径必须大于 0')
-    fineness = glide_length_m / diameter_m
-    if normalize_hgv_type(hgv_type) == 'biconic':
-        return max(1.8, min(3.5, 1.5 + 0.18 * fineness))
-    return max(2.8, min(5.0, 2.2 + 0.28 * fineness))
+    if normalize_hgv_type(hgv_type) == 'waverider':
+        half_angle = math.atan((waverider_thickness_m(diameter_m) / 2.0) / glide_length_m)
+        cd0 = WAVERIDER_FRICTION_CD0 + HGV_WAVE_DRAG_K * half_angle * half_angle
+    else:
+        half_angle = math.atan((diameter_m / 2.0) / glide_length_m)
+        cd0 = BICONIC_FRICTION_CD0 + HGV_WAVE_DRAG_K * half_angle * half_angle
+    return hypersonic_flatplate_ld(cd0)
 
 
 def glide_range_m(ratio_v2: float, ld_ratio: float) -> float:
@@ -318,7 +373,7 @@ def estimate_hgv_unrounded(
         raise ValueError('滑翔体容积不足以容纳战斗部与制控组件')
 
     v_launch_ms = v_launch_mach * SOUND_SPEED_M_S
-    m_head_total = head_total_mass_kg(warhead_mass_kg)
+    m_head_total = glide_body_mass_kg(l_head, d_head, warhead_mass_kg, hgv_type)
     m_propellant = propellant_mass_kg(diameter_m, l_booster, propellant_density)
     pmf = PROPELLANT_MASS_FRACTION
     m_booster_dry = m_propellant * (1.0 - pmf) / pmf
@@ -378,7 +433,7 @@ def estimate_hgv(
     """估算起飞质量、关机马赫数、升阻比与总射程（千米）。
 
     未指定滑翔体尺寸时按容积与长细比底线划分弹头；开启 optimize_geometry
-    则在弹径以内搜索使总射程最大的滑翔体长度与等效直径。
+    则在后缘或底径锁定为弹径的前提下搜索使总射程最大的滑翔体长度。
     """
     if optimize_geometry:
         return optimize_hgv_geometry(
