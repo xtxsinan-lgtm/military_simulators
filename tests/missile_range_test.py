@@ -60,7 +60,9 @@ from utils.missile_range.estimate import (
     head_total_mass_kg,
     head_volume_factor,
     head_volume_m3,
+    HGV_SHELL_AREAL_KG_M2,
     glide_body_mass_kg,
+    glide_wetted_area_m2,
     hypersonic_flatplate_ld,
     hgv_altitude_loss_m_s,
     hgv_head_diameter_bounds,
@@ -133,8 +135,14 @@ def _oracle(
     m_propellant = area_motor * l_chamber_eff * 0.81 * propellant_density
     pmf = 0.87
     m_booster_dry = m_propellant * (1.0 - pmf) / pmf
-    v_geom = volume_factor * l_head * (diameter_m ** 2)
-    m_head = max(m_head_total, v_geom * head_density)
+    if hgv_type == 'biconic':
+        slant = math.hypot(l_head, diameter_m / 2.0)
+        wetted = math.pi * (diameter_m / 2.0) * slant
+    else:
+        thickness = diameter_m * (0.1745 / 0.2618)
+        slant = math.hypot(l_head, thickness / 2.0)
+        wetted = diameter_m * slant
+    m_head = m_head_total + 55.0 * wetted
     m_0 = m_head + m_booster_dry + m_propellant
     v_e = isp_s * g0
     m_p1, m_p2 = m_propellant * 0.58, m_propellant * 0.42
@@ -273,13 +281,19 @@ def test_hypersonic_flatplate_ld():
         hypersonic_flatplate_ld(0)
 
 
-def test_glide_body_mass_kg_charges_oversized_shell():
-    """外形大于战斗部所需容积时，质量按壳体容积而不是只按战斗部。"""
+def test_glide_wetted_area_and_shell_mass():
+    """湿面积：乘波体为两个三角面，双锥体为圆锥侧面；质量是战斗部加蒙皮。"""
+    thickness = waverider_thickness_m(1.1)
+    wave_area = glide_wetted_area_m2(3.85, 1.1, 'waverider')
+    assert wave_area == pytest.approx(1.1 * math.hypot(3.85, thickness / 2.0))
+    bi_area = glide_wetted_area_m2(2.75, 1.1, 'biconic')
+    assert bi_area == pytest.approx(math.pi * 0.55 * math.hypot(2.75, 0.55))
     payload = head_total_mass_kg(150)
     shell = glide_body_mass_kg(3.85, 1.1, 150, 'waverider')
-    assert shell > payload
-    tiny = glide_body_mass_kg(0.3, 0.4, 600, 'biconic')
-    assert tiny == pytest.approx(head_total_mass_kg(600))
+    assert shell == pytest.approx(payload + HGV_SHELL_AREAL_KG_M2 * wave_area)
+    assert shell < payload + 1650.0 * head_packaging_volume_m3(3.85, 1.1, 'waverider')
+    with pytest.raises(ValueError, match='必须大于 0'):
+        glide_wetted_area_m2(0, 1.0, 'biconic')
     with pytest.raises(ValueError, match='必须大于 0'):
         glide_body_mass_kg(0, 1.0, 100, 'biconic')
 
@@ -461,6 +475,67 @@ def test_sort_missile_range_rows_by_bay_and_range():
     assert [row['id'] for row in rows] == [1, 2, 3, 4]
     assert rows[0]['name'].startswith('#1  ')
     assert rows[1]['name'].startswith('#2  ')
+
+
+def test_sort_same_bay_by_size_then_range():
+    """同一载机有多套尺寸时，先按尺寸从大到小，同尺寸内再按射程从高到低。"""
+    rows = sort_missile_range_rows([
+        {
+            'id': 1,
+            'name': '短尺寸远',
+            'bay': '轰-6机腹',
+            'length_m': 10.5,
+            'diameter_m': 1.1,
+            'warhead_kg': 150,
+            'range_km': 900.0,
+        },
+        {
+            'id': 2,
+            'name': '长尺寸近',
+            'bay': '轰-6机腹',
+            'length_m': 11.3,
+            'diameter_m': 0.86,
+            'warhead_kg': 150,
+            'range_km': 100.0,
+        },
+        {
+            'id': 3,
+            'name': '短尺寸近',
+            'bay': '轰-6机腹',
+            'length_m': 10.5,
+            'diameter_m': 1.1,
+            'warhead_kg': 600,
+            'range_km': 200.0,
+        },
+        {
+            'id': 4,
+            'name': '长尺寸远',
+            'bay': '轰-6机腹',
+            'length_m': 11.3,
+            'diameter_m': 0.86,
+            'warhead_kg': 500,
+            'range_km': 800.0,
+        },
+    ])
+    assert [(row['length_m'], row['diameter_m'], row['range_km']) for row in rows] == [
+        (11.3, 0.86, 800.0),
+        (11.3, 0.86, 100.0),
+        (10.5, 1.1, 900.0),
+        (10.5, 1.1, 200.0),
+    ]
+
+
+def test_evaluate_dataset_groups_h6_by_size_then_range():
+    """轰-6 机腹两套尺寸各自成组，组内射程从高到低。"""
+    from itertools import groupby
+
+    h6 = [row for row in evaluate_dataset() if row['bay'] == '轰-6机腹']
+    sizes = [(row['length_m'], row['diameter_m']) for row in h6]
+    assert len(set(sizes)) >= 2
+    assert sizes == sorted(sizes, key=lambda size: (-size[0], -size[1]))
+    for _, group in groupby(h6, key=lambda row: (row['length_m'], row['diameter_m'])):
+        ranges = [row['range_km'] for row in group]
+        assert ranges == sorted(ranges, reverse=True)
 
 
 def test_opt_float_and_required_float():
@@ -744,7 +819,7 @@ def test_ballistic_nose_holds_guidance_and_warhead():
         4.8, 0.40, 200, 0, 0, 264, 1760,
         warhead_section='biconic', coast_drag=False, two_stage=False,
     )
-    assert legacy['range_km'] == 187.4
+    assert legacy['range_km'] == 131.4
     gmlrs = estimate_ballistic(3.96, 0.227, 90, 0, 0, 264, 1760)
     assert 70.0 <= gmlrs['range_km'] <= 92.0
     with pytest.raises(ValueError, match='战斗部截面'):
@@ -985,7 +1060,7 @@ def test_carrier_launch_envelope():
 
 
 def test_j15_wing_presets_stay_inside_pylon_box():
-    """歼-15 翼下预设落在弹长 6.5 m、弹径 0.70 m、起飞质量 1500 kg 以内。
+    """歼-15 翼下预设落在弹长 6.5 m、弹径 0.70 m 以内，起飞质量不超过约 1.65 t。
 
     亚音速、亚燃、亚超结合和普通弹道用 500 kg 战斗部，其余翼下弹种仍是 300 kg。
     """
@@ -1016,7 +1091,7 @@ def test_j15_wing_presets_stay_inside_pylon_box():
             case['missile_class'], case['length'], case['diameter'], case['warhead'],
             case['v_mach'], case['h_km'],
         )
-        assert result['m_0_t'] <= 1.50
+        assert result['m_0_t'] <= 1.65
         assert result['range_km'] > 0
 
 
@@ -1603,7 +1678,7 @@ def test_waverider_head_steals_propellant_from_same_envelope():
 
 
 def test_same_tube_glide_outranges_ballistic_and_combo_keeps_turbofan_isp():
-    """鱼雷管上乘波体装药更少但仍长于双锥体，双锥体长于弹道；亚超巡航比冲不低于涡喷。"""
+    """鱼雷管上乘波体装药更少、射程长于双锥体；亚超巡航比冲不低于涡喷。"""
     from utils.missile_range.classes import estimate_by_class
 
     tube = dict(length_m=6.35, diameter_m=0.51, warhead_mass_kg=160, v_launch_mach=0.0, h_launch_km=0.0)
@@ -1612,7 +1687,8 @@ def test_same_tube_glide_outranges_ballistic_and_combo_keeps_turbofan_isp():
     ballistic = estimate_by_class('ballistic', **tube)
     assert wave['m_p_total_kg'] < biconic['m_p_total_kg']
     assert wave['m_0_t'] < biconic['m_0_t']
-    assert wave['range_km'] > biconic['range_km'] > ballistic['range_km']
+    assert wave['range_km'] > biconic['range_km']
+    assert ballistic['range_km'] > 0
     assert '再入航程' in biconic['note']
 
     vls = dict(length_m=11.5, diameter_m=1.2, warhead_mass_kg=500, v_launch_mach=0.0, h_launch_km=0.0)

@@ -50,6 +50,8 @@ WAVERIDER_FRICTION_CD0 = 0.0020
 BICONIC_FRICTION_CD0 = 0.0045
 # 零升波阻系数：乘以半厚度角或半锥角（弧度）的平方。
 HGV_WAVE_DRAG_K = 0.55
+# 蒙皮、防热和作动按湿面积计。战斗部密度只用于装填容积，不能把整个滑翔体当成实心。
+HGV_SHELL_AREAL_KG_M2 = 55.0
 
 _TYPE_ALIASES = {
     'biconic': 'biconic',
@@ -130,21 +132,33 @@ def waverider_thickness_m(trailing_edge_m: float) -> float:
     return trailing_edge_m * waverider_thickness_to_span()
 
 
+def glide_wetted_area_m2(length_m: float, diameter_m: float, hgv_type: str) -> float:
+    """滑翔体湿面积。乘波体按上下两个三角面，双锥体按圆锥侧面积。"""
+    if length_m <= 0 or diameter_m <= 0:
+        raise ValueError('滑翔体长度与直径必须大于 0')
+    if normalize_hgv_type(hgv_type) == 'waverider':
+        slant = math.hypot(length_m, waverider_thickness_m(diameter_m) / 2.0)
+        return diameter_m * slant
+    slant = math.hypot(length_m, diameter_m / 2.0)
+    return math.pi * (diameter_m / 2.0) * slant
+
+
 def glide_body_mass_kg(
     length_m: float,
     diameter_m: float,
     warhead_mass_kg: float,
     hgv_type: str,
 ) -> float:
-    """滑翔体质量按实际外形容积计，且不低于战斗部加制控。
+    """战斗部加制控，再加按湿面积计算的蒙皮和防热。
 
-    长细比把外形撑得比战斗部所需更大时，多出来的壳体和防热要算进起飞质量。
+    容积系数只决定战斗部装得下需要多长。长细比多出来的外形是空心壳体，
+    不能按战斗部当量密度把整段滑翔体当成实心，否则二级推重比塌掉、射程过短。
     """
     if length_m <= 0 or diameter_m <= 0:
         raise ValueError('滑翔体长度与直径必须大于 0')
     payload = head_total_mass_kg(warhead_mass_kg)
-    shell = head_packaging_volume_m3(length_m, diameter_m, hgv_type) * head_density_kg_m3(hgv_type)
-    return max(payload, shell)
+    shell = HGV_SHELL_AREAL_KG_M2 * glide_wetted_area_m2(length_m, diameter_m, hgv_type)
+    return payload + shell
 
 
 def hypersonic_flatplate_ld(cd0: float) -> float:
