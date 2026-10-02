@@ -5540,6 +5540,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -5614,7 +5637,8 @@ module.exports = {
             "radius_km": 1383.8,
             "fuel_kg_per_km": 2.653,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 1.0,
@@ -5631,7 +5655,8 @@ module.exports = {
             "radius_km": 944.8,
             "fuel_kg_per_km": 3.886,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.2,
@@ -5648,7 +5673,8 @@ module.exports = {
             "radius_km": 300.93,
             "fuel_kg_per_km": 12.201,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.35,
@@ -5665,7 +5691,8 @@ module.exports = {
             "radius_km": 272.25,
             "fuel_kg_per_km": 13.486,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.0
           },
           {
             "mach": 1.5,
@@ -5682,7 +5709,8 @@ module.exports = {
             "radius_km": 168.03,
             "fuel_kg_per_km": 21.851,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 11.4
           },
           {
             "mach": 1.75,
@@ -5699,7 +5727,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -5716,7 +5745,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -5897,6 +5945,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": 1.9229,
+            "max_ld_alt_m": 16400.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.76,
@@ -5994,7 +6065,8 @@ module.exports = {
             "radius_km": 1059.06,
             "fuel_kg_per_km": 3.21,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.0
           },
           {
             "mach": 1.0,
@@ -6011,7 +6083,8 @@ module.exports = {
             "radius_km": 989.92,
             "fuel_kg_per_km": 3.435,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.2,
@@ -6028,7 +6101,8 @@ module.exports = {
             "radius_km": 691.45,
             "fuel_kg_per_km": 4.917,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.6
           },
           {
             "mach": 1.35,
@@ -6045,7 +6119,8 @@ module.exports = {
             "radius_km": 783.23,
             "fuel_kg_per_km": 4.341,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 18.2
           },
           {
             "mach": 1.5,
@@ -6062,7 +6137,8 @@ module.exports = {
             "radius_km": 812.28,
             "fuel_kg_per_km": 4.186,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 18.6
           },
           {
             "mach": 1.75,
@@ -6079,7 +6155,8 @@ module.exports = {
             "radius_km": 816.45,
             "fuel_kg_per_km": 4.164,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.8
           },
           {
             "mach": 2.0,
@@ -6096,7 +6173,26 @@ module.exports = {
             "radius_km": 371.24,
             "fuel_kg_per_km": 9.159,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.2
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 16400.0,
+            "ld": 1.9229,
+            "thrust_avail_kN": 126.063,
+            "load": 0.997,
+            "eta_th": 0.422013,
+            "eta_p": 0.788897,
+            "eta_o": 0.152056,
+            "score": 0.292387,
+            "radius_km": 176.81,
+            "fuel_kg_per_km": 19.231,
+            "reheat": true,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           }
         ]
       },
@@ -6277,6 +6373,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -6351,7 +6470,8 @@ module.exports = {
             "radius_km": 1360.6,
             "fuel_kg_per_km": 2.637,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 13.8
           },
           {
             "mach": 1.0,
@@ -6368,7 +6488,8 @@ module.exports = {
             "radius_km": 1151.05,
             "fuel_kg_per_km": 3.117,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.8
           },
           {
             "mach": 1.2,
@@ -6385,7 +6506,8 @@ module.exports = {
             "radius_km": 431.41,
             "fuel_kg_per_km": 8.316,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.35,
@@ -6402,7 +6524,8 @@ module.exports = {
             "radius_km": 337.06,
             "fuel_kg_per_km": 10.644,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.0
           },
           {
             "mach": 1.5,
@@ -6419,7 +6542,8 @@ module.exports = {
             "radius_km": 225.5,
             "fuel_kg_per_km": 15.91,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.2
           },
           {
             "mach": 1.75,
@@ -6436,7 +6560,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -6453,7 +6578,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -6634,6 +6778,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": 1.1292,
+            "max_ld_alt_m": 13000.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.49,
@@ -6731,7 +6898,8 @@ module.exports = {
             "radius_km": 1361.26,
             "fuel_kg_per_km": 3.173,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.0
           },
           {
             "mach": 1.0,
@@ -6748,7 +6916,8 @@ module.exports = {
             "radius_km": 1247.97,
             "fuel_kg_per_km": 3.461,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.2,
@@ -6765,7 +6934,8 @@ module.exports = {
             "radius_km": 856.45,
             "fuel_kg_per_km": 5.044,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.8
           },
           {
             "mach": 1.35,
@@ -6782,7 +6952,8 @@ module.exports = {
             "radius_km": 917.64,
             "fuel_kg_per_km": 4.707,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 18.2
           },
           {
             "mach": 1.5,
@@ -6799,7 +6970,8 @@ module.exports = {
             "radius_km": 953.21,
             "fuel_kg_per_km": 4.532,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 18.6
           },
           {
             "mach": 1.75,
@@ -6816,7 +6988,8 @@ module.exports = {
             "radius_km": 807.46,
             "fuel_kg_per_km": 5.35,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 19.6
           },
           {
             "mach": 2.0,
@@ -6833,7 +7006,26 @@ module.exports = {
             "radius_km": 301.72,
             "fuel_kg_per_km": 14.317,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.4
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 13000.0,
+            "ld": 1.1292,
+            "thrust_avail_kN": 208.033,
+            "load": 0.9994,
+            "eta_th": 0.381821,
+            "eta_p": 0.815793,
+            "eta_o": 0.141684,
+            "score": 0.159995,
+            "radius_km": 127.24,
+            "fuel_kg_per_km": 33.949,
+            "reheat": true,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.0
           }
         ]
       },
@@ -7014,6 +7206,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -7088,7 +7303,8 @@ module.exports = {
             "radius_km": 959.04,
             "fuel_kg_per_km": 1.638,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.0,
@@ -7105,7 +7321,8 @@ module.exports = {
             "radius_km": 957.75,
             "fuel_kg_per_km": 1.64,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.2,
@@ -7122,7 +7339,8 @@ module.exports = {
             "radius_km": 440.35,
             "fuel_kg_per_km": 3.567,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.35,
@@ -7139,7 +7357,8 @@ module.exports = {
             "radius_km": 354.2,
             "fuel_kg_per_km": 4.435,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.5,
@@ -7156,7 +7375,8 @@ module.exports = {
             "radius_km": 258.23,
             "fuel_kg_per_km": 6.083,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.75,
@@ -7173,7 +7393,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -7190,7 +7411,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -7371,6 +7611,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": true,
+            "fail_reason": null,
+            "alt_m": 15000.0,
+            "ld": 2.0472,
+            "thrust_avail_kN": 134.55,
+            "load": 0.9164,
+            "eta_th": 0.398747,
+            "eta_p": 0.799725,
+            "eta_o": 0.318888,
+            "score": 0.652822,
+            "radius_km": 666.54,
+            "fuel_kg_per_km": 8.86,
+            "mixed_radius_km": 1010.09,
+            "mixed_fuel_kg_per_km": 5.846,
+            "tsfc_mg_n_s": 46.1,
+            "max_ld": 3.1461,
+            "max_ld_alt_m": 20000.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.77,
@@ -7468,7 +7731,8 @@ module.exports = {
             "radius_km": 2084.49,
             "fuel_kg_per_km": 2.833,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.0,
@@ -7485,7 +7749,8 @@ module.exports = {
             "radius_km": 2030.25,
             "fuel_kg_per_km": 2.909,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 18.2
           },
           {
             "mach": 1.2,
@@ -7502,7 +7767,8 @@ module.exports = {
             "radius_km": 1649.84,
             "fuel_kg_per_km": 3.579,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.2
           },
           {
             "mach": 1.35,
@@ -7519,7 +7785,8 @@ module.exports = {
             "radius_km": 1726.18,
             "fuel_kg_per_km": 3.421,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 1.5,
@@ -7536,7 +7803,8 @@ module.exports = {
             "radius_km": 1769.4,
             "fuel_kg_per_km": 3.337,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 1.75,
@@ -7553,7 +7821,8 @@ module.exports = {
             "radius_km": 1929.17,
             "fuel_kg_per_km": 3.061,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 2.0,
@@ -7570,7 +7839,26 @@ module.exports = {
             "radius_km": 1310.87,
             "fuel_kg_per_km": 4.505,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 16800.0,
+            "ld": 2.5041,
+            "thrust_avail_kN": 141.539,
+            "load": 0.7122,
+            "eta_th": 0.419741,
+            "eta_p": 0.784847,
+            "eta_o": 0.329433,
+            "score": 0.82492,
+            "radius_km": 842.26,
+            "fuel_kg_per_km": 7.011,
+            "reheat": false,
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
           }
         ]
       },
@@ -7751,6 +8039,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": true,
+            "fail_reason": null,
+            "alt_m": 14600.0,
+            "ld": 2.0428,
+            "thrust_avail_kN": 143.312,
+            "load": 0.9158,
+            "eta_th": 0.398587,
+            "eta_p": 0.799837,
+            "eta_o": 0.318804,
+            "score": 0.651249,
+            "radius_km": 585.74,
+            "fuel_kg_per_km": 9.566,
+            "mixed_radius_km": 891.71,
+            "mixed_fuel_kg_per_km": 6.284,
+            "tsfc_mg_n_s": 46.112,
+            "max_ld": 3.1865,
+            "max_ld_alt_m": 20000.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.78,
@@ -7848,7 +8159,8 @@ module.exports = {
             "radius_km": 1866.94,
             "fuel_kg_per_km": 3.001,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.8
           },
           {
             "mach": 1.0,
@@ -7865,7 +8177,8 @@ module.exports = {
             "radius_km": 1815.25,
             "fuel_kg_per_km": 3.087,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.8
           },
           {
             "mach": 1.2,
@@ -7882,7 +8195,8 @@ module.exports = {
             "radius_km": 1453.02,
             "fuel_kg_per_km": 3.856,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.0
           },
           {
             "mach": 1.35,
@@ -7899,7 +8213,8 @@ module.exports = {
             "radius_km": 1520.63,
             "fuel_kg_per_km": 3.685,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.6
           },
           {
             "mach": 1.5,
@@ -7916,7 +8231,8 @@ module.exports = {
             "radius_km": 1558.77,
             "fuel_kg_per_km": 3.595,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 1.75,
@@ -7933,7 +8249,8 @@ module.exports = {
             "radius_km": 1707.02,
             "fuel_kg_per_km": 3.282,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 2.0,
@@ -7950,7 +8267,26 @@ module.exports = {
             "radius_km": 1153.18,
             "fuel_kg_per_km": 4.859,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 16400.0,
+            "ld": 2.4997,
+            "thrust_avail_kN": 150.756,
+            "load": 0.7115,
+            "eta_th": 0.41948,
+            "eta_p": 0.785036,
+            "eta_o": 0.329307,
+            "score": 0.823155,
+            "radius_km": 740.35,
+            "fuel_kg_per_km": 7.568,
+            "reheat": false,
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
           }
         ]
       },
@@ -8131,6 +8467,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": 3.1395,
+            "max_ld_alt_m": 20000.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.76,
@@ -8228,7 +8587,8 @@ module.exports = {
             "radius_km": 2652.26,
             "fuel_kg_per_km": 4.638,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.0,
@@ -8245,7 +8605,8 @@ module.exports = {
             "radius_km": 1792.5,
             "fuel_kg_per_km": 6.863,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.8
           },
           {
             "mach": 1.2,
@@ -8262,7 +8623,8 @@ module.exports = {
             "radius_km": 926.47,
             "fuel_kg_per_km": 13.278,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.8
           },
           {
             "mach": 1.35,
@@ -8279,7 +8641,8 @@ module.exports = {
             "radius_km": 1919.39,
             "fuel_kg_per_km": 6.409,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.4
           },
           {
             "mach": 1.5,
@@ -8296,7 +8659,8 @@ module.exports = {
             "radius_km": 2327.2,
             "fuel_kg_per_km": 5.286,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 1.75,
@@ -8313,7 +8677,8 @@ module.exports = {
             "radius_km": 2563.53,
             "fuel_kg_per_km": 4.799,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 2.0,
@@ -8330,7 +8695,26 @@ module.exports = {
             "radius_km": 1685.12,
             "fuel_kg_per_km": 7.3,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 20.0
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 15200.0,
+            "ld": 2.0196,
+            "thrust_avail_kN": 273.25,
+            "load": 0.7159,
+            "eta_th": 0.42098,
+            "eta_p": 0.783949,
+            "eta_o": 0.329496,
+            "score": 0.665467,
+            "radius_km": 918.88,
+            "fuel_kg_per_km": 13.387,
+            "reheat": true,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 20.0
           }
         ]
       },
@@ -8511,6 +8895,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -8585,7 +8992,8 @@ module.exports = {
             "radius_km": 1426.03,
             "fuel_kg_per_km": 2.309,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.0,
@@ -8602,7 +9010,8 @@ module.exports = {
             "radius_km": 1151.62,
             "fuel_kg_per_km": 2.859,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.2,
@@ -8619,7 +9028,8 @@ module.exports = {
             "radius_km": 382.99,
             "fuel_kg_per_km": 8.598,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.35,
@@ -8636,7 +9046,8 @@ module.exports = {
             "radius_km": 426.29,
             "fuel_kg_per_km": 7.725,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.2
           },
           {
             "mach": 1.5,
@@ -8653,7 +9064,8 @@ module.exports = {
             "radius_km": 427.55,
             "fuel_kg_per_km": 7.702,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.4
           },
           {
             "mach": 1.75,
@@ -8670,7 +9082,8 @@ module.exports = {
             "radius_km": 317.52,
             "fuel_kg_per_km": 10.371,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.0
           },
           {
             "mach": 2.0,
@@ -8687,7 +9100,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -8868,6 +9300,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.47,
@@ -8965,7 +9420,8 @@ module.exports = {
             "radius_km": 1422.92,
             "fuel_kg_per_km": 2.322,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.6
           },
           {
             "mach": 1.0,
@@ -8982,7 +9438,8 @@ module.exports = {
             "radius_km": 1388.72,
             "fuel_kg_per_km": 2.379,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.2,
@@ -8999,7 +9456,8 @@ module.exports = {
             "radius_km": 696.43,
             "fuel_kg_per_km": 4.743,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 1.35,
@@ -9016,7 +9474,8 @@ module.exports = {
             "radius_km": 830.0,
             "fuel_kg_per_km": 3.98,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.4
           },
           {
             "mach": 1.5,
@@ -9033,7 +9492,8 @@ module.exports = {
             "radius_km": 822.63,
             "fuel_kg_per_km": 4.016,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.6
           },
           {
             "mach": 1.75,
@@ -9050,7 +9510,8 @@ module.exports = {
             "radius_km": 563.09,
             "fuel_kg_per_km": 5.867,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.6
           },
           {
             "mach": 2.0,
@@ -9067,7 +9528,26 @@ module.exports = {
             "radius_km": 234.47,
             "fuel_kg_per_km": 14.089,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.8
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -9248,6 +9728,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": 2.7771,
+            "max_ld_alt_m": 17800.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.56,
@@ -9345,7 +9848,8 @@ module.exports = {
             "radius_km": 1884.19,
             "fuel_kg_per_km": 1.162,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.0,
@@ -9362,7 +9866,8 @@ module.exports = {
             "radius_km": 1871.34,
             "fuel_kg_per_km": 1.169,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 18.0
           },
           {
             "mach": 1.2,
@@ -9379,7 +9884,8 @@ module.exports = {
             "radius_km": 1345.09,
             "fuel_kg_per_km": 1.627,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.0
           },
           {
             "mach": 1.35,
@@ -9396,7 +9902,8 @@ module.exports = {
             "radius_km": 1472.3,
             "fuel_kg_per_km": 1.486,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 19.4
           },
           {
             "mach": 1.5,
@@ -9413,7 +9920,8 @@ module.exports = {
             "radius_km": 1493.62,
             "fuel_kg_per_km": 1.465,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.8
           },
           {
             "mach": 1.75,
@@ -9430,7 +9938,8 @@ module.exports = {
             "radius_km": 1211.43,
             "fuel_kg_per_km": 1.807,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 2.0,
@@ -9447,7 +9956,26 @@ module.exports = {
             "radius_km": 487.12,
             "fuel_kg_per_km": 4.493,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 19.4
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 17800.0,
+            "ld": 2.7771,
+            "thrust_avail_kN": 38.82,
+            "load": 0.9983,
+            "eta_th": 0.247676,
+            "eta_p": 0.905985,
+            "eta_o": 0.102147,
+            "score": 0.28367,
+            "radius_km": 250.51,
+            "fuel_kg_per_km": 8.736,
+            "reheat": true,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.8
           }
         ]
       },
@@ -9628,6 +10156,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": 2.7617,
+            "max_ld_alt_m": 17400.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.56,
@@ -9725,7 +10276,8 @@ module.exports = {
             "radius_km": 1683.14,
             "fuel_kg_per_km": 1.226,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.8
           },
           {
             "mach": 1.0,
@@ -9742,7 +10294,8 @@ module.exports = {
             "radius_km": 1666.86,
             "fuel_kg_per_km": 1.238,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.8
           },
           {
             "mach": 1.2,
@@ -9759,7 +10312,8 @@ module.exports = {
             "radius_km": 1181.31,
             "fuel_kg_per_km": 1.746,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 18.6
           },
           {
             "mach": 1.35,
@@ -9776,7 +10330,8 @@ module.exports = {
             "radius_km": 1295.12,
             "fuel_kg_per_km": 1.593,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.2
           },
           {
             "mach": 1.5,
@@ -9793,7 +10348,8 @@ module.exports = {
             "radius_km": 1312.82,
             "fuel_kg_per_km": 1.571,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.4
           },
           {
             "mach": 1.75,
@@ -9810,7 +10366,8 @@ module.exports = {
             "radius_km": 1075.43,
             "fuel_kg_per_km": 1.918,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 2.0,
@@ -9827,7 +10384,26 @@ module.exports = {
             "radius_km": 429.86,
             "fuel_kg_per_km": 4.799,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 19.0
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 17400.0,
+            "ld": 2.7617,
+            "thrust_avail_kN": 41.348,
+            "load": 0.994,
+            "eta_th": 0.247676,
+            "eta_p": 0.905985,
+            "eta_o": 0.102544,
+            "score": 0.2832,
+            "radius_km": 220.7,
+            "fuel_kg_per_km": 9.348,
+            "reheat": true,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.4
           }
         ]
       },
@@ -10008,6 +10584,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": 2.1567,
+            "max_ld_alt_m": 15800.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.44,
@@ -10105,7 +10704,8 @@ module.exports = {
             "radius_km": 2058.83,
             "fuel_kg_per_km": 1.254,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.8
           },
           {
             "mach": 1.0,
@@ -10122,7 +10722,8 @@ module.exports = {
             "radius_km": 1962.06,
             "fuel_kg_per_km": 1.315,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.8
           },
           {
             "mach": 1.2,
@@ -10139,7 +10740,8 @@ module.exports = {
             "radius_km": 1315.87,
             "fuel_kg_per_km": 1.961,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.6
           },
           {
             "mach": 1.35,
@@ -10156,7 +10758,8 @@ module.exports = {
             "radius_km": 1507.36,
             "fuel_kg_per_km": 1.712,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 19.0
           },
           {
             "mach": 1.5,
@@ -10173,7 +10776,8 @@ module.exports = {
             "radius_km": 1354.4,
             "fuel_kg_per_km": 1.906,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 19.0
           },
           {
             "mach": 1.75,
@@ -10190,7 +10794,8 @@ module.exports = {
             "radius_km": 1145.85,
             "fuel_kg_per_km": 2.253,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 20.0
           },
           {
             "mach": 2.0,
@@ -10207,7 +10812,26 @@ module.exports = {
             "radius_km": 465.15,
             "fuel_kg_per_km": 5.549,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.6
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 15800.0,
+            "ld": 2.1567,
+            "thrust_avail_kN": 53.217,
+            "load": 0.9984,
+            "eta_th": 0.247676,
+            "eta_p": 0.905985,
+            "eta_o": 0.102141,
+            "score": 0.22029,
+            "radius_km": 216.26,
+            "fuel_kg_per_km": 11.935,
+            "reheat": true,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.8
           }
         ]
       },
@@ -10388,6 +11012,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -10462,7 +11109,8 @@ module.exports = {
             "radius_km": 973.18,
             "fuel_kg_per_km": 2.686,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 13.6
           },
           {
             "mach": 1.0,
@@ -10479,7 +11127,8 @@ module.exports = {
             "radius_km": 809.25,
             "fuel_kg_per_km": 3.23,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.2,
@@ -10496,7 +11145,8 @@ module.exports = {
             "radius_km": 276.82,
             "fuel_kg_per_km": 9.444,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.0
           },
           {
             "mach": 1.35,
@@ -10513,7 +11163,8 @@ module.exports = {
             "radius_km": 220.38,
             "fuel_kg_per_km": 11.862,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.5,
@@ -10530,7 +11181,8 @@ module.exports = {
             "radius_km": 140.67,
             "fuel_kg_per_km": 18.584,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 12.0
           },
           {
             "mach": 1.75,
@@ -10547,7 +11199,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -10564,7 +11217,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -10745,6 +11417,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -10819,7 +11514,8 @@ module.exports = {
             "radius_km": 1232.68,
             "fuel_kg_per_km": 3.184,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.0,
@@ -10836,7 +11532,8 @@ module.exports = {
             "radius_km": 1068.42,
             "fuel_kg_per_km": 3.674,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.2,
@@ -10853,7 +11550,8 @@ module.exports = {
             "radius_km": 347.74,
             "fuel_kg_per_km": 11.287,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.6
           },
           {
             "mach": 1.35,
@@ -10870,7 +11568,8 @@ module.exports = {
             "radius_km": 359.33,
             "fuel_kg_per_km": 10.923,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.0
           },
           {
             "mach": 1.5,
@@ -10887,7 +11586,8 @@ module.exports = {
             "radius_km": 324.88,
             "fuel_kg_per_km": 12.081,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.8
           },
           {
             "mach": 1.75,
@@ -10904,7 +11604,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -10921,7 +11622,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -11102,6 +11822,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -11176,7 +11919,8 @@ module.exports = {
             "radius_km": 1229.37,
             "fuel_kg_per_km": 3.255,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 1.0,
@@ -11193,7 +11937,8 @@ module.exports = {
             "radius_km": 1060.91,
             "fuel_kg_per_km": 3.772,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.2,
@@ -11210,7 +11955,8 @@ module.exports = {
             "radius_km": 342.21,
             "fuel_kg_per_km": 11.694,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.35,
@@ -11227,7 +11973,8 @@ module.exports = {
             "radius_km": 353.53,
             "fuel_kg_per_km": 11.319,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.8
           },
           {
             "mach": 1.5,
@@ -11244,7 +11991,8 @@ module.exports = {
             "radius_km": 319.61,
             "fuel_kg_per_km": 12.521,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.6
           },
           {
             "mach": 1.75,
@@ -11261,7 +12009,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -11278,7 +12027,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -11459,6 +12227,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -11533,7 +12324,8 @@ module.exports = {
             "radius_km": 784.81,
             "fuel_kg_per_km": 2.068,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 13.8
           },
           {
             "mach": 1.0,
@@ -11550,7 +12342,8 @@ module.exports = {
             "radius_km": 818.97,
             "fuel_kg_per_km": 1.982,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.2,
@@ -11567,7 +12360,8 @@ module.exports = {
             "radius_km": 377.19,
             "fuel_kg_per_km": 4.303,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.35,
@@ -11584,7 +12378,8 @@ module.exports = {
             "radius_km": 306.73,
             "fuel_kg_per_km": 5.292,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.5,
@@ -11601,7 +12396,8 @@ module.exports = {
             "radius_km": 234.86,
             "fuel_kg_per_km": 6.911,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.75,
@@ -11618,7 +12414,8 @@ module.exports = {
             "radius_km": 146.82,
             "fuel_kg_per_km": 11.055,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 2.0,
@@ -11635,7 +12432,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -11816,6 +12632,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -11890,7 +12729,8 @@ module.exports = {
             "radius_km": 967.44,
             "fuel_kg_per_km": 1.835,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.8
           },
           {
             "mach": 1.0,
@@ -11907,7 +12747,8 @@ module.exports = {
             "radius_km": 906.54,
             "fuel_kg_per_km": 1.958,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.2,
@@ -11924,7 +12765,8 @@ module.exports = {
             "radius_km": 399.61,
             "fuel_kg_per_km": 4.441,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.35,
@@ -11941,7 +12783,8 @@ module.exports = {
             "radius_km": 335.26,
             "fuel_kg_per_km": 5.294,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.5,
@@ -11958,7 +12801,8 @@ module.exports = {
             "radius_km": 286.45,
             "fuel_kg_per_km": 6.196,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.75,
@@ -11975,7 +12819,8 @@ module.exports = {
             "radius_km": 149.18,
             "fuel_kg_per_km": 11.897,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.0
           },
           {
             "mach": 2.0,
@@ -11992,7 +12837,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -12173,6 +13037,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -12247,7 +13134,8 @@ module.exports = {
             "radius_km": 1127.41,
             "fuel_kg_per_km": 1.748,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.0
           },
           {
             "mach": 1.0,
@@ -12264,7 +13152,8 @@ module.exports = {
             "radius_km": 1059.2,
             "fuel_kg_per_km": 1.86,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.2,
@@ -12281,7 +13170,8 @@ module.exports = {
             "radius_km": 471.08,
             "fuel_kg_per_km": 4.183,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 1.35,
@@ -12298,7 +13188,8 @@ module.exports = {
             "radius_km": 394.94,
             "fuel_kg_per_km": 4.99,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.5,
@@ -12315,7 +13206,8 @@ module.exports = {
             "radius_km": 337.44,
             "fuel_kg_per_km": 5.84,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.75,
@@ -12332,7 +13224,8 @@ module.exports = {
             "radius_km": 178.07,
             "fuel_kg_per_km": 11.067,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.4
           },
           {
             "mach": 2.0,
@@ -12349,7 +13242,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -12530,6 +13442,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -12604,7 +13539,8 @@ module.exports = {
             "radius_km": 1168.0,
             "fuel_kg_per_km": 1.155,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.2
           },
           {
             "mach": 1.0,
@@ -12621,7 +13557,8 @@ module.exports = {
             "radius_km": 933.57,
             "fuel_kg_per_km": 1.445,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 1.2,
@@ -12638,7 +13575,8 @@ module.exports = {
             "radius_km": 412.39,
             "fuel_kg_per_km": 3.27,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.35,
@@ -12655,7 +13593,8 @@ module.exports = {
             "radius_km": 422.57,
             "fuel_kg_per_km": 3.192,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.5,
@@ -12672,7 +13611,8 @@ module.exports = {
             "radius_km": 346.61,
             "fuel_kg_per_km": 3.891,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.75,
@@ -12689,7 +13629,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -12706,7 +13647,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -12887,6 +13847,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -12961,7 +13944,8 @@ module.exports = {
             "radius_km": 1104.86,
             "fuel_kg_per_km": 2.354,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.0
           },
           {
             "mach": 1.0,
@@ -12978,7 +13962,8 @@ module.exports = {
             "radius_km": 996.02,
             "fuel_kg_per_km": 2.611,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.2,
@@ -12995,7 +13980,8 @@ module.exports = {
             "radius_km": 377.04,
             "fuel_kg_per_km": 6.898,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.35,
@@ -13012,7 +13998,8 @@ module.exports = {
             "radius_km": 339.6,
             "fuel_kg_per_km": 7.659,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.8
           },
           {
             "mach": 1.5,
@@ -13029,7 +14016,8 @@ module.exports = {
             "radius_km": 286.45,
             "fuel_kg_per_km": 9.08,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.4
           },
           {
             "mach": 1.75,
@@ -13046,7 +14034,8 @@ module.exports = {
             "radius_km": 124.73,
             "fuel_kg_per_km": 20.853,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 11.0
           },
           {
             "mach": 2.0,
@@ -13063,7 +14052,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -13244,6 +14252,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -13318,7 +14349,8 @@ module.exports = {
             "radius_km": 993.14,
             "fuel_kg_per_km": 1.888,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.0,
@@ -13335,7 +14367,8 @@ module.exports = {
             "radius_km": 961.76,
             "fuel_kg_per_km": 1.95,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.2,
@@ -13352,7 +14385,8 @@ module.exports = {
             "radius_km": 374.26,
             "fuel_kg_per_km": 5.011,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.35,
@@ -13369,7 +14403,8 @@ module.exports = {
             "radius_km": 317.61,
             "fuel_kg_per_km": 5.904,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.5,
@@ -13386,7 +14421,8 @@ module.exports = {
             "radius_km": 254.18,
             "fuel_kg_per_km": 7.378,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.2
           },
           {
             "mach": 1.75,
@@ -13403,7 +14439,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -13420,7 +14457,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -13601,6 +14657,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -13675,7 +14754,8 @@ module.exports = {
             "radius_km": 1006.43,
             "fuel_kg_per_km": 2.779,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 13.6
           },
           {
             "mach": 1.0,
@@ -13692,7 +14772,8 @@ module.exports = {
             "radius_km": 672.09,
             "fuel_kg_per_km": 4.162,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.2,
@@ -13709,7 +14790,8 @@ module.exports = {
             "radius_km": 303.66,
             "fuel_kg_per_km": 9.212,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.35,
@@ -13726,7 +14808,8 @@ module.exports = {
             "radius_km": 270.98,
             "fuel_kg_per_km": 10.323,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.2
           },
           {
             "mach": 1.5,
@@ -13743,7 +14826,8 @@ module.exports = {
             "radius_km": 227.71,
             "fuel_kg_per_km": 12.285,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.6
           },
           {
             "mach": 1.75,
@@ -13760,7 +14844,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -13777,7 +14862,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -13958,6 +15062,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.6,
@@ -14055,7 +15182,8 @@ module.exports = {
             "radius_km": 2144.45,
             "fuel_kg_per_km": 2.328,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.0,
@@ -14072,7 +15200,8 @@ module.exports = {
             "radius_km": 1714.49,
             "fuel_kg_per_km": 2.911,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.2,
@@ -14089,7 +15218,8 @@ module.exports = {
             "radius_km": 753.85,
             "fuel_kg_per_km": 6.622,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.35,
@@ -14106,7 +15236,8 @@ module.exports = {
             "radius_km": 1154.74,
             "fuel_kg_per_km": 4.323,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.5,
@@ -14123,7 +15254,8 @@ module.exports = {
             "radius_km": 1175.89,
             "fuel_kg_per_km": 4.245,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.75,
@@ -14140,7 +15272,8 @@ module.exports = {
             "radius_km": 985.36,
             "fuel_kg_per_km": 5.066,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.2
           },
           {
             "mach": 2.0,
@@ -14157,7 +15290,26 @@ module.exports = {
             "radius_km": 425.07,
             "fuel_kg_per_km": 11.743,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.0
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -14338,6 +15490,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": 1.4812,
+            "max_ld_alt_m": 13000.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.6,
@@ -14435,7 +15610,8 @@ module.exports = {
             "radius_km": 1828.39,
             "fuel_kg_per_km": 2.294,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 1.0,
@@ -14452,7 +15628,8 @@ module.exports = {
             "radius_km": 1584.2,
             "fuel_kg_per_km": 2.647,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.2,
@@ -14469,7 +15646,8 @@ module.exports = {
             "radius_km": 894.43,
             "fuel_kg_per_km": 4.689,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.35,
@@ -14486,7 +15664,8 @@ module.exports = {
             "radius_km": 1017.54,
             "fuel_kg_per_km": 4.122,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.5,
@@ -14503,7 +15682,8 @@ module.exports = {
             "radius_km": 1098.11,
             "fuel_kg_per_km": 3.819,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.75,
@@ -14520,7 +15700,8 @@ module.exports = {
             "radius_km": 981.11,
             "fuel_kg_per_km": 4.275,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.2
           },
           {
             "mach": 2.0,
@@ -14537,7 +15718,26 @@ module.exports = {
             "radius_km": 393.2,
             "fuel_kg_per_km": 10.666,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 13000.0,
+            "ld": 1.4812,
+            "thrust_avail_kN": 136.018,
+            "load": 0.9988,
+            "eta_th": 0.411273,
+            "eta_p": 0.799153,
+            "eta_o": 0.149598,
+            "score": 0.221586,
+            "radius_km": 200.65,
+            "fuel_kg_per_km": 20.902,
+            "reheat": true,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.0
           }
         ]
       },
@@ -14718,6 +15918,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": 1.742,
+            "max_ld_alt_m": 14600.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.65,
@@ -14815,7 +16038,8 @@ module.exports = {
             "radius_km": 2153.9,
             "fuel_kg_per_km": 2.237,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.0,
@@ -14832,7 +16056,8 @@ module.exports = {
             "radius_km": 1907.35,
             "fuel_kg_per_km": 2.526,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.2,
@@ -14849,7 +16074,8 @@ module.exports = {
             "radius_km": 1174.51,
             "fuel_kg_per_km": 4.102,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.35,
@@ -14866,7 +16092,8 @@ module.exports = {
             "radius_km": 1290.56,
             "fuel_kg_per_km": 3.733,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 1.5,
@@ -14883,7 +16110,8 @@ module.exports = {
             "radius_km": 1381.46,
             "fuel_kg_per_km": 3.488,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.6
           },
           {
             "mach": 1.75,
@@ -14900,7 +16128,8 @@ module.exports = {
             "radius_km": 1296.87,
             "fuel_kg_per_km": 3.715,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.8
           },
           {
             "mach": 2.0,
@@ -14917,7 +16146,26 @@ module.exports = {
             "radius_km": 509.69,
             "fuel_kg_per_km": 9.453,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.2
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 14600.0,
+            "ld": 1.742,
+            "thrust_avail_kN": 111.305,
+            "load": 0.9926,
+            "eta_th": 0.411273,
+            "eta_p": 0.799153,
+            "eta_o": 0.150639,
+            "score": 0.262409,
+            "radius_km": 287.52,
+            "fuel_kg_per_km": 16.757,
+            "reheat": true,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.6
           }
         ]
       },
@@ -15098,6 +16346,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -15172,7 +16443,8 @@ module.exports = {
             "radius_km": 1113.9,
             "fuel_kg_per_km": 2.293,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.0
           },
           {
             "mach": 1.0,
@@ -15189,7 +16461,8 @@ module.exports = {
             "radius_km": 1026.08,
             "fuel_kg_per_km": 2.489,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.2,
@@ -15206,7 +16479,8 @@ module.exports = {
             "radius_km": 420.68,
             "fuel_kg_per_km": 6.071,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 1.35,
@@ -15223,7 +16497,8 @@ module.exports = {
             "radius_km": 379.34,
             "fuel_kg_per_km": 6.733,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.5,
@@ -15240,7 +16515,8 @@ module.exports = {
             "radius_km": 333.79,
             "fuel_kg_per_km": 7.652,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.75,
@@ -15257,7 +16533,8 @@ module.exports = {
             "radius_km": 189.85,
             "fuel_kg_per_km": 13.453,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 2.0,
@@ -15274,7 +16551,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -15455,6 +16751,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -15529,7 +16848,8 @@ module.exports = {
             "radius_km": 1394.41,
             "fuel_kg_per_km": 3.14,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.0
           },
           {
             "mach": 1.0,
@@ -15546,7 +16866,8 @@ module.exports = {
             "radius_km": 1356.25,
             "fuel_kg_per_km": 3.228,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.2,
@@ -15563,7 +16884,8 @@ module.exports = {
             "radius_km": 612.02,
             "fuel_kg_per_km": 7.154,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.35,
@@ -15580,7 +16902,8 @@ module.exports = {
             "radius_km": 558.29,
             "fuel_kg_per_km": 7.842,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.5,
@@ -15597,7 +16920,8 @@ module.exports = {
             "radius_km": 475.02,
             "fuel_kg_per_km": 9.217,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.75,
@@ -15614,7 +16938,8 @@ module.exports = {
             "radius_km": 322.81,
             "fuel_kg_per_km": 13.563,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 2.0,
@@ -15631,7 +16956,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -15812,6 +17156,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -15886,7 +17253,8 @@ module.exports = {
             "radius_km": 918.06,
             "fuel_kg_per_km": 1.406,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 1.0,
@@ -15903,7 +17271,8 @@ module.exports = {
             "radius_km": 968.75,
             "fuel_kg_per_km": 1.333,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.2,
@@ -15920,7 +17289,8 @@ module.exports = {
             "radius_km": 393.9,
             "fuel_kg_per_km": 3.278,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.35,
@@ -15937,7 +17307,8 @@ module.exports = {
             "radius_km": 316.91,
             "fuel_kg_per_km": 4.074,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.5,
@@ -15954,7 +17325,8 @@ module.exports = {
             "radius_km": 239.13,
             "fuel_kg_per_km": 5.399,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.75,
@@ -15971,7 +17343,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -15988,7 +17361,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -16169,6 +17561,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.38,
@@ -16266,7 +17681,8 @@ module.exports = {
             "radius_km": 982.51,
             "fuel_kg_per_km": 1.873,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.2
           },
           {
             "mach": 1.0,
@@ -16283,7 +17699,8 @@ module.exports = {
             "radius_km": 973.05,
             "fuel_kg_per_km": 1.891,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 1.2,
@@ -16300,7 +17717,8 @@ module.exports = {
             "radius_km": 610.65,
             "fuel_kg_per_km": 3.014,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.0
           },
           {
             "mach": 1.35,
@@ -16317,7 +17735,8 @@ module.exports = {
             "radius_km": 601.92,
             "fuel_kg_per_km": 3.057,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 18.0
           },
           {
             "mach": 1.5,
@@ -16334,7 +17753,8 @@ module.exports = {
             "radius_km": 392.64,
             "fuel_kg_per_km": 4.687,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.6
           },
           {
             "mach": 1.75,
@@ -16351,7 +17771,8 @@ module.exports = {
             "radius_km": 262.5,
             "fuel_kg_per_km": 7.011,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 2.0,
@@ -16368,7 +17789,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -16549,6 +17989,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -16623,7 +18086,8 @@ module.exports = {
             "radius_km": 774.79,
             "fuel_kg_per_km": 1.175,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.4
           },
           {
             "mach": 1.0,
@@ -16640,7 +18104,8 @@ module.exports = {
             "radius_km": 484.08,
             "fuel_kg_per_km": 1.88,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.2,
@@ -16657,7 +18122,8 @@ module.exports = {
             "radius_km": 216.51,
             "fuel_kg_per_km": 4.204,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.0
           },
           {
             "mach": 1.35,
@@ -16674,7 +18140,8 @@ module.exports = {
             "radius_km": 134.85,
             "fuel_kg_per_km": 6.749,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 11.2
           },
           {
             "mach": 1.5,
@@ -16691,7 +18158,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 1.75,
@@ -16708,7 +18176,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -16725,7 +18194,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -16906,6 +18394,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -16980,7 +18491,8 @@ module.exports = {
             "radius_km": 1057.14,
             "fuel_kg_per_km": 1.333,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 1.0,
@@ -16997,7 +18509,8 @@ module.exports = {
             "radius_km": 727.36,
             "fuel_kg_per_km": 1.937,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.2,
@@ -17014,7 +18527,8 @@ module.exports = {
             "radius_km": 343.24,
             "fuel_kg_per_km": 4.105,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.4
           },
           {
             "mach": 1.35,
@@ -17031,7 +18545,8 @@ module.exports = {
             "radius_km": 279.74,
             "fuel_kg_per_km": 5.037,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 1.5,
@@ -17048,7 +18563,8 @@ module.exports = {
             "radius_km": 189.91,
             "fuel_kg_per_km": 7.419,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 12.2
           },
           {
             "mach": 1.75,
@@ -17065,7 +18581,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -17082,7 +18599,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -17263,6 +18799,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -17337,7 +18896,8 @@ module.exports = {
             "radius_km": 744.08,
             "fuel_kg_per_km": 1.175,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 1.0,
@@ -17354,7 +18914,8 @@ module.exports = {
             "radius_km": 590.4,
             "fuel_kg_per_km": 1.48,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.2,
@@ -17371,7 +18932,8 @@ module.exports = {
             "radius_km": 217.38,
             "fuel_kg_per_km": 4.02,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 1.35,
@@ -17388,7 +18950,8 @@ module.exports = {
             "radius_km": 160.96,
             "fuel_kg_per_km": 5.43,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 12.6
           },
           {
             "mach": 1.5,
@@ -17405,7 +18968,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 1.75,
@@ -17422,7 +18986,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -17439,7 +19004,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -17620,6 +19204,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -17694,7 +19301,8 @@ module.exports = {
             "radius_km": 775.92,
             "fuel_kg_per_km": 1.227,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 13.6
           },
           {
             "mach": 1.0,
@@ -17711,7 +19319,8 @@ module.exports = {
             "radius_km": 547.38,
             "fuel_kg_per_km": 1.74,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.2,
@@ -17728,7 +19337,8 @@ module.exports = {
             "radius_km": 236.02,
             "fuel_kg_per_km": 4.035,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.8
           },
           {
             "mach": 1.35,
@@ -17745,7 +19355,8 @@ module.exports = {
             "radius_km": 200.59,
             "fuel_kg_per_km": 4.747,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.0
           },
           {
             "mach": 1.5,
@@ -17762,7 +19373,8 @@ module.exports = {
             "radius_km": 137.73,
             "fuel_kg_per_km": 6.914,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 12.0
           },
           {
             "mach": 1.75,
@@ -17779,7 +19391,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -17796,7 +19409,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -17977,6 +19609,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -18051,7 +19706,8 @@ module.exports = {
             "radius_km": 696.94,
             "fuel_kg_per_km": 0.924,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.6
           },
           {
             "mach": 1.0,
@@ -18068,7 +19724,8 @@ module.exports = {
             "radius_km": 411.89,
             "fuel_kg_per_km": 1.564,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.2,
@@ -18085,7 +19742,8 @@ module.exports = {
             "radius_km": 172.7,
             "fuel_kg_per_km": 3.73,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.8
           },
           {
             "mach": 1.35,
@@ -18102,7 +19760,8 @@ module.exports = {
             "radius_km": 106.26,
             "fuel_kg_per_km": 6.063,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 11.0
           },
           {
             "mach": 1.5,
@@ -18119,7 +19778,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 1.75,
@@ -18136,7 +19796,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -18153,7 +19814,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -18334,6 +20014,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -18408,7 +20111,8 @@ module.exports = {
             "radius_km": 1011.73,
             "fuel_kg_per_km": 0.998,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.4
           },
           {
             "mach": 1.0,
@@ -18425,7 +20129,8 @@ module.exports = {
             "radius_km": 615.35,
             "fuel_kg_per_km": 1.641,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 1.2,
@@ -18442,7 +20147,8 @@ module.exports = {
             "radius_km": 309.13,
             "fuel_kg_per_km": 3.267,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.8
           },
           {
             "mach": 1.35,
@@ -18459,7 +20165,8 @@ module.exports = {
             "radius_km": 286.05,
             "fuel_kg_per_km": 3.531,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.5,
@@ -18476,7 +20183,8 @@ module.exports = {
             "radius_km": 162.24,
             "fuel_kg_per_km": 6.225,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 12.4
           },
           {
             "mach": 1.75,
@@ -18493,7 +20201,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -18510,7 +20219,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -18691,6 +20419,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -18765,7 +20516,8 @@ module.exports = {
             "radius_km": 1403.25,
             "fuel_kg_per_km": 2.998,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.8
           },
           {
             "mach": 1.0,
@@ -18782,7 +20534,8 @@ module.exports = {
             "radius_km": 901.83,
             "fuel_kg_per_km": 4.664,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.2,
@@ -18799,7 +20552,8 @@ module.exports = {
             "radius_km": 433.24,
             "fuel_kg_per_km": 9.709,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.2
           },
           {
             "mach": 1.35,
@@ -18816,7 +20570,8 @@ module.exports = {
             "radius_km": 478.01,
             "fuel_kg_per_km": 8.8,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.5,
@@ -18833,7 +20588,8 @@ module.exports = {
             "radius_km": 530.96,
             "fuel_kg_per_km": 7.922,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 1.75,
@@ -18850,7 +20606,8 @@ module.exports = {
             "radius_km": 469.2,
             "fuel_kg_per_km": 8.965,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.2
           },
           {
             "mach": 2.0,
@@ -18867,7 +20624,26 @@ module.exports = {
             "radius_km": 220.95,
             "fuel_kg_per_km": 19.038,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.8
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -19048,6 +20824,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -19122,7 +20921,8 @@ module.exports = {
             "radius_km": 1061.94,
             "fuel_kg_per_km": 2.11,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.8
           },
           {
             "mach": 1.0,
@@ -19139,7 +20939,8 @@ module.exports = {
             "radius_km": 923.03,
             "fuel_kg_per_km": 2.428,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.2,
@@ -19156,7 +20957,8 @@ module.exports = {
             "radius_km": 387.15,
             "fuel_kg_per_km": 5.789,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.2
           },
           {
             "mach": 1.35,
@@ -19173,7 +20975,8 @@ module.exports = {
             "radius_km": 364.75,
             "fuel_kg_per_km": 6.144,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.5,
@@ -19190,7 +20993,8 @@ module.exports = {
             "radius_km": 325.4,
             "fuel_kg_per_km": 6.887,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 1.75,
@@ -19207,7 +21011,8 @@ module.exports = {
             "radius_km": 210.85,
             "fuel_kg_per_km": 10.629,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.2
           },
           {
             "mach": 2.0,
@@ -19224,7 +21029,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -19405,6 +21229,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -19479,7 +21326,8 @@ module.exports = {
             "radius_km": 933.75,
             "fuel_kg_per_km": 1.084,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.0
           },
           {
             "mach": 1.0,
@@ -19496,7 +21344,8 @@ module.exports = {
             "radius_km": 916.28,
             "fuel_kg_per_km": 1.104,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.2,
@@ -19513,7 +21362,8 @@ module.exports = {
             "radius_km": 284.01,
             "fuel_kg_per_km": 3.563,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.8
           },
           {
             "mach": 1.35,
@@ -19530,7 +21380,8 @@ module.exports = {
             "radius_km": 227.48,
             "fuel_kg_per_km": 4.448,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.6
           },
           {
             "mach": 1.5,
@@ -19547,7 +21398,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 1.75,
@@ -19564,7 +21416,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 2.0,
@@ -19581,7 +21434,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -19762,6 +21634,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -19836,7 +21731,8 @@ module.exports = {
             "radius_km": 1191.03,
             "fuel_kg_per_km": 2.841,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.6
           },
           {
             "mach": 1.0,
@@ -19853,7 +21749,8 @@ module.exports = {
             "radius_km": 723.37,
             "fuel_kg_per_km": 4.678,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.2,
@@ -19870,7 +21767,8 @@ module.exports = {
             "radius_km": 349.06,
             "fuel_kg_per_km": 9.693,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.35,
@@ -19887,7 +21785,8 @@ module.exports = {
             "radius_km": 370.46,
             "fuel_kg_per_km": 9.133,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.5,
@@ -19904,7 +21803,8 @@ module.exports = {
             "radius_km": 365.84,
             "fuel_kg_per_km": 9.249,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 1.75,
@@ -19921,7 +21821,8 @@ module.exports = {
             "radius_km": 296.64,
             "fuel_kg_per_km": 11.406,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.4
           },
           {
             "mach": 2.0,
@@ -19938,7 +21839,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -20119,6 +22039,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -20193,7 +22136,8 @@ module.exports = {
             "radius_km": 1216.49,
             "fuel_kg_per_km": 1.779,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.2
           },
           {
             "mach": 1.0,
@@ -20210,7 +22154,8 @@ module.exports = {
             "radius_km": 950.29,
             "fuel_kg_per_km": 2.277,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.2,
@@ -20227,7 +22172,8 @@ module.exports = {
             "radius_km": 395.54,
             "fuel_kg_per_km": 5.47,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.35,
@@ -20244,7 +22190,8 @@ module.exports = {
             "radius_km": 425.56,
             "fuel_kg_per_km": 5.084,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 1.5,
@@ -20261,7 +22208,8 @@ module.exports = {
             "radius_km": 469.83,
             "fuel_kg_per_km": 4.605,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.4
           },
           {
             "mach": 1.75,
@@ -20278,7 +22226,8 @@ module.exports = {
             "radius_km": 399.24,
             "fuel_kg_per_km": 5.419,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 18.2
           },
           {
             "mach": 2.0,
@@ -20295,7 +22244,26 @@ module.exports = {
             "radius_km": 161.13,
             "fuel_kg_per_km": 13.428,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.8
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -20476,6 +22444,29 @@ module.exports = {
             "max_ld_thrust_mode": null
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -20550,7 +22541,8 @@ module.exports = {
             "radius_km": 4480.65,
             "fuel_kg_per_km": 14.056,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.2
           },
           {
             "mach": 1.0,
@@ -20567,7 +22559,8 @@ module.exports = {
             "radius_km": 783.58,
             "fuel_kg_per_km": 80.376,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 11.4
           },
           {
             "mach": 1.2,
@@ -20584,7 +22577,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 1.35,
@@ -20601,7 +22595,8 @@ module.exports = {
             "radius_km": 1044.29,
             "fuel_kg_per_km": 60.31,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.4
           },
           {
             "mach": 1.5,
@@ -20618,7 +22613,8 @@ module.exports = {
             "radius_km": 2238.41,
             "fuel_kg_per_km": 28.137,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.75,
@@ -20635,7 +22631,8 @@ module.exports = {
             "radius_km": 1160.37,
             "fuel_kg_per_km": 54.277,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.2
           },
           {
             "mach": 2.0,
@@ -20652,7 +22649,26 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -20833,6 +22849,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": null,
@@ -20907,7 +22946,8 @@ module.exports = {
             "radius_km": 4255.53,
             "fuel_kg_per_km": 14.766,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 14.0
           },
           {
             "mach": 1.0,
@@ -20924,7 +22964,8 @@ module.exports = {
             "radius_km": 779.23,
             "fuel_kg_per_km": 80.64,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 11.4
           },
           {
             "mach": 1.2,
@@ -20941,7 +22982,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 1.35,
@@ -20958,7 +23000,8 @@ module.exports = {
             "radius_km": 1037.01,
             "fuel_kg_per_km": 60.594,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.4
           },
           {
             "mach": 1.5,
@@ -20975,7 +23018,8 @@ module.exports = {
             "radius_km": 2252.84,
             "fuel_kg_per_km": 27.892,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.6
           },
           {
             "mach": 1.75,
@@ -20992,7 +23036,8 @@ module.exports = {
             "radius_km": 2039.9,
             "fuel_kg_per_km": 30.804,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 2.0,
@@ -21009,7 +23054,26 @@ module.exports = {
             "radius_km": 863.7,
             "fuel_kg_per_km": 72.753,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 14.4
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": false,
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "reheat": false,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           }
         ]
       },
@@ -21190,6 +23254,29 @@ module.exports = {
             "max_ld_thrust_mode": "afterburner"
           },
           {
+            "id": "mach_2_15",
+            "label": "Ma 2.15",
+            "mach": 2.15,
+            "feasible": false,
+            "fail_reason": "无满足 92% 推力裕度的高度",
+            "alt_m": null,
+            "ld": null,
+            "thrust_avail_kN": null,
+            "load": null,
+            "eta_th": null,
+            "eta_p": null,
+            "eta_o": null,
+            "score": null,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": null,
+            "max_ld": 2.1311,
+            "max_ld_alt_m": 12000.0,
+            "max_ld_thrust_mode": "afterburner"
+          },
+          {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
             "mach": 1.67,
@@ -21287,7 +23374,8 @@ module.exports = {
             "radius_km": 3670.13,
             "fuel_kg_per_km": 16.995,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 13.4
           },
           {
             "mach": 1.0,
@@ -21304,7 +23392,8 @@ module.exports = {
             "radius_km": 920.5,
             "fuel_kg_per_km": 67.76,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 12.4
           },
           {
             "mach": 1.2,
@@ -21321,7 +23410,8 @@ module.exports = {
             "radius_km": null,
             "fuel_kg_per_km": null,
             "reheat": false,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": null
           },
           {
             "mach": 1.35,
@@ -21338,7 +23428,8 @@ module.exports = {
             "radius_km": 1201.17,
             "fuel_kg_per_km": 51.926,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 13.6
           },
           {
             "mach": 1.5,
@@ -21355,7 +23446,8 @@ module.exports = {
             "radius_km": 2611.85,
             "fuel_kg_per_km": 23.881,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 15.4
           },
           {
             "mach": 1.75,
@@ -21372,7 +23464,8 @@ module.exports = {
             "radius_km": 2688.18,
             "fuel_kg_per_km": 23.202,
             "reheat": false,
-            "thrust_mode": "military"
+            "thrust_mode": "military",
+            "ab_ceiling_km": 16.8
           },
           {
             "mach": 2.0,
@@ -21389,7 +23482,26 @@ module.exports = {
             "radius_km": 1009.37,
             "fuel_kg_per_km": 61.794,
             "reheat": true,
-            "thrust_mode": "afterburner"
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 15.2
+          },
+          {
+            "mach": 2.15,
+            "label": "Ma 2.15",
+            "feasible": true,
+            "alt_m": 12000.0,
+            "ld": 2.1311,
+            "thrust_avail_kN": 820.372,
+            "load": 0.9956,
+            "eta_th": 0.401882,
+            "eta_p": 0.809784,
+            "eta_o": 0.148619,
+            "score": 0.316727,
+            "radius_km": 509.91,
+            "fuel_kg_per_km": 122.321,
+            "reheat": true,
+            "thrust_mode": "afterburner",
+            "ab_ceiling_km": 12.0
           }
         ]
       }
