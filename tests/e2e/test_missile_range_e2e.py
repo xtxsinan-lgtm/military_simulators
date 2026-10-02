@@ -475,6 +475,60 @@ def test_e2e_h6_stealth_bomber_matching_presets():
 
 
 @pytest.mark.e2e
+def test_e2e_j15_belly_mass_and_wing_h6_launch():
+    """歼-15 机腹起飞质量不超过 2500 kg；翼下各弹有结构相同的轰-6 发射版本。"""
+    payload = {'action': 'presets'}
+    status, _, body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    cases = json.loads(body.decode())['cases']
+    bellies = [case for case in cases if case['bay'] == '歼-15机腹']
+    assert len(bellies) == 8
+    for case in bellies:
+        assert case['length_m'] == pytest.approx(8.50)
+        assert case['diameter_m'] <= 0.70
+        assert case['m_0_t'] <= 2.50
+        if case['diameter_m'] < 0.70:
+            assert case['m_0_t'] == pytest.approx(2.50)
+
+    wings = [case for case in cases if case['bay'] == '歼-15翼下']
+    assert len(wings) == 8
+    for wing in wings:
+        matched = [
+            case for case in cases
+            if case['bay'] == '歼-15翼下·轰-6发射'
+            and case['missile_class'] == wing['missile_class']
+        ]
+        assert len(matched) == 1
+        h6 = matched[0]
+        assert h6['length_m'] == pytest.approx(wing['length_m'])
+        assert h6['diameter_m'] == pytest.approx(wing['diameter_m'])
+        assert h6['warhead_kg'] == wing['warhead_kg']
+        assert h6['v_mach'] == pytest.approx(0.85)
+        assert h6['h_km'] == pytest.approx(13.0)
+        status_h, _, body_h = handle_request(
+            'POST', '/api/missile_range/simulate',
+            json.dumps({
+                'action': 'estimate',
+                'params': {
+                    'missile_class': h6['missile_class'],
+                    'length_m': h6['length_m'],
+                    'diameter_m': h6['diameter_m'],
+                    'warhead_kg': h6['warhead_kg'],
+                    'v_launch_mach': h6['v_mach'],
+                    'h_launch_km': h6['h_km'],
+                },
+            }).encode(),
+        )
+        assert status_h == 200
+        result = json.loads(body_h.decode())['result']
+        assert result['range_km'] > 0
+        assert result['range_km'] == pytest.approx(h6['range_km'])
+        assert wing['range_km'] >= h6['range_km']
+
+
+@pytest.mark.e2e
 def test_e2e_missile_range_hgv_geometry_optimization():
     """助推滑翔弹滑翔体几何长宽寻优端到端接口测试。"""
     # 1. 测试 action='optimize_geometry' 接口

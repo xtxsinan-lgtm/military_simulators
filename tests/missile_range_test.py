@@ -975,7 +975,7 @@ def test_six_classes_ranges_and_profiles():
     assert wave['range_km'] != legacy['range_km']
     with pytest.raises(ValueError):
         estimate_subsonic_class('ramjet', 6, 0.5, 100, 0.7, 1)
-    assert len(PROPULSION_DATASET) == 75
+    assert len(PROPULSION_DATASET) == 81
     labels = {row['missile_class'] for row in PROPULSION_DATASET}
     assert labels == {
         'scramjet', 'ramjet', 'turbofan_stealth',
@@ -1038,9 +1038,9 @@ def test_presets_follow_bay_list_for_each_speed_class():
 
     grouped = grouped_preset_bays()
     cases = build_preset_cases()
-    # 当前样本：5 超音速弹种 × 16 + 3 亚音速弹种 × 9 = 107
-    # 超音速共用行去掉原 10.5 m 机腹后为 12 条，另加机腹最大与歼-15 各 2 条。
-    assert [case['id'] for case in cases] == list(range(1, 108))
+    # 当前样本：5 超音速弹种 × 17 + 3 亚音速弹种 × 10 = 115
+    # 超音速共用行去掉原 10.5 m 机腹后为 12 条，另加机腹最大、歼-15 机腹、翼下与翼下轰-6发射。
+    assert [case['id'] for case in cases] == list(range(1, 116))
 
     # 共用的弹仓行
     super_generic = [
@@ -1072,16 +1072,16 @@ def test_presets_follow_bay_list_for_each_speed_class():
             (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
             for case in cases if case['missile_class'] == missile_class
         ]
-        # 共用行之后还有轰-6机腹最大 2 条、歼-15 机腹与翼下各 1 条
-        assert len(got) == 16
+        # 共用行之后还有轰-6机腹最大 2 条、歼-15 机腹、翼下与翼下轰-6发射各 1 条
+        assert len(got) == 17
         assert got[:12] == super_generic
     for missile_class in SUBSONIC_CLASSES:
         got = [
             (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
             for case in cases if case['missile_class'] == missile_class
         ]
-        # 每个亚音速弹种还有 2 条歼-15 专属样例
-        assert len(got) == 9
+        # 每个亚音速弹种还有 3 条歼-15 专属样例
+        assert len(got) == 10
         assert got[:7] == sub_generic
 
     # 乘波体在歼-36弹仓被专属行覆盖为 250 kg
@@ -1111,6 +1111,7 @@ def test_carrier_launch_envelope():
         '中型六代机弹仓': (1.75, 18.0),
         '歼-15机腹': (1.5, 14.0),
         '歼-15翼下': (1.5, 14.0),
+        '歼-15翼下·轰-6发射': (0.85, 13.0),
         '隐身超音速轰炸机弹仓': (1.75, 18.0),
         '轰-6机腹': (0.85, 13.0),
         '轰-6机腹最大': (0.85, 13.0),
@@ -1161,6 +1162,72 @@ def test_j15_wing_presets_stay_inside_pylon_box():
         )
         assert result['m_0_t'] <= 1.50
         assert result['range_km'] > 0
+
+
+def test_j15_belly_presets_hold_2500kg():
+    """歼-15 机腹是 2500 kg 档：弹长 8.5 m、弹径不超过 0.70 m，起飞质量不超过 2500 kg。
+
+    弹径还能再加粗时，质量必须正好落在 2500 kg；加到 0.70 m 仍轻于 2500 kg 的，取最大可用尺寸。
+    """
+    from utils.missile_range.classes import estimate_by_class
+    from utils.missile_range.dataset import build_preset_cases
+
+    # 弹径；None 表示最大尺寸仍到不了 2500 kg
+    expected = {
+        'hgv_biconic': 0.6085,
+        'hgv_waverider': 0.6603,
+        'scramjet': 0.6096,
+        'ramjet': 0.5997,
+        'ballistic': 0.6307,
+        'turbofan_stealth': 0.7000,
+        'turbojet_subsonic': 0.7000,
+        'turbofan_rocket': 0.6587,
+    }
+    bellies = [case for case in build_preset_cases() if case['bay'] == '歼-15机腹']
+    assert {case['missile_class'] for case in bellies} == set(expected)
+    for case in bellies:
+        diameter = expected[case['missile_class']]
+        assert case['length'] == pytest.approx(8.50)
+        assert case['diameter'] == pytest.approx(diameter)
+        assert case['warhead'] == 300
+        assert case['diameter'] <= 0.70
+        result = estimate_by_class(
+            case['missile_class'], case['length'], case['diameter'], case['warhead'],
+            case['v_mach'], case['h_km'],
+        )
+        assert result['m_0_t'] <= 2.50
+        if case['diameter'] < 0.70:
+            assert result['m_0_t'] == pytest.approx(2.50)
+        assert result['range_km'] > 0
+
+
+def test_j15_wing_h6_launch_keeps_structure():
+    """歼-15 翼下每一发都有轰-6 发射版本，弹长、弹径、战斗部和弹种不变。"""
+    from utils.missile_range.classes import estimate_by_class
+    from utils.missile_range.dataset import build_preset_cases
+
+    cases = build_preset_cases()
+    wings = [case for case in cases if case['bay'] == '歼-15翼下']
+    h6 = [case for case in cases if case['bay'] == '歼-15翼下·轰-6发射']
+    assert len(wings) == 8
+    assert {case['missile_class'] for case in h6} == {case['missile_class'] for case in wings}
+    for wing in wings:
+        match = next(case for case in h6 if case['missile_class'] == wing['missile_class'])
+        assert (match['length'], match['diameter'], match['warhead']) == (
+            wing['length'], wing['diameter'], wing['warhead'],
+        )
+        assert match['v_mach'] == pytest.approx(0.85)
+        assert match['h_km'] == pytest.approx(13.0)
+        launched = estimate_by_class(
+            match['missile_class'], match['length'], match['diameter'], match['warhead'],
+            match['v_mach'], match['h_km'],
+        )
+        carrier = estimate_by_class(
+            wing['missile_class'], wing['length'], wing['diameter'], wing['warhead'],
+            wing['v_mach'], wing['h_km'],
+        )
+        assert launched['range_km'] > 0
+        assert carrier['range_km'] >= launched['range_km']
 
 
 def test_airbreathing_range_model_differs_from_boost_and_ballistic():
