@@ -194,7 +194,10 @@ def estimate_hgv(
     isp_s: float = DEFAULT_ISP_S,
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
 ) -> dict:
-    """估算起飞质量、关机马赫数、升阻比与总射程（千米）。"""
+    """估算起飞质量、关机马赫数、升阻比与总射程（千米）。
+
+    助推级长度按双锥体装填。乘波体只改升阻比，不把弹头拉长。
+    """
     hgv_type = normalize_hgv_type(hgv_type)
     if length_m <= 0 or diameter_m <= 0:
         raise ValueError('弹长与弹径必须大于 0')
@@ -206,8 +209,9 @@ def estimate_hgv(
 
     v_launch_ms = v_launch_mach * SOUND_SPEED_M_S
     m_head_total = head_total_mass_kg(warhead_mass_kg)
+    # 同一外形共用双锥体的助推级长度。乘波体只提高升阻比，不再把弹头拉长去挤占装药。
     l_head, l_booster = head_and_booster_lengths_m(
-        length_m, diameter_m, warhead_mass_kg, hgv_type,
+        length_m, diameter_m, warhead_mass_kg, 'biconic',
     )
     m_propellant = propellant_mass_kg(diameter_m, l_booster, propellant_density)
     pmf = PROPELLANT_MASS_FRACTION

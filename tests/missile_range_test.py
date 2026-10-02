@@ -95,12 +95,9 @@ def _oracle(
     v_launch_ms = v_launch_mach * 295.0
     aux_head_ratio = 0.35 if warhead_mass_kg <= 250 else 0.28
     m_head_total = warhead_mass_kg + max(40.0, warhead_mass_kg * aux_head_ratio)
-    head_density = 1800.0 if hgv_type == 'biconic' else 1650.0
-    v_head_req = m_head_total / head_density
-    if hgv_type == 'biconic':
-        l_head_calc = v_head_req / (0.2618 * (diameter_m ** 2))
-    else:
-        l_head_calc = v_head_req / (0.1745 * (diameter_m ** 2))
+    # 助推级按双锥体密度和外形装填。乘波体与双锥体共用这段长度，只在升阻比上分开。
+    v_head_req = m_head_total / 1800.0
+    l_head_calc = v_head_req / (0.2618 * (diameter_m ** 2))
     l_head = min(l_head_calc, length_m * 0.45)
     l_booster_gross = length_m - l_head
     d_motor = diameter_m * 0.90
@@ -881,35 +878,40 @@ def test_public_airbreathing_ranges_match_open_sources():
     from utils.missile_range.classes import estimate_by_class
 
     # 鹰击-15：6.5 m×0.50 m、战斗部 200 kg、Ma 0.9 @ 12 km。质量仍约 1.5 t。
-    # 公开高空约 800 km；吸气比冲和升阻比按偏乐观取后，高空约 1140 km、掠海约 165 km。
+    # 公开高空约 800 km；吸气比冲和升阻比按偏乐观取后，高空约 1140 km。
+    # 掠海约为高空的 1/2.3，落在公开亚燃弹 2 到 2.5 倍的区间里。
     yj15 = estimate_by_class('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
     assert yj15['m_0_t'] == pytest.approx(1.50, abs=0.05)
     assert 1050 <= yj15['range_high_km'] <= 1250
-    assert 140 <= yj15['range_sea_km'] <= 200
+    assert 450 <= yj15['range_sea_km'] <= 540
+    assert 2.0 <= yj15['range_high_km'] / yj15['range_sea_km'] <= 2.5
     # 缟玛瑙级弹径共用同一耗油率，装填按鹰击-15 加满后高空更长。
     oniks_m = estimate_by_class('ramjet', 8.9, 0.70, 300, 0.0, 0.0)
     assert oniks_m['m_0_t'] == pytest.approx(3.7, abs=0.3)
     assert 1250 <= oniks_m['range_high_km'] <= 1550
-    assert 170 <= oniks_m['range_sea_km'] <= 250
+    assert 560 <= oniks_m['range_sea_km'] <= 680
+    assert 2.0 <= oniks_m['range_high_km'] / oniks_m['range_sea_km'] <= 2.5
     # Kh-31PD：5.34 m×0.36 m、战斗部 110 kg，Ma 1.5 @ 15 km。公开最大 180–250 km，乐观化后约 340 km。
     kh31pd = estimate_by_class('ramjet', 5.34, 0.36, 110, 1.5, 15.0)
     assert kh31pd['m_0_t'] == pytest.approx(0.72, abs=0.08)
     assert 280 <= kh31pd['range_high_km'] <= 420
     brahmos = estimate_by_class('ramjet', 8.4, 0.70, 250, 0.0, 0.0)
     assert 1200 <= brahmos['range_km'] <= 1600
-    assert 170 <= brahmos['range_sea_km'] <= 250
+    assert 560 <= brahmos['range_sea_km'] <= 680
+    assert 2.0 <= brahmos['range_high_km'] / brahmos['range_sea_km'] <= 2.5
     kh31 = estimate_by_class('ramjet', 5.2, 0.36, 90, 0.9, 10.0)
     assert 220 <= kh31['range_km'] <= 360
     assert kh31['range_sea_km'] < kh31['range_high_km']
     moskit = estimate_by_class('ramjet', 9.4, 0.76, 320, 0.0, 0.0)
-    assert 180 <= moskit['range_sea_km'] <= 280
+    assert 620 <= moskit['range_sea_km'] <= 740
+    assert 2.0 <= moskit['range_high_km'] / moskit['range_sea_km'] <= 2.5
     fighter = estimate_by_class('ramjet', 4.25, 0.345, 90, 2.2, 19.0)
     assert fighter['range_km'] > kh31['range_sea_km']
     assert fighter['range_km'] > 200
     # 3M54K：8.22 m×0.533 m、战斗部 200 kg、全重约 1.95 t。舰面发射全掠海/全高空取 400/950，末端约 20 km。
     kalibr = estimate_by_class('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
     assert kalibr['m_0_t'] == pytest.approx(1.95, abs=0.15)
-    assert kalibr['range_high_km'] == 664.9
+    assert kalibr['range_high_km'] == 1203.4
     assert kalibr['range_sea_km'] / kalibr['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
     assert 18 <= kalibr['range_terminal_km'] <= 26
     air_kalibr = estimate_by_class('turbofan_rocket', 8.22, 0.533, 200, 0.85, 6.0)
@@ -980,6 +982,60 @@ def test_optimistic_duct_ranges_stay_below_same_size_hgv():
     assert ram['range_km'] > 2200
     small = estimate_by_class('scramjet', 4.25, 0.345, 90, 2.2, 19.0)
     assert small['cruise_mach'] < 4.0
+
+
+def test_glide_floor_range_km_lifts_only_short_glides():
+    """平衡滑翔短于弹道弧时按升阻比抬高；已经更远时保持原航程。"""
+    from utils.missile_range.classes import glide_floor_range_km
+
+    assert glide_floor_range_km(100.0, 200.0, 3.5) == pytest.approx(200.0 * (1.0 + 0.08 * 2.5))
+    assert glide_floor_range_km(500.0, 200.0, 3.0) == 500.0
+    with pytest.raises(ValueError):
+        glide_floor_range_km(-1, 200, 3)
+    with pytest.raises(ValueError):
+        glide_floor_range_km(100, 0, 3)
+    with pytest.raises(ValueError):
+        glide_floor_range_km(100, 200, 0)
+
+
+def test_same_tube_glide_outranges_ballistic_and_combo_keeps_turbofan_isp():
+    """鱼雷管上乘波体长于双锥体、双锥体长于弹道；亚超巡航比冲不低于涡喷，航程也不掉到三分之一。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    tube = dict(length_m=6.35, diameter_m=0.51, warhead_mass_kg=160, v_launch_mach=0.0, h_launch_km=0.0)
+    wave = estimate_by_class('hgv_waverider', **tube)
+    biconic = estimate_by_class('hgv_biconic', **tube)
+    ballistic = estimate_by_class('ballistic', **tube)
+    assert wave['m_p_total_kg'] == biconic['m_p_total_kg']
+    assert wave['range_km'] > biconic['range_km'] > ballistic['range_km']
+    assert '再入航程' in biconic['note']
+
+    vls = dict(length_m=11.5, diameter_m=1.2, warhead_mass_kg=500, v_launch_mach=0.0, h_launch_km=0.0)
+    fan = estimate_by_class('turbofan_stealth', **vls)
+    jet = estimate_by_class('turbojet_subsonic', **vls)
+    combo = estimate_by_class('turbofan_rocket', **vls)
+    ram = estimate_by_class('ramjet', **vls)
+    assert fan['range_high_km'] > jet['range_high_km'] > combo['range_high_km']
+    assert combo['range_high_km'] > 0.45 * jet['range_high_km']
+    assert combo['isp_cruise_s'] == pytest.approx(fan['isp_cruise_s'], abs=0.2)
+    assert combo['isp_cruise_s'] > jet['isp_cruise_s']
+    assert 2.0 <= ram['range_high_km'] / ram['range_sea_km'] <= 2.5
+    heavy = dict(length_m=10.5, diameter_m=1.1, warhead_mass_kg=1000, v_launch_mach=0.85, h_launch_km=13.0)
+    assert estimate_by_class('hgv_waverider', **heavy)['range_km'] > estimate_by_class('scramjet', **heavy)['range_km']
+
+
+def test_scramjet_without_takeover_coasts_instead_of_cruising():
+    """接不上设计马赫数时不再按 36 km 巡航，射程短于同一管子里已经接入的亚燃。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    tube = dict(length_m=6.35, diameter_m=0.51, warhead_mass_kg=160, v_launch_mach=0.0, h_launch_km=0.0)
+    scram = estimate_by_class('scramjet', **tube)
+    ram = estimate_by_class('ramjet', **tube)
+    assert scram['cruise_mach'] < 4.0
+    assert scram['cruise_alt_km'] < 20.0
+    assert scram['range_cruise_km'] == 0.0
+    assert '未接入' in scram['note']
+    assert 0 < scram['range_km'] < ram['range_km']
 
 
 def test_isp_from_tsfc_round_trip():

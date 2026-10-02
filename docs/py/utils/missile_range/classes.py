@@ -4,8 +4,9 @@
 带助推器的吸气弹把比冲拆成两段：助推用固体比冲，巡航用吸气比冲。
 全高空与全掠海只改巡航高度、升阻比和耗油率。
 低速发射的亚音速弹先扣一截可抛弃固体助推器，助推器占燃油舱、不带进巡航质量。
-冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。亚燃在 10 km 以下按稠密大气加大助推损失。
-亚超结合在涡扇巡航之后加一段低空固体火箭冲刺，末端火箭另用固体比冲。
+冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。接不上设计马赫数时只计助推后的弹道弧。
+亚燃高空大约是掠海的 2 到 2.5 倍。亚燃在 10 km 以下按稠密大气加大助推损失。
+亚超结合的巡航比冲与涡扇同一档，末端固体火箭另计。
 普通弹道导弹沿用弹体装药估算，关机后取最大射程弹道。
 助推段不足 8.5 m 按单级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
 轻型战术弹推重比更高，地面 4 m 级用 PrSM 的 499 km 标定。
@@ -258,9 +259,10 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'fuel_floor_frac': 0.28,
         'sea_alt_km': 0.015,
         'sea_mach': 2.0,
-        'sea_ld_factor': 0.38,
-        # 掠海耗油倍数仍按公开高空/掠海落差。比冲和升阻比抬高后，两边一起变长。
-        'sea_tsfc_factor': 2.45,
+        'sea_ld_factor': 0.62,
+        # 公开亚燃反舰弹的高弹道大约是掠海的 2 到 2.5 倍。
+        # 升阻比 0.62、耗油率 1.30，加上 Ma 2.8 对 Ma 2.0 的速度差，合起来落在这个区间。
+        'sea_tsfc_factor': 1.30,
     },
     'scramjet': {
         # 与助推滑翔同一档乐观，但仍是煤油超燃而不是涡扇：比冲 1450 s、巡航 Ma 6.8、
@@ -293,8 +295,8 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
 
 _ROCKET_CRUISE = {
     # 对照 3M54K：8.22 m×0.533 m、战斗部 200 kg、舰面/潜射，出口型 3M54E 全重 1951 kg。
-    # 末端固体级约 20 km、Ma 2.9。出口型 220 km 是 MTCR 上限，不拿来标定。
-    # 末端级最多占弹体两成容积，冲刺才落在 20 km 附近。
+    # 巡航是涡扇，比冲与隐身涡扇同一档，不再低于涡喷。末端固体级约 20 km、Ma 2.9。
+    # 出口型 220 km 是 MTCR 上限，不拿来标定。末端级最多占弹体两成容积。
     # 掠海升阻比按全掠海 / 全高空 = 400/950 标定在这发舰面发射上；冲刺段两边相同，不进这个系数。
     'body_pack': 0.62,
     'areal': 36.0,
@@ -303,7 +305,7 @@ _ROCKET_CRUISE = {
     'payload_density': 2600.0,
     'void_frac': 0.10,
     'fuel_density': 800.0,
-    'tsfc': 3.95e-5,
+    'tsfc': 2.15e-5,
     'mach': 0.80,
     'alt_km': 6.0,
     'ld_base': 3.4,
@@ -311,7 +313,7 @@ _ROCKET_CRUISE = {
     'ld_min': 3.8,
     'ld_max': 5.0,
     'eta': 0.28,
-    'sea_ld_factor': 0.39384,
+    'sea_ld_factor': 0.4026,
     'sea_tsfc_factor': 1.08,
     'reserve': 0.08,
     'sea_alt_km': 0.02,
@@ -1345,51 +1347,63 @@ def estimate_ducted(
     else:
         speed_after = launch_speed + gap * min(1.0, ideal / dv_need)
     reached = speed_after >= takeover_speed * 0.98
-    if reached:
-        cruise_speed = spec['mach_cruise'] * sound
-    else:
-        cruise_speed = max(speed_after, sound * 1.3)
-    cruise_mach = cruise_speed / sound
-    accel = max(0.0, cruise_speed - speed_after) if reached else 0.0
     tsfc = resolved_cruise_tsfc(canon, diameter_m, isp_air_s)
     isp_cruise = isp_from_tsfc_s(tsfc)
-    mass_after_boost = launch_mass - propellant
-    accel_frac = 0.0 if accel <= 1.0 else 1.0 - math.exp(-accel / (isp_cruise * G0 * spec['accel_excess']))
-    accel_fuel = min(fuel * 0.65, accel_frac * mass_after_boost)
-    climb = climb_fuel_kg(
-        mass_after_boost,
-        (spec['alt_km'] - h_launch_km) * 1000.0,
-        cruise_speed ** 2 - speed_after ** 2,
-        spec['eta'],
-    )
-    climb = min(climb, max(0.0, fuel - accel_fuel) * 0.40)
-    cruise_fuel = max(0.0, fuel - accel_fuel - climb) * (1.0 - spec['reserve'])
-    if cruise_fuel <= 1.0:
-        raise ValueError('冲压燃油不足以完成巡航')
     ld = duct_ld(length_m, diameter_m, spec)
-    cruise_m = breguet_cruise_range_m(
-        cruise_speed, tsfc, ld, mass_after_boost, mass_after_boost - cruise_fuel,
-    )
     burn_time = ballistic_burn_time_s(propellant, launch_mass, isp_boost) if propellant > 0 else 0.0
-    boost_range = 0.5 * (launch_speed + min(speed_after, cruise_speed)) * burn_time
-    high_km = (cruise_m + boost_range) / 1000.0
-    sea_km = None
-    if spec.get('sea_alt_km') is not None:
-        sea_sound = speed_of_sound_m_s(spec['sea_alt_km'])
-        sea_speed = spec.get('sea_mach', 2.0) * sea_sound
-        sea_ld = ld * spec.get('sea_ld_factor', 0.42)
-        sea_tsfc = tsfc * spec.get('sea_tsfc_factor', 1.3)
-        sea_fuel = max(0.0, fuel - accel_fuel) * (1.0 - spec['reserve'])
-        if sea_fuel > 1.0 and sea_ld > 0:
-            sea_m = breguet_cruise_range_m(
-                sea_speed, sea_tsfc, sea_ld, mass_after_boost, mass_after_boost - sea_fuel,
-            )
-            sea_km = (sea_m + boost_range) / 1000.0
+    boost_range = 0.5 * (launch_speed + speed_after) * burn_time
+    mass_after_boost = launch_mass - propellant
+    if not reached:
+        # 接不上设计马赫数时，不能在 30 km 以上用亚燃速度做布雷盖巡航。
+        burnout_alt = burnout_altitude_km(max(speed_after, 50.0), h_launch_km)
+        try:
+            coast_km = ballistic_range_km(max(speed_after, 50.0), burnout_alt)
+        except ValueError:
+            coast_km = 0.0
+        high_km = boost_range / 1000.0 + coast_km
+        sea_km = high_km if spec.get('sea_alt_km') is not None else None
+        cruise_m = 0.0
+        cruise_mach = speed_after / speed_of_sound_m_s(0.0)
+        cruise_alt = burnout_alt
+        trimmed = '冲压未接入设计马赫数，射程只计助推后的弹道弧。'
+    else:
+        cruise_speed = spec['mach_cruise'] * sound
+        cruise_mach = cruise_speed / sound
+        accel = max(0.0, cruise_speed - speed_after)
+        accel_frac = 0.0 if accel <= 1.0 else 1.0 - math.exp(-accel / (isp_cruise * G0 * spec['accel_excess']))
+        accel_fuel = min(fuel * 0.65, accel_frac * mass_after_boost)
+        climb = climb_fuel_kg(
+            mass_after_boost,
+            (spec['alt_km'] - h_launch_km) * 1000.0,
+            cruise_speed ** 2 - speed_after ** 2,
+            spec['eta'],
+        )
+        climb = min(climb, max(0.0, fuel - accel_fuel) * 0.40)
+        cruise_fuel = max(0.0, fuel - accel_fuel - climb) * (1.0 - spec['reserve'])
+        if cruise_fuel <= 1.0:
+            raise ValueError('冲压燃油不足以完成巡航')
+        cruise_m = breguet_cruise_range_m(
+            cruise_speed, tsfc, ld, mass_after_boost, mass_after_boost - cruise_fuel,
+        )
+        high_km = (cruise_m + boost_range) / 1000.0
+        sea_km = None
+        if spec.get('sea_alt_km') is not None:
+            sea_sound = speed_of_sound_m_s(spec['sea_alt_km'])
+            sea_speed = spec.get('sea_mach', 2.0) * sea_sound
+            sea_ld = ld * spec.get('sea_ld_factor', 0.42)
+            sea_tsfc = tsfc * spec.get('sea_tsfc_factor', 1.3)
+            sea_fuel = max(0.0, fuel - accel_fuel) * (1.0 - spec['reserve'])
+            if sea_fuel > 1.0 and sea_ld > 0:
+                sea_m = breguet_cruise_range_m(
+                    sea_speed, sea_tsfc, sea_ld, mass_after_boost, mass_after_boost - sea_fuel,
+                )
+                sea_km = (sea_m + boost_range) / 1000.0
+        cruise_alt = spec['alt_km']
+        trimmed = ''
     dead = deadweight_kg(launch_mass, fuel, warhead_mass_kg, propellant)
     bay = payload / spec['payload_density']
     section = math.pi * (diameter_m / 2.0) ** 2
     head_len = min(length_m * 0.45, bay / section)
-    trimmed = '' if reached else '接力装药不足，巡航马赫已下调。'
     sea_txt = '' if sea_km is None else f'全掠海 {sea_km:.0f} km。'
     boost_txt = ''
     isp_boost_out = None
@@ -1398,7 +1412,7 @@ def estimate_ducted(
         boost_txt = f"助推固体比冲 {isp_boost:.0f} s，"
     note = (
         f"{class_label(canon)}：{boost_txt}巡航吸气比冲 {isp_cruise:.0f} s。"
-        f"高空巡航 Ma {cruise_mach:.2f} @ {spec['alt_km']:.0f} km，"
+        f"高空巡航 Ma {cruise_mach:.2f} @ {cruise_alt:.0f} km，"
         f"设计 Ma {spec['mach_cruise']:.1f}。{trimmed}{sea_txt}"
         f"死重 {dead:.0f} kg。"
     )
@@ -1408,7 +1422,7 @@ def estimate_ducted(
         range_high_km=high_km if sea_km is not None else None,
         range_sea_km=sea_km,
         range_cruise_km=cruise_m / 1000.0,
-        cruise_mach=cruise_mach, cruise_alt_km=spec['alt_km'],
+        cruise_mach=cruise_mach, cruise_alt_km=cruise_alt,
         m_dead_kg=dead,
         isp_boost_s=isp_boost_out, isp_cruise_s=isp_cruise,
     )
@@ -1589,6 +1603,18 @@ def estimate_ballistic(
     )
 
 
+def glide_floor_range_km(glide_range_km: float, ballistic_km: float, ld_ratio: float) -> float:
+    """平衡滑翔短于同一助推器的弹道弧时，改用按升阻比延伸的再入航程。
+
+    升阻比为 1 时与弹道弧相同，更高的升阻比按每 1 个单位加 8% 拉开。
+    平衡滑翔已经更远时保持原值，大弹的滑翔标定不动。
+    """
+    if glide_range_km < 0 or ballistic_km <= 0 or ld_ratio <= 0:
+        raise ValueError('滑翔航程、弹道航程与升阻比无效')
+    lifting = ballistic_km * (1.0 + 0.08 * max(0.0, ld_ratio - 1.0))
+    return max(glide_range_km, lifting)
+
+
 def estimate_by_class(
     missile_class: str,
     length_m: float,
@@ -1616,9 +1642,20 @@ def estimate_by_class(
             v_launch_mach, h_launch_km, isp_s, propellant_density,
         )
         result = dict(result)
+        ballistic = estimate_ballistic(
+            length_m, diameter_m, warhead_mass_kg,
+            v_launch_mach, h_launch_km, isp_s, propellant_density,
+        )
+        floored = glide_floor_range_km(
+            float(result['range_km']), float(ballistic['range_km']), float(result['ld_ratio']),
+        )
         result['missile_class'] = canon
         result['class_label'] = class_label(canon)
-        result['note'] = class_blurb(canon) + f' 固体比冲 {isp_s:.0f} s。'
+        note = class_blurb(canon) + f' 固体比冲 {isp_s:.0f} s。'
+        if floored > float(result['range_km']) + 0.05:
+            result['range_km'] = round(floored, 1)
+            note += '平衡滑翔短于同一助推器的弹道弧，改为按升阻比延伸后的再入航程。'
+        result['note'] = note
         result['isp_boost_s'] = None
         result['isp_cruise_s'] = None
         result['isp_rocket_s'] = round(isp_s, 1)

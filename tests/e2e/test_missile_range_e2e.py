@@ -181,7 +181,7 @@ def test_e2e_russian_ramjet_and_dual_mode_anchors():
     assert 1050 <= yj15['range_high_km'] <= 1250
     assert abs(yj15['m_0_t'] - 1.50) <= 0.05
     kalibr = _estimate_via_api('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
-    assert kalibr['range_high_km'] == 664.9
+    assert kalibr['range_high_km'] == 1203.4
     assert kalibr['range_sea_km'] / kalibr['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
     assert 18 <= kalibr['range_terminal_km'] <= 26
     jet = _estimate_via_api('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 6.0)
