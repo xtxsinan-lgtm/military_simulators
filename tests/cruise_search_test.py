@@ -238,7 +238,7 @@ def test_search_max_possible_cruise_mach_skips_transonic_hole():
 
 
 def test_fixed_machs_include_two_and_supersonic_threshold():
-    assert FIXED_MACHS == (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0, 2.15)
+    assert FIXED_MACHS == (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0, 2.15, 2.3)
     assert SUPERSONIC_MACH == 1.0
     assert SUPERSONIC_MACH in FIXED_MACHS
     assert PRACTICAL_MAX_CRUISE_MACH_LO == pytest.approx(1.2)

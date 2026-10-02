@@ -520,7 +520,7 @@ def test_run_estimate_radius_from_params_f22():
     ids = [p['id'] for p in r['points']]
     assert ids == [
         'mach_0_8', 'mach_1_0', 'mach_1_2', 'mach_1_35', 'mach_1_5',
-        'mach_1_75', 'mach_2_0', 'mach_2_15',
+        'mach_1_75', 'mach_2_0', 'mach_2_15', 'mach_2_3',
         PRACTICAL_MAX_CRUISE_ID, MAX_RADIUS_CRUISE_ID, MAX_POSSIBLE_CRUISE_ID,
     ]
     labels = {p['id']: p['label'] for p in r['points']}
@@ -580,7 +580,7 @@ def test_run_estimate_radius_skips_practical_max_when_hi_below_12():
 def test_run_combat_radius_estimate_radius_action():
     ok = run_combat_radius('estimate_radius', _radius_params())
     assert ok['success'] is True
-    assert len(ok['points']) == 11
+    assert len(ok['points']) == 12
     bad = run_combat_radius_json({'action': 'estimate_radius', 'params': {}})
     assert bad['success'] is False
 
