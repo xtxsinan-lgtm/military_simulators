@@ -5,8 +5,9 @@
 全高空与全掠海只改巡航高度、升阻比和耗油率。
 低速发射的亚音速弹先扣一截可抛弃固体助推器，助推器占燃油舱、不带进巡航质量。
 冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。接不上接力马赫数时只计助推后的弹道弧。
-超燃按固冲一体装填，燃烧室是双模：固体药柱铸在燃烧室里，先以亚燃模态接力并加速，再转入超燃巡航。
-到不了超燃转级就按亚燃模态巡航。亚燃高空大约是掠海的 2 到 2.5 倍。亚燃和双模超燃在 10 km 以下按稠密大气加大助推损失。
+亚燃是固冲一体：药柱铸在燃烧室里，和煤油分同一块能源容积。
+超燃不是双模态，燃烧室留空，固体助推器单独占舱，燃油用高密度吸热型液体碳氢燃料。
+亚燃高空大约是掠海的 2 到 2.5 倍。亚燃在 10 km 以下按稠密大气加大助推损失。超燃地面发射不加这一档。
 亚超结合的巡航比冲与涡扇同一档，末端固体火箭另计。
 普通弹道导弹只在前方用头锥：按长径比算圆锥容积，制导和战斗部从弹体容积里扣，其余才是圆柱发动机。
 弹道弹是否两级由显式开关控制，默认两级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
@@ -81,13 +82,17 @@ SUBSONIC_BOOSTER_LOSS = 0.45
 # 药柱只有一部分挤占燃油舱，喷管和尾裙落在油箱以外。
 BOOSTER_TANK_SHARE = 0.50
 # 亚燃助推损失在 10 km 标定高度以上不变；海平面提高到约 1.8 倍。
-# 双模超燃的固体助推也只推到亚燃接力，地面发射同样加这段损失。
+# 超燃固体助推直接推到超燃接力，地面发射不加这一档。
 RAMJET_LOSS_REF_KM = 10.0
 RAMJET_SURFACE_LOSS_GAIN = 0.80
-# 双模加速：亚燃段单独吃掉这一比例以上的燃油，就不再转入超燃。
-DUAL_MODE_RAM_FUEL_CAP = 0.55
-# 加速耗油不超过全部燃油的这一比例，和单模态冲压同一条上限。
-DUAL_MODE_ACCEL_CAP = 0.65
+# 加速耗油不超过全部燃油的这一比例。
+DUCT_ACCEL_FUEL_CAP = 0.65
+# 高密度吸热型液体碳氢燃料，密度高于普通煤油，按 0.98 g/cm³。
+SCRAMJET_ENDOTHERMIC_FUEL_KG_M3 = 980.0
+# 超燃燃烧室流道：直径约为弹径的 55%，长度不超过弹长的 25%，也不超过 8 倍弹径。
+SCRAMJET_COMBUSTOR_DIAMETER_FRAC = 0.55
+SCRAMJET_COMBUSTOR_LENGTH_FRAC = 0.25
+SCRAMJET_COMBUSTOR_FINENESS = 8.0
 TERMINAL_COAST_CAP_M = 150000.0
 RHO_SEA_KG_M3 = 1.225
 TERMINAL_CD = 0.40
@@ -106,12 +111,12 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'scramjet',
         'label': '超燃冲压导弹',
-        'blurb': '固冲一体双模：药柱铸在燃烧室里，固体火箭先推到亚燃接力，再加速转入超燃巡航。助推、亚燃加速和超燃巡航三段比冲分开算。进气道和隔离段占去容积。',
+        'blurb': '固体助推器与超燃燃烧室分开，不是双模态。助推到超燃接力后，用高密度吸热型液体碳氢燃料巡航。助推用固体比冲，巡航用吸气比冲。',
     },
     {
         'id': 'ramjet',
         'label': '亚燃冲压导弹',
-        'blurb': '固体火箭助推后亚燃冲压巡航。助推用固体比冲，巡航用更高的吸气比冲，两段分开算。分别给出高空巡航与掠海巡航；更细的弹巡航比冲按弹径下降。',
+        'blurb': '固冲一体：固体药柱铸在亚燃燃烧室里，和煤油分同一块能源容积。助推用固体比冲，巡航用更高的吸气比冲。分别给出高空巡航与掠海巡航；更细的弹巡航比冲按弹径下降。',
     },
     {
         'id': 'turbofan_stealth',
@@ -242,7 +247,7 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         # 只按蒙皮外推时这一发只有约 460 kg。壳体与进气道改按 1.46 倍计
         # （面密度、发动机系数、发动机密度同比例，发动机容积不变），
         # 空腔从 0.28 降到 0.14，让出的容积改装煤油和助推药，燃油质量比基本不动。
-        # 超燃也是固冲一体，但隔离段更长、巡航点更高，不共用这组亚燃质量锚。
+        # 超燃不共用这组系数：燃烧室不铸药柱，固体助推器另占一舱。
         # 质量锚在鹰击-15：简氏外形约 6.5 m×0.50 m、战斗部 200 kg、
         # Ma 0.9 @ 12 km 空射，公开估计约 1.5 t。装填 0.805 才够这发装到 1.5 t；
         # 鹰击-91 会因此略重于公开的 600 kg。质量不跟着航程一起放宽。
@@ -283,13 +288,10 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'sea_tsfc_factor': 1.30,
     },
     'scramjet': {
-        # 固冲一体：药柱铸在燃烧室，和亚燃一样与煤油分同一块能源容积。
-        # 进气道按空腔留出，发动机按金属密度，避免空腔扣两次。
-        # 双模先在约 Ma 2.4 以亚燃接力，加速到约 Ma 4.8 后转超燃。
-        # 煤油双模的航程最优点在刚转入超燃的 Ma 5.2、24 km，比冲约 1200 s。
-        # 再往上推到 Ma 6，加速耗油会把巡航油吃掉，同尺寸反而短于亚燃。
-        # 亚燃加速比冲 1350 s。不再把接力放在 Ma 3.6，也不再用空心气道。
-        # 隔离段固定占 0.22 m³，比原来的 0.65 m³ 小，因为药柱占的是燃烧室不是进气道。
+        # 不是双模态，也不把药柱铸进燃烧室。燃烧室流道另算，先从能源容积里扣掉。
+        # 固体助推器单独占舱，剩下的才装高密度吸热型液体碳氢燃料。
+        # 碳氢超燃在约 Ma 4.2 接力，巡航点仍取 Ma 5.2、24 km、比冲约 1200 s。
+        # 隔离段固定占 0.22 m³，这段是进气道而不是燃烧室。
         'body_pack': 0.78,
         'areal': 36.0,
         'eng_coeff': 220.0,
@@ -297,14 +299,11 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'payload_density': 2400.0,
         'void_frac': 0.11,
         'fixed_void_m3': 0.22,
-        'fuel_density': 840.0,
+        'fuel_density': SCRAMJET_ENDOTHERMIC_FUEL_KG_M3,
         'tsfc': 1.0 / (1200.0 * G0),
-        'ram_isp_s': 1350.0,
-        'mach_takeover': 2.4,
-        'mach_transition': 4.8,
+        'mach_takeover': 4.2,
         'mach_cruise': 5.2,
         'alt_km': 24.0,
-        'ram_alt_km': 18.0,
         'ld_base': 2.35,
         'ld_slope': 0.05,
         'ld_min': 2.6,
@@ -314,7 +313,6 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'loss_frac': 0.10,
         'accel_excess': 0.55,
         'fuel_floor_frac': 0.32,
-        'dual_mode': 1.0,
     },
 }
 
@@ -923,6 +921,42 @@ def cruise_range_pair_km(
     }
 
 
+def scramjet_combustor_volume_m3(length_m: float, diameter_m: float) -> float:
+    """超燃燃烧室流道容积。这段不装固体药，也不装燃油。"""
+    if length_m <= 0 or diameter_m <= 0:
+        raise ValueError('弹长与弹径必须大于 0')
+    flow_diameter = diameter_m * SCRAMJET_COMBUSTOR_DIAMETER_FRAC
+    combustor_length = min(
+        length_m * SCRAMJET_COMBUSTOR_LENGTH_FRAC,
+        SCRAMJET_COMBUSTOR_FINENESS * diameter_m,
+    )
+    return math.pi * (flow_diameter / 2.0) ** 2 * combustor_length
+
+
+def split_scramjet_booster_and_fuel(
+    energy_volume_m3_value: float,
+    combustor_volume_m3: float,
+    fixed_mass_kg: float,
+    dv_boost_m_s: float,
+    isp_s: float,
+    propellant_density: float,
+    fuel_density: float,
+    fuel_floor_frac: float,
+) -> tuple[float, float, float]:
+    """燃烧室先留空，剩下的能源容积才分给单独的固体助推舱和燃油舱。"""
+    if combustor_volume_m3 < 0:
+        raise ValueError('燃烧室容积不能为负')
+    # 燃烧室再大也不能超过能源容积的四成，否则小弹没有油箱。
+    combustor = min(combustor_volume_m3, 0.40 * energy_volume_m3_value)
+    bay = energy_volume_m3_value - combustor
+    if bay <= 0.02:
+        raise ValueError('超燃燃烧室挤掉了燃油舱')
+    return split_boost_and_fuel(
+        bay, fixed_mass_kg, dv_boost_m_s, isp_s,
+        propellant_density, fuel_density, fuel_floor_frac,
+    )
+
+
 def split_boost_and_fuel(
     energy_volume_m3_value: float,
     fixed_mass_kg: float,
@@ -932,7 +966,7 @@ def split_boost_and_fuel(
     fuel_density: float,
     fuel_floor_frac: float,
 ) -> tuple[float, float, float]:
-    """在能源容积里分配助推药和冲压燃油，助推药不超过扣除保底燃油后的上限。"""
+    """固冲一体：助推药铸在燃烧室里，和燃油分同一块能源容积。"""
     if energy_volume_m3_value <= 0 or fixed_mass_kg <= 0:
         raise ValueError('能源容积与固定质量必须大于 0')
     if isp_s <= 0 or propellant_density <= 0 or fuel_density <= 0:
@@ -1412,49 +1446,6 @@ def accel_fuel_for_dv(mass_kg: float, dv_m_s: float, isp_s: float, accel_excess:
     return frac * mass_kg
 
 
-def dual_mode_flight(
-    mass_after_boost_kg: float,
-    fuel_kg: float,
-    speed_after_m_s: float,
-    transition_m_s: float,
-    cruise_m_s: float,
-    ram_isp_s: float,
-    scram_isp_s: float,
-    accel_excess: float,
-) -> dict[str, float | str]:
-    """双模加速：先用亚燃比冲推到转级速度，再用超燃比冲推到巡航速度。
-
-    亚燃段单独超过燃油比例上限时，巡航停在助推后的速度，模态记为 ram。
-    否则模态为 scram，加速耗油是两段之和，且不超过全部燃油的上限。
-    """
-    if mass_after_boost_kg <= 0 or fuel_kg < 0 or speed_after_m_s < 0:
-        raise ValueError('双模加速的质量、燃油与速度无效')
-    if transition_m_s <= 0 or cruise_m_s < transition_m_s:
-        raise ValueError('转级速度必须为正，且不超过巡航速度')
-    if ram_isp_s <= 0 or scram_isp_s <= 0 or accel_excess <= 0:
-        raise ValueError('双模比冲与超额系数必须大于 0')
-    ram_dv = max(0.0, transition_m_s - speed_after_m_s)
-    ram_fuel = accel_fuel_for_dv(mass_after_boost_kg, ram_dv, ram_isp_s, accel_excess)
-    if ram_fuel > fuel_kg * DUAL_MODE_RAM_FUEL_CAP and ram_dv > 1.0:
-        return {
-            'mode': 'ram',
-            'accel_fuel_kg': 0.0,
-            'cruise_speed_m_s': speed_after_m_s,
-            'cruise_isp_s': ram_isp_s,
-        }
-    mass_mid = mass_after_boost_kg - ram_fuel
-    if mass_mid <= 1.0:
-        raise ValueError('亚燃加速后质量不足')
-    scram_dv = max(0.0, cruise_m_s - max(speed_after_m_s, transition_m_s))
-    scram_fuel = accel_fuel_for_dv(mass_mid, scram_dv, scram_isp_s, accel_excess)
-    return {
-        'mode': 'scram',
-        'accel_fuel_kg': min(fuel_kg * DUAL_MODE_ACCEL_CAP, ram_fuel + scram_fuel),
-        'cruise_speed_m_s': cruise_m_s,
-        'cruise_isp_s': scram_isp_s,
-    }
-
-
 def estimate_ducted(
     missile_class: str,
     length_m: float,
@@ -1468,8 +1459,8 @@ def estimate_ducted(
 ) -> dict:
     """超燃或亚燃：固体助推和吸气巡航分开计比冲。
 
-    超燃是固冲一体双模：药柱和煤油分同一块能源容积，先接到亚燃再转入超燃。
-    亚燃加速吃掉太多燃油时，巡航停在亚燃模态。
+    亚燃按固冲一体，药柱和煤油分同一块能源容积。
+    超燃燃烧室先留空，固体助推器另占一舱，燃油是高密度吸热型碳氢燃料。
     """
     canon = normalize_missile_class(missile_class)
     spec = _DUCT_SPECS.get(canon)
@@ -1489,23 +1480,24 @@ def estimate_ducted(
     )
     sound = speed_of_sound_m_s(spec['alt_km'])
     launch_speed = v_launch_mach * speed_of_sound_m_s(h_launch_km)
-    # 双模的亚燃接力发生在较低高度，不用超燃巡航高度的声速。
-    if spec.get('dual_mode'):
-        takeover_sound = speed_of_sound_m_s(spec['ram_alt_km'])
-    else:
-        takeover_sound = sound
-    takeover_speed = spec['mach_takeover'] * takeover_sound
+    takeover_speed = spec['mach_takeover'] * sound
     gap = max(0.0, takeover_speed - launch_speed)
     loss_frac = spec['loss_frac']
-    if canon == 'ramjet' or spec.get('dual_mode'):
+    if canon == 'ramjet':
         loss_frac = dense_air_loss_frac(loss_frac, h_launch_km)
     dv_need = gap * (1.0 + loss_frac) + (0.0 if gap == 0 else 80.0)
     fixed = payload + structure + engine
     stages = airbreathing_stage_isp(canon, diameter_m, isp_s, isp_air_s)
     isp_boost = float(stages['isp_boost_s'])
-    propellant, fuel, launch_mass = split_boost_and_fuel(
-        tank, fixed, dv_need, isp_boost, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
-    )
+    if canon == 'scramjet':
+        propellant, fuel, launch_mass = split_scramjet_booster_and_fuel(
+            tank, scramjet_combustor_volume_m3(length_m, diameter_m),
+            fixed, dv_need, isp_boost, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
+        )
+    else:
+        propellant, fuel, launch_mass = split_boost_and_fuel(
+            tank, fixed, dv_need, isp_boost, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
+        )
     ideal = achieved_boost_dv_m_s(propellant, launch_mass, isp_boost)
     if dv_need <= 1.0:
         speed_after = launch_speed
@@ -1518,9 +1510,6 @@ def estimate_ducted(
     burn_time = ballistic_burn_time_s(propellant, launch_mass, isp_boost) if propellant > 0 else 0.0
     boost_range = 0.5 * (launch_speed + speed_after) * burn_time
     mass_after_boost = launch_mass - propellant
-    isp_fly = isp_cruise
-    accel_txt = ''
-    fly_tsfc = tsfc
     if not reached:
         # 接不上接力马赫数时，不能在高空用巡航速度做布雷盖。
         burnout_alt = burnout_altitude_km(max(speed_after, 50.0), h_launch_km)
@@ -1533,46 +1522,17 @@ def estimate_ducted(
         cruise_m = 0.0
         cruise_mach = speed_after / speed_of_sound_m_s(0.0)
         cruise_alt = burnout_alt
-        if spec.get('dual_mode'):
-            trimmed = '未接入亚燃接力，射程只计助推后的弹道弧。'
-        else:
-            trimmed = '冲压未接入设计马赫数，射程只计助推后的弹道弧。'
+        trimmed = '冲压未接入设计马赫数，射程只计助推后的弹道弧。'
     else:
         cruise_alt = spec['alt_km']
-        if spec.get('dual_mode'):
-            nominal_scram = isp_from_tsfc_s(spec['tsfc'])
-            ram_isp = spec['ram_isp_s'] * (isp_cruise / nominal_scram)
-            planned = dual_mode_flight(
-                mass_after_boost,
-                fuel,
-                speed_after,
-                spec['mach_transition'] * takeover_sound,
-                spec['mach_cruise'] * sound,
-                ram_isp,
-                isp_cruise,
-                spec['accel_excess'],
-            )
-            accel_fuel = float(planned['accel_fuel_kg'])
-            cruise_speed = float(planned['cruise_speed_m_s'])
-            isp_fly = float(planned['cruise_isp_s'])
-            fly_tsfc = tsfc_from_isp_s(isp_fly)
-            if planned['mode'] == 'ram':
-                cruise_alt = spec['ram_alt_km']
-                cruise_mach = cruise_speed / takeover_sound
-                trimmed = '双模未转入超燃，按亚燃模态巡航。'
-            else:
-                cruise_mach = cruise_speed / sound
-                accel_txt = f"亚燃加速比冲 {ram_isp:.0f} s，"
-                trimmed = ''
-        else:
-            cruise_speed = spec['mach_cruise'] * sound
-            cruise_mach = cruise_speed / sound
-            accel = max(0.0, cruise_speed - speed_after)
-            accel_fuel = min(
-                fuel * DUAL_MODE_ACCEL_CAP,
-                accel_fuel_for_dv(mass_after_boost, accel, isp_cruise, spec['accel_excess']),
-            )
-            trimmed = ''
+        cruise_speed = spec['mach_cruise'] * sound
+        cruise_mach = cruise_speed / sound
+        accel = max(0.0, cruise_speed - speed_after)
+        accel_fuel = min(
+            fuel * DUCT_ACCEL_FUEL_CAP,
+            accel_fuel_for_dv(mass_after_boost, accel, isp_cruise, spec['accel_excess']),
+        )
+        trimmed = ''
         climb = climb_fuel_kg(
             mass_after_boost,
             (cruise_alt - h_launch_km) * 1000.0,
@@ -1584,7 +1544,7 @@ def estimate_ducted(
         if cruise_fuel <= 1.0:
             raise ValueError('冲压燃油不足以完成巡航')
         cruise_m = breguet_cruise_range_m(
-            cruise_speed, fly_tsfc, ld, mass_after_boost, mass_after_boost - cruise_fuel,
+            cruise_speed, tsfc, ld, mass_after_boost, mass_after_boost - cruise_fuel,
         )
         high_km = (cruise_m + boost_range) / 1000.0
         sea_km = None
@@ -1609,8 +1569,12 @@ def estimate_ducted(
     if propellant > 1.0:
         isp_boost_out = isp_boost
         boost_txt = f"助推固体比冲 {isp_boost:.0f} s，"
+    if canon == 'scramjet':
+        layout = '燃烧室与固体助推分开，燃油为高密度吸热型碳氢燃料。'
+    else:
+        layout = '固冲一体，药柱铸在燃烧室里。'
     note = (
-        f"{class_label(canon)}：{boost_txt}{accel_txt}巡航吸气比冲 {isp_fly:.0f} s。"
+        f"{class_label(canon)}：{layout}{boost_txt}巡航吸气比冲 {isp_cruise:.0f} s。"
         f"高空巡航 Ma {cruise_mach:.2f} @ {cruise_alt:.0f} km，"
         f"设计 Ma {spec['mach_cruise']:.1f}。{trimmed}{sea_txt}"
         f"死重 {dead:.0f} kg。"
@@ -1623,7 +1587,7 @@ def estimate_ducted(
         range_cruise_km=cruise_m / 1000.0,
         cruise_mach=cruise_mach, cruise_alt_km=cruise_alt,
         m_dead_kg=dead,
-        isp_boost_s=isp_boost_out, isp_cruise_s=isp_fly,
+        isp_boost_s=isp_boost_out, isp_cruise_s=isp_cruise,
     )
 
 

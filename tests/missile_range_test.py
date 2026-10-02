@@ -677,7 +677,7 @@ def test_six_classes_ranges_and_profiles():
 
     scram = estimate_ducted('scramjet', 9.2, 0.7, 180, 0.85, 12, 264, 1760)
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
-    assert scram['range_km'] == 1922.8
+    assert scram['range_km'] == 1773.8
     assert scram['cruise_mach'] == 5.2
     assert ram['range_km'] == 1823.7
     assert ram['v_burnout_mach'] == 2.8
@@ -877,7 +877,7 @@ def test_j15_wing_presets_stay_inside_pylon_box():
     expected = {
         'hgv_biconic': (6.50, 0.5873, 300),
         'hgv_waverider': (6.50, 0.5873, 300),
-        'scramjet': (4.44, 0.684, 300),
+        'scramjet': (4.13, 0.6996, 300),
         'ramjet': (5.46, 0.5006, 500),
         'ballistic': (6.50, 0.5480, 500),
         'turbofan_stealth': (6.50, 0.5727, 500),
@@ -971,7 +971,7 @@ def test_ramjet_launch_mass_matches_yj91():
     fighter = estimate_by_class('ramjet', 4.25, 0.34, 90, 2.2, 19.0)
     assert fighter['m_0_t'] == pytest.approx(0.52, abs=0.03)
     scram = estimate_by_class('scramjet', 4.7, 0.36, 90, 0.9, 10.0)
-    # 固冲一体比空心气道重，隔离段又让它轻于同一外形的亚燃。
+    # 超燃燃烧室留空、助推另舱，同外形轻于固冲一体的亚燃。
     assert 0.45 <= scram['m_0_t'] < yj91['m_0_t']
 
 
@@ -1175,7 +1175,7 @@ def test_public_airbreathing_ranges_match_open_sources():
     from_major = estimate_by_class('turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0)
     assert from_major['m_0_t'] == lrasm['m_0_t']
     assert from_major['range_high_km'] == lrasm['range_high_km']
-    # 10 m 级煤油双模超燃比冲 1200 s、巡航 Ma 5.2。地面发射大约 2100 km，仍低于 5000 km。
+    # 10 m 级高密度吸热型碳氢燃料超燃比冲 1200 s、巡航 Ma 5.2。地面发射大约 2000 km，仍低于 5000 km。
     cj = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
     assert cj['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
     assert 1800 <= cj['range_km'] <= 2400
@@ -1185,7 +1185,8 @@ def test_public_airbreathing_ranges_match_open_sources():
     assert big_vls['range_km'] > cj['range_km']
     small = estimate_by_class('scramjet', 6.35, 0.51, 160, 0.0, 0.0)
     assert small['range_km'] > 0
-    assert small['cruise_mach'] == pytest.approx(5.2, abs=0.05)
+    assert small['range_cruise_km'] == 0.0
+    assert '未接入' in small['note']
     tube_ram = estimate_by_class('ramjet', 6.35, 0.51, 160, 0.0, 0.0)
     assert tube_ram['range_km'] < brahmos['range_km']
 
@@ -1257,29 +1258,45 @@ def test_same_tube_glide_outranges_ballistic_and_combo_keeps_turbofan_isp():
 
 
 def test_scramjet_without_takeover_coasts_instead_of_cruising():
-    """接不上亚燃接力时只计弹道弧；油不够转入超燃时按亚燃模态巡航。"""
+    """接不上超燃接力时只计弹道弧，不改用亚燃模态巡航。"""
     from utils.missile_range.classes import estimate_by_class
 
     tiny = estimate_by_class('scramjet', 4.7, 0.36, 90, 0.9, 10.0)
     assert tiny['range_cruise_km'] == 0.0
     assert tiny['cruise_alt_km'] < 20.0
     assert '未接入' in tiny['note']
+    assert '亚燃' not in tiny['note']
     fighter = estimate_by_class('scramjet', 4.25, 0.345, 90, 2.2, 19.0)
-    assert '亚燃模态' in fighter['note']
-    assert fighter['cruise_alt_km'] == 18.0
+    assert '未接入' in fighter['note']
+    assert '亚燃模态' not in fighter['note']
     assert fighter['cruise_mach'] < 4.0
-    assert fighter['range_cruise_km'] > 0
-    assert fighter['isp_cruise_s'] == pytest.approx(1350.0, abs=0.2)
+    assert fighter['range_cruise_km'] == 0.0
+    assert fighter['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
     tube = dict(length_m=6.35, diameter_m=0.51, warhead_mass_kg=160, v_launch_mach=0.0, h_launch_km=0.0)
     scram = estimate_by_class('scramjet', **tube)
     ram = estimate_by_class('ramjet', **tube)
-    assert scram['cruise_mach'] == pytest.approx(5.2, abs=0.05)
+    assert scram['range_cruise_km'] == 0.0
     assert 0 < scram['range_km'] < ram['range_km']
 
 
-def test_dual_mode_flight_keeps_ram_when_accel_fuel_is_too_large():
-    """亚燃加速吃掉太多燃油时停在亚燃；油够时才按超燃巡航速度加速。"""
-    from utils.missile_range.classes import accel_fuel_for_dv, dual_mode_flight
+def test_scramjet_combustor_is_separate_from_the_booster():
+    """超燃燃烧室留空，固体助推和燃油另分；亚燃仍是固冲一体。"""
+    import math
+
+    from utils.missile_range.classes import (
+        BOOST_FILL,
+        SCRAMJET_COMBUSTOR_DIAMETER_FRAC,
+        SCRAMJET_COMBUSTOR_FINENESS,
+        SCRAMJET_COMBUSTOR_LENGTH_FRAC,
+        SCRAMJET_ENDOTHERMIC_FUEL_KG_M3,
+        _DUCT_SPECS,
+        accel_fuel_for_dv,
+        class_blurb,
+        estimate_by_class,
+        scramjet_combustor_volume_m3,
+        split_boost_and_fuel,
+        split_scramjet_booster_and_fuel,
+    )
 
     assert accel_fuel_for_dv(1000, 0.5, 1200, 0.55) == 0.0
     slow = accel_fuel_for_dv(1000, 400, 1200, 0.55)
@@ -1292,20 +1309,36 @@ def test_dual_mode_flight_keeps_ram_when_accel_fuel_is_too_large():
     with pytest.raises(ValueError):
         accel_fuel_for_dv(1000, -1, 1200, 0.5)
 
-    ram = dual_mode_flight(800, 40, 700, 1400, 1600, 1350, 1200, 0.55)
-    assert ram['mode'] == 'ram'
-    assert ram['cruise_speed_m_s'] == 700
-    assert ram['accel_fuel_kg'] == 0.0
-    assert ram['cruise_isp_s'] == 1350
-    scram = dual_mode_flight(2000, 800, 700, 900, 1100, 1350, 1200, 0.55)
-    assert scram['mode'] == 'scram'
-    assert scram['cruise_speed_m_s'] == 1100
-    assert scram['accel_fuel_kg'] > 0
-    assert scram['cruise_isp_s'] == 1200
+    length, diameter = 10.0, 1.05
+    flow = diameter * SCRAMJET_COMBUSTOR_DIAMETER_FRAC
+    combustor_length = min(length * SCRAMJET_COMBUSTOR_LENGTH_FRAC, SCRAMJET_COMBUSTOR_FINENESS * diameter)
+    chamber = scramjet_combustor_volume_m3(length, diameter)
+    assert chamber == pytest.approx(math.pi * (flow / 2.0) ** 2 * combustor_length)
+    assert chamber > 0
     with pytest.raises(ValueError):
-        dual_mode_flight(0, 10, 100, 200, 300, 1000, 1000, 0.5)
+        scramjet_combustor_volume_m3(0, 1)
     with pytest.raises(ValueError):
-        dual_mode_flight(1000, 100, 100, 300, 200, 1000, 1000, 0.5)
+        split_scramjet_booster_and_fuel(1.0, -0.1, 800, 400, 260, 1760, 980, 0.3)
+    with pytest.raises(ValueError, match='燃油舱'):
+        split_scramjet_booster_and_fuel(0.03, 0.02, 800, 400, 260, 1760, 980, 0.3)
+
+    bay_prop, bay_fuel, _ = split_boost_and_fuel(1.0, 800, 400, 260, 1760, 980, 0.3)
+    split_prop, split_fuel, _ = split_scramjet_booster_and_fuel(1.2, 0.2, 800, 400, 260, 1760, 980, 0.3)
+    assert split_prop == pytest.approx(bay_prop)
+    assert split_fuel == pytest.approx(bay_fuel)
+    assert split_prop / (1760 * BOOST_FILL) + split_fuel / 980 == pytest.approx(1.0)
+    assert _DUCT_SPECS['scramjet']['fuel_density'] == SCRAMJET_ENDOTHERMIC_FUEL_KG_M3
+    assert 'dual_mode' not in _DUCT_SPECS['scramjet']
+    assert '固冲一体' in class_blurb('ramjet')
+    assert '双模态' in class_blurb('scramjet')
+    assert '高密度吸热型' in class_blurb('scramjet')
+    scram = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
+    ram = estimate_by_class('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
+    assert '燃烧室与固体助推分开' in scram['note']
+    assert '高密度吸热型' in scram['note']
+    assert '亚燃' not in scram['note']
+    assert '固冲一体' in ram['note']
+    assert ram['m_0_t'] == pytest.approx(1.50, abs=0.05)
 
 
 def test_isp_from_tsfc_round_trip():

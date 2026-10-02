@@ -152,7 +152,9 @@ def test_e2e_missile_range_six_classes():
             assert data['result']['isp_cruise_s'] > data['result']['isp_boost_s']
         if missile_class == 'scramjet':
             assert data['result']['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
-            assert '亚燃加速' in data['result']['note']
+            assert '燃烧室与固体助推分开' in data['result']['note']
+            assert '高密度吸热型' in data['result']['note']
+            assert '亚燃' not in data['result']['note']
         if missile_class == 'turbojet_subsonic':
             assert data['result']['isp_cruise_s'] == pytest.approx(2800.0, abs=0.2)
         if missile_class == 'ballistic':
@@ -183,7 +185,7 @@ def _estimate_via_api(missile_class, length, diameter, warhead, mach, height):
 
 
 @pytest.mark.e2e
-def test_e2e_russian_ramjet_and_dual_mode_anchors():
+def test_e2e_russian_ramjet_anchors():
     """API 上鹰击-15 质量约 1.5 t，高空按偏乐观约 1140 km；涡喷与 3M54K 的掠海/全高空为 400/950。"""
     yj15 = _estimate_via_api('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
     assert 1050 <= yj15['range_high_km'] <= 1250
