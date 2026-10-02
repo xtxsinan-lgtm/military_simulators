@@ -25426,7 +25426,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 1012.9,
-        "m_fuel_kg": 3295.5
+        "m_fuel_kg": 3295.5,
+        "takeover_progress": null
       },
       {
         "id": 2,
@@ -25464,7 +25465,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 1063.7,
-        "m_fuel_kg": 4595.6
+        "m_fuel_kg": 4595.6,
+        "takeover_progress": null
       },
       {
         "id": 3,
@@ -25502,7 +25504,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 5679.1,
-        "m_fuel_kg": 3298.6
+        "m_fuel_kg": 3298.6,
+        "takeover_progress": 1.0
       },
       {
         "id": 4,
@@ -25568,7 +25571,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 3392.3,
-        "m_fuel_kg": 4979.1
+        "m_fuel_kg": 4979.1,
+        "takeover_progress": 1.0
       },
       {
         "id": 6,
@@ -25606,7 +25610,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 1386.4,
-        "m_fuel_kg": 2953.0
+        "m_fuel_kg": 2953.0,
+        "takeover_progress": null
       },
       {
         "id": 7,
@@ -25672,7 +25677,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 9,
@@ -25822,7 +25828,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 14,
@@ -25860,7 +25867,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 15,
@@ -25898,7 +25906,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 3563.4,
-        "m_fuel_kg": 3080.2
+        "m_fuel_kg": 3080.2,
+        "takeover_progress": 1.0
       },
       {
         "id": 16,
@@ -25992,7 +26001,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 2456.3,
-        "m_fuel_kg": 1869.6
+        "m_fuel_kg": 1869.6,
+        "takeover_progress": 1.0
       },
       {
         "id": 19,
@@ -26030,7 +26040,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 1471.9,
-        "m_fuel_kg": 4491.9
+        "m_fuel_kg": 4491.9,
+        "takeover_progress": 1.0
       },
       {
         "id": 20,
@@ -26096,7 +26107,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 1035.5,
-        "m_fuel_kg": 2913.8
+        "m_fuel_kg": 2913.8,
+        "takeover_progress": 1.0
       },
       {
         "id": 22,
@@ -26134,7 +26146,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 3705.9,
-        "m_fuel_kg": 2781.3
+        "m_fuel_kg": 2781.3,
+        "takeover_progress": 1.0
       },
       {
         "id": 23,
@@ -26172,7 +26185,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 24,
@@ -26238,7 +26252,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 1540.7,
-        "m_fuel_kg": 4306.7
+        "m_fuel_kg": 4306.7,
+        "takeover_progress": 1.0
       },
       {
         "id": 26,
@@ -26276,7 +26291,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 27,
@@ -26314,7 +26330,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 1089.0,
-        "m_fuel_kg": 2769.7
+        "m_fuel_kg": 2769.7,
+        "takeover_progress": 1.0
       },
       {
         "id": 28,
@@ -26352,7 +26369,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 2567.1,
-        "m_fuel_kg": 1637.1
+        "m_fuel_kg": 1637.1,
+        "takeover_progress": 1.0
       },
       {
         "id": 29,
@@ -26446,7 +26464,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 32,
@@ -26484,7 +26503,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 1883.7,
-        "m_fuel_kg": 2244.2
+        "m_fuel_kg": 2244.2,
+        "takeover_progress": 1.0
       },
       {
         "id": 33,
@@ -26578,7 +26598,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 340.5,
-        "m_fuel_kg": 3294.2
+        "m_fuel_kg": 3294.2,
+        "takeover_progress": 1.0
       },
       {
         "id": 36,
@@ -26616,7 +26637,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 37,
@@ -26654,7 +26676,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 1968.7,
-        "m_fuel_kg": 2028.5
+        "m_fuel_kg": 2028.5,
+        "takeover_progress": 1.0
       },
       {
         "id": 38,
@@ -26692,7 +26715,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 358.0,
-        "m_fuel_kg": 3169.8
+        "m_fuel_kg": 3169.8,
+        "takeover_progress": 1.0
       },
       {
         "id": 39,
@@ -26730,7 +26754,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 410.9,
-        "m_fuel_kg": 1057.4
+        "m_fuel_kg": 1057.4,
+        "takeover_progress": null
       },
       {
         "id": 40,
@@ -26768,7 +26793,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 392.0,
-        "m_fuel_kg": 1425.1
+        "m_fuel_kg": 1425.1,
+        "takeover_progress": null
       },
       {
         "id": 41,
@@ -26806,7 +26832,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 1276.9,
-        "m_fuel_kg": 1479.4
+        "m_fuel_kg": 1479.4,
+        "takeover_progress": 1.0
       },
       {
         "id": 42,
@@ -26844,7 +26871,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 526.4,
-        "m_fuel_kg": 905.6
+        "m_fuel_kg": 905.6,
+        "takeover_progress": null
       },
       {
         "id": 43,
@@ -26910,7 +26938,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 2017.8,
-        "m_fuel_kg": 751.2
+        "m_fuel_kg": 751.2,
+        "takeover_progress": 1.0
       },
       {
         "id": 45,
@@ -26976,7 +27005,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 47,
@@ -27014,7 +27044,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 866.1
+        "m_fuel_kg": 866.1,
+        "takeover_progress": null
       },
       {
         "id": 48,
@@ -27052,7 +27083,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 1132.7
+        "m_fuel_kg": 1132.7,
+        "takeover_progress": null
       },
       {
         "id": 49,
@@ -27146,7 +27178,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 52,
@@ -27184,7 +27217,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 229.5,
-        "m_fuel_kg": 985.5
+        "m_fuel_kg": 985.5,
+        "takeover_progress": 1.0
       },
       {
         "id": 53,
@@ -27222,7 +27256,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 657.0
+        "m_fuel_kg": 657.0,
+        "takeover_progress": null
       },
       {
         "id": 54,
@@ -27260,7 +27295,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 875.8,
-        "m_fuel_kg": 498.3
+        "m_fuel_kg": 498.3,
+        "takeover_progress": 1.0
       },
       {
         "id": 55,
@@ -27298,7 +27334,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 522.6
+        "m_fuel_kg": 522.6,
+        "takeover_progress": null
       },
       {
         "id": 56,
@@ -27336,7 +27373,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 292.1
+        "m_fuel_kg": 292.1,
+        "takeover_progress": null
       },
       {
         "id": 57,
@@ -27430,7 +27468,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 60,
@@ -27468,7 +27507,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 145.9
+        "m_fuel_kg": 145.9,
+        "takeover_progress": null
       },
       {
         "id": 61,
@@ -27506,11 +27546,12 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 142.8,
-        "m_fuel_kg": 308.2
+        "m_fuel_kg": 308.2,
+        "takeover_progress": 1.0
       },
       {
         "id": 62,
-        "name": "#62  歼-15翼下 · 4.13 x 0.700 · 300kg · 超燃冲压导弹 · Ma 1.5 @ 14km",
+        "name": "#62  歼-15翼下 · 4.13 x 0.700 · 300kg · 超燃冲压导弹 · Ma 1.5 @ 14km · 未达工作速度",
         "missile_class": "scramjet",
         "class_label": "超燃冲压导弹",
         "length_m": 4.13,
@@ -27544,7 +27585,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.07,
         "m_booster_kg": 504.5,
-        "m_fuel_kg": 155.3
+        "m_fuel_kg": 155.3,
+        "takeover_progress": 0.968
       },
       {
         "id": 63,
@@ -27638,7 +27680,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 66,
@@ -27676,7 +27719,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 1301.3,
-        "m_fuel_kg": 806.6
+        "m_fuel_kg": 806.6,
+        "takeover_progress": 1.0
       },
       {
         "id": 67,
@@ -27714,7 +27758,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 574.8,
-        "m_fuel_kg": 1462.0
+        "m_fuel_kg": 1462.0,
+        "takeover_progress": 1.0
       },
       {
         "id": 68,
@@ -27752,7 +27797,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 628.3,
-        "m_fuel_kg": 1317.9
+        "m_fuel_kg": 1317.9,
+        "takeover_progress": 1.0
       },
       {
         "id": 69,
@@ -27846,7 +27892,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 72,
@@ -27884,7 +27931,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 4.2,
         "m_booster_kg": 1412.1,
-        "m_fuel_kg": 574.0
+        "m_fuel_kg": 574.0,
+        "takeover_progress": 1.0
       },
       {
         "id": 73,
@@ -27950,7 +27998,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 2.15,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 703.9
+        "m_fuel_kg": 703.9,
+        "takeover_progress": 1.0
       },
       {
         "id": 75,
@@ -27988,7 +28037,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 435.5
+        "m_fuel_kg": 435.5,
+        "takeover_progress": null
       },
       {
         "id": 76,
@@ -28026,7 +28076,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 264.4
+        "m_fuel_kg": 264.4,
+        "takeover_progress": null
       },
       {
         "id": 77,
@@ -28064,7 +28115,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 78,
@@ -28130,11 +28182,12 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 239.6
+        "m_fuel_kg": 239.6,
+        "takeover_progress": null
       },
       {
         "id": 80,
-        "name": "#80  歼-36弹仓 · 6.35 x 0.590 · 600kg · 超燃冲压导弹 · Ma 2.15 @ 20km",
+        "name": "#80  歼-36弹仓 · 6.35 x 0.590 · 600kg · 超燃冲压导弹 · Ma 2.15 @ 20km · 未达工作速度",
         "missile_class": "scramjet",
         "class_label": "超燃冲压导弹",
         "length_m": 6.35,
@@ -28168,7 +28221,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 3.97,
         "m_booster_kg": 486.6,
-        "m_fuel_kg": 149.8
+        "m_fuel_kg": 149.8,
+        "takeover_progress": 0.945
       },
       {
         "id": 81,
@@ -28206,7 +28260,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 159.9,
-        "m_fuel_kg": 286.0
+        "m_fuel_kg": 286.0,
+        "takeover_progress": null
       },
       {
         "id": 82,
@@ -28244,7 +28299,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 137.9,
-        "m_fuel_kg": 379.3
+        "m_fuel_kg": 379.3,
+        "takeover_progress": null
       },
       {
         "id": 83,
@@ -28282,7 +28338,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 192.1,
-        "m_fuel_kg": 230.1
+        "m_fuel_kg": 230.1,
+        "takeover_progress": null
       },
       {
         "id": 84,
@@ -28348,7 +28405,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 465.1,
-        "m_fuel_kg": 366.0
+        "m_fuel_kg": 366.0,
+        "takeover_progress": 1.0
       },
       {
         "id": 86,
@@ -28414,11 +28472,12 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 88,
-        "name": "#88  533mm鱼雷 · 6.35 x 0.510 · 160kg · 超燃冲压导弹 · Ma 0 @ 0km",
+        "name": "#88  533mm鱼雷 · 6.35 x 0.510 · 160kg · 超燃冲压导弹 · Ma 0 @ 0km · 未达工作速度",
         "missile_class": "scramjet",
         "class_label": "超燃冲压导弹",
         "length_m": 6.35,
@@ -28452,7 +28511,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 2.83,
         "m_booster_kg": 444.0,
-        "m_fuel_kg": 136.7
+        "m_fuel_kg": 136.7,
+        "takeover_progress": 0.674
       },
       {
         "id": 89,
@@ -28490,7 +28550,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 169.3
+        "m_fuel_kg": 169.3,
+        "takeover_progress": null
       },
       {
         "id": 90,
@@ -28528,7 +28589,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 218.0
+        "m_fuel_kg": 218.0,
+        "takeover_progress": null
       },
       {
         "id": 91,
@@ -28566,7 +28628,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 92,
@@ -28660,7 +28723,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 133.1
+        "m_fuel_kg": 133.1,
+        "takeover_progress": null
       },
       {
         "id": 95,
@@ -28698,7 +28762,8 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 1.95,
         "m_booster_kg": 52.1,
-        "m_fuel_kg": 254.9
+        "m_fuel_kg": 254.9,
+        "takeover_progress": 1.0
       },
       {
         "id": 96,
@@ -28736,7 +28801,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 95.9
+        "m_fuel_kg": 95.9,
+        "takeover_progress": null
       },
       {
         "id": 97,
@@ -28774,7 +28840,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 53.0
+        "m_fuel_kg": 53.0,
+        "takeover_progress": null
       },
       {
         "id": 98,
@@ -28812,11 +28879,12 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 37.0
+        "m_fuel_kg": 37.0,
+        "takeover_progress": null
       },
       {
         "id": 99,
-        "name": "#99  中型六代机弹仓 · 4.90 x 0.415 · 160kg · 超燃冲压导弹 · Ma 1.75 @ 18km",
+        "name": "#99  中型六代机弹仓 · 4.90 x 0.415 · 160kg · 超燃冲压导弹 · Ma 1.75 @ 18km · 未达工作速度",
         "missile_class": "scramjet",
         "class_label": "超燃冲压导弹",
         "length_m": 4.9,
@@ -28850,7 +28918,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 2.69,
         "m_booster_kg": 84.3,
-        "m_fuel_kg": 25.9
+        "m_fuel_kg": 25.9,
+        "takeover_progress": 0.642
       },
       {
         "id": 100,
@@ -28888,7 +28957,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 143.6
+        "m_fuel_kg": 143.6,
+        "takeover_progress": null
       },
       {
         "id": 101,
@@ -28926,7 +28996,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 169.5
+        "m_fuel_kg": 169.5,
+        "takeover_progress": null
       },
       {
         "id": 102,
@@ -28964,7 +29035,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": null,
-        "m_fuel_kg": null
+        "m_fuel_kg": null,
+        "takeover_progress": null
       },
       {
         "id": 103,
@@ -29058,7 +29130,8 @@ module.exports = {
         "mach_takeover": null,
         "mach_boost": null,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 109.5
+        "m_fuel_kg": 109.5,
+        "takeover_progress": null
       },
       {
         "id": 106,
@@ -29096,11 +29169,12 @@ module.exports = {
         "mach_takeover": 1.95,
         "mach_boost": 2.2,
         "m_booster_kg": 0.0,
-        "m_fuel_kg": 166.6
+        "m_fuel_kg": 166.6,
+        "takeover_progress": 1.0
       },
       {
         "id": 107,
-        "name": "#107  普通战斗机弹仓 · 4.25 x 0.345 · 90kg · 超燃冲压导弹 · Ma 2.2 @ 19km",
+        "name": "#107  普通战斗机弹仓 · 4.25 x 0.345 · 90kg · 超燃冲压导弹 · Ma 2.2 @ 19km · 未达工作速度",
         "missile_class": "scramjet",
         "class_label": "超燃冲压导弹",
         "length_m": 4.25,
@@ -29134,7 +29208,8 @@ module.exports = {
         "mach_takeover": 4.2,
         "mach_boost": 2.97,
         "m_booster_kg": 46.7,
-        "m_fuel_kg": 14.4
+        "m_fuel_kg": 14.4,
+        "takeover_progress": 0.708
       }
     ]
   }

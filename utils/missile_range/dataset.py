@@ -243,7 +243,20 @@ def evaluate_case(
         'note': class_blurb(canon),
     }
     row.update(result)
+    if result.get('reached_takeover') is False:
+        row['name'] = f"{row['name']} · 未达工作速度"
     return row
+
+
+def filter_takeover_failed(
+    rows: list[dict[str, Any]],
+    failed_only: bool,
+) -> list[dict[str, Any]]:
+    """界面筛选：只保留冲压未达接力速度的样本。"""
+    copied = [dict(row) for row in rows]
+    if not failed_only:
+        return copied
+    return [row for row in copied if row.get('reached_takeover') is False]
 
 
 def evaluate_dataset(

@@ -1014,6 +1014,15 @@ def achieved_boost_dv_m_s(
     return isp_s * G0 * math.log(launch_mass_kg / (launch_mass_kg - propellant_kg))
 
 
+def takeover_progress_frac(mach_boost: float, mach_takeover: float) -> float:
+    """助推实际马赫相对接力马赫的完成比例，夹在 0 到 1。"""
+    if mach_takeover <= 0:
+        raise ValueError('接力马赫数必须大于 0')
+    if mach_boost < 0:
+        raise ValueError('助推马赫数不能为负')
+    return min(1.0, mach_boost / mach_takeover)
+
+
 def duct_cruise_tsfc(missile_class: str, diameter_m: float, spec: dict[str, float]) -> float:
     """巡航耗油率。亚燃在参考弹径及以上用同一耗油率，更细则更费油。
 
@@ -1412,6 +1421,7 @@ def _base_fields(
     mach_boost: float | None = None,
     m_booster_kg: float | None = None,
     m_fuel_kg: float | None = None,
+    takeover_progress: float | None = None,
 ) -> dict:
     return {
         'missile_class': missile_class,
@@ -1439,6 +1449,7 @@ def _base_fields(
         'mach_boost': None if mach_boost is None else round(mach_boost, 2),
         'm_booster_kg': None if m_booster_kg is None else round(m_booster_kg, 1),
         'm_fuel_kg': None if m_fuel_kg is None else round(m_fuel_kg, 1),
+        'takeover_progress': None if takeover_progress is None else round(takeover_progress, 3),
         'note': note,
     }
 
@@ -1581,6 +1592,7 @@ def estimate_ducted(
     mach_boost = speed_after / sound
     mach_takeover = spec['mach_takeover']
     booster_mass = propellant * (1.0 + BOOST_CASE_FRAC) if propellant > 0 else 0.0
+    sea_ld = None
     if not reached:
         # 接不上接力马赫数时，不能在高空用巡航速度做布雷盖。
         burnout_alt = burnout_altitude_km(max(speed_after, 50.0), h_launch_km)
@@ -1664,6 +1676,7 @@ def estimate_ducted(
         mach_boost=mach_boost,
         m_booster_kg=booster_mass,
         m_fuel_kg=fuel,
+        takeover_progress=takeover_progress_frac(mach_boost, mach_takeover),
     )
 
 

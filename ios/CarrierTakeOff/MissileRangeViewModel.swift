@@ -18,11 +18,25 @@ final class MissileRangeViewModel: ObservableObject {
     @Published var ispAir = ""
     @Published var showAirIsp = false
     @Published var ballisticTwoStage = true
+    @Published var optimizeGeometry = true
     @Published var density = "1760"
     @Published var activeId: Int?
     @Published var result: MissileRangeEstimate?
     @Published var statusText = "加载中…"
     @Published var running = false
+    @Published var failOnly = false
+
+    var displayedRows: [MissileRangeCase] {
+        failOnly ? rows.filter { $0.reached_takeover == false } : rows
+    }
+
+    var failCount: Int {
+        rows.filter { $0.reached_takeover == false }.count
+    }
+
+    var okCount: Int {
+        rows.filter { $0.reached_takeover == true }.count
+    }
 
     func load() {
         do {
@@ -70,6 +84,7 @@ final class MissileRangeViewModel: ObservableObject {
             class_label: row.class_label,
             m_0_t: row.m_0_t,
             l_head_m: row.l_head_m,
+            d_head_m: row.d_head_m,
             l_booster_m: row.l_booster_m,
             m_p_total_kg: row.m_p_total_kg,
             v_burnout_mach: row.v_burnout_mach,
@@ -86,9 +101,17 @@ final class MissileRangeViewModel: ObservableObject {
             mach_takeover: row.mach_takeover,
             mach_boost: row.mach_boost,
             m_booster_kg: row.m_booster_kg,
-            m_fuel_kg: row.m_fuel_kg
+            m_fuel_kg: row.m_fuel_kg,
+            takeover_progress: row.takeover_progress
         )
         statusText = row.reached_takeover == false ? "⚠️ 未达工作速度" : "PRESET"
+    }
+
+    func setFailOnly(_ on: Bool) {
+        failOnly = on
+        if on, result?.reached_takeover != false, let first = displayedRows.first {
+            applyCase(first)
+        }
     }
 
     func setClass(_ id: String) {
@@ -119,6 +142,7 @@ final class MissileRangeViewModel: ObservableObject {
             "isp_s": number(ispS, 264),
             "propellant_density": number(density, 1760),
             "ballistic_two_stage": ballisticTwoStage,
+            "optimize_geometry": optimizeGeometry,
         ]
         if showAirIsp {
             params["isp_air_s"] = number(ispAir, 0)

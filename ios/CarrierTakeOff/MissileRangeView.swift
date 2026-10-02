@@ -53,6 +53,11 @@ struct MissileRangeView: View {
                             .font(.system(size: 13, design: .monospaced))
                             .foregroundStyle(MissileRangeTheme.text)
                     }
+                    if vm.missileClass.hasPrefix("hgv") {
+                        Toggle("寻优滑翔体尺寸", isOn: $vm.optimizeGeometry)
+                            .font(.system(size: 13, design: .monospaced))
+                            .foregroundStyle(MissileRangeTheme.text)
+                    }
                     field("推进剂密度 (kg/m³)", text: $vm.density)
                     Button {
                         Task { await vm.estimate() }
@@ -85,6 +90,25 @@ struct MissileRangeView: View {
                                 RoundedRectangle(cornerRadius: 2)
                                     .stroke(Color.red.opacity(0.6), lineWidth: 1)
                             )
+                        }
+                        if let takeover = result.mach_takeover {
+                            let boost = result.mach_boost ?? result.v_burnout_mach ?? 0
+                            let frac = result.takeover_progress ?? min(1.0, boost / takeover)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text("助推接力进度")
+                                    Spacer()
+                                    Text(String(format: "Ma %.2f / %.2f", boost, takeover))
+                                }
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundStyle(MissileRangeTheme.textDim)
+                                ProgressView(value: max(0, min(1, frac)))
+                                    .tint(result.reached_takeover == false ? Color.red : MissileRangeTheme.green)
+                                Text(result.reached_takeover == false ? "未达接力速度，冲压未启动" : "已接入冲压巡航")
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundStyle(result.reached_takeover == false ? Color.red : MissileRangeTheme.textDim)
+                            }
+                            .padding(.vertical, 4)
                         }
                         if let takeover = result.mach_takeover {
                             statRow([
@@ -140,10 +164,19 @@ struct MissileRangeView: View {
                 }
 
                 panel(title: "预设样本表", tag: "TABLE") {
+                    Toggle("只看未达工作速度", isOn: Binding(
+                        get: { vm.failOnly },
+                        set: { vm.setFailOnly($0) }
+                    ))
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(Color.red)
+                    Text("冲压接力：已接入 \(vm.okCount) 发 · 未达工作速度 \(vm.failCount) 发。")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(MissileRangeTheme.textDim)
                     ScrollView(.horizontal) {
                         VStack(alignment: .leading, spacing: 0) {
                             tableHeader
-                            ForEach(vm.rows) { row in
+                            ForEach(vm.displayedRows) { row in
                                 Button {
                                     vm.applyCase(row)
                                 } label: {

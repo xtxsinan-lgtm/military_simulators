@@ -51,6 +51,10 @@
       <view class="field-label"><text>是否两级</text><text class="unit">{{ballisticTwoStage ? '是' : '否'}}</text></view>
       <switch checked="{{ballisticTwoStage}}" bindchange="onBallisticTwoStageChange" color="#3ddc84" />
     </view>
+    <view class="field" wx:if="{{showOptimizeGeometry}}">
+      <view class="field-label"><text>寻优滑翔体</text><text class="unit">{{optimizeGeometry ? '开' : '关'}}</text></view>
+      <switch checked="{{optimizeGeometry}}" bindchange="onOptimizeGeometryChange" color="#3ddc84" />
+    </view>
     <view class="field">
       <view class="field-label"><text>密度</text><text class="unit">kg/m³</text></view>
       <input class="input" type="digit" value="{{density}}" data-key="density" bindinput="onInput" />
@@ -64,6 +68,16 @@
     <view class="takeover-alert" wx:if="{{result && result.reached_takeover === false}}">
       <view class="takeover-badge">⚠️ 未达工作速度 (TAKEOVER FAILED)</view>
       <view class="takeover-desc">助推级实际加速至 Ma {{result.mach_boost || result.v_burnout_mach}}，低于冲压发动机设计接力速度 Ma {{result.mach_takeover}}。冲压未启动，巡航段有效射程为 0 km，当前射程仅计助推关机后的纯惯性弹道滑行弧。</view>
+    </view>
+    <view class="takeover-meter" wx:if="{{result && result.mach_takeover != null}}">
+      <view class="takeover-meter-head">
+        <text>助推接力进度</text>
+        <text>Ma {{result.mach_boost || result.v_burnout_mach}} / {{result.mach_takeover}}</text>
+      </view>
+      <view class="bar-bg">
+        <view class="bar-fill {{result.reached_takeover === false ? 'fail' : ''}}" style="width: {{takeoverPct}}%;"></view>
+      </view>
+      <text class="takeover-meter-cap">{{result.reached_takeover === false ? '未达接力速度，冲压未启动' : '已接入冲压巡航'}} · {{takeoverPct}}%</text>
     </view>
     <view class="stat-row" wx:if="{{result && result.mach_takeover != null}}">
       <view class="stat"><view class="k">接力目标速度</view><view class="v">Ma {{result.mach_takeover}}</view></view>
@@ -90,6 +104,8 @@
     <view class="stat-row" wx:if="{{result}}">
       <view class="stat"><view class="k">弹头 m</view><view class="v">{{result.l_head_m}}</view></view>
       <view class="stat" wx:if="{{result.d_head_m != null}}"><view class="k">滑翔径 m</view><view class="v">{{result.d_head_m}}</view></view>
+      <view class="stat" wx:if="{{result.fineness != null}}"><view class="k">长细比</view><view class="v">{{result.fineness}}</view></view>
+      <view class="stat" wx:if="{{result.range_gain_km != null && result.range_gain_km > 0}}"><view class="k">几何增程 km</view><view class="v">{{result.range_gain_km}}</view></view>
       <view class="stat"><view class="k">助推 m</view><view class="v">{{result.l_booster_m}}</view></view>
       <view class="stat"><view class="k">推进剂 kg</view><view class="v">{{result.m_p_total_kg}}</view></view>
     </view>
@@ -103,6 +119,11 @@
 
   <view class="panel">
     <view class="panel-head">预设样本表 · TABLE</view>
+    <view class="field">
+      <view class="field-label"><text>只看未达工作速度</text><text class="unit red">{{failCount}} 发</text></view>
+      <switch checked="{{failOnly}}" bindchange="onFailOnlyChange" color="#ff4d4f" />
+    </view>
+    <text class="note">冲压接力：已接入 {{okCount}} 发 · 未达工作速度 {{failCount}} 发。点红色标签查看弹道弧射程。</text>
     <scroll-view scroll-x class="scroll-x">
       <view class="table">
         <view class="tr th">
@@ -115,7 +136,7 @@
           <text class="col">射程</text>
           <text class="col">掠海</text>
         </view>
-        <view class="tr {{item.id === activeId ? 'on' : ''}}" wx:for="{{rows}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapRow">
+        <view class="tr {{item.id === activeId ? 'on' : ''}} {{item.reached_takeover === false ? 'fail-takeover' : ''}}" wx:for="{{rows}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapRow">
           <text class="td col">{{item.id}}</text>
           <text class="td col wide">{{item.size_m}}</text>
           <text class="td col bay">{{item.bay || '—'}}</text>

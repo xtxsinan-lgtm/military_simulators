@@ -486,13 +486,26 @@ def test_e2e_missile_range_takeover_gui_and_api():
     js = (ROOT / 'docs' / 'js' / 'missile_range.js').read_text(encoding='utf-8')
     css = (ROOT / 'docs' / 'css' / 'missile_range.css').read_text(encoding='utf-8')
     wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
+    mini_js = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.js').read_text(encoding='utf-8')
     swift = (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileRangeView.swift').read_text(encoding='utf-8')
+    vm_swift = (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileRangeViewModel.swift').read_text(encoding='utf-8')
 
     assert 'takeover-alert' in js
     assert '未达工作速度' in js
+    assert 'takeoverMeterHtml' in js
+    assert 'failOnly' in js
+    assert '只看未达工作速度' in html
     assert 'takeover-alert' in css
+    assert 'takeover-meter' in css
+    assert 'fail-takeover' in css
     assert 'takeover-alert' in wxml
     assert '未达工作速度' in wxml
+    assert 'takeover-meter' in wxml
+    assert 'failOnly' in mini_js
     assert '未达工作速度' in swift
+    assert '只看未达工作速度' in swift
+    assert 'setFailOnly' in vm_swift
+    assert res['takeover_progress'] < 1.0
+    assert res_ok['takeover_progress'] == pytest.approx(1.0)
 
 

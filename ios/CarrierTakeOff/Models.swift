@@ -676,6 +676,7 @@ struct MissileRangeCase: Codable, Identifiable, Hashable {
     var mach_boost: Double?
     var m_booster_kg: Double?
     var m_fuel_kg: Double?
+    var takeover_progress: Double?
 }
 
 /// 单次估算返回的质量、速度与射程
@@ -707,6 +708,7 @@ struct MissileRangeEstimate: Codable {
     var mach_boost: Double? = nil
     var m_booster_kg: Double? = nil
     var m_fuel_kg: Double? = nil
+    var takeover_progress: Double? = nil
 }
 
 /// 本地 Pyodide 导弹射程接口返回值

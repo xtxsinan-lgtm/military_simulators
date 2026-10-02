@@ -139,6 +139,7 @@ tr.miss td{ color:var(--text-dim); }
 .bar-fill{ height:100%; background:var(--cyan); }
 .bar-fill.i{ background:var(--amber); }
 .bar-fill.w{ background:var(--red); }
+.bar-cap{ font-size:10px; color:var(--text-dim); min-width:32px; text-align:right; }
 
 .takeover-alert{
   background:rgba(255, 77, 79, 0.12);
@@ -177,4 +178,24 @@ tr.miss td{ color:var(--text-dim); }
   vertical-align:middle;
 }
 .stat .v.red{ color:var(--red); }
+.stat .v.green{ color:var(--green); }
+.fail-filter{
+  display:flex; align-items:center; gap:6px; font-size:10px; letter-spacing:0;
+  text-transform:none; color:var(--red); cursor:pointer;
+}
+.fail-filter input{ width:auto; }
+.sum-fail{ color:var(--red); }
+tr.fail-takeover td{ color:var(--red); }
+tr.fail-takeover.on td{ color:var(--amber); }
+.takeover-meter{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  padding:10px 12px;
+  margin-bottom:14px;
+}
+.takeover-meter-head{
+  display:flex; justify-content:space-between; font-size:10px;
+  color:var(--text-dim); letter-spacing:1px; margin-bottom:6px;
+}
+.takeover-meter-cap{ font-size:10.5px; color:var(--text-dim); margin-top:6px; }
 

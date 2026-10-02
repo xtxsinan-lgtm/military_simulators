@@ -21,6 +21,7 @@ from utils.missile_range.dataset import (
     build_missile_range_catalog_payload,
     evaluate_case,
     evaluate_dataset,
+    filter_takeover_failed,
     format_launch,
     format_size_m,
     missile_case_label,
@@ -1570,11 +1571,43 @@ def test_missile_range_takeover_status():
     assert scram_fail['mach_boost'] < 4.2 * 0.98
     assert scram_fail['range_cruise_km'] == 0.0
     assert '未接入' in scram_fail['note']
+    assert 0 < scram_fail['takeover_progress'] < 1.0
+    assert scram_ok['takeover_progress'] == pytest.approx(1.0)
+    assert ram_ok['takeover_progress'] == pytest.approx(1.0)
 
     # 3. 非冲压弹种不进行冲压接力判定，reached_takeover 为 None
     ballistic = estimate_by_class('ballistic', 4.0, 0.43, 91, 0.0, 0.0)
     assert ballistic['reached_takeover'] is None
     assert ballistic['mach_takeover'] is None
+    assert ballistic['takeover_progress'] is None
+
+
+def test_takeover_progress_frac():
+    """助推马赫相对接力马赫的进度条比例。"""
+    from utils.missile_range.classes import takeover_progress_frac
+
+    assert takeover_progress_frac(2.1, 4.2) == pytest.approx(0.5)
+    assert takeover_progress_frac(4.2, 4.2) == pytest.approx(1.0)
+    assert takeover_progress_frac(5.0, 4.2) == pytest.approx(1.0)
+    assert takeover_progress_frac(0.0, 1.95) == pytest.approx(0.0)
+    with pytest.raises(ValueError, match='接力马赫数必须大于 0'):
+        takeover_progress_frac(1.0, 0.0)
+    with pytest.raises(ValueError, match='助推马赫数不能为负'):
+        takeover_progress_frac(-0.1, 4.2)
+
+
+def test_filter_takeover_failed_and_labels():
+    """样本表给未达接力速度的行加上标签，筛选只留下这些行。"""
+    rows = evaluate_dataset()
+    failed = filter_takeover_failed(rows, True)
+    all_rows = filter_takeover_failed(rows, False)
+    assert len(all_rows) == len(rows)
+    assert failed
+    assert all(row['reached_takeover'] is False for row in failed)
+    assert all('未达工作速度' in row['name'] for row in failed)
+    assert all(row['missile_class'] == 'scramjet' for row in failed)
+    labelled = [row for row in rows if '未达工作速度' in row['name']]
+    assert len(labelled) == len(failed)
 
 
 def test_hgv_min_fineness():

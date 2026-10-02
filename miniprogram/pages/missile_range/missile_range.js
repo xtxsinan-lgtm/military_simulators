@@ -32,6 +32,14 @@ function decorate(row) {
   };
 }
 
+function takeoverPctOf(row) {
+  if (!row || row.mach_takeover == null) return 0;
+  const frac = row.takeover_progress != null
+    ? Number(row.takeover_progress)
+    : Number(row.mach_boost || row.v_burnout_mach) / Number(row.mach_takeover);
+  return Math.round(Math.max(0, Math.min(1, frac)) * 100);
+}
+
 Page({
   data: {
     classes: [],
@@ -52,9 +60,15 @@ Page({
     showAirIsp: false,
     ballisticTwoStage: true,
     showBallisticTwoStage: false,
+    optimizeGeometry: true,
+    showOptimizeGeometry: true,
     density: '1760',
     activeId: null,
     result: null,
+    takeoverPct: 0,
+    failOnly: false,
+    failCount: 0,
+    okCount: 0,
     statusText: '加载中…',
     running: false,
   },
@@ -80,6 +94,8 @@ Page({
           ispS: defaults.isp_s != null ? String(defaults.isp_s) : '264',
           density: defaults.propellant_density != null ? String(defaults.propellant_density) : '1760',
           ballisticTwoStage: defaults.ballistic_two_stage !== false,
+          failCount: cases.filter((row) => row.reached_takeover === false).length,
+          okCount: cases.filter((row) => row.reached_takeover === true).length,
           statusText: 'STANDBY',
         });
         this.applyCase(cases[0]);
@@ -102,6 +118,7 @@ Page({
       ispAir: showAir ? String(found.isp_cruise_s) : '',
       showBallisticTwoStage: showBallistic,
       ballisticTwoStage: showBallistic ? true : this.data.ballisticTwoStage,
+      showOptimizeGeometry: String(missileClass).indexOf('hgv') === 0,
     });
   },
 
@@ -127,6 +144,9 @@ Page({
         ld_ratio: row.ld_ratio,
         m_0_t: row.m_0_t,
         l_head_m: row.l_head_m,
+        d_head_m: row.d_head_m,
+        fineness: row.fineness,
+        range_gain_km: row.range_gain_km,
         l_booster_m: row.l_booster_m,
         m_p_total_kg: row.m_p_total_kg,
         note: row.note,
@@ -139,7 +159,9 @@ Page({
         mach_boost: row.mach_boost,
         m_booster_kg: row.m_booster_kg,
         m_fuel_kg: row.m_fuel_kg,
+        takeover_progress: row.takeover_progress,
       },
+      takeoverPct: takeoverPctOf(row),
       statusText: row.reached_takeover === false ? '⚠️ 未达工作速度' : 'PRESET',
     });
   },
@@ -165,6 +187,22 @@ Page({
     this.setData({ ballisticTwoStage: !!e.detail.value });
   },
 
+  onOptimizeGeometryChange(e) {
+    this.setData({ optimizeGeometry: !!e.detail.value });
+  },
+
+  onFailOnlyChange(e) {
+    const failOnly = !!e.detail.value;
+    const source = this.data.cases;
+    const rows = failOnly
+      ? source.filter((row) => row.reached_takeover === false)
+      : source;
+    this.setData({ failOnly, rows });
+    if (failOnly && rows.length && !rows.some((row) => row.id === this.data.activeId)) {
+      this.applyCase(rows[0]);
+    }
+  },
+
   onTapRow(e) {
     const id = Number(e.currentTarget.dataset.id);
     const row = this.data.rows.find((item) => item.id === id)
@@ -187,6 +225,7 @@ Page({
         isp_s: num(this.data.ispS, 264),
         propellant_density: num(this.data.density, 1760),
         ballistic_two_stage: !!this.data.ballisticTwoStage,
+        optimize_geometry: !!this.data.optimizeGeometry,
       },
     };
     if (this.data.showAirIsp) payload.params.isp_air_s = num(this.data.ispAir, 0);
@@ -198,11 +237,18 @@ Page({
         if (result.range_sea_km === undefined) result.range_sea_km = null;
         if (result.range_high_km === undefined) result.range_high_km = null;
         if (result.range_terminal_km === undefined) result.range_terminal_km = null;
-        const rows = (res.rows && res.rows.length ? res.rows : this.data.rows).map(decorate);
+        const rows = (res.rows && res.rows.length ? res.rows : this.data.cases).map(decorate);
+        const visible = this.data.failOnly
+          ? rows.filter((row) => row.reached_takeover === false)
+          : rows;
         const isFailed = res.result && res.result.reached_takeover === false;
         this.setData({
           result: res.result,
-          rows,
+          cases: rows,
+          rows: visible,
+          failCount: rows.filter((row) => row.reached_takeover === false).length,
+          okCount: rows.filter((row) => row.reached_takeover === true).length,
+          takeoverPct: takeoverPctOf(res.result),
           activeId: null,
           statusText: isFailed ? '⚠️ 未达工作速度' : 'DONE',
           running: false,

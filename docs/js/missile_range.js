@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 28;
+const APP_VERSION = 30;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -69,7 +69,7 @@ function readForm() {
     isp_s: num('ispS', 264),
     propellant_density: num('density', 1760),
     ballistic_two_stage: $('ballisticTwoStage').checked,
-    optimize_geometry: $('optimizeGeometry') ? $('optimizeGeometry').checked : false,
+    optimize_geometry: $('optimizeGeometry') ? $('optimizeGeometry').checked : true,
   };
   if (!$('ispAirField').hidden) params.isp_air_s = num('ispAir', 0);
   return params;
@@ -130,6 +130,40 @@ function fillForm(row) {
   syncClassUi();
 }
 
+function visibleRows() {
+  const failOnly = $('failOnly') && $('failOnly').checked;
+  if (!failOnly) return rows;
+  return rows.filter((row) => row.reached_takeover === false);
+}
+
+function takeoverMeterHtml(result) {
+  if (result.mach_takeover == null) return '';
+  const boost = result.mach_boost ?? result.v_burnout_mach;
+  const frac = result.takeover_progress != null
+    ? result.takeover_progress
+    : (result.mach_takeover > 0 ? Math.max(0, boost / result.mach_takeover) : 0);
+  const pct = Math.round(Math.max(0, Math.min(1, frac)) * 100);
+  const failed = result.reached_takeover === false;
+  return `<div class="takeover-meter">
+    <div class="takeover-meter-head">
+      <span>助推接力进度</span>
+      <span>Ma ${fmt(boost, 2)} / ${fmt(result.mach_takeover, 2)}</span>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-bg"><div class="bar-fill ${failed ? 'w' : ''}" style="width:${pct}%"></div></div>
+      <span class="bar-cap">${pct}%</span>
+    </div>
+    <div class="takeover-meter-cap">${failed ? '未达接力速度，冲压未启动' : '已接入冲压巡航'}</div>
+  </div>`;
+}
+
+function takeoverSummaryHtml() {
+  const failed = rows.filter((row) => row.reached_takeover === false).length;
+  const ok = rows.filter((row) => row.reached_takeover === true).length;
+  if (!failed && !ok) return '';
+  return `冲压接力：已接入 ${ok} 发 · <span class="sum-fail">未达工作速度 ${failed} 发</span>。勾选筛选或点红色标签，查看只计弹道弧的短射程。`;
+}
+
 function speedLabel(result) {
   const id = result.missile_class || '';
   if (result.reached_takeover === false) return '助推关机马赫';
@@ -170,6 +204,9 @@ function renderResult(result, title) {
   const dHead = result.d_head_m != null
     ? `<div class="stat"><div class="k">滑翔体直径</div><div class="v">${fmt(result.d_head_m, 3)}</div><div class="sub">m</div></div>`
     : '';
+  const fineness = result.fineness != null
+    ? `<div class="stat"><div class="k">滑翔长细比</div><div class="v">${fmt(result.fineness, 2)}</div><div class="sub">L/D_geom</div></div>`
+    : '';
 
   const takeoverRow = result.mach_takeover != null
     ? `<div class="stat-row">
@@ -184,6 +221,7 @@ function renderResult(result, title) {
   $('resultBox').className = '';
   $('resultBox').innerHTML = `
     ${alertHtml}
+    ${takeoverMeterHtml(result)}
     ${takeoverRow}
     <div class="stat-row">
       ${lead}
@@ -196,6 +234,7 @@ function renderResult(result, title) {
     <div class="stat-row">
       <div class="stat"><div class="k">弹头长度</div><div class="v">${fmt(result.l_head_m, 2)}</div><div class="sub">m</div></div>
       ${dHead}
+      ${fineness}
       <div class="stat"><div class="k">助推/弹体</div><div class="v">${fmt(result.l_booster_m, 2)}</div><div class="sub">m</div></div>
       <div class="stat"><div class="k">燃料或推进剂</div><div class="v">${fmt(result.m_p_total_kg, 1)}</div><div class="sub">kg</div></div>
       ${result.isp_boost_s != null ? `<div class="stat"><div class="k">助推比冲</div><div class="v">${fmt(result.isp_boost_s, 0)}</div><div class="sub">s</div></div>` : ''}
@@ -211,7 +250,14 @@ function kindLabel(row) {
 }
 
 function renderTable() {
-  const body = rows.map((row) => {
+  const shown = visibleRows();
+  const summary = $('takeoverSummary');
+  if (summary) summary.innerHTML = takeoverSummaryHtml();
+  if (!shown.length) {
+    $('tableBox').innerHTML = '<p class="note">当前筛选下没有未达工作速度的样本。</p>';
+    return;
+  }
+  const body = shown.map((row) => {
     const isFailed = row.reached_takeover === false;
     const kindBadge = isFailed
       ? `<span class="tag-alert" title="助推未达接力工作速度，仅弹道弧">未达工作速度</span>`
@@ -219,8 +265,12 @@ function renderTable() {
     const rangeSub = isFailed
       ? `<br><span style="color:var(--red);font-size:9.5px">(未达工作速度)</span>`
       : '';
+    const rowClass = [
+      row.id === activeId ? 'on' : '',
+      isFailed ? 'fail-takeover' : '',
+    ].filter(Boolean).join(' ');
     return `
-    <tr data-id="${row.id}" class="${row.id === activeId ? 'on' : ''}">
+    <tr data-id="${row.id}" class="${rowClass}">
       <td>${row.id}</td>
       <td>${row.size_m}</td>
       <td>${row.bay || '—'}</td>
@@ -397,6 +447,13 @@ async function main() {
     if (tr) selectPreset(tr.dataset.id);
   });
   $('runBtn').addEventListener('click', () => { runEstimate(); });
+  $('failOnly').addEventListener('change', () => {
+    const shown = visibleRows();
+    renderTable();
+    if ($('failOnly').checked && shown.length && !shown.some((row) => row.id === activeId)) {
+      selectPreset(shown[0].id);
+    }
+  });
 }
 
 main().catch((err) => {

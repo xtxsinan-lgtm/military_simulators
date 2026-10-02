@@ -78,4 +78,35 @@ page {
   color: #ff4d4f;
   margin-left: 6rpx;
 }
+.unit.red { color: #ff4d4f; }
+.tr.fail-takeover .td { color: #ff4d4f; }
+.takeover-meter {
+  background: #0e161b;
+  border: 1px solid #1c2b30;
+  padding: 16rpx;
+  margin-bottom: 20rpx;
+}
+.takeover-meter-head {
+  display: flex;
+  justify-content: space-between;
+  color: #7b8e92;
+  font-size: 20rpx;
+  margin-bottom: 10rpx;
+}
+.takeover-meter-cap {
+  display: block;
+  color: #7b8e92;
+  font-size: 20rpx;
+  margin-top: 8rpx;
+}
+.bar-bg {
+  height: 12rpx;
+  background: #1c2b30;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  background: #3ddc84;
+}
+.bar-fill.fail { background: #ff4d4f; }
 
