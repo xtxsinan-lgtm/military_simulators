@@ -1173,6 +1173,7 @@ def _afterburner_best_altitude_profile(
                 MAX_SPEED_ALT_MAX_M,
                 MAX_SPEED_ALT_COARSE_M,
                 MAX_SPEED_ALT_REFINE_M,
+                ceiling_margin=1.0,
             )
         except ValueError:
             ab_ceiling_m = None
