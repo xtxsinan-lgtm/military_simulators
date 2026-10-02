@@ -733,6 +733,37 @@ def test_carrier_launch_envelope():
     assert all(count > 0 for count in seen.values())
 
 
+def test_j15_wing_presets_stay_inside_pylon_box():
+    """歼-15 翼下预设落在弹长 6.5 m、弹径 0.70 m、起飞质量 1500 kg 以内。"""
+    from utils.missile_range.classes import estimate_by_class
+    from utils.missile_range.dataset import build_preset_cases
+
+    expected = {
+        'hgv_biconic': (6.50, 0.5873),
+        'hgv_waverider': (6.50, 0.5873),
+        'scramjet': (6.35, 0.6999),
+        'ramjet': (6.32, 0.5001),
+        'ballistic': (4.58, 0.6997),
+        'turbofan_stealth': (6.50, 0.6188),
+        'turbojet_subsonic': (6.50, 0.6661),
+        'turbofan_rocket': (6.50, 0.5381),
+    }
+    wings = [case for case in build_preset_cases() if case['bay'] == '歼-15翼下']
+    assert {case['missile_class'] for case in wings} == set(expected)
+    for case in wings:
+        length, diameter = expected[case['missile_class']]
+        assert case['length'] == pytest.approx(length)
+        assert case['diameter'] == pytest.approx(diameter)
+        assert case['length'] <= 6.5
+        assert case['diameter'] <= 0.70
+        result = estimate_by_class(
+            case['missile_class'], case['length'], case['diameter'], case['warhead'],
+            case['v_mach'], case['h_km'],
+        )
+        assert result['m_0_t'] <= 1.50
+        assert result['range_km'] > 0
+
+
 def test_airbreathing_range_model_differs_from_boost_and_ballistic():
     """吸气式走巡航航程，助推滑翔和弹道不走同一套。"""
     from utils.missile_range.classes import estimate_by_class
