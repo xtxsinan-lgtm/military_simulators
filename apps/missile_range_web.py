@@ -7,11 +7,13 @@ from typing import Any, Callable
 from simulators.missile_range.missile_range import (
     run_dataset_from_params,
     run_estimate_from_params,
+    run_optimize_geometry_from_params,
     run_presets_from_params,
 )
 
 _ACTIONS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     'estimate': run_estimate_from_params,
+    'optimize_geometry': run_optimize_geometry_from_params,
     'dataset': run_dataset_from_params,
     'presets': run_presets_from_params,
 }

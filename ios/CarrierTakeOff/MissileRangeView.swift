@@ -70,6 +70,28 @@ struct MissileRangeView: View {
 
                 panel(title: "估算结果", tag: "OUTPUT") {
                     if let result = vm.result {
+                        if result.reached_takeover == false {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("⚠️ 未达工作速度 (TAKEOVER FAILED)")
+                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                    .foregroundStyle(Color.red)
+                                Text("助推级实际加速至 Ma \(fmt(result.mach_boost ?? result.v_burnout_mach, 2))，未达冲压设计接力速度 Ma \(fmt(result.mach_takeover, 2))。冲压未启动，巡航段有效射程为 0 km，当前射程仅计助推关机后的惯性弹道滑行弧。")
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundStyle(MissileRangeTheme.text)
+                            }
+                            .padding(10)
+                            .background(Color.red.opacity(0.12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 2)
+                                    .stroke(Color.red.opacity(0.6), lineWidth: 1)
+                            )
+                        }
+                        if let takeover = result.mach_takeover {
+                            statRow([
+                                ("接力目标", takeover, 2, false),
+                                ("助推实际", result.mach_boost ?? result.v_burnout_mach, 2, true),
+                            ])
+                        }
                         if let high = result.range_high_km, let sea = result.range_sea_km {
                             statRow([
                                 ("全高空 km", high, 1, false),
@@ -77,8 +99,8 @@ struct MissileRangeView: View {
                             ])
                         } else {
                             statRow([
-                                ("估算射程 km", result.range_km, 1, false),
-                                (vm.missileClass == "ballistic" || vm.missileClass.hasPrefix("hgv") ? "关机马赫" : "巡航马赫", result.v_burnout_mach, 2, true),
+                                (result.reached_takeover == false ? "弹道滑行 km" : "估算射程 km", result.range_km, 1, false),
+                                (vm.missileClass == "ballistic" || vm.missileClass.hasPrefix("hgv") ? "关机马赫" : (result.reached_takeover == false ? "助推马赫" : "巡航马赫"), result.v_burnout_mach, 2, true),
                             ])
                         }
                         if let wing = result.m_wing_kg, let dead = result.m_dead_kg {
@@ -91,11 +113,19 @@ struct MissileRangeView: View {
                             ("升阻比", result.ld_ratio, 2, false),
                             ("起飞质量 t", result.m_0_t, 2, true),
                         ])
-                        statRow([
-                            ("弹头 m", result.l_head_m, 2, false),
-                            ("助推 m", result.l_booster_m, 2, false),
-                            ("推进剂 kg", result.m_p_total_kg, 1, false),
-                        ])
+                        if let dHead = result.d_head_m {
+                            statRow([
+                                ("弹头 m", result.l_head_m, 2, false),
+                                ("滑翔径 m", dHead, 3, false),
+                                ("助推 m", result.l_booster_m, 2, false),
+                            ])
+                        } else {
+                            statRow([
+                                ("弹头 m", result.l_head_m, 2, false),
+                                ("助推 m", result.l_booster_m, 2, false),
+                                ("推进剂 kg", result.m_p_total_kg, 1, false),
+                            ])
+                        }
                         ispStatRow(result)
                         if let note = result.note, !note.isEmpty {
                             Text(note)
@@ -162,7 +192,11 @@ struct MissileRangeView: View {
     }
 
     private func kind(_ row: MissileRangeCase) -> String {
-        row.class_label ?? row.missile_class ?? ""
+        let label = row.class_label ?? row.missile_class ?? ""
+        if row.reached_takeover == false {
+            return "\(label) [未达速]"
+        }
+        return label
     }
 
     private func ispText(_ row: MissileRangeCase) -> String {

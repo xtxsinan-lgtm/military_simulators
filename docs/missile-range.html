@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>导弹射程估算</title>
-<link rel="stylesheet" href="css/missile_range.css?v=1">
+<link rel="stylesheet" href="css/missile_range.css?v=2">
 </head>
 <body>
 <div class="scanline"></div>
@@ -54,6 +54,9 @@
       <div class="field" id="ballisticTwoStageField" hidden>
         <label><input type="checkbox" id="ballisticTwoStage" checked> 是否两级</label>
       </div>
+      <div class="field" id="optimizeGeometryField">
+        <label><input type="checkbox" id="optimizeGeometry"> 寻优滑翔体尺寸（按升阻比与装药最大化射程）</label>
+      </div>
       <div class="field"><label>密度 <span class="unit">kg/m³</span></label><input type="number" id="density" step="10" min="1" value="1760"></div>
       <button class="run" id="runBtn" type="button">▶ 估算射程</button>
     </div>
@@ -72,6 +75,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预设表来自 catalog · 改参数后由 Pyodide 重算</div>
-<script type="module" src="js/missile_range.js?v=26"></script>
+<script type="module" src="js/missile_range.js?v=28"></script>
 </body>
 </html>

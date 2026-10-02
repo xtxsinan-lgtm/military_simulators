@@ -301,8 +301,198 @@ def test_e2e_bomber_small_warhead_presets_150kg():
 
     cases = data['cases']
     h6_warheads = sorted({int(c['warhead_kg']) for c in cases if c['bay'] == '轰-6机腹'})
-    assert h6_warheads == [150, 600]
+    assert h6_warheads == [150, 500, 600]
+    assert min(h6_warheads) == 150
 
     stealth_warheads = sorted({int(c['warhead_kg']) for c in cases if c['bay'] == '隐身超音速轰炸机弹仓'})
     assert stealth_warheads == [150, 500]
+
+
+@pytest.mark.e2e
+def test_e2e_h6_stealth_bomber_matching_presets():
+    """端到端验证：隐身超音速轰炸机全部导弹均有轰-6机腹同尺寸、调整高度与速度的对应版本。"""
+    payload = {'action': 'presets'}
+    status, _, body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    data = json.loads(body.decode())
+    assert data['success'] is True
+
+    cases = data['cases']
+    stealth_cases = [c for c in cases if c['bay'] == '隐身超音速轰炸机弹仓']
+    assert len(stealth_cases) == 10  # 5 个超音速弹种 × 2 种战斗部 (150kg, 500kg)
+
+    for sc in stealth_cases:
+        # 对应同尺寸、同弹种、同战斗部的轰-6机腹版本
+        matched_h6 = [
+            c for c in cases
+            if c['bay'] == '轰-6机腹'
+            and c['missile_class'] == sc['missile_class']
+            and float(c['length_m']) == float(sc['length_m']) == 11.30
+            and float(c['diameter_m']) == float(sc['diameter_m']) == 0.860
+            and int(c['warhead_kg']) == int(sc['warhead_kg'])
+        ]
+        assert len(matched_h6) == 1
+        hc = matched_h6[0]
+
+        # 发射条件：轰-6机腹为 Ma 0.85 @ 13.0km，隐轰为 Ma 1.75 @ 18.0km
+        assert hc['v_mach'] == 0.85
+        assert hc['h_km'] == 13.0
+        assert sc['v_mach'] == 1.75
+        assert sc['h_km'] == 18.0
+
+        # 端到端 API 计算射程
+        est_payload_h6 = {
+            'action': 'estimate',
+            'params': {
+                'missile_class': hc['missile_class'],
+                'length_m': hc['length_m'],
+                'diameter_m': hc['diameter_m'],
+                'warhead_kg': hc['warhead_kg'],
+                'v_launch_mach': hc['v_mach'],
+                'h_launch_km': hc['h_km'],
+            },
+        }
+        status_h, _, body_h = handle_request(
+            'POST', '/api/missile_range/simulate', json.dumps(est_payload_h6).encode(),
+        )
+        assert status_h == 200
+        res_h = json.loads(body_h.decode())['result']
+
+        est_payload_sc = {
+            'action': 'estimate',
+            'params': {
+                'missile_class': sc['missile_class'],
+                'length_m': sc['length_m'],
+                'diameter_m': sc['diameter_m'],
+                'warhead_kg': sc['warhead_kg'],
+                'v_launch_mach': sc['v_mach'],
+                'h_launch_km': sc['h_km'],
+            },
+        }
+        status_s, _, body_s = handle_request(
+            'POST', '/api/missile_range/simulate', json.dumps(est_payload_sc).encode(),
+        )
+        assert status_s == 200
+        res_s = json.loads(body_s.decode())['result']
+
+        assert res_h['range_km'] > 0
+        assert res_s['range_km'] > res_h['range_km']
+
+
+@pytest.mark.e2e
+def test_e2e_missile_range_hgv_geometry_optimization():
+    """助推滑翔弹滑翔体几何长宽寻优端到端接口测试。"""
+    # 1. 测试 action='optimize_geometry' 接口
+    payload = {
+        'action': 'optimize_geometry',
+        'params': {
+            'length_m': 10.5,
+            'diameter_m': 1.0,
+            'warhead_kg': 200,
+            'missile_class': 'hgv_biconic',
+            'v_launch_mach': 0.85,
+            'h_launch_km': 13.0,
+        },
+    }
+    status, _, body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
+    )
+    assert status == 200
+    data = json.loads(body.decode())
+    assert data['success'] is True
+    opt = data['optimization']
+    assert opt['range_gain_km'] > 500.0
+    assert opt['best_l_head_m'] > opt['baseline_l_head_m']
+    assert opt['best_d_head_m'] <= 1.0
+    assert opt['best_ld_ratio'] > opt['baseline_ld_ratio']
+    assert opt['best_fineness'] >= 2.0
+
+    # 2. 测试通过常规 estimate 接口开启 optimize_geometry 寻优
+    est_payload = {
+        'action': 'estimate',
+        'params': {
+            'length_m': 10.5,
+            'diameter_m': 1.0,
+            'warhead_kg': 200,
+            'missile_class': 'hgv_biconic',
+            'v_launch_mach': 0.85,
+            'h_launch_km': 13.0,
+            'optimize_geometry': True,
+        },
+    }
+    est_status, _, est_body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(est_payload).encode(),
+    )
+    assert est_status == 200
+    est_data = json.loads(est_body.decode())
+    assert est_data['success'] is True
+    res = est_data['result']
+    assert res['optimal_geometry'] is True
+    assert res['range_gain_km'] > 500.0
+    assert '几何搜索寻优' in res['note']
+    assert res['d_head_m'] <= 1.0
+
+
+@pytest.mark.e2e
+def test_e2e_missile_range_takeover_gui_and_api():
+    """端到端验证：未达工作速度在 API 返回及三端 GUI 文件中均有对应展示。"""
+    # 1. 验证 API 返回未达工作速度情况
+    payload_fail = {
+        'action': 'estimate',
+        'params': {
+            'missile_class': 'scramjet',
+            'length_m': 6.35,
+            'diameter_m': 0.51,
+            'warhead_kg': 160.0,
+            'v_launch_mach': 0.0,
+            'h_launch_km': 0.0,
+        },
+    }
+    status, _, body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(payload_fail).encode(),
+    )
+    assert status == 200
+    res = json.loads(body.decode())['result']
+    assert res['reached_takeover'] is False
+    assert res['mach_takeover'] == 4.2
+    assert res['mach_boost'] < 4.2 * 0.98
+    assert res['range_cruise_km'] == 0.0
+
+    # 2. 验证 API 返回达到工作速度情况
+    payload_ok = {
+        'action': 'estimate',
+        'params': {
+            'missile_class': 'scramjet',
+            'length_m': 10.0,
+            'diameter_m': 1.05,
+            'warhead_kg': 400.0,
+            'v_launch_mach': 0.0,
+            'h_launch_km': 0.0,
+        },
+    }
+    status_ok, _, body_ok = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(payload_ok).encode(),
+    )
+    assert status_ok == 200
+    res_ok = json.loads(body_ok.decode())['result']
+    assert res_ok['reached_takeover'] is True
+    assert res_ok['mach_takeover'] == 4.2
+    assert res_ok['mach_boost'] >= 4.2 * 0.98
+
+    # 3. 验证三端 GUI 代码中对未达工作速度的展示支持
+    html = (ROOT / 'docs' / 'missile-range.html').read_text(encoding='utf-8')
+    js = (ROOT / 'docs' / 'js' / 'missile_range.js').read_text(encoding='utf-8')
+    css = (ROOT / 'docs' / 'css' / 'missile_range.css').read_text(encoding='utf-8')
+    wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
+    swift = (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileRangeView.swift').read_text(encoding='utf-8')
+
+    assert 'takeover-alert' in js
+    assert '未达工作速度' in js
+    assert 'takeover-alert' in css
+    assert 'takeover-alert' in wxml
+    assert '未达工作速度' in wxml
+    assert '未达工作速度' in swift
+
 

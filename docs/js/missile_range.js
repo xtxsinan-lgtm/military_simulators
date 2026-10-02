@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 26;
+const APP_VERSION = 28;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -69,6 +69,7 @@ function readForm() {
     isp_s: num('ispS', 264),
     propellant_density: num('density', 1760),
     ballistic_two_stage: $('ballisticTwoStage').checked,
+    optimize_geometry: $('optimizeGeometry') ? $('optimizeGeometry').checked : false,
   };
   if (!$('ispAirField').hidden) params.isp_air_s = num('ispAir', 0);
   return params;
@@ -84,6 +85,7 @@ function syncClassUi() {
   if (found && found.blurb) $('classBlurb').textContent = found.blurb;
   const air = $('ispAirField');
   const ballistic = $('ballisticTwoStageField');
+  const optGeom = $('optimizeGeometryField');
   if (found && found.isp_cruise_s != null) {
     air.hidden = false;
     $('ispAir').value = found.isp_cruise_s;
@@ -95,6 +97,9 @@ function syncClassUi() {
     $('ballisticTwoStage').checked = true;
   } else {
     ballistic.hidden = true;
+  }
+  if (optGeom) {
+    optGeom.hidden = !id.startsWith('hgv');
   }
 }
 
@@ -127,6 +132,7 @@ function fillForm(row) {
 
 function speedLabel(result) {
   const id = result.missile_class || '';
+  if (result.reached_takeover === false) return '助推关机马赫';
   if (id === 'ballistic' || id.indexOf('hgv') === 0) return '关机马赫数';
   return '巡航马赫数';
 }
@@ -137,26 +143,59 @@ function renderResult(result, title) {
     $('resultBox').textContent = '无结果';
     return;
   }
+  const isFailedTakeover = result.reached_takeover === false;
+  const alertHtml = isFailedTakeover
+    ? `<div class="takeover-alert">
+        <div class="takeover-badge">⚠️ 未达工作速度 (TAKEOVER FAILED)</div>
+        <div class="takeover-desc">
+          助推级实际仅加速至 <strong>Ma ${fmt(result.mach_boost ?? result.v_burnout_mach, 2)}</strong>，
+          低于冲压发动机设计接力速度 <strong>Ma ${fmt(result.mach_takeover, 2)}</strong>。<br>
+          冲压发动机无法启动，巡航段有效射程为 <strong>0.0 km</strong>，当前射程仅计助推关机后的纯惯性弹道滑行弧。
+        </div>
+      </div>`
+    : '';
+
   const dual = result.range_high_km != null && result.range_sea_km != null;
   const lead = dual
     ? `<div class="stat"><div class="k">全高空射程</div><div class="v">${fmt(result.range_high_km, 1)}</div><div class="sub">km</div></div>
        <div class="stat"><div class="k">全掠海射程</div><div class="v amber">${fmt(result.range_sea_km, 1)}</div><div class="sub">km</div></div>`
-    : `<div class="stat"><div class="k">估算射程</div><div class="v">${fmt(result.range_km, 1)}</div><div class="sub">km</div></div>`;
+    : `<div class="stat"><div class="k">${isFailedTakeover ? '弹道滑行射程' : '估算射程'}</div><div class="v ${isFailedTakeover ? 'amber' : ''}">${fmt(result.range_km, 1)}</div><div class="sub">${isFailedTakeover ? 'km (冲压未启动)' : 'km'}</div></div>`;
   const wing = result.m_wing_kg != null
     ? `<div class="stat"><div class="k">折叠弹翼</div><div class="v">${fmt(result.m_wing_kg, 0)}</div><div class="sub">kg</div></div>
        <div class="stat"><div class="k">死重</div><div class="v amber">${fmt(result.m_dead_kg, 0)}</div><div class="sub">kg</div></div>`
     : '';
+  const gain = (result.range_gain_km != null && result.range_gain_km > 0)
+    ? `<div class="stat"><div class="k">几何增程</div><div class="v cyan">+${fmt(result.range_gain_km, 1)}</div><div class="sub">km</div></div>`
+    : '';
+  const dHead = result.d_head_m != null
+    ? `<div class="stat"><div class="k">滑翔体直径</div><div class="v">${fmt(result.d_head_m, 3)}</div><div class="sub">m</div></div>`
+    : '';
+
+  const takeoverRow = result.mach_takeover != null
+    ? `<div class="stat-row">
+        <div class="stat"><div class="k">接力设计速度</div><div class="v">${fmt(result.mach_takeover, 2)}</div><div class="sub">Ma (要求)</div></div>
+        <div class="stat"><div class="k">助推实际速度</div><div class="v ${isFailedTakeover ? 'red' : 'amber'}">${fmt(result.mach_boost ?? result.v_burnout_mach, 2)}</div><div class="sub">Ma (达成)</div></div>
+        <div class="stat"><div class="k">冲压工作状态</div><div class="v ${isFailedTakeover ? 'red' : 'green'}">${isFailedTakeover ? '未启动' : '已接入'}</div><div class="sub">${isFailedTakeover ? '有效巡航 0 km' : '吸气巡航'}</div></div>
+        ${result.m_booster_kg != null ? `<div class="stat"><div class="k">助推器全重</div><div class="v amber">${fmt(result.m_booster_kg, 1)}</div><div class="sub">kg</div></div>` : ''}
+        ${result.m_fuel_kg != null ? `<div class="stat"><div class="k">巡航燃料</div><div class="v">${fmt(result.m_fuel_kg, 1)}</div><div class="sub">kg</div></div>` : ''}
+      </div>`
+    : '';
+
   $('resultBox').className = '';
   $('resultBox').innerHTML = `
+    ${alertHtml}
+    ${takeoverRow}
     <div class="stat-row">
       ${lead}
+      ${gain}
       ${wing}
-      <div class="stat"><div class="k">${speedLabel(result)}</div><div class="v amber">${fmt(result.v_burnout_mach, 2)}</div><div class="sub">Ma</div></div>
+      <div class="stat"><div class="k">${speedLabel(result)}</div><div class="v ${isFailedTakeover ? 'red' : 'amber'}">${fmt(result.v_burnout_mach, 2)}</div><div class="sub">Ma</div></div>
       <div class="stat"><div class="k">升阻比</div><div class="v">${fmt(result.ld_ratio, 2)}</div><div class="sub">L/D</div></div>
       <div class="stat"><div class="k">起飞质量</div><div class="v amber">${fmt(result.m_0_t, 2)}</div><div class="sub">t</div></div>
     </div>
     <div class="stat-row">
       <div class="stat"><div class="k">弹头长度</div><div class="v">${fmt(result.l_head_m, 2)}</div><div class="sub">m</div></div>
+      ${dHead}
       <div class="stat"><div class="k">助推/弹体</div><div class="v">${fmt(result.l_booster_m, 2)}</div><div class="sub">m</div></div>
       <div class="stat"><div class="k">燃料或推进剂</div><div class="v">${fmt(result.m_p_total_kg, 1)}</div><div class="sub">kg</div></div>
       ${result.isp_boost_s != null ? `<div class="stat"><div class="k">助推比冲</div><div class="v">${fmt(result.isp_boost_s, 0)}</div><div class="sub">s</div></div>` : ''}
@@ -172,21 +211,30 @@ function kindLabel(row) {
 }
 
 function renderTable() {
-  const body = rows.map((row) => `
+  const body = rows.map((row) => {
+    const isFailed = row.reached_takeover === false;
+    const kindBadge = isFailed
+      ? `<span class="tag-alert" title="助推未达接力工作速度，仅弹道弧">未达工作速度</span>`
+      : '';
+    const rangeSub = isFailed
+      ? `<br><span style="color:var(--red);font-size:9.5px">(未达工作速度)</span>`
+      : '';
+    return `
     <tr data-id="${row.id}" class="${row.id === activeId ? 'on' : ''}">
       <td>${row.id}</td>
       <td>${row.size_m}</td>
       <td>${row.bay || '—'}</td>
       <td>${row.warhead_kg}</td>
-      <td>${kindLabel(row)}</td>
+      <td>${kindLabel(row)}${kindBadge}</td>
       <td>${row.launch}</td>
       <td>${fmt(row.m_0_t, 2)}</td>
       <td>${fmt(row.v_burnout_mach, 2)}</td>
       <td>${ispLabel(row)}</td>
-      <td>${fmt(row.range_km, 1)}</td>
+      <td>${fmt(row.range_km, 1)}${rangeSub}</td>
       <td>${row.range_sea_km == null ? '—' : fmt(row.range_sea_km, 1)}</td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
   $('tableBox').innerHTML = `
     <table>
       <thead>
@@ -231,7 +279,10 @@ function selectPreset(id) {
   fillForm(row);
   renderResult(row, row.name);
   renderTable();
-  $('status').textContent = 'PRESET';
+  const isFailed = row.reached_takeover === false;
+  $('status').innerHTML = isFailed
+    ? '<span style="color:var(--red);font-weight:bold">⚠️ 未达工作速度</span>'
+    : 'PRESET';
 }
 
 async function loadPythonModules() {
@@ -308,7 +359,10 @@ async function runEstimate() {
     activeId = null;
     renderResult(res.result, '当前参数');
     renderTable();
-    $('status').textContent = 'DONE';
+    const isFailed = res.result && res.result.reached_takeover === false;
+    $('status').innerHTML = isFailed
+      ? '<span style="color:var(--red);font-weight:bold">⚠️ 未达工作速度</span>'
+      : 'DONE';
   } catch (err) {
     $('status').textContent = 'ERROR';
     $('resultBox').className = 'placeholder';

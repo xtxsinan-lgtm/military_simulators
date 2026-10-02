@@ -53,9 +53,12 @@ from utils.missile_range.estimate import (
     head_total_mass_kg,
     head_volume_m3,
     hgv_altitude_loss_m_s,
+    hgv_min_fineness,
     lift_drag_ratio,
+    min_head_length_m,
     motor_cross_section_m2,
     normalize_hgv_type,
+    optimize_hgv_geometry,
     propellant_mass_kg,
     uncapped_head_length_m,
 )
@@ -752,7 +755,7 @@ def test_six_classes_ranges_and_profiles():
     assert wave['range_km'] != legacy['range_km']
     with pytest.raises(ValueError):
         estimate_subsonic_class('ramjet', 6, 0.5, 100, 0.7, 1)
-    assert len(PROPULSION_DATASET) == 69
+    assert len(PROPULSION_DATASET) == 75
     labels = {row['missile_class'] for row in PROPULSION_DATASET}
     assert labels == {
         'scramjet', 'ramjet', 'turbofan_stealth',
@@ -815,8 +818,8 @@ def test_presets_follow_bay_list_for_each_speed_class():
 
     grouped = grouped_preset_bays()
     cases = build_preset_cases()
-    # 当前样本：5 超音速弹种 × 14 + 3 亚音速弹种 × 9 = 97
-    assert [case['id'] for case in cases] == list(range(1, 98))
+    # 当前样本：5 超音速弹种 × 16 + 3 亚音速弹种 × 9 = 107
+    assert [case['id'] for case in cases] == list(range(1, 108))
 
     # 共用的弹仓行
     super_generic = [
@@ -831,7 +834,7 @@ def test_presets_follow_bay_list_for_each_speed_class():
         if bay.get('missile_class') is None
         for length, diameter, warhead in bay['rounds']
     ]
-    assert len(super_generic) == 12
+    assert len(super_generic) == 14
     assert len(sub_generic) == 7
     assert any(item[0] == '1280垂发' for item in super_generic)
     assert any(item[0] == '533mm鱼雷' for item in sub_generic)
@@ -849,8 +852,8 @@ def test_presets_follow_bay_list_for_each_speed_class():
             for case in cases if case['missile_class'] == missile_class
         ]
         # 每个超音速弹种还有 2 条歼-15 专属样例
-        assert len(got) == 14
-        assert got[:12] == super_generic
+        assert len(got) == 16
+        assert got[:14] == super_generic
     for missile_class in SUBSONIC_CLASSES:
         got = [
             (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
@@ -879,7 +882,7 @@ def test_presets_follow_bay_list_for_each_speed_class():
 
 
 def test_carrier_launch_envelope():
-    """歼-36、中型六代机、歼-15 与隐身超音速轰炸机按给定极速和升限发射。"""
+    """歼-36、中型六代机、歼-15、轰-6 与隐身超音速轰炸机按给定极速和升限发射。"""
     from utils.missile_range.dataset import build_preset_cases
 
     expected = {
@@ -888,6 +891,7 @@ def test_carrier_launch_envelope():
         '歼-15机腹': (1.5, 14.0),
         '歼-15翼下': (1.5, 14.0),
         '隐身超音速轰炸机弹仓': (1.75, 18.0),
+        '轰-6机腹': (0.85, 13.0),
     }
     seen = {bay: 0 for bay in expected}
     for case in build_preset_cases():
@@ -1490,9 +1494,226 @@ def test_bomber_small_warhead_presets_are_150kg():
     stealth_bay = next(b for b in grouped['supersonic'] if b['bay'] == '隐身超音速轰炸机弹仓' and b.get('missile_class') is None)
 
     h6_warheads = [r[2] for r in h6_bay['rounds']]
-    assert h6_warheads == [150, 600]
+    assert sorted(set(h6_warheads)) == [150, 500, 600]
+    assert min(h6_warheads) == 150
 
     stealth_warheads = [r[2] for r in stealth_bay['rounds']]
     assert stealth_warheads == [150, 500]
+
+
+def test_h6_and_stealth_bomber_shared_dimensions_presets():
+    """轰-6机腹具备与隐身超音速轰炸机同尺寸（11.30 x 0.860）但初速与高度相应调整的射程预设。"""
+    from utils.missile_range.classes import MISSILE_CLASS_ORDER, estimate_by_class
+    from utils.missile_range.dataset import build_preset_cases, grouped_preset_bays
+
+    grouped = grouped_preset_bays()
+    h6_bay = next(b for b in grouped['supersonic'] if b['bay'] == '轰-6机腹' and b.get('missile_class') is None)
+    stealth_bay = next(b for b in grouped['supersonic'] if b['bay'] == '隐身超音速轰炸机弹仓' and b.get('missile_class') is None)
+
+    # 轰-6机腹具备同尺寸 (11.30, 0.860) 且战斗部为 150kg 与 500kg 的预设轮次
+    h6_shared_rounds = [r for r in h6_bay['rounds'] if (r[0], r[1]) == (11.30, 0.860)]
+    stealth_rounds = list(stealth_bay['rounds'])
+    assert h6_shared_rounds == stealth_rounds == [(11.30, 0.860, 150), (11.30, 0.860, 500)]
+
+    # 发射条件：轰-6 机腹相应调整为 Ma 0.85 @ 13.0km，隐身轰炸机为 Ma 1.75 @ 18.0km
+    assert h6_bay['v_mach'] == 0.85 and h6_bay['h_km'] == 13.0
+    assert stealth_bay['v_mach'] == 1.75 and stealth_bay['h_km'] == 18.0
+
+    # 验证全部 5 类超音速弹种的预设样本中，隐轰发射射程均大于轰-6机腹发射射程
+    cases = build_preset_cases()
+    supersonic_classes = [item['id'] for item in MISSILE_CLASS_ORDER if item['id'] not in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket')]
+    for m_class in supersonic_classes:
+        for warhead in (150, 500):
+            h6_case = next(
+                c for c in cases
+                if c['missile_class'] == m_class and c['bay'] == '轰-6机腹'
+                and (c['length'], c['diameter'], c['warhead']) == (11.30, 0.860, warhead)
+            )
+            stealth_case = next(
+                c for c in cases
+                if c['missile_class'] == m_class and c['bay'] == '隐身超音速轰炸机弹仓'
+                and (c['length'], c['diameter'], c['warhead']) == (11.30, 0.860, warhead)
+            )
+            assert h6_case['v_mach'] == 0.85 and h6_case['h_km'] == 13.0
+            assert stealth_case['v_mach'] == 1.75 and stealth_case['h_km'] == 18.0
+
+            h6_res = estimate_by_class(m_class, 11.30, 0.860, warhead, 0.85, 13.0)
+            stealth_res = estimate_by_class(m_class, 11.30, 0.860, warhead, 1.75, 18.0)
+            assert h6_res['range_km'] > 0
+            assert stealth_res['range_km'] > h6_res['range_km']
+
+
+def test_missile_range_takeover_status():
+    """冲压弹接力工作速度达成状态判定：达标与未达标标志位及马赫数字段。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    # 1. 成功接入接力马赫数的大型超燃与空射亚燃
+    scram_ok = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
+    assert scram_ok['reached_takeover'] is True
+    assert scram_ok['mach_takeover'] == 4.2
+    assert scram_ok['mach_boost'] >= 4.2 * 0.98
+    assert scram_ok['range_cruise_km'] > 0
+    assert scram_ok['m_booster_kg'] > 0
+    assert scram_ok['m_fuel_kg'] > 0
+
+    ram_ok = estimate_by_class('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
+    assert ram_ok['reached_takeover'] is True
+    assert ram_ok['mach_takeover'] == 1.95
+    assert ram_ok['mach_boost'] >= 1.95 * 0.98
+    assert ram_ok['m_booster_kg'] > 0
+    assert ram_ok['m_fuel_kg'] > 0
+
+    # 2. 未达接力工作速度的小型超燃（地面发射或小尺寸）
+    scram_fail = estimate_by_class('scramjet', 6.35, 0.51, 160, 0.0, 0.0)
+    assert scram_fail['reached_takeover'] is False
+    assert scram_fail['mach_takeover'] == 4.2
+    assert scram_fail['mach_boost'] < 4.2 * 0.98
+    assert scram_fail['range_cruise_km'] == 0.0
+    assert '未接入' in scram_fail['note']
+
+    # 3. 非冲压弹种不进行冲压接力判定，reached_takeover 为 None
+    ballistic = estimate_by_class('ballistic', 4.0, 0.43, 91, 0.0, 0.0)
+    assert ballistic['reached_takeover'] is None
+    assert ballistic['mach_takeover'] is None
+
+
+def test_hgv_min_fineness():
+    """测试不同滑翔体构型的长细比底线值及构型别名。"""
+    assert hgv_min_fineness('biconic') == 2.0
+    assert hgv_min_fineness('双锥体') == 2.0
+    assert hgv_min_fineness('waverider') == 3.0
+    assert hgv_min_fineness('乘波体') == 3.0
+    with pytest.raises(ValueError, match='未知构型'):
+        hgv_min_fineness('invalid_shape')
+
+
+def test_min_head_length_m():
+    """测试兼顾容积与长细比底线的滑翔体最小长度计算。"""
+    # 战斗部 200kg 双锥体，在 D=1.0m 时纯容积仅需 0.57m，但长细比底线 2.0 * 1.0 = 2.0m 占主导
+    l_floor = min_head_length_m(200.0, 1.0, 'biconic', enforce_min_fineness=True)
+    assert l_floor == pytest.approx(2.0)
+    l_raw = min_head_length_m(200.0, 1.0, 'biconic', enforce_min_fineness=False)
+    assert l_raw == pytest.approx(0.573, abs=0.01)
+
+    # 直径必须大于 0
+    with pytest.raises(ValueError, match='直径必须大于 0'):
+        min_head_length_m(200.0, 0.0, 'biconic')
+
+
+def test_head_and_booster_lengths_m_with_fineness():
+    """测试带有长细比修正的弹头与助推器长度划分。"""
+    # 默认不强制长细比修正，保持向后兼容
+    lh, lb = head_and_booster_lengths_m(10.5, 1.0, 200.0, 'biconic')
+    assert lh == pytest.approx(0.57, abs=0.01)
+    assert lb == pytest.approx(9.93, abs=0.01)
+
+    # 强制修正时，长度取长细比底线（2.0m）
+    lh_f, lb_f = head_and_booster_lengths_m(10.5, 1.0, 200.0, 'biconic', enforce_min_fineness=True)
+    assert lh_f == pytest.approx(2.0, abs=0.01)
+    assert lb_f == pytest.approx(8.5, abs=0.01)
+
+
+def test_optimize_hgv_geometry():
+    """测试滑翔体最优长宽搜索：综合权衡升阻比与助推器装药最大化射程。"""
+    # 10.5m x 1.0m, 200kg 弹头（双锥体）
+    opt_bi = optimize_hgv_geometry(10.5, 1.0, 200.0, 'biconic')
+    assert opt_bi['max_range_km'] > opt_bi['baseline_range_km'] + 500.0
+    assert opt_bi['range_gain_km'] > 500.0
+    assert opt_bi['best_l_head_m'] > opt_bi['baseline_l_head_m']
+    assert opt_bi['best_d_head_m'] < 1.0
+    assert opt_bi['best_ld_ratio'] > opt_bi['baseline_ld_ratio']
+    assert opt_bi['best_fineness'] >= 2.0
+    assert opt_bi['result']['optimal_geometry'] is True
+
+    # 10.5m x 1.0m, 200kg 弹头（乘波体）
+    opt_wave = optimize_hgv_geometry(10.5, 1.0, 200.0, 'waverider')
+    assert opt_wave['max_range_km'] > opt_wave['baseline_range_km'] + 500.0
+    assert opt_wave['best_fineness'] >= 3.0
+    assert opt_wave['best_ld_ratio'] > 4.0
+
+    # 异常输入校验
+    with pytest.raises(ValueError, match='长细比下限'):
+        optimize_hgv_geometry(10.5, 1.0, 200.0, 'biconic', min_fineness=-1)
+    with pytest.raises(ValueError, match='直径范围'):
+        optimize_hgv_geometry(10.5, 1.0, 200.0, 'biconic', min_d_head_m=0)
+
+
+def test_estimate_hgv_custom_geometry_and_optimization():
+    """测试 estimate_hgv 支持自定义几何参数与自动寻优开关。"""
+    # 自定义滑翔体长与直径
+    custom = estimate_hgv(10.5, 1.0, 200.0, 'biconic', l_head_m=3.5, d_head_m=0.5)
+    assert custom['l_head_m'] == 3.5
+    assert custom['d_head_m'] == 0.5
+    assert custom['fineness'] == 7.0
+    assert custom['l_booster_m'] == 7.0
+    assert custom['ld_ratio'] == pytest.approx(1.5 + 0.18 * 7.0, abs=0.01)
+
+    # 开启 optimize_geometry
+    optimized = estimate_hgv(10.5, 1.0, 200.0, 'biconic', optimize_geometry=True)
+    assert optimized['optimal_geometry'] is True
+    assert optimized['range_gain_km'] > 500.0
+    assert optimized['range_km'] > 4000.0
+
+    # 边界非法参数校验
+    with pytest.raises(ValueError, match='不超过弹体直径'):
+        estimate_hgv(10.5, 1.0, 200.0, 'biconic', d_head_m=1.2)
+    with pytest.raises(ValueError, match='必须大于 0'):
+        estimate_hgv(10.5, 1.0, 200.0, 'biconic', d_head_m=-0.5)
+    with pytest.raises(ValueError, match='小于全弹长'):
+        estimate_hgv(10.5, 1.0, 200.0, 'biconic', l_head_m=11.0)
+
+
+def test_estimate_by_class_with_geometry_optimization():
+    """测试 estimate_by_class 助推滑翔弹几何寻优。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    res = estimate_by_class('hgv_biconic', 10.5, 1.0, 200.0, optimize_geometry=True)
+    assert res['optimal_geometry'] is True
+    assert res['range_gain_km'] > 500.0
+    assert '几何搜索寻优' in res['note']
+
+    wave = estimate_by_class('hgv_waverider', 10.5, 1.0, 200.0, optimize_geometry=True)
+    assert wave['optimal_geometry'] is True
+    assert '几何搜索寻优' in wave['note']
+
+
+def test_run_optimize_geometry_from_params():
+    """测试仿真器层面滑翔体几何优化 API 与常规单发估算 API。"""
+    from simulators.missile_range.missile_range import (
+        run_estimate_from_params,
+        run_optimize_geometry_from_params,
+    )
+
+    # 正常助推滑翔寻优
+    opt_res = run_optimize_geometry_from_params({
+        'missile_class': 'hgv_biconic',
+        'length_m': 10.5,
+        'diameter_m': 1.0,
+        'warhead_kg': 200.0,
+    })
+    assert opt_res['success'] is True
+    assert opt_res['optimization']['range_gain_km'] > 500.0
+
+    # 非 HGV 弹种报错
+    err_res = run_optimize_geometry_from_params({
+        'missile_class': 'ballistic',
+        'length_m': 10.5,
+        'diameter_m': 1.0,
+        'warhead_kg': 200.0,
+    })
+    assert err_res['success'] is False
+    assert '不是助推滑翔弹' in err_res['error']
+
+    # estimate 接口带 optimize_geometry
+    est_res = run_estimate_from_params({
+        'missile_class': 'hgv_biconic',
+        'length_m': 10.5,
+        'diameter_m': 1.0,
+        'warhead_kg': 200.0,
+        'optimize_geometry': True,
+    })
+    assert est_res['success'] is True
+    assert est_res['result']['optimal_geometry'] is True
+
 
 

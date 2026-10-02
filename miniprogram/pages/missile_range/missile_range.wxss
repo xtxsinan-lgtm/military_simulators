@@ -48,3 +48,34 @@ page {
 .col.isp { width: 200rpx; }
 .col.wide { width: 220rpx; }
 .col.bay { width: 220rpx; }
+
+.stat .v.red { color: #ff4d4f; }
+.takeover-alert {
+  background: rgba(255, 77, 79, 0.12);
+  border: 1px solid #ff4d4f;
+  border-left: 6rpx solid #ff4d4f;
+  padding: 16rpx;
+  margin-bottom: 20rpx;
+}
+.takeover-badge {
+  color: #ff4d4f;
+  font-size: 22rpx;
+  font-weight: bold;
+  letter-spacing: 2rpx;
+  margin-bottom: 8rpx;
+}
+.takeover-desc {
+  color: #d7e2e4;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+.tag-alert {
+  display: inline-block;
+  font-size: 18rpx;
+  padding: 2rpx 8rpx;
+  background: rgba(255, 77, 79, 0.2);
+  border: 1px solid #ff4d4f;
+  color: #ff4d4f;
+  margin-left: 6rpx;
+}
+

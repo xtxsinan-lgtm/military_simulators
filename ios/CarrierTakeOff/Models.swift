@@ -658,6 +658,7 @@ struct MissileRangeCase: Codable, Identifiable, Hashable {
     var launch: String?
     var m_0_t: Double?
     var l_head_m: Double?
+    var d_head_m: Double?
     var l_booster_m: Double?
     var m_p_total_kg: Double?
     var v_burnout_mach: Double?
@@ -670,6 +671,11 @@ struct MissileRangeCase: Codable, Identifiable, Hashable {
     var isp_boost_s: Double?
     var isp_cruise_s: Double?
     var isp_rocket_s: Double?
+    var reached_takeover: Bool?
+    var mach_takeover: Double?
+    var mach_boost: Double?
+    var m_booster_kg: Double?
+    var m_fuel_kg: Double?
 }
 
 /// 单次估算返回的质量、速度与射程
@@ -678,6 +684,7 @@ struct MissileRangeEstimate: Codable {
     var class_label: String? = nil
     var m_0_t: Double?
     var l_head_m: Double?
+    var d_head_m: Double? = nil
     var l_booster_m: Double?
     var m_p_total_kg: Double?
     var v_burnout_mach: Double?
@@ -695,6 +702,11 @@ struct MissileRangeEstimate: Codable {
     var isp_boost_s: Double? = nil
     var isp_cruise_s: Double? = nil
     var isp_rocket_s: Double? = nil
+    var reached_takeover: Bool? = nil
+    var mach_takeover: Double? = nil
+    var mach_boost: Double? = nil
+    var m_booster_kg: Double? = nil
+    var m_fuel_kg: Double? = nil
 }
 
 /// 本地 Pyodide 导弹射程接口返回值

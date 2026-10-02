@@ -81,9 +81,14 @@ final class MissileRangeViewModel: ObservableObject {
             note: row.note,
             isp_boost_s: row.isp_boost_s,
             isp_cruise_s: row.isp_cruise_s,
-            isp_rocket_s: row.isp_rocket_s
+            isp_rocket_s: row.isp_rocket_s,
+            reached_takeover: row.reached_takeover,
+            mach_takeover: row.mach_takeover,
+            mach_boost: row.mach_boost,
+            m_booster_kg: row.m_booster_kg,
+            m_fuel_kg: row.m_fuel_kg
         )
-        statusText = "PRESET"
+        statusText = row.reached_takeover == false ? "⚠️ 未达工作速度" : "PRESET"
     }
 
     func setClass(_ id: String) {
@@ -132,7 +137,7 @@ final class MissileRangeViewModel: ObservableObject {
                     rows = next
                 }
                 activeId = nil
-                statusText = "DONE"
+                statusText = res.result?.reached_takeover == false ? "⚠️ 未达工作速度" : "DONE"
             }
         } catch {
             statusText = error.localizedDescription

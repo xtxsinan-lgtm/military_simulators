@@ -1407,6 +1407,11 @@ def _base_fields(
     isp_boost_s: float | None = None,
     isp_cruise_s: float | None = None,
     isp_rocket_s: float | None = None,
+    reached_takeover: bool | None = None,
+    mach_takeover: float | None = None,
+    mach_boost: float | None = None,
+    m_booster_kg: float | None = None,
+    m_fuel_kg: float | None = None,
 ) -> dict:
     return {
         'missile_class': missile_class,
@@ -1429,6 +1434,11 @@ def _base_fields(
         'isp_boost_s': None if isp_boost_s is None else round(isp_boost_s, 1),
         'isp_cruise_s': None if isp_cruise_s is None else round(isp_cruise_s, 1),
         'isp_rocket_s': None if isp_rocket_s is None else round(isp_rocket_s, 1),
+        'reached_takeover': reached_takeover,
+        'mach_takeover': None if mach_takeover is None else round(mach_takeover, 2),
+        'mach_boost': None if mach_boost is None else round(mach_boost, 2),
+        'm_booster_kg': None if m_booster_kg is None else round(m_booster_kg, 1),
+        'm_fuel_kg': None if m_fuel_kg is None else round(m_fuel_kg, 1),
         'note': note,
     }
 
@@ -1488,6 +1498,7 @@ def estimate_subsonic_class(
         range_cruise_km=high_km, cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],
         m_dead_kg=dead, m_wing_kg=sized['m_wing_kg'],
         isp_boost_s=isp_boost, isp_cruise_s=sized['isp_cruise_s'],
+        m_booster_kg=sized['m_booster_kg'], m_fuel_kg=sized['fuel_kg'],
     )
 
 
@@ -1567,6 +1578,9 @@ def estimate_ducted(
     burn_time = ballistic_burn_time_s(propellant, launch_mass, isp_boost) if propellant > 0 else 0.0
     boost_range = 0.5 * (launch_speed + speed_after) * burn_time
     mass_after_boost = launch_mass - propellant
+    mach_boost = speed_after / sound
+    mach_takeover = spec['mach_takeover']
+    booster_mass = propellant * (1.0 + BOOST_CASE_FRAC) if propellant > 0 else 0.0
     if not reached:
         # 接不上接力马赫数时，不能在高空用巡航速度做布雷盖。
         burnout_alt = burnout_altitude_km(max(speed_after, 50.0), h_launch_km)
@@ -1579,7 +1593,7 @@ def estimate_ducted(
         cruise_m = 0.0
         cruise_mach = speed_after / speed_of_sound_m_s(0.0)
         cruise_alt = burnout_alt
-        trimmed = '冲压未接入设计马赫数，射程只计助推后的弹道弧。'
+        trimmed = f'冲压未接入设计马赫数（助推达 Ma {mach_boost:.2f}，低于接力 Ma {mach_takeover:.2f}），射程只计助推后的弹道弧。'
     else:
         cruise_alt = spec['alt_km']
         cruise_speed = spec['mach_cruise'] * sound
@@ -1645,6 +1659,11 @@ def estimate_ducted(
         cruise_mach=cruise_mach, cruise_alt_km=cruise_alt,
         m_dead_kg=dead,
         isp_boost_s=isp_boost_out, isp_cruise_s=isp_cruise,
+        reached_takeover=reached,
+        mach_takeover=mach_takeover,
+        mach_boost=mach_boost,
+        m_booster_kg=booster_mass,
+        m_fuel_kg=fuel,
     )
 
 
@@ -1765,6 +1784,7 @@ def estimate_turbofan_rocket(
         cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],
         m_dead_kg=dead, m_wing_kg=sized['m_wing_kg'],
         isp_boost_s=isp_boost, isp_cruise_s=sized['isp_cruise_s'], isp_rocket_s=isp_s,
+        m_booster_kg=sized['m_booster_kg'], m_fuel_kg=sized['fuel_kg'],
     )
 
 
@@ -1873,11 +1893,15 @@ def estimate_by_class(
     height_m: float | None = None,
     isp_air_s: float | None = None,
     ballistic_two_stage: bool = True,
+    optimize_geometry: bool = False,
+    l_head_m: float | None = None,
+    d_head_m: float | None = None,
 ) -> dict:
     """按弹种估算。双锥体和乘波体助推滑翔由 missile_class 区分。
 
     隐身涡扇的宽和高可选。给出后按扁五边形外廓算质量，不再把弹径当成圆。
     isp_s 是固体火箭比冲。isp_air_s 只覆盖吸气巡航；不给时用弹种自己的吸气比冲。
+    助推滑翔可开启 optimize_geometry 寻优滑翔体最优长宽，或指定独立 l_head_m / d_head_m。
     """
     canon = resolve_missile_class(missile_class)
     shape = glide_shape(canon)
@@ -1886,6 +1910,8 @@ def estimate_by_class(
         result = estimate_hgv(
             length_m, diameter_m, warhead_mass_kg, shape,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
+            l_head_m=l_head_m, d_head_m=d_head_m,
+            optimize_geometry=optimize_geometry,
         )
         result = dict(result)
         # 滑翔下限仍对照双锥体助推器的真空弹道，弹道基线固定按默认两级。
@@ -1902,6 +1928,13 @@ def estimate_by_class(
         result['missile_class'] = canon
         result['class_label'] = class_label(canon)
         note = class_blurb(canon) + f' 固体比冲 {isp_s:.0f} s。'
+        if result.get('optimal_geometry'):
+            note += (
+                f" 经几何搜索寻优：滑翔体长 {result['l_head_m']:.2f} m、"
+                f"等效直径 {result['d_head_m']:.3f} m（长细比 {result['fineness']:.2f}，"
+                f"升阻比提升至 {result['ld_ratio']:.2f}），"
+                f"总射程相比基线提升 {result['range_gain_km']:.1f} km (+{result['range_gain_pct']:.1f}%)。"
+            )
         if floored > float(result['range_km']) + 0.05:
             result['range_km'] = round(floored, 1)
             note += '平衡滑翔短于同一助推器的弹道弧，改为按升阻比延伸后的再入航程。'

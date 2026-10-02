@@ -134,8 +134,13 @@ Page({
         isp_boost_s: row.isp_boost_s,
         isp_cruise_s: row.isp_cruise_s,
         isp_rocket_s: row.isp_rocket_s,
+        reached_takeover: row.reached_takeover,
+        mach_takeover: row.mach_takeover,
+        mach_boost: row.mach_boost,
+        m_booster_kg: row.m_booster_kg,
+        m_fuel_kg: row.m_fuel_kg,
       },
-      statusText: 'PRESET',
+      statusText: row.reached_takeover === false ? '⚠️ 未达工作速度' : 'PRESET',
     });
   },
 
@@ -194,11 +199,12 @@ Page({
         if (result.range_high_km === undefined) result.range_high_km = null;
         if (result.range_terminal_km === undefined) result.range_terminal_km = null;
         const rows = (res.rows && res.rows.length ? res.rows : this.data.rows).map(decorate);
+        const isFailed = res.result && res.result.reached_takeover === false;
         this.setData({
           result: res.result,
           rows,
           activeId: null,
-          statusText: 'DONE',
+          statusText: isFailed ? '⚠️ 未达工作速度' : 'DONE',
           running: false,
         });
       })
