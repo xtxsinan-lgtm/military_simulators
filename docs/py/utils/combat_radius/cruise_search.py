@@ -1,14 +1,14 @@
 """给定马赫数搜索最佳巡航高度，并估算最大军推巡航马赫。
 
-高度搜索范围限制在 11–20 km：与升阻比大气（11–20 km 等温层）
-和效率模型 ISA 上限取交集。可行性约束为
+高度搜索范围限制在 11–25 km：与升阻比大气（11–20 km 等温层 + 20–25 km 平流层递增层）
+和效率模型 ISA 相容。可行性约束为
 阻力 ≤ 该点最大可用军推 × 推力裕度（默认 92%）。
 目标函数为升阻比 × 总效率：低马赫时爬高会使负载过大、η_o 下降，
 且大迎角附加阻力会压低 L/D，二者合起来把最佳高度压在标定巡航附近；
 跨声速鼓包在 Ma 1.0–1.2 加大阻力，最佳高度可能先掉再恢复。
 「实用最大巡航」只在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度
 （同一峰值平台取最大马赫，已经掉高的点不算）。「最大可能巡航」是
-11–20 km 内仍能军推平飞的最大马赫（从高往低搜最高可行窗口）；
+11–25 km 内仍能军推平飞的最大马赫（从高往低搜最高可行窗口）；
 跨声速鼓包会使可行性对马赫不单调，不能停在空洞前沿。
 """
 from __future__ import annotations
@@ -37,10 +37,10 @@ THRUST_MARGIN_DEFAULT = 0.92
 # 只用于阻力已经超过军推的点；未超过军推时仍按军推节流，不开加力。
 AB_TSFC_OVER_MIL = 2.2
 ALT_MIN_M = 11000.0
-ALT_MAX_M = 20000.0
+ALT_MAX_M = 25000.0
 ALT_COARSE_M = 1000.0
 ALT_REFINE_M = 200.0
-FIXED_MACHS = (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0, 2.15)
+FIXED_MACHS = (0.8, 1.0, 1.2, 1.35, 1.5, 1.75, 2.0, 2.15, 2.3)
 SUPERSONIC_MACH = 1.0
 MACH_SEARCH_LO = 0.50
 # 实用最大巡航按高度极值搜索时，只看 Ma 1.2 以上（跳过跨声速鼓包前的峰值）
@@ -308,7 +308,7 @@ def search_best_afterburner_altitude(
     ab_ctx: CruiseContext,
     mach: float,
     alt_min_m: float = 0.0,
-    alt_max_m: float = 20000.0,
+    alt_max_m: float = 25000.0,
     coarse_m: float = ALT_COARSE_M,
     refine_m: float = ALT_REFINE_M,
 ) -> CruiseScored | None:
@@ -416,7 +416,7 @@ def search_max_possible_cruise_mach(
     alt_max_m: float = ALT_MAX_M,
     step_m: float = ALT_COARSE_M,
 ) -> float | None:
-    """11–20 km 内仍满足 92% 军推裕度的最大马赫（最大可能巡航）。
+    """11–25 km 内仍满足 92% 军推裕度的最大马赫（最大可能巡航）。
 
     比峰值高度段的实用最大巡航更快。跨声速鼓包会使可行性对马赫不单调
     （Ma 1.2 附近可能有空洞、更高马赫又能飞），不能从低马赫往上二分，

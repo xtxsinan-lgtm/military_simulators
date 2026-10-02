@@ -23,7 +23,7 @@ from utils.combat_radius.cruise_search import (
 from utils.combat_radius.military_thrust import GAMMA, R, isa
 
 ALT_MIN_M = 0.0
-ALT_MAX_M = 20000.0
+ALT_MAX_M = 25000.0
 ALT_COARSE_M = 1000.0
 ALT_REFINE_M = 200.0
 MACH_SEARCH_LO = 0.30

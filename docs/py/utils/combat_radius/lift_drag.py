@@ -67,12 +67,12 @@ from dataclasses import asdict, dataclass
 from typing import Any, Literal
 
 # ---------------------------------------------------------------------------
-# 常数（ISA 11~20 km 等温层 + Korn 跨声速 + F-22/歼-20 超巡波阻标定）
+# 常数（ISA 11~25 km 平流层范围 + Korn 跨声速 + F-22/歼-20 超巡波阻标定）
 # ---------------------------------------------------------------------------
 G0 = 9.80665
 R_AIR = 287.05287
 GAMMA = 1.4
-T_ISO = 216.65  # 11~20 km 等温层温度 (K)
+T_ISO = 216.65  # 11~20 km 等温层温度 (K)；20~25 km 递增至约 221.65 K
 RHO11 = 0.36391  # 11000 m 处密度 (kg/m^3)
 KAPPA_A = 0.90  # Korn 方程翼型技术因子，固定为超临界翼型典型值
 CDW_KORN_COEF = 20.0  # Mason/Lock-Korn 四次方系数，仅用于跨声速小超量
@@ -485,7 +485,7 @@ def aircraft_to_dict(ac: Aircraft) -> dict[str, Any]:
 
 
 def atmosphere(h_m: float) -> tuple[float, float]:
-    """返回 (rho, a)：密度 (kg/m^3)、声速 (m/s)。适用于 11–20 km 等温层。"""
+    """返回 (rho, a)：密度 (kg/m^3)、声速 (m/s)。适用于 11–20 km 等温层（简化：20–25 km 使用等温层值）。"""
     factor = math.exp(-G0 * (h_m - 11000.0) / (R_AIR * T_ISO))
     rho = RHO11 * factor
     a = math.sqrt(GAMMA * R_AIR * T_ISO)
