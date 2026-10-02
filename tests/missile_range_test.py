@@ -710,6 +710,29 @@ def test_presets_follow_bay_list_for_each_speed_class():
     assert all(row['range_km'] > 0 for row in evaluate_dataset())
 
 
+def test_carrier_launch_envelope():
+    """歼-36、中型六代机、歼-15 与隐身超音速轰炸机按给定极速和升限发射。"""
+    from utils.missile_range.dataset import build_preset_cases
+
+    expected = {
+        '歼-36弹仓': (2.15, 20.0),
+        '中型六代机弹仓': (1.75, 18.0),
+        '歼-15机腹': (1.5, 14.0),
+        '歼-15翼下': (1.5, 14.0),
+        '隐身超音速轰炸机弹仓': (1.75, 18.0),
+    }
+    seen = {bay: 0 for bay in expected}
+    for case in build_preset_cases():
+        bay = case['bay']
+        if bay not in expected:
+            continue
+        mach, height = expected[bay]
+        assert case['v_mach'] == pytest.approx(mach)
+        assert case['h_km'] == pytest.approx(height)
+        seen[bay] += 1
+    assert all(count > 0 for count in seen.values())
+
+
 def test_airbreathing_range_model_differs_from_boost_and_ballistic():
     """吸气式走巡航航程，助推滑翔和弹道不走同一套。"""
     from utils.missile_range.classes import estimate_by_class
