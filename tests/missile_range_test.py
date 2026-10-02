@@ -417,6 +417,67 @@ def test_sort_missile_range_rows_by_bay_and_range():
     assert rows[1]['name'].startswith('#2  ')
 
 
+def test_sort_same_bay_by_size_then_range():
+    """同一载机有多套尺寸时，先按尺寸从大到小，同尺寸内再按射程从高到低。"""
+    rows = sort_missile_range_rows([
+        {
+            'id': 1,
+            'name': '短尺寸远',
+            'bay': '轰-6机腹',
+            'length_m': 10.5,
+            'diameter_m': 1.1,
+            'warhead_kg': 150,
+            'range_km': 900.0,
+        },
+        {
+            'id': 2,
+            'name': '长尺寸近',
+            'bay': '轰-6机腹',
+            'length_m': 11.3,
+            'diameter_m': 0.86,
+            'warhead_kg': 150,
+            'range_km': 100.0,
+        },
+        {
+            'id': 3,
+            'name': '短尺寸近',
+            'bay': '轰-6机腹',
+            'length_m': 10.5,
+            'diameter_m': 1.1,
+            'warhead_kg': 600,
+            'range_km': 200.0,
+        },
+        {
+            'id': 4,
+            'name': '长尺寸远',
+            'bay': '轰-6机腹',
+            'length_m': 11.3,
+            'diameter_m': 0.86,
+            'warhead_kg': 500,
+            'range_km': 800.0,
+        },
+    ])
+    assert [(row['length_m'], row['diameter_m'], row['range_km']) for row in rows] == [
+        (11.3, 0.86, 800.0),
+        (11.3, 0.86, 100.0),
+        (10.5, 1.1, 900.0),
+        (10.5, 1.1, 200.0),
+    ]
+
+
+def test_evaluate_dataset_groups_h6_by_size_then_range():
+    """轰-6 机腹两套尺寸各自成组，组内射程从高到低。"""
+    from itertools import groupby
+
+    h6 = [row for row in evaluate_dataset() if row['bay'] == '轰-6机腹']
+    sizes = [(row['length_m'], row['diameter_m']) for row in h6]
+    assert len(set(sizes)) >= 2
+    assert sizes == sorted(sizes, key=lambda size: (-size[0], -size[1]))
+    for _, group in groupby(h6, key=lambda row: (row['length_m'], row['diameter_m'])):
+        ranges = [row['range_km'] for row in group]
+        assert ranges == sorted(ranges, reverse=True)
+
+
 def test_opt_float_and_required_float():
     assert opt_float('', 1.5) == 1.5
     assert opt_float(None, 2) == 2

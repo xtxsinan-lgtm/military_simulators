@@ -156,7 +156,11 @@ def format_launch(v_mach: float, h_km: float) -> str:
 
 
 def sort_missile_range_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """按载机平台尺寸分组，并在组内按射程从高到低排序。"""
+    """按载机平台分组；同一平台内先按尺寸从大到小，同尺寸再按射程从高到低。
+
+    尺寸比较先看弹长，再看弹径。轰-6 机腹这类同一挂架有多套尺寸时，
+    同一尺寸的各弹种会排在一起，而不是按射程把不同尺寸穿插开。
+    """
     copied = [dict(row) for row in rows]
     bay_sizes: dict[str, tuple[float, float]] = {}
     for row in copied:
@@ -178,9 +182,9 @@ def sort_missile_range_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         copied,
         key=lambda row: (
             bay_order.get(str(row.get('bay') or ''), len(bay_order)),
-            -float(row.get('range_km') or 0.0),
             -float(row.get('length_m') or 0.0),
             -float(row.get('diameter_m') or 0.0),
+            -float(row.get('range_km') or 0.0),
             -float(row.get('warhead_kg') or 0.0),
             int(row.get('id') or 0),
         ),

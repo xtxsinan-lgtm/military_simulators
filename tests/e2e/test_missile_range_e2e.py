@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from itertools import groupby
 
 import pytest
 
@@ -10,6 +11,28 @@ from scripts.frontend_catalog import SIMULATORS, build_catalog_payload
 from utils.database_csv import load_aircraft_csv, load_carriers_csv
 from utils.missile_range.dataset import MISSILE_DATASET, all_missile_cases, evaluate_case
 from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV, ROOT
+
+
+def _assert_bays_sorted_by_size_then_range(cases: list[dict]) -> None:
+    """同一载机连续成组：先按尺寸从大到小，同尺寸内射程从高到低。"""
+    bays = [case['bay'] for case in cases]
+    seen: set[str] = set()
+    previous = None
+    for bay in bays:
+        if bay == previous:
+            continue
+        assert bay not in seen
+        seen.add(bay)
+        previous = bay
+    h6 = [case for case in cases if case['bay'] == '轰-6机腹']
+    assert len({(case['length_m'], case['diameter_m']) for case in h6}) >= 2
+    for _, bay_rows in groupby(cases, key=lambda case: case['bay']):
+        rows = list(bay_rows)
+        sizes = [(float(row['length_m']), float(row['diameter_m'])) for row in rows]
+        assert sizes == sorted(sizes, key=lambda size: (-size[0], -size[1]))
+        for _, size_rows in groupby(rows, key=lambda row: (float(row['length_m']), float(row['diameter_m']))):
+            ranges = [float(row['range_km']) for row in size_rows]
+            assert ranges == sorted(ranges, reverse=True)
 
 
 @pytest.mark.e2e
@@ -57,6 +80,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert any(s['id'] == 'missile_range' for s in SIMULATORS)
     assert payload['missile_range']['cases'][0]['bay'] == '1280垂发'
     assert payload['missile_range']['cases'][0]['range_km'] >= payload['missile_range']['cases'][1]['range_km']
+    _assert_bays_sorted_by_size_then_range(payload['missile_range']['cases'])
     assert 'type_labels' not in payload['missile_range']
     assert 'hgv_type' not in payload['missile_range']['defaults']
     assert payload['missile_range']['defaults']['ballistic_two_stage'] is True
@@ -69,6 +93,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert len(api['missile_range']['cases']) == len(all_missile_cases())
     assert api['missile_range']['cases'][0]['bay'] == '1280垂发'
     assert api['missile_range']['cases'][0]['range_km'] >= api['missile_range']['cases'][1]['range_km']
+    _assert_bays_sorted_by_size_then_range(api['missile_range']['cases'])
     class_ids = {item['id'] for item in api['missile_range']['classes']}
     assert {'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ballistic'} <= class_ids
     assert 'hgv' not in class_ids
