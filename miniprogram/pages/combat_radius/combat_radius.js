@@ -531,6 +531,9 @@ Page({
       mach_angle_deg: num(ac.mach_angle_deg, 0),
       wing_area_m2: num(ac.wing_area_m2, 0),
       type_label: ac.type_label || 'conventional',
+      aircraft_role: ac.aircraft_role || 'fighter',
+      wing_body_blend: !!ac.wing_body_blend,
+      sweep_kink_span_frac: num(ac.sweep_kink_span_frac, 0),
     };
   },
 

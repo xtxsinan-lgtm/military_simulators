@@ -33,6 +33,9 @@ struct CombatRadiusAircraftInput {
     var machAngleDeg = ""
     var wingAreaM2 = ""
     var typeLabel = ""
+    var aircraftRole = "fighter"
+    var wingBodyBlend = false
+    var sweepKinkSpanFrac = ""
 
     /// 按翼展、翼面积与空战重量覆盖展弦比和翼载荷。
     mutating func refreshDerived(
@@ -79,6 +82,9 @@ struct CombatRadiusAircraftInput {
         machAngleDeg = p.mach_angle_deg.map { String($0) } ?? ""
         wingAreaM2 = p.wing_area_m2.map { String($0) } ?? ""
         typeLabel = p.type_label ?? ""
+        aircraftRole = p.aircraft_role ?? "fighter"
+        wingBodyBlend = p.wing_body_blend ?? false
+        sweepKinkSpanFrac = p.sweep_kink_span_frac.map { String($0) } ?? ""
     }
 
     /// 转为 Python API 机型字典
@@ -114,6 +120,9 @@ struct CombatRadiusAircraftInput {
             "mach_angle_deg": Double(machAngleDeg) ?? 0,
             "wing_area_m2": Double(wingAreaM2) ?? 0,
             "type_label": typeLabel,
+            "aircraft_role": aircraftRole,
+            "wing_body_blend": wingBodyBlend,
+            "sweep_kink_span_frac": Double(sweepKinkSpanFrac) ?? 0,
         ]
     }
 }

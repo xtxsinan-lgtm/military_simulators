@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 81;
+const APP_VERSION = 82;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -182,6 +182,9 @@ function renderAircraftFields() {
       <label><input type="checkbox" id="tgt_rough"> 表面不平整（摩擦+形状阻力）</label>
     </div>
     <input id="tgt_type_label" type="hidden">
+    <input id="tgt_aircraft_role" type="hidden" value="fighter">
+    <input id="tgt_wing_body_blend" type="hidden" value="0">
+    <input id="tgt_sweep_kink" type="hidden" value="">
   `;
   $('tgt_planform').addEventListener('change', syncDoubleDeltaFields);
   syncDoubleDeltaFields();
@@ -270,6 +273,12 @@ function applyPresetToFields(preset) {
   $('tgt_vtail').value = preset.vtail_area_m2 != null ? preset.vtail_area_m2 : '';
   $('tgt_ventral').value = preset.ventral_fin_area_m2 != null ? preset.ventral_fin_area_m2 : '';
   if ($('tgt_type_label')) $('tgt_type_label').value = preset.type_label || '';
+  // 翼身融合没有表单项，但缺了它现场重算会按机身截面放大浸润，加力升限会假性下降
+  if ($('tgt_aircraft_role')) $('tgt_aircraft_role').value = preset.aircraft_role || 'fighter';
+  if ($('tgt_wing_body_blend')) $('tgt_wing_body_blend').value = preset.wing_body_blend ? '1' : '0';
+  if ($('tgt_sweep_kink')) {
+    $('tgt_sweep_kink').value = preset.sweep_kink_span_frac != null ? preset.sweep_kink_span_frac : '';
+  }
   applyWeightFromPreset(preset);
   syncDoubleDeltaFields();
   syncDerivedLoads();
@@ -403,6 +412,9 @@ function readAircraft() {
     mach_angle_deg: Number($('tgt_mach_angle').value),
     wing_area_m2: Number($('tgt_area').value),
     type_label: $('tgt_type_label') ? $('tgt_type_label').value : '',
+    aircraft_role: $('tgt_aircraft_role') ? ($('tgt_aircraft_role').value || 'fighter') : 'fighter',
+    wing_body_blend: !!($('tgt_wing_body_blend') && $('tgt_wing_body_blend').value === '1'),
+    sweep_kink_span_frac: Number($('tgt_sweep_kink') && $('tgt_sweep_kink').value) || 0,
   };
 }
 

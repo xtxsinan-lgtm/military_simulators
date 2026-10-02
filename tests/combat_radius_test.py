@@ -1170,6 +1170,71 @@ def test_run_aircraft_dashboard_includes_afterburner_best_altitudes():
     assert m08['reheat'] is False
 
 
+def test_xgb3_live_recalc_keeps_blend_so_lighter_payload_raises_ceiling():
+    """现场重算须带上翼身融合；减载弹的加力升限应高于满载，超音速点仍可飞。"""
+    from pathlib import Path
+
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+    from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
+    from utils.combat_radius.cruise_search import search_afterburner_ceiling
+    from utils.combat_radius.max_speed_search import ALT_COARSE_M, ALT_MAX_M, ALT_MIN_M, ALT_REFINE_M
+
+    ac = get_preset_by_id(load_presets(), 'XGB-3')
+    eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
+    full = dashboard_params_from_preset(ac, eng)
+
+    def live(missile_kg: float, *, blend: bool = True) -> dict:
+        """按三端现场请求组机型：几何来自预设，并显式带上翼身融合。"""
+        keys = (
+            'name', 'AR', 'sweep_deg', 'sweep_inner_deg', 'sweep_outer_deg', 'sweep_kink_span_frac',
+            'wing_loading', 'tc', 'planform', 'layout', 'inlet', 'store_mount', 'rough',
+            'length_m', 'wingspan_m', 'fuse_width_m', 'fuse_height_m',
+            'nose_cone_length_m', 'nose_cone_diameter_m', 'nose_length_m', 'nose_root_diameter_m',
+            'fuse_body_length_m', 'main_wing_area_m2', 'canard_htail_area_m2',
+            'ventral_fin_area_m2', 'vtail_area_m2', 'mach_angle_deg', 'wing_area_m2',
+            'type_label', 'aircraft_role', 'wing_body_blend',
+        )
+        tgt = {key: ac.get(key) for key in keys}
+        tgt['mach'] = 0.8
+        tgt['alt_m'] = 12000
+        tgt['wing_body_blend'] = blend
+        if not blend:
+            tgt['aircraft_role'] = 'fighter'
+        params = dict(full)
+        params['target'] = tgt
+        params['missile_mass_kg'] = missile_kg
+        params['n_missiles'] = 1
+        return params
+
+    def ceiling_m(params: dict, mach: float) -> float | None:
+        ctx, _tgt = _cruise_context_from_params(params)
+        ab = _optional_ab_context(ctx, params)
+        assert ab is not None
+        return search_afterburner_ceiling(
+            ab, mach, ALT_MIN_M, ALT_MAX_M, ALT_COARSE_M, ALT_REFINE_M, ceiling_margin=1.0,
+        )
+
+    full_08 = ceiling_m(full, 0.8)
+    light_08 = ceiling_m(live(8800.0), 0.8)
+    assert full_08 is not None and light_08 is not None
+    assert light_08 > full_08
+    full_15 = ceiling_m(full, 1.5)
+    light_15 = ceiling_m(live(8800.0), 1.5)
+    assert full_15 is not None and light_15 is not None
+    assert light_15 >= full_15
+    dropped_08 = ceiling_m(live(8800.0, blend=False), 0.8)
+    assert dropped_08 is not None and dropped_08 < full_08
+    assert ceiling_m(live(8800.0, blend=False), 1.5) is None
+
+    root = Path(__file__).resolve().parents[1]
+    web = (root / 'docs' / 'js' / 'combat_radius.js').read_text(encoding='utf-8')
+    mini = (root / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.js').read_text(encoding='utf-8')
+    ios = (root / 'ios' / 'CarrierTakeOff' / 'CombatRadiusViewModel.swift').read_text(encoding='utf-8')
+    assert 'wing_body_blend' in web and 'tgt_wing_body_blend' in web
+    assert 'wing_body_blend:' in mini
+    assert '"wing_body_blend"' in ios
+
+
 def test_xgb3_afterburner_best_altitude_is_below_cruise_floor():
     """中六极速在 11 km 以下，加力最佳高度不能被军推巡航地板整表判不可飞。"""
     from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
