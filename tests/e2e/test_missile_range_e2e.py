@@ -144,7 +144,7 @@ def test_e2e_missile_range_six_classes():
         if missile_class in ('ramjet', 'scramjet'):
             assert data['result']['isp_cruise_s'] > data['result']['isp_boost_s']
         if missile_class == 'scramjet':
-            assert data['result']['isp_cruise_s'] == pytest.approx(1150.0, abs=0.2)
+            assert data['result']['isp_cruise_s'] == pytest.approx(1450.0, abs=0.2)
         if missile_class == 'turbojet_subsonic':
             assert data['result']['isp_cruise_s'] == pytest.approx(2800.0, abs=0.2)
         if missile_class == 'ballistic':
@@ -176,9 +176,9 @@ def _estimate_via_api(missile_class, length, diameter, warhead, mach, height):
 
 @pytest.mark.e2e
 def test_e2e_russian_ramjet_and_dual_mode_anchors():
-    """API 上鹰击-15 高空约 800 km、约 1.5 t；涡喷与 3M54K 的掠海/全高空为 400/950。"""
+    """API 上鹰击-15 质量约 1.5 t，高空按偏乐观约 1140 km；涡喷与 3M54K 的掠海/全高空为 400/950。"""
     yj15 = _estimate_via_api('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
-    assert 770 <= yj15['range_high_km'] <= 830
+    assert 1050 <= yj15['range_high_km'] <= 1250
     assert abs(yj15['m_0_t'] - 1.50) <= 0.05
     kalibr = _estimate_via_api('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
     assert kalibr['range_high_km'] == 664.9

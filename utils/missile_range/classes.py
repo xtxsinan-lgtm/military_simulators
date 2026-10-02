@@ -224,11 +224,12 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         # （面密度、发动机系数、发动机密度同比例，发动机容积不变），
         # 空腔从 0.28 降到 0.14，让出的容积改装煤油和助推药，燃油质量比基本不动。
         # 超燃不共用这组系数：气道里没有固体药柱，体密度应更低。
-        # 质量与高空射程锚在鹰击-15：简氏外形约 6.5 m×0.50 m、战斗部 200 kg、
-        # Ma 0.9 @ 12 km 空射，公开估计约 1.5 t、高空约 800 km。
-        # 装填提高到 0.805 才够这发装到 1.5 t；鹰击-91 会因此略重于公开的 600 kg。
-        # 0.50 m 及以上共用这一代耗油率。更细的弹（Kh-31PD，Ma 1.5 @ 15 km，180–250 km）
-        # 按弹径加耗油，避免小弹跟着变远。
+        # 质量锚在鹰击-15：简氏外形约 6.5 m×0.50 m、战斗部 200 kg、
+        # Ma 0.9 @ 12 km 空射，公开估计约 1.5 t。装填 0.805 才够这发装到 1.5 t；
+        # 鹰击-91 会因此略重于公开的 600 kg。质量不跟着航程一起放宽。
+        # 航程与助推滑翔同一档乐观：公开高空约 800 km，这里用偏高的吸气比冲和升阻比，
+        # 同一发落到约 1100 km。0.50 m 及以上共用这一代耗油率。
+        # 更细的弹（Kh-31PD）按弹径加耗油，避免小弹跟着变远。
         'body_pack': 0.805,
         'areal': 40.9,
         'eng_coeff': 263.0,
@@ -236,7 +237,8 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'payload_density': 2800.0,
         'void_frac': 0.14,
         'fuel_density': 820.0,
-        'tsfc': 8.15e-5,
+        # 1500 s：煤油亚燃偏乐观的一档，高于按鹰击-15 公开 800 km 反推的约 1250 s。
+        'tsfc': 1.0 / (1500.0 * G0),
         'tsfc_ref_diameter_m': 0.50,
         'tsfc_diameter_exponent': 2.2,
         'tsfc_wide_exponent': 0.0,
@@ -245,44 +247,45 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'mach_takeover': 1.95,
         'mach_cruise': 2.8,
         'alt_km': 14.0,
-        'ld_base': 1.7,
-        'ld_slope': 0.08,
-        'ld_min': 2.1,
-        'ld_max': 2.85,
-        'eta': 0.18,
+        'ld_base': 1.95,
+        'ld_slope': 0.085,
+        'ld_min': 2.35,
+        'ld_max': 3.25,
+        'eta': 0.21,
         'reserve': 0.08,
-        'loss_frac': 0.16,
+        'loss_frac': 0.13,
         'accel_excess': 0.30,
         'fuel_floor_frac': 0.28,
         'sea_alt_km': 0.015,
         'sea_mach': 2.0,
         'sea_ld_factor': 0.38,
-        # 鹰击-15 高空约 800 km、全掠海约 120 km，掠海耗油按这个落差加重。
+        # 掠海耗油倍数仍按公开高空/掠海落差。比冲和升阻比抬高后，两边一起变长。
         'sea_tsfc_factor': 2.45,
     },
     'scramjet': {
-        # 煤油超燃在 Ma 6 的比冲约 1150 s，与亚燃约 1251 s 同一量级并略低。
-        # 航程优势来自巡航速度，不再把耗油率压到接近涡扇去凑 5000 km。
-        # 固定进气道容积让较小弹油箱更小。对照长剑-1000 的外形：地面发射、约 10 m × 1 m、巡航 Ma 6。
+        # 与助推滑翔同一档乐观，但仍是煤油超燃而不是涡扇：比冲 1450 s、巡航 Ma 6.8、
+        # 升阻比最高 4.3。同尺寸大弹仍短于助推滑翔，也不把耗油率压到去凑 5000 km 以上。
+        # 固定进气道容积让较小弹油箱更小，战斗机弹舱仍经常接不上设计马赫数。
+        # 对照长剑-1000 的外形：地面发射、约 10 m × 1 m。
         'body_pack': 0.74,
         'areal': 22.0,
         'eng_coeff': 120.0,
         'eng_density': 300.0,
         'payload_density': 1800.0,
         'void_frac': 0.04,
-        'fixed_void_m3': 0.85,
+        'fixed_void_m3': 0.65,
         'fuel_density': 840.0,
-        'tsfc': 1.0 / (1150.0 * G0),
+        'tsfc': 1.0 / (1450.0 * G0),
         'mach_takeover': 3.6,
-        'mach_cruise': 6.2,
+        'mach_cruise': 6.8,
         'alt_km': 36.0,
-        'ld_base': 2.4,
-        'ld_slope': 0.05,
-        'ld_min': 2.8,
-        'ld_max': 3.8,
-        'eta': 0.35,
+        'ld_base': 2.7,
+        'ld_slope': 0.055,
+        'ld_min': 3.1,
+        'ld_max': 4.3,
+        'eta': 0.40,
         'reserve': 0.08,
-        'loss_frac': 0.08,
+        'loss_frac': 0.06,
         'accel_excess': 0.45,
         'fuel_floor_frac': 0.42,
     },
