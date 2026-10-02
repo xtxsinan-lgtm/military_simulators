@@ -326,6 +326,7 @@ def test_evaluate_dataset_and_catalog():
     assert 'type_labels' not in payload
     assert payload['defaults']['missile_class'] == 'hgv_biconic'
     assert 'hgv_type' not in payload['defaults']
+    assert payload['defaults']['ballistic_two_stage'] is True
     assert {item['id'] for item in payload['classes']} >= {
         'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'turbofan_stealth',
         'turbojet_subsonic', 'turbofan_rocket', 'ballistic',
@@ -573,25 +574,51 @@ def test_geometry_and_breguet_helpers():
     assert packed['range_high_km'] is None
 
 
-def test_ballistic_warhead_is_a_cylinder_and_coast_drag_shrinks_thick_air():
-    """弹道战斗部按圆柱占长；大气滑行对低空、低弹道系数扣得更多。"""
+def test_ballistic_nose_holds_guidance_and_warhead():
+    """头锥按长径比占容积，制导和战斗部先扣锥内，装不下再占用后面的圆柱。"""
+    import math
+
     from utils.missile_range.classes import (
-        BALLISTIC_HEAD_LENGTH_CAP,
+        BALLISTIC_GUIDANCE_DENSITY_KG_M3,
+        BALLISTIC_NOSE_FINENESS,
+        BALLISTIC_WARHEAD_DENSITY_KG_M3,
+        ballistic_body_volume_m3,
         ballistic_coast_range_km,
+        ballistic_guidance_mass_kg,
         ballistic_head_lengths_m,
+        ballistic_nose_length_m,
         estimate_ballistic,
     )
     from utils.missile_range.estimate import head_and_booster_lengths_m, head_volume_m3, uncapped_head_length_m
 
-    cyl, boost = ballistic_head_lengths_m(4.0, 0.43, 91)
+    nose = ballistic_nose_length_m(4.0, 0.43)
+    assert nose == pytest.approx(BALLISTIC_NOSE_FINENESS * 0.43)
+    area = math.pi * (0.43 / 2.0) ** 2
+    cone = area * nose / 3.0
+    guidance = ballistic_guidance_mass_kg(0.43)
+    payload = 91 / BALLISTIC_WARHEAD_DENSITY_KG_M3 + guidance / BALLISTIC_GUIDANCE_DENSITY_KG_M3
+    assert payload > cone
+    head, boost, guide = ballistic_head_lengths_m(4.0, 0.43, 91)
+    assert guide == pytest.approx(guidance)
+    assert head == pytest.approx(nose + (payload - cone) / area, abs=0.01)
+    assert head > nose
     bi, _ = head_and_booster_lengths_m(4.0, 0.43, 91, 'biconic')
-    assert cyl < bi
-    assert cyl == pytest.approx(0.50, abs=0.02)
-    assert boost == pytest.approx(4.0 - cyl)
+    assert head < bi
+    assert boost == pytest.approx(4.0 - head)
+    full = math.pi * (0.43 / 2.0) ** 2 * 4.0
+    assert ballistic_body_volume_m3(4.0, 0.43) == pytest.approx(full - area * nose * 2.0 / 3.0)
+    assert ballistic_guidance_mass_kg(0.9) > ballistic_guidance_mass_kg(0.3)
     raw_bi = uncapped_head_length_m(head_volume_m3(90, 'biconic'), 0.227, 'biconic')
     assert raw_bi > 3.96
-    gmlrs_head, _ = ballistic_head_lengths_m(3.96, 0.227, 90)
-    assert gmlrs_head == pytest.approx(3.96 * BALLISTIC_HEAD_LENGTH_CAP, abs=0.01)
+    gmlrs_head, _, _ = ballistic_head_lengths_m(3.96, 0.227, 90)
+    assert gmlrs_head > ballistic_nose_length_m(3.96, 0.227)
+    assert gmlrs_head < 3.96 * 0.65
+    with pytest.raises(ValueError):
+        ballistic_nose_length_m(0, 0.4)
+    with pytest.raises(ValueError):
+        ballistic_guidance_mass_kg(0)
+    with pytest.raises(ValueError):
+        ballistic_body_volume_m3(4, 0)
     with pytest.raises(ValueError):
         ballistic_head_lengths_m(0, 0.4, 10)
     with pytest.raises(ValueError):
@@ -608,8 +635,15 @@ def test_ballistic_warhead_is_a_cylinder_and_coast_drag_shrinks_thick_air():
     with pytest.raises(ValueError):
         ballistic_coast_range_km(100, 100, 0, 0, 0.5)
 
-    # 同一外形若仍按双锥、且不计滑行阻力，短弹保持改圆柱之前的射程。
-    legacy = estimate_ballistic(4.8, 0.40, 200, 0, 0, 264, 1760, warhead_section='biconic', coast_drag=False)
+    default_stage = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
+    assert default_stage['range_km'] == 499.0
+    assert '两级' in default_stage['note']
+
+    # 同一外形若显式保留单级、且不计滑行阻力，短弹保持改默认前的射程。
+    legacy = estimate_ballistic(
+        4.8, 0.40, 200, 0, 0, 264, 1760,
+        warhead_section='biconic', coast_drag=False, two_stage=False,
+    )
     assert legacy['range_km'] == 187.4
     gmlrs = estimate_ballistic(3.96, 0.227, 90, 0, 0, 264, 1760)
     assert 70.0 <= gmlrs['range_km'] <= 92.0
@@ -643,8 +677,8 @@ def test_six_classes_ranges_and_profiles():
 
     scram = estimate_ducted('scramjet', 9.2, 0.7, 180, 0.85, 12, 264, 1760)
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
-    assert scram['range_km'] == 2265.0
-    assert scram['cruise_mach'] == 6.8
+    assert scram['range_km'] == 1922.8
+    assert scram['cruise_mach'] == 5.2
     assert ram['range_km'] == 1823.7
     assert ram['v_burnout_mach'] == 2.8
     assert scram['range_sea_km'] is None
@@ -661,12 +695,12 @@ def test_six_classes_ranges_and_profiles():
 
     short = estimate_ballistic(4.8, 0.40, 200, 0, 0, 264, 1760)
     long = estimate_ballistic(11.2, 0.88, 980, 0, 0, 264, 1760)
-    assert short['range_km'] == 222.4
-    assert long['range_km'] == 539.9
+    assert short['range_km'] == 223.9
+    assert long['range_km'] == 511.0
     assert long['range_km'] > short['range_km']
-    assert '不含滑翔' in long['note']
-    assert '圆柱战斗部' in long['note']
-    # PrSM Increment 1：4.0 m × 0.43 m、战斗部 91 kg、地面发射，公开射程 499 km
+    assert '两级' in long['note']
+    assert '头锥扣除制导与战斗部' in long['note']
+    # PrSM Increment 1：4.0 m × 0.43 m、战斗部 91 kg、地面发射，默认两级时约 485 km
     prsm = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
     assert prsm['range_km'] == 499.0
     same = dict(length_m=10.5, diameter_m=1.1, warhead_mass_kg=200, v_launch_mach=0.85, h_launch_km=13.0)
@@ -843,9 +877,9 @@ def test_j15_wing_presets_stay_inside_pylon_box():
     expected = {
         'hgv_biconic': (6.50, 0.5873, 300),
         'hgv_waverider': (6.50, 0.5873, 300),
-        'scramjet': (6.35, 0.6999, 300),
+        'scramjet': (4.44, 0.684, 300),
         'ramjet': (5.46, 0.5006, 500),
-        'ballistic': (4.15, 0.6129, 500),
+        'ballistic': (6.50, 0.5480, 500),
         'turbofan_stealth': (6.50, 0.5727, 500),
         'turbojet_subsonic': (6.50, 0.6244, 500),
         'turbofan_rocket': (6.50, 0.4962, 500),
@@ -883,7 +917,7 @@ def test_airbreathing_range_model_differs_from_boost_and_ballistic():
     assert ballistic.get('range_sea_km') is None
     assert '不含滑翔' in ballistic['note']
     assert scram['range_sea_km'] is None
-    assert scram['cruise_alt_km'] == 36.0
+    assert scram['cruise_alt_km'] == 24.0
     assert ram['cruise_alt_km'] == 14.0
     assert scram.get('m_wing_kg') is None
     assert ram['range_high_km'] > ram['range_sea_km'] > 0
@@ -937,7 +971,8 @@ def test_ramjet_launch_mass_matches_yj91():
     fighter = estimate_by_class('ramjet', 4.25, 0.34, 90, 2.2, 19.0)
     assert fighter['m_0_t'] == pytest.approx(0.52, abs=0.03)
     scram = estimate_by_class('scramjet', 4.7, 0.36, 90, 0.9, 10.0)
-    assert scram['m_0_t'] < 0.40
+    # 固冲一体比空心气道重，隔离段又让它轻于同一外形的亚燃。
+    assert 0.45 <= scram['m_0_t'] < yj91['m_0_t']
 
 
 def test_surface_static_launch_pays_booster_and_drag():
@@ -984,10 +1019,10 @@ def test_surface_static_launch_pays_booster_and_drag():
     prsm = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
     assert prsm['range_km'] == 499.0
     iskander = estimate_ballistic(7.3, 0.92, 480, 0, 0, 264, 1760)
-    assert 420 <= iskander['range_km'] <= 620
+    assert 480 <= iskander['range_km'] <= 560
     df15 = estimate_ballistic(9.1, 1.0, 500, 0, 0, 264, 1760)
-    assert 520 <= df15['range_km'] <= 800
-    assert '单级' in df15['note']
+    assert 720 <= df15['range_km'] <= 840
+    assert '两级' in df15['note']
 
 
 def test_stealth_pentagon_section_is_lighter_than_a_circle():
@@ -1054,7 +1089,7 @@ def test_duct_cruise_tsfc_penalizes_narrow_ramjets():
     oniks = duct_cruise_tsfc('ramjet', 0.70, ram)
     wide = duct_cruise_tsfc('ramjet', 1.20, ram)
     assert narrow > yj15 == oniks == wide == pytest.approx(1.0 / (1500.0 * 9.80665))
-    assert duct_cruise_tsfc('scramjet', 0.36, _DUCT_SPECS['scramjet']) == pytest.approx(1.0 / (1450.0 * 9.80665))
+    assert duct_cruise_tsfc('scramjet', 0.36, _DUCT_SPECS['scramjet']) == pytest.approx(1.0 / (1200.0 * 9.80665))
     assert duct_cruise_tsfc('ramjet', 0.50, {'tsfc': 1.0e-4}) == pytest.approx(1.0e-4)
     with pytest.raises(ValueError):
         duct_cruise_tsfc('ramjet', 0, ram)
@@ -1140,17 +1175,17 @@ def test_public_airbreathing_ranges_match_open_sources():
     from_major = estimate_by_class('turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0)
     assert from_major['m_0_t'] == lrasm['m_0_t']
     assert from_major['range_high_km'] == lrasm['range_high_km']
-    # 10 m 级煤油超燃比冲 1450 s、巡航 Ma 6.8。地面发射大约 3300 km，仍低于 5000 km。
+    # 10 m 级煤油双模超燃比冲 1200 s、巡航 Ma 5.2。地面发射大约 2100 km，仍低于 5000 km。
     cj = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
-    assert cj['isp_cruise_s'] == pytest.approx(1450.0, abs=0.2)
-    assert 2800 <= cj['range_km'] <= 3800
-    assert cj['cruise_mach'] >= 6.5
+    assert cj['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
+    assert 1800 <= cj['range_km'] <= 2400
+    assert cj['cruise_mach'] == pytest.approx(5.2, abs=0.05)
     big_vls = estimate_by_class('scramjet', 11.5, 1.2, 500, 0.0, 0.0)
-    assert big_vls['cruise_mach'] >= 6.0
+    assert big_vls['cruise_mach'] == pytest.approx(5.2, abs=0.05)
     assert big_vls['range_km'] > cj['range_km']
     small = estimate_by_class('scramjet', 6.35, 0.51, 160, 0.0, 0.0)
     assert small['range_km'] > 0
-    assert small['cruise_mach'] < 4.0
+    assert small['cruise_mach'] == pytest.approx(5.2, abs=0.05)
     tube_ram = estimate_by_class('ramjet', 6.35, 0.51, 160, 0.0, 0.0)
     assert tube_ram['range_km'] < brahmos['range_km']
 
@@ -1163,11 +1198,11 @@ def test_optimistic_duct_ranges_stay_below_same_size_hgv():
     hgv = estimate_by_class('hgv_biconic', **geom)
     scram = estimate_by_class('scramjet', **geom)
     ram = estimate_by_class('ramjet', **geom)
-    assert scram['isp_cruise_s'] == pytest.approx(1450.0, abs=0.2)
+    assert scram['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
     assert ram['isp_cruise_s'] == pytest.approx(1500.0, abs=0.2)
-    assert scram['cruise_mach'] == pytest.approx(6.8, abs=0.05)
+    assert scram['cruise_mach'] == pytest.approx(5.2, abs=0.05)
     assert hgv['range_km'] > scram['range_km'] > ram['range_km']
-    assert scram['range_km'] > 4500
+    assert scram['range_km'] > 2500
     assert ram['range_km'] > 2200
     small = estimate_by_class('scramjet', 4.25, 0.345, 90, 2.2, 19.0)
     assert small['cruise_mach'] < 4.0
@@ -1222,17 +1257,55 @@ def test_same_tube_glide_outranges_ballistic_and_combo_keeps_turbofan_isp():
 
 
 def test_scramjet_without_takeover_coasts_instead_of_cruising():
-    """接不上设计马赫数时不再按 36 km 巡航，射程短于同一管子里已经接入的亚燃。"""
+    """接不上亚燃接力时只计弹道弧；油不够转入超燃时按亚燃模态巡航。"""
     from utils.missile_range.classes import estimate_by_class
 
+    tiny = estimate_by_class('scramjet', 4.7, 0.36, 90, 0.9, 10.0)
+    assert tiny['range_cruise_km'] == 0.0
+    assert tiny['cruise_alt_km'] < 20.0
+    assert '未接入' in tiny['note']
+    fighter = estimate_by_class('scramjet', 4.25, 0.345, 90, 2.2, 19.0)
+    assert '亚燃模态' in fighter['note']
+    assert fighter['cruise_alt_km'] == 18.0
+    assert fighter['cruise_mach'] < 4.0
+    assert fighter['range_cruise_km'] > 0
+    assert fighter['isp_cruise_s'] == pytest.approx(1350.0, abs=0.2)
     tube = dict(length_m=6.35, diameter_m=0.51, warhead_mass_kg=160, v_launch_mach=0.0, h_launch_km=0.0)
     scram = estimate_by_class('scramjet', **tube)
     ram = estimate_by_class('ramjet', **tube)
-    assert scram['cruise_mach'] < 4.0
-    assert scram['cruise_alt_km'] < 20.0
-    assert scram['range_cruise_km'] == 0.0
-    assert '未接入' in scram['note']
+    assert scram['cruise_mach'] == pytest.approx(5.2, abs=0.05)
     assert 0 < scram['range_km'] < ram['range_km']
+
+
+def test_dual_mode_flight_keeps_ram_when_accel_fuel_is_too_large():
+    """亚燃加速吃掉太多燃油时停在亚燃；油够时才按超燃巡航速度加速。"""
+    from utils.missile_range.classes import accel_fuel_for_dv, dual_mode_flight
+
+    assert accel_fuel_for_dv(1000, 0.5, 1200, 0.55) == 0.0
+    slow = accel_fuel_for_dv(1000, 400, 1200, 0.55)
+    fast = accel_fuel_for_dv(1000, 800, 1200, 0.55)
+    thirsty = accel_fuel_for_dv(1000, 800, 900, 0.55)
+    assert fast > slow > 0
+    assert thirsty > fast
+    with pytest.raises(ValueError):
+        accel_fuel_for_dv(0, 10, 1200, 0.5)
+    with pytest.raises(ValueError):
+        accel_fuel_for_dv(1000, -1, 1200, 0.5)
+
+    ram = dual_mode_flight(800, 40, 700, 1400, 1600, 1350, 1200, 0.55)
+    assert ram['mode'] == 'ram'
+    assert ram['cruise_speed_m_s'] == 700
+    assert ram['accel_fuel_kg'] == 0.0
+    assert ram['cruise_isp_s'] == 1350
+    scram = dual_mode_flight(2000, 800, 700, 900, 1100, 1350, 1200, 0.55)
+    assert scram['mode'] == 'scram'
+    assert scram['cruise_speed_m_s'] == 1100
+    assert scram['accel_fuel_kg'] > 0
+    assert scram['cruise_isp_s'] == 1200
+    with pytest.raises(ValueError):
+        dual_mode_flight(0, 10, 100, 200, 300, 1000, 1000, 0.5)
+    with pytest.raises(ValueError):
+        dual_mode_flight(1000, 100, 100, 300, 200, 1000, 1000, 0.5)
 
 
 def test_isp_from_tsfc_round_trip():
@@ -1284,7 +1357,7 @@ def test_airbreathing_stage_isp_splits_booster_and_cruise():
     assert fan['isp_cruise_s'] > jet['isp_cruise_s'] > 264
     assert jet['isp_cruise_s'] == pytest.approx(2800.0, abs=0.2)
     assert 1.6 <= fan['isp_cruise_s'] / jet['isp_cruise_s'] <= 2.0
-    assert scram['isp_cruise_s'] == pytest.approx(1450.0, abs=0.2)
+    assert scram['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
     assert scram['isp_cruise_s'] < ram['isp_cruise_s']
     assert fan['isp_boost_s'] == SUBSONIC_BOOSTER_ISP_S
     assert combo['isp_rocket_s'] == 264

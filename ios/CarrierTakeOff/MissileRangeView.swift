@@ -48,6 +48,11 @@ struct MissileRangeView: View {
                     if vm.showAirIsp {
                         field("吸气比冲 (s)", text: $vm.ispAir)
                     }
+                    if vm.missileClass == "ballistic" {
+                        Toggle("是否两级", isOn: $vm.ballisticTwoStage)
+                            .font(.system(size: 13, design: .monospaced))
+                            .foregroundStyle(MissileRangeTheme.text)
+                    }
                     field("推进剂密度 (kg/m³)", text: $vm.density)
                     Button {
                         Task { await vm.estimate() }

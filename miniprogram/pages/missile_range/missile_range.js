@@ -50,6 +50,8 @@ Page({
     ispS: '264',
     ispAir: '',
     showAirIsp: false,
+    ballisticTwoStage: true,
+    showBallisticTwoStage: false,
     density: '1760',
     activeId: null,
     result: null,
@@ -77,6 +79,7 @@ Page({
           caseNames: cases.map((row) => row.name),
           ispS: defaults.isp_s != null ? String(defaults.isp_s) : '264',
           density: defaults.propellant_density != null ? String(defaults.propellant_density) : '1760',
+          ballisticTwoStage: defaults.ballistic_two_stage !== false,
           statusText: 'STANDBY',
         });
         this.applyCase(cases[0]);
@@ -91,11 +94,14 @@ Page({
     const classIndex = Math.max(0, classes.findIndex((item) => item.id === missileClass));
     const found = classes[classIndex];
     const showAir = !!(found && found.isp_cruise_s != null);
+    const showBallistic = missileClass === 'ballistic';
     this.setData({
       classIndex: found ? classIndex : 0,
       classBlurb: (found && found.blurb) || this.data.classBlurb,
       showAirIsp: showAir,
       ispAir: showAir ? String(found.isp_cruise_s) : '',
+      showBallisticTwoStage: showBallistic,
+      ballisticTwoStage: showBallistic ? true : this.data.ballisticTwoStage,
     });
   },
 
@@ -111,6 +117,7 @@ Page({
       vMach: String(row.v_mach),
       hKm: String(row.h_km),
       activeId: row.id,
+      ballisticTwoStage: row.missile_class === 'ballistic',
       result: {
         range_km: row.range_km,
         range_high_km: row.range_high_km,
@@ -149,6 +156,10 @@ Page({
     this.setData({ [key]: e.detail.value });
   },
 
+  onBallisticTwoStageChange(e) {
+    this.setData({ ballisticTwoStage: !!e.detail.value });
+  },
+
   onTapRow(e) {
     const id = Number(e.currentTarget.dataset.id);
     const row = this.data.rows.find((item) => item.id === id)
@@ -170,6 +181,7 @@ Page({
         h_launch_km: num(this.data.hKm, 13),
         isp_s: num(this.data.ispS, 264),
         propellant_density: num(this.data.density, 1760),
+        ballistic_two_stage: !!this.data.ballisticTwoStage,
       },
     };
     if (this.data.showAirIsp) payload.params.isp_air_s = num(this.data.ispAir, 0);

@@ -59,6 +59,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert payload['missile_range']['cases'][0]['range_km'] >= payload['missile_range']['cases'][1]['range_km']
     assert 'type_labels' not in payload['missile_range']
     assert 'hgv_type' not in payload['missile_range']['defaults']
+    assert payload['missile_range']['defaults']['ballistic_two_stage'] is True
     assert (ROOT / 'data' / 'missile_range_preset_database.csv').is_file()
 
     status, _, body = handle_request('GET', '/api/data', None)
@@ -78,6 +79,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'missileClass' in html
     assert 'hgvType' not in html
     assert '构型' not in html
+    assert '是否两级' in html
     assert 'run_missile_range_json' in js
     assert 'utils/database_csv.py' in js
     assert 'data/missile_range_preset_database.csv' in js
@@ -100,12 +102,14 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '载机' in view
     assert '折叠弹翼' in view
     assert '吸气比冲' in view
+    assert '是否两级' in view
     mini_js = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.js').read_text(encoding='utf-8')
     assert 'missile_class' in mini_js
     mini_wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
     assert '载机' in mini_wxml
     assert '折叠弹翼' in mini_wxml
     assert '吸气比冲' in mini_wxml
+    assert '是否两级' in mini_wxml
 
 
 @pytest.mark.e2e
@@ -147,7 +151,8 @@ def test_e2e_missile_range_six_classes():
         if missile_class in ('ramjet', 'scramjet'):
             assert data['result']['isp_cruise_s'] > data['result']['isp_boost_s']
         if missile_class == 'scramjet':
-            assert data['result']['isp_cruise_s'] == pytest.approx(1450.0, abs=0.2)
+            assert data['result']['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
+            assert '亚燃加速' in data['result']['note']
         if missile_class == 'turbojet_subsonic':
             assert data['result']['isp_cruise_s'] == pytest.approx(2800.0, abs=0.2)
         if missile_class == 'ballistic':
@@ -203,14 +208,33 @@ def test_e2e_russian_ramjet_and_dual_mode_anchors():
 
 @pytest.mark.e2e
 def test_e2e_ballistic_cylinder_warhead_matches_published_rockets():
-    """普通弹道用圆柱战斗部：PrSM 仍为 499 km，GMLRS 落在 70–92 km。"""
+    """普通弹道用头锥扣制导和战斗部：默认两级时 PrSM 为 499 km，GMLRS 落在 70–92 km。"""
     prsm = _estimate_via_api('ballistic', 4.0, 0.43, 91, 0.0, 0.0)
     assert prsm['range_km'] == 499.0
-    assert prsm['l_head_m'] == pytest.approx(0.50, abs=0.02)
-    assert '圆柱战斗部' in prsm['note']
+    assert prsm['l_head_m'] == pytest.approx(1.35, abs=0.02)
+    assert '两级' in prsm['note']
+    assert '头锥扣除制导与战斗部' in prsm['note']
     gmlrs = _estimate_via_api('ballistic', 3.96, 0.227, 90, 0.0, 0.0)
     assert 70.0 <= gmlrs['range_km'] <= 92.0
-    assert gmlrs['l_head_m'] < 2.0
+    assert gmlrs['l_head_m'] > 0.5
+    payload = {
+        'action': 'estimate',
+        'params': {
+            'missile_class': 'ballistic',
+            'length_m': 4.0,
+            'diameter_m': 0.43,
+            'warhead_kg': 91,
+            'v_launch_mach': 0.0,
+            'h_launch_km': 0.0,
+            'ballistic_two_stage': False,
+        },
+    }
+    status, _, body = handle_request('POST', '/api/missile_range/simulate', json.dumps(payload).encode())
+    assert status == 200
+    legacy = json.loads(body.decode())
+    assert legacy['success'] is True
+    assert legacy['result']['range_km'] == 410.5
+    assert '单级' in legacy['result']['note']
 
 
 @pytest.mark.e2e

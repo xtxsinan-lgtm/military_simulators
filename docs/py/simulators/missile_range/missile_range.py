@@ -41,6 +41,11 @@ def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
     try:
         isp = opt_float(params.get('isp_s'), DEFAULT_ISP_S)
         density = opt_float(params.get('propellant_density'), DEFAULT_PROPELLANT_DENSITY)
+        ballistic_two_stage_raw = params.get('ballistic_two_stage', True)
+        if isinstance(ballistic_two_stage_raw, str):
+            ballistic_two_stage = ballistic_two_stage_raw.strip().lower() not in {'', '0', 'false', 'no', 'off'}
+        else:
+            ballistic_two_stage = bool(ballistic_two_stage_raw)
         result = estimate_by_class(
             missile_class=str(params.get('missile_class') or 'hgv_biconic'),
             length_m=_required_float(params, 'length_m'),
@@ -51,6 +56,7 @@ def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
             isp_s=isp,
             propellant_density=density,
             isp_air_s=opt_optional_float(params.get('isp_air_s')),
+            ballistic_two_stage=ballistic_two_stage,
         )
         rows = evaluate_dataset(isp_s=isp, propellant_density=density)
     except (TypeError, ValueError) as exc:

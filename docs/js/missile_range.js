@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 22;
+const APP_VERSION = 23;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -68,6 +68,7 @@ function readForm() {
     h_launch_km: num('hKm', 13),
     isp_s: num('ispS', 264),
     propellant_density: num('density', 1760),
+    ballistic_two_stage: $('ballisticTwoStage').checked,
   };
   if (!$('ispAirField').hidden) params.isp_air_s = num('ispAir', 0);
   return params;
@@ -82,11 +83,18 @@ function syncClassUi() {
   const found = classList().find((item) => item.id === id);
   if (found && found.blurb) $('classBlurb').textContent = found.blurb;
   const air = $('ispAirField');
+  const ballistic = $('ballisticTwoStageField');
   if (found && found.isp_cruise_s != null) {
     air.hidden = false;
     $('ispAir').value = found.isp_cruise_s;
   } else {
     air.hidden = true;
+  }
+  if (id === 'ballistic') {
+    ballistic.hidden = false;
+    $('ballisticTwoStage').checked = true;
+  } else {
+    ballistic.hidden = true;
   }
 }
 
@@ -112,6 +120,7 @@ function fillForm(row) {
   $('warheadKg').value = row.warhead_kg;
   $('vMach').value = row.v_mach;
   $('hKm').value = row.h_km;
+  $('ballisticTwoStage').checked = row.missile_class === 'ballistic';
   activeId = row.id;
   syncClassUi();
 }
@@ -326,6 +335,7 @@ async function main() {
   const defaults = block.defaults || {};
   if (defaults.isp_s != null) $('ispS').value = defaults.isp_s;
   if (defaults.propellant_density != null) $('density').value = defaults.propellant_density;
+  if (defaults.ballistic_two_stage != null) $('ballisticTwoStage').checked = !!defaults.ballistic_two_stage;
   fillClassSelect();
   fillPresetSelect();
   renderTable();

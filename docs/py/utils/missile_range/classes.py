@@ -4,13 +4,14 @@
 带助推器的吸气弹把比冲拆成两段：助推用固体比冲，巡航用吸气比冲。
 全高空与全掠海只改巡航高度、升阻比和耗油率。
 低速发射的亚音速弹先扣一截可抛弃固体助推器，助推器占燃油舱、不带进巡航质量。
-冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。接不上设计马赫数时只计助推后的弹道弧。
-亚燃高空大约是掠海的 2 到 2.5 倍。亚燃在 10 km 以下按稠密大气加大助推损失。
+冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。接不上接力马赫数时只计助推后的弹道弧。
+超燃按固冲一体装填，燃烧室是双模：固体药柱铸在燃烧室里，先以亚燃模态接力并加速，再转入超燃巡航。
+到不了超燃转级就按亚燃模态巡航。亚燃高空大约是掠海的 2 到 2.5 倍。亚燃和双模超燃在 10 km 以下按稠密大气加大助推损失。
 亚超结合的巡航比冲与涡扇同一档，末端固体火箭另计。
-普通弹道导弹的战斗部按圆柱截面占弹长，不再用双锥滑翔体的容积系数。
-助推段不足 9 m 按单级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
+普通弹道导弹只在前方用头锥：按长径比算圆锥容积，制导和战斗部从弹体容积里扣，其余才是圆柱发动机。
+弹道弹是否两级由显式开关控制，默认两级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
 关机后的真空弹道再按弹道系数折减大气滑行阻力。
-轻型战术弹推重比更高，地面 4 m 级用 PrSM 的 499 km 标定。
+轻型战术弹推重比更高，地面 4 m 级默认两级时按 PrSM 的约 485 km 标定。
 """
 from __future__ import annotations
 
@@ -41,11 +42,8 @@ BOOST_FILL = 0.76
 TERMINAL_FILL = 0.78
 TERMINAL_PMF = 0.85
 BOOST_CASE_FRAC = 0.12
-# 助推段达到这一长度才按两级。圆柱战斗部比双锥短，东风-15 的助推段约 8.7 m，
-# 仍按单级；850 垂发更短。9 m 以上才分成两级。
-BALLISTIC_TWO_STAGE_M = 9.0
 # 重型弹道弹起飞推重比。轻弹按质量再加上一截：战术固体火箭燃烧更短。
-# 4.0 m × 0.43 m、战斗部 91 kg、地面静止发射，标定到 PrSM 公开射程 499 km。
+# 4.0 m × 0.43 m、战斗部 91 kg、地面静止发射，默认两级时标定到 PrSM 的约 485 km。
 BALLISTIC_TWR_HEAVY = 2.30
 BALLISTIC_TWR_LIGHT_EXTRA = 2.4
 BALLISTIC_TWR_SCALE_KG = 1400.0
@@ -60,13 +58,19 @@ BALLISTIC_DRAG_SCALE_KM = 8.5
 # 略高于 PrSM 的 42.2 s，标定弹本身不再多扣。
 BALLISTIC_LONG_BURN_S = 43.0
 BALLISTIC_LONG_BURN_DRAG_M_S = 16.0
-# 战斗部当量密度与双锥滑翔体同一数值，截面改按满直径圆柱。
-BALLISTIC_HEAD_DENSITY_KG_M3 = 1800.0
-# 战斗部再重也最多占全长的这一比例，其余留给发动机。
-BALLISTIC_HEAD_LENGTH_CAP = 0.45
+# 头锥长径比。圆锥半角约 11°，只占弹头前方，后面的发动机仍是圆柱。
+BALLISTIC_NOSE_FINENESS = 2.5
+# 战斗部（炸药和壳体）当量密度。制导舱更疏，按封装密度另计。
+BALLISTIC_WARHEAD_DENSITY_KG_M3 = 1650.0
+BALLISTIC_GUIDANCE_DENSITY_KG_M3 = 900.0
+# 制导与舵机：电子舱有一个下限，其余随截面积。
+BALLISTIC_GUIDANCE_FLOOR_KG = 10.0
+BALLISTIC_GUIDANCE_AREA_KG_M2 = 160.0
+# 头锥加战斗部舱最长占全长的这一比例，其余留给发动机。
+BALLISTIC_HEAD_LENGTH_CAP = 0.65
 # 关机后大气滑行。动压高、弹道系数低、关机高度低的弹减得多。
-# 系数使 4.0 m × 0.43 m、战斗部 91 kg 的地面发射仍为 PrSM 的 499 km。
-BALLISTIC_COAST_K = 0.001309
+# 系数使 4.0 m × 0.43 m、战斗部 91 kg 的地面发射在默认两级时为 PrSM 的 499 km。
+BALLISTIC_COAST_K = 0.0011945
 # 亚音速发动机接力马赫数。更慢的发射要带可抛弃固体助推器。
 SUBSONIC_TAKEOVER_MACH = 0.62
 SUBSONIC_BOOSTER_ISP_S = 235.0
@@ -76,9 +80,14 @@ ISP_MATCH_TOL_S = 0.25
 SUBSONIC_BOOSTER_LOSS = 0.45
 # 药柱只有一部分挤占燃油舱，喷管和尾裙落在油箱以外。
 BOOSTER_TANK_SHARE = 0.50
-# 亚燃助推损失在 10 km 标定高度以上不变；海平面提高到约 1.8 倍。超燃地面发射是另一条标定，不加。
+# 亚燃助推损失在 10 km 标定高度以上不变；海平面提高到约 1.8 倍。
+# 双模超燃的固体助推也只推到亚燃接力，地面发射同样加这段损失。
 RAMJET_LOSS_REF_KM = 10.0
 RAMJET_SURFACE_LOSS_GAIN = 0.80
+# 双模加速：亚燃段单独吃掉这一比例以上的燃油，就不再转入超燃。
+DUAL_MODE_RAM_FUEL_CAP = 0.55
+# 加速耗油不超过全部燃油的这一比例，和单模态冲压同一条上限。
+DUAL_MODE_ACCEL_CAP = 0.65
 TERMINAL_COAST_CAP_M = 150000.0
 RHO_SEA_KG_M3 = 1.225
 TERMINAL_CD = 0.40
@@ -97,7 +106,7 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'scramjet',
         'label': '超燃冲压导弹',
-        'blurb': '固体火箭助推到接力马赫数，超燃冲压在高空巡航。助推用固体比冲，巡航用更高的吸气比冲，两段分开算。进气道与燃烧室占去大量容积。',
+        'blurb': '固冲一体双模：药柱铸在燃烧室里，固体火箭先推到亚燃接力，再加速转入超燃巡航。助推、亚燃加速和超燃巡航三段比冲分开算。进气道和隔离段占去容积。',
     },
     {
         'id': 'ramjet',
@@ -122,7 +131,7 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'ballistic',
         'label': '普通弹道导弹',
-        'blurb': '按圆柱战斗部估算固体装药。空射仍扣除燃烧段重力损失，关机后取最优弹道弧并计入大气滑行阻力，不含滑翔增程。',
+        'blurb': '头锥按长径比占一段容积，制导和战斗部从弹体容积扣除，其余装固体药。关机后取最优弹道弧并计入大气滑行阻力，不含滑翔增程。',
     },
 ]
 
@@ -233,7 +242,7 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         # 只按蒙皮外推时这一发只有约 460 kg。壳体与进气道改按 1.46 倍计
         # （面密度、发动机系数、发动机密度同比例，发动机容积不变），
         # 空腔从 0.28 降到 0.14，让出的容积改装煤油和助推药，燃油质量比基本不动。
-        # 超燃不共用这组系数：气道里没有固体药柱，体密度应更低。
+        # 超燃也是固冲一体，但隔离段更长、巡航点更高，不共用这组亚燃质量锚。
         # 质量锚在鹰击-15：简氏外形约 6.5 m×0.50 m、战斗部 200 kg、
         # Ma 0.9 @ 12 km 空射，公开估计约 1.5 t。装填 0.805 才够这发装到 1.5 t；
         # 鹰击-91 会因此略重于公开的 600 kg。质量不跟着航程一起放宽。
@@ -274,31 +283,38 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'sea_tsfc_factor': 1.30,
     },
     'scramjet': {
-        # 与助推滑翔同一档乐观，但仍是煤油超燃而不是涡扇：比冲 1450 s、巡航 Ma 6.8、
-        # 升阻比最高 4.3。同尺寸大弹仍短于助推滑翔，也不把耗油率压到去凑 5000 km 以上。
-        # 固定进气道容积让较小弹油箱更小，战斗机弹舱仍经常接不上设计马赫数。
-        # 对照长剑-1000 的外形：地面发射、约 10 m × 1 m。
-        'body_pack': 0.74,
-        'areal': 22.0,
-        'eng_coeff': 120.0,
-        'eng_density': 300.0,
-        'payload_density': 1800.0,
-        'void_frac': 0.04,
-        'fixed_void_m3': 0.65,
+        # 固冲一体：药柱铸在燃烧室，和亚燃一样与煤油分同一块能源容积。
+        # 进气道按空腔留出，发动机按金属密度，避免空腔扣两次。
+        # 双模先在约 Ma 2.4 以亚燃接力，加速到约 Ma 4.8 后转超燃。
+        # 煤油双模的航程最优点在刚转入超燃的 Ma 5.2、24 km，比冲约 1200 s。
+        # 再往上推到 Ma 6，加速耗油会把巡航油吃掉，同尺寸反而短于亚燃。
+        # 亚燃加速比冲 1350 s。不再把接力放在 Ma 3.6，也不再用空心气道。
+        # 隔离段固定占 0.22 m³，比原来的 0.65 m³ 小，因为药柱占的是燃烧室不是进气道。
+        'body_pack': 0.78,
+        'areal': 36.0,
+        'eng_coeff': 220.0,
+        'eng_density': 1050.0,
+        'payload_density': 2400.0,
+        'void_frac': 0.11,
+        'fixed_void_m3': 0.22,
         'fuel_density': 840.0,
-        'tsfc': 1.0 / (1450.0 * G0),
-        'mach_takeover': 3.6,
-        'mach_cruise': 6.8,
-        'alt_km': 36.0,
-        'ld_base': 2.7,
-        'ld_slope': 0.055,
-        'ld_min': 3.1,
-        'ld_max': 4.3,
-        'eta': 0.40,
+        'tsfc': 1.0 / (1200.0 * G0),
+        'ram_isp_s': 1350.0,
+        'mach_takeover': 2.4,
+        'mach_transition': 4.8,
+        'mach_cruise': 5.2,
+        'alt_km': 24.0,
+        'ram_alt_km': 18.0,
+        'ld_base': 2.35,
+        'ld_slope': 0.05,
+        'ld_min': 2.6,
+        'ld_max': 3.6,
+        'eta': 0.32,
         'reserve': 0.08,
-        'loss_frac': 0.06,
-        'accel_excess': 0.45,
-        'fuel_floor_frac': 0.42,
+        'loss_frac': 0.10,
+        'accel_excess': 0.55,
+        'fuel_floor_frac': 0.32,
+        'dual_mode': 1.0,
     },
 }
 
@@ -1178,24 +1194,56 @@ def ballistic_loss_m_s(dv_ideal_m_s: float, burn_time_s: float, launch_altitude_
     return gravity + drag
 
 
+def ballistic_guidance_mass_kg(diameter_m: float) -> float:
+    """制导与控制质量：电子舱有下限，舵机随截面积增加。"""
+    if diameter_m <= 0:
+        raise ValueError('弹径必须大于 0')
+    area = math.pi * (diameter_m / 2.0) ** 2
+    return BALLISTIC_GUIDANCE_FLOOR_KG + BALLISTIC_GUIDANCE_AREA_KG_M2 * area
+
+
+def ballistic_nose_length_m(length_m: float, diameter_m: float) -> float:
+    """头锥长度。长径比固定，且不超过战斗部舱允许占的弹长。"""
+    if length_m <= 0 or diameter_m <= 0:
+        raise ValueError('弹长与弹径必须大于 0')
+    return min(BALLISTIC_NOSE_FINENESS * diameter_m, length_m * BALLISTIC_HEAD_LENGTH_CAP)
+
+
+def ballistic_body_volume_m3(length_m: float, diameter_m: float) -> float:
+    """整弹容积：圆锥头加上后面的圆柱。圆锥体积是同样长度圆柱的三分之一。"""
+    nose = ballistic_nose_length_m(length_m, diameter_m)
+    area = math.pi * (diameter_m / 2.0) ** 2
+    return area * (length_m - nose) + area * nose / 3.0
+
+
 def ballistic_head_lengths_m(
     length_m: float,
     diameter_m: float,
     warhead_mass_kg: float,
-) -> tuple[float, float]:
-    """圆柱战斗部占用的弹长，其余视为助推级。
+) -> tuple[float, float, float]:
+    """头锥按长径比占一段，制导和战斗部先扣掉头锥容积，装不下再占用后面的圆柱。
 
-    截面用满弹径的圆，不再用双锥滑翔体那种只填约三分之一的容积系数。
-    战斗部最长不超过全长的 45%，给发动机留出药柱。
+    返回弹头段长度、发动机长度、制导与控制质量。
+    头锥里没被用掉的容积不再装药，发动机从弹头段之后才开始。
     """
     if length_m <= 0 or diameter_m <= 0:
         raise ValueError('弹长与弹径必须大于 0')
     if warhead_mass_kg < 0:
         raise ValueError('战斗部质量不能为负')
-    volume = head_total_mass_kg(warhead_mass_kg) / BALLISTIC_HEAD_DENSITY_KG_M3
-    raw = volume / (math.pi * (diameter_m / 2.0) ** 2)
-    head = min(raw, length_m * BALLISTIC_HEAD_LENGTH_CAP)
-    return head, length_m - head
+    nose = ballistic_nose_length_m(length_m, diameter_m)
+    area = math.pi * (diameter_m / 2.0) ** 2
+    cone_volume = area * nose / 3.0
+    guidance = ballistic_guidance_mass_kg(diameter_m)
+    payload_volume = (
+        warhead_mass_kg / BALLISTIC_WARHEAD_DENSITY_KG_M3
+        + guidance / BALLISTIC_GUIDANCE_DENSITY_KG_M3
+    )
+    if payload_volume <= cone_volume:
+        head = nose
+    else:
+        head = nose + (payload_volume - cone_volume) / area
+    head = min(head, length_m * BALLISTIC_HEAD_LENGTH_CAP)
+    return head, length_m - head, guidance
 
 
 def ballistic_coast_range_km(
@@ -1352,6 +1400,61 @@ def estimate_subsonic_class(
     )
 
 
+def accel_fuel_for_dv(mass_kg: float, dv_m_s: float, isp_s: float, accel_excess: float) -> float:
+    """一段加速的耗油。阻力使同样的速度增量比理想火箭更费油。"""
+    if mass_kg <= 0 or isp_s <= 0 or accel_excess <= 0:
+        raise ValueError('加速耗油的质量、比冲与超额系数必须大于 0')
+    if dv_m_s < 0:
+        raise ValueError('速度增量不能为负')
+    if dv_m_s <= 1.0:
+        return 0.0
+    frac = 1.0 - math.exp(-dv_m_s / (isp_s * G0 * accel_excess))
+    return frac * mass_kg
+
+
+def dual_mode_flight(
+    mass_after_boost_kg: float,
+    fuel_kg: float,
+    speed_after_m_s: float,
+    transition_m_s: float,
+    cruise_m_s: float,
+    ram_isp_s: float,
+    scram_isp_s: float,
+    accel_excess: float,
+) -> dict[str, float | str]:
+    """双模加速：先用亚燃比冲推到转级速度，再用超燃比冲推到巡航速度。
+
+    亚燃段单独超过燃油比例上限时，巡航停在助推后的速度，模态记为 ram。
+    否则模态为 scram，加速耗油是两段之和，且不超过全部燃油的上限。
+    """
+    if mass_after_boost_kg <= 0 or fuel_kg < 0 or speed_after_m_s < 0:
+        raise ValueError('双模加速的质量、燃油与速度无效')
+    if transition_m_s <= 0 or cruise_m_s < transition_m_s:
+        raise ValueError('转级速度必须为正，且不超过巡航速度')
+    if ram_isp_s <= 0 or scram_isp_s <= 0 or accel_excess <= 0:
+        raise ValueError('双模比冲与超额系数必须大于 0')
+    ram_dv = max(0.0, transition_m_s - speed_after_m_s)
+    ram_fuel = accel_fuel_for_dv(mass_after_boost_kg, ram_dv, ram_isp_s, accel_excess)
+    if ram_fuel > fuel_kg * DUAL_MODE_RAM_FUEL_CAP and ram_dv > 1.0:
+        return {
+            'mode': 'ram',
+            'accel_fuel_kg': 0.0,
+            'cruise_speed_m_s': speed_after_m_s,
+            'cruise_isp_s': ram_isp_s,
+        }
+    mass_mid = mass_after_boost_kg - ram_fuel
+    if mass_mid <= 1.0:
+        raise ValueError('亚燃加速后质量不足')
+    scram_dv = max(0.0, cruise_m_s - max(speed_after_m_s, transition_m_s))
+    scram_fuel = accel_fuel_for_dv(mass_mid, scram_dv, scram_isp_s, accel_excess)
+    return {
+        'mode': 'scram',
+        'accel_fuel_kg': min(fuel_kg * DUAL_MODE_ACCEL_CAP, ram_fuel + scram_fuel),
+        'cruise_speed_m_s': cruise_m_s,
+        'cruise_isp_s': scram_isp_s,
+    }
+
+
 def estimate_ducted(
     missile_class: str,
     length_m: float,
@@ -1363,7 +1466,11 @@ def estimate_ducted(
     propellant_density: float,
     isp_air_s: float | None = None,
 ) -> dict:
-    """超燃或亚燃：固体助推和吸气巡航分开计比冲。"""
+    """超燃或亚燃：固体助推和吸气巡航分开计比冲。
+
+    超燃是固冲一体双模：药柱和煤油分同一块能源容积，先接到亚燃再转入超燃。
+    亚燃加速吃掉太多燃油时，巡航停在亚燃模态。
+    """
     canon = normalize_missile_class(missile_class)
     spec = _DUCT_SPECS.get(canon)
     if spec is None:
@@ -1382,10 +1489,15 @@ def estimate_ducted(
     )
     sound = speed_of_sound_m_s(spec['alt_km'])
     launch_speed = v_launch_mach * speed_of_sound_m_s(h_launch_km)
-    takeover_speed = spec['mach_takeover'] * sound
+    # 双模的亚燃接力发生在较低高度，不用超燃巡航高度的声速。
+    if spec.get('dual_mode'):
+        takeover_sound = speed_of_sound_m_s(spec['ram_alt_km'])
+    else:
+        takeover_sound = sound
+    takeover_speed = spec['mach_takeover'] * takeover_sound
     gap = max(0.0, takeover_speed - launch_speed)
     loss_frac = spec['loss_frac']
-    if canon == 'ramjet':
+    if canon == 'ramjet' or spec.get('dual_mode'):
         loss_frac = dense_air_loss_frac(loss_frac, h_launch_km)
     dv_need = gap * (1.0 + loss_frac) + (0.0 if gap == 0 else 80.0)
     fixed = payload + structure + engine
@@ -1406,8 +1518,11 @@ def estimate_ducted(
     burn_time = ballistic_burn_time_s(propellant, launch_mass, isp_boost) if propellant > 0 else 0.0
     boost_range = 0.5 * (launch_speed + speed_after) * burn_time
     mass_after_boost = launch_mass - propellant
+    isp_fly = isp_cruise
+    accel_txt = ''
+    fly_tsfc = tsfc
     if not reached:
-        # 接不上设计马赫数时，不能在 30 km 以上用亚燃速度做布雷盖巡航。
+        # 接不上接力马赫数时，不能在高空用巡航速度做布雷盖。
         burnout_alt = burnout_altitude_km(max(speed_after, 50.0), h_launch_km)
         try:
             coast_km = ballistic_range_km(max(speed_after, 50.0), burnout_alt)
@@ -1418,16 +1533,49 @@ def estimate_ducted(
         cruise_m = 0.0
         cruise_mach = speed_after / speed_of_sound_m_s(0.0)
         cruise_alt = burnout_alt
-        trimmed = '冲压未接入设计马赫数，射程只计助推后的弹道弧。'
+        if spec.get('dual_mode'):
+            trimmed = '未接入亚燃接力，射程只计助推后的弹道弧。'
+        else:
+            trimmed = '冲压未接入设计马赫数，射程只计助推后的弹道弧。'
     else:
-        cruise_speed = spec['mach_cruise'] * sound
-        cruise_mach = cruise_speed / sound
-        accel = max(0.0, cruise_speed - speed_after)
-        accel_frac = 0.0 if accel <= 1.0 else 1.0 - math.exp(-accel / (isp_cruise * G0 * spec['accel_excess']))
-        accel_fuel = min(fuel * 0.65, accel_frac * mass_after_boost)
+        cruise_alt = spec['alt_km']
+        if spec.get('dual_mode'):
+            nominal_scram = isp_from_tsfc_s(spec['tsfc'])
+            ram_isp = spec['ram_isp_s'] * (isp_cruise / nominal_scram)
+            planned = dual_mode_flight(
+                mass_after_boost,
+                fuel,
+                speed_after,
+                spec['mach_transition'] * takeover_sound,
+                spec['mach_cruise'] * sound,
+                ram_isp,
+                isp_cruise,
+                spec['accel_excess'],
+            )
+            accel_fuel = float(planned['accel_fuel_kg'])
+            cruise_speed = float(planned['cruise_speed_m_s'])
+            isp_fly = float(planned['cruise_isp_s'])
+            fly_tsfc = tsfc_from_isp_s(isp_fly)
+            if planned['mode'] == 'ram':
+                cruise_alt = spec['ram_alt_km']
+                cruise_mach = cruise_speed / takeover_sound
+                trimmed = '双模未转入超燃，按亚燃模态巡航。'
+            else:
+                cruise_mach = cruise_speed / sound
+                accel_txt = f"亚燃加速比冲 {ram_isp:.0f} s，"
+                trimmed = ''
+        else:
+            cruise_speed = spec['mach_cruise'] * sound
+            cruise_mach = cruise_speed / sound
+            accel = max(0.0, cruise_speed - speed_after)
+            accel_fuel = min(
+                fuel * DUAL_MODE_ACCEL_CAP,
+                accel_fuel_for_dv(mass_after_boost, accel, isp_cruise, spec['accel_excess']),
+            )
+            trimmed = ''
         climb = climb_fuel_kg(
             mass_after_boost,
-            (spec['alt_km'] - h_launch_km) * 1000.0,
+            (cruise_alt - h_launch_km) * 1000.0,
             cruise_speed ** 2 - speed_after ** 2,
             spec['eta'],
         )
@@ -1436,7 +1584,7 @@ def estimate_ducted(
         if cruise_fuel <= 1.0:
             raise ValueError('冲压燃油不足以完成巡航')
         cruise_m = breguet_cruise_range_m(
-            cruise_speed, tsfc, ld, mass_after_boost, mass_after_boost - cruise_fuel,
+            cruise_speed, fly_tsfc, ld, mass_after_boost, mass_after_boost - cruise_fuel,
         )
         high_km = (cruise_m + boost_range) / 1000.0
         sea_km = None
@@ -1451,8 +1599,6 @@ def estimate_ducted(
                     sea_speed, sea_tsfc, sea_ld, mass_after_boost, mass_after_boost - sea_fuel,
                 )
                 sea_km = (sea_m + boost_range) / 1000.0
-        cruise_alt = spec['alt_km']
-        trimmed = ''
     dead = deadweight_kg(launch_mass, fuel, warhead_mass_kg, propellant)
     bay = payload / spec['payload_density']
     section = math.pi * (diameter_m / 2.0) ** 2
@@ -1464,7 +1610,7 @@ def estimate_ducted(
         isp_boost_out = isp_boost
         boost_txt = f"助推固体比冲 {isp_boost:.0f} s，"
     note = (
-        f"{class_label(canon)}：{boost_txt}巡航吸气比冲 {isp_cruise:.0f} s。"
+        f"{class_label(canon)}：{boost_txt}{accel_txt}巡航吸气比冲 {isp_fly:.0f} s。"
         f"高空巡航 Ma {cruise_mach:.2f} @ {cruise_alt:.0f} km，"
         f"设计 Ma {spec['mach_cruise']:.1f}。{trimmed}{sea_txt}"
         f"死重 {dead:.0f} kg。"
@@ -1477,7 +1623,7 @@ def estimate_ducted(
         range_cruise_km=cruise_m / 1000.0,
         cruise_mach=cruise_mach, cruise_alt_km=cruise_alt,
         m_dead_kg=dead,
-        isp_boost_s=isp_boost_out, isp_cruise_s=isp_cruise,
+        isp_boost_s=isp_boost_out, isp_cruise_s=isp_fly,
     )
 
 
@@ -1613,11 +1759,13 @@ def estimate_ballistic(
     propellant_density: float,
     warhead_section: str = 'cylinder',
     coast_drag: bool = True,
+    two_stage: bool = True,
 ) -> dict:
-    """普通弹道导弹：圆柱战斗部、装药估算、重力阻力损失、大气滑行后的射程。
+    """普通弹道导弹：头锥容积扣掉制导和战斗部后装药，再计重力阻力与大气滑行。
 
     warhead_section 为 biconic 或 waverider 时沿用滑翔体弹头，供同一助推器的弹道弧对照。
     coast_drag 为假时保留真空弹道，滑翔弹的下限对照用这一档。
+    two_stage 控制固体助推是否按两级分段；默认两级，不再按弹长自动切换。
     """
     if length_m <= 0 or diameter_m <= 0:
         raise ValueError('弹长与弹径必须大于 0')
@@ -1626,21 +1774,22 @@ def estimate_ballistic(
     if isp_s <= 0 or propellant_density <= 0:
         raise ValueError('比冲与推进剂密度必须大于 0')
     if warhead_section == 'cylinder':
-        head_len, booster_len = ballistic_head_lengths_m(
+        head_len, booster_len, guidance = ballistic_head_lengths_m(
             length_m, diameter_m, warhead_mass_kg,
         )
+        payload_mass = warhead_mass_kg + guidance
     elif warhead_section in ('biconic', 'waverider'):
         head_len, booster_len = head_and_booster_lengths_m(
             length_m, diameter_m, warhead_mass_kg, warhead_section,
         )
+        payload_mass = head_total_mass_kg(warhead_mass_kg)
     else:
         raise ValueError(f'未知战斗部截面: {warhead_section}')
     propellant = propellant_mass_kg(diameter_m, booster_len, propellant_density)
     dry = propellant * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
-    head = head_total_mass_kg(warhead_mass_kg)
-    launch_mass = head + dry + propellant
+    launch_mass = payload_mass + dry + propellant
     ve = isp_s * G0
-    if booster_len >= BALLISTIC_TWO_STAGE_M:
+    if two_stage:
         dv_ideal = _ideal_two_stage_dv(launch_mass, propellant, dry, ve)
         burnout_mass = launch_mass - propellant - dry * 0.60
         stages = '两级'
@@ -1662,7 +1811,7 @@ def estimate_ballistic(
         ground_km = ballistic_coast_range_km(
             ground_km, speed, altitude, burnout_mass, diameter_m,
         )
-    section = '圆柱战斗部，' if warhead_section == 'cylinder' else ''
+    section = '头锥扣除制导与战斗部，' if warhead_section == 'cylinder' else ''
     note = (
         f"普通弹道导弹：{stages}固体，{section}比冲 {isp_s:.0f} s，"
         f"关机速度 {speed / 1000.0:.2f} km/s，"
@@ -1700,6 +1849,7 @@ def estimate_by_class(
     width_m: float | None = None,
     height_m: float | None = None,
     isp_air_s: float | None = None,
+    ballistic_two_stage: bool = True,
 ) -> dict:
     """按弹种估算。双锥体和乘波体助推滑翔由 missile_class 区分。
 
@@ -1715,12 +1865,13 @@ def estimate_by_class(
             v_launch_mach, h_launch_km, isp_s, propellant_density,
         )
         result = dict(result)
-        # 滑翔下限仍对照双锥体助推器的真空弹道，避免乘波体因弹头更长而改写已有航程。
+        # 滑翔下限仍对照双锥体助推器的真空弹道，弹道基线固定按默认两级。
         ballistic = estimate_ballistic(
             length_m, diameter_m, warhead_mass_kg,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
             warhead_section='biconic',
             coast_drag=False,
+            two_stage=True,
         )
         floored = glide_floor_range_km(
             float(result['range_km']), float(ballistic['range_km']), float(result['ld_ratio']),
@@ -1755,5 +1906,6 @@ def estimate_by_class(
         return estimate_ballistic(
             length_m, diameter_m, warhead_mass_kg,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
+            two_stage=ballistic_two_stage,
         )
     raise ValueError(f'未知弹种: {missile_class}')

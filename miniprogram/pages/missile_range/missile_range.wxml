@@ -47,6 +47,10 @@
       <view class="field-label"><text>吸气比冲</text><text class="unit">s</text></view>
       <input class="input" type="digit" value="{{ispAir}}" data-key="ispAir" bindinput="onInput" />
     </view>
+    <view class="field" wx:if="{{showBallisticTwoStage}}">
+      <view class="field-label"><text>是否两级</text><text class="unit">{{ballisticTwoStage ? '是' : '否'}}</text></view>
+      <switch checked="{{ballisticTwoStage}}" bindchange="onBallisticTwoStageChange" color="#3ddc84" />
+    </view>
     <view class="field">
       <view class="field-label"><text>密度</text><text class="unit">kg/m³</text></view>
       <input class="input" type="digit" value="{{density}}" data-key="density" bindinput="onInput" />

@@ -637,6 +637,7 @@ struct MissileRangeDefaults: Codable {
     var diameter_m: Double?
     var warhead_kg: Double?
     var missile_class: String?
+    var ballistic_two_stage: Bool?
     var v_launch_mach: Double?
     var h_launch_km: Double?
 }

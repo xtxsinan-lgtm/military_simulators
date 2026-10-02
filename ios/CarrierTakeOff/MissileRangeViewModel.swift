@@ -17,6 +17,7 @@ final class MissileRangeViewModel: ObservableObject {
     @Published var ispS = "264"
     @Published var ispAir = ""
     @Published var showAirIsp = false
+    @Published var ballisticTwoStage = true
     @Published var density = "1760"
     @Published var activeId: Int?
     @Published var result: MissileRangeEstimate?
@@ -37,6 +38,7 @@ final class MissileRangeViewModel: ObservableObject {
             if let defaults = catalog.missile_range?.defaults {
                 if let isp = defaults.isp_s { ispS = text(isp) }
                 if let rho = defaults.propellant_density { density = text(rho) }
+                if let twoStage = defaults.ballistic_two_stage { ballisticTwoStage = twoStage }
             }
             applyCase(loaded[0])
         } catch {
@@ -52,6 +54,7 @@ final class MissileRangeViewModel: ObservableObject {
         warheadKg = text(row.warhead_kg)
         vMach = text(row.v_mach)
         hKm = text(row.h_km)
+        ballisticTwoStage = row.missile_class == "ballistic"
         activeId = row.id
         if let info = classOptions.first(where: { $0.id == missileClass }) {
             classBlurb = info.blurb ?? classBlurb
@@ -94,6 +97,7 @@ final class MissileRangeViewModel: ObservableObject {
                 showAirIsp = false
             }
         }
+        ballisticTwoStage = id == "ballistic"
     }
 
     func estimate() async {
@@ -109,6 +113,7 @@ final class MissileRangeViewModel: ObservableObject {
             "h_launch_km": number(hKm, 13),
             "isp_s": number(ispS, 264),
             "propellant_density": number(density, 1760),
+            "ballistic_two_stage": ballisticTwoStage,
         ]
         if showAirIsp {
             params["isp_air_s"] = number(ispAir, 0)
