@@ -7,8 +7,9 @@
 冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。接不上设计马赫数时只计助推后的弹道弧。
 亚燃高空大约是掠海的 2 到 2.5 倍。亚燃在 10 km 以下按稠密大气加大助推损失。
 亚超结合的巡航比冲与涡扇同一档，末端固体火箭另计。
-普通弹道导弹沿用弹体装药估算，关机后取最大射程弹道。
-助推段不足 8.5 m 按单级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
+普通弹道导弹的战斗部按圆柱截面占弹长，不再用双锥滑翔体的容积系数。
+助推段不足 9 m 按单级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
+关机后的真空弹道再按弹道系数折减大气滑行阻力。
 轻型战术弹推重比更高，地面 4 m 级用 PrSM 的 499 km 标定。
 """
 from __future__ import annotations
@@ -40,8 +41,9 @@ BOOST_FILL = 0.76
 TERMINAL_FILL = 0.78
 TERMINAL_PMF = 0.85
 BOOST_CASE_FRAC = 0.12
-# 助推段达到这一长度才按两级。8.5 m 以下仍是单级，东风-15、850 垂发这一档不会被加成。
-BALLISTIC_TWO_STAGE_M = 8.5
+# 助推段达到这一长度才按两级。圆柱战斗部比双锥短，东风-15 的助推段约 8.7 m，
+# 仍按单级；850 垂发更短。9 m 以上才分成两级。
+BALLISTIC_TWO_STAGE_M = 9.0
 # 重型弹道弹起飞推重比。轻弹按质量再加上一截：战术固体火箭燃烧更短。
 # 4.0 m × 0.43 m、战斗部 91 kg、地面静止发射，标定到 PrSM 公开射程 499 km。
 BALLISTIC_TWR_HEAVY = 2.30
@@ -58,6 +60,13 @@ BALLISTIC_DRAG_SCALE_KM = 8.5
 # 略高于 PrSM 的 42.2 s，标定弹本身不再多扣。
 BALLISTIC_LONG_BURN_S = 43.0
 BALLISTIC_LONG_BURN_DRAG_M_S = 16.0
+# 战斗部当量密度与双锥滑翔体同一数值，截面改按满直径圆柱。
+BALLISTIC_HEAD_DENSITY_KG_M3 = 1800.0
+# 战斗部再重也最多占全长的这一比例，其余留给发动机。
+BALLISTIC_HEAD_LENGTH_CAP = 0.45
+# 关机后大气滑行。动压高、弹道系数低、关机高度低的弹减得多。
+# 系数使 4.0 m × 0.43 m、战斗部 91 kg 的地面发射仍为 PrSM 的 499 km。
+BALLISTIC_COAST_K = 0.001309
 # 亚音速发动机接力马赫数。更慢的发射要带可抛弃固体助推器。
 SUBSONIC_TAKEOVER_MACH = 0.62
 SUBSONIC_BOOSTER_ISP_S = 235.0
@@ -113,7 +122,7 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'ballistic',
         'label': '普通弹道导弹',
-        'blurb': '按弹体容积估算固体装药。空射仍扣除燃烧段重力损失，关机后取最优弹道弧，不含滑翔增程。',
+        'blurb': '按圆柱战斗部估算固体装药。空射仍扣除燃烧段重力损失，关机后取最优弹道弧并计入大气滑行阻力，不含滑翔增程。',
     },
 ]
 
@@ -1169,6 +1178,50 @@ def ballistic_loss_m_s(dv_ideal_m_s: float, burn_time_s: float, launch_altitude_
     return gravity + drag
 
 
+def ballistic_head_lengths_m(
+    length_m: float,
+    diameter_m: float,
+    warhead_mass_kg: float,
+) -> tuple[float, float]:
+    """圆柱战斗部占用的弹长，其余视为助推级。
+
+    截面用满弹径的圆，不再用双锥滑翔体那种只填约三分之一的容积系数。
+    战斗部最长不超过全长的 45%，给发动机留出药柱。
+    """
+    if length_m <= 0 or diameter_m <= 0:
+        raise ValueError('弹长与弹径必须大于 0')
+    if warhead_mass_kg < 0:
+        raise ValueError('战斗部质量不能为负')
+    volume = head_total_mass_kg(warhead_mass_kg) / BALLISTIC_HEAD_DENSITY_KG_M3
+    raw = volume / (math.pi * (diameter_m / 2.0) ** 2)
+    head = min(raw, length_m * BALLISTIC_HEAD_LENGTH_CAP)
+    return head, length_m - head
+
+
+def ballistic_coast_range_km(
+    vacuum_km: float,
+    speed_m_s: float,
+    altitude_km: float,
+    burnout_mass_kg: float,
+    diameter_m: float,
+) -> float:
+    """真空弹道再按关机后的大气阻力折减。
+
+    罚项正比于动压、反比于弹道系数，并随关机高度按大气标高衰减。
+    高空关机几乎保持真空射程。
+    """
+    if vacuum_km < 0 or speed_m_s < 0 or altitude_km < 0:
+        raise ValueError('真空射程、速度与高度不能为负')
+    if burnout_mass_kg <= 0 or diameter_m <= 0:
+        raise ValueError('关机质量与弹径必须大于 0')
+    if vacuum_km == 0.0 or speed_m_s == 0.0:
+        return 0.0
+    area = math.pi * (diameter_m / 2.0) ** 2
+    beta = burnout_mass_kg / area
+    penalty = (speed_m_s ** 2) * math.exp(-altitude_km / BALLISTIC_DRAG_SCALE_KM) / beta
+    return vacuum_km * math.exp(-BALLISTIC_COAST_K * penalty)
+
+
 def ballistic_burn_time_s(
     propellant_kg: float,
     launch_mass_kg: float,
@@ -1558,17 +1611,30 @@ def estimate_ballistic(
     h_launch_km: float,
     isp_s: float,
     propellant_density: float,
+    warhead_section: str = 'cylinder',
+    coast_drag: bool = True,
 ) -> dict:
-    """普通弹道导弹：装药估算、重力阻力损失、最优弹道射程。"""
+    """普通弹道导弹：圆柱战斗部、装药估算、重力阻力损失、大气滑行后的射程。
+
+    warhead_section 为 biconic 或 waverider 时沿用滑翔体弹头，供同一助推器的弹道弧对照。
+    coast_drag 为假时保留真空弹道，滑翔弹的下限对照用这一档。
+    """
     if length_m <= 0 or diameter_m <= 0:
         raise ValueError('弹长与弹径必须大于 0')
     if warhead_mass_kg < 0 or v_launch_mach < 0 or h_launch_km < 0:
         raise ValueError('战斗部、发射马赫数与高度不能为负')
     if isp_s <= 0 or propellant_density <= 0:
         raise ValueError('比冲与推进剂密度必须大于 0')
-    head_len, booster_len = head_and_booster_lengths_m(
-        length_m, diameter_m, warhead_mass_kg, 'biconic',
-    )
+    if warhead_section == 'cylinder':
+        head_len, booster_len = ballistic_head_lengths_m(
+            length_m, diameter_m, warhead_mass_kg,
+        )
+    elif warhead_section in ('biconic', 'waverider'):
+        head_len, booster_len = head_and_booster_lengths_m(
+            length_m, diameter_m, warhead_mass_kg, warhead_section,
+        )
+    else:
+        raise ValueError(f'未知战斗部截面: {warhead_section}')
     propellant = propellant_mass_kg(diameter_m, booster_len, propellant_density)
     dry = propellant * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
     head = head_total_mass_kg(warhead_mass_kg)
@@ -1576,11 +1642,13 @@ def estimate_ballistic(
     ve = isp_s * G0
     if booster_len >= BALLISTIC_TWO_STAGE_M:
         dv_ideal = _ideal_two_stage_dv(launch_mass, propellant, dry, ve)
+        burnout_mass = launch_mass - propellant - dry * 0.60
         stages = '两级'
     else:
         if propellant >= launch_mass:
             raise ValueError('推进剂质量超过起飞质量')
         dv_ideal = ve * math.log(launch_mass / (launch_mass - propellant))
+        burnout_mass = launch_mass - propellant
         stages = '单级'
     burn_time = ballistic_burn_time_s(
         propellant, launch_mass, isp_s, ballistic_liftoff_twr(launch_mass),
@@ -1590,8 +1658,13 @@ def estimate_ballistic(
     speed = max(50.0, launch_speed + dv_ideal - loss)
     altitude = burnout_altitude_km(speed, h_launch_km)
     ground_km = ballistic_range_km(speed, altitude)
+    if coast_drag:
+        ground_km = ballistic_coast_range_km(
+            ground_km, speed, altitude, burnout_mass, diameter_m,
+        )
+    section = '圆柱战斗部，' if warhead_section == 'cylinder' else ''
     note = (
-        f"普通弹道导弹：{stages}固体，比冲 {isp_s:.0f} s，"
+        f"普通弹道导弹：{stages}固体，{section}比冲 {isp_s:.0f} s，"
         f"关机速度 {speed / 1000.0:.2f} km/s，"
         f"关机高度 {altitude:.0f} km，按最优倾角取射程，不含滑翔。"
     )
@@ -1642,9 +1715,12 @@ def estimate_by_class(
             v_launch_mach, h_launch_km, isp_s, propellant_density,
         )
         result = dict(result)
+        # 滑翔下限仍对照双锥体助推器的真空弹道，避免乘波体因弹头更长而改写已有航程。
         ballistic = estimate_ballistic(
             length_m, diameter_m, warhead_mass_kg,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
+            warhead_section='biconic',
+            coast_drag=False,
         )
         floored = glide_floor_range_km(
             float(result['range_km']), float(ballistic['range_km']), float(result['ld_ratio']),

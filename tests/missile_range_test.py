@@ -573,6 +573,50 @@ def test_geometry_and_breguet_helpers():
     assert packed['range_high_km'] is None
 
 
+def test_ballistic_warhead_is_a_cylinder_and_coast_drag_shrinks_thick_air():
+    """弹道战斗部按圆柱占长；大气滑行对低空、低弹道系数扣得更多。"""
+    from utils.missile_range.classes import (
+        BALLISTIC_HEAD_LENGTH_CAP,
+        ballistic_coast_range_km,
+        ballistic_head_lengths_m,
+        estimate_ballistic,
+    )
+    from utils.missile_range.estimate import head_and_booster_lengths_m, head_volume_m3, uncapped_head_length_m
+
+    cyl, boost = ballistic_head_lengths_m(4.0, 0.43, 91)
+    bi, _ = head_and_booster_lengths_m(4.0, 0.43, 91, 'biconic')
+    assert cyl < bi
+    assert cyl == pytest.approx(0.50, abs=0.02)
+    assert boost == pytest.approx(4.0 - cyl)
+    raw_bi = uncapped_head_length_m(head_volume_m3(90, 'biconic'), 0.227, 'biconic')
+    assert raw_bi > 3.96
+    gmlrs_head, _ = ballistic_head_lengths_m(3.96, 0.227, 90)
+    assert gmlrs_head == pytest.approx(3.96 * BALLISTIC_HEAD_LENGTH_CAP, abs=0.01)
+    with pytest.raises(ValueError):
+        ballistic_head_lengths_m(0, 0.4, 10)
+    with pytest.raises(ValueError):
+        ballistic_head_lengths_m(4, 0, 10)
+    with pytest.raises(ValueError):
+        ballistic_head_lengths_m(4, 0.4, -1)
+
+    assert ballistic_coast_range_km(500, 2000, 30, 800, 0.5) > ballistic_coast_range_km(500, 2000, 0, 800, 0.5)
+    assert ballistic_coast_range_km(500, 2000, 0, 2000, 0.5) > ballistic_coast_range_km(500, 2000, 0, 400, 0.5)
+    assert ballistic_coast_range_km(0, 2000, 0, 800, 0.5) == 0
+    assert ballistic_coast_range_km(500, 0, 0, 800, 0.5) == 0
+    with pytest.raises(ValueError):
+        ballistic_coast_range_km(-1, 100, 0, 800, 0.5)
+    with pytest.raises(ValueError):
+        ballistic_coast_range_km(100, 100, 0, 0, 0.5)
+
+    # 同一外形若仍按双锥、且不计滑行阻力，短弹保持改圆柱之前的射程。
+    legacy = estimate_ballistic(4.8, 0.40, 200, 0, 0, 264, 1760, warhead_section='biconic', coast_drag=False)
+    assert legacy['range_km'] == 187.4
+    gmlrs = estimate_ballistic(3.96, 0.227, 90, 0, 0, 264, 1760)
+    assert 70.0 <= gmlrs['range_km'] <= 92.0
+    with pytest.raises(ValueError, match='战斗部截面'):
+        estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760, warhead_section='ogive')
+
+
 def test_six_classes_ranges_and_profiles():
     from utils.missile_range.classes import (
         estimate_ballistic,
@@ -617,10 +661,11 @@ def test_six_classes_ranges_and_profiles():
 
     short = estimate_ballistic(4.8, 0.40, 200, 0, 0, 264, 1760)
     long = estimate_ballistic(11.2, 0.88, 980, 0, 0, 264, 1760)
-    assert short['range_km'] == 187.4
-    assert long['range_km'] == 331.1
+    assert short['range_km'] == 222.4
+    assert long['range_km'] == 539.9
     assert long['range_km'] > short['range_km']
     assert '不含滑翔' in long['note']
+    assert '圆柱战斗部' in long['note']
     # PrSM Increment 1：4.0 m × 0.43 m、战斗部 91 kg、地面发射，公开射程 499 km
     prsm = estimate_ballistic(4.0, 0.43, 91, 0, 0, 264, 1760)
     assert prsm['range_km'] == 499.0
@@ -800,7 +845,7 @@ def test_j15_wing_presets_stay_inside_pylon_box():
         'hgv_waverider': (6.50, 0.5873, 300),
         'scramjet': (6.35, 0.6999, 300),
         'ramjet': (5.46, 0.5006, 500),
-        'ballistic': (4.15, 0.6942, 500),
+        'ballistic': (4.15, 0.6129, 500),
         'turbofan_stealth': (6.50, 0.5727, 500),
         'turbojet_subsonic': (6.50, 0.6244, 500),
         'turbofan_rocket': (6.50, 0.4962, 500),

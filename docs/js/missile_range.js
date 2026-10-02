@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 21;
+const APP_VERSION = 22;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',

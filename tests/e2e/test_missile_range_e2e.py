@@ -202,6 +202,18 @@ def test_e2e_russian_ramjet_and_dual_mode_anchors():
 
 
 @pytest.mark.e2e
+def test_e2e_ballistic_cylinder_warhead_matches_published_rockets():
+    """普通弹道用圆柱战斗部：PrSM 仍为 499 km，GMLRS 落在 70–92 km。"""
+    prsm = _estimate_via_api('ballistic', 4.0, 0.43, 91, 0.0, 0.0)
+    assert prsm['range_km'] == 499.0
+    assert prsm['l_head_m'] == pytest.approx(0.50, abs=0.02)
+    assert '圆柱战斗部' in prsm['note']
+    gmlrs = _estimate_via_api('ballistic', 3.96, 0.227, 90, 0.0, 0.0)
+    assert 70.0 <= gmlrs['range_km'] <= 92.0
+    assert gmlrs['l_head_m'] < 2.0
+
+
+@pytest.mark.e2e
 def test_e2e_airbreathing_presets_differ_from_glide_and_ballistic():
     """同一套几何下，吸气式射程不沿用助推滑翔或弹道结果。"""
     from utils.missile_range.dataset import evaluate_dataset
