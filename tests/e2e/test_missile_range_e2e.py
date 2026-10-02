@@ -55,7 +55,8 @@ def test_e2e_missile_range_catalog_and_pages():
         load_carriers_csv(CARRIERS_CSV),
     )
     assert any(s['id'] == 'missile_range' for s in SIMULATORS)
-    assert payload['missile_range']['cases'][0]['range_km'] == evaluate_case(MISSILE_DATASET[0])['range_km']
+    assert payload['missile_range']['cases'][0]['bay'] == '1280垂发'
+    assert payload['missile_range']['cases'][0]['range_km'] >= payload['missile_range']['cases'][1]['range_km']
     assert 'type_labels' not in payload['missile_range']
     assert 'hgv_type' not in payload['missile_range']['defaults']
     assert (ROOT / 'data' / 'missile_range_preset_database.csv').is_file()
@@ -65,6 +66,8 @@ def test_e2e_missile_range_catalog_and_pages():
     assert status == 200
     assert any(s['id'] == 'missile_range' for s in api['simulators'])
     assert len(api['missile_range']['cases']) == len(all_missile_cases())
+    assert api['missile_range']['cases'][0]['bay'] == '1280垂发'
+    assert api['missile_range']['cases'][0]['range_km'] >= api['missile_range']['cases'][1]['range_km']
     class_ids = {item['id'] for item in api['missile_range']['classes']}
     assert {'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ballistic'} <= class_ids
     assert 'hgv' not in class_ids

@@ -155,6 +155,44 @@ def format_launch(v_mach: float, h_km: float) -> str:
     return f'Ma {v_mach:g} @ {h_km:g}km'
 
 
+def sort_missile_range_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """按载机平台尺寸分组，并在组内按射程从高到低排序。"""
+    copied = [dict(row) for row in rows]
+    bay_sizes: dict[str, tuple[float, float]] = {}
+    for row in copied:
+        bay = str(row.get('bay') or '')
+        size = (float(row.get('length_m') or 0.0), float(row.get('diameter_m') or 0.0))
+        current = bay_sizes.get(bay)
+        if current is None or size > current:
+            bay_sizes[bay] = size
+    bay_order = {
+        bay: index
+        for index, (bay, _) in enumerate(
+            sorted(
+                bay_sizes.items(),
+                key=lambda item: (-item[1][0], -item[1][1], item[0]),
+            )
+        )
+    }
+    ordered = sorted(
+        copied,
+        key=lambda row: (
+            bay_order.get(str(row.get('bay') or ''), len(bay_order)),
+            -float(row.get('range_km') or 0.0),
+            -float(row.get('length_m') or 0.0),
+            -float(row.get('diameter_m') or 0.0),
+            -float(row.get('warhead_kg') or 0.0),
+            int(row.get('id') or 0),
+        ),
+    )
+    for index, row in enumerate(ordered, 1):
+        row['id'] = index
+        name = str(row.get('name') or '')
+        suffix = name.split('  ', 1)[1] if '  ' in name else name
+        row['name'] = f'#{index}  {suffix}'.rstrip()
+    return ordered
+
+
 def missile_case_label(case: dict[str, Any]) -> str:
     """选择器显示名：载机弹仓、尺寸、弹种与发射条件。"""
     canon = resolve_missile_class(str(case.get('missile_class') or 'hgv_biconic'))
@@ -213,12 +251,13 @@ def evaluate_dataset(
     isp_s: float = DEFAULT_ISP_S,
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
 ) -> list[dict[str, Any]]:
-    """按当前比冲与密度重算整张样本表。"""
+    """按当前比冲与密度重算整张样本表，并生成展示顺序。"""
     rows = dataset if dataset is not None else all_missile_cases()
-    return [
+    evaluated = [
         evaluate_case(case, isp_s=isp_s, propellant_density=propellant_density)
         for case in rows
     ]
+    return sort_missile_range_rows(evaluated)
 
 
 def build_missile_range_catalog_payload() -> dict[str, Any]:

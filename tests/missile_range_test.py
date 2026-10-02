@@ -24,6 +24,7 @@ from utils.missile_range.dataset import (
     format_launch,
     format_size_m,
     missile_case_label,
+    sort_missile_range_rows,
 )
 from utils.missile_range.estimate import (
     G0,
@@ -316,6 +317,9 @@ def test_evaluate_dataset_and_catalog():
     rows = evaluate_dataset()
     assert len(rows) == len(all_missile_cases())
     assert [r['id'] for r in rows] == list(range(1, len(rows) + 1))
+    assert rows[0]['bay'] == '1280垂发'
+    assert rows[1]['bay'] == '1280垂发'
+    assert rows[0]['range_km'] >= rows[1]['range_km']
     heavier = evaluate_dataset(isp_s=300, propellant_density=1900)
     assert heavier[0]['range_km'] != rows[0]['range_km']
     payload = build_missile_range_catalog_payload()
@@ -327,15 +331,62 @@ def test_evaluate_dataset_and_catalog():
         'turbojet_subsonic', 'turbofan_rocket', 'ballistic',
     }
     assert 'hgv' not in {item['id'] for item in payload['classes']}
-    assert rows[0]['missile_class'] == 'hgv_biconic'
-    waverider = next(r for r in rows if r['missile_class'] == 'hgv_waverider')
-    # hgv_biconic 在 CSV 最前展开，双锥体有 14 条样例，乘波体从第 15 条开始
-    assert waverider['id'] == 15
-    assert waverider['bay'] == '轰-6机腹'
+    assert payload['cases'][0]['bay'] == '1280垂发'
+    assert payload['cases'][0]['range_km'] >= payload['cases'][1]['range_km']
+    top_bay = rows[0]['bay']
+    same_bay = [r for r in rows if r['bay'] == top_bay]
+    assert len(same_bay) >= 2
+    assert same_bay[0]['range_km'] >= same_bay[1]['range_km']
     assert payload['defaults']['isp_s'] == 264.0
     assert payload['cases'][0]['range_km'] == rows[0]['range_km']
     assert G0 == pytest.approx(9.80665)
     assert SOUND_SPEED_M_S == 295.0
+
+
+def test_sort_missile_range_rows_by_bay_and_range():
+    rows = sort_missile_range_rows([
+        {
+            'id': 9,
+            'name': 'A',
+            'bay': '小平台',
+            'length_m': 4.0,
+            'diameter_m': 0.4,
+            'warhead_kg': 100,
+            'range_km': 120.0,
+        },
+        {
+            'id': 3,
+            'name': 'B',
+            'bay': '大平台',
+            'length_m': 10.0,
+            'diameter_m': 1.0,
+            'warhead_kg': 200,
+            'range_km': 300.0,
+        },
+        {
+            'id': 2,
+            'name': 'C',
+            'bay': '大平台',
+            'length_m': 10.0,
+            'diameter_m': 1.0,
+            'warhead_kg': 200,
+            'range_km': 100.0,
+        },
+        {
+            'id': 6,
+            'name': 'D',
+            'bay': '中平台',
+            'length_m': 8.0,
+            'diameter_m': 0.7,
+            'warhead_kg': 150,
+            'range_km': 200.0,
+        },
+    ])
+    assert [row['bay'] for row in rows] == ['大平台', '大平台', '中平台', '小平台']
+    assert [row['range_km'] for row in rows[:2]] == [300.0, 100.0]
+    assert [row['id'] for row in rows] == [1, 2, 3, 4]
+    assert rows[0]['name'].startswith('#1  ')
+    assert rows[1]['name'].startswith('#2  ')
 
 
 def test_opt_float_and_required_float():
