@@ -196,7 +196,7 @@ def estimate_hgv(
 ) -> dict:
     """估算起飞质量、关机马赫数、升阻比与总射程（千米）。
 
-    助推级长度按双锥体装填。乘波体只改升阻比，不把弹头拉长。
+    乘波体当量密度更低、容积系数更小，同样战斗部的弹头更长，助推级装药更少。
     """
     hgv_type = normalize_hgv_type(hgv_type)
     if length_m <= 0 or diameter_m <= 0:
@@ -209,9 +209,8 @@ def estimate_hgv(
 
     v_launch_ms = v_launch_mach * SOUND_SPEED_M_S
     m_head_total = head_total_mass_kg(warhead_mass_kg)
-    # 同一外形共用双锥体的助推级长度。乘波体只提高升阻比，不再把弹头拉长去挤占装药。
     l_head, l_booster = head_and_booster_lengths_m(
-        length_m, diameter_m, warhead_mass_kg, 'biconic',
+        length_m, diameter_m, warhead_mass_kg, hgv_type,
     )
     m_propellant = propellant_mass_kg(diameter_m, l_booster, propellant_density)
     pmf = PROPELLANT_MASS_FRACTION

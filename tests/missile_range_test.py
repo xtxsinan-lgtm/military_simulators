@@ -95,9 +95,11 @@ def _oracle(
     v_launch_ms = v_launch_mach * 295.0
     aux_head_ratio = 0.35 if warhead_mass_kg <= 250 else 0.28
     m_head_total = warhead_mass_kg + max(40.0, warhead_mass_kg * aux_head_ratio)
-    # 助推级按双锥体密度和外形装填。乘波体与双锥体共用这段长度，只在升阻比上分开。
-    v_head_req = m_head_total / 1800.0
-    l_head_calc = v_head_req / (0.2618 * (diameter_m ** 2))
+    # 乘波体密度更低、容积系数更小，弹头更长，助推级更短。
+    head_density = 1800.0 if hgv_type == 'biconic' else 1650.0
+    v_head_req = m_head_total / head_density
+    volume_factor = 0.2618 if hgv_type == 'biconic' else 0.1745
+    l_head_calc = v_head_req / (volume_factor * (diameter_m ** 2))
     l_head = min(l_head_calc, length_m * 0.45)
     l_booster_gross = length_m - l_head
     d_motor = diameter_m * 0.90
@@ -1089,15 +1091,25 @@ def test_glide_floor_range_km_lifts_only_short_glides():
         glide_floor_range_km(100, 200, 0)
 
 
+def test_waverider_head_steals_propellant_from_same_envelope():
+    """同一外形和战斗部，乘波体弹头更长，装药和起飞质量都更轻。"""
+    bi = estimate_hgv(10.5, 1.1, 600, 'biconic')
+    wave = estimate_hgv(10.5, 1.1, 600, 'waverider')
+    assert wave['l_head_m'] > bi['l_head_m']
+    assert wave['m_p_total_kg'] < bi['m_p_total_kg']
+    assert wave['m_0_t'] < bi['m_0_t']
+
+
 def test_same_tube_glide_outranges_ballistic_and_combo_keeps_turbofan_isp():
-    """鱼雷管上乘波体长于双锥体、双锥体长于弹道；亚超巡航比冲不低于涡喷，航程也不掉到三分之一。"""
+    """鱼雷管上乘波体装药更少但仍长于双锥体，双锥体长于弹道；亚超巡航比冲不低于涡喷。"""
     from utils.missile_range.classes import estimate_by_class
 
     tube = dict(length_m=6.35, diameter_m=0.51, warhead_mass_kg=160, v_launch_mach=0.0, h_launch_km=0.0)
     wave = estimate_by_class('hgv_waverider', **tube)
     biconic = estimate_by_class('hgv_biconic', **tube)
     ballistic = estimate_by_class('ballistic', **tube)
-    assert wave['m_p_total_kg'] == biconic['m_p_total_kg']
+    assert wave['m_p_total_kg'] < biconic['m_p_total_kg']
+    assert wave['m_0_t'] < biconic['m_0_t']
     assert wave['range_km'] > biconic['range_km'] > ballistic['range_km']
     assert '再入航程' in biconic['note']
 
@@ -1111,8 +1123,6 @@ def test_same_tube_glide_outranges_ballistic_and_combo_keeps_turbofan_isp():
     assert combo['isp_cruise_s'] == pytest.approx(fan['isp_cruise_s'], abs=0.2)
     assert combo['isp_cruise_s'] > jet['isp_cruise_s']
     assert 2.0 <= ram['range_high_km'] / ram['range_sea_km'] <= 2.5
-    heavy = dict(length_m=10.5, diameter_m=1.1, warhead_mass_kg=1000, v_launch_mach=0.85, h_launch_km=13.0)
-    assert estimate_by_class('hgv_waverider', **heavy)['range_km'] > estimate_by_class('scramjet', **heavy)['range_km']
 
 
 def test_scramjet_without_takeover_coasts_instead_of_cruising():
