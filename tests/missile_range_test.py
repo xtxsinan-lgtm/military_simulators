@@ -327,7 +327,8 @@ def test_evaluate_dataset_and_catalog():
     assert 'hgv' not in {item['id'] for item in payload['classes']}
     assert rows[0]['missile_class'] == 'hgv_biconic'
     waverider = next(r for r in rows if r['missile_class'] == 'hgv_waverider')
-    assert waverider['id'] == 13
+    # hgv_biconic 在 CSV 最前展开，双锥体有 14 条样例，乘波体从第 15 条开始
+    assert waverider['id'] == 15
     assert waverider['bay'] == '轰-6机腹'
     assert payload['defaults']['isp_s'] == 264.0
     assert payload['cases'][0]['range_km'] == rows[0]['range_km']
@@ -583,7 +584,7 @@ def test_six_classes_ranges_and_profiles():
     assert wave['range_km'] != legacy['range_km']
     with pytest.raises(ValueError):
         estimate_subsonic_class('ramjet', 6, 0.5, 100, 0.7, 1)
-    assert len(PROPULSION_DATASET) == 57
+    assert len(PROPULSION_DATASET) == 69
     labels = {row['missile_class'] for row in PROPULSION_DATASET}
     assert labels == {
         'scramjet', 'ramjet', 'turbofan_stealth',
@@ -635,7 +636,8 @@ def test_folded_wing_mass_occupies_fuel_and_deadweight():
 
 
 def test_presets_follow_bay_list_for_each_speed_class():
-    """超音速弹种共用 CSV 超音速弹仓，亚音速（含亚超结合）共用亚音速弹仓。"""
+    """超音速弹种共用 CSV 超音速弹仓，亚音速（含亚超结合）共用亚音速弹仓；
+    弹种专属行覆盖同弹仓的共用行。"""
     from utils.missile_range.dataset import (
         SUBSONIC_CLASSES,
         SUPERSONIC_CLASSES,
@@ -645,36 +647,66 @@ def test_presets_follow_bay_list_for_each_speed_class():
 
     grouped = grouped_preset_bays()
     cases = build_preset_cases()
-    assert [case['id'] for case in cases] == list(range(1, 82))
-    super_rounds = [
+    # 当前样本：5 超音速弹种 × 14 + 3 亚音速弹种 × 9 = 97
+    assert [case['id'] for case in cases] == list(range(1, 98))
+
+    # 共用的弹仓行
+    super_generic = [
         (bay['bay'], length, diameter, warhead, bay['v_mach'], bay['h_km'])
         for bay in grouped['supersonic']
+        if bay.get('missile_class') is None
         for length, diameter, warhead in bay['rounds']
     ]
-    sub_rounds = [
+    sub_generic = [
         (bay['bay'], length, diameter, warhead, bay['v_mach'], bay['h_km'])
         for bay in grouped['subsonic']
+        if bay.get('missile_class') is None
         for length, diameter, warhead in bay['rounds']
     ]
-    assert len(super_rounds) == 12
-    assert len(sub_rounds) == 7
-    assert any(item[0] == '1280垂发' for item in super_rounds)
-    assert any(item[0] == '533mm鱼雷' for item in sub_rounds)
+    assert len(super_generic) == 12
+    assert len(sub_generic) == 7
+    assert any(item[0] == '1280垂发' for item in super_generic)
+    assert any(item[0] == '533mm鱼雷' for item in sub_generic)
     assert 'ballistic' in SUPERSONIC_CLASSES
     assert 'turbofan_rocket' in SUBSONIC_CLASSES
     assert 'turbofan_rocket' not in SUPERSONIC_CLASSES
+
+    # 无专属覆盖时，弹种样例应与共用行完全一致
     for missile_class in SUPERSONIC_CLASSES:
+        if missile_class == 'hgv_waverider':
+            # 乘波体在歼-36弹仓有专属行，样例应体现覆盖
+            continue
         got = [
             (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
             for case in cases if case['missile_class'] == missile_class
         ]
-        assert got == super_rounds
+        # 每个超音速弹种还有 2 条歼-15 专属样例
+        assert len(got) == 14
+        assert got[:12] == super_generic
     for missile_class in SUBSONIC_CLASSES:
         got = [
             (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
             for case in cases if case['missile_class'] == missile_class
         ]
-        assert got == sub_rounds
+        # 每个亚音速弹种还有 2 条歼-15 专属样例
+        assert len(got) == 9
+        assert got[:7] == sub_generic
+
+    # 乘波体在歼-36弹仓被专属行覆盖为 250 kg
+    wave_j36 = next(
+        case for case in cases
+        if case['missile_class'] == 'hgv_waverider' and case['bay'] == '歼-36弹仓'
+    )
+    assert wave_j36['warhead'] == 250
+    assert wave_j36['length'] == 6.35
+    assert wave_j36['diameter'] == 0.59
+    # 双锥体仍用共用行的 600 kg
+    biconic_j36 = next(
+        case for case in cases
+        if case['missile_class'] == 'hgv_biconic' and case['bay'] == '歼-36弹仓'
+    )
+    assert biconic_j36['warhead'] == 600
+
     assert all(row['range_km'] > 0 for row in evaluate_dataset())
 
 

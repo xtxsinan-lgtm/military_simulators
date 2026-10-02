@@ -40,7 +40,10 @@ SPEED_GROUP_CLASSES = {
 def grouped_preset_bays(
     preset_rows: list[dict[str, Any]] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
-    """把 CSV 行收成速度组 -> 弹仓列表（同一弹仓连续多行视为多发战斗部）。"""
+    """把 CSV 行收成速度组 -> 弹仓列表（同一弹仓连续多行视为多发战斗部）。
+
+    若行带 missile_class，则该弹仓只对该弹种生效；留空则对该速度组全部弹种生效。
+    """
     rows = preset_rows if preset_rows is not None else load_missile_range_preset_csv()
     grouped: dict[str, list[dict[str, Any]]] = {name: [] for name in SPEED_GROUP_CLASSES}
     last_key: dict[str, tuple[Any, ...] | None] = {name: None for name in grouped}
@@ -48,9 +51,13 @@ def grouped_preset_bays(
         group = str(row['speed_group'])
         if group not in grouped:
             raise ValueError(f'未知速度组 {group}')
-        key = (row['bay'], float(row['v_launch_mach']), float(row['h_launch_km']))
+        missile_class = row.get('missile_class') or None
+        if missile_class is not None:
+            missile_class = str(missile_class)
+        key = (missile_class, str(row['bay']), float(row['v_launch_mach']), float(row['h_launch_km']))
         if last_key[group] != key:
             grouped[group].append({
+                'missile_class': missile_class,
                 'bay': str(row['bay']),
                 'v_mach': float(row['v_launch_mach']),
                 'h_km': float(row['h_launch_km']),
@@ -73,20 +80,34 @@ def grouped_preset_bays(
 def build_preset_cases(
     preset_rows: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
-    """按弹种目录顺序展开载机弹仓样本，编号从 1 连续增加。"""
+    """按弹种目录顺序展开载机弹仓样本，编号从 1 连续增加。
+
+    同一弹仓若存在弹种专属行（missile_class 非空），则该弹种不再使用同弹仓的共用行，
+    专属行按 CSV 顺序覆盖共用行。
+    """
     grouped = grouped_preset_bays(preset_rows)
-    bays_for: dict[str, list[dict[str, Any]]] = {}
-    for group, names in SPEED_GROUP_CLASSES.items():
-        for name in names:
-            bays_for[name] = grouped[group]
     rows: list[dict[str, Any]] = []
     number = 1
     for item in MISSILE_CLASS_ORDER:
         missile_class = item['id']
-        bays = bays_for.get(missile_class)
-        if bays is None:
-            raise ValueError(f'弹种 {missile_class} 没有预设弹仓')
-        for bay in bays:
+        try:
+            group = next(g for g, names in SPEED_GROUP_CLASSES.items() if missile_class in names)
+        except StopIteration as exc:
+            raise ValueError(f'弹种 {missile_class} 没有预设弹仓') from exc
+        # 哪些 (弹种, 弹仓, 发射条件) 在该速度组存在专属覆盖
+        specific_keys = {
+            (bay['missile_class'], bay['bay'], bay['v_mach'], bay['h_km'])
+            for bay in grouped[group]
+            if bay.get('missile_class') is not None
+        }
+        for bay in grouped[group]:
+            bay_class = bay.get('missile_class')
+            if bay_class is not None:
+                if bay_class != missile_class:
+                    continue
+            else:
+                if (missile_class, bay['bay'], bay['v_mach'], bay['h_km']) in specific_keys:
+                    continue
             for length, diameter, warhead in bay['rounds']:
                 rows.append({
                     'id': number,

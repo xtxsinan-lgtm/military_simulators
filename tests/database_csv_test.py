@@ -214,16 +214,24 @@ def test_load_missile_range_preset_csv_rejects_bad_file(tmp_path):
         load_missile_range_preset_csv(bad)
     unknown = tmp_path / 'unknown.csv'
     unknown.write_text(
-        'speed_group,bay,length_m,diameter_m,warhead_kg,v_launch_mach,h_launch_km,notes\n'
-        'orbital,试验,4,0.4,100,0,0,\n',
+        'speed_group,bay,length_m,diameter_m,warhead_kg,v_launch_mach,h_launch_km,notes,missile_class\n'
+        'orbital,试验,4,0.4,100,0,0,,\n',
         encoding='utf-8',
     )
     with pytest.raises(ValueError, match='未知 speed_group'):
         load_missile_range_preset_csv(unknown)
+    bad_class = tmp_path / 'bad_class.csv'
+    bad_class.write_text(
+        'speed_group,bay,length_m,diameter_m,warhead_kg,v_launch_mach,h_launch_km,notes,missile_class\n'
+        'supersonic,试验,4,0.4,100,0,0,,laser\n',
+        encoding='utf-8',
+    )
+    with pytest.raises(ValueError, match='未知 missile_class'):
+        load_missile_range_preset_csv(bad_class)
     half = tmp_path / 'half.csv'
     half.write_text(
-        'speed_group,bay,length_m,diameter_m,warhead_kg,v_launch_mach,h_launch_km,notes\n'
-        'supersonic,试验,4,0.4,100,0,0,\n',
+        'speed_group,bay,length_m,diameter_m,warhead_kg,v_launch_mach,h_launch_km,notes,missile_class\n'
+        'supersonic,试验,4,0.4,100,0,0,,\n',
         encoding='utf-8',
     )
     with pytest.raises(ValueError, match='缺少速度组'):

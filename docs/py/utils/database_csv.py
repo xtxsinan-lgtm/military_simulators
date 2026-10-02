@@ -53,10 +53,10 @@ MISSILE_INTERCEPTION_MISSILE_CATEGORIES = ('asm', 'sam')
 MISSILE_INTERCEPTION_RADAR_CATEGORIES = ('aew', 'ship')
 MISSILE_INTERCEPTION_CATEGORIES = ('asm', 'aew', 'ship', 'sam')
 
-# 导弹射程预设：按速度组展开到各弹种
+# 导弹射程预设：按速度组展开到各弹种；missile_class 留空表示该弹仓对该速度组全部弹种共用
 MISSILE_RANGE_PRESET_CSV_COLUMNS = (
     'speed_group', 'bay', 'length_m', 'diameter_m', 'warhead_kg',
-    'v_launch_mach', 'h_launch_km', 'notes',
+    'v_launch_mach', 'h_launch_km', 'notes', 'missile_class',
 )
 MISSILE_RANGE_SPEED_GROUPS = ('supersonic', 'subsonic')
 
@@ -516,6 +516,14 @@ def load_missile_range_preset_csv(path: str | Path | None = None) -> list[dict[s
                 )
             if not bay:
                 raise ValueError(f'{csv_path} 存在空的 bay')
+            missile_class = (row.get('missile_class') or '').strip() or None
+            if missile_class is not None and missile_class not in {
+                'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet',
+                'turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ballistic',
+            }:
+                raise ValueError(
+                    f'{csv_path} 未知 missile_class={missile_class!r}（行 bay={bay}）'
+                )
             item: dict[str, Any] = {
                 'speed_group': group,
                 'bay': bay,
@@ -524,6 +532,7 @@ def load_missile_range_preset_csv(path: str | Path | None = None) -> list[dict[s
                 'warhead_kg': _parse_float(row.get('warhead_kg') or '', 'warhead_kg'),
                 'v_launch_mach': _parse_float(row.get('v_launch_mach') or '', 'v_launch_mach'),
                 'h_launch_km': _parse_float(row.get('h_launch_km') or '', 'h_launch_km'),
+                'missile_class': missile_class,
             }
             notes = (row.get('notes') or '').strip()
             if notes:
