@@ -197,9 +197,11 @@ def test_e2e_missile_range_six_classes():
             assert data['result']['isp_cruise_s'] > data['result']['isp_boost_s']
         if missile_class == 'scramjet':
             assert data['result']['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
-            assert '燃烧室与固体助推分开' in data['result']['note']
+            assert data['result']['mach_takeover'] == 3.0
+            assert '双模态' in data['result']['note']
+            assert '不铸药' in data['result']['note']
             assert '高密度吸热型' in data['result']['note']
-            assert '亚燃' not in data['result']['note']
+            assert '固冲一体' not in data['result']['note']
         if missile_class == 'turbojet_subsonic':
             assert data['result']['isp_cruise_s'] == pytest.approx(2800.0, abs=0.2)
         if missile_class == 'ballistic':
@@ -556,9 +558,9 @@ def test_e2e_missile_range_takeover_gui_and_api():
         'action': 'estimate',
         'params': {
             'missile_class': 'scramjet',
-            'length_m': 6.35,
-            'diameter_m': 0.51,
-            'warhead_kg': 160.0,
+            'length_m': 3.0,
+            'diameter_m': 0.30,
+            'warhead_kg': 50.0,
             'v_launch_mach': 0.0,
             'h_launch_km': 0.0,
         },
@@ -569,18 +571,19 @@ def test_e2e_missile_range_takeover_gui_and_api():
     assert status == 200
     res = json.loads(body.decode())['result']
     assert res['reached_takeover'] is False
-    assert res['mach_takeover'] == 4.2
-    assert res['mach_boost'] < 4.2 * 0.98
+    assert res['mach_takeover'] == 3.0
+    assert res['mach_boost'] < 3.0 * 0.98
     assert res['range_cruise_km'] == 0.0
+    assert '固冲一体' not in res['note']
 
     # 2. 验证 API 返回达到工作速度情况
     payload_ok = {
         'action': 'estimate',
         'params': {
             'missile_class': 'scramjet',
-            'length_m': 10.0,
-            'diameter_m': 1.05,
-            'warhead_kg': 400.0,
+            'length_m': 6.35,
+            'diameter_m': 0.51,
+            'warhead_kg': 160.0,
             'v_launch_mach': 0.0,
             'h_launch_km': 0.0,
         },
@@ -591,8 +594,11 @@ def test_e2e_missile_range_takeover_gui_and_api():
     assert status_ok == 200
     res_ok = json.loads(body_ok.decode())['result']
     assert res_ok['reached_takeover'] is True
-    assert res_ok['mach_takeover'] == 4.2
-    assert res_ok['mach_boost'] >= 4.2 * 0.98
+    assert res_ok['mach_takeover'] == 3.0
+    assert res_ok['mach_boost'] >= 3.0 * 0.98
+    assert res_ok['cruise_mach'] == pytest.approx(5.2, abs=0.05)
+    assert '双模态' in res_ok['note']
+    assert '固冲一体' not in res_ok['note']
 
     # 3. 验证三端 GUI 代码中对未达工作速度的展示支持
     html = (ROOT / 'docs' / 'missile-range.html').read_text(encoding='utf-8')

@@ -30,6 +30,8 @@ from utils.missile_range.dataset import (
 from utils.missile_range.estimate import (
     G0,
     GLIDE_EXIT_SPEED_M_S,
+    GLIDE_HEAT_EXPONENT,
+    GLIDE_HEAT_RATIO,
     HGV_CHAMBER_DEDUCT_CAP_M,
     HGV_CHAMBER_DEDUCT_FRAC,
     HGV_CHAMBER_FILL,
@@ -55,6 +57,7 @@ from utils.missile_range.estimate import (
     estimate_hgv,
     estimate_hgv_unrounded,
     glide_exit_ratio,
+    glide_heat_factor,
     glide_range_m,
     hgv_burnout_altitude_km,
     hgv_propellant_mass_kg,
@@ -276,9 +279,19 @@ def test_glide_range_m_cap_and_formula():
         0.5 * R_EARTH_M * ld
         * math.log((1.0 - exit_ratio) / (1.0 - ratio))
         * (1.0 + 0.35 * ratio)
+        * glide_heat_factor(ratio)
     )
     assert glide_range_m(ratio, ld) == pytest.approx(expected)
+    assert glide_heat_factor(GLIDE_HEAT_RATIO) == 1.0
+    hot = 0.7
+    assert glide_heat_factor(hot) == pytest.approx((GLIDE_HEAT_RATIO / hot) ** GLIDE_HEAT_EXPONENT)
+    unheated = expected / glide_heat_factor(ratio) * (
+        math.log((1.0 - exit_ratio) / (1.0 - hot)) / math.log((1.0 - exit_ratio) / (1.0 - ratio))
+    ) * ((1.0 + 0.35 * hot) / (1.0 + 0.35 * ratio))
+    assert glide_range_m(hot, ld) < unheated
     assert glide_range_m(exit_ratio, ld) == 0.0
+    with pytest.raises(ValueError, match='不能为负'):
+        glide_heat_factor(-0.1)
     full_to_zero = (
         0.5 * R_EARTH_M * ld * math.log(1.0 / (1.0 - ratio)) * (1.0 + 0.35 * ratio)
     )
@@ -340,6 +353,17 @@ def test_hgv_burnout_altitude_and_vls_bands():
     )['note']
 
 
+def test_h6_biconic_air_launch_stays_in_jinglei_band():
+    """轰-6 机腹最大的双锥体按惊雷-1 量级：战斗部 200 kg 以内，射程 5000–7000 km。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    light = estimate_by_class('hgv_biconic', 12.0, 1.0818, 150, 0.85, 13.0)
+    heavier = estimate_by_class('hgv_biconic', 12.0, 1.0818, 200, 0.85, 13.0)
+    assert 5000.0 <= light['range_km'] <= 7000.0
+    assert 5000.0 <= heavier['range_km'] <= 7000.0
+    assert heavier['range_km'] < light['range_km']
+
+
 def test_require_non_negative():
     assert _require_non_negative('战斗部质量', 0) == 0
     with pytest.raises(ValueError, match='战斗部质量'):
@@ -355,7 +379,7 @@ def test_estimate_hgv_matches_reference_dataset():
     assert got['ld_ratio'] == ref['ld_ratio']
     assert got['n_stages'] == 3
     assert got['stage_split'] == '70/22/8'
-    assert got['range_km'] == 6776.9
+    assert got['range_km'] == 3200.1
     assert got['stage_hardware_kg'] > 0
     for case in MISSILE_DATASET:
         from utils.missile_range.classes import glide_shape
@@ -901,7 +925,7 @@ def test_six_classes_ranges_and_profiles():
 
     scram = estimate_ducted('scramjet', 9.2, 0.7, 180, 0.85, 12, 264, 1760)
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
-    assert scram['range_km'] == 1773.8
+    assert scram['range_km'] == 1925.2
     assert scram['cruise_mach'] == 5.2
     assert ram['range_km'] == 1846.8
     assert ram['cruise_alt_km'] == 10.0
@@ -1115,7 +1139,7 @@ def test_j15_wing_presets_stay_inside_pylon_box():
     expected = {
         'hgv_biconic': (6.50, 0.5638, 300),
         'hgv_waverider': (6.50, 0.5915, 300),
-        'scramjet': (4.13, 0.6996, 300),
+        'scramjet': (4.13, 0.6791, 300),
         'ramjet': (5.46, 0.5006, 500),
         'ballistic': (6.50, 0.5480, 500),
         'turbofan_stealth': (6.50, 0.5727, 500),
@@ -1671,9 +1695,13 @@ def test_public_airbreathing_ranges_match_open_sources():
     assert big_vls['cruise_mach'] == pytest.approx(5.2, abs=0.05)
     assert big_vls['range_km'] > cj['range_km']
     small = estimate_by_class('scramjet', 6.35, 0.51, 160, 0.0, 0.0)
-    assert small['range_km'] > 0
-    assert small['range_cruise_km'] == 0.0
-    assert '未接入' in small['note']
+    assert small['reached_takeover'] is True
+    assert small['mach_takeover'] == 3.0
+    assert small['cruise_mach'] == pytest.approx(5.2, abs=0.05)
+    assert small['range_cruise_km'] > 200
+    assert '双模态' in small['note']
+    assert '固冲一体' not in small['note']
+    assert '不铸药' in small['note']
     tube_ram = estimate_by_class('ramjet', 6.35, 0.51, 160, 0.0, 0.0)
     assert tube_ram['range_km'] < brahmos['range_km']
 
@@ -1693,7 +1721,8 @@ def test_optimistic_duct_ranges_stay_below_same_size_hgv():
     assert scram['range_km'] > 2500
     assert ram['range_km'] > 2200
     small = estimate_by_class('scramjet', 4.25, 0.345, 90, 2.2, 19.0)
-    assert small['cruise_mach'] < 4.0
+    assert small['reached_takeover'] is True
+    assert small['cruise_mach'] == pytest.approx(5.2, abs=0.05)
 
 
 def test_glide_floor_range_km_lifts_only_short_glides():
@@ -1746,24 +1775,26 @@ def test_same_tube_glide_outranges_ballistic_and_combo_keeps_turbofan_isp():
 
 
 def test_scramjet_without_takeover_coasts_instead_of_cruising():
-    """接不上超燃接力时只计弹道弧，不改用亚燃模态巡航。"""
+    """接不上亚燃接力时只计弹道弧，不改用固冲一体巡航。鱼雷管双模态可以接到。"""
     from utils.missile_range.classes import estimate_by_class
 
-    tiny = estimate_by_class('scramjet', 4.7, 0.36, 90, 0.9, 10.0)
+    tiny = estimate_by_class('scramjet', 3.0, 0.30, 50, 0.0, 0.0)
+    assert tiny['reached_takeover'] is False
     assert tiny['range_cruise_km'] == 0.0
     assert tiny['cruise_alt_km'] < 20.0
     assert '未接入' in tiny['note']
-    assert '亚燃' not in tiny['note']
+    assert '固冲一体' not in tiny['note']
     fighter = estimate_by_class('scramjet', 4.25, 0.345, 90, 2.2, 19.0)
-    assert '未接入' in fighter['note']
-    assert '亚燃模态' not in fighter['note']
-    assert fighter['cruise_mach'] < 4.0
-    assert fighter['range_cruise_km'] == 0.0
+    assert fighter['reached_takeover'] is True
+    assert fighter['cruise_mach'] == pytest.approx(5.2, abs=0.05)
+    assert fighter['range_cruise_km'] > 0
     assert fighter['isp_cruise_s'] == pytest.approx(1200.0, abs=0.2)
     tube = dict(length_m=6.35, diameter_m=0.51, warhead_mass_kg=160, v_launch_mach=0.0, h_launch_km=0.0)
     scram = estimate_by_class('scramjet', **tube)
     ram = estimate_by_class('ramjet', **tube)
-    assert scram['range_cruise_km'] == 0.0
+    assert scram['reached_takeover'] is True
+    assert scram['mach_takeover'] == 3.0
+    assert scram['range_cruise_km'] > 0
     assert 0 < scram['range_km'] < ram['range_km']
 
 
@@ -1816,17 +1847,44 @@ def test_scramjet_combustor_is_separate_from_the_booster():
     assert split_fuel == pytest.approx(bay_fuel)
     assert split_prop / (1760 * BOOST_FILL) + split_fuel / 980 == pytest.approx(1.0)
     assert _DUCT_SPECS['scramjet']['fuel_density'] == SCRAMJET_ENDOTHERMIC_FUEL_KG_M3
-    assert 'dual_mode' not in _DUCT_SPECS['scramjet']
+    assert _DUCT_SPECS['scramjet']['mach_takeover'] == 3.0
     assert '固冲一体' in class_blurb('ramjet')
     assert '双模态' in class_blurb('scramjet')
+    assert '不铸药' in class_blurb('scramjet')
     assert '高密度吸热型' in class_blurb('scramjet')
     scram = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
     ram = estimate_by_class('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
-    assert '燃烧室与固体助推分开' in scram['note']
+    assert '双模态' in scram['note']
+    assert '不铸药' in scram['note']
     assert '高密度吸热型' in scram['note']
-    assert '亚燃' not in scram['note']
+    assert '固冲一体' not in scram['note']
     assert '固冲一体' in ram['note']
     assert ram['m_0_t'] == pytest.approx(1.50, abs=0.05)
+
+
+def test_scramjet_isolator_shrinks_with_cross_section():
+    """隔离段在 1.05 m 及以上保持 0.22 m³，更细的弹按截面积缩小。"""
+    from utils.missile_range.classes import (
+        SCRAMJET_ISOLATOR_REF_DIAMETER_M,
+        _DUCT_SPECS,
+        scramjet_isolator_volume_m3,
+    )
+
+    reference = _DUCT_SPECS['scramjet']['fixed_void_m3']
+    assert scramjet_isolator_volume_m3(SCRAMJET_ISOLATOR_REF_DIAMETER_M) == pytest.approx(reference)
+    assert scramjet_isolator_volume_m3(1.20) == pytest.approx(reference)
+    tube = scramjet_isolator_volume_m3(0.51)
+    assert tube == pytest.approx(reference * (0.51 / SCRAMJET_ISOLATOR_REF_DIAMETER_M) ** 2)
+    assert tube < reference
+    with pytest.raises(ValueError):
+        scramjet_isolator_volume_m3(0)
+    saved = _DUCT_SPECS['scramjet']['fixed_void_m3']
+    _DUCT_SPECS['scramjet']['fixed_void_m3'] = -0.1
+    try:
+        with pytest.raises(ValueError, match='隔离段'):
+            scramjet_isolator_volume_m3(0.51)
+    finally:
+        _DUCT_SPECS['scramjet']['fixed_void_m3'] = saved
 
 
 def test_isp_from_tsfc_round_trip():
@@ -1977,8 +2035,9 @@ def test_missile_range_takeover_status():
     # 1. 成功接入接力马赫数的大型超燃与空射亚燃
     scram_ok = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
     assert scram_ok['reached_takeover'] is True
-    assert scram_ok['mach_takeover'] == 4.2
-    assert scram_ok['mach_boost'] >= 4.2 * 0.98
+    assert scram_ok['mach_takeover'] == 3.0
+    assert scram_ok['mach_boost'] >= 3.0 * 0.98
+    assert scram_ok['cruise_mach'] == pytest.approx(5.2, abs=0.05)
     assert scram_ok['range_cruise_km'] > 0
     assert scram_ok['m_booster_kg'] > 0
     assert scram_ok['m_fuel_kg'] > 0
@@ -1990,11 +2049,14 @@ def test_missile_range_takeover_status():
     assert ram_ok['m_booster_kg'] > 0
     assert ram_ok['m_fuel_kg'] > 0
 
-    # 2. 未达接力工作速度的小型超燃（地面发射或小尺寸）
-    scram_fail = estimate_by_class('scramjet', 6.35, 0.51, 160, 0.0, 0.0)
+    # 2. 未达亚燃接力的过小超燃；533 mm 鱼雷管双模态可以接到
+    scram_fail = estimate_by_class('scramjet', 3.0, 0.30, 50, 0.0, 0.0)
     assert scram_fail['reached_takeover'] is False
-    assert scram_fail['mach_takeover'] == 4.2
-    assert scram_fail['mach_boost'] < 4.2 * 0.98
+    assert scram_fail['mach_takeover'] == 3.0
+    assert scram_fail['mach_boost'] < 3.0 * 0.98
+    tube = estimate_by_class('scramjet', 6.35, 0.51, 160, 0.0, 0.0)
+    assert tube['reached_takeover'] is True
+    assert tube['mach_boost'] >= 3.0 * 0.98
     assert scram_fail['range_cruise_km'] == 0.0
     assert '未接入' in scram_fail['note']
     assert 0 < scram_fail['takeover_progress'] < 1.0
@@ -2028,12 +2090,22 @@ def test_filter_takeover_failed_and_labels():
     failed = filter_takeover_failed(rows, True)
     all_rows = filter_takeover_failed(rows, False)
     assert len(all_rows) == len(rows)
-    assert failed
     assert all(row['reached_takeover'] is False for row in failed)
     assert all('未达工作速度' in row['name'] for row in failed)
     assert all(row['missile_class'] == 'scramjet' for row in failed)
     labelled = [row for row in rows if '未达工作速度' in row['name']]
     assert len(labelled) == len(failed)
+    assert not any(
+        row['missile_class'] == 'scramjet' and row.get('reached_takeover') is False
+        for row in rows
+    )
+    synthetic = [
+        {'name': '过小 · 未达工作速度', 'reached_takeover': False, 'missile_class': 'scramjet'},
+        {'name': '够大', 'reached_takeover': True, 'missile_class': 'scramjet'},
+    ]
+    only_failed = filter_takeover_failed(synthetic, True)
+    assert len(only_failed) == 1
+    assert only_failed[0]['reached_takeover'] is False
 
 
 def test_hgv_min_fineness():

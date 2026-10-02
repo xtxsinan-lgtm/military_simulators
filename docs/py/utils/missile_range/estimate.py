@@ -23,6 +23,9 @@ HGV_CHAMBER_DEDUCT_FRAC = 0.22
 HGV_PROPELLANT_MASS_FRACTION = 0.88
 # 平衡滑翔到临近空间下沿后改末段俯冲。1500 m/s 约 Ma 5，不再把航程积到速度为 0。
 GLIDE_EXIT_SPEED_M_S = 1500.0
+# 约 Ma 13 以下热流还允许沿最大升阻比飞行。更快必须抬高弹道，有效航程随之下降。
+GLIDE_HEAT_RATIO = 0.25
+GLIDE_HEAT_EXPONENT = 0.87
 # 13 km、约 9.05 t、弹径 1 m 的参考弹损失为 320 m/s，其中阻力约 80 m/s。
 # 海平面同一发参考弹提到 1000 m/s；更轻、更细的弹再按弹道系数放大阻力。
 HGV_LOSS_AT_13_M_S = 320.0
@@ -601,10 +604,20 @@ def glide_exit_ratio() -> float:
     return (GLIDE_EXIT_SPEED_M_S ** 2) / (G0 * R_EARTH_M)
 
 
+def glide_heat_factor(ratio_v2: float) -> float:
+    """热流把高速滑翔压离最大升阻比走廊。Ma 13 附近及以下不打折。"""
+    if ratio_v2 < 0.0:
+        raise ValueError('滑翔能量参数不能为负')
+    if ratio_v2 <= GLIDE_HEAT_RATIO:
+        return 1.0
+    return (GLIDE_HEAT_RATIO / ratio_v2) ** GLIDE_HEAT_EXPONENT
+
+
 def glide_range_m(ratio_v2: float, ld_ratio: float) -> float:
     """平衡滑翔航程，积到临近空间下沿；接近轨道能量时封顶 16000 km。
 
     对数项是从入口速度积到出口速度。1 + 0.35 v²/vc² 把下滑过程换回的高度势能补上一点。
+    超过热流参考能量后，再乘上升阻比走廊用不满的折扣。
     """
     if ratio_v2 >= 0.95:
         return 16000000.0
@@ -617,6 +630,7 @@ def glide_range_m(ratio_v2: float, ld_ratio: float) -> float:
         0.5 * R_EARTH_M * ld_ratio
         * math.log((1.0 - exit_ratio) / (1.0 - ratio_v2))
         * (1.0 + 0.35 * ratio_v2)
+        * glide_heat_factor(ratio_v2)
     )
 
 
