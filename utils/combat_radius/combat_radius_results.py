@@ -154,6 +154,7 @@ def sanitize_dashboard(result: dict[str, Any]) -> dict[str, Any]:
                 'fuel_kg_per_km': _round(p.get('fuel_kg_per_km'), 3),
                 'reheat': bool(p.get('reheat')),
                 'thrust_mode': p.get('thrust_mode'),
+                'ab_ceiling_km': _round(p.get('ab_ceiling_km'), 2),
             }
             for p in (result.get('afterburner_best_altitude') or [])
         ],
