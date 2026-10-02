@@ -29,7 +29,12 @@ from utils.missile_range.dataset import (
 )
 from utils.missile_range.estimate import (
     G0,
-    GLIDE_EFF,
+    GLIDE_EXIT_SPEED_M_S,
+    HGV_CHAMBER_DEDUCT_CAP_M,
+    HGV_CHAMBER_DEDUCT_FRAC,
+    HGV_CHAMBER_FILL,
+    HGV_MOTOR_DIAMETER_RATIO,
+    HGV_PROPELLANT_MASS_FRACTION,
     HGV_BETA_SCALE_MAX,
     HGV_BETA_SCALE_MIN,
     HGV_DRAG_AT_13_M_S,
@@ -46,9 +51,13 @@ from utils.missile_range.estimate import (
     _require_non_negative,
     _round_hgv_result,
     chamber_length_m,
+    boost_drag_height_factor,
     estimate_hgv,
     estimate_hgv_unrounded,
+    glide_exit_ratio,
     glide_range_m,
+    hgv_burnout_altitude_km,
+    hgv_propellant_mass_kg,
     gravity_drag_loss_m_s,
     head_and_booster_lengths_m,
     head_aux_ratio,
@@ -112,7 +121,7 @@ def _oracle(
     head_density = 1800.0 if hgv_type == 'biconic' else 1650.0
     v_head_req = m_head_total / head_density
     volume_factor = 0.2618 if hgv_type == 'biconic' else 0.1745
-    fineness_min = 2.5 if hgv_type == 'biconic' else 3.5
+    fineness_min = 1.8 if hgv_type == 'biconic' else 2.2
     l_head_calc = max(
         v_head_req / (volume_factor * (diameter_m ** 2)),
         fineness_min * diameter_m,
@@ -140,16 +149,19 @@ def _oracle(
     if hgv_type == 'biconic':
         ld_ratio = max(1.8, min(3.5, 1.5 + 0.18 * fineness))
     else:
-        ld_ratio = max(2.8, min(5.0, 2.2 + 0.28 * fineness))
+        ld_ratio = max(2.8, min(5.0, 2.4 + 0.32 * fineness))
     v_eff2 = v_burnout ** 2 + 2.0 * g0 * (h_launch_km * 1000.0)
     ratio_v2 = v_eff2 / (g0 * r_e)
-    glide_eff = 0.513
+    exit_ratio = (GLIDE_EXIT_SPEED_M_S ** 2) / (g0 * r_e)
     if ratio_v2 >= 0.95:
         r_glide = 16000000.0
+    elif ratio_v2 <= exit_ratio:
+        r_glide = 0.0
     else:
         r_glide = (
-            0.5 * r_e * ld_ratio * math.log(1.0 / (1.0 - ratio_v2))
-            * (1.0 + 0.35 * ratio_v2) * glide_eff
+            0.5 * r_e * ld_ratio
+            * math.log((1.0 - exit_ratio) / (1.0 - ratio_v2))
+            * (1.0 + 0.35 * ratio_v2)
         )
     r_boost = (v_launch_ms + v_burnout) / 2.0 * 60.0 + h_launch_km * 1000.0 * 2.0
     total_range_km = (r_boost + r_glide) / 1000.0
@@ -247,7 +259,7 @@ def test_gravity_drag_loss_m_s_clamps():
 def test_lift_drag_ratio_bounds():
     """升阻比用滑翔体自身长细比；过短落到下限，过长封在上限。"""
     assert lift_drag_ratio(0.57, 1.0, 'biconic') == pytest.approx(1.8)
-    assert lift_drag_ratio(4.0, 0.8, 'waverider') == pytest.approx(3.6)
+    assert lift_drag_ratio(4.0, 0.8, 'waverider') == pytest.approx(4.0)
     assert lift_drag_ratio(20.0, 0.86, 'waverider') == pytest.approx(5.0)
     with pytest.raises(ValueError):
         lift_drag_ratio(10, 0, 'biconic')
@@ -259,13 +271,73 @@ def test_glide_range_m_cap_and_formula():
     assert glide_range_m(0.96, 3.0) == 16000000.0
     ratio = 0.2
     ld = 3.0
+    exit_ratio = (GLIDE_EXIT_SPEED_M_S ** 2) / (G0 * R_EARTH_M)
     expected = (
-        0.5 * R_EARTH_M * ld * math.log(1.0 / (1.0 - ratio))
-        * (1.0 + 0.35 * ratio) * GLIDE_EFF
+        0.5 * R_EARTH_M * ld
+        * math.log((1.0 - exit_ratio) / (1.0 - ratio))
+        * (1.0 + 0.35 * ratio)
     )
     assert glide_range_m(ratio, ld) == pytest.approx(expected)
+    assert glide_range_m(exit_ratio, ld) == 0.0
+    full_to_zero = (
+        0.5 * R_EARTH_M * ld * math.log(1.0 / (1.0 - ratio)) * (1.0 + 0.35 * ratio)
+    )
+    assert glide_range_m(ratio, ld) < full_to_zero
     with pytest.raises(ValueError):
         glide_range_m(-0.1, 3.0)
+
+
+def test_boost_drag_height_factor_and_lofted_loss():
+    """高抛后阻力低于全程停在发射高度，爬升很短时不打折。"""
+    assert boost_drag_height_factor(0.0, 0.5) == 1.0
+    assert boost_drag_height_factor(0.0, 40.0) < 1.0
+    assert boost_drag_height_factor(13.0, 70.0) < boost_drag_height_factor(0.0, 20.0)
+    sea = gravity_drag_loss_m_s(0.0, 3360.0, 0.8)
+    lofted = gravity_drag_loss_m_s(0.0, 3360.0, 0.8, 45.0)
+    assert lofted < sea
+    with pytest.raises(ValueError, match='不能为负'):
+        boost_drag_height_factor(-1.0, 10.0)
+    with pytest.raises(ValueError, match='不能低于'):
+        boost_drag_height_factor(20.0, 10.0)
+    with pytest.raises(ValueError, match='质量与弹径'):
+        gravity_drag_loss_m_s(0.0, h_burnout_km=30.0)
+
+
+def test_hgv_propellant_mass_kg_packs_tighter_than_ballistic():
+    """滑翔弹药柱比弹道弹少留壳体和空腔，药量更高。"""
+    ballistic = propellant_mass_kg(0.8, 6.0, 1760.0)
+    hgv = hgv_propellant_mass_kg(0.8, 6.0, 1760.0)
+    assert hgv > ballistic
+    hand = (
+        math.pi * ((0.8 * HGV_MOTOR_DIAMETER_RATIO) / 2.0) ** 2
+        * max(0.2, 6.0 - min(HGV_CHAMBER_DEDUCT_CAP_M, 6.0 * HGV_CHAMBER_DEDUCT_FRAC))
+        * HGV_CHAMBER_FILL
+        * 1760.0
+    )
+    assert hgv == pytest.approx(hand)
+    assert 0.87 < HGV_PROPELLANT_MASS_FRACTION < 0.92
+    with pytest.raises(ValueError, match='直径比例'):
+        motor_cross_section_m2(1.0, 1.2)
+    with pytest.raises(ValueError, match='扣除'):
+        chamber_length_m(4.0, deduct_cap_m=-1)
+    with pytest.raises(ValueError, match='装填系数'):
+        propellant_mass_kg(1.0, 4.0, 1760.0, chamber_fill=0)
+
+
+def test_hgv_burnout_altitude_and_vls_bands():
+    """关机高度沿用弹道爬升。850 垂发乘波体、双锥体落在目标区间附近。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    assert hgv_burnout_altitude_km(3000.0, 0.0) > 30.0
+    assert glide_exit_ratio() == pytest.approx((GLIDE_EXIT_SPEED_M_S ** 2) / (G0 * R_EARTH_M))
+    wave = estimate_hgv(8.55, 0.8, 300, 'waverider', 0.0, 0.0, optimize_geometry=True)
+    bic = estimate_hgv(8.55, 0.8, 300, 'biconic', 0.0, 0.0, optimize_geometry=True)
+    assert 1500.0 <= wave['range_km'] <= 2100.0
+    assert 1000.0 <= bic['range_km'] <= 1500.0
+    assert wave['h_burnout_km'] > 20.0
+    assert '临近空间' in estimate_by_class(
+        'hgv_waverider', 8.55, 0.8, 300, 0.0, 0.0,
+    )['note']
 
 
 def test_require_non_negative():
@@ -282,8 +354,8 @@ def test_estimate_hgv_matches_reference_dataset():
     assert got['l_booster_m'] == ref['l_booster_m']
     assert got['ld_ratio'] == ref['ld_ratio']
     assert got['n_stages'] == 3
-    assert got['stage_split'] == '66/24/10'
-    assert got['range_km'] == 3027.7
+    assert got['stage_split'] == '70/22/8'
+    assert got['range_km'] == 6776.9
     assert got['stage_hardware_kg'] > 0
     for case in MISSILE_DATASET:
         from utils.missile_range.classes import glide_shape
@@ -354,7 +426,14 @@ def test_evaluate_dataset_and_catalog():
     assert rows[0]['bay'] == '轰-6机腹最大'
     assert rows[1]['bay'] == '轰-6机腹最大'
     assert rows[0]['length_m'] >= rows[1]['length_m']
-    assert rows[0]['range_km'] >= rows[1]['range_km']
+    if rows[0]['length_m'] == rows[1]['length_m']:
+        assert rows[0]['diameter_m'] >= rows[1]['diameter_m']
+    same_size = (
+        rows[0]['length_m'] == rows[1]['length_m']
+        and rows[0]['diameter_m'] == rows[1]['diameter_m']
+    )
+    if same_size:
+        assert rows[0]['range_km'] >= rows[1]['range_km']
     heavier = evaluate_dataset(isp_s=300, propellant_density=1900)
     glide = next(row for row in rows if row['missile_class'] == 'hgv_biconic')
     glide_heavier = next(
@@ -376,11 +455,11 @@ def test_evaluate_dataset_and_catalog():
     }
     assert 'hgv' not in {item['id'] for item in payload['classes']}
     assert payload['cases'][0]['bay'] == '轰-6机腹最大'
-    assert payload['cases'][0]['range_km'] >= payload['cases'][1]['range_km']
+    assert payload['cases'][0]['length_m'] >= payload['cases'][1]['length_m']
     top_bay = rows[0]['bay']
     same_bay = [r for r in rows if r['bay'] == top_bay]
     assert len(same_bay) >= 2
-    assert same_bay[0]['range_km'] >= same_bay[1]['range_km']
+    assert same_bay[0]['length_m'] >= same_bay[1]['length_m']
     assert payload['defaults']['isp_s'] == 264.0
     assert payload['cases'][0]['range_km'] == rows[0]['range_km']
     assert G0 == pytest.approx(9.80665)
@@ -1034,8 +1113,8 @@ def test_j15_wing_presets_stay_inside_pylon_box():
 
     # 弹长、弹径、战斗部
     expected = {
-        'hgv_biconic': (6.50, 0.5870, 300),
-        'hgv_waverider': (6.50, 0.5873, 300),
+        'hgv_biconic': (6.50, 0.5638, 300),
+        'hgv_waverider': (6.50, 0.5915, 300),
         'scramjet': (4.13, 0.6996, 300),
         'ramjet': (5.46, 0.5006, 500),
         'ballistic': (6.50, 0.5480, 500),
@@ -1959,19 +2038,19 @@ def test_filter_takeover_failed_and_labels():
 
 def test_hgv_min_fineness():
     """测试不同滑翔体构型的长细比底线值及构型别名。"""
-    assert hgv_min_fineness('biconic') == 2.5
-    assert hgv_min_fineness('双锥体') == 2.5
-    assert hgv_min_fineness('waverider') == 3.5
-    assert hgv_min_fineness('乘波体') == 3.5
+    assert hgv_min_fineness('biconic') == 1.8
+    assert hgv_min_fineness('双锥体') == 1.8
+    assert hgv_min_fineness('waverider') == 2.2
+    assert hgv_min_fineness('乘波体') == 2.2
     with pytest.raises(ValueError, match='未知构型'):
         hgv_min_fineness('invalid_shape')
 
 
 def test_min_head_length_m():
     """测试兼顾容积与长细比底线的滑翔体最小长度计算。"""
-    # 战斗部 200kg 双锥体，在 D=1.0m 时纯容积仅需 0.57m，但长细比底线 2.5 m 占主导
+    # 战斗部 200kg 双锥体，在 D=1.0m 时纯容积仅需 0.57m，但长细比底线 1.8 m 占主导
     l_floor = min_head_length_m(200.0, 1.0, 'biconic', enforce_min_fineness=True)
-    assert l_floor == pytest.approx(2.5)
+    assert l_floor == pytest.approx(1.8)
     l_raw = min_head_length_m(200.0, 1.0, 'biconic', enforce_min_fineness=False)
     assert l_raw == pytest.approx(0.573, abs=0.01)
 
@@ -1983,8 +2062,8 @@ def test_min_head_length_m():
 def test_head_and_booster_lengths_m_with_fineness():
     """测试带有长细比修正的弹头与助推器长度划分。"""
     lh, lb = head_and_booster_lengths_m(10.5, 1.0, 200.0, 'biconic')
-    assert lh == pytest.approx(2.5, abs=0.01)
-    assert lb == pytest.approx(8.0, abs=0.01)
+    assert lh == pytest.approx(1.8, abs=0.01)
+    assert lb == pytest.approx(8.7, abs=0.01)
 
     lh_raw, lb_raw = head_and_booster_lengths_m(
         10.5, 1.0, 200.0, 'biconic', enforce_min_fineness=False,
@@ -2002,13 +2081,13 @@ def test_optimize_hgv_geometry():
     assert opt_bi['best_l_head_m'] > opt_bi['baseline_l_head_m']
     assert opt_bi['best_d_head_m'] < 1.0
     assert opt_bi['best_ld_ratio'] > opt_bi['baseline_ld_ratio']
-    assert opt_bi['best_fineness'] >= 2.5
+    assert opt_bi['best_fineness'] >= 1.8
     assert opt_bi['result']['optimal_geometry'] is True
 
     # 10.5m x 1.0m, 200kg 弹头（乘波体）
     opt_wave = optimize_hgv_geometry(10.5, 1.0, 200.0, 'waverider')
     assert opt_wave['max_range_km'] > opt_wave['baseline_range_km'] + 500.0
-    assert opt_wave['best_fineness'] >= 3.5
+    assert opt_wave['best_fineness'] >= 2.2
     assert opt_wave['best_ld_ratio'] > 4.0
 
     # 异常输入校验
@@ -2127,10 +2206,10 @@ def test_round_hgv_result_and_unrounded():
     rounded = _round_hgv_result(
         raw['m_0'], raw['l_head_m'], raw['l_booster_m'], raw['m_propellant'],
         raw['v_burnout'], raw['ld_ratio'], raw['range_km'], raw['d_head_m'],
-        stage=raw['stage'],
+        raw['h_burnout_km'], stage=raw['stage'],
     )
     assert rounded == estimate_hgv(10.5, 1.0, 200.0, 'biconic')
-    assert raw['l_head_m'] == pytest.approx(2.5)
+    assert raw['l_head_m'] == pytest.approx(1.8)
     with pytest.raises(ValueError, match='容积不足以容纳'):
         estimate_hgv_unrounded(10.5, 1.0, 200.0, l_head_m=0.4, d_head_m=0.4)
 
@@ -2253,10 +2332,10 @@ def test_h6_belly_max_presets_are_sized_per_missile():
     from utils.missile_range.dataset import SUPERSONIC_CLASSES, build_preset_cases
 
     expected = {
-        ('hgv_biconic', 150): (12.00, 1.1516),
-        ('hgv_biconic', 600): (12.00, 1.1900),
-        ('hgv_waverider', 150): (12.00, 1.1987),
-        ('hgv_waverider', 600): (12.00, 1.1722),
+        ('hgv_biconic', 150): (12.00, 1.0818),
+        ('hgv_biconic', 600): (12.00, 1.1302),
+        ('hgv_waverider', 150): (12.00, 1.0959),
+        ('hgv_waverider', 600): (12.00, 1.1059),
         ('scramjet', 150): (11.98, 1.1040),
         ('scramjet', 600): (10.95, 1.1380),
         ('ramjet', 150): (12.00, 1.1360),
@@ -2345,6 +2424,10 @@ def test_booster_stage_search_penalizes_extra_stages():
     assert '60/40' in double['stage_split']
     with pytest.raises(ValueError, match='载荷'):
         build_stage_plan(0, 800, 0.5, 264, 1760, (1.0,))
+    with pytest.raises(ValueError, match='推进剂质量分数'):
+        build_stage_plan(200, 800, 0.5, 264, 1760, (1.0,), propellant_mass_fraction=1.0)
+    with pytest.raises(ValueError, match='推进剂质量分数'):
+        _best_fraction_by_impulse(200, 800, 0.5, 264, 1760, 1, propellant_mass_fraction=0)
     best = _best_fraction_by_impulse(200, 800, 0.5, 264, 1760, 2)
     assert best is not None and abs(sum(best) - 1) < 1e-9
     assert _best_fraction_by_impulse(200, 1, 2.0, 264, 1760, 3) is None

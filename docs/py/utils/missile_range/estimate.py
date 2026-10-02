@@ -10,9 +10,19 @@ R_EARTH_M = 6371000.0
 SOUND_SPEED_M_S = 295.0
 DEFAULT_ISP_S = 264.0
 DEFAULT_PROPELLANT_DENSITY = 1760.0
-GLIDE_EFF = 0.513
 PROPELLANT_MASS_FRACTION = 0.87
 CHAMBER_FILL = 0.81
+# 滑翔弹壳体加绝热大约占直径的 7%，药柱外径收到弹径的 93%。
+HGV_MOTOR_DIAMETER_RATIO = 0.93
+# 内孔装药的体积装填。0.84 比 0.81 少留一圈空腔，仍给中孔和余药留位置。
+HGV_CHAMBER_FILL = 0.84
+# 喷管、封头和级间段不装药。上限 1.30 m，或助推级长度的 22%，取更短的那个。
+HGV_CHAMBER_DEDUCT_CAP_M = 1.30
+HGV_CHAMBER_DEDUCT_FRAC = 0.22
+# 复合材料壳体。结构占推进剂加壳体的 12%，金属壳体旧值是 13%。
+HGV_PROPELLANT_MASS_FRACTION = 0.88
+# 平衡滑翔到临近空间下沿后改末段俯冲。1500 m/s 约 Ma 5，不再把航程积到速度为 0。
+GLIDE_EXIT_SPEED_M_S = 1500.0
 # 13 km、约 9.05 t、弹径 1 m 的参考弹损失为 320 m/s，其中阻力约 80 m/s。
 # 海平面同一发参考弹提到 1000 m/s；更轻、更细的弹再按弹道系数放大阻力。
 HGV_LOSS_AT_13_M_S = 320.0
@@ -51,10 +61,10 @@ HGV_TYPE_LABELS = {
     'biconic': '双锥体',
     'waverider': '乘波体',
 }
-# 气动合理的滑翔体长细比下限：过短会变成钝头扁锥，升阻比被模型下限兜住但不真实。
+# 长细比下限对齐升阻比公式触底的位置。再短升阻比也不再下降，只会被地板托住。
 HGV_MIN_FINENESS: dict[str, float] = {
-    'biconic': 2.5,
-    'waverider': 3.5,
+    'biconic': 1.8,
+    'waverider': 2.2,
 }
 HGV_VOLUME_FACTOR: dict[str, float] = {
     'biconic': 0.2618,
@@ -123,7 +133,7 @@ def head_packaging_volume_m3(length_m: float, diameter_m: float, hgv_type: str) 
 
 
 def hgv_min_fineness(hgv_type: str) -> float:
-    """滑翔体合理气动长细比下限：双锥体 2.5，乘波体 3.5。"""
+    """滑翔体长细比下限：双锥体 1.8，乘波体 2.2，与升阻比地板对齐。"""
     return HGV_MIN_FINENESS[normalize_hgv_type(hgv_type)]
 
 
@@ -180,15 +190,23 @@ def head_and_booster_lengths_m(
     return l_head, length_m - l_head
 
 
-def motor_cross_section_m2(diameter_m: float) -> float:
-    """发动机直径取弹径的 90%。"""
-    d_motor = diameter_m * 0.90
+def motor_cross_section_m2(diameter_m: float, diameter_ratio: float = 0.90) -> float:
+    """发动机截面积。默认直径取弹径的 90%，滑翔弹可传入更薄的壳体比例。"""
+    if diameter_ratio <= 0 or diameter_ratio > 1.0:
+        raise ValueError('发动机直径比例必须在 (0, 1] 内')
+    d_motor = diameter_m * diameter_ratio
     return math.pi * (d_motor / 2.0) ** 2
 
 
-def chamber_length_m(l_booster_m: float) -> float:
-    """有效药柱长度：扣掉接头/喷管，且不少于 0.2 m。"""
-    l_deduct = min(1.50, l_booster_m * 0.25)
+def chamber_length_m(
+    l_booster_m: float,
+    deduct_cap_m: float = 1.50,
+    deduct_frac: float = 0.25,
+) -> float:
+    """有效药柱长度：扣掉接头和喷管，且不少于 0.2 m。"""
+    if deduct_cap_m < 0 or deduct_frac < 0:
+        raise ValueError('药柱扣除长度不能为负')
+    l_deduct = min(deduct_cap_m, l_booster_m * deduct_frac)
     return max(0.2, l_booster_m - l_deduct)
 
 
@@ -196,10 +214,37 @@ def propellant_mass_kg(
     diameter_m: float,
     l_booster_m: float,
     propellant_density: float,
+    diameter_ratio: float = 0.90,
+    chamber_fill: float = CHAMBER_FILL,
+    deduct_cap_m: float = 1.50,
+    deduct_frac: float = 0.25,
 ) -> float:
     """药柱体积乘装填系数与推进剂密度。"""
-    volume = motor_cross_section_m2(diameter_m) * chamber_length_m(l_booster_m) * CHAMBER_FILL
+    if chamber_fill <= 0 or chamber_fill > 1.0:
+        raise ValueError('装填系数必须在 (0, 1] 内')
+    volume = (
+        motor_cross_section_m2(diameter_m, diameter_ratio)
+        * chamber_length_m(l_booster_m, deduct_cap_m, deduct_frac)
+        * chamber_fill
+    )
     return volume * propellant_density
+
+
+def hgv_propellant_mass_kg(
+    diameter_m: float,
+    l_booster_m: float,
+    propellant_density: float,
+) -> float:
+    """滑翔弹助推药柱：壳体更薄、装填更高，喷管和级间段占的长度更短。"""
+    return propellant_mass_kg(
+        diameter_m,
+        l_booster_m,
+        propellant_density,
+        diameter_ratio=HGV_MOTOR_DIAMETER_RATIO,
+        chamber_fill=HGV_CHAMBER_FILL,
+        deduct_cap_m=HGV_CHAMBER_DEDUCT_CAP_M,
+        deduct_frac=HGV_CHAMBER_DEDUCT_FRAC,
+    )
 
 
 def booster_liftoff_twr(launch_mass_kg: float) -> float:
@@ -274,13 +319,16 @@ def _staged_dv_and_burn(
     event_dead_kg: float,
     fractions: tuple[float, ...],
     isp_s: float,
+    propellant_mass_fraction: float = PROPELLANT_MASS_FRACTION,
 ) -> tuple[float, float, float, float] | None:
     """给定分配，返回理想速度增量、燃烧时间、关机质量和起飞质量。
 
     质量组合烧穿或结构比药还重时返回 None。
     """
+    if propellant_mass_fraction <= 0 or propellant_mass_fraction >= 1.0:
+        raise ValueError('推进剂质量分数必须在 (0, 1) 内')
     n_stages = len(fractions)
-    dry_prop = propellant_kg * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
+    dry_prop = propellant_kg * (1.0 - propellant_mass_fraction) / propellant_mass_fraction
     launch_mass = payload_kg + dry_prop + hardware_kg + propellant_kg
     if launch_mass <= propellant_kg:
         return None
@@ -319,6 +367,7 @@ def build_stage_plan(
     propellant_density: float,
     fractions: tuple[float, ...],
     locked: bool = False,
+    propellant_mass_fraction: float = PROPELLANT_MASS_FRACTION,
 ) -> dict | None:
     """把一份推进剂分配收成质量、速度增量和燃烧时间。装不下死重时返回 None。"""
     if payload_kg <= 0 or propellant_kg <= 0 or diameter_m <= 0:
@@ -334,7 +383,9 @@ def build_stage_plan(
     if displaced >= propellant_kg:
         return None
     burned = propellant_kg - displaced
-    staged = _staged_dv_and_burn(payload_kg, burned, hardware, event, fractions, isp_s)
+    staged = _staged_dv_and_burn(
+        payload_kg, burned, hardware, event, fractions, isp_s, propellant_mass_fraction,
+    )
     if staged is None:
         return None
     dv, burn_time, burnout, launch_mass = staged
@@ -362,34 +413,32 @@ def _best_fraction_by_impulse(
     isp_s: float,
     propellant_density: float,
     n_stages: int,
+    propellant_mass_fraction: float = PROPELLANT_MASS_FRACTION,
 ) -> tuple[float, ...] | None:
     """固定级数时，按理想速度增量减去额外重力损失选择分配。
 
     同一级数的起飞质量不变，滑翔弹的气动损失也不变，所以这一指标就是关机速度。
     """
+    if propellant_mass_fraction <= 0 or propellant_mass_fraction >= 1.0:
+        raise ValueError('推进剂质量分数必须在 (0, 1) 内')
     event = 0.0 if n_stages == 1 else stage_event_dead_kg(diameter_m)
     hardware = event * (n_stages - 1)
     displaced = displaced_propellant_kg(hardware, propellant_density)
     if displaced >= propellant_kg:
         return None
     burned = propellant_kg - displaced
+    dry_frac = (1.0 - propellant_mass_fraction) / propellant_mass_fraction
     single_twr = booster_liftoff_twr(
-        payload_kg + burned * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
-        + hardware + burned,
+        payload_kg + burned * dry_frac + hardware + burned,
     )
     single_time = burned * isp_s / (
-        single_twr * (
-            payload_kg
-            + burned * (1.0 - PROPELLANT_MASS_FRACTION) / PROPELLANT_MASS_FRACTION
-            + hardware
-            + burned
-        )
+        single_twr * (payload_kg + burned * dry_frac + hardware + burned)
     )
     best: tuple[float, ...] | None = None
     best_metric: float | None = None
     for fractions in _fraction_candidates(n_stages):
         staged = _staged_dv_and_burn(
-            payload_kg, burned, hardware, event, fractions, isp_s,
+            payload_kg, burned, hardware, event, fractions, isp_s, propellant_mass_fraction,
         )
         if staged is None:
             continue
@@ -412,6 +461,7 @@ def search_booster_stages(
     stages: int | None = None,
     tie_tol: float = 0.5,
     prescreen: bool = False,
+    propellant_mass_fraction: float = PROPELLANT_MASS_FRACTION,
 ) -> dict:
     """在给定级数里搜索推进剂分配，取得分最高的方案。
 
@@ -432,6 +482,7 @@ def search_booster_stages(
         if prescreen:
             chosen = _best_fraction_by_impulse(
                 payload_kg, propellant_kg, diameter_m, isp_s, propellant_density, n_stages,
+                propellant_mass_fraction,
             )
             fraction_list = () if chosen is None else (chosen,)
         else:
@@ -439,7 +490,7 @@ def search_booster_stages(
         for fractions in fraction_list:
             plan = build_stage_plan(
                 payload_kg, propellant_kg, diameter_m, isp_s, propellant_density,
-                fractions, locked=locked,
+                fractions, locked=locked, propellant_mass_fraction=propellant_mass_fraction,
             )
             if plan is None:
                 continue
@@ -486,18 +537,39 @@ def hgv_altitude_loss_m_s(h_launch_km: float) -> float:
     return HGV_LOSS_AT_13_M_S + (13.0 - h_launch_km) * span / 13.0
 
 
+def boost_drag_height_factor(h_launch_km: float, h_burnout_km: float) -> float:
+    """助推阻力相对「全程停在发射高度」的比例。
+
+    指数大气从发射高度积到关机高度。动压峰值在爬升前段，
+    所以保留七成发射高度阻力，只把三成换成这段爬升的平均值。
+    """
+    if h_launch_km < 0 or h_burnout_km < 0:
+        raise ValueError('发射高度与关机高度不能为负')
+    if h_burnout_km + 1e-9 < h_launch_km:
+        raise ValueError('关机高度不能低于发射高度')
+    span = h_burnout_km - h_launch_km
+    if span < 1.0:
+        return 1.0
+    mean = (HGV_DRAG_SCALE_KM / span) * (1.0 - math.exp(-span / HGV_DRAG_SCALE_KM))
+    return 0.70 + 0.30 * mean
+
+
 def gravity_drag_loss_m_s(
     h_launch_km: float,
     mass_kg: float | None = None,
     diameter_m: float | None = None,
+    h_burnout_km: float | None = None,
 ) -> float:
     """重力与阻力速度损失。
 
     不给质量时按参考弹。给出质量后，阻力按弹道系数相对参考弹缩放，
     轻而细的弹在海平面多损失一截，13 km 的参考弹仍是 320 m/s。
+    给出关机高度后，阻力只按爬升穿过稠密大气的那一段计，不再按全程海平面。
     """
     baseline = hgv_altitude_loss_m_s(h_launch_km)
     if mass_kg is None and diameter_m is None:
+        if h_burnout_km is not None:
+            raise ValueError('给出关机高度时必须同时给出质量与弹径')
         return baseline
     if mass_kg is None or diameter_m is None:
         raise ValueError('质量与弹径必须同时给出')
@@ -505,6 +577,8 @@ def gravity_drag_loss_m_s(
         raise ValueError('质量与弹径必须大于 0')
     drag_ref = HGV_DRAG_AT_13_M_S * math.exp(-(h_launch_km - 13.0) / HGV_DRAG_SCALE_KM)
     drag_ref = min(drag_ref, baseline * HGV_DRAG_SHARE_CAP)
+    if h_burnout_km is not None:
+        drag_ref *= boost_drag_height_factor(h_launch_km, h_burnout_km)
     beta_ref = HGV_REF_MASS_KG / (math.pi * (HGV_REF_DIAMETER_M / 2.0) ** 2)
     beta = mass_kg / (math.pi * (diameter_m / 2.0) ** 2)
     scale = min(HGV_BETA_SCALE_MAX, max(HGV_BETA_SCALE_MIN, beta_ref / beta))
@@ -518,20 +592,31 @@ def lift_drag_ratio(glide_length_m: float, diameter_m: float, hgv_type: str) -> 
     fineness = glide_length_m / diameter_m
     if normalize_hgv_type(hgv_type) == 'biconic':
         return max(1.8, min(3.5, 1.5 + 0.18 * fineness))
-    return max(2.8, min(5.0, 2.2 + 0.28 * fineness))
+    # 短乘波体在高超声速的升阻比大约 3.5–4，不再从 2.2 起算。
+    return max(2.8, min(5.0, 2.4 + 0.32 * fineness))
+
+
+def glide_exit_ratio() -> float:
+    """临近空间下沿对应的速度能量比，滑翔积分到这里为止。"""
+    return (GLIDE_EXIT_SPEED_M_S ** 2) / (G0 * R_EARTH_M)
 
 
 def glide_range_m(ratio_v2: float, ld_ratio: float) -> float:
-    """能量参数对应的滑翔航程；接近轨道能量时封顶 16000 km。"""
+    """平衡滑翔航程，积到临近空间下沿；接近轨道能量时封顶 16000 km。
+
+    对数项是从入口速度积到出口速度。1 + 0.35 v²/vc² 把下滑过程换回的高度势能补上一点。
+    """
     if ratio_v2 >= 0.95:
         return 16000000.0
     if ratio_v2 < 0.0:
         raise ValueError('滑翔能量参数超出估算范围')
+    exit_ratio = glide_exit_ratio()
+    if ratio_v2 <= exit_ratio:
+        return 0.0
     return (
         0.5 * R_EARTH_M * ld_ratio
-        * math.log(1.0 / (1.0 - ratio_v2))
+        * math.log((1.0 - exit_ratio) / (1.0 - ratio_v2))
         * (1.0 + 0.35 * ratio_v2)
-        * GLIDE_EFF
     )
 
 
@@ -539,6 +624,12 @@ def _require_non_negative(name: str, value: float) -> float:
     if value < 0:
         raise ValueError(f'{name}不能为负')
     return value
+
+
+def hgv_burnout_altitude_km(speed_m_s: float, h_launch_km: float) -> float:
+    """关机高度沿用弹道弹的爬升关系。函数内导入，避免和 classes 顶层循环引用。"""
+    from utils.missile_range.classes import burnout_altitude_km
+    return burnout_altitude_km(speed_m_s, h_launch_km)
 
 
 def _round_hgv_result(
@@ -550,6 +641,7 @@ def _round_hgv_result(
     ld_ratio: float,
     total_range_km: float,
     d_head: float,
+    h_burnout_km: float,
     stage: dict | None = None,
 ) -> dict:
     """把内部未舍入的助推滑翔结果收成对外字段。"""
@@ -563,6 +655,7 @@ def _round_hgv_result(
         'range_km': round(total_range_km, 1),
         'd_head_m': round(d_head, 3),
         'fineness': round(l_head / d_head, 2),
+        'h_burnout_km': round(h_burnout_km, 1),
     }
     if stage is not None:
         result['n_stages'] = int(stage['n_stages'])
@@ -618,25 +711,40 @@ def estimate_hgv_unrounded(
 
     v_launch_ms = v_launch_mach * SOUND_SPEED_M_S
     m_head_total = head_total_mass_kg(warhead_mass_kg)
-    m_propellant_geom = propellant_mass_kg(diameter_m, l_booster, propellant_density)
+    m_propellant_geom = hgv_propellant_mass_kg(diameter_m, l_booster, propellant_density)
+
+    def lofted_speed_m_s(plan: dict) -> tuple[float, float]:
+        """按爬升后的阻力重算关机速度，并返回对应关机高度。"""
+        speed = v_launch_ms + plan['dv_m_s'] - plan['extra_gravity_m_s']
+        h_burn = h_launch_km
+        for _ in range(2):
+            h_burn = hgv_burnout_altitude_km(max(speed, 0.0), h_launch_km)
+            loss = gravity_drag_loss_m_s(
+                h_launch_km, plan['launch_mass_kg'], diameter_m, h_burn,
+            )
+            speed = v_launch_ms + plan['dv_m_s'] - loss - plan['extra_gravity_m_s']
+        return speed, h_burn
 
     def score_plan(plan: dict) -> float:
-        # 关机速度已经含分级死重和更长燃烧的重力损失，滑翔航程随它单调增加。
-        loss = gravity_drag_loss_m_s(h_launch_km, plan['launch_mass_kg'], diameter_m)
-        return v_launch_ms + plan['dv_m_s'] - loss - plan['extra_gravity_m_s']
+        # 关机速度已经含分级死重、更长燃烧的重力损失，以及高抛后少掉的稠密大气阻力。
+        speed, _h_burn = lofted_speed_m_s(plan)
+        return speed
 
     stage = search_booster_stages(
         m_head_total, m_propellant_geom, diameter_m, isp_s, propellant_density, score_plan,
         prescreen=True,
+        propellant_mass_fraction=HGV_PROPELLANT_MASS_FRACTION,
     )
     m_0 = stage['launch_mass_kg']
     m_propellant = stage['propellant_kg']
-    v_burnout = float(stage['score'])
+    v_burnout, h_burnout_km = lofted_speed_m_s(stage)
+    v_burnout = max(0.0, v_burnout)
     ld_ratio = lift_drag_ratio(l_head, d_head, hgv_type)
+    # 平衡滑翔公式用的是飞行速度。关机高度已经体现在助推阻力里，再加 2gh 会和走廊积分重复。
     v_eff2 = v_burnout ** 2 + 2.0 * G0 * (h_launch_km * 1000.0)
-    ratio_v2 = v_eff2 / (G0 * R_EARTH_M)
+    ratio_v2 = max(0.0, v_eff2 / (G0 * R_EARTH_M))
     glide_m = glide_range_m(ratio_v2, ld_ratio)
-    boost_m = (v_launch_ms + v_burnout) / 2.0 * 60.0 + h_launch_km * 1000.0 * 2.0
+    boost_m = (v_launch_ms + max(v_burnout, 0.0)) / 2.0 * 60.0 + h_launch_km * 1000.0 * 2.0
     total_range_km = (boost_m + glide_m) / 1000.0
     return {
         'm_0': m_0,
@@ -648,6 +756,7 @@ def estimate_hgv_unrounded(
         'range_km': total_range_km,
         'd_head_m': d_head,
         'fineness': l_head / d_head,
+        'h_burnout_km': h_burnout_km,
         'stage': stage,
     }
 
@@ -704,7 +813,7 @@ def estimate_hgv(
     return _round_hgv_result(
         raw['m_0'], raw['l_head_m'], raw['l_booster_m'], raw['m_propellant'],
         raw['v_burnout'], raw['ld_ratio'], raw['range_km'], raw['d_head_m'],
-        stage=raw['stage'],
+        raw['h_burnout_km'], stage=raw['stage'],
     )
 
 
@@ -817,12 +926,14 @@ def _optimize_hgv_geometry_compute(
     base = _round_hgv_result(
         base_raw['m_0'], base_raw['l_head_m'], base_raw['l_booster_m'],
         base_raw['m_propellant'], base_raw['v_burnout'], base_raw['ld_ratio'],
-        base_raw['range_km'], base_raw['d_head_m'], stage=base_raw['stage'],
+        base_raw['range_km'], base_raw['d_head_m'], base_raw['h_burnout_km'],
+        stage=base_raw['stage'],
     )
     best_res = _round_hgv_result(
         best_raw['m_0'], best_raw['l_head_m'], best_raw['l_booster_m'],
         best_raw['m_propellant'], best_raw['v_burnout'], best_raw['ld_ratio'],
-        best_raw['range_km'], best_raw['d_head_m'], stage=best_raw['stage'],
+        best_raw['range_km'], best_raw['d_head_m'], best_raw['h_burnout_km'],
+        stage=best_raw['stage'],
     )
     best_lh = best_raw['l_head_m']
     best_dh = best_raw['d_head_m']

@@ -2414,6 +2414,11 @@ def estimate_by_class(
         if floored > float(result['range_km']) + 0.05:
             result['range_km'] = round(floored, 1)
             note += '平衡滑翔短于同一助推器的弹道弧，改为按升阻比延伸后的再入航程。'
+        if result.get('h_burnout_km') is not None:
+            note += (
+                f" 关机高度 {float(result['h_burnout_km']):.0f} km，"
+                f"滑翔能量含这段高度，积分到临近空间下沿。"
+            )
         result['note'] = note
         result['isp_boost_s'] = None
         result['isp_cruise_s'] = None

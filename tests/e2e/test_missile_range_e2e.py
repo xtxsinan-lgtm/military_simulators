@@ -82,7 +82,7 @@ def test_e2e_missile_range_catalog_and_pages():
     )
     assert any(s['id'] == 'missile_range' for s in SIMULATORS)
     assert payload['missile_range']['cases'][0]['bay'] == '轰-6机腹最大'
-    assert payload['missile_range']['cases'][0]['range_km'] >= payload['missile_range']['cases'][1]['range_km']
+    assert payload['missile_range']['cases'][0]['length_m'] >= payload['missile_range']['cases'][1]['length_m']
     _assert_bays_sorted_by_size_then_range(payload['missile_range']['cases'])
     assert 'type_labels' not in payload['missile_range']
     assert 'hgv_type' not in payload['missile_range']['defaults']
@@ -95,7 +95,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert any(s['id'] == 'missile_range' for s in api['simulators'])
     assert len(api['missile_range']['cases']) == len(all_missile_cases())
     assert api['missile_range']['cases'][0]['bay'] == '轰-6机腹最大'
-    assert api['missile_range']['cases'][0]['range_km'] >= api['missile_range']['cases'][1]['range_km']
+    assert api['missile_range']['cases'][0]['length_m'] >= api['missile_range']['cases'][1]['length_m']
     _assert_bays_sorted_by_size_then_range(api['missile_range']['cases'])
     class_ids = {item['id'] for item in api['missile_range']['classes']}
     assert {'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ballistic'} <= class_ids
