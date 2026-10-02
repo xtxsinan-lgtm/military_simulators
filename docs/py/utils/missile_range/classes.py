@@ -2,12 +2,12 @@
 
 亚音速与冲压巡航用布雷盖航程，比冲由吸气耗油率换算，明显高于固体火箭。
 带助推器的吸气弹把比冲拆成两段：助推用固体比冲，巡航用吸气比冲。
-全高空与全掠海只改巡航高度、升阻比和耗油率。
+全高空统一 10 km，全掠海统一 30 m。掠海升阻比按该高度的动压、废阻和诱导阻力计算，不再用固定的全掠海/全高空射程比去缩放。
 低速发射的亚音速弹先扣一截可抛弃固体助推器，助推器占燃油舱、不带进巡航质量。
 冲压弹先用固体火箭助推到接力马赫数，再用剩余燃油巡航。接不上接力马赫数时只计助推后的弹道弧。
 亚燃是固冲一体：药柱铸在燃烧室里，和煤油分同一块能源容积。
 超燃不是双模态，燃烧室留空，固体助推器单独占舱，燃油用高密度吸热型液体碳氢燃料。
-亚燃高空大约是掠海的 2 到 2.5 倍。亚燃在 10 km 以下按稠密大气加大助推损失。超燃地面发射不加这一档。
+亚燃在 10 km 以下按稠密大气加大助推损失。超燃地面发射不加这一档，巡航高度仍按超燃设计点，不改到 10 km。
 亚超结合的巡航比冲与涡扇同一档，末端冲刺统一按伯克级雷达对掠海目标的视距计入。
 普通弹道导弹只在前方用头锥：按长径比算圆锥容积，制导和战斗部先扣掉头锥，剩下的头锥和后面的圆柱都装药。
 弹道弹是否两级由显式开关控制，默认两级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
@@ -34,10 +34,15 @@ from utils.missile_range.estimate import (
 
 LHV_J_KG = 43.0e6
 ISA_R = 287.05287
-# 折叠弹翼：高空巡航设计升力系数、展弦比、相对厚度，面密度含折叠铰链
+# 折叠弹翼：高空巡航设计升力系数、展弦比、相对厚度，面密度含折叠铰链。
+# 奥斯瓦尔德效率计入弹体对诱导阻力的干扰，低于孤立机翼。
 FOLDED_WING_CL = 0.65
 FOLDED_WING_AR = 5.0
+FOLDED_WING_OSWALD = 0.75
 FOLDED_WING_TC = 0.08
+# 有全高空/全掠海两档的弹种共用这一对高度。超燃没有掠海档，不使用。
+CRUISE_HIGH_ALT_KM = 10.0
+CRUISE_SEA_ALT_KM = 0.030
 FOLDED_WING_AREAL_KG_M2 = 42.0
 # 折进弹体后，翼盒厚度不得超过弹径的这一比例
 FOLDED_WING_THICKNESS_FRAC = 0.45
@@ -108,12 +113,12 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'hgv_biconic',
         'label': '双锥体助推滑翔',
-        'blurb': '两级固体助推。升阻比按抛掉助推级后的双锥体计算，再扣除重力阻力损失并积分滑翔航程。',
+        'blurb': '两级固体助推。滑翔体在弹径以内搜索长度与等效直径：先保证战斗部、制导与控制组件容积和气动长细比，再把剩余长度留给助推级，按抛掉助推级后的双锥体升阻比积分滑翔航程。',
     },
     {
         'id': 'hgv_waverider',
         'label': '乘波体助推滑翔',
-        'blurb': '两级固体助推。升阻比按抛掉助推级后的乘波体计算，高于双锥体，再扣除重力阻力损失并积分滑翔航程。',
+        'blurb': '两级固体助推。滑翔体在弹径以内搜索长度与等效直径：乘波体升阻比高于双锥体，容积系数更小，同样战斗部会更长；再把剩余长度留给助推级并积分滑翔航程。',
     },
     {
         'id': 'scramjet',
@@ -123,22 +128,22 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'ramjet',
         'label': '亚燃冲压导弹',
-        'blurb': '固冲一体：固体药柱铸在亚燃燃烧室里，和煤油分同一块能源容积。助推用固体比冲，巡航用更高的吸气比冲。分别给出高空巡航与掠海巡航；更细的弹巡航比冲按弹径下降。',
+        'blurb': '固冲一体：固体药柱铸在亚燃燃烧室里，和煤油分同一块能源容积。助推用固体比冲，巡航用更高的吸气比冲。全高空 10 km 与全掠海 30 m 分开算，掠海升阻比按动压下的阻力，不按固定射程比缩放；更细的弹巡航比冲按弹径下降。',
     },
     {
         'id': 'turbofan_stealth',
         'label': '涡扇亚音速隐身巡航',
-        'blurb': '涡扇吸气比冲远高于固体火箭。低速发射另加一截可抛弃固体助推器，助推与巡航比冲分开算。弹体按扁五边形而不是圆。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
+        'blurb': '涡扇吸气比冲远高于固体火箭。低速发射另加一截可抛弃固体助推器，助推与巡航比冲分开算。弹体按扁五边形而不是圆。全高空 10 km 与全掠海 30 m 分开算，掠海升阻比按动压下的阻力。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'turbojet_subsonic',
         'label': '涡喷亚音速非隐身巡航',
-        'blurb': '涡喷吸气比冲高于固体火箭，但低于涡扇。低速发射的可抛弃助推器另按固体比冲计。分别给出全高空与全掠海射程。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
+        'blurb': '涡喷吸气比冲高于固体火箭，但低于涡扇。低速发射的可抛弃助推器另按固体比冲计。全高空 10 km 与全掠海 30 m 分开算，掠海升阻比按动压下的阻力。弹翼折叠在弹体内，质量计入死重，占用容积不再装油。',
     },
     {
         'id': 'turbofan_rocket',
         'label': '亚超结合导弹',
-        'blurb': '巡航段用涡扇吸气比冲。末端冲刺不单列，统一按伯克级雷达对掠海目标的地球曲率视距加进总射程。低速发射还可再带一截比冲更低的可抛弃助推器。全高空与全掠海都加上同一段视距。弹翼折叠在弹体内。',
+        'blurb': '巡航段用涡扇吸气比冲。末端冲刺不单列，统一按伯克级雷达对掠海目标的地球曲率视距加进总射程。低速发射还可再带一截比冲更低的可抛弃助推器。全高空 10 km 与全掠海 30 m 都加上同一段视距，掠海升阻比按动压下的阻力。弹翼折叠在弹体内。',
     },
     {
         'id': 'ballistic',
@@ -205,18 +210,15 @@ _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
         'fuel_density': 940.0,
         'tsfc': 2.15e-5,
         'mach': 0.74,
-        'alt_km': 10.0,
+        'alt_km': CRUISE_HIGH_ALT_KM,
         'ld_base': 4.2,
         'ld_slope': 0.16,
         'ld_min': 4.6,
         'ld_max': 6.6,
         'eta': 0.32,
-        # 掠海升阻比按 LRASM 空射标定：全掠海 / 全高空 = 400/950。
-        # 高空耗油率和升阻比不动。发射高度只通过爬升耗油和助推器改变可用燃油，不进这个系数。
-        'sea_ld_factor': 0.40031,
-        'sea_tsfc_factor': 1.08,
+        # 高空升阻比仍按长细比。掠海不再乘固定系数，见 sea_skim_ld。
         'reserve': 0.08,
-        'sea_alt_km': 0.03,
+        'sea_alt_km': CRUISE_SEA_ALT_KM,
         'folded_wing': 1.0,
     },
     'turbojet_subsonic': {
@@ -231,18 +233,14 @@ _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
         'fuel_density': 800.0,
         'tsfc': 1.0 / (2800.0 * G0),
         'mach': 0.80,
-        'alt_km': 6.0,
+        'alt_km': CRUISE_HIGH_ALT_KM,
         'ld_base': 3.6,
         'ld_slope': 0.12,
         'ld_min': 4.0,
         'ld_max': 5.8,
         'eta': 0.22,
-        # 掠海升阻比与涡扇隐身同一条比值：全掠海 / 全高空 = 400/950。
-        # 巡航高度是 6 km，所以系数和 10 km 的涡扇不同。高空耗油率不动。
-        'sea_ld_factor': 0.45057,
-        'sea_tsfc_factor': 1.15,
         'reserve': 0.08,
-        'sea_alt_km': 0.03,
+        'sea_alt_km': CRUISE_SEA_ALT_KM,
         'folded_wing': 1.0,
     },
 }
@@ -277,7 +275,11 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'tsfc_scale_max': 2.5,
         'mach_takeover': 1.95,
         'mach_cruise': 2.8,
-        'alt_km': 14.0,
+        'alt_km': CRUISE_HIGH_ALT_KM,
+        # 亚燃弹翼比折叠巡航翼小。设计升力系数只用来拆开诱导阻力和废阻。
+        'wing_cl': 0.40,
+        'wing_ar': 2.5,
+        'wing_oswald': 0.70,
         'ld_base': 1.95,
         'ld_slope': 0.085,
         'ld_min': 2.35,
@@ -287,12 +289,8 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'loss_frac': 0.13,
         'accel_excess': 0.30,
         'fuel_floor_frac': 0.28,
-        'sea_alt_km': 0.015,
+        'sea_alt_km': CRUISE_SEA_ALT_KM,
         'sea_mach': 2.0,
-        'sea_ld_factor': 0.62,
-        # 公开亚燃反舰弹的高弹道大约是掠海的 2 到 2.5 倍。
-        # 升阻比 0.62、耗油率 1.30，加上 Ma 2.8 对 Ma 2.0 的速度差，合起来落在这个区间。
-        'sea_tsfc_factor': 1.30,
     },
     'scramjet': {
         # 不是双模态，也不把药柱铸进燃烧室。燃烧室流道另算，先从能源容积里扣掉。
@@ -328,7 +326,7 @@ _ROCKET_CRUISE = {
     # 巡航是涡扇，比冲与隐身涡扇同一档，不再低于涡喷。
     # 出口型 220 km 是 MTCR 上限，不拿来标定。末端级最多占弹体两成容积。
     # 末端冲刺距离不按装药反推，统一用伯克级雷达视距。
-    # 掠海升阻比按全掠海 / 全高空 = 400/950 标定在这发舰面发射上；视距两边相同，不进这个系数。
+    # 视距在全高空和全掠海两端相同，不进升阻比。
     'body_pack': 0.62,
     'areal': 36.0,
     'eng_coeff': 200.0,
@@ -338,16 +336,14 @@ _ROCKET_CRUISE = {
     'fuel_density': 800.0,
     'tsfc': 2.15e-5,
     'mach': 0.80,
-    'alt_km': 6.0,
+    'alt_km': CRUISE_HIGH_ALT_KM,
     'ld_base': 3.4,
     'ld_slope': 0.08,
     'ld_min': 3.8,
     'ld_max': 5.0,
     'eta': 0.28,
-    'sea_ld_factor': 0.3969,
-    'sea_tsfc_factor': 1.08,
     'reserve': 0.08,
-    'sea_alt_km': 0.02,
+    'sea_alt_km': CRUISE_SEA_ALT_KM,
     'folded_wing': 1.0,
     'terminal_dv_m_s': 1900.0,
     'terminal_volume_cap_frac': 0.21,
@@ -411,20 +407,23 @@ def fineness_ratio(length_m: float, diameter_m: float) -> float:
     return length_m / diameter_m
 
 
-def speed_of_sound_m_s(altitude_km: float) -> float:
-    """国际标准大气近似下的声速。"""
+def isa_temperature_k(altitude_km: float) -> float:
+    """国际标准大气静温。11 km 以下对流层递减，其上分段等温或缓增。"""
     if altitude_km < 0:
         raise ValueError('高度不能为负')
     height_m = altitude_km * 1000.0
     if height_m <= 11000.0:
-        temperature = 288.15 - 0.0065 * height_m
-    elif height_m <= 20000.0:
-        temperature = 216.65
-    elif height_m <= 32000.0:
-        temperature = 216.65 + 0.001 * (height_m - 20000.0)
-    else:
-        temperature = 228.65 + 0.0028 * (min(height_m, 47000.0) - 32000.0)
-    return math.sqrt(1.4 * ISA_R * temperature)
+        return 288.15 - 0.0065 * height_m
+    if height_m <= 20000.0:
+        return 216.65
+    if height_m <= 32000.0:
+        return 216.65 + 0.001 * (height_m - 20000.0)
+    return 228.65 + 0.0028 * (min(height_m, 47000.0) - 32000.0)
+
+
+def speed_of_sound_m_s(altitude_km: float) -> float:
+    """国际标准大气近似下的声速。"""
+    return math.sqrt(1.4 * ISA_R * isa_temperature_k(altitude_km))
 
 
 
@@ -442,6 +441,105 @@ def isa_density_kg_m3(altitude_km: float) -> float:
         pressure_11 = 101325.0 * (216.65 / 288.15) ** (G0 / (ISA_R * lapse))
         pressure = pressure_11 * math.exp(-G0 * (min(height_m, 47000.0) - 11000.0) / (ISA_R * temperature))
     return pressure / (ISA_R * temperature)
+
+
+def sutherland_viscosity_pa_s(temperature_k: float) -> float:
+    """萨瑟兰公式下的空气动力粘度。"""
+    if temperature_k <= 0:
+        raise ValueError('静温必须大于 0')
+    return 1.716e-5 * (temperature_k / 273.15) ** 1.5 * (273.15 + 110.4) / (temperature_k + 110.4)
+
+
+def dynamic_pressure_pa(mach: float, altitude_km: float) -> float:
+    """给定马赫数和高度的动压。"""
+    if mach <= 0:
+        raise ValueError('马赫数必须大于 0')
+    speed = mach * speed_of_sound_m_s(altitude_km)
+    return 0.5 * isa_density_kg_m3(altitude_km) * speed * speed
+
+
+def parasite_friction_share(mach: float) -> float:
+    """废阻里表面摩阻所占份额。亚音速以摩阻为主，超音速以波阻和底部阻力为主。"""
+    if mach < 0:
+        raise ValueError('马赫数不能为负')
+    if mach >= 1.2:
+        return 0.35
+    return 0.65
+
+
+def skin_friction_ratio(
+    length_m: float,
+    mach: float,
+    altitude_km: float,
+    mach_ref: float,
+    altitude_ref_km: float,
+) -> float:
+    """湍流平板摩阻相对参考状态，Cf 按雷诺数的 -0.2 次方。"""
+    if length_m <= 0:
+        raise ValueError('弹长必须大于 0')
+    if mach <= 0 or mach_ref <= 0:
+        raise ValueError('马赫数必须大于 0')
+
+    def reynolds(m: float, h: float) -> float:
+        speed = m * speed_of_sound_m_s(h)
+        viscosity = sutherland_viscosity_pa_s(isa_temperature_k(h))
+        return isa_density_kg_m3(h) * speed * length_m / viscosity
+
+    re_new = reynolds(mach, altitude_km)
+    re_ref = reynolds(mach_ref, altitude_ref_km)
+    return (re_ref / re_new) ** 0.2
+
+
+def wing_polar(spec: dict[str, float]) -> tuple[float, float, float]:
+    """巡航翼面的设计升力系数、展弦比和奥斯瓦尔德效率。
+
+    亚音速折叠弹翼用统一设计点。亚燃弹翼更小，写在弹种参数里。
+    """
+    cl = float(spec.get('wing_cl', FOLDED_WING_CL))
+    aspect = float(spec.get('wing_ar', FOLDED_WING_AR))
+    oswald = float(spec.get('wing_oswald', FOLDED_WING_OSWALD))
+    if cl <= 0 or aspect <= 0 or oswald <= 0:
+        raise ValueError('翼面升力系数、展弦比与奥斯瓦尔德效率必须大于 0')
+    return cl, aspect, oswald
+
+
+def sea_skim_ld(
+    ld_design: float,
+    mach_design: float,
+    alt_design_km: float,
+    mach_sea: float,
+    alt_sea_km: float,
+    length_m: float,
+    cl_design: float,
+    aspect_ratio: float,
+    oswald: float,
+) -> float:
+    """由高空设计点升阻比推出掠海升阻比。
+
+    设计点升力等于重量。诱导阻力份额是 CL/(π·AR·e)，剩下的是废阻。
+    掠海动压升高后，同一副翼只用更小的升力系数，诱导阻力下降；
+    废阻随动压上升。摩阻那一部分再按雷诺数略减，波阻不减。
+    30 m 对导弹翼展仍远高于地面效应，不计海面增升。
+    """
+    if ld_design <= 0 or cl_design <= 0 or aspect_ratio <= 0 or oswald <= 0:
+        raise ValueError('升阻比、升力系数、展弦比与奥斯瓦尔德效率必须大于 0')
+    q_design = dynamic_pressure_pa(mach_design, alt_design_km)
+    q_sea = dynamic_pressure_pa(mach_sea, alt_sea_km)
+    drag_over_weight = 1.0 / ld_design
+    induced = cl_design / (math.pi * aspect_ratio * oswald)
+    # 翼面参数和设计升阻比矛盾时，诱导阻力最多占八成五，其余留给废阻。
+    induced = min(induced, 0.85 * drag_over_weight)
+    parasite = drag_over_weight - induced
+    cf_ratio = skin_friction_ratio(length_m, mach_sea, alt_sea_km, mach_design, alt_design_km)
+    friction = parasite_friction_share(mach_design)
+    drag_scale = friction * cf_ratio + (1.0 - friction)
+    cl_sea = cl_design * q_design / q_sea
+    induced_sea = cl_sea / (math.pi * aspect_ratio * oswald)
+    parasite_sea = parasite * (q_sea / q_design) * drag_scale
+    total = parasite_sea + induced_sea
+    if total <= 0:
+        raise ValueError('掠海阻力必须大于 0')
+    return 1.0 / total
 
 
 def folded_wing_package(
@@ -869,8 +967,9 @@ def cruise_range_pair_km(
         ld *= 0.55 + 0.45 * wing_fill
     sound_hi = speed_of_sound_m_s(spec['alt_km'])
     sound_sea = speed_of_sound_m_s(spec['sea_alt_km'])
+    mach_sea = spec.get('sea_mach', spec['mach'])
     speed_hi = spec['mach'] * sound_hi
-    speed_sea = spec['mach'] * sound_sea
+    speed_sea = mach_sea * sound_sea
     # 助推器把弹推到接力速度后抛弃，涡扇只补剩余的加速和爬升。
     speed_after_boost = launch_speed
     if booster_prop > 0.0:
@@ -893,15 +992,16 @@ def cruise_range_pair_km(
     climb_sea = min(climb_sea, fuel_kg * 0.40)
     usable_hi = max(0.0, fuel_kg - climb) * (1.0 - spec['reserve'])
     usable_sea = max(0.0, fuel_kg - climb_sea) * (1.0 - spec['reserve'])
+    cl_design, aspect, oswald = wing_polar(spec)
+    ld_sea = sea_skim_ld(
+        ld, spec['mach'], spec['alt_km'], mach_sea, spec['sea_alt_km'], length_m,
+        cl_design, aspect, oswald,
+    )
     range_high = breguet_cruise_range_m(
         speed_hi, tsfc_hi, ld, launch_mass, launch_mass - usable_hi,
     )
     range_sea = breguet_cruise_range_m(
-        speed_sea,
-        tsfc_hi * spec['sea_tsfc_factor'],
-        ld * spec['sea_ld_factor'],
-        launch_mass,
-        launch_mass - usable_sea,
+        speed_sea, tsfc_hi, ld_sea, launch_mass, launch_mass - usable_sea,
     )
     bay = payload / spec['payload_density']
     head_len = min(length_m * 0.45, bay / max(section['area'], 1e-6))
@@ -909,6 +1009,7 @@ def cruise_range_pair_km(
         'm_0': launch_mass,
         'fuel_kg': fuel_kg,
         'ld': ld,
+        'ld_sea': ld_sea,
         'range_high_m': range_high,
         'range_sea_m': range_sea,
         'l_head_m': head_len,
@@ -925,7 +1026,6 @@ def cruise_range_pair_km(
         'usable_sea_kg': usable_sea,
         'm_booster_kg': booster_mass,
         'isp_cruise_s': isp_from_tsfc_s(tsfc_hi),
-        'isp_sea_s': isp_from_tsfc_s(tsfc_hi * spec['sea_tsfc_factor']),
     }
 
 
@@ -1499,7 +1599,8 @@ def estimate_subsonic_class(
     note = (
         f"{class_label(canon)}：主射程为全高空 {spec['alt_km']:.0f} km、"
         f"Ma {spec['mach']:.2f}；全掠海为 {spec['sea_alt_km'] * 1000:.0f} m。"
-        f"升阻比 {sized['ld']:.2f}，巡航吸气比冲 {sized['isp_cruise_s']:.0f} s。"
+        f"高空升阻比 {sized['ld']:.2f}，掠海升阻比 {sized['ld_sea']:.2f}，"
+        f"巡航吸气比冲 {sized['isp_cruise_s']:.0f} s。"
         f"{boost_txt}折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
     )
     return _base_fields(
@@ -1632,21 +1733,42 @@ def estimate_ducted(
         high_km = (cruise_m + boost_range) / 1000.0
         sea_km = None
         if spec.get('sea_alt_km') is not None:
+            sea_mach = spec.get('sea_mach', spec['mach_cruise'])
             sea_sound = speed_of_sound_m_s(spec['sea_alt_km'])
-            sea_speed = spec.get('sea_mach', 2.0) * sea_sound
-            sea_ld = ld * spec.get('sea_ld_factor', 0.42)
-            sea_tsfc = tsfc * spec.get('sea_tsfc_factor', 1.3)
-            sea_fuel = max(0.0, fuel - accel_fuel) * (1.0 - spec['reserve'])
-            if sea_fuel > 1.0 and sea_ld > 0:
+            sea_speed = sea_mach * sea_sound
+            cl_design, aspect, oswald = wing_polar(spec)
+            sea_ld = sea_skim_ld(
+                ld, spec['mach_cruise'], spec['alt_km'], sea_mach, spec['sea_alt_km'], length_m,
+                cl_design, aspect, oswald,
+            )
+            sea_accel = max(0.0, sea_speed - speed_after)
+            sea_accel_fuel = min(
+                fuel * DUCT_ACCEL_FUEL_CAP,
+                accel_fuel_for_dv(mass_after_boost, sea_accel, isp_cruise, spec['accel_excess']),
+            )
+            sea_climb = climb_fuel_kg(
+                mass_after_boost,
+                (spec['sea_alt_km'] - h_launch_km) * 1000.0,
+                0.0,
+                spec['eta'],
+            )
+            sea_climb = min(sea_climb, max(0.0, fuel - sea_accel_fuel) * 0.40)
+            sea_fuel = max(0.0, fuel - sea_accel_fuel - sea_climb) * (1.0 - spec['reserve'])
+            if sea_fuel > 1.0:
                 sea_m = breguet_cruise_range_m(
-                    sea_speed, sea_tsfc, sea_ld, mass_after_boost, mass_after_boost - sea_fuel,
+                    sea_speed, tsfc, sea_ld, mass_after_boost, mass_after_boost - sea_fuel,
                 )
                 sea_km = (sea_m + boost_range) / 1000.0
     dead = deadweight_kg(launch_mass, fuel, warhead_mass_kg, propellant)
     bay = payload / spec['payload_density']
     section = math.pi * (diameter_m / 2.0) ** 2
     head_len = min(length_m * 0.45, bay / section)
-    sea_txt = '' if sea_km is None else f'全掠海 {sea_km:.0f} km。'
+    sea_txt = ''
+    if sea_km is not None and sea_ld is not None:
+        sea_txt = (
+            f"全掠海 {spec['sea_alt_km'] * 1000:.0f} m、{sea_km:.0f} km，"
+            f"掠海升阻比 {sea_ld:.2f}。"
+        )
     boost_txt = ''
     isp_boost_out = None
     if propellant > 1.0:
@@ -1784,7 +1906,8 @@ def estimate_turbofan_rocket(
     note = (
         f"亚超结合：涡扇巡航 Ma {spec['mach']:.2f}，吸气比冲 {sized['isp_cruise_s']:.0f} s，"
         f"末端固体比冲 {isp_s:.0f} s。"
-        f"全高空 {spec['alt_km']:.0f} km / 全掠海 {spec['sea_alt_km'] * 1000:.0f} m。"
+        f"全高空 {spec['alt_km']:.0f} km / 全掠海 {spec['sea_alt_km'] * 1000:.0f} m，"
+        f"高空升阻比 {sized['ld']:.2f}，掠海升阻比 {sized['ld_sea']:.2f}。"
         f"末端冲刺按伯克级雷达视距计入总射程。"
         f"{boost_txt}折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
     )
@@ -1906,7 +2029,7 @@ def estimate_by_class(
     height_m: float | None = None,
     isp_air_s: float | None = None,
     ballistic_two_stage: bool = True,
-    optimize_geometry: bool = False,
+    optimize_geometry: bool = True,
     l_head_m: float | None = None,
     d_head_m: float | None = None,
 ) -> dict:
@@ -1914,17 +2037,18 @@ def estimate_by_class(
 
     隐身涡扇的宽和高可选。给出后按扁五边形外廓算质量，不再把弹径当成圆。
     isp_s 是固体火箭比冲。isp_air_s 只覆盖吸气巡航；不给时用弹种自己的吸气比冲。
-    助推滑翔可开启 optimize_geometry 寻优滑翔体最优长宽，或指定独立 l_head_m / d_head_m。
+    助推滑翔默认搜索滑翔体最优长宽；也可指定独立 l_head_m / d_head_m，或关闭 optimize_geometry。
     """
     canon = resolve_missile_class(missile_class)
     shape = glide_shape(canon)
     if shape is not None:
         from utils.missile_range.estimate import estimate_hgv
+        use_opt = bool(optimize_geometry) and l_head_m is None and d_head_m is None
         result = estimate_hgv(
             length_m, diameter_m, warhead_mass_kg, shape,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
             l_head_m=l_head_m, d_head_m=d_head_m,
-            optimize_geometry=optimize_geometry,
+            optimize_geometry=use_opt,
         )
         result = dict(result)
         # 滑翔下限仍对照双锥体助推器的真空弹道，弹道基线固定按默认两级。

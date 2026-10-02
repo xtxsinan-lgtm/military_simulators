@@ -80,6 +80,9 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'hgvType' not in html
     assert '构型' not in html
     assert '是否两级' in html
+    assert 'optimizeGeometry' in html
+    assert '寻优滑翔体尺寸' in html
+    assert 'optimize_geometry' in js
     assert 'run_missile_range_json' in js
     assert 'utils/database_csv.py' in js
     assert 'data/missile_range_preset_database.csv' in js
@@ -104,6 +107,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '折叠弹翼' in view
     assert '吸气比冲' in view
     assert '是否两级' in view
+    assert '寻优滑翔体尺寸' in view
     mini_js = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.js').read_text(encoding='utf-8')
     assert 'missile_class' in mini_js
     mini_wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
@@ -113,6 +117,8 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '末端冲刺' not in view
     assert '吸气比冲' in mini_wxml
     assert '是否两级' in mini_wxml
+    assert '寻优滑翔体' in mini_wxml
+    assert 'optimize_geometry' in mini_js
 
 
 @pytest.mark.e2e
@@ -190,23 +196,29 @@ def _estimate_via_api(missile_class, length, diameter, warhead, mach, height):
 
 @pytest.mark.e2e
 def test_e2e_russian_ramjet_anchors():
-    """API 上鹰击-15 质量约 1.5 t，高空按偏乐观约 1140 km；涡喷与 3M54K 的掠海/全高空为 400/950。"""
+    """API 上鹰击-15 质量约 1.5 t，高空按偏乐观约 1140 km；掠海按 30 m 阻力估算。"""
     yj15 = _estimate_via_api('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
     assert 1050 <= yj15['range_high_km'] <= 1250
+    assert yj15['range_high_km'] > yj15['range_sea_km'] > 0
+    assert yj15['cruise_alt_km'] == 10.0
     assert abs(yj15['m_0_t'] - 1.50) <= 0.05
+    assert '30 m' in yj15['note']
     kalibr = _estimate_via_api('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
-    assert kalibr['range_high_km'] == 1215.3
-    assert kalibr['range_sea_km'] / kalibr['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
+    assert kalibr['range_high_km'] == 965.4
+    assert kalibr['range_sea_km'] == 464.1
+    assert kalibr['cruise_alt_km'] == 10.0
     assert kalibr['range_terminal_km'] is None
     jet = _estimate_via_api('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 6.0)
     jet_low = _estimate_via_api('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 0.2)
-    assert jet['range_sea_km'] / jet['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
+    assert jet['cruise_alt_km'] == 10.0
+    assert jet['range_high_km'] > jet['range_sea_km'] > 0
     assert jet_low['range_sea_km'] == pytest.approx(jet['range_sea_km'], abs=0.5)
     assert jet_low['range_high_km'] < jet['range_high_km']
-    # 只给最大外廓时按 LRASM 高宽比收成扁五边形。掠海/全高空取 400/950，高空航程不因这次标定改动。
+    # 只给最大外廓时按 LRASM 高宽比收成扁五边形。高空航程不因掠海阻力模型改动。
     lrasm = _estimate_via_api('turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0)
     assert lrasm['range_high_km'] == 967.6
-    assert lrasm['range_sea_km'] / lrasm['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
+    assert lrasm['range_sea_km'] == 451.5
+    assert lrasm['cruise_alt_km'] == 10.0
     low = _estimate_via_api('turbofan_stealth', 4.26, 0.635, 450, 0.85, 0.2)
     assert low['range_sea_km'] == lrasm['range_sea_km']
     assert low['range_high_km'] < lrasm['range_high_km']
@@ -407,9 +419,31 @@ def test_e2e_missile_range_hgv_geometry_optimization():
     assert opt['best_l_head_m'] > opt['baseline_l_head_m']
     assert opt['best_d_head_m'] <= 1.0
     assert opt['best_ld_ratio'] > opt['baseline_ld_ratio']
-    assert opt['best_fineness'] >= 2.0
+    assert opt['best_fineness'] >= 2.5
 
-    # 2. 测试通过常规 estimate 接口开启 optimize_geometry 寻优
+    # 常规 estimate 不传开关时，助推滑翔默认寻优
+    default_payload = {
+        'action': 'estimate',
+        'params': {
+            'length_m': 10.5,
+            'diameter_m': 1.0,
+            'warhead_kg': 200,
+            'missile_class': 'hgv_biconic',
+            'v_launch_mach': 0.85,
+            'h_launch_km': 13.0,
+        },
+    }
+    def_status, _, def_body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps(default_payload).encode(),
+    )
+    assert def_status == 200
+    def_data = json.loads(def_body.decode())
+    assert def_data['success'] is True
+    assert def_data['result']['optimal_geometry'] is True
+    assert def_data['result']['d_head_m'] <= 1.0
+    assert '几何搜索寻优' in def_data['result']['note']
+
+    # 测试通过常规 estimate 接口显式开启 optimize_geometry 寻优
     est_payload = {
         'action': 'estimate',
         'params': {

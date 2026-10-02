@@ -143,6 +143,12 @@ struct MissileRangeView: View {
                                 ("滑翔径 m", dHead, 3, false),
                                 ("助推 m", result.l_booster_m, 2, false),
                             ])
+                            if result.fineness != nil || (result.range_gain_km ?? 0) > 0 {
+                                statRow([
+                                    ("长细比", result.fineness, 2, false),
+                                    ("几何增程 km", result.range_gain_km, 1, true),
+                                ])
+                            }
                         } else {
                             statRow([
                                 ("弹头 m", result.l_head_m, 2, false),

@@ -47,7 +47,7 @@ def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
             ballistic_two_stage = ballistic_two_stage_raw.strip().lower() not in {'', '0', 'false', 'no', 'off'}
         else:
             ballistic_two_stage = bool(ballistic_two_stage_raw)
-        opt_geom_raw = params.get('optimize_geometry', False)
+        opt_geom_raw = params.get('optimize_geometry', True)
         if isinstance(opt_geom_raw, str):
             optimize_geometry = opt_geom_raw.strip().lower() in {'1', 'true', 'yes', 'on'}
         else:

@@ -85,6 +85,8 @@ final class MissileRangeViewModel: ObservableObject {
             m_0_t: row.m_0_t,
             l_head_m: row.l_head_m,
             d_head_m: row.d_head_m,
+            fineness: row.fineness,
+            range_gain_km: row.range_gain_km,
             l_booster_m: row.l_booster_m,
             m_p_total_kg: row.m_p_total_kg,
             v_burnout_mach: row.v_burnout_mach,

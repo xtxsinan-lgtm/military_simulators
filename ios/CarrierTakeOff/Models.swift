@@ -659,6 +659,8 @@ struct MissileRangeCase: Codable, Identifiable, Hashable {
     var m_0_t: Double?
     var l_head_m: Double?
     var d_head_m: Double?
+    var fineness: Double?
+    var range_gain_km: Double?
     var l_booster_m: Double?
     var m_p_total_kg: Double?
     var v_burnout_mach: Double?
@@ -686,6 +688,8 @@ struct MissileRangeEstimate: Codable {
     var m_0_t: Double?
     var l_head_m: Double?
     var d_head_m: Double? = nil
+    var fineness: Double? = nil
+    var range_gain_km: Double? = nil
     var l_booster_m: Double?
     var m_p_total_kg: Double?
     var v_burnout_mach: Double?

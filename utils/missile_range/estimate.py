@@ -1,7 +1,9 @@
 """助推-滑翔弹射程估算（弹头容积、两级推进剂、滑翔航程）。"""
 from __future__ import annotations
 
+import copy
 import math
+from functools import lru_cache
 
 G0 = 9.80665
 R_EARTH_M = 6371000.0
@@ -30,9 +32,14 @@ HGV_TYPE_LABELS = {
     'biconic': '双锥体',
     'waverider': '乘波体',
 }
+# 气动合理的滑翔体长细比下限：过短会变成钝头扁锥，升阻比被模型下限兜住但不真实。
 HGV_MIN_FINENESS: dict[str, float] = {
-    'biconic': 2.0,
-    'waverider': 3.0,
+    'biconic': 2.5,
+    'waverider': 3.5,
+}
+HGV_VOLUME_FACTOR: dict[str, float] = {
+    'biconic': 0.2618,
+    'waverider': 0.1745,
 }
 HGV_MAX_HEAD_LENGTH_RATIO = 0.45
 HGV_DEFAULT_MIN_DIAMETER_RATIO = 0.35
@@ -77,17 +84,47 @@ def head_volume_m3(warhead_mass_kg: float, hgv_type: str) -> float:
     return head_total_mass_kg(warhead_mass_kg) / head_density_kg_m3(hgv_type)
 
 
+def head_volume_factor(hgv_type: str) -> float:
+    """滑翔体容积系数：双锥 0.2618，乘波 0.1745。"""
+    return HGV_VOLUME_FACTOR[normalize_hgv_type(hgv_type)]
+
+
 def uncapped_head_length_m(volume_m3: float, diameter_m: float, hgv_type: str) -> float:
     """由体积与弹径反推弹头长度（未按全弹比例截断）。"""
     if diameter_m <= 0:
         raise ValueError('弹径必须大于 0')
-    factor = 0.2618 if normalize_hgv_type(hgv_type) == 'biconic' else 0.1745
-    return volume_m3 / (factor * (diameter_m ** 2))
+    return volume_m3 / (head_volume_factor(hgv_type) * (diameter_m ** 2))
+
+
+def head_packaging_volume_m3(length_m: float, diameter_m: float, hgv_type: str) -> float:
+    """按构型容积系数把滑翔体外形折成可用容积。"""
+    if length_m <= 0 or diameter_m <= 0:
+        raise ValueError('滑翔体长度与直径必须大于 0')
+    return head_volume_factor(hgv_type) * length_m * (diameter_m ** 2)
 
 
 def hgv_min_fineness(hgv_type: str) -> float:
-    """滑翔体合理气动长细比下限：双锥体 2.0，乘波体 3.0。"""
+    """滑翔体合理气动长细比下限：双锥体 2.5，乘波体 3.5。"""
     return HGV_MIN_FINENESS[normalize_hgv_type(hgv_type)]
+
+
+def hgv_head_diameter_bounds(
+    diameter_m: float,
+    min_d_head_m: float | None = None,
+    max_d_head_m: float | None = None,
+) -> tuple[float, float]:
+    """滑翔体等效直径搜索区间：不超过弹体直径，且不低于装填/导引头口径。"""
+    if diameter_m <= 0:
+        raise ValueError('弹径必须大于 0')
+    d_max = diameter_m if max_d_head_m is None else min(diameter_m, float(max_d_head_m))
+    if min_d_head_m is None:
+        d_min = max(HGV_ABSOLUTE_MIN_DIAMETER_M, diameter_m * HGV_DEFAULT_MIN_DIAMETER_RATIO)
+    else:
+        d_min = float(min_d_head_m)
+    d_min = min(d_min, d_max)
+    if d_min <= 0 or d_max <= 0:
+        raise ValueError('直径范围必须大于 0')
+    return d_min, d_max
 
 
 def min_head_length_m(
@@ -112,16 +149,14 @@ def head_and_booster_lengths_m(
     diameter_m: float,
     warhead_mass_kg: float,
     hgv_type: str,
-    enforce_min_fineness: bool = False,
+    enforce_min_fineness: bool = True,
 ) -> tuple[float, float]:
-    """弹头长度不超过全长 45%，其余视为助推级。可按长细比下限修正。"""
+    """弹头长度取容积与长细比底线的较大值，且不超过全长 45%，其余视为助推级。"""
     if length_m <= 0:
         raise ValueError('弹长必须大于 0')
-    raw = uncapped_head_length_m(
-        head_volume_m3(warhead_mass_kg, hgv_type), diameter_m, hgv_type,
+    raw = min_head_length_m(
+        warhead_mass_kg, diameter_m, hgv_type, enforce_min_fineness=enforce_min_fineness,
     )
-    if enforce_min_fineness:
-        raw = max(raw, hgv_min_fineness(hgv_type) * diameter_m)
     l_head = min(raw, length_m * HGV_MAX_HEAD_LENGTH_RATIO)
     return l_head, length_m - l_head
 
@@ -216,6 +251,113 @@ def _require_non_negative(name: str, value: float) -> float:
     return value
 
 
+def _round_hgv_result(
+    m_0: float,
+    l_head: float,
+    l_booster: float,
+    m_propellant: float,
+    v_burnout: float,
+    ld_ratio: float,
+    total_range_km: float,
+    d_head: float,
+) -> dict:
+    """把内部未舍入的助推滑翔结果收成对外字段。"""
+    return {
+        'm_0_t': round(m_0 / 1000.0, 2),
+        'l_head_m': round(l_head, 2),
+        'l_booster_m': round(l_booster, 2),
+        'm_p_total_kg': round(m_propellant, 1),
+        'v_burnout_mach': round(v_burnout / SOUND_SPEED_M_S, 2),
+        'ld_ratio': round(ld_ratio, 2),
+        'range_km': round(total_range_km, 1),
+        'd_head_m': round(d_head, 3),
+        'fineness': round(l_head / d_head, 2),
+    }
+
+
+def estimate_hgv_unrounded(
+    length_m: float,
+    diameter_m: float,
+    warhead_mass_kg: float,
+    hgv_type: str = 'biconic',
+    v_launch_mach: float = 0.85,
+    h_launch_km: float = 13.0,
+    isp_s: float = DEFAULT_ISP_S,
+    propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
+    l_head_m: float | None = None,
+    d_head_m: float | None = None,
+    enforce_min_fineness: bool = True,
+) -> dict:
+    """估算助推滑翔弹，返回未舍入的质量、速度与射程，供几何搜索比较。"""
+    hgv_type = normalize_hgv_type(hgv_type)
+    if length_m <= 0 or diameter_m <= 0:
+        raise ValueError('弹长与弹径必须大于 0')
+    if isp_s <= 0 or propellant_density <= 0:
+        raise ValueError('比冲与推进剂密度必须大于 0')
+    _require_non_negative('战斗部质量', warhead_mass_kg)
+    _require_non_negative('发射马赫数', v_launch_mach)
+    _require_non_negative('发射高度', h_launch_km)
+
+    d_head = diameter_m if d_head_m is None else float(d_head_m)
+    if d_head <= 0 or d_head > diameter_m:
+        raise ValueError('滑翔体直径必须大于 0 且不超过弹体直径')
+
+    vol_req = head_volume_m3(warhead_mass_kg, hgv_type)
+    specified = l_head_m is not None
+    if specified:
+        l_head = float(l_head_m)
+        if l_head <= 0 or l_head >= length_m:
+            raise ValueError('滑翔体长度必须大于 0 且小于全弹长')
+        l_booster = length_m - l_head
+    else:
+        l_head, l_booster = head_and_booster_lengths_m(
+            length_m, d_head, warhead_mass_kg, hgv_type,
+            enforce_min_fineness=enforce_min_fineness,
+        )
+    if specified and head_packaging_volume_m3(l_head, d_head, hgv_type) + 1e-9 < vol_req:
+        raise ValueError('滑翔体容积不足以容纳战斗部与制控组件')
+
+    v_launch_ms = v_launch_mach * SOUND_SPEED_M_S
+    m_head_total = head_total_mass_kg(warhead_mass_kg)
+    m_propellant = propellant_mass_kg(diameter_m, l_booster, propellant_density)
+    pmf = PROPELLANT_MASS_FRACTION
+    m_booster_dry = m_propellant * (1.0 - pmf) / pmf
+    m_0 = m_head_total + m_booster_dry + m_propellant
+
+    v_e = isp_s * G0
+    m_p1 = m_propellant * 0.58
+    m_p2 = m_propellant * 0.42
+    m_s1 = m_booster_dry * 0.60
+    m_stg1_out = m_0 - m_p1
+    m_stg2_in = m_stg1_out - m_s1
+    m_stg2_out = m_stg2_in - m_p2
+    if min(m_stg1_out, m_stg2_in, m_stg2_out) <= 0:
+        raise ValueError('推进剂或结构质量组合无效，无法计算速度增量')
+
+    dv1 = v_e * math.log(m_0 / m_stg1_out)
+    dv2 = v_e * math.log(m_stg2_in / m_stg2_out)
+    v_burnout = v_launch_ms + (dv1 + dv2) - gravity_drag_loss_m_s(
+        h_launch_km, m_0, diameter_m,
+    )
+    ld_ratio = lift_drag_ratio(l_head, d_head, hgv_type)
+    v_eff2 = v_burnout ** 2 + 2.0 * G0 * (h_launch_km * 1000.0)
+    ratio_v2 = v_eff2 / (G0 * R_EARTH_M)
+    glide_m = glide_range_m(ratio_v2, ld_ratio)
+    boost_m = (v_launch_ms + v_burnout) / 2.0 * 60.0 + h_launch_km * 1000.0 * 2.0
+    total_range_km = (boost_m + glide_m) / 1000.0
+    return {
+        'm_0': m_0,
+        'l_head_m': l_head,
+        'l_booster_m': l_booster,
+        'm_propellant': m_propellant,
+        'v_burnout': v_burnout,
+        'ld_ratio': ld_ratio,
+        'range_km': total_range_km,
+        'd_head_m': d_head,
+        'fineness': l_head / d_head,
+    }
+
+
 def estimate_hgv(
     length_m: float,
     diameter_m: float,
@@ -235,8 +377,8 @@ def estimate_hgv(
 ) -> dict:
     """估算起飞质量、关机马赫数、升阻比与总射程（千米）。
 
-    支持指定滑翔体独立长径 (l_head_m, d_head_m)，或开启 optimize_geometry 寻优最大射程。
-    乘波体当量密度更低、容积系数更小，同样战斗部的弹头更长，助推级装药更少。
+    未指定滑翔体尺寸时按容积与长细比底线划分弹头；开启 optimize_geometry
+    则在弹径以内搜索使总射程最大的滑翔体长度与等效直径。
     """
     if optimize_geometry:
         return optimize_hgv_geometry(
@@ -253,75 +395,56 @@ def estimate_hgv(
             max_d_head_m=max_d_head_m,
             max_head_length_ratio=max_head_length_ratio,
         )['result']
-
-    hgv_type = normalize_hgv_type(hgv_type)
-    if length_m <= 0 or diameter_m <= 0:
-        raise ValueError('弹长与弹径必须大于 0')
-    if isp_s <= 0 or propellant_density <= 0:
-        raise ValueError('比冲与推进剂密度必须大于 0')
-    _require_non_negative('战斗部质量', warhead_mass_kg)
-    _require_non_negative('发射马赫数', v_launch_mach)
-    _require_non_negative('发射高度', h_launch_km)
-
-    d_head = diameter_m if d_head_m is None else float(d_head_m)
-    if d_head <= 0 or d_head > diameter_m:
-        raise ValueError('滑翔体直径必须大于 0 且不超过弹体直径')
-
-    if l_head_m is not None:
-        l_head = float(l_head_m)
-        if l_head <= 0 or l_head >= length_m:
-            raise ValueError('滑翔体长度必须大于 0 且小于全弹长')
-        l_booster = length_m - l_head
-    else:
-        l_head, l_booster = head_and_booster_lengths_m(
-            length_m, d_head, warhead_mass_kg, hgv_type,
-        )
-
-    v_launch_ms = v_launch_mach * SOUND_SPEED_M_S
-    m_head_total = head_total_mass_kg(warhead_mass_kg)
-    m_propellant = propellant_mass_kg(diameter_m, l_booster, propellant_density)
-    pmf = PROPELLANT_MASS_FRACTION
-    m_booster_dry = m_propellant * (1.0 - pmf) / pmf
-    m_0 = m_head_total + m_booster_dry + m_propellant
-
-    v_e = isp_s * G0
-    m_p1 = m_propellant * 0.58
-    m_p2 = m_propellant * 0.42
-    m_s1 = m_booster_dry * 0.60
-
-    m_stg1_in = m_0
-    m_stg1_out = m_stg1_in - m_p1
-    m_stg2_in = m_stg1_out - m_s1
-    m_stg2_out = m_stg2_in - m_p2
-    if min(m_stg1_out, m_stg2_in, m_stg2_out) <= 0:
-        raise ValueError('推进剂或结构质量组合无效，无法计算速度增量')
-
-    dv1 = v_e * math.log(m_stg1_in / m_stg1_out)
-    dv2 = v_e * math.log(m_stg2_in / m_stg2_out)
-    v_burnout = v_launch_ms + (dv1 + dv2) - gravity_drag_loss_m_s(
-        h_launch_km, m_0, diameter_m,
+    raw = estimate_hgv_unrounded(
+        length_m=length_m,
+        diameter_m=diameter_m,
+        warhead_mass_kg=warhead_mass_kg,
+        hgv_type=hgv_type,
+        v_launch_mach=v_launch_mach,
+        h_launch_km=h_launch_km,
+        isp_s=isp_s,
+        propellant_density=propellant_density,
+        l_head_m=l_head_m,
+        d_head_m=d_head_m,
+    )
+    return _round_hgv_result(
+        raw['m_0'], raw['l_head_m'], raw['l_booster_m'], raw['m_propellant'],
+        raw['v_burnout'], raw['ld_ratio'], raw['range_km'], raw['d_head_m'],
     )
 
-    ld_ratio = lift_drag_ratio(l_head, d_head, hgv_type)
-    v_eff2 = v_burnout ** 2 + 2.0 * G0 * (h_launch_km * 1000.0)
-    ratio_v2 = v_eff2 / (G0 * R_EARTH_M)
-    glide_m = glide_range_m(ratio_v2, ld_ratio)
-    boost_m = (v_launch_ms + v_burnout) / 2.0 * 60.0 + h_launch_km * 1000.0 * 2.0
-    total_range_km = (boost_m + glide_m) / 1000.0
 
-    res = {
-        'm_0_t': round(m_0 / 1000.0, 2),
-        'l_head_m': round(l_head, 2),
-        'l_booster_m': round(l_booster, 2),
-        'm_p_total_kg': round(m_propellant, 1),
-        'v_burnout_mach': round(v_burnout / SOUND_SPEED_M_S, 2),
-        'ld_ratio': round(ld_ratio, 2),
-        'range_km': round(total_range_km, 1),
-    }
-    if d_head_m is not None:
-        res['d_head_m'] = round(d_head, 3)
-        res['fineness'] = round(l_head / d_head, 2)
-    return res
+def _optimize_geometry_cache_key(
+    length_m: float,
+    diameter_m: float,
+    warhead_mass_kg: float,
+    hgv_type: str,
+    v_launch_mach: float,
+    h_launch_km: float,
+    isp_s: float,
+    propellant_density: float,
+    min_fineness: float | None,
+    min_d_head_m: float | None,
+    max_d_head_m: float | None,
+    max_head_length_ratio: float,
+    grid_points_d: int,
+    grid_points_l: int,
+) -> tuple:
+    """把寻优参数收成可哈希键，避免预设表反复扫同一发弹。"""
+    return (
+        round(length_m, 6), round(diameter_m, 6), round(warhead_mass_kg, 4),
+        normalize_hgv_type(hgv_type), round(v_launch_mach, 6), round(h_launch_km, 6),
+        round(isp_s, 4), round(propellant_density, 4),
+        None if min_fineness is None else round(float(min_fineness), 6),
+        None if min_d_head_m is None else round(float(min_d_head_m), 6),
+        None if max_d_head_m is None else round(float(max_d_head_m), 6),
+        round(max_head_length_ratio, 6), int(grid_points_d), int(grid_points_l),
+    )
+
+
+@lru_cache(maxsize=512)
+def _optimize_hgv_geometry_cached(key: tuple) -> dict:
+    """按缓存键搜索滑翔体几何。"""
+    return _optimize_hgv_geometry_compute(*key)
 
 
 def optimize_hgv_geometry(
@@ -337,111 +460,98 @@ def optimize_hgv_geometry(
     min_d_head_m: float | None = None,
     max_d_head_m: float | None = None,
     max_head_length_ratio: float = HGV_MAX_HEAD_LENGTH_RATIO,
-    grid_points_d: int = 40,
-    grid_points_l: int = 40,
+    grid_points_d: int = 24,
+    grid_points_l: int = 24,
 ) -> dict:
-    """搜索包含战斗部与制控组件的滑翔体最优长度与直径（使总射程最大）。
+    """搜索包含战斗部与制控组件的滑翔体最优长度与直径（使总射程最大）。"""
+    key = _optimize_geometry_cache_key(
+        length_m, diameter_m, warhead_mass_kg, hgv_type, v_launch_mach,
+        h_launch_km, isp_s, propellant_density, min_fineness, min_d_head_m,
+        max_d_head_m, max_head_length_ratio, grid_points_d, grid_points_l,
+    )
+    return copy.deepcopy(_optimize_hgv_geometry_cached(key))
 
-    在保证战斗部与制导控制组件所需容积的前提下，综合权衡：
-    1. 滑翔体做长做细提升长细比与升阻比（增程）；
-    2. 助推器剩余长度与装药量（提供关机初速）；
-    3. 直径不超过全弹弹体直径，且满足气动长细比下限约束。
-    """
+
+def _optimize_hgv_geometry_compute(
+    length_m: float,
+    diameter_m: float,
+    warhead_mass_kg: float,
+    hgv_type: str,
+    v_launch_mach: float,
+    h_launch_km: float,
+    isp_s: float,
+    propellant_density: float,
+    min_fineness: float | None,
+    min_d_head_m: float | None,
+    max_d_head_m: float | None,
+    max_head_length_ratio: float,
+    grid_points_d: int,
+    grid_points_l: int,
+) -> dict:
+    """真正扫网格的滑翔体寻优。网格比较用未舍入射程。"""
     hgv_type = normalize_hgv_type(hgv_type)
-    if length_m <= 0 or diameter_m <= 0:
-        raise ValueError('弹长与弹径必须大于 0')
-    if isp_s <= 0 or propellant_density <= 0:
-        raise ValueError('比冲与推进剂密度必须大于 0')
-    _require_non_negative('战斗部质量', warhead_mass_kg)
-    _require_non_negative('发射马赫数', v_launch_mach)
-    _require_non_negative('发射高度', h_launch_km)
-
+    if grid_points_d < 1 or grid_points_l < 1:
+        raise ValueError('搜索网格点数必须大于 0')
     floor_fineness = hgv_min_fineness(hgv_type) if min_fineness is None else float(min_fineness)
     if floor_fineness <= 0:
         raise ValueError('长细比下限必须大于 0')
-
-    d_max = diameter_m if max_d_head_m is None else min(diameter_m, float(max_d_head_m))
-    d_min = max(HGV_ABSOLUTE_MIN_DIAMETER_M, diameter_m * HGV_DEFAULT_MIN_DIAMETER_RATIO) if min_d_head_m is None else float(min_d_head_m)
-    d_min = min(d_min, d_max)
-    if d_min <= 0 or d_max <= 0:
-        raise ValueError('直径范围必须大于 0')
-
+    d_min, d_max = hgv_head_diameter_bounds(diameter_m, min_d_head_m, max_d_head_m)
     l_max = length_m * max_head_length_ratio
     vol_req = head_volume_m3(warhead_mass_kg, hgv_type)
-
-    base = estimate_hgv(
-        length_m=length_m,
-        diameter_m=diameter_m,
-        warhead_mass_kg=warhead_mass_kg,
-        hgv_type=hgv_type,
-        v_launch_mach=v_launch_mach,
-        h_launch_km=h_launch_km,
-        isp_s=isp_s,
-        propellant_density=propellant_density,
-        optimize_geometry=False,
+    common = dict(
+        length_m=length_m, diameter_m=diameter_m, warhead_mass_kg=warhead_mass_kg,
+        hgv_type=hgv_type, v_launch_mach=v_launch_mach, h_launch_km=h_launch_km,
+        isp_s=isp_s, propellant_density=propellant_density,
     )
-    best_range = float(base['range_km'])
-    best_lh = float(base['l_head_m'])
-    best_dh = float(diameter_m)
-    best_res = dict(base)
-    best_res['d_head_m'] = round(best_dh, 3)
-    best_res['fineness'] = round(best_lh / best_dh, 2)
-
+    base_raw = estimate_hgv_unrounded(**common)
+    best_raw = dict(base_raw)
     for i in range(grid_points_d + 1):
-        dh = d_min + (d_max - d_min) * (i / max(1, grid_points_d))
+        dh = d_min + (d_max - d_min) * (i / grid_points_d)
         vol_len = uncapped_head_length_m(vol_req, dh, hgv_type)
         lh_min = max(vol_len, floor_fineness * dh)
         if lh_min > l_max:
             continue
         for j in range(grid_points_l + 1):
-            lh = lh_min + (l_max - lh_min) * (j / max(1, grid_points_l))
+            lh = lh_min + (l_max - lh_min) * (j / grid_points_l)
             try:
-                candidate = estimate_hgv(
-                    length_m=length_m,
-                    diameter_m=diameter_m,
-                    warhead_mass_kg=warhead_mass_kg,
-                    hgv_type=hgv_type,
-                    v_launch_mach=v_launch_mach,
-                    h_launch_km=h_launch_km,
-                    isp_s=isp_s,
-                    propellant_density=propellant_density,
-                    l_head_m=lh,
-                    d_head_m=dh,
-                    optimize_geometry=False,
-                )
+                candidate = estimate_hgv_unrounded(**common, l_head_m=lh, d_head_m=dh)
             except ValueError:
                 continue
-            cand_range = float(candidate['range_km'])
-            if cand_range > best_range:
-                best_range = cand_range
-                best_lh = lh
-                best_dh = dh
-                best_res = dict(candidate)
-
-    gain_km = round(best_range - float(base['range_km']), 1)
+            if candidate['range_km'] > best_raw['range_km']:
+                best_raw = candidate
+    base = _round_hgv_result(
+        base_raw['m_0'], base_raw['l_head_m'], base_raw['l_booster_m'],
+        base_raw['m_propellant'], base_raw['v_burnout'], base_raw['ld_ratio'],
+        base_raw['range_km'], base_raw['d_head_m'],
+    )
+    best_res = _round_hgv_result(
+        best_raw['m_0'], best_raw['l_head_m'], best_raw['l_booster_m'],
+        best_raw['m_propellant'], best_raw['v_burnout'], best_raw['ld_ratio'],
+        best_raw['range_km'], best_raw['d_head_m'],
+    )
+    best_lh = best_raw['l_head_m']
+    best_dh = best_raw['d_head_m']
+    best_range = float(best_res['range_km'])
     base_range = float(base['range_km'])
+    gain_km = round(best_range - base_range, 1)
     gain_pct = round(gain_km / base_range * 100.0, 2) if base_range > 0 else 0.0
-
-    best_res['d_head_m'] = round(best_dh, 3)
-    best_res['fineness'] = round(best_lh / best_dh, 2)
     best_res['optimal_geometry'] = True
     best_res['range_gain_km'] = gain_km
     best_res['range_gain_pct'] = gain_pct
     best_res['baseline_range_km'] = base_range
     best_res['baseline_l_head_m'] = float(base['l_head_m'])
-    best_res['baseline_d_head_m'] = round(diameter_m, 3)
+    best_res['baseline_d_head_m'] = float(base['d_head_m'])
     best_res['baseline_ld_ratio'] = float(base['ld_ratio'])
-
     return {
         'best_l_head_m': round(best_lh, 2),
         'best_d_head_m': round(best_dh, 3),
         'best_l_booster_m': round(length_m - best_lh, 2),
         'best_fineness': round(best_lh / best_dh, 2),
         'best_ld_ratio': float(best_res['ld_ratio']),
-        'max_range_km': round(best_range, 1),
+        'max_range_km': best_range,
         'baseline_range_km': base_range,
         'baseline_l_head_m': float(base['l_head_m']),
-        'baseline_d_head_m': round(diameter_m, 3),
+        'baseline_d_head_m': float(base['d_head_m']),
         'baseline_ld_ratio': float(base['ld_ratio']),
         'range_gain_km': gain_km,
         'range_gain_pct': gain_pct,

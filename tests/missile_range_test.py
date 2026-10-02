@@ -44,16 +44,21 @@ from utils.missile_range.estimate import (
     R_EARTH_M,
     SOUND_SPEED_M_S,
     _require_non_negative,
+    _round_hgv_result,
     chamber_length_m,
     estimate_hgv,
+    estimate_hgv_unrounded,
     glide_range_m,
     gravity_drag_loss_m_s,
     head_and_booster_lengths_m,
     head_aux_ratio,
     head_density_kg_m3,
+    head_packaging_volume_m3,
     head_total_mass_kg,
+    head_volume_factor,
     head_volume_m3,
     hgv_altitude_loss_m_s,
+    hgv_head_diameter_bounds,
     hgv_min_fineness,
     lift_drag_ratio,
     min_head_length_m,
@@ -62,6 +67,9 @@ from utils.missile_range.estimate import (
     optimize_hgv_geometry,
     propellant_mass_kg,
     uncapped_head_length_m,
+    _optimize_geometry_cache_key,
+    _optimize_hgv_geometry_cached,
+    _optimize_hgv_geometry_compute,
 )
 
 
@@ -104,7 +112,11 @@ def _oracle(
     head_density = 1800.0 if hgv_type == 'biconic' else 1650.0
     v_head_req = m_head_total / head_density
     volume_factor = 0.2618 if hgv_type == 'biconic' else 0.1745
-    l_head_calc = v_head_req / (volume_factor * (diameter_m ** 2))
+    fineness_min = 2.5 if hgv_type == 'biconic' else 3.5
+    l_head_calc = max(
+        v_head_req / (volume_factor * (diameter_m ** 2)),
+        fineness_min * diameter_m,
+    )
     l_head = min(l_head_calc, length_m * 0.45)
     l_booster_gross = length_m - l_head
     d_motor = diameter_m * 0.90
@@ -149,6 +161,8 @@ def _oracle(
         'v_burnout_mach': round(v_burnout / 295.0, 2),
         'ld_ratio': round(ld_ratio, 2),
         'range_km': round(total_range_km, 1),
+        'd_head_m': round(diameter_m, 3),
+        'fineness': round(l_head / diameter_m, 2),
     }
 
 
@@ -261,15 +275,7 @@ def test_require_non_negative():
 
 
 def test_estimate_hgv_matches_reference_dataset():
-    assert estimate_hgv(10.5, 1.0, 200) == {
-        'm_0_t': 9.05,
-        'l_head_m': 0.57,
-        'l_booster_m': 9.93,
-        'm_p_total_kg': 7642.7,
-        'v_burnout_mach': 20.49,
-        'ld_ratio': 1.8,
-        'range_km': 3370.3,
-    }
+    assert estimate_hgv(10.5, 1.0, 200) == _oracle(10.5, 1.0, 200)
     for case in MISSILE_DATASET:
         from utils.missile_range.classes import glide_shape
         shape = glide_shape(case['missile_class'])
@@ -321,7 +327,9 @@ def test_missile_case_label_and_evaluate_case():
         case['v_mach'], case['h_km'],
     )
     assert row['range_km'] == expected['range_km']
-    assert row['ld_ratio'] == lift_drag_ratio(expected['l_head_m'], case['diameter'], 'biconic')
+    assert row['ld_ratio'] == expected['ld_ratio']
+    assert row['d_head_m'] == expected['d_head_m']
+    assert expected['optimal_geometry'] is True
 
 
 def test_evaluate_dataset_and_catalog():
@@ -422,6 +430,7 @@ def test_opt_float_and_required_float():
 
 
 def test_run_estimate_dataset_and_presets():
+    from utils.missile_range.classes import estimate_by_class
     bad = run_estimate_from_params({})
     assert bad['success'] is False
     ok = run_estimate_from_params({
@@ -431,7 +440,8 @@ def test_run_estimate_dataset_and_presets():
         'missile_class': 'hgv_biconic',
     })
     assert ok['success'] is True
-    assert ok['result']['range_km'] == 4560.5
+    assert ok['result']['optimal_geometry'] is True
+    assert ok['result']['range_km'] == estimate_by_class('hgv_biconic', 10.5, 1, 200)['range_km']
     assert len(ok['rows']) == len(all_missile_cases())
     table = run_dataset_from_params({'isp_s': '264'})
     assert table['count'] == len(all_missile_cases())
@@ -441,6 +451,7 @@ def test_run_estimate_dataset_and_presets():
 
 
 def test_run_missile_range_json_actions():
+    from utils.missile_range.classes import estimate_by_class
     missing = run_missile_range('nope', {})
     assert missing['success'] is False
     parsed = run_missile_range_json('{"action":"dataset"}')
@@ -455,7 +466,8 @@ def test_run_missile_range_json_actions():
         'diameter_m': 1,
         'warhead_kg': 200,
     })
-    assert flat['result']['range_km'] == 4560.5
+    assert flat['result']['optimal_geometry'] is True
+    assert flat['result']['range_km'] == estimate_by_class('hgv_biconic', 10.5, 1, 200)['range_km']
     assert run_missile_range_json({'action': 'estimate', 'params': []})['success'] is False
 
 
@@ -705,7 +717,10 @@ def test_six_classes_ranges_and_profiles():
     stealth = estimate_subsonic_class('涡扇隐身', **same)
     plain = estimate_subsonic_class('涡喷', **same)
     assert stealth['range_high_km'] == 1203.9
-    assert stealth['range_sea_km'] == 527.7
+    assert stealth['range_sea_km'] == 621.7
+    assert stealth['cruise_alt_km'] == 10.0
+    assert '30 m' in stealth['note']
+    assert '掠海升阻比' in stealth['note']
     assert stealth['m_wing_kg'] == 84.4
     assert stealth['m_dead_kg'] == 645.8
     assert '折叠弹翼' in stealth['note']
@@ -718,7 +733,8 @@ def test_six_classes_ranges_and_profiles():
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
     assert scram['range_km'] == 1773.8
     assert scram['cruise_mach'] == 5.2
-    assert ram['range_km'] == 1823.7
+    assert ram['range_km'] == 1846.8
+    assert ram['cruise_alt_km'] == 10.0
     assert ram['v_burnout_mach'] == 2.8
     assert scram['range_sea_km'] is None
     assert ram['range_high_km'] > ram['range_sea_km'] > 0
@@ -748,11 +764,13 @@ def test_six_classes_ranges_and_profiles():
     ballistic_air = estimate_by_class('ballistic', **same)
     assert glide['range_km'] - ballistic_air['range_km'] > 1000
     legacy = estimate_by_class('hgv', 10.5, 1, 200)
-    assert legacy['range_km'] == 4560.5
+    assert legacy['optimal_geometry'] is True
+    assert legacy['d_head_m'] < 1.0
+    assert legacy['range_km'] > 4000
     assert legacy['missile_class'] == 'hgv_biconic'
     wave = estimate_by_class('乘波体助推滑翔', 10.5, 1, 200, 0.85, 13, 264, 1760)
     assert wave['missile_class'] == 'hgv_waverider'
-    assert wave['range_km'] == estimate_hgv(10.5, 1, 200, 'waverider')['range_km']
+    assert wave['range_km'] == estimate_hgv(10.5, 1, 200, 'waverider', optimize_geometry=True)['range_km']
     assert wave['range_km'] != legacy['range_km']
     with pytest.raises(ValueError):
         estimate_subsonic_class('ramjet', 6, 0.5, 100, 0.7, 1)
@@ -959,7 +977,7 @@ def test_airbreathing_range_model_differs_from_boost_and_ballistic():
     assert '不含滑翔' in ballistic['note']
     assert scram['range_sea_km'] is None
     assert scram['cruise_alt_km'] == 24.0
-    assert ram['cruise_alt_km'] == 14.0
+    assert ram['cruise_alt_km'] == 10.0
     assert scram.get('m_wing_kg') is None
     assert ram['range_high_km'] > ram['range_sea_km'] > 0
     assert fan['range_high_km'] > fan['range_sea_km'] > 0
@@ -1158,47 +1176,101 @@ def test_burke_radar_los_km_matches_horizon():
         burke_radar_los_km(radar_height_m=-1)
 
 
+def test_sea_skim_ld_follows_dynamic_pressure():
+    """掠海升阻比由动压和废阻推出，设计点原样返回，30 m 低于 10 km。"""
+    import math
+
+    from utils.missile_range.classes import (
+        CRUISE_HIGH_ALT_KM,
+        CRUISE_SEA_ALT_KM,
+        FOLDED_WING_AR,
+        FOLDED_WING_CL,
+        FOLDED_WING_OSWALD,
+        dynamic_pressure_pa,
+        isa_temperature_k,
+        parasite_friction_share,
+        sea_skim_ld,
+        skin_friction_ratio,
+        speed_of_sound_m_s,
+        sutherland_viscosity_pa_s,
+        wing_polar,
+    )
+
+    assert CRUISE_HIGH_ALT_KM == 10.0
+    assert CRUISE_SEA_ALT_KM == 0.030
+    assert isa_temperature_k(0.0) == pytest.approx(288.15)
+    assert isa_temperature_k(10.0) == pytest.approx(223.15)
+    assert speed_of_sound_m_s(0.0) == pytest.approx(math.sqrt(1.4 * 287.05287 * 288.15))
+    assert sutherland_viscosity_pa_s(288.15) > sutherland_viscosity_pa_s(223.15) > 0
+    assert dynamic_pressure_pa(0.8, 0.03) > dynamic_pressure_pa(0.8, 10.0)
+    assert parasite_friction_share(0.8) == 0.65
+    assert parasite_friction_share(2.8) == 0.35
+    assert skin_friction_ratio(5.0, 0.8, 10.0, 0.8, 10.0) == pytest.approx(1.0)
+    assert skin_friction_ratio(5.0, 0.8, 0.03, 0.8, 10.0) < 1.0
+    assert wing_polar({}) == (FOLDED_WING_CL, FOLDED_WING_AR, FOLDED_WING_OSWALD)
+    assert wing_polar({'wing_cl': 0.4, 'wing_ar': 2.5, 'wing_oswald': 0.7}) == (0.4, 2.5, 0.7)
+    same = sea_skim_ld(5.2, 0.8, 10.0, 0.8, 10.0, 6.0, 0.65, 5.0, 0.75)
+    sea = sea_skim_ld(5.2, 0.8, 10.0, 0.8, 0.03, 6.0, 0.65, 5.0, 0.75)
+    assert same == pytest.approx(5.2)
+    assert sea < same
+    with pytest.raises(ValueError):
+        isa_temperature_k(-1)
+    with pytest.raises(ValueError):
+        sutherland_viscosity_pa_s(0)
+    with pytest.raises(ValueError):
+        dynamic_pressure_pa(0, 10)
+    with pytest.raises(ValueError):
+        parasite_friction_share(-0.1)
+    with pytest.raises(ValueError):
+        skin_friction_ratio(0, 0.8, 10, 0.8, 10)
+    with pytest.raises(ValueError):
+        wing_polar({'wing_cl': 0})
+    with pytest.raises(ValueError):
+        sea_skim_ld(0, 0.8, 10, 0.8, 0.03, 6, 0.65, 5, 0.75)
+
+
 def test_public_airbreathing_ranges_match_open_sources():
     """用公开弹种核对吸气式航程，并检查垂发零速零高。"""
     from utils.missile_range.classes import estimate_by_class
 
     # 鹰击-15：6.5 m×0.50 m、战斗部 200 kg、Ma 0.9 @ 12 km。质量仍约 1.5 t。
     # 公开高空约 800 km；吸气比冲和升阻比按偏乐观取后，高空约 1140 km。
-    # 掠海约为高空的 1/2.3，落在公开亚燃弹 2 到 2.5 倍的区间里。
+    # 掠海按 30 m 动压下的阻力估算，不再压到高空的 1/2.3。
     yj15 = estimate_by_class('ramjet', 6.5, 0.50, 200, 0.9, 12.0)
     assert yj15['m_0_t'] == pytest.approx(1.50, abs=0.05)
+    assert yj15['cruise_alt_km'] == 10.0
     assert 1050 <= yj15['range_high_km'] <= 1250
-    assert 450 <= yj15['range_sea_km'] <= 540
-    assert 2.0 <= yj15['range_high_km'] / yj15['range_sea_km'] <= 2.5
+    assert yj15['range_high_km'] > yj15['range_sea_km'] > 0.45 * yj15['range_high_km']
+    assert '30 m' in yj15['note']
     # 缟玛瑙级弹径共用同一耗油率，装填按鹰击-15 加满后高空更长。
     oniks_m = estimate_by_class('ramjet', 8.9, 0.70, 300, 0.0, 0.0)
     assert oniks_m['m_0_t'] == pytest.approx(3.7, abs=0.3)
+    assert oniks_m['cruise_alt_km'] == 10.0
     assert 1250 <= oniks_m['range_high_km'] <= 1550
-    assert 560 <= oniks_m['range_sea_km'] <= 680
-    assert 2.0 <= oniks_m['range_high_km'] / oniks_m['range_sea_km'] <= 2.5
+    assert oniks_m['range_high_km'] > oniks_m['range_sea_km'] > 0.45 * oniks_m['range_high_km']
     # Kh-31PD：5.34 m×0.36 m、战斗部 110 kg，Ma 1.5 @ 15 km。公开最大 180–250 km，乐观化后约 340 km。
     kh31pd = estimate_by_class('ramjet', 5.34, 0.36, 110, 1.5, 15.0)
     assert kh31pd['m_0_t'] == pytest.approx(0.72, abs=0.08)
     assert 280 <= kh31pd['range_high_km'] <= 420
     brahmos = estimate_by_class('ramjet', 8.4, 0.70, 250, 0.0, 0.0)
     assert 1200 <= brahmos['range_km'] <= 1600
-    assert 560 <= brahmos['range_sea_km'] <= 680
-    assert 2.0 <= brahmos['range_high_km'] / brahmos['range_sea_km'] <= 2.5
+    assert brahmos['range_high_km'] > brahmos['range_sea_km'] > 0.45 * brahmos['range_high_km']
     kh31 = estimate_by_class('ramjet', 5.2, 0.36, 90, 0.9, 10.0)
     assert 220 <= kh31['range_km'] <= 360
     assert kh31['range_sea_km'] < kh31['range_high_km']
     moskit = estimate_by_class('ramjet', 9.4, 0.76, 320, 0.0, 0.0)
-    assert 620 <= moskit['range_sea_km'] <= 740
-    assert 2.0 <= moskit['range_high_km'] / moskit['range_sea_km'] <= 2.5
+    assert moskit['cruise_alt_km'] == 10.0
+    assert moskit['range_high_km'] > moskit['range_sea_km'] > 0.45 * moskit['range_high_km']
     fighter = estimate_by_class('ramjet', 4.25, 0.345, 90, 2.2, 19.0)
     assert fighter['range_km'] > kh31['range_sea_km']
     assert fighter['range_km'] > 200
-    # 3M54K：8.22 m×0.533 m、战斗部 200 kg、全重约 1.95 t。舰面发射全掠海/全高空取 400/950。
+    # 3M54K：8.22 m×0.533 m、战斗部 200 kg、全重约 1.95 t。全高空 10 km，掠海按阻力估算。
     # 末端冲刺统一为伯克级雷达视距，不单列。
     kalibr = estimate_by_class('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
     assert kalibr['m_0_t'] == pytest.approx(1.95, abs=0.15)
-    assert kalibr['range_high_km'] == 1215.3
-    assert kalibr['range_sea_km'] / kalibr['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
+    assert kalibr['cruise_alt_km'] == 10.0
+    assert kalibr['range_high_km'] == 965.4
+    assert kalibr['range_sea_km'] == 464.1
     assert kalibr['range_terminal_km'] is None
     air_kalibr = estimate_by_class('turbofan_rocket', 8.22, 0.533, 200, 0.85, 6.0)
     assert air_kalibr['range_high_km'] > kalibr['range_high_km']
@@ -1207,20 +1279,24 @@ def test_public_airbreathing_ranges_match_open_sources():
     assert yj18['range_high_km'] > yj18['range_sea_km'] > 0
     assert yj18['range_terminal_km'] is None
     assert 1.5 <= yj18['m_0_t'] <= 2.2
-    # 涡喷在 6 km 巡航高度、已超过接力速度时，全掠海/全高空也是 400/950。降低发射高度只少高空爬升油。
+    # 涡喷巡航高度是 10 km。已经高于掠海、又超过接力速度时，降低发射高度只少高空爬升油。
     jet = estimate_by_class('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 6.0)
     jet_low = estimate_by_class('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 0.2)
-    assert jet['range_sea_km'] / jet['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
+    assert jet['cruise_alt_km'] == 10.0
+    assert jet['range_high_km'] > jet['range_sea_km']
+    assert '30 m' in jet['note']
+    assert '掠海升阻比' in jet['note']
     # 6 km 的声速更低，同样 0.85 马赫略慢于海平面，掠海要补一点加速油。
     assert jet_low['range_sea_km'] == pytest.approx(jet['range_sea_km'], abs=0.5)
     assert jet_low['range_high_km'] < jet['range_high_km']
     # LRASM：宽 0.635 m、高 0.450 m 的扁五边形，不是 0.55 m 圆。空射质量约 1.21 t。
-    # 全高空仍约 970 km；掠海按 400/950 标定，发射高度不改这一比值的巡航系数。
+    # 全高空仍约 970 km。掠海升阻比由 30 m 动压算出，不按 400/950 缩放。
     lrasm = estimate_by_class(
         'turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0, width_m=0.635, height_m=0.450,
     )
     assert lrasm['range_high_km'] == 967.6
-    assert lrasm['range_sea_km'] / lrasm['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
+    assert lrasm['range_sea_km'] == 451.5
+    assert lrasm['cruise_alt_km'] == 10.0
     assert lrasm['m_0_t'] == pytest.approx(1.21, abs=0.06)
     lower = estimate_by_class(
         'turbofan_stealth', 4.26, 0.635, 450, 0.85, 0.2, width_m=0.635, height_m=0.450,
@@ -1316,7 +1392,8 @@ def test_same_tube_glide_outranges_ballistic_and_combo_keeps_turbofan_isp():
     assert combo['range_high_km'] > 0.45 * jet['range_high_km']
     assert combo['isp_cruise_s'] == pytest.approx(fan['isp_cruise_s'], abs=0.2)
     assert combo['isp_cruise_s'] > jet['isp_cruise_s']
-    assert 2.0 <= ram['range_high_km'] / ram['range_sea_km'] <= 2.5
+    assert ram['cruise_alt_km'] == 10.0
+    assert ram['range_high_km'] > ram['range_sea_km'] > 0.4 * ram['range_high_km']
 
 
 def test_scramjet_without_takeover_coasts_instead_of_cruising():
@@ -1612,19 +1689,19 @@ def test_filter_takeover_failed_and_labels():
 
 def test_hgv_min_fineness():
     """测试不同滑翔体构型的长细比底线值及构型别名。"""
-    assert hgv_min_fineness('biconic') == 2.0
-    assert hgv_min_fineness('双锥体') == 2.0
-    assert hgv_min_fineness('waverider') == 3.0
-    assert hgv_min_fineness('乘波体') == 3.0
+    assert hgv_min_fineness('biconic') == 2.5
+    assert hgv_min_fineness('双锥体') == 2.5
+    assert hgv_min_fineness('waverider') == 3.5
+    assert hgv_min_fineness('乘波体') == 3.5
     with pytest.raises(ValueError, match='未知构型'):
         hgv_min_fineness('invalid_shape')
 
 
 def test_min_head_length_m():
     """测试兼顾容积与长细比底线的滑翔体最小长度计算。"""
-    # 战斗部 200kg 双锥体，在 D=1.0m 时纯容积仅需 0.57m，但长细比底线 2.0 * 1.0 = 2.0m 占主导
+    # 战斗部 200kg 双锥体，在 D=1.0m 时纯容积仅需 0.57m，但长细比底线 2.5 m 占主导
     l_floor = min_head_length_m(200.0, 1.0, 'biconic', enforce_min_fineness=True)
-    assert l_floor == pytest.approx(2.0)
+    assert l_floor == pytest.approx(2.5)
     l_raw = min_head_length_m(200.0, 1.0, 'biconic', enforce_min_fineness=False)
     assert l_raw == pytest.approx(0.573, abs=0.01)
 
@@ -1635,15 +1712,15 @@ def test_min_head_length_m():
 
 def test_head_and_booster_lengths_m_with_fineness():
     """测试带有长细比修正的弹头与助推器长度划分。"""
-    # 默认不强制长细比修正，保持向后兼容
     lh, lb = head_and_booster_lengths_m(10.5, 1.0, 200.0, 'biconic')
-    assert lh == pytest.approx(0.57, abs=0.01)
-    assert lb == pytest.approx(9.93, abs=0.01)
+    assert lh == pytest.approx(2.5, abs=0.01)
+    assert lb == pytest.approx(8.0, abs=0.01)
 
-    # 强制修正时，长度取长细比底线（2.0m）
-    lh_f, lb_f = head_and_booster_lengths_m(10.5, 1.0, 200.0, 'biconic', enforce_min_fineness=True)
-    assert lh_f == pytest.approx(2.0, abs=0.01)
-    assert lb_f == pytest.approx(8.5, abs=0.01)
+    lh_raw, lb_raw = head_and_booster_lengths_m(
+        10.5, 1.0, 200.0, 'biconic', enforce_min_fineness=False,
+    )
+    assert lh_raw == pytest.approx(0.57, abs=0.01)
+    assert lb_raw == pytest.approx(9.93, abs=0.01)
 
 
 def test_optimize_hgv_geometry():
@@ -1655,13 +1732,13 @@ def test_optimize_hgv_geometry():
     assert opt_bi['best_l_head_m'] > opt_bi['baseline_l_head_m']
     assert opt_bi['best_d_head_m'] < 1.0
     assert opt_bi['best_ld_ratio'] > opt_bi['baseline_ld_ratio']
-    assert opt_bi['best_fineness'] >= 2.0
+    assert opt_bi['best_fineness'] >= 2.5
     assert opt_bi['result']['optimal_geometry'] is True
 
     # 10.5m x 1.0m, 200kg 弹头（乘波体）
     opt_wave = optimize_hgv_geometry(10.5, 1.0, 200.0, 'waverider')
     assert opt_wave['max_range_km'] > opt_wave['baseline_range_km'] + 500.0
-    assert opt_wave['best_fineness'] >= 3.0
+    assert opt_wave['best_fineness'] >= 3.5
     assert opt_wave['best_ld_ratio'] > 4.0
 
     # 异常输入校验
@@ -1748,5 +1825,73 @@ def test_run_optimize_geometry_from_params():
     assert est_res['success'] is True
     assert est_res['result']['optimal_geometry'] is True
 
+
+def test_head_volume_factor_and_packaging_volume():
+    """容积系数与外形容积：乘波体更扁，同样长径装得更少。"""
+    assert head_volume_factor('biconic') == pytest.approx(0.2618)
+    assert head_volume_factor('乘波体') == pytest.approx(0.1745)
+    bi = head_packaging_volume_m3(3.0, 0.8, 'biconic')
+    wave = head_packaging_volume_m3(3.0, 0.8, 'waverider')
+    assert bi > wave
+    with pytest.raises(ValueError, match='必须大于 0'):
+        head_packaging_volume_m3(0, 1, 'biconic')
+
+
+def test_hgv_head_diameter_bounds():
+    """滑翔体直径搜索区间不超过弹径，且有装填口径下限。"""
+    d_min, d_max = hgv_head_diameter_bounds(1.0)
+    assert d_max == pytest.approx(1.0)
+    assert d_min == pytest.approx(0.35)
+    tight_min, tight_max = hgv_head_diameter_bounds(1.0, min_d_head_m=0.6, max_d_head_m=0.9)
+    assert tight_min == pytest.approx(0.6)
+    assert tight_max == pytest.approx(0.9)
+    with pytest.raises(ValueError, match='弹径必须大于 0'):
+        hgv_head_diameter_bounds(0)
+    with pytest.raises(ValueError, match='直径范围'):
+        hgv_head_diameter_bounds(1.0, min_d_head_m=0)
+
+
+def test_round_hgv_result_and_unrounded():
+    """未舍入估算与对外圆整字段一致。"""
+    raw = estimate_hgv_unrounded(10.5, 1.0, 200.0, 'biconic')
+    rounded = _round_hgv_result(
+        raw['m_0'], raw['l_head_m'], raw['l_booster_m'], raw['m_propellant'],
+        raw['v_burnout'], raw['ld_ratio'], raw['range_km'], raw['d_head_m'],
+    )
+    assert rounded == estimate_hgv(10.5, 1.0, 200.0, 'biconic')
+    assert raw['l_head_m'] == pytest.approx(2.5)
+    with pytest.raises(ValueError, match='容积不足以容纳'):
+        estimate_hgv_unrounded(10.5, 1.0, 200.0, l_head_m=0.4, d_head_m=0.4)
+
+
+def test_optimize_geometry_cache_key_and_compute():
+    """寻优缓存键稳定，底层网格函数能算出正射程。"""
+    key = _optimize_geometry_cache_key(
+        10.5, 1.0, 200.0, 'biconic', 0.85, 13.0, 264.0, 1760.0,
+        None, None, None, 0.45, 24, 24,
+    )
+    assert key[3] == 'biconic'
+    cached = _optimize_hgv_geometry_cached(key)
+    computed = _optimize_hgv_geometry_compute(*key)
+    assert cached['max_range_km'] == computed['max_range_km']
+    with pytest.raises(ValueError, match='搜索网格点数'):
+        _optimize_hgv_geometry_compute(
+            10.5, 1.0, 200.0, 'biconic', 0.85, 13.0, 264.0, 1760.0,
+            None, None, None, 0.45, 0, 24,
+        )
+
+
+def test_estimate_by_class_defaults_to_geometry_search():
+    """助推滑翔默认搜索滑翔体尺寸；关闭后回到长细比底线划分。"""
+    from utils.missile_range.classes import estimate_by_class
+
+    default = estimate_by_class('hgv_biconic', 10.5, 1.0, 200.0)
+    packed = estimate_by_class('hgv_biconic', 10.5, 1.0, 200.0, optimize_geometry=False)
+    assert default['optimal_geometry'] is True
+    assert default['d_head_m'] < packed['d_head_m']
+    assert default['range_km'] > packed['range_km']
+    assert packed.get('optimal_geometry') is None
+    with pytest.raises(ValueError, match='搜索网格点数'):
+        optimize_hgv_geometry(10.5, 1.0, 200.0, grid_points_d=0)
 
 

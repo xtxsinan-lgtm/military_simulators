@@ -119,6 +119,7 @@ button.run:disabled{ background:var(--green-dim); cursor:progress; color:#0a2014
 .stat .k{ font-size:9px; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase;}
 .stat .v{ font-size:22px; color:var(--green); margin-top:4px; }
 .stat .v.amber{ color:var(--amber); }
+.stat .v.cyan{ color:var(--cyan); }
 .stat .sub{ font-size:10px; color:var(--text-dim); margin-top:2px;}
 
 table{ width:100%; border-collapse:collapse; font-size:11.5px; }
