@@ -8,7 +8,7 @@
 亚燃是固冲一体：药柱铸在燃烧室里，和煤油分同一块能源容积。
 超燃不是双模态，燃烧室留空，固体助推器单独占舱，燃油用高密度吸热型液体碳氢燃料。
 亚燃高空大约是掠海的 2 到 2.5 倍。亚燃在 10 km 以下按稠密大气加大助推损失。超燃地面发射不加这一档。
-亚超结合的巡航比冲与涡扇同一档，末端固体火箭另计。
+亚超结合的巡航比冲与涡扇同一档，末端冲刺统一按伯克级雷达对掠海目标的视距计入。
 普通弹道导弹只在前方用头锥：按长径比算圆锥容积，制导和战斗部先扣掉头锥，剩下的头锥和后面的圆柱都装药。
 弹道弹是否两级由显式开关控制，默认两级。燃烧明显长于地面标定弹时，海平面再加一段大气阻力。
 关机后的真空弹道再按弹道系数折减大气滑行阻力。
@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import math
 
+from utils.missile_interception.missile_interception_radar import radar_horizon_km
 from utils.missile_range.estimate import (
     DEFAULT_ISP_S,
     DEFAULT_PROPELLANT_DENSITY,
@@ -98,6 +99,10 @@ SCRAMJET_COMBUSTOR_FINENESS = 8.0
 TERMINAL_COAST_CAP_M = 150000.0
 RHO_SEA_KG_M3 = 1.225
 TERMINAL_CD = 0.40
+# 伯克级雷达天线中心高度，与拦截模型舰载雷达同一档。
+BURKE_RADAR_HEIGHT_M = 25.0
+# 掠海来袭弹高度，与拦截模型掠海目标同一档。
+BURKE_SEA_TARGET_HEIGHT_M = 10.0
 
 MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
@@ -133,7 +138,7 @@ MISSILE_CLASS_ORDER: list[dict[str, str]] = [
     {
         'id': 'turbofan_rocket',
         'label': '亚超结合导弹',
-        'blurb': '巡航段用涡扇吸气比冲，末端冲刺用固体比冲，两段分开。低速发射还可再带一截比冲更低的可抛弃助推器。全高空与全掠海都加上同一段末端航程。弹翼折叠在弹体内。',
+        'blurb': '巡航段用涡扇吸气比冲。末端冲刺不单列，统一按伯克级雷达对掠海目标的地球曲率视距加进总射程。低速发射还可再带一截比冲更低的可抛弃助推器。全高空与全掠海都加上同一段视距。弹翼折叠在弹体内。',
     },
     {
         'id': 'ballistic',
@@ -320,9 +325,10 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
 
 _ROCKET_CRUISE = {
     # 对照 3M54K：8.22 m×0.533 m、战斗部 200 kg、舰面/潜射，出口型 3M54E 全重 1951 kg。
-    # 巡航是涡扇，比冲与隐身涡扇同一档，不再低于涡喷。末端固体级约 20 km、Ma 2.9。
+    # 巡航是涡扇，比冲与隐身涡扇同一档，不再低于涡喷。
     # 出口型 220 km 是 MTCR 上限，不拿来标定。末端级最多占弹体两成容积。
-    # 掠海升阻比按全掠海 / 全高空 = 400/950 标定在这发舰面发射上；冲刺段两边相同，不进这个系数。
+    # 末端冲刺距离不按装药反推，统一用伯克级雷达视距。
+    # 掠海升阻比按全掠海 / 全高空 = 400/950 标定在这发舰面发射上；视距两边相同，不进这个系数。
     'body_pack': 0.62,
     'areal': 36.0,
     'eng_coeff': 200.0,
@@ -338,7 +344,7 @@ _ROCKET_CRUISE = {
     'ld_min': 3.8,
     'ld_max': 5.0,
     'eta': 0.28,
-    'sea_ld_factor': 0.4026,
+    'sea_ld_factor': 0.3969,
     'sea_tsfc_factor': 1.08,
     'reserve': 0.08,
     'sea_alt_km': 0.02,
@@ -1139,6 +1145,19 @@ def drag_coast_range_m(
     return min(TERMINAL_COAST_CAP_M, math.log(speed_start_m_s / speed_end_m_s) / drag_k)
 
 
+def burke_radar_los_km(
+    radar_height_m: float = BURKE_RADAR_HEIGHT_M,
+    target_height_m: float = BURKE_SEA_TARGET_HEIGHT_M,
+) -> float:
+    """伯克级雷达对掠海目标的地球曲率视距（公里）。
+
+    亚超结合的末端冲刺统一用这一段，不再按固体装药反推冲刺航程。
+    """
+    if radar_height_m < 0 or target_height_m < 0:
+        raise ValueError('雷达高度与目标高度不能为负')
+    return radar_horizon_km(radar_height_m, target_height_m)
+
+
 def terminal_dash_range_m(
     mass_ignition_kg: float,
     propellant_kg: float,
@@ -1717,11 +1736,9 @@ def estimate_turbofan_rocket(
         length_m, diameter_m, warhead_mass_kg, v_launch_mach, h_launch_km,
         isp_s, propellant_density, spec, cruise_tsfc,
     )
-    entry = spec['mach'] * speed_of_sound_m_s(spec['sea_alt_km'])
-    mass_ign = sized['m_0'] - sized['usable_high_kg']
-    dash = terminal_dash_range_m(mass_ign, propellant, diameter_m, isp_s, entry)
-    high_km = sized['range_high_m'] / 1000.0 + dash / 1000.0
-    sea_km = sized['range_sea_m'] / 1000.0 + dash / 1000.0
+    dash_km = burke_radar_los_km()
+    high_km = sized['range_high_m'] / 1000.0 + dash_km
+    sea_km = sized['range_sea_m'] / 1000.0 + dash_km
     ignition = sized['m_0'] + sized['m_booster_kg']
     dead = deadweight_kg(
         ignition, sized['fuel_kg'], warhead_mass_kg, propellant + sized['m_booster_kg'],
@@ -1735,8 +1752,8 @@ def estimate_turbofan_rocket(
     note = (
         f"亚超结合：涡扇巡航 Ma {spec['mach']:.2f}，吸气比冲 {sized['isp_cruise_s']:.0f} s，"
         f"末端固体比冲 {isp_s:.0f} s。"
-        f"全高空 {spec['alt_km']:.0f} km / 全掠海 {spec['sea_alt_km'] * 1000:.0f} m，"
-        f"末端火箭冲刺 {dash / 1000.0:.1f} km。"
+        f"全高空 {spec['alt_km']:.0f} km / 全掠海 {spec['sea_alt_km'] * 1000:.0f} m。"
+        f"末端冲刺按伯克级雷达视距计入总射程。"
         f"{boost_txt}折叠弹翼 {sized['m_wing_kg']:.0f} kg，死重 {dead:.0f} kg。{fit}"
     )
     return _base_fields(
@@ -1744,7 +1761,7 @@ def estimate_turbofan_rocket(
         sized['fuel_kg'] + propellant, spec['mach'], sized['ld'], high_km, note,
         range_high_km=high_km, range_sea_km=sea_km,
         range_cruise_km=sized['range_high_m'] / 1000.0,
-        range_terminal_km=dash / 1000.0,
+        range_terminal_km=None,
         cruise_mach=spec['mach'], cruise_alt_km=spec['alt_km'],
         m_dead_kg=dead, m_wing_kg=sized['m_wing_kg'],
         isp_boost_s=isp_boost, isp_cruise_s=sized['isp_cruise_s'], isp_rocket_s=isp_s,

@@ -81,12 +81,6 @@ struct MissileRangeView: View {
                                 (vm.missileClass == "ballistic" || vm.missileClass.hasPrefix("hgv") ? "关机马赫" : "巡航马赫", result.v_burnout_mach, 2, true),
                             ])
                         }
-                        if let dash = result.range_terminal_km {
-                            statRow([
-                                ("末端冲刺 km", dash, 1, false),
-                                ("巡航马赫", result.v_burnout_mach, 2, true),
-                            ])
-                        }
                         if let wing = result.m_wing_kg, let dead = result.m_dead_kg {
                             statRow([
                                 ("折叠弹翼 kg", wing, 0, false),

@@ -722,7 +722,8 @@ def test_six_classes_ranges_and_profiles():
     prop, sized = terminal_propellant_for_dash(8.2, 0.53, 300, 0.7, 0.05, 264, 1760, _ROCKET_CRUISE)
     assert prop > 0 and sized['fuel_kg'] > 0
     combo = estimate_turbofan_rocket(8.2, 0.53, 300, 0.7, 0.05, 264, 1760)
-    assert combo['range_terminal_km'] == 21.0
+    assert combo['range_terminal_km'] is None
+    assert combo['range_high_km'] - combo['range_cruise_km'] == pytest.approx(33.6, abs=0.2)
     assert combo['range_high_km'] > combo['range_sea_km']
     assert combo['range_km'] == combo['range_high_km']
     same_combo = estimate_turbofan_rocket(6.2, 0.55, 450, 0.7, 0.2, 264, 1760)
@@ -1132,6 +1133,26 @@ def test_duct_cruise_tsfc_penalizes_narrow_ramjets():
         duct_cruise_tsfc('ramjet', 0.5, {**ram, 'tsfc_ref_diameter_m': 0})
 
 
+def test_burke_radar_los_km_matches_horizon():
+    """亚超结合末端冲刺取伯克级雷达对掠海目标的地球曲率视距。"""
+    import math
+
+    from utils.missile_interception.missile_interception_radar import radar_horizon_km
+    from utils.missile_range.classes import (
+        BURKE_RADAR_HEIGHT_M,
+        BURKE_SEA_TARGET_HEIGHT_M,
+        burke_radar_los_km,
+    )
+
+    assert BURKE_RADAR_HEIGHT_M == 25.0
+    assert BURKE_SEA_TARGET_HEIGHT_M == 10.0
+    expect = 4.12 * (math.sqrt(25.0) + math.sqrt(10.0))
+    assert burke_radar_los_km() == pytest.approx(expect)
+    assert burke_radar_los_km() == pytest.approx(radar_horizon_km(25.0, 10.0))
+    with pytest.raises(ValueError):
+        burke_radar_los_km(radar_height_m=-1)
+
+
 def test_public_airbreathing_ranges_match_open_sources():
     """用公开弹种核对吸气式航程，并检查垂发零速零高。"""
     from utils.missile_range.classes import estimate_by_class
@@ -1167,18 +1188,19 @@ def test_public_airbreathing_ranges_match_open_sources():
     fighter = estimate_by_class('ramjet', 4.25, 0.345, 90, 2.2, 19.0)
     assert fighter['range_km'] > kh31['range_sea_km']
     assert fighter['range_km'] > 200
-    # 3M54K：8.22 m×0.533 m、战斗部 200 kg、全重约 1.95 t。舰面发射全掠海/全高空取 400/950，末端约 20 km。
+    # 3M54K：8.22 m×0.533 m、战斗部 200 kg、全重约 1.95 t。舰面发射全掠海/全高空取 400/950。
+    # 末端冲刺统一为伯克级雷达视距，不单列。
     kalibr = estimate_by_class('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
     assert kalibr['m_0_t'] == pytest.approx(1.95, abs=0.15)
-    assert kalibr['range_high_km'] == 1203.4
+    assert kalibr['range_high_km'] == 1215.3
     assert kalibr['range_sea_km'] / kalibr['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
-    assert 18 <= kalibr['range_terminal_km'] <= 26
+    assert kalibr['range_terminal_km'] is None
     air_kalibr = estimate_by_class('turbofan_rocket', 8.22, 0.533, 200, 0.85, 6.0)
     assert air_kalibr['range_high_km'] > kalibr['range_high_km']
     assert air_kalibr['range_sea_km'] > kalibr['range_sea_km']
     yj18 = estimate_by_class('turbofan_rocket', 8.2, 0.514, 200, 0.0, 0.0)
     assert yj18['range_high_km'] > yj18['range_sea_km'] > 0
-    assert 15 <= yj18['range_terminal_km'] <= 40
+    assert yj18['range_terminal_km'] is None
     assert 1.5 <= yj18['m_0_t'] <= 2.2
     # 涡喷在 6 km 巡航高度、已超过接力速度时，全掠海/全高空也是 400/950。降低发射高度只少高空爬升油。
     jet = estimate_by_class('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 6.0)

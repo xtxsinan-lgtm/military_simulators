@@ -69,10 +69,6 @@
       <view class="stat"><view class="k">估算射程 km</view><view class="v">{{result.range_km}}</view></view>
       <view class="stat"><view class="k">马赫</view><view class="v amber">{{result.v_burnout_mach}}</view></view>
     </view>
-    <view class="stat-row" wx:if="{{result && result.range_terminal_km != null}}">
-      <view class="stat"><view class="k">末端射程 km</view><view class="v">{{result.range_terminal_km}}</view></view>
-      <view class="stat"><view class="k">巡航马赫</view><view class="v amber">{{result.v_burnout_mach}}</view></view>
-    </view>
     <view class="stat-row" wx:if="{{result && result.m_wing_kg != null}}">
       <view class="stat"><view class="k">折叠弹翼 kg</view><view class="v">{{result.m_wing_kg}}</view></view>
       <view class="stat"><view class="k">死重 kg</view><view class="v amber">{{result.m_dead_kg}}</view></view>

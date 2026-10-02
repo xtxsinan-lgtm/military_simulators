@@ -86,7 +86,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'py_data_files' in (ROOT / 'ios' / 'CarrierTakeOff' / 'Resources' / 'engine.js').read_text(encoding='utf-8')
     assert '全高空' in js
     assert '全掠海' in js
-    assert '末端射程' in js
+    assert '末端射程' not in js
     assert '吸气比冲' in html
     assert 'isp_air_s' in js
     assert '吸气比冲' in js
@@ -109,7 +109,8 @@ def test_e2e_missile_range_catalog_and_pages():
     mini_wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
     assert '载机' in mini_wxml
     assert '折叠弹翼' in mini_wxml
-    assert '末端射程' in mini_wxml
+    assert '末端射程' not in mini_wxml
+    assert '末端冲刺' not in view
     assert '吸气比冲' in mini_wxml
     assert '是否两级' in mini_wxml
 
@@ -148,7 +149,8 @@ def test_e2e_missile_range_six_classes():
         if missile_class in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ramjet'):
             assert data['result']['range_high_km'] > data['result']['range_sea_km'] > 0
         if missile_class == 'turbofan_rocket':
-            assert data['result']['range_terminal_km'] > 0
+            assert data['result']['range_terminal_km'] is None
+            assert data['result']['range_high_km'] - data['result']['range_cruise_km'] == pytest.approx(33.6, abs=0.2)
             assert data['result']['isp_cruise_s'] > data['result']['isp_rocket_s']
         if missile_class in ('ramjet', 'scramjet'):
             assert data['result']['isp_cruise_s'] > data['result']['isp_boost_s']
@@ -193,9 +195,9 @@ def test_e2e_russian_ramjet_anchors():
     assert 1050 <= yj15['range_high_km'] <= 1250
     assert abs(yj15['m_0_t'] - 1.50) <= 0.05
     kalibr = _estimate_via_api('turbofan_rocket', 8.22, 0.533, 200, 0.0, 0.0)
-    assert kalibr['range_high_km'] == 1203.4
+    assert kalibr['range_high_km'] == 1215.3
     assert kalibr['range_sea_km'] / kalibr['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
-    assert 18 <= kalibr['range_terminal_km'] <= 26
+    assert kalibr['range_terminal_km'] is None
     jet = _estimate_via_api('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 6.0)
     jet_low = _estimate_via_api('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 0.2)
     assert jet['range_sea_km'] / jet['range_high_km'] == pytest.approx(400 / 950, abs=0.001)

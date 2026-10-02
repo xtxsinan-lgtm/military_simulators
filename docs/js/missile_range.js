@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 25;
+const APP_VERSION = 26;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -146,14 +146,10 @@ function renderResult(result, title) {
     ? `<div class="stat"><div class="k">折叠弹翼</div><div class="v">${fmt(result.m_wing_kg, 0)}</div><div class="sub">kg</div></div>
        <div class="stat"><div class="k">死重</div><div class="v amber">${fmt(result.m_dead_kg, 0)}</div><div class="sub">kg</div></div>`
     : '';
-  const terminal = result.range_terminal_km != null
-    ? `<div class="stat"><div class="k">末端射程</div><div class="v">${fmt(result.range_terminal_km, 1)}</div><div class="sub">km</div></div>`
-    : '';
   $('resultBox').className = '';
   $('resultBox').innerHTML = `
     <div class="stat-row">
       ${lead}
-      ${terminal}
       ${wing}
       <div class="stat"><div class="k">${speedLabel(result)}</div><div class="v amber">${fmt(result.v_burnout_mach, 2)}</div><div class="sub">Ma</div></div>
       <div class="stat"><div class="k">升阻比</div><div class="v">${fmt(result.ld_ratio, 2)}</div><div class="sub">L/D</div></div>
@@ -187,9 +183,8 @@ function renderTable() {
       <td>${fmt(row.m_0_t, 2)}</td>
       <td>${fmt(row.v_burnout_mach, 2)}</td>
       <td>${ispLabel(row)}</td>
-          <td>${fmt(row.range_km, 1)}</td>
-      <td>${row.range_terminal_km == null ? '—' : fmt(row.range_terminal_km, 1)}</td>
-          <td>${row.range_sea_km == null ? '—' : fmt(row.range_sea_km, 1)}</td>
+      <td>${fmt(row.range_km, 1)}</td>
+      <td>${row.range_sea_km == null ? '—' : fmt(row.range_sea_km, 1)}</td>
     </tr>
   `).join('');
   $('tableBox').innerHTML = `
@@ -197,7 +192,7 @@ function renderTable() {
       <thead>
         <tr>
           <th>ID</th><th>尺寸 m</th><th>载机</th><th>弹头 kg</th><th>弹种</th><th>发射条件</th>
-          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>末端射程 km</th><th>掠海 km</th>
+          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>掠海 km</th>
         </tr>
       </thead>
       <tbody>${body}</tbody>
