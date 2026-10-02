@@ -189,7 +189,8 @@ _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
         'folded_wing': 1.0,
     },
     'turbojet_subsonic': {
-        # 对照 Harpoon / Exocet 公开航程：小涡喷耗油率更高、升阻比更低
+        # 小涡喷（鱼叉、飞鱼一类）比冲约 2800 s，耗油率约 1.2 lb/(lbf·h)。
+        # 隐身涡扇约 4743 s，两者大约差 1.7 倍，不再把短射程全部压进 1500 s。
         'body_pack': 0.64,
         'areal': 18.0,
         'eng_coeff': 210.0,
@@ -197,7 +198,7 @@ _SUBSONIC_SPECS: dict[str, dict[str, float]] = {
         'payload_density': 2100.0,
         'void_frac': 0.10,
         'fuel_density': 800.0,
-        'tsfc': 6.8e-5,
+        'tsfc': 1.0 / (2800.0 * G0),
         'mach': 0.80,
         'alt_km': 6.0,
         'ld_base': 3.6,
@@ -260,8 +261,9 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'sea_tsfc_factor': 2.45,
     },
     'scramjet': {
-        # 对照长剑-1000：地面发射、约 10 m × 1 m、巡航 Ma 6、30–50 km、射程约 5000–6000 km。
-        # 固定进气道容积让较小弹油箱更小。
+        # 煤油超燃在 Ma 6 的比冲约 1150 s，与亚燃约 1251 s 同一量级并略低。
+        # 航程优势来自巡航速度，不再把耗油率压到接近涡扇去凑 5000 km。
+        # 固定进气道容积让较小弹油箱更小。对照长剑-1000 的外形：地面发射、约 10 m × 1 m、巡航 Ma 6。
         'body_pack': 0.74,
         'areal': 22.0,
         'eng_coeff': 120.0,
@@ -270,7 +272,7 @@ _DUCT_SPECS: dict[str, dict[str, float]] = {
         'void_frac': 0.04,
         'fixed_void_m3': 0.85,
         'fuel_density': 840.0,
-        'tsfc': 5.2e-5,
+        'tsfc': 1.0 / (1150.0 * G0),
         'mach_takeover': 3.6,
         'mach_cruise': 6.2,
         'alt_km': 36.0,

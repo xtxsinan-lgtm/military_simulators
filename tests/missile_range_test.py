@@ -548,7 +548,7 @@ def test_six_classes_ranges_and_profiles():
 
     scram = estimate_ducted('scramjet', 9.2, 0.7, 180, 0.85, 12, 264, 1760)
     ram = estimate_ducted('ramjet', 8.9, 0.7, 250, 0.85, 12, 264, 1760)
-    assert scram['range_km'] == 2727.4
+    assert scram['range_km'] == 1168.4
     assert scram['cruise_mach'] == 6.2
     assert ram['range_km'] == 1300.6
     assert ram['v_burnout_mach'] == 2.8
@@ -868,7 +868,7 @@ def test_duct_cruise_tsfc_penalizes_narrow_ramjets():
     oniks = duct_cruise_tsfc('ramjet', 0.70, ram)
     wide = duct_cruise_tsfc('ramjet', 1.20, ram)
     assert narrow > yj15 == oniks == wide == pytest.approx(8.15e-5)
-    assert duct_cruise_tsfc('scramjet', 0.36, _DUCT_SPECS['scramjet']) == pytest.approx(5.2e-5)
+    assert duct_cruise_tsfc('scramjet', 0.36, _DUCT_SPECS['scramjet']) == pytest.approx(1.0 / (1150.0 * 9.80665))
     assert duct_cruise_tsfc('ramjet', 0.50, {'tsfc': 1.0e-4}) == pytest.approx(1.0e-4)
     with pytest.raises(ValueError):
         duct_cruise_tsfc('ramjet', 0, ram)
@@ -922,7 +922,8 @@ def test_public_airbreathing_ranges_match_open_sources():
     jet = estimate_by_class('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 6.0)
     jet_low = estimate_by_class('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 0.2)
     assert jet['range_sea_km'] / jet['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
-    assert jet_low['range_sea_km'] == jet['range_sea_km']
+    # 6 km 的声速更低，同样 0.85 马赫略慢于海平面，掠海要补一点加速油。
+    assert jet_low['range_sea_km'] == pytest.approx(jet['range_sea_km'], abs=0.5)
     assert jet_low['range_high_km'] < jet['range_high_km']
     # LRASM：宽 0.635 m、高 0.450 m 的扁五边形，不是 0.55 m 圆。空射质量约 1.21 t。
     # 全高空仍约 970 km；掠海按 400/950 标定，发射高度不改这一比值的巡航系数。
@@ -947,8 +948,10 @@ def test_public_airbreathing_ranges_match_open_sources():
     from_major = estimate_by_class('turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0)
     assert from_major['m_0_t'] == lrasm['m_0_t']
     assert from_major['range_high_km'] == lrasm['range_high_km']
+    # 10 m 级煤油超燃比冲 1150 s 后，地面发射大约 2000 km，不再用偏高比冲凑 5000 km。
     cj = estimate_by_class('scramjet', 10.0, 1.05, 400, 0.0, 0.0)
-    assert 3500 <= cj['range_km'] <= 6500
+    assert cj['isp_cruise_s'] == pytest.approx(1150.0, abs=0.2)
+    assert 1600 <= cj['range_km'] <= 2600
     assert cj['cruise_mach'] >= 6.0
     big_vls = estimate_by_class('scramjet', 11.5, 1.2, 500, 0.0, 0.0)
     assert big_vls['cruise_mach'] >= 6.0
@@ -1007,6 +1010,10 @@ def test_airbreathing_stage_isp_splits_booster_and_cruise():
     assert narrow['isp_cruise_s'] < ram['isp_cruise_s']
     assert scram['isp_cruise_s'] == airbreathing_stage_isp('scramjet', 1.2, 264)['isp_cruise_s']
     assert fan['isp_cruise_s'] > jet['isp_cruise_s'] > 264
+    assert jet['isp_cruise_s'] == pytest.approx(2800.0, abs=0.2)
+    assert 1.6 <= fan['isp_cruise_s'] / jet['isp_cruise_s'] <= 2.0
+    assert scram['isp_cruise_s'] == pytest.approx(1150.0, abs=0.2)
+    assert scram['isp_cruise_s'] < ram['isp_cruise_s']
     assert fan['isp_boost_s'] == SUBSONIC_BOOSTER_ISP_S
     assert combo['isp_rocket_s'] == 264
     assert combo['isp_cruise_s'] > combo['isp_rocket_s'] > combo['isp_boost_s']

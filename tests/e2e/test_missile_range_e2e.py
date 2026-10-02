@@ -143,6 +143,10 @@ def test_e2e_missile_range_six_classes():
             assert data['result']['isp_cruise_s'] > data['result']['isp_rocket_s']
         if missile_class in ('ramjet', 'scramjet'):
             assert data['result']['isp_cruise_s'] > data['result']['isp_boost_s']
+        if missile_class == 'scramjet':
+            assert data['result']['isp_cruise_s'] == pytest.approx(1150.0, abs=0.2)
+        if missile_class == 'turbojet_subsonic':
+            assert data['result']['isp_cruise_s'] == pytest.approx(2800.0, abs=0.2)
         if missile_class == 'ballistic':
             assert data['result']['isp_cruise_s'] is None
             assert data['result']['isp_rocket_s'] == 264.0
@@ -183,7 +187,7 @@ def test_e2e_russian_ramjet_and_dual_mode_anchors():
     jet = _estimate_via_api('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 6.0)
     jet_low = _estimate_via_api('turbojet_subsonic', 6.2, 0.55, 450, 0.85, 0.2)
     assert jet['range_sea_km'] / jet['range_high_km'] == pytest.approx(400 / 950, abs=0.001)
-    assert jet_low['range_sea_km'] == jet['range_sea_km']
+    assert jet_low['range_sea_km'] == pytest.approx(jet['range_sea_km'], abs=0.5)
     assert jet_low['range_high_km'] < jet['range_high_km']
     # 只给最大外廓时按 LRASM 高宽比收成扁五边形。掠海/全高空取 400/950，高空航程不因这次标定改动。
     lrasm = _estimate_via_api('turbofan_stealth', 4.26, 0.635, 450, 0.85, 10.0)
