@@ -3,12 +3,15 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 32;
+const APP_VERSION = 33;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
   'utils/paths.py',
   'utils/database_csv.py',
+  'utils/missile_interception/__init__.py',
+  'utils/missile_interception/missile_interception_config.py',
+  'utils/missile_interception/missile_interception_radar.py',
   'utils/missile_range/__init__.py',
   'utils/missile_range/estimate.py',
   'utils/missile_range/classes.py',
@@ -27,6 +30,7 @@ const MISSILE_RANGE_DATA_FILES = [
 const MISSILE_RANGE_IMPORTS = [
   'utils.paths',
   'utils.database_csv',
+  'utils.missile_interception.missile_interception_radar',
   'utils.missile_range.estimate',
   'utils.missile_range.classes',
   'utils.missile_range.dataset',
@@ -365,6 +369,15 @@ if '/py' not in sys.path:
     }
     pyodide.FS.writeFile(`/py/${name}`, code);
   }
+  pyodide.globals.set(
+    '_missile_interception_cfg',
+    JSON.stringify(data.missile_interception_config || {}),
+  );
+  await pyodide.runPythonAsync(`
+import json
+from utils.missile_interception.missile_interception_config import inject_missile_interception_config
+inject_missile_interception_config(json.loads(_missile_interception_cfg))
+`);
   pyodide.globals.set('_py_import_order', MISSILE_RANGE_IMPORTS);
   await pyodide.runPythonAsync(`
 import importlib
