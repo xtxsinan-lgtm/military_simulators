@@ -371,7 +371,7 @@ def test_hgv_burnout_altitude_and_vls_bands():
 
 
 def test_h6_biconic_air_launch_stays_in_jinglei_band():
-    """轰-6 机腹最大的双锥体按惊雷-1 量级：战斗部 200 kg 以内，射程 5000–7000 km。"""
+    """参考双锥体外形按惊雷-1 量级：战斗部 200 kg 以内，射程 5000–7000 km。"""
     from utils.missile_range.classes import estimate_by_class
 
     light = estimate_by_class('hgv_biconic', 11.95, 1.1818, 150, 0.85, 13.0)
@@ -661,7 +661,7 @@ def test_sort_same_bay_by_warhead_then_range():
 
 
 def test_evaluate_dataset_splits_h6_belly_from_max():
-    """轰-6 机腹与轰-6机腹最大分成两个平台；组内按战斗部升序、同战斗部射程降序。"""
+    """轰-6机腹与隐身超音速轰炸机弹仓分成两个平台；组内按战斗部升序、同战斗部射程降序。"""
     from itertools import groupby
 
     rows = evaluate_dataset()
@@ -671,9 +671,13 @@ def test_evaluate_dataset_splits_h6_belly_from_max():
     assert {(round(row['length_m'], 2), round(row['diameter_m'], 3)) for row in stealth} == {(11.3, 0.86)}
     for row in stealth:
         assert [item['label'] for item in row['alt_launches']][0] == '轰-6'
-    largest = [row for row in rows if row['bay'] == '轰-6机腹最大']
-    assert len({(row['length_m'], row['diameter_m']) for row in largest}) > 1
-    assert all(row['length_m'] <= 12.0 and row['m_0_t'] <= 10.0 for row in largest)
+    largest = [row for row in rows if row['bay'] == '轰-6机腹']
+    assert largest
+    assert all(
+        row['length_m'] == pytest.approx(13.0) and row['diameter_m'] == pytest.approx(1.0)
+        for row in largest
+    )
+    assert all(row['m_0_t'] <= 15.0 for row in largest)
     bay_order: list[str] = []
     bay_mass: dict[str, float] = {}
     for row in rows:
@@ -1239,7 +1243,7 @@ def test_carrier_launch_envelope():
         '歼-15机腹': (1.5, 14.0),
         '歼-15翼下': (1.5, 14.0),
         '隐身超音速轰炸机弹仓': (1.75, 18.0),
-        '轰-6机腹最大': (0.85, 13.0),
+        '轰-6机腹': (0.85, 13.0),
     }
     seen = {bay: 0 for bay in expected}
     for case in build_preset_cases():
@@ -2332,7 +2336,7 @@ def test_airbreathing_stage_isp_splits_booster_and_cruise():
 
 
 def test_bomber_small_warhead_presets_are_150kg():
-    """隐身超音速轰炸机较小的战斗部预设应为 150kg。轰-6 机腹最大仍是 150/600 kg。"""
+    """隐身超音速轰炸机较小的战斗部预设应为 150kg。轰-6 机腹仍是 150/600 kg。"""
     from utils.missile_range.dataset import grouped_preset_bays
 
     grouped = grouped_preset_bays()
@@ -2707,10 +2711,17 @@ def test_optimize_missile_envelope_matches_brute_force_grid():
 
 
 def test_optimize_missile_envelope_respects_diameter_cap():
-    """弹径上限是硬约束，默认轰-6 机腹为 1.2 m。"""
-    from utils.missile_range.sizing import H6_BELLY_MAX_DIAMETER_M, optimize_missile_envelope
+    """弹径上限是硬约束，默认轰-6 机腹为 13 m x 1 m、起飞质量 15 t。"""
+    from utils.missile_range.sizing import (
+        H6_BELLY_MAX_DIAMETER_M,
+        H6_BELLY_MAX_LENGTH_M,
+        H6_BELLY_MAX_MASS_T,
+        optimize_missile_envelope,
+    )
 
-    assert H6_BELLY_MAX_DIAMETER_M == pytest.approx(1.2)
+    assert H6_BELLY_MAX_LENGTH_M == pytest.approx(13.0)
+    assert H6_BELLY_MAX_DIAMETER_M == pytest.approx(1.0)
+    assert H6_BELLY_MAX_MASS_T == pytest.approx(15.0)
     best = optimize_missile_envelope(
         'ballistic', 150,
         max_length_m=8.0,
@@ -2828,42 +2839,40 @@ def test_optimize_missile_envelope_rejects_bad_limits():
 
 
 def test_h6_belly_max_presets_are_sized_per_missile():
-    """轰-6机腹最大按弹种分别给尺寸，弹长不超过 12 m、弹径不超过 1.2 m、起飞质量不超过 10 t。"""
+    """轰-6机腹按弹种给出射程，弹长 13 m、弹径 1 m，起飞质量不超过 15 t。"""
     from utils.missile_range.classes import estimate_by_class
     from utils.missile_range.dataset import SUPERSONIC_CLASSES, build_preset_cases
 
     expected = {
-        ('hgv_biconic', 150): (11.95, 1.1818),
-        ('hgv_biconic', 600): (12.00, 1.2000),
-        ('hgv_waverider', 150): (12.00, 1.0959),
-        ('hgv_waverider', 600): (12.00, 1.2000),
-        ('scramjet', 150): (12.00, 1.1240),
-        ('scramjet', 600): (12.00, 1.1100),
-        ('ramjet', 150): (12.00, 1.1360),
-        ('ramjet', 600): (12.00, 1.1100),
-        ('ballistic', 150): (11.99, 1.0474),
-        ('ballistic', 600): (11.94, 1.0469),
+        ('hgv_biconic', 150),
+        ('hgv_biconic', 600),
+        ('hgv_waverider', 150),
+        ('hgv_waverider', 600),
+        ('scramjet', 150),
+        ('scramjet', 600),
+        ('ramjet', 150),
+        ('ramjet', 600),
+        ('ballistic', 150),
+        ('ballistic', 600),
     }
     cases = build_preset_cases()
-    largest = [case for case in cases if case['bay'] == '轰-6机腹最大']
-    assert {(case['missile_class'], case['warhead']) for case in largest} == set(expected)
+    largest = [case for case in cases if case['bay'] == '轰-6机腹']
+    assert {(case['missile_class'], case['warhead']) for case in largest} == expected
     assert {case['missile_class'] for case in largest} == set(SUPERSONIC_CLASSES)
-    sizes = set()
+    ranges = set()
     for case in largest:
-        length, diameter = expected[(case['missile_class'], case['warhead'])]
-        assert case['length'] == pytest.approx(length)
-        assert case['diameter'] == pytest.approx(diameter)
+        assert case['length'] == pytest.approx(13.0)
+        assert case['diameter'] == pytest.approx(1.0)
         assert case['v_mach'] == pytest.approx(0.85)
         assert case['h_km'] == pytest.approx(13.0)
         result = estimate_by_class(
             case['missile_class'], case['length'], case['diameter'], case['warhead'],
             case['v_mach'], case['h_km'],
         )
-        assert case['diameter'] <= 1.2
-        assert result['m_0_t'] <= 10.0
+        assert result['m_0_t'] <= 15.0
         assert result['range_km'] > 0
-        sizes.add((case['length'], case['diameter']))
-    assert len(sizes) > 1
+        ranges.add(result['range_km'])
+    assert len(ranges) == len(expected)
 
 
 def test_booster_stage_search_penalizes_extra_stages():
