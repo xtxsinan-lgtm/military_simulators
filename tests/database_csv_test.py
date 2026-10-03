@@ -198,11 +198,12 @@ def test_load_missile_range_preset_csv():
     groups = {row['speed_group'] for row in rows}
     assert groups == {'supersonic', 'subsonic'}
     bays = {row['bay'] for row in rows}
-    assert '超音速隐身轰炸机·轰6发射' in bays
+    assert '隐身超音速轰炸机弹仓' in bays
+    assert '超音速隐身轰炸机·轰6发射' not in bays
+    assert '歼-36弹仓' not in bays
     assert '轰-6机腹最大' in bays
     assert '1280垂发' in bays
     assert '533mm鱼雷' in bays
-    assert any(row['speed_group'] == 'subsonic' and row['bay'] == '歼-36弹仓' for row in rows)
 
 
 def test_load_missile_range_preset_csv_rejects_bad_file(tmp_path):

@@ -2384,7 +2384,7 @@ def estimate_ballistic(
             tie_tol=0.05,
         )
     else:
-        # 换发射平台时沿用歼-15 上搜好的级数和份额。
+        # 换发射平台时沿用已定的级数和份额，不再按新高度重搜。
         stage = build_stage_plan(
             payload_mass, propellant, diameter_m, isp_s, propellant_density,
             tuple(stage_fractions), locked=True,

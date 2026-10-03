@@ -127,7 +127,7 @@ struct MissileRangeView: View {
                             ])
                         }
                         if let alt = result.alt_range_text, !alt.isEmpty {
-                            Text("轰6/轰20/歼36  \(alt) km")
+                            Text("各机射程  \(alt) km")
                                 .font(.system(size: 13, design: .monospaced))
                                 .foregroundStyle(MissileRangeTheme.amber)
                         }
@@ -220,7 +220,7 @@ struct MissileRangeView: View {
             cell("弹种", width: 120, dim: true)
             cell("射程km", width: 168, dim: true)
             cell("分级", width: 108, dim: true)
-            cell("轰6/轰20/歼36", width: 220, dim: true)
+            cell("各机射程", width: 460, dim: true)
         }
         .padding(.vertical, 4)
     }
@@ -234,7 +234,7 @@ struct MissileRangeView: View {
             cell(kind(row), width: 120, dim: false, highlight: on)
             cell(profileCaption(row.profile_text, high: row.range_high_km, mixed: row.range_mixed_km, sea: row.range_sea_km) ?? fmt(row.range_km, 1), width: 168, dim: false, highlight: on)
             cell(stageCaption(row.n_stages, split: row.stage_split, locked: row.stage_locked), width: 108, dim: false, highlight: on)
-            cell(row.alt_range_text ?? "—", width: 220, dim: false, highlight: on)
+            cell(row.alt_range_text ?? "—", width: 460, dim: false, highlight: on)
         }
         .padding(.vertical, 6)
     }

@@ -32,12 +32,13 @@ def _assert_bays_sorted_by_liftoff_then_warhead(cases: list[dict]) -> None:
     }
     masses = [bay_mass[bay] for bay in bay_order]
     assert masses == sorted(masses, reverse=True)
-    h6 = [case for case in cases if case['bay'] == '超音速隐身轰炸机·轰6发射']
+    stealth = [case for case in cases if case['bay'] == '隐身超音速轰炸机弹仓']
     largest = [case for case in cases if case['bay'] == '轰-6机腹最大']
-    assert h6 and largest
-    assert {(round(case['length_m'], 2), round(case['diameter_m'], 3)) for case in h6} == {(11.3, 0.86)}
+    assert stealth and largest
+    assert {(round(case['length_m'], 2), round(case['diameter_m'], 3)) for case in stealth} == {(11.3, 0.86)}
     assert len({(case['length_m'], case['diameter_m']) for case in largest}) >= 2
-    assert bay_mass['轰-6机腹最大'] >= bay_mass['超音速隐身轰炸机·轰6发射']
+    assert bay_mass['轰-6机腹最大'] >= bay_mass['隐身超音速轰炸机弹仓']
+    assert '超音速隐身轰炸机·轰6发射' not in bay_mass
     for _, bay_rows in groupby(cases, key=lambda case: case['bay']):
         rows = list(bay_rows)
         warheads = [float(row['warhead_kg']) for row in rows]
@@ -128,9 +129,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'utils/database_csv.py' in js
     assert 'data/missile_range_preset_database.csv' in js
     assert 'py_data_files' in (ROOT / 'ios' / 'CarrierTakeOff' / 'Resources' / 'engine.js').read_text(encoding='utf-8')
-    assert '全高空' in js
-    assert '全掠海' in js
-    assert '混合弹道' in js
+    assert '高空/混合/掠海' in js
     assert '末端射程' not in js
     assert '吸气比冲' in html
     assert 'isp_air_s' in js
@@ -147,8 +146,7 @@ def test_e2e_missile_range_catalog_and_pages():
     hub = (ROOT / 'ios' / 'CarrierTakeOff' / 'HubView.swift').read_text(encoding='utf-8')
     assert 'MissileRangeView' in hub
     view = (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileRangeView.swift').read_text(encoding='utf-8')
-    assert '全掠海' in view
-    assert '混合弹道' in view
+    assert '高空/混合/掠海' in view
     assert '载机' in view
     assert '战斗部重量' in view
     assert '弹头重量' not in view
@@ -162,7 +160,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '载机' in mini_wxml
     assert '战斗部重量' in mini_wxml
     assert '弹头重量' not in mini_wxml
-    assert '混合弹道' in mini_wxml
+    assert '高空/混合/掠海' in mini_wxml
     assert '折叠弹翼' in mini_wxml
     assert '末端射程' not in mini_wxml
     assert '末端冲刺' not in view
@@ -402,7 +400,7 @@ def test_e2e_airbreathing_presets_differ_from_glide_and_ballistic():
 
 @pytest.mark.e2e
 def test_e2e_bomber_small_warhead_presets_150kg():
-    """超音速隐身轰炸机·轰6发射与隐身超音速轰炸机较小战斗部预设均为 150kg。"""
+    """隐身超音速轰炸机较小战斗部预设为 150kg；轰-6 机腹最大仍是 150/600 kg。"""
     payload = {'action': 'presets'}
     status, _, body = handle_request(
         'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
@@ -412,9 +410,7 @@ def test_e2e_bomber_small_warhead_presets_150kg():
     assert data['success'] is True
 
     cases = data['cases']
-    h6_warheads = sorted({int(c['warhead_kg']) for c in cases if c['bay'] == '超音速隐身轰炸机·轰6发射'})
-    assert h6_warheads == [150, 500]
-    assert min(h6_warheads) == 150
+    assert not any(c['bay'] == '超音速隐身轰炸机·轰6发射' for c in cases)
     max_warheads = sorted({int(c['warhead_kg']) for c in cases if c['bay'] == '轰-6机腹最大'})
     assert max_warheads == [150, 600]
 
@@ -424,7 +420,7 @@ def test_e2e_bomber_small_warhead_presets_150kg():
 
 @pytest.mark.e2e
 def test_e2e_h6_stealth_bomber_matching_presets():
-    """端到端验证：隐身超音速轰炸机全部导弹均有超音速隐身轰炸机·轰6发射同尺寸、调整高度与速度的对应版本。"""
+    """隐身超音速轰炸机弹仓在轰-6/轰-20/歼-36 一栏给出轰-6 发射射程，不再单列一组。"""
     payload = {'action': 'presets'}
     status, _, body = handle_request(
         'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
@@ -436,63 +432,24 @@ def test_e2e_h6_stealth_bomber_matching_presets():
     cases = data['cases']
     stealth_cases = [c for c in cases if c['bay'] == '隐身超音速轰炸机弹仓']
     assert len(stealth_cases) == 10  # 5 个超音速弹种 × 2 种战斗部 (150kg, 500kg)
+    assert not any(c['bay'] == '超音速隐身轰炸机·轰6发射' for c in cases)
 
     for sc in stealth_cases:
-        # 对应同尺寸、同弹种、同战斗部的超音速隐身轰炸机·轰6发射版本
-        matched_h6 = [
-            c for c in cases
-            if c['bay'] == '超音速隐身轰炸机·轰6发射'
-            and c['missile_class'] == sc['missile_class']
-            and float(c['length_m']) == float(sc['length_m']) == 11.30
-            and float(c['diameter_m']) == float(sc['diameter_m']) == 0.860
-            and int(c['warhead_kg']) == int(sc['warhead_kg'])
-        ]
-        assert len(matched_h6) == 1
-        hc = matched_h6[0]
-
-        # 发射条件：超音速隐身轰炸机·轰6发射为 Ma 0.85 @ 13.0km，隐轰为 Ma 1.75 @ 18.0km
-        assert hc['v_mach'] == 0.85
-        assert hc['h_km'] == 13.0
-        assert sc['v_mach'] == 1.75
-        assert sc['h_km'] == 18.0
-
-        # 端到端 API 计算射程
-        est_payload_h6 = {
-            'action': 'estimate',
-            'params': {
-                'missile_class': hc['missile_class'],
-                'length_m': hc['length_m'],
-                'diameter_m': hc['diameter_m'],
-                'warhead_kg': hc['warhead_kg'],
-                'v_launch_mach': hc['v_mach'],
-                'h_launch_km': hc['h_km'],
-            },
-        }
-        status_h, _, body_h = handle_request(
-            'POST', '/api/missile_range/simulate', json.dumps(est_payload_h6).encode(),
-        )
-        assert status_h == 200
-        res_h = json.loads(body_h.decode())['result']
-
-        est_payload_sc = {
-            'action': 'estimate',
-            'params': {
-                'missile_class': sc['missile_class'],
-                'length_m': sc['length_m'],
-                'diameter_m': sc['diameter_m'],
-                'warhead_kg': sc['warhead_kg'],
-                'v_launch_mach': sc['v_mach'],
-                'h_launch_km': sc['h_km'],
-            },
-        }
-        status_s, _, body_s = handle_request(
-            'POST', '/api/missile_range/simulate', json.dumps(est_payload_sc).encode(),
-        )
-        assert status_s == 200
-        res_s = json.loads(body_s.decode())['result']
-
-        assert res_h['range_km'] > 0
-        assert res_s['range_km'] > res_h['range_km']
+        assert float(sc['length_m']) == pytest.approx(11.30)
+        assert float(sc['diameter_m']) == pytest.approx(0.860)
+        assert sc['v_mach'] == pytest.approx(1.75)
+        assert sc['h_km'] == pytest.approx(18.0)
+        labels = [item['label'] for item in sc['alt_launches']]
+        if sc['missile_class'] == 'ramjet':
+            assert labels == ['歼-15', '轰-6', '轰-20', '歼-36']
+            h6 = sc['alt_launches'][1]
+        else:
+            assert labels == ['轰-6', '轰-20', '歼-36']
+            h6 = sc['alt_launches'][0]
+        assert h6['label'] == '轰-6'
+        assert h6['v_mach'] == pytest.approx(0.85)
+        assert h6['h_km'] == pytest.approx(13.0)
+        assert sc['range_km'] > h6['range_km'] > 0
 
 
 @pytest.mark.e2e
@@ -505,7 +462,13 @@ def test_e2e_j15_belly_mass_and_alt_launches():
     assert status == 200
     cases = json.loads(body.decode())['cases']
     bellies = [case for case in cases if case['bay'] == '歼-15机腹']
+    wings = [case for case in cases if case['bay'] == '歼-15翼下']
     assert len(bellies) == 8
+    assert len(wings) == 8
+    assert all(case['m_0_t'] <= 1.50 for case in wings)
+    ramjet_wing = next(case for case in wings if case['missile_class'] == 'ramjet')
+    assert ramjet_wing['diameter_m'] < 0.50
+    assert ramjet_wing['m_0_t'] == pytest.approx(1.50)
     for case in bellies:
         assert case['length_m'] == pytest.approx(8.50)
         assert case['diameter_m'] <= 0.70
@@ -522,68 +485,27 @@ def test_e2e_j15_belly_mass_and_alt_launches():
         for source in sources:
             assert source['alt_range_text']
             labels = [item['label'] for item in source['alt_launches']]
-            assert labels == ['轰-6', '轰-20', '歼-36']
+            if source['missile_class'] == 'ramjet':
+                assert labels == ['歼-15', '轰-6', '轰-20', '歼-36']
+            else:
+                assert labels == ['轰-6', '轰-20', '歼-36']
             assert all(item['range_km'] > 0 for item in source['alt_launches'])
             if source.get('range_sea_km') is not None:
                 assert source['profile_text'].count('/') == 2
 
 
 @pytest.mark.e2e
-def test_e2e_j36_supersonic_j15_launch():
-    """歼-36 弹仓每发超音速弹都有结构相同的歼-15 发射版本，亚超结合不在其中。"""
+def test_e2e_j36_bay_presets_removed():
+    """预设接口不再返回歼-36 弹仓和歼-36 弹仓·歼-15 发射。"""
     payload = {'action': 'presets'}
     status, _, body = handle_request(
         'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
     )
     assert status == 200
     cases = json.loads(body.decode())['cases']
-    supersonic = {
-        'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'ballistic',
-    }
-    sources = [
-        case for case in cases
-        if case['bay'] == '歼-36弹仓' and case['missile_class'] in supersonic
-    ]
-    launched = [case for case in cases if case['bay'] == '歼-36弹仓·歼-15发射']
-    assert len(sources) == 8
-    assert len(launched) == 8
-    assert all(
-        case['length_m'] == pytest.approx(6.35) and case['diameter_m'] == pytest.approx(0.46)
-        for case in sources
-    )
-    assert {case['missile_class'] for case in launched} <= supersonic
-    assert not any(case['missile_class'] == 'turbofan_rocket' for case in launched)
-    for source in sources:
-        matched = [
-            case for case in launched
-            if case['missile_class'] == source['missile_class']
-            and case['warhead_kg'] == source['warhead_kg']
-        ]
-        assert len(matched) == 1
-        row = matched[0]
-        assert row['length_m'] == pytest.approx(source['length_m'])
-        assert row['diameter_m'] == pytest.approx(source['diameter_m'])
-        assert row['v_mach'] == pytest.approx(1.50)
-        assert row['h_km'] == pytest.approx(14.0)
-        status_e, _, body_e = handle_request(
-            'POST', '/api/missile_range/simulate',
-            json.dumps({
-                'action': 'estimate',
-                'params': {
-                    'missile_class': row['missile_class'],
-                    'length_m': row['length_m'],
-                    'diameter_m': row['diameter_m'],
-                    'warhead_kg': row['warhead_kg'],
-                    'v_launch_mach': row['v_mach'],
-                    'h_launch_km': row['h_km'],
-                },
-            }).encode(),
-        )
-        assert status_e == 200
-        result = json.loads(body_e.decode())['result']
-        assert result['range_km'] > 0
-        assert result['range_km'] == pytest.approx(row['range_km'])
-        assert source['range_km'] >= row['range_km']
+    bays = {case['bay'] for case in cases}
+    assert '歼-36弹仓' not in bays
+    assert '歼-36弹仓·歼-15发射' not in bays
 
 
 @pytest.mark.e2e
@@ -742,27 +664,25 @@ def test_e2e_missile_range_takeover_gui_and_api():
 
 @pytest.mark.e2e
 def test_e2e_h6_belly_max_is_separate_from_shared_bay():
-    """超音速隐身轰炸机·轰6发射沿用隐轰尺寸；轰-6机腹最大单独成组，且不超过 12 m、10 t。"""
+    """轰-6机腹最大单独成组，弹长不超过 12 m、弹径不超过 1.2 m、起飞质量不超过 10 t。"""
     payload = {'action': 'presets'}
     status, _, body = handle_request(
         'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
     )
     assert status == 200
     cases = json.loads(body.decode())['cases']
-    h6 = [case for case in cases if case['bay'] == '超音速隐身轰炸机·轰6发射']
     largest = [case for case in cases if case['bay'] == '轰-6机腹最大']
-    assert h6 and largest
-    assert all(case['length_m'] == pytest.approx(11.3) and case['diameter_m'] == pytest.approx(0.86) for case in h6)
-    assert {int(case['warhead_kg']) for case in h6} == {150, 500}
+    stealth = [case for case in cases if case['bay'] == '隐身超音速轰炸机弹仓']
+    assert largest and stealth
+    assert all(case['length_m'] == pytest.approx(11.3) and case['diameter_m'] == pytest.approx(0.86) for case in stealth)
     bays = [case['bay'] for case in cases]
-    assert bays.index('轰-6机腹最大') < bays.index('超音速隐身轰炸机·轰6发射')
-    # 两段各自连续，不把两种机腹穿插在一起
-    assert '超音速隐身轰炸机·轰6发射' not in bays[bays.index('轰-6机腹最大'):bays.index('超音速隐身轰炸机·轰6发射')]
+    assert '超音速隐身轰炸机·轰6发射' not in bays
     sizes = {(case['length_m'], case['diameter_m'], int(case['warhead_kg'])) for case in largest}
     assert len({(case['missile_class']) for case in largest}) == 5
     assert len({(length, diameter) for length, diameter, _warhead in sizes}) > 1
     for case in largest:
         assert case['length_m'] <= 12.0
+        assert case['diameter_m'] <= 1.2
         assert case['m_0_t'] <= 10.0
         assert case['v_mach'] == pytest.approx(0.85)
         assert case['h_km'] == pytest.approx(13.0)
@@ -789,7 +709,7 @@ def test_e2e_h6_belly_max_is_separate_from_shared_bay():
 
 @pytest.mark.e2e
 def test_e2e_tube_ground_launchers_and_j36_warheads():
-    """预设接口带上鱼雷管加弹、地面发射平台，以及歼-36 的 300 kg 弹种。"""
+    """预设接口带上鱼雷管加弹和地面发射平台，不再包含歼-36 弹仓。"""
     status, _, body = handle_request(
         'POST', '/api/missile_range/simulate', json.dumps({'action': 'presets'}).encode(),
     )
@@ -803,19 +723,8 @@ def test_e2e_tube_ground_launchers_and_j36_warheads():
             if case['bay'] == bay and (missile_class is None or case['missile_class'] == missile_class)
         ]
 
-    j36_wave = rows_of('歼-36弹仓', 'hgv_waverider')
-    assert {int(case['warhead_kg']) for case in j36_wave} == {300, 600}
-    j36_subsonic = [
-        case for case in rows_of('歼-36弹仓')
-        if case['missile_class'] in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket')
-    ]
-    assert len(j36_subsonic) == 3
-    assert all(
-        case['length_m'] == pytest.approx(6.35) and case['diameter_m'] == pytest.approx(0.575)
-        for case in j36_subsonic
-    )
-    assert {int(case['warhead_kg']) for case in rows_of('歼-36弹仓', 'hgv_biconic')} == {300, 600}
-    assert {int(case['warhead_kg']) for case in rows_of('歼-36弹仓', 'scramjet')} == {300, 600}
+    assert rows_of('歼-36弹仓') == []
+    assert rows_of('歼-36弹仓·歼-15发射') == []
     for missile_class in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket'):
         tube = rows_of('533mm鱼雷', missile_class)
         assert {int(case['warhead_kg']) for case in tube} == {160, 300, 600}
@@ -836,5 +745,36 @@ def test_e2e_tube_ground_launchers_and_j36_warheads():
             assert {int(case['warhead_kg']) for case in picked} == warheads
             assert all(case['v_mach'] == 0 and case['h_km'] == 0 for case in picked)
             assert all(case['range_km'] > 0 for case in picked)
+
+
+@pytest.mark.e2e
+def test_e2e_fighter_bay_launch_and_hgv_mass():
+    """普通战斗机改为 Ma 1.50 @ 14 km，乘波体与双锥体总重分开，并给出轰-20 / 歼-36 射程。"""
+    status, _, body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps({'action': 'presets'}).encode(),
+    )
+    assert status == 200
+    cases = json.loads(body.decode())['cases']
+    fighters = [case for case in cases if case['bay'] == '普通战斗机弹仓']
+    assert fighters
+    for case in fighters:
+        assert case['v_mach'] == pytest.approx(1.50)
+        assert case['h_km'] == pytest.approx(14.0)
+        if case['missile_class'] == 'ramjet':
+            assert [item['label'] for item in case['alt_launches']] == ['歼-15', '轰-6', '轰-20', '歼-36']
+            continue
+        labels = [item['label'] for item in case['alt_launches']]
+        assert labels == ['轰-6', '轰-20', '歼-36']
+        h20 = case['alt_launches'][1]
+        j36 = case['alt_launches'][2]
+        assert (h20['v_mach'], h20['h_km']) == pytest.approx((1.75, 18.0))
+        assert (j36['v_mach'], j36['h_km']) == pytest.approx((2.15, 20.0))
+        assert h20['range_km'] > 0
+        assert j36['range_km'] > 0
+    wave = next(case for case in fighters if case['missile_class'] == 'hgv_waverider')
+    bic = next(case for case in fighters if case['missile_class'] == 'hgv_biconic')
+    assert wave['warhead_kg'] == bic['warhead_kg']
+    assert wave['l_head_m'] > bic['l_head_m']
+    assert wave['m_0_t'] < bic['m_0_t']
 
 

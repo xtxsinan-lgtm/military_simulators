@@ -40,12 +40,25 @@ SPEED_GROUP_CLASSES = {
     'supersonic': SUPERSONIC_CLASSES,
     'subsonic': SUBSONIC_CLASSES,
 }
-# 这两组按歼-15 发射条件定外形、助推切分和滑翔体，再换平台只改发射条件。
+# 翼下按歼-15 发射条件定外形。机腹的助推切分按轰-6 搜索后再冻结。
 J15_STRUCTURE_BAYS = ('歼-15翼下', '歼-15机腹')
+# 这几组在本行发射条件之外，用同一结构另算轰-6、轰-20、歼-36，单独一栏显示。
+ALT_RANGE_BAYS = J15_STRUCTURE_BAYS + ('隐身超音速轰炸机弹仓',)
+# 歼-15 机腹：助推分级、滑翔体和助推药按轰-6 的发射条件搜索。
+H6_STRUCTURE_BAY = '歼-15机腹'
+H6_STRUCTURE_LAUNCH = (0.85, 13.0)
 # 轰-20 与隐身亚音速轰炸机弹仓同一发射包线：Ma 0.85 @ 15 km。
 J15_ALT_LAUNCHES = (
     ('轰-6', 0.85, 13.0),
     ('轰-20', 0.85, 15.0),
+    ('歼-36', 2.15, 20.0),
+)
+# 普通战斗机自己在 Ma 1.50 @ 14 km 发射。同一构型再算另外三架：
+# 轰-6 仍是 Ma 0.85 @ 13 km；轰-20 改用 Ma 1.75 @ 18 km；歼-36 为 Ma 2.15 @ 20 km。
+FIGHTER_BAY = '普通战斗机弹仓'
+FIGHTER_ALT_LAUNCHES = (
+    ('轰-6', 0.85, 13.0),
+    ('轰-20', 1.75, 18.0),
     ('歼-36', 2.15, 20.0),
 )
 # 翼下超音速弹统一外形；亚音速另按质量和弹径上限收。
@@ -191,8 +204,26 @@ def format_alt_launch_text(parts: list[str]) -> str:
     return ' · '.join(parts)
 
 
+def fit_locked_head(
+    lock: dict[str, Any],
+    length_m: float,
+    diameter_m: float,
+    warhead_kg: float,
+    missile_class: str,
+) -> dict[str, Any]:
+    """圆整后的滑翔体若装不下战斗部，把长度拉回装填底线，直径不超过弹径。"""
+    if 'd_head_m' not in lock:
+        return lock
+    fitted = dict(lock)
+    fitted['d_head_m'] = min(float(fitted['d_head_m']), float(diameter_m))
+    shape = 'waverider' if str(missile_class).endswith('waverider') else 'biconic'
+    floor = min_head_length_m(float(warhead_kg), fitted['d_head_m'], shape)
+    fitted['l_head_m'] = min(max(float(fitted['l_head_m']), floor), float(length_m) - 0.05)
+    return fitted
+
+
 def structure_lock_kwargs(result: dict[str, Any]) -> dict[str, Any]:
-    """从歼-15 估算里取出要冻结的滑翔体、助推分级和助推药。"""
+    """从参考发射条件的估算里取出要冻结的滑翔体、助推分级和助推药。"""
     canon = resolve_missile_class(str(result.get('missile_class') or ''))
     locked: dict[str, Any] = {}
     if canon.startswith('hgv'):
@@ -211,19 +242,17 @@ def structure_lock_kwargs(result: dict[str, Any]) -> dict[str, Any]:
 def alt_launch_ranges(
     case: dict[str, Any],
     template: dict[str, Any],
+    launches: tuple[tuple[str, float, float], ...] = J15_ALT_LAUNCHES,
 ) -> dict[str, Any]:
     """同一结构下，按轰-6、轰-20、歼-36 的发射条件重算射程。"""
-    lock = structure_lock_kwargs(template)
-    # 圆整后的滑翔体直径不能超过弹径，否则换平台重算会被拒绝。
-    if 'd_head_m' in lock:
-        lock['d_head_m'] = min(float(lock['d_head_m']), float(case['diameter']))
-        shape = 'waverider' if str(case['missile_class']).endswith('waverider') else 'biconic'
-        # 展示用的两位小数可能短于装填底线，拉回到还能装下战斗部的长度。
-        floor = min_head_length_m(float(case['warhead']), lock['d_head_m'], shape)
-        lock['l_head_m'] = min(max(float(lock['l_head_m']), floor), float(case['length']) - 0.05)
+    lock = fit_locked_head(
+        structure_lock_kwargs(template),
+        float(case['length']), float(case['diameter']), float(case['warhead']),
+        str(case['missile_class']),
+    )
     pieces: list[str] = []
     detail: list[dict[str, Any]] = []
-    for label, mach, height in J15_ALT_LAUNCHES:
+    for label, mach, height in launches:
         result = estimate_by_class(
             missile_class=str(case['missile_class']),
             length_m=float(case['length']),
@@ -320,6 +349,27 @@ def evaluate_case(
 ) -> dict[str, Any]:
     """计算单条预设，并附上界面用的尺寸与弹种字段。"""
     canon = resolve_missile_class(str(case.get('missile_class') or 'hgv_biconic'))
+    bay = str(case.get('bay') or '')
+    # 机腹先按轰-6 把助推切分和滑翔体定死，本行再按歼-15 发射条件算射程。
+    # 普通战斗机按自己的发射条件定构型，不套用轰-6 的助推切分。
+    template = None
+    lock: dict[str, Any] = {}
+    if bay == H6_STRUCTURE_BAY:
+        template = estimate_by_class(
+            missile_class=canon,
+            length_m=float(case['length']),
+            diameter_m=float(case['diameter']),
+            warhead_mass_kg=float(case['warhead']),
+            v_launch_mach=H6_STRUCTURE_LAUNCH[0],
+            h_launch_km=H6_STRUCTURE_LAUNCH[1],
+            isp_s=isp_s,
+            propellant_density=propellant_density,
+        )
+        lock = fit_locked_head(
+            structure_lock_kwargs(template),
+            float(case['length']), float(case['diameter']), float(case['warhead']),
+            canon,
+        )
     result = estimate_by_class(
         missile_class=canon,
         length_m=float(case['length']),
@@ -329,6 +379,7 @@ def evaluate_case(
         h_launch_km=float(case['h_km']),
         isp_s=isp_s,
         propellant_density=propellant_density,
+        **lock,
     )
     row: dict[str, Any] = {
         'id': int(case['id']),
@@ -340,7 +391,7 @@ def evaluate_case(
         'warhead_kg': float(case['warhead']),
         'v_mach': float(case['v_mach']),
         'h_km': float(case['h_km']),
-        'bay': str(case.get('bay') or ''),
+        'bay': bay,
         'size_m': format_size_m(float(case['length']), float(case['diameter'])),
         'launch': format_launch(float(case['v_mach']), float(case['h_km'])),
         'range_high_km': None,
@@ -354,8 +405,13 @@ def evaluate_case(
     }
     row.update(result)
     row['profile_text'] = format_cruise_profile(row)
-    if str(case.get('bay') or '') in J15_STRUCTURE_BAYS:
-        alt = alt_launch_ranges(case, row)
+    if bay == FIGHTER_BAY:
+        # 构型已按战斗机发射条件寻优，轰-6 / 轰-20 / 歼-36 只改发射条件。
+        alt = alt_launch_ranges(case, row, launches=FIGHTER_ALT_LAUNCHES)
+        row.update(alt)
+    elif bay in ALT_RANGE_BAYS:
+        # 机腹的冻结结构来自轰-6；翼下和隐身超音速轰炸机弹仓沿用本行已经搜好的结构。
+        alt = alt_launch_ranges(case, template if template is not None else row)
         row.update(alt)
     if result.get('reached_takeover') is False:
         row['name'] = f"{row['name']} · 未达工作速度"

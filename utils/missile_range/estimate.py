@@ -74,6 +74,8 @@ HGV_VOLUME_FACTOR: dict[str, float] = {
     'waverider': 0.1745,
 }
 HGV_MAX_HEAD_LENGTH_RATIO = 0.45
+# 战斗部装不进 45% 弹长时，弹头可以再加长，但助推级至少留这一段给药柱和喷管。
+HGV_MIN_BOOSTER_M = 0.40
 HGV_DEFAULT_MIN_DIAMETER_RATIO = 0.35
 HGV_ABSOLUTE_MIN_DIAMETER_M = 0.25
 
@@ -182,14 +184,27 @@ def head_and_booster_lengths_m(
     warhead_mass_kg: float,
     hgv_type: str,
     enforce_min_fineness: bool = True,
+    pack_warhead: bool = False,
 ) -> tuple[float, float]:
-    """弹头长度取容积与长细比底线的较大值，且不超过全长 45%，其余视为助推级。"""
+    """弹头长度取容积与长细比底线的较大值，默认不超过全长 45%，其余视为助推级。
+
+    pack_warhead 为真且装不进 45% 时，把弹头加长到容积长度。
+    乘波体容积系数更小，同样战斗部会比双锥体更长、助推级更短、总重更轻。
+    仍给助推级留下最短长度，避免药柱被弹头吃光。
+    """
     if length_m <= 0:
         raise ValueError('弹长必须大于 0')
     raw = min_head_length_m(
         warhead_mass_kg, diameter_m, hgv_type, enforce_min_fineness=enforce_min_fineness,
     )
-    l_head = min(raw, length_m * HGV_MAX_HEAD_LENGTH_RATIO)
+    cap = length_m * HGV_MAX_HEAD_LENGTH_RATIO
+    if not pack_warhead or raw <= cap:
+        l_head = min(raw, cap)
+        return l_head, length_m - l_head
+    room = length_m - HGV_MIN_BOOSTER_M
+    if room <= 0:
+        raise ValueError('弹长不足以同时放下滑翔体和助推级')
+    l_head = min(raw, room)
     return l_head, length_m - l_head
 
 
@@ -708,6 +723,7 @@ def estimate_hgv_unrounded(
     d_head_m: float | None = None,
     enforce_min_fineness: bool = True,
     stage_fractions: tuple[float, ...] | None = None,
+    pack_warhead: bool = False,
 ) -> dict:
     """估算助推滑翔弹，返回未舍入的质量、速度与射程，供几何搜索比较。"""
     hgv_type = normalize_hgv_type(hgv_type)
@@ -734,6 +750,7 @@ def estimate_hgv_unrounded(
         l_head, l_booster = head_and_booster_lengths_m(
             length_m, d_head, warhead_mass_kg, hgv_type,
             enforce_min_fineness=enforce_min_fineness,
+            pack_warhead=pack_warhead,
         )
     if specified and head_packaging_volume_m3(l_head, d_head, hgv_type) + 1e-9 < vol_req:
         raise ValueError('滑翔体容积不足以容纳战斗部与制控组件')
@@ -817,6 +834,7 @@ def estimate_hgv(
     min_d_head_m: float | None = None,
     max_d_head_m: float | None = None,
     max_head_length_ratio: float = HGV_MAX_HEAD_LENGTH_RATIO,
+    pack_warhead: bool = False,
 ) -> dict:
     """估算起飞质量、关机马赫数、升阻比与总射程（千米）。
 
@@ -941,7 +959,11 @@ def _optimize_hgv_geometry_compute(
     if floor_fineness <= 0:
         raise ValueError('长细比下限必须大于 0')
     d_min, d_max = hgv_head_diameter_bounds(diameter_m, min_d_head_m, max_d_head_m)
-    l_max = length_m * max_head_length_ratio
+    # 45% 只限制装得下时的加长。容积底线更长时，搜索至少要覆盖装得下的那一档。
+    l_ratio_max = length_m * max_head_length_ratio
+    l_room = length_m - HGV_MIN_BOOSTER_M
+    if l_room <= 0:
+        raise ValueError('弹长不足以同时放下滑翔体和助推级')
     vol_req = head_volume_m3(warhead_mass_kg, hgv_type)
     common = dict(
         length_m=length_m, diameter_m=diameter_m, warhead_mass_kg=warhead_mass_kg,
@@ -954,8 +976,9 @@ def _optimize_hgv_geometry_compute(
         dh = d_min + (d_max - d_min) * (i / grid_points_d)
         vol_len = uncapped_head_length_m(vol_req, dh, hgv_type)
         lh_min = max(vol_len, floor_fineness * dh)
-        if lh_min > l_max:
+        if lh_min > l_room:
             continue
+        l_max = min(l_room, max(l_ratio_max, lh_min))
         for j in range(grid_points_l + 1):
             lh = lh_min + (l_max - lh_min) * (j / grid_points_l)
             try:
