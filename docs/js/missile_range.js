@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 48;
+const APP_VERSION = 49;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -60,6 +60,14 @@ function fmt(n, d) {
     maximumFractionDigits: d,
     minimumFractionDigits: d,
   });
+}
+
+function profileText(row) {
+  if (!row) return null;
+  if (row.profile_text) return row.profile_text;
+  if (row.range_high_km == null || row.range_sea_km == null) return null;
+  const mixed = row.range_mixed_km == null ? '—' : fmt(row.range_mixed_km, 1);
+  return `${fmt(row.range_high_km, 1)}/${mixed}/${fmt(row.range_sea_km, 1)}`;
 }
 
 function readForm() {
@@ -201,15 +209,13 @@ function renderResult(result, title) {
       </div>`
     : '';
 
-  const dual = result.range_high_km != null && result.range_sea_km != null;
-  const mixed = result.range_mixed_km != null
-    ? `<div class="stat"><div class="k">混合弹道</div><div class="v">${fmt(result.range_mixed_km, 1)}</div><div class="sub">km</div></div>`
-    : '';
-  const lead = dual
-    ? `<div class="stat"><div class="k">全高空射程</div><div class="v">${fmt(result.range_high_km, 1)}</div><div class="sub">km</div></div>
-       ${mixed}
-       <div class="stat"><div class="k">全掠海射程</div><div class="v amber">${fmt(result.range_sea_km, 1)}</div><div class="sub">km</div></div>`
+  const profile = profileText(result);
+  const lead = profile
+    ? `<div class="stat"><div class="k">高空/混合/掠海</div><div class="v">${profile}</div><div class="sub">km</div></div>`
     : `<div class="stat"><div class="k">${isFailedTakeover ? '弹道滑行射程' : '估算射程'}</div><div class="v ${isFailedTakeover ? 'amber' : ''}">${fmt(result.range_km, 1)}</div><div class="sub">${isFailedTakeover ? 'km (冲压未启动)' : 'km'}</div></div>`;
+  const alt = result.alt_range_text
+    ? `<div class="stat"><div class="k">轰6/轰20/歼36</div><div class="v">${result.alt_range_text}</div><div class="sub">km</div></div>`
+    : '';
   const wing = result.m_wing_kg != null
     ? `<div class="stat"><div class="k">折叠弹翼</div><div class="v">${fmt(result.m_wing_kg, 0)}</div><div class="sub">kg</div></div>
        <div class="stat"><div class="k">死重</div><div class="v amber">${fmt(result.m_dead_kg, 0)}</div><div class="sub">kg</div></div>`
@@ -245,6 +251,7 @@ function renderResult(result, title) {
     ${takeoverRow}
     <div class="stat-row">
       ${lead}
+      ${alt}
       ${stageStat}
       ${gain}
       ${wing}
@@ -301,10 +308,9 @@ function renderTable() {
       <td>${fmt(row.m_0_t, 2)}</td>
       <td>${fmt(row.v_burnout_mach, 2)}</td>
       <td>${ispLabel(row)}</td>
-      <td>${fmt(row.range_km, 1)}${rangeSub}</td>
+      <td>${profileText(row) || `${fmt(row.range_km, 1)}${rangeSub}`}</td>
       <td>${stageText(row) || '—'}</td>
-      <td>${row.range_mixed_km == null ? '—' : fmt(row.range_mixed_km, 1)}</td>
-      <td>${row.range_sea_km == null ? '—' : fmt(row.range_sea_km, 1)}</td>
+      <td>${row.alt_range_text || '—'}</td>
     </tr>
   `;
   }).join('');
@@ -313,7 +319,7 @@ function renderTable() {
       <thead>
         <tr>
           <th>ID</th><th>尺寸 m</th><th>载机</th><th>战斗部重量</th><th>弹种</th><th>发射条件</th>
-          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>助推分级</th><th>混合 km</th><th>掠海 km</th>
+          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>助推分级</th><th>轰6/轰20/歼36</th>
         </tr>
       </thead>
       <tbody>${body}</tbody>

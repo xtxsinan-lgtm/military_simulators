@@ -684,6 +684,8 @@ struct MissileRangeCase: Codable, Identifiable, Hashable {
     var stage_split: String?
     var stage_hardware_kg: Double?
     var stage_locked: Bool?
+    var profile_text: String?
+    var alt_range_text: String?
 }
 
 /// 单次估算返回的质量、速度与射程
@@ -723,6 +725,8 @@ struct MissileRangeEstimate: Codable {
     var stage_split: String? = nil
     var stage_hardware_kg: Double? = nil
     var stage_locked: Bool? = nil
+    var profile_text: String? = nil
+    var alt_range_text: String? = nil
 }
 
 /// 本地 Pyodide 导弹射程接口返回值

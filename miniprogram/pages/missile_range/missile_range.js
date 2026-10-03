@@ -30,12 +30,20 @@ function stageTextOf(row) {
   if (row.n_stages === 1) return name;
   return `${name} ${row.stage_split || ''}`;
 }
+function profileTextOf(row) {
+  if (!row) return '—';
+  if (row.profile_text) return row.profile_text;
+  if (row.range_high_km == null || row.range_sea_km == null) return '';
+  const mixed = row.range_mixed_km == null ? '—' : String(row.range_mixed_km);
+  return `${row.range_high_km}/${mixed}/${row.range_sea_km}`;
+}
+
 function decorate(row) {
   return {
     ...row,
     kind: kindOf(row),
-    seaText: row.range_sea_km == null ? '—' : String(row.range_sea_km),
-    mixedText: row.range_mixed_km == null ? '—' : String(row.range_mixed_km),
+    profileText: profileTextOf(row),
+    altText: row.alt_range_text || '—',
     ispText: ispTextOf(row),
     stageText: stageTextOf(row),
   };
@@ -149,6 +157,8 @@ Page({
         range_high_km: row.range_high_km,
         range_sea_km: row.range_sea_km,
         range_mixed_km: row.range_mixed_km,
+        profileText: row.profileText,
+        alt_range_text: row.alt_range_text,
         range_terminal_km: row.range_terminal_km,
         v_burnout_mach: row.v_burnout_mach,
         ld_ratio: row.ld_ratio,
@@ -250,6 +260,7 @@ Page({
         if (result.range_sea_km === undefined) result.range_sea_km = null;
         if (result.range_high_km === undefined) result.range_high_km = null;
         if (result.range_mixed_km === undefined) result.range_mixed_km = null;
+        result.profileText = profileTextOf(result);
         if (result.range_terminal_km === undefined) result.range_terminal_km = null;
         const rows = (res.rows && res.rows.length ? res.rows : this.data.cases).map(decorate);
         const visible = this.data.failOnly

@@ -32,6 +32,7 @@ from utils.missile_range.estimate import (
     head_total_mass_kg,
     motor_cross_section_m2,
     propellant_mass_kg,
+    build_stage_plan,
     search_booster_stages,
     stage_result_sentence,
 )
@@ -901,6 +902,7 @@ def cruise_range_pair_km(
     width_m: float | None = None,
     height_m: float | None = None,
     cruise_tsfc: float | None = None,
+    booster_propellant_kg: float | None = None,
 ) -> dict[str, float]:
     """全高空、全掠海与高中低混合巡航航程。预留容积和惰性质量给末端火箭。
 
@@ -908,6 +910,7 @@ def cruise_range_pair_km(
     发射速度低于接力马赫数时，可抛弃助推器再占一截燃油舱，巡航质量不含助推器。
     隐身涡扇可另给宽和高，按扁五边形算容积，不再把较长的一边当成圆直径。
     cruise_tsfc 覆盖弹种标定耗油率，用来代入另一档吸气比冲。
+    booster_propellant_kg 给定时沿用这一发可抛弃助推药，不再按新的发射速度重切。
     """
     if v_launch_mach < 0 or h_launch_km < 0:
         raise ValueError('发射马赫数与高度不能为负')
@@ -927,6 +930,15 @@ def cruise_range_pair_km(
         spec.get('fixed_void_m3', 0.0),
     )
     launch_speed = v_launch_mach * speed_of_sound_m_s(h_launch_km)
+    if booster_propellant_kg is not None and booster_propellant_kg < 0:
+        raise ValueError('助推药质量不能为负')
+
+    def _booster_propellant(cruise_mass_kg: float) -> float:
+        """可抛弃助推药。锁定时不再随发射速度变化。"""
+        if booster_propellant_kg is None:
+            return jettisoned_booster_propellant_kg(cruise_mass_kg, launch_speed, h_launch_km)
+        return float(booster_propellant_kg)
+
     wing_area = 0.0
     wing_mass = 0.0
     wing_volume = 0.0
@@ -949,9 +961,7 @@ def cruise_range_pair_km(
                 raise ValueError('末端火箭占用的容积超过燃油舱')
             fuel_kg = (free - reserved_volume_m3) * spec['fuel_density']
             cruise_mass = payload + structure + engine + fuel_kg + inert_mass_kg + wing_mass
-            booster_prop = jettisoned_booster_propellant_kg(
-                cruise_mass, launch_speed, h_launch_km,
-            )
+            booster_prop = _booster_propellant(cruise_mass)
             guess = 0.35 * guess + 0.65 * cruise_mass
         booster_volume = booster_grain_volume_m3(booster_prop)
         free = tank - wing_volume - booster_volume
@@ -959,7 +969,7 @@ def cruise_range_pair_km(
             raise ValueError('末端火箭占用的容积超过燃油舱')
         fuel_kg = (free - reserved_volume_m3) * spec['fuel_density']
         launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg + wing_mass
-        booster_prop = jettisoned_booster_propellant_kg(launch_mass, launch_speed, h_launch_km)
+        booster_prop = _booster_propellant(launch_mass)
     else:
         launch_mass = payload + structure + engine + inert_mass_kg
         fuel_kg = 0.0
@@ -970,16 +980,14 @@ def cruise_range_pair_km(
                 raise ValueError('末端火箭占用的容积超过燃油舱')
             fuel_kg = (free - reserved_volume_m3) * spec['fuel_density']
             launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg
-            booster_prop = jettisoned_booster_propellant_kg(
-                launch_mass, launch_speed, h_launch_km,
-            )
+            booster_prop = _booster_propellant(launch_mass)
         booster_volume = booster_grain_volume_m3(booster_prop)
         free = tank - booster_volume
         if reserved_volume_m3 >= free:
             raise ValueError('末端火箭占用的容积超过燃油舱')
         fuel_kg = (free - reserved_volume_m3) * spec['fuel_density']
         launch_mass = payload + structure + engine + fuel_kg + inert_mass_kg
-        booster_prop = jettisoned_booster_propellant_kg(launch_mass, launch_speed, h_launch_km)
+        booster_prop = _booster_propellant(launch_mass)
     if fuel_kg <= 1.0:
         raise ValueError('燃油过少，无法巡航')
     tsfc_hi = spec['tsfc'] if cruise_tsfc is None else cruise_tsfc
@@ -1156,6 +1164,35 @@ def split_boost_and_fuel(
     fuel = max(0.0, energy_volume_m3_value - prop_volume) * fuel_density
     launch_mass = fixed_mass_kg + propellant * (1.0 + BOOST_CASE_FRAC) + fuel
     return propellant, fuel, launch_mass
+
+
+def layout_fixed_booster(
+    energy_volume_m3_value: float,
+    propellant_kg: float,
+    fixed_mass_kg: float,
+    propellant_density: float,
+    fuel_density: float,
+    fuel_floor_frac: float,
+    combustor_volume_m3: float = 0.0,
+) -> tuple[float, float, float]:
+    """按已经定好的助推药切分燃油，不再按新的发射速度重算助推药。"""
+    if energy_volume_m3_value <= 0 or fixed_mass_kg <= 0:
+        raise ValueError('能源容积与固定质量必须大于 0')
+    if propellant_density <= 0 or fuel_density <= 0:
+        raise ValueError('比冲与密度必须大于 0')
+    if propellant_kg < 0 or combustor_volume_m3 < 0:
+        raise ValueError('助推药与燃烧室容积不能为负')
+    combustor = min(combustor_volume_m3, 0.40 * energy_volume_m3_value)
+    bay = energy_volume_m3_value - combustor
+    if bay <= 0.02:
+        raise ValueError('超燃燃烧室挤掉了燃油舱')
+    floor = clamp(fuel_floor_frac, 0.05, 0.8)
+    prop_volume = 0.0 if propellant_kg == 0 else propellant_kg / (propellant_density * BOOST_FILL)
+    if prop_volume > bay * (1.0 - floor) + 1e-9:
+        raise ValueError('锁定的助推药放不进燃油舱')
+    fuel = max(0.0, bay - prop_volume) * fuel_density
+    launch_mass = fixed_mass_kg + propellant_kg * (1.0 + BOOST_CASE_FRAC) + fuel
+    return propellant_kg, fuel, launch_mass
 
 
 def achieved_boost_dv_m_s(
@@ -1830,6 +1867,7 @@ def estimate_subsonic_class(
     width_m: float | None = None,
     height_m: float | None = None,
     isp_air_s: float | None = None,
+    booster_propellant_kg: float | None = None,
 ) -> dict:
     """涡扇隐身或涡喷非隐身的全高空、全掠海射程。
 
@@ -1851,6 +1889,7 @@ def estimate_subsonic_class(
         width_m=width_m,
         height_m=height_m,
         cruise_tsfc=cruise_tsfc,
+        booster_propellant_kg=booster_propellant_kg,
     )
     high_km = sized['range_high_m'] / 1000.0
     sea_km = sized['range_sea_m'] / 1000.0
@@ -1913,6 +1952,7 @@ def estimate_ducted(
     isp_s: float,
     propellant_density: float,
     isp_air_s: float | None = None,
+    booster_propellant_kg: float | None = None,
 ) -> dict:
     """超燃或亚燃：固体助推和吸气巡航分开计比冲。
 
@@ -1950,14 +1990,21 @@ def estimate_ducted(
     fixed = payload + structure + engine
     stages = airbreathing_stage_isp(canon, diameter_m, isp_s, isp_air_s)
     isp_boost = float(stages['isp_boost_s'])
-    if canon == 'scramjet':
-        propellant, fuel, launch_mass = split_scramjet_booster_and_fuel(
-            tank, scramjet_combustor_volume_m3(length_m, diameter_m),
-            fixed, dv_need, isp_boost, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
-        )
+    if booster_propellant_kg is None:
+        if canon == 'scramjet':
+            propellant, fuel, launch_mass = split_scramjet_booster_and_fuel(
+                tank, scramjet_combustor_volume_m3(length_m, diameter_m),
+                fixed, dv_need, isp_boost, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
+            )
+        else:
+            propellant, fuel, launch_mass = split_boost_and_fuel(
+                tank, fixed, dv_need, isp_boost, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
+            )
     else:
-        propellant, fuel, launch_mass = split_boost_and_fuel(
-            tank, fixed, dv_need, isp_boost, propellant_density, spec['fuel_density'], spec['fuel_floor_frac'],
+        combustor = scramjet_combustor_volume_m3(length_m, diameter_m) if canon == 'scramjet' else 0.0
+        propellant, fuel, launch_mass = layout_fixed_booster(
+            tank, booster_propellant_kg, fixed, propellant_density, spec['fuel_density'],
+            spec['fuel_floor_frac'], combustor,
         )
     ideal = achieved_boost_dv_m_s(propellant, launch_mass, isp_boost)
     if dv_need <= 1.0:
@@ -2124,6 +2171,7 @@ def terminal_propellant_for_dash(
     propellant_density: float,
     spec: dict[str, float],
     cruise_tsfc: float | None = None,
+    booster_propellant_kg: float | None = None,
 ) -> tuple[float, dict]:
     """按较重的巡航终点质量迭代末端装药。折叠弹翼先占燃油舱，装药不得挤掉弹翼。
 
@@ -2148,6 +2196,7 @@ def terminal_propellant_for_dash(
                 reserved_volume_m3=reserved,
                 inert_mass_kg=propellant + case_mass,
                 cruise_tsfc=cruise_tsfc,
+                booster_propellant_kg=booster_propellant_kg,
             )
         except ValueError as exc:
             if '容积' not in str(exc):
@@ -2172,6 +2221,7 @@ def terminal_propellant_for_dash(
                 reserved_volume_m3=reserved,
                 inert_mass_kg=propellant + case_mass,
                 cruise_tsfc=cruise_tsfc,
+                booster_propellant_kg=booster_propellant_kg,
             )
             break
         except ValueError as exc:
@@ -2192,6 +2242,7 @@ def estimate_turbofan_rocket(
     isp_s: float,
     propellant_density: float,
     isp_air_s: float | None = None,
+    booster_propellant_kg: float | None = None,
 ) -> dict:
     """涡扇巡航加上末端固体火箭。巡航吸气比冲与末端固体比冲分开。"""
     if isp_s <= 0 or propellant_density <= 0:
@@ -2201,6 +2252,7 @@ def estimate_turbofan_rocket(
     propellant, sized = terminal_propellant_for_dash(
         length_m, diameter_m, warhead_mass_kg, v_launch_mach, h_launch_km,
         isp_s, propellant_density, spec, cruise_tsfc,
+        booster_propellant_kg=booster_propellant_kg,
     )
     dash_km = burke_radar_los_km()
     high_km = sized['range_high_m'] / 1000.0 + dash_km
@@ -2276,6 +2328,7 @@ def estimate_ballistic(
     warhead_section: str = 'cylinder',
     coast_drag: bool = True,
     single_stage: bool = False,
+    stage_fractions: tuple[float, ...] | None = None,
 ) -> dict:
     """普通弹道导弹：头锥扣掉制导和战斗部后的剩余容积与圆柱段一起装药，再计重力阻力与大气滑行。
 
@@ -2324,11 +2377,20 @@ def estimate_ballistic(
             )
         return ground_i
 
-    stage = search_booster_stages(
-        payload_mass, propellant, diameter_m, isp_s, propellant_density, score_plan,
-        stages=1 if single_stage else None,
-        tie_tol=0.05,
-    )
+    if stage_fractions is None:
+        stage = search_booster_stages(
+            payload_mass, propellant, diameter_m, isp_s, propellant_density, score_plan,
+            stages=1 if single_stage else None,
+            tie_tol=0.05,
+        )
+    else:
+        # 换发射平台时沿用歼-15 上搜好的级数和份额。
+        stage = build_stage_plan(
+            payload_mass, propellant, diameter_m, isp_s, propellant_density,
+            tuple(stage_fractions), locked=True,
+        )
+        if stage is None:
+            raise ValueError('锁定的助推分配放不下')
     launch_mass = stage['launch_mass_kg']
     propellant = stage['propellant_kg']
     burnout_mass = stage['burnout_mass_kg']
@@ -2391,6 +2453,8 @@ def estimate_by_class(
     optimize_geometry: bool = True,
     l_head_m: float | None = None,
     d_head_m: float | None = None,
+    stage_fractions: tuple[float, ...] | None = None,
+    booster_propellant_kg: float | None = None,
 ) -> dict:
     """按弹种估算。双锥体和乘波体助推滑翔由 missile_class 区分。
 
@@ -2407,6 +2471,7 @@ def estimate_by_class(
             length_m, diameter_m, warhead_mass_kg, shape,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
             l_head_m=l_head_m, d_head_m=d_head_m,
+            stage_fractions=stage_fractions,
             optimize_geometry=use_opt,
         )
         result = dict(result)
@@ -2446,22 +2511,25 @@ def estimate_by_class(
     if canon in _SUBSONIC_SPECS:
         return estimate_subsonic_class(
             canon, length_m, diameter_m, warhead_mass_kg, v_launch_mach, h_launch_km,
-            width_m, height_m, isp_air_s,
+            width_m, height_m, isp_air_s, booster_propellant_kg,
         )
     if canon in _DUCT_SPECS:
         return estimate_ducted(
             canon, length_m, diameter_m, warhead_mass_kg,
             v_launch_mach, h_launch_km, isp_s, propellant_density, isp_air_s,
+            booster_propellant_kg,
         )
     if canon == 'turbofan_rocket':
         return estimate_turbofan_rocket(
             length_m, diameter_m, warhead_mass_kg,
             v_launch_mach, h_launch_km, isp_s, propellant_density, isp_air_s,
+            booster_propellant_kg,
         )
     if canon == 'ballistic':
         return estimate_ballistic(
             length_m, diameter_m, warhead_mass_kg,
             v_launch_mach, h_launch_km, isp_s, propellant_density,
             single_stage=ballistic_single_stage,
+            stage_fractions=stage_fractions,
         )
     raise ValueError(f'未知弹种: {missile_class}')

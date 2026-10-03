@@ -105,7 +105,9 @@ final class MissileRangeViewModel: ObservableObject {
             mach_boost: row.mach_boost,
             m_booster_kg: row.m_booster_kg,
             m_fuel_kg: row.m_fuel_kg,
-            takeover_progress: row.takeover_progress
+            takeover_progress: row.takeover_progress,
+            profile_text: row.profile_text,
+            alt_range_text: row.alt_range_text
         )
         statusText = row.reached_takeover == false ? "⚠️ 未达工作速度" : "PRESET"
     }

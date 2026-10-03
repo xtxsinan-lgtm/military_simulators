@@ -489,8 +489,8 @@ def test_e2e_h6_stealth_bomber_matching_presets():
 
 
 @pytest.mark.e2e
-def test_e2e_j15_belly_mass_and_h6_launch():
-    """歼-15 机腹起飞质量不超过 2500 kg；机腹和翼下各弹都有结构相同的轰-6 发射版本。"""
+def test_e2e_j15_belly_mass_and_alt_launches():
+    """歼-15 机腹不超过 2500 kg；机腹和翼下在同一行给出轰-6、轰-20、歼-36 射程。"""
     payload = {'action': 'presets'}
     status, _, body = handle_request(
         'POST', '/api/missile_range/simulate', json.dumps(payload).encode(),
@@ -506,43 +506,19 @@ def test_e2e_j15_belly_mass_and_h6_launch():
         if case['diameter_m'] < 0.70:
             assert case['m_0_t'] == pytest.approx(2.50)
 
-    for source_bay, h6_bay in (
-        ('歼-15机腹', '歼-15机腹·轰-6发射'),
-        ('歼-15翼下', '歼-15翼下·轰-6发射'),
-    ):
+    bays = {case['bay'] for case in cases}
+    assert '歼-15机腹·轰-6发射' not in bays
+    assert '歼-15翼下·轰-6发射' not in bays
+    for source_bay in ('歼-15机腹', '歼-15翼下'):
         sources = [case for case in cases if case['bay'] == source_bay]
         assert len(sources) == 8
         for source in sources:
-            matched = [
-                case for case in cases
-                if case['bay'] == h6_bay and case['missile_class'] == source['missile_class']
-            ]
-            assert len(matched) == 1
-            h6 = matched[0]
-            assert h6['length_m'] == pytest.approx(source['length_m'])
-            assert h6['diameter_m'] == pytest.approx(source['diameter_m'])
-            assert h6['warhead_kg'] == source['warhead_kg']
-            assert h6['v_mach'] == pytest.approx(0.85)
-            assert h6['h_km'] == pytest.approx(13.0)
-            status_h, _, body_h = handle_request(
-                'POST', '/api/missile_range/simulate',
-                json.dumps({
-                    'action': 'estimate',
-                    'params': {
-                        'missile_class': h6['missile_class'],
-                        'length_m': h6['length_m'],
-                        'diameter_m': h6['diameter_m'],
-                        'warhead_kg': h6['warhead_kg'],
-                        'v_launch_mach': h6['v_mach'],
-                        'h_launch_km': h6['h_km'],
-                    },
-                }).encode(),
-            )
-            assert status_h == 200
-            result = json.loads(body_h.decode())['result']
-            assert result['range_km'] > 0
-            assert result['range_km'] == pytest.approx(h6['range_km'])
-            assert source['range_km'] >= h6['range_km']
+            assert source['alt_range_text']
+            labels = [item['label'] for item in source['alt_launches']]
+            assert labels == ['轰-6', '轰-20', '歼-36']
+            assert all(item['range_km'] > 0 for item in source['alt_launches'])
+            if source.get('range_sea_km') is not None:
+                assert source['profile_text'].count('/') == 2
 
 
 @pytest.mark.e2e

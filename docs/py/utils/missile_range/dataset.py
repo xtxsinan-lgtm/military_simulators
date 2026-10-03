@@ -5,6 +5,7 @@ from typing import Any
 
 from utils.database_csv import load_missile_range_preset_csv
 from utils.missile_range.classes import (
+    BOOST_CASE_FRAC,
     MISSILE_CLASS_ORDER,
     class_blurb,
     class_isp_defaults,
@@ -15,6 +16,8 @@ from utils.missile_range.classes import (
 from utils.missile_range.estimate import (
     DEFAULT_ISP_S,
     DEFAULT_PROPELLANT_DENSITY,
+    min_head_length_m,
+    parse_stage_fractions,
 )
 
 # 超音速弹种（不含亚超结合，含普通弹道）共用 CSV 中 speed_group=supersonic 的弹仓。
@@ -35,6 +38,24 @@ SPEED_GROUP_CLASSES = {
     'supersonic': SUPERSONIC_CLASSES,
     'subsonic': SUBSONIC_CLASSES,
 }
+# 这两组按歼-15 发射条件定外形、助推切分和滑翔体，再换平台只改发射条件。
+J15_STRUCTURE_BAYS = ('歼-15翼下', '歼-15机腹')
+# 轰-20 与隐身亚音速轰炸机弹仓同一发射包线：Ma 0.85 @ 15 km。
+J15_ALT_LAUNCHES = (
+    ('轰-6', 0.85, 13.0),
+    ('轰-20', 0.85, 15.0),
+    ('歼-36', 2.15, 20.0),
+)
+# 翼下超音速弹统一外形；亚音速另按质量和弹径上限收。
+J15_WING_SUPERSONIC_SIZE = (6.5, 0.5)
+J15_WING_LENGTH_M = 6.5
+J15_WING_SUBSONIC_MAX_DIAMETER_M = 0.6
+J15_WING_MASS_T = 1.5
+J15_BELLY_LENGTH_M = 8.5
+J15_BELLY_MAX_DIAMETER_M = 0.70
+J15_BELLY_MASS_T = 2.5
+# 三种高超：双锥体、乘波体、超燃。冲压单独一档战斗部。
+J15_HYPERSONIC_CLASSES = ('hgv_biconic', 'hgv_waverider', 'scramjet')
 
 
 def grouped_preset_bays(
@@ -150,6 +171,85 @@ def format_size_m(length_m: float, diameter_m: float) -> str:
     return f'{length_m:.2f} x {diameter_m:.3f}'
 
 
+def format_cruise_profile(result: dict[str, Any]) -> str | None:
+    """巡航弹的高空、混合、掠海射程，用斜线收成一栏。没有掠海档时返回空。"""
+    high = result.get('range_high_km')
+    sea = result.get('range_sea_km')
+    if high is None or sea is None:
+        return None
+    mixed = result.get('range_mixed_km')
+    mixed_text = '—' if mixed is None else f'{float(mixed):.1f}'
+    return f'{float(high):.1f}/{mixed_text}/{float(sea):.1f}'
+
+
+def format_alt_launch_text(parts: list[str]) -> str:
+    """三个平台的预计算射程。巡航档内部已用斜线，平台之间用间隔号分开。"""
+    if len(parts) != 3 or any(not part for part in parts):
+        raise ValueError('需要轰-6、轰-20、歼-36 三档射程')
+    return ' · '.join(parts)
+
+
+def structure_lock_kwargs(result: dict[str, Any]) -> dict[str, Any]:
+    """从歼-15 估算里取出要冻结的滑翔体、助推分级和助推药。"""
+    canon = resolve_missile_class(str(result.get('missile_class') or ''))
+    locked: dict[str, Any] = {}
+    if canon.startswith('hgv'):
+        if result.get('l_head_m') is None or result.get('d_head_m') is None:
+            raise ValueError('助推滑翔缺少可冻结的滑翔体尺寸')
+        locked['l_head_m'] = float(result['l_head_m'])
+        locked['d_head_m'] = float(result['d_head_m'])
+        locked['optimize_geometry'] = False
+    if result.get('stage_split') and canon in ('hgv_biconic', 'hgv_waverider', 'ballistic'):
+        locked['stage_fractions'] = parse_stage_fractions(str(result['stage_split']))
+    if canon not in ('hgv_biconic', 'hgv_waverider', 'ballistic') and result.get('m_booster_kg') is not None:
+        locked['booster_propellant_kg'] = float(result['m_booster_kg']) / (1.0 + BOOST_CASE_FRAC)
+    return locked
+
+
+def alt_launch_ranges(
+    case: dict[str, Any],
+    template: dict[str, Any],
+) -> dict[str, Any]:
+    """同一结构下，按轰-6、轰-20、歼-36 的发射条件重算射程。"""
+    lock = structure_lock_kwargs(template)
+    # 圆整后的滑翔体直径不能超过弹径，否则换平台重算会被拒绝。
+    if 'd_head_m' in lock:
+        lock['d_head_m'] = min(float(lock['d_head_m']), float(case['diameter']))
+        shape = 'waverider' if str(case['missile_class']).endswith('waverider') else 'biconic'
+        # 展示用的两位小数可能短于装填底线，拉回到还能装下战斗部的长度。
+        floor = min_head_length_m(float(case['warhead']), lock['d_head_m'], shape)
+        lock['l_head_m'] = min(max(float(lock['l_head_m']), floor), float(case['length']) - 0.05)
+    pieces: list[str] = []
+    detail: list[dict[str, Any]] = []
+    for label, mach, height in J15_ALT_LAUNCHES:
+        result = estimate_by_class(
+            missile_class=str(case['missile_class']),
+            length_m=float(case['length']),
+            diameter_m=float(case['diameter']),
+            warhead_mass_kg=float(case['warhead']),
+            v_launch_mach=mach,
+            h_launch_km=height,
+            **lock,
+        )
+        profile = format_cruise_profile(result)
+        text = profile if profile is not None else f"{float(result['range_km']):.1f}"
+        pieces.append(text)
+        detail.append({
+            'label': label,
+            'v_mach': mach,
+            'h_km': height,
+            'range_km': float(result['range_km']),
+            'range_high_km': result.get('range_high_km'),
+            'range_mixed_km': result.get('range_mixed_km'),
+            'range_sea_km': result.get('range_sea_km'),
+            'text': text,
+        })
+    return {
+        'alt_range_text': format_alt_launch_text(pieces),
+        'alt_launches': detail,
+    }
+
+
 def format_launch(v_mach: float, h_km: float) -> str:
     """发射条件文案。"""
     return f'Ma {v_mach:g} @ {h_km:g}km'
@@ -245,9 +345,16 @@ def evaluate_case(
         'range_sea_km': None,
         'range_mixed_km': None,
         'range_terminal_km': None,
+        'profile_text': None,
+        'alt_range_text': None,
+        'alt_launches': None,
         'note': class_blurb(canon),
     }
     row.update(result)
+    row['profile_text'] = format_cruise_profile(row)
+    if str(case.get('bay') or '') in J15_STRUCTURE_BAYS:
+        alt = alt_launch_ranges(case, row)
+        row.update(alt)
     if result.get('reached_takeover') is False:
         row['name'] = f"{row['name']} · 未达工作速度"
     return row

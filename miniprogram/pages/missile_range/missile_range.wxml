@@ -85,10 +85,11 @@
       <view class="stat"><view class="k">冲压工作状态</view><view class="v {{result.reached_takeover === false ? 'red' : ''}}">{{result.reached_takeover === false ? '未启动' : '已接入'}}</view></view>
       <view class="stat" wx:if="{{result.m_booster_kg != null}}"><view class="k">助推器全重 kg</view><view class="v amber">{{result.m_booster_kg}}</view></view>
     </view>
-    <view class="stat-row" wx:if="{{result && result.range_sea_km != null}}">
-      <view class="stat"><view class="k">全高空 km</view><view class="v">{{result.range_high_km}}</view></view>
-      <view class="stat" wx:if="{{result.range_mixed_km != null}}"><view class="k">混合弹道 km</view><view class="v">{{result.range_mixed_km}}</view></view>
-      <view class="stat"><view class="k">全掠海 km</view><view class="v amber">{{result.range_sea_km}}</view></view>
+    <view class="stat-row" wx:if="{{result && result.profileText}}">
+      <view class="stat"><view class="k">高空/混合/掠海 km</view><view class="v">{{result.profileText}}</view></view>
+    </view>
+    <view class="stat-row" wx:if="{{result && result.alt_range_text}}">
+      <view class="stat"><view class="k">轰6/轰20/歼36 km</view><view class="v">{{result.alt_range_text}}</view></view>
     </view>
     <view class="stat-row" wx:if="{{result && result.range_sea_km == null}}">
       <view class="stat"><view class="k">{{result.reached_takeover === false ? '弹道滑行 km' : '估算射程 km'}}</view><view class="v {{result.reached_takeover === false ? 'amber' : ''}}">{{result.range_km}}</view></view>
@@ -135,10 +136,9 @@
           <text class="col wh">战斗部重量</text>
           <text class="col">弹种</text>
           <text class="col isp">比冲</text>
-          <text class="col">射程</text>
+          <text class="col wide">射程</text>
           <text class="col">分级</text>
-          <text class="col">混合</text>
-          <text class="col">掠海</text>
+          <text class="col alt">轰6/轰20/歼36</text>
         </view>
         <view class="tr {{item.id === activeId ? 'on' : ''}} {{item.reached_takeover === false ? 'fail-takeover' : ''}}" wx:for="{{rows}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapRow">
           <text class="td col">{{item.id}}</text>
@@ -147,10 +147,9 @@
           <text class="td col wh">{{item.warhead_kg}}</text>
           <text class="td col">{{item.kind}}<text class="tag-alert" wx:if="{{item.reached_takeover === false}}">未达速</text></text>
           <text class="td col isp">{{item.ispText}}</text>
-          <text class="td col">{{item.range_km}}</text>
+          <text class="td col wide">{{item.profileText || item.range_km}}</text>
           <text class="td col">{{item.stageText}}</text>
-          <text class="td col">{{item.mixedText}}</text>
-          <text class="td col">{{item.seaText}}</text>
+          <text class="td col alt">{{item.altText}}</text>
         </view>
       </view>
     </scroll-view>

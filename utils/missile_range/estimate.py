@@ -273,6 +273,20 @@ def displaced_propellant_kg(hardware_kg: float, propellant_density: float) -> fl
     return hardware_kg * propellant_density / STAGE_HARDWARE_DENSITY_KG_M3
 
 
+def parse_stage_fractions(stage_split: str) -> tuple[float, ...]:
+    """把「70/30」或「100」还原成推进剂份额。"""
+    text = str(stage_split).strip()
+    if not text:
+        raise ValueError('推进剂分配不能为空')
+    parts = [int(piece) for piece in text.split('/')]
+    if any(part <= 0 for part in parts) or len(parts) > 3:
+        raise ValueError('推进剂分配无效')
+    total = sum(parts)
+    if total != 100:
+        raise ValueError('推进剂分配之和必须为 100')
+    return tuple(part / 100.0 for part in parts)
+
+
 def format_stage_split(fractions: tuple[float, ...] | list[float]) -> str:
     """把推进剂份额收成和为 100 的整数百分比，例如 64/26/10。"""
     if not fractions:
@@ -693,6 +707,7 @@ def estimate_hgv_unrounded(
     l_head_m: float | None = None,
     d_head_m: float | None = None,
     enforce_min_fineness: bool = True,
+    stage_fractions: tuple[float, ...] | None = None,
 ) -> dict:
     """估算助推滑翔弹，返回未舍入的质量、速度与射程，供几何搜索比较。"""
     hgv_type = normalize_hgv_type(hgv_type)
@@ -744,11 +759,21 @@ def estimate_hgv_unrounded(
         speed, _h_burn = lofted_speed_m_s(plan)
         return speed
 
-    stage = search_booster_stages(
-        m_head_total, m_propellant_geom, diameter_m, isp_s, propellant_density, score_plan,
-        prescreen=True,
-        propellant_mass_fraction=HGV_PROPELLANT_MASS_FRACTION,
-    )
+    if stage_fractions is None:
+        stage = search_booster_stages(
+            m_head_total, m_propellant_geom, diameter_m, isp_s, propellant_density, score_plan,
+            prescreen=True,
+            propellant_mass_fraction=HGV_PROPELLANT_MASS_FRACTION,
+        )
+    else:
+        # 换发射平台时沿用已定的级数和份额，不再按新高度重搜。
+        stage = build_stage_plan(
+            m_head_total, m_propellant_geom, diameter_m, isp_s, propellant_density,
+            tuple(stage_fractions), locked=True,
+            propellant_mass_fraction=HGV_PROPELLANT_MASS_FRACTION,
+        )
+        if stage is None:
+            raise ValueError('锁定的助推分配放不下')
     m_0 = stage['launch_mass_kg']
     m_propellant = stage['propellant_kg']
     v_burnout, h_burnout_km = lofted_speed_m_s(stage)
@@ -786,6 +811,7 @@ def estimate_hgv(
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
     l_head_m: float | None = None,
     d_head_m: float | None = None,
+    stage_fractions: tuple[float, ...] | None = None,
     optimize_geometry: bool = False,
     min_fineness: float | None = None,
     min_d_head_m: float | None = None,
@@ -823,6 +849,7 @@ def estimate_hgv(
         propellant_density=propellant_density,
         l_head_m=l_head_m,
         d_head_m=d_head_m,
+        stage_fractions=stage_fractions,
     )
     return _round_hgv_result(
         raw['m_0'], raw['l_head_m'], raw['l_booster_m'], raw['m_propellant'],

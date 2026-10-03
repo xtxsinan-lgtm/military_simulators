@@ -87,3 +87,79 @@ def optimize_missile_envelope(
 def _envelope_rank(row: dict[str, Any]) -> tuple[float, float, float]:
     """射程优先，其次弹长，再次弹径。"""
     return (float(row['range_km']), float(row['length_m']), float(row['diameter_m']))
+
+
+def diameter_for_liftoff_mass(
+    missile_class: str,
+    length_m: float,
+    warhead_mass_kg: float,
+    target_mass_t: float,
+    *,
+    max_diameter_m: float,
+    v_launch_mach: float,
+    h_launch_km: float,
+    min_diameter_m: float = 0.20,
+) -> dict[str, Any]:
+    """在弹径上限内把起飞质量收到目标值。
+
+    到上限仍然偏轻时取上限。质量随弹径增加；估不出来的过细弹径跳过。
+    弹径收到 0.0001 m，并取不超过目标质量、又尽量贴近目标的那一档。
+    """
+    if length_m <= 0 or max_diameter_m <= 0 or min_diameter_m <= 0:
+        raise ValueError('弹长与弹径搜索范围必须大于 0')
+    if max_diameter_m < min_diameter_m:
+        raise ValueError('弹径上限不能小于下限')
+    if target_mass_t <= 0 or warhead_mass_kg < 0:
+        raise ValueError('目标质量必须大于 0，战斗部不能为负')
+    canon = resolve_missile_class(missile_class)
+
+    def at(diameter_m: float) -> dict[str, Any] | None:
+        try:
+            result = estimate_by_class(
+                canon, length_m, diameter_m, warhead_mass_kg,
+                v_launch_mach, h_launch_km,
+            )
+        except ValueError:
+            return None
+        return {
+            'missile_class': canon,
+            'length_m': length_m,
+            'diameter_m': diameter_m,
+            'warhead_kg': float(warhead_mass_kg),
+            'm_0_t': float(result['m_0_t']),
+            'range_km': float(result['range_km']),
+            'result': result,
+        }
+
+    capped = at(max_diameter_m)
+    if capped is None:
+        raise ValueError('弹径上限处无法估算')
+    if capped['m_0_t'] <= target_mass_t:
+        return capped
+    low = min_diameter_m
+    high = max_diameter_m
+    best = capped
+    for _ in range(28):
+        mid = (low + high) / 2.0
+        row = at(mid)
+        if row is None or row['m_0_t'] > target_mass_t:
+            high = mid
+            continue
+        low = mid
+        best = row
+    rounded = round(low, 4)
+    candidates = []
+    step = 0.0001
+    start = max(min_diameter_m, rounded - 0.0002)
+    stop = min(max_diameter_m, rounded + 0.0002)
+    probe = start
+    while probe <= stop + 1e-9:
+        row = at(round(probe, 4))
+        if row is not None and row['m_0_t'] <= target_mass_t + 1e-9:
+            candidates.append(row)
+        probe += step
+    if not candidates:
+        if best['m_0_t'] > target_mass_t:
+            raise ValueError('在弹径下限处起飞质量仍高于目标')
+        return best
+    return max(candidates, key=lambda row: (row['m_0_t'], row['diameter_m']))
