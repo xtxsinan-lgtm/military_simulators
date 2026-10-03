@@ -1000,7 +1000,8 @@ def test_six_classes_ranges_and_profiles():
         estimate_subsonic_class('ramjet', 6, 0.5, 100, 0.7, 1)
     # 冲压、亚音速与弹道。相对旧表多了歼-36 超燃 300 kg、鱼雷管弹道 300 kg、
     # 750 亚燃、地面弹道 9 发，以及鱼雷管亚音速 300/600 kg 共 6 发。
-    assert len(PROPULSION_DATASET) == 105
+    # 歼-36 超音速弹的歼-15 发射再加 2 发超燃、1 发亚燃、1 发弹道。
+    assert len(PROPULSION_DATASET) == 109
     labels = {row['missile_class'] for row in PROPULSION_DATASET}
     assert labels == {
         'scramjet', 'ramjet', 'turbofan_stealth',
@@ -1064,8 +1065,9 @@ def test_presets_follow_bay_list_for_each_speed_class():
     grouped = grouped_preset_bays()
     cases = build_preset_cases()
     # 歼-36 的双锥体、乘波体、超燃各多一发 300 kg；533 mm 弹道多 300 kg；
-    # 亚音速鱼雷管多 300/600 kg；地面战术弹与火箭炮另计。合计 143。
-    assert [case['id'] for case in cases] == list(range(1, 144))
+    # 亚音速鱼雷管多 300/600 kg；地面战术弹与火箭炮另计。
+    # 歼-36 超音速弹另有一组歼-15 发射（不含亚超结合），多 8 发。合计 151。
+    assert [case['id'] for case in cases] == list(range(1, 152))
 
     # 共用的弹仓行。歼-36 与 533 mm 弹道的专属行不计入共用行。
     super_generic = [
@@ -1080,7 +1082,7 @@ def test_presets_follow_bay_list_for_each_speed_class():
         if bay.get('missile_class') is None
         for length, diameter, warhead in bay['rounds']
     ]
-    assert len(super_generic) == 12
+    assert len(super_generic) == 13
     assert len(sub_generic) == 9
     assert any(item[0] == '1280垂发' for item in super_generic)
     assert any(item[0] == '533mm鱼雷' and item[3] == 600 for item in sub_generic)
@@ -1088,19 +1090,19 @@ def test_presets_follow_bay_list_for_each_speed_class():
     assert 'turbofan_rocket' in SUBSONIC_CLASSES
     assert 'turbofan_rocket' not in SUPERSONIC_CLASSES
 
-    # 亚燃没有歼-36 / 533 mm 专属覆盖，前 12 条仍是共用行，末尾多一发 750 战术导弹。
+    # 亚燃没有歼-36 / 533 mm 专属覆盖，前 13 条仍是共用行，末尾多一发 750 战术导弹。
     for missile_class in SUPERSONIC_CLASSES:
         got = [
             (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
             for case in cases if case['missile_class'] == missile_class
         ]
         if missile_class == 'ramjet':
-            assert len(got) == 19
-            assert got[:12] == super_generic
+            assert len(got) == 20
+            assert got[:13] == super_generic
         elif missile_class == 'ballistic':
-            assert len(got) == 28
+            assert len(got) == 29
         elif missile_class in ('hgv_biconic', 'hgv_waverider', 'scramjet'):
-            assert len(got) == 19
+            assert len(got) == 21
     for missile_class in SUBSONIC_CLASSES:
         got = [
             (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
@@ -1123,8 +1125,12 @@ def test_presets_follow_bay_list_for_each_speed_class():
     assert _j36_warheads('ramjet') == {600}
     assert _j36_warheads('ballistic') == {600}
     assert all(
-        case['length'] == pytest.approx(6.35) and case['diameter'] == pytest.approx(0.59)
+        case['length'] == pytest.approx(6.35) and case['diameter'] == pytest.approx(0.46)
         for case in cases if case['bay'] == '歼-36弹仓' and case['missile_class'] in SUPERSONIC_CLASSES
+    )
+    assert all(
+        case['length'] == pytest.approx(6.35) and case['diameter'] == pytest.approx(0.575)
+        for case in cases if case['bay'] == '歼-36弹仓' and case['missile_class'] in SUBSONIC_CLASSES
     )
     assert not any(
         case['missile_class'] == 'hgv_waverider'
@@ -1189,6 +1195,7 @@ def test_carrier_launch_envelope():
 
     expected = {
         '歼-36弹仓': (2.15, 20.0),
+        '歼-36弹仓·歼-15发射': (1.5, 14.0),
         '中型六代机弹仓': (1.75, 18.0),
         '歼-15机腹': (1.5, 14.0),
         '歼-15机腹·轰-6发射': (0.85, 13.0),
@@ -1281,6 +1288,46 @@ def test_j15_belly_presets_hold_2500kg():
         if case['diameter'] < 0.70:
             assert result['m_0_t'] == pytest.approx(2.50)
         assert result['range_km'] > 0
+
+
+def test_j36_j15_launch_keeps_supersonic_structure():
+    """歼-36 弹仓每发超音速弹都有歼-15 发射版本，弹长、弹径、战斗部和弹种不变。
+
+    亚超结合以及另外两种亚音速弹不进入这一组。
+    """
+    from utils.missile_range.classes import estimate_by_class
+    from utils.missile_range.dataset import SUBSONIC_CLASSES, SUPERSONIC_CLASSES, build_preset_cases
+
+    cases = build_preset_cases()
+    source = [
+        case for case in cases
+        if case['bay'] == '歼-36弹仓' and case['missile_class'] in SUPERSONIC_CLASSES
+    ]
+    launched = [case for case in cases if case['bay'] == '歼-36弹仓·歼-15发射']
+    assert len(source) == 8
+    assert len(launched) == 8
+    assert {case['missile_class'] for case in launched} <= set(SUPERSONIC_CLASSES)
+    assert not any(case['missile_class'] in SUBSONIC_CLASSES for case in launched)
+    for origin in source:
+        match = next(
+            case for case in launched
+            if case['missile_class'] == origin['missile_class'] and case['warhead'] == origin['warhead']
+        )
+        assert (match['length'], match['diameter'], match['warhead']) == (
+            origin['length'], origin['diameter'], origin['warhead'],
+        )
+        assert match['v_mach'] == pytest.approx(1.50)
+        assert match['h_km'] == pytest.approx(14.0)
+        from_j15 = estimate_by_class(
+            match['missile_class'], match['length'], match['diameter'], match['warhead'],
+            match['v_mach'], match['h_km'],
+        )
+        from_j36 = estimate_by_class(
+            origin['missile_class'], origin['length'], origin['diameter'], origin['warhead'],
+            origin['v_mach'], origin['h_km'],
+        )
+        assert from_j15['range_km'] > 0
+        assert from_j36['range_km'] >= from_j15['range_km']
 
 
 def test_j15_h6_launch_keeps_structure():
@@ -2248,10 +2295,15 @@ def test_filter_takeover_failed_and_labels():
     assert all(row['missile_class'] == 'scramjet' for row in failed)
     labelled = [row for row in rows if '未达工作速度' in row['name']]
     assert len(labelled) == len(failed)
-    assert not any(
-        row['missile_class'] == 'scramjet' and row.get('reached_takeover') is False
-        for row in rows
-    )
+    # 歼-36 弹仓 600 kg 超燃改由歼-15 发射后，助推接不上超燃接力，预设里只此一条。
+    missed = [
+        row for row in rows
+        if row['missile_class'] == 'scramjet' and row.get('reached_takeover') is False
+    ]
+    assert len(missed) == 1
+    assert missed[0]['bay'] == '歼-36弹仓·歼-15发射'
+    assert missed[0]['warhead_kg'] == 600
+    assert '未达工作速度' in missed[0]['name']
     synthetic = [
         {'name': '过小 · 未达工作速度', 'reached_takeover': False, 'missile_class': 'scramjet'},
         {'name': '够大', 'reached_takeover': True, 'missile_class': 'scramjet'},
