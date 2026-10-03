@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 58;
+const APP_VERSION = 59;
 
 /** 在 Worker 里调用估算入口，主线程不跑 Python */
 const MISSILE_RANGE_RUN_SNIPPET = `
@@ -212,7 +212,7 @@ function renderResult(result, title) {
     ? `<div class="stat"><div class="k">高空/混合/掠海</div><div class="v">${profile}</div><div class="sub">km</div></div>`
     : `<div class="stat"><div class="k">${isFailedTakeover ? '弹道滑行射程' : '估算射程'}</div><div class="v ${isFailedTakeover ? 'amber' : ''}">${fmt(result.range_km, 1)}</div><div class="sub">${isFailedTakeover ? 'km (冲压未启动)' : 'km'}</div></div>`;
   const alt = result.alt_range_text
-    ? `<div class="stat"><div class="k">各机射程</div><div class="v">${result.alt_range_text}</div><div class="sub">km</div></div>`
+    ? `<div class="stat"><div class="k">轰6/轰20/歼36</div><div class="v">${result.alt_range_text}</div><div class="sub">km</div></div>`
     : '';
   const wing = result.m_wing_kg != null
     ? `<div class="stat"><div class="k">折叠弹翼</div><div class="v">${fmt(result.m_wing_kg, 0)}</div><div class="sub">kg</div></div>
@@ -315,7 +315,7 @@ function renderTable() {
       <thead>
         <tr>
           <th>ID</th><th>载机</th><th>尺寸 m</th><th>战斗部重量</th><th>弹种</th><th>发射条件</th>
-          <th>起飞 t</th><th>射程 km</th><th>助推分级</th><th>各机射程</th>
+          <th>起飞 t</th><th>射程 km</th><th>助推分级</th><th>轰6/轰20/歼36</th>
         </tr>
       </thead>
       <tbody>${body}</tbody>

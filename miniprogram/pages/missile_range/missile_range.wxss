@@ -44,7 +44,7 @@ page {
 .tr.on .td { color: #ffb020; }
 .scroll-x { overflow-x: auto; }
 .table { min-width: 1480rpx; }
-.col.alt { width: 720rpx; }
+.col.alt { width: 360rpx; }
 .col { width: 110rpx; flex: none; }
 .col.wh { width: 160rpx; }
 .col.isp { width: 200rpx; }
