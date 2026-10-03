@@ -1263,32 +1263,30 @@ def test_j15_wing_presets_stay_inside_pylon_box():
     超音速除亚燃外仍是弹径 0.50 m。亚燃助推按轰-6 切分，弹径收到质量上限。
     亚音速弹径不超过 0.60 m。冲压战斗部 300 kg，三种高超 200 kg，普通弹道和亚音速 500 kg。
     """
-    from utils.missile_range.classes import estimate_by_class
-    from utils.missile_range.dataset import J15_HYPERSONIC_CLASSES, build_preset_cases
+    from utils.missile_range.dataset import J15_HYPERSONIC_CLASSES, evaluate_dataset
 
-    wings = [case for case in build_preset_cases() if case['bay'] == '歼-15翼下']
+    wings = [row for row in evaluate_dataset() if row['bay'] == '歼-15翼下']
     assert len(wings) == 8
-    for case in wings:
-        assert case['length'] == pytest.approx(6.50)
-        result = estimate_by_class(
-            case['missile_class'], case['length'], case['diameter'], case['warhead'],
-            case['v_mach'], case['h_km'],
-        )
-        assert result['range_km'] > 0
-        if case['missile_class'] in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket'):
-            assert case['diameter'] <= 0.60
-            assert case['warhead'] == 500
-            if case['diameter'] < 0.60:
-                assert result['m_0_t'] == pytest.approx(1.50)
+    for row in wings:
+        assert row['length_m'] == pytest.approx(6.50)
+        assert row['m_0_t'] <= 1.50
+        assert row['range_km'] > 0
+        if row['missile_class'] in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket'):
+            assert row['diameter_m'] <= 0.60
+            assert row['warhead_kg'] == 500
+            if row['diameter_m'] < 0.60:
+                assert row['m_0_t'] == pytest.approx(1.50)
+        elif row['missile_class'] == 'ramjet':
+            assert row['warhead_kg'] == 300
+            assert row['diameter_m'] < 0.50
+            assert row['m_0_t'] == pytest.approx(1.50)
         else:
-            assert case['diameter'] == pytest.approx(0.50)
-            if case['missile_class'] == 'ramjet':
-                assert case['warhead'] == 300
-            elif case['missile_class'] in J15_HYPERSONIC_CLASSES:
-                assert case['warhead'] == 200
+            assert row['diameter_m'] == pytest.approx(0.50)
+            if row['missile_class'] in J15_HYPERSONIC_CLASSES:
+                assert row['warhead_kg'] == 200
             else:
-                assert case['missile_class'] == 'ballistic'
-                assert case['warhead'] == 500
+                assert row['missile_class'] == 'ballistic'
+                assert row['warhead_kg'] == 500
 
 
 def test_j15_belly_presets_hold_2500kg():
@@ -1312,7 +1310,10 @@ def test_j15_belly_presets_hold_2500kg():
         if row['diameter_m'] < 0.70:
             assert row['m_0_t'] == pytest.approx(2.50, abs=0.02)
         assert row['range_km'] > 0
-        assert [item['label'] for item in row['alt_launches']] == ['轰-6', '轰-20', '歼-36']
+        if row['missile_class'] == 'ramjet':
+            assert [item['label'] for item in row['alt_launches']] == ['歼-15', '轰-6', '轰-20', '歼-36']
+        else:
+            assert [item['label'] for item in row['alt_launches']] == ['轰-6', '轰-20', '歼-36']
 
 
 def test_j36_bay_presets_removed():
@@ -1331,6 +1332,7 @@ def test_j15_alt_launches_keep_structure_on_panel():
         H6_STRUCTURE_LAUNCH,
         J15_ALT_LAUNCHES,
         J15_STRUCTURE_BAYS,
+        RAMJET_AIRCRAFT_LAUNCHES,
         evaluate_dataset,
     )
 
@@ -1342,8 +1344,11 @@ def test_j15_alt_launches_keep_structure_on_panel():
     assert not any('轰-6发射' in str(row['bay']) for row in rows)
     for row in rows:
         assert row['alt_range_text']
-        assert len(row['alt_launches']) == len(J15_ALT_LAUNCHES)
-        for launch, expected in zip(row['alt_launches'], J15_ALT_LAUNCHES):
+        expected_launches = (
+            RAMJET_AIRCRAFT_LAUNCHES if row['missile_class'] == 'ramjet' else J15_ALT_LAUNCHES
+        )
+        assert len(row['alt_launches']) == len(expected_launches)
+        for launch, expected in zip(row['alt_launches'], expected_launches):
             label, mach, height = expected
             assert launch['label'] == label
             assert launch['v_mach'] == pytest.approx(mach)
@@ -1394,6 +1399,8 @@ def test_fighter_bay_hgv_masses_differ_and_lists_bomber_ranges():
     for row in rows:
         assert row['v_mach'] == pytest.approx(1.50)
         assert row['h_km'] == pytest.approx(14.0)
+        if row['missile_class'] == 'ramjet':
+            continue
         assert [item['label'] for item in row['alt_launches']] == [
             label for label, _, _ in FIGHTER_ALT_LAUNCHES
         ]
