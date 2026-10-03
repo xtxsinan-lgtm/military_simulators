@@ -1254,10 +1254,9 @@ def test_carrier_launch_envelope():
 
 
 def test_j15_wing_presets_stay_inside_pylon_box():
-    """歼-15 翼下弹长 6.5 m，全部弹种起飞质量不超过 1500 kg。
+    """歼-15 翼下：超音速统一 6.5 x 0.50；亚音速弹径不超过 0.60 m、质量不超过 1500 kg。
 
-    超音速除亚燃外仍是弹径 0.50 m。亚燃助推按轰-6 切分，弹径收到质量上限。
-    亚音速弹径不超过 0.60 m。冲压战斗部 300 kg，三种高超 200 kg，普通弹道和亚音速 500 kg。
+    冲压战斗部 300 kg，三种高超 200 kg，普通弹道和亚音速 500 kg。
     """
     from utils.missile_range.dataset import J15_HYPERSONIC_CLASSES, evaluate_dataset
 
@@ -1265,11 +1264,11 @@ def test_j15_wing_presets_stay_inside_pylon_box():
     assert len(wings) == 8
     for row in wings:
         assert row['length_m'] == pytest.approx(6.50)
-        assert row['m_0_t'] <= 1.50
         assert row['range_km'] > 0
         if row['missile_class'] in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket'):
             assert row['diameter_m'] <= 0.60
             assert row['warhead_kg'] == 500
+            assert row['m_0_t'] <= 1.50
             if row['diameter_m'] < 0.60:
                 assert row['m_0_t'] == pytest.approx(1.50)
         else:
