@@ -214,11 +214,10 @@ struct MissileRangeView: View {
     private var tableHeader: some View {
         HStack(spacing: 8) {
             cell("ID", width: 36, dim: true)
-            cell("尺寸", width: 110, dim: true)
             cell("载机", width: 132, dim: true)
+            cell("尺寸", width: 110, dim: true)
             cell("战斗部重量", width: 96, dim: true)
             cell("弹种", width: 120, dim: true)
-            cell("比冲s", width: 108, dim: true)
             cell("射程km", width: 168, dim: true)
             cell("分级", width: 108, dim: true)
             cell("轰6/轰20/歼36", width: 220, dim: true)
@@ -229,11 +228,10 @@ struct MissileRangeView: View {
     private func tableRow(_ row: MissileRangeCase, on: Bool) -> some View {
         HStack(spacing: 8) {
             cell(String(row.id), width: 36, dim: false, highlight: on)
-            cell(row.size_m ?? "", width: 110, dim: false, highlight: on)
             cell(row.bay ?? "—", width: 132, dim: false, highlight: on)
+            cell(row.size_m ?? "", width: 110, dim: false, highlight: on)
             cell(fmt(row.warhead_kg, 0), width: 96, dim: false, highlight: on)
             cell(kind(row), width: 120, dim: false, highlight: on)
-            cell(ispText(row), width: 108, dim: false, highlight: on)
             cell(profileCaption(row.profile_text, high: row.range_high_km, mixed: row.range_mixed_km, sea: row.range_sea_km) ?? fmt(row.range_km, 1), width: 168, dim: false, highlight: on)
             cell(stageCaption(row.n_stages, split: row.stage_split, locked: row.stage_locked), width: 108, dim: false, highlight: on)
             cell(row.alt_range_text ?? "—", width: 220, dim: false, highlight: on)
@@ -261,23 +259,6 @@ struct MissileRangeView: View {
             return "\(label) [未达速]"
         }
         return label
-    }
-
-    private func ispText(_ row: MissileRangeCase) -> String {
-        ispParts(boost: row.isp_boost_s, cruise: row.isp_cruise_s, rocket: row.isp_rocket_s)
-    }
-
-    private func ispParts(boost: Double?, cruise: Double?, rocket: Double?) -> String {
-        let n: (Double) -> String = { String(Int($0.rounded())) }
-        if let cruise, let boost, let rocket {
-            return "\(n(boost))+\(n(cruise))/\(n(rocket))"
-        }
-        if let cruise, let boost { return "\(n(boost))+\(n(cruise))" }
-        if let cruise, let rocket { return "\(n(cruise))/\(n(rocket))" }
-        if let cruise { return n(cruise) }
-        if let rocket { return n(rocket) }
-        if let boost { return n(boost) }
-        return "—"
     }
 
     @ViewBuilder

@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 49;
+const APP_VERSION = 50;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -113,21 +113,6 @@ function syncClassUi() {
   if (optGeom) {
     optGeom.hidden = !id.startsWith('hgv');
   }
-}
-
-function ispLabel(row) {
-  const boost = row.isp_boost_s;
-  const cruise = row.isp_cruise_s;
-  const rocket = row.isp_rocket_s;
-  if (cruise != null && boost != null && rocket != null) {
-    return `${fmt(boost, 0)}+${fmt(cruise, 0)}/${fmt(rocket, 0)}`;
-  }
-  if (cruise != null && boost != null) return `${fmt(boost, 0)}+${fmt(cruise, 0)}`;
-  if (cruise != null && rocket != null) return `${fmt(cruise, 0)}/${fmt(rocket, 0)}`;
-  if (cruise != null) return fmt(cruise, 0);
-  if (rocket != null) return fmt(rocket, 0);
-  if (boost != null) return fmt(boost, 0);
-  return '—';
 }
 
 function fillForm(row) {
@@ -300,14 +285,12 @@ function renderTable() {
     return `
     <tr data-id="${row.id}" class="${rowClass}">
       <td>${row.id}</td>
-      <td>${row.size_m}</td>
       <td>${row.bay || '—'}</td>
+      <td>${row.size_m}</td>
       <td>${row.warhead_kg}</td>
       <td>${kindLabel(row)}${kindBadge}</td>
       <td>${row.launch}</td>
       <td>${fmt(row.m_0_t, 2)}</td>
-      <td>${fmt(row.v_burnout_mach, 2)}</td>
-      <td>${ispLabel(row)}</td>
       <td>${profileText(row) || `${fmt(row.range_km, 1)}${rangeSub}`}</td>
       <td>${stageText(row) || '—'}</td>
       <td>${row.alt_range_text || '—'}</td>
@@ -318,8 +301,8 @@ function renderTable() {
     <table>
       <thead>
         <tr>
-          <th>ID</th><th>尺寸 m</th><th>载机</th><th>战斗部重量</th><th>弹种</th><th>发射条件</th>
-          <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>助推分级</th><th>轰6/轰20/歼36</th>
+          <th>ID</th><th>载机</th><th>尺寸 m</th><th>战斗部重量</th><th>弹种</th><th>发射条件</th>
+          <th>起飞 t</th><th>射程 km</th><th>助推分级</th><th>轰6/轰20/歼36</th>
         </tr>
       </thead>
       <tbody>${body}</tbody>

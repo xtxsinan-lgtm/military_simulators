@@ -131,22 +131,20 @@
       <view class="table">
         <view class="tr th">
           <text class="col">ID</text>
-          <text class="col wide">尺寸</text>
           <text class="col bay">载机</text>
+          <text class="col wide">尺寸</text>
           <text class="col wh">战斗部重量</text>
           <text class="col">弹种</text>
-          <text class="col isp">比冲</text>
           <text class="col wide">射程</text>
           <text class="col">分级</text>
           <text class="col alt">轰6/轰20/歼36</text>
         </view>
         <view class="tr {{item.id === activeId ? 'on' : ''}} {{item.reached_takeover === false ? 'fail-takeover' : ''}}" wx:for="{{rows}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapRow">
           <text class="td col">{{item.id}}</text>
-          <text class="td col wide">{{item.size_m}}</text>
           <text class="td col bay">{{item.bay || '—'}}</text>
+          <text class="td col wide">{{item.size_m}}</text>
           <text class="td col wh">{{item.warhead_kg}}</text>
           <text class="td col">{{item.kind}}<text class="tag-alert" wx:if="{{item.reached_takeover === false}}">未达速</text></text>
-          <text class="td col isp">{{item.ispText}}</text>
           <text class="td col wide">{{item.profileText || item.range_km}}</text>
           <text class="td col">{{item.stageText}}</text>
           <text class="td col alt">{{item.altText}}</text>
