@@ -61,6 +61,13 @@ FIGHTER_ALT_LAUNCHES = (
     ('轰-20', 1.75, 18.0),
     ('歼-36', 2.15, 20.0),
 )
+# 亚燃冲压的助推药一律按轰-6 切分，再冻结后算这四架飞机。
+RAMJET_AIRCRAFT_LAUNCHES = (
+    ('歼-15', 1.50, 14.0),
+    ('轰-6', 0.85, 13.0),
+    ('轰-20', 0.85, 15.0),
+    ('歼-36', 2.15, 20.0),
+)
 # 翼下超音速弹统一外形；亚音速另按质量和弹径上限收。
 J15_WING_SUPERSONIC_SIZE = (6.5, 0.5)
 J15_WING_LENGTH_M = 6.5
@@ -197,11 +204,18 @@ def format_cruise_profile(result: dict[str, Any]) -> str | None:
     return f'{float(high):.1f}/{mixed_text}/{float(sea):.1f}'
 
 
-def format_alt_launch_text(parts: list[str]) -> str:
-    """三个平台的预计算射程。巡航档内部已用斜线，平台之间用间隔号分开。"""
-    if len(parts) != 3 or any(not part for part in parts):
-        raise ValueError('需要轰-6、轰-20、歼-36 三档射程')
-    return ' · '.join(parts)
+def format_alt_launch_text(parts: list[str], labels: list[str] | None = None) -> str:
+    """各机预计算射程。巡航档内部已用斜线，平台之间用间隔号分开。
+
+    传入 labels 时，每段前面写上载机名。亚燃是四架飞机，其余仍是三架。
+    """
+    if labels is not None and len(labels) != len(parts):
+        raise ValueError('射程与载机数量不一致')
+    if len(parts) not in (3, 4) or any(not part for part in parts):
+        raise ValueError('需要各机射程')
+    if labels is None:
+        return ' · '.join(parts)
+    return ' · '.join(f'{label} {part}' for label, part in zip(labels, parts))
 
 
 def fit_locked_head(
@@ -243,6 +257,7 @@ def alt_launch_ranges(
     case: dict[str, Any],
     template: dict[str, Any],
     launches: tuple[tuple[str, float, float], ...] = J15_ALT_LAUNCHES,
+    label_text: bool = False,
 ) -> dict[str, Any]:
     """同一结构下，按给定载机的发射条件重算射程。"""
     lock = fit_locked_head(
@@ -275,8 +290,9 @@ def alt_launch_ranges(
             'range_sea_km': result.get('range_sea_km'),
             'text': text,
         })
+    names = [item['label'] for item in detail] if label_text else None
     return {
-        'alt_range_text': format_alt_launch_text(pieces),
+        'alt_range_text': format_alt_launch_text(pieces, names),
         'alt_launches': detail,
     }
 
@@ -355,7 +371,7 @@ def evaluate_case(
     template = None
     lock: dict[str, Any] = {}
     # 亚燃按轰-6 切助推药。机腹其余弹种也按轰-6 定结构。战斗机滑翔弹按自己的发射条件装弹头。
-    if bay == H6_STRUCTURE_BAY:
+    if canon == 'ramjet' or bay == H6_STRUCTURE_BAY:
         template = estimate_by_class(
             missile_class=canon,
             length_m=float(case['length']),
@@ -407,7 +423,13 @@ def evaluate_case(
     }
     row.update(result)
     row['profile_text'] = format_cruise_profile(row)
-    if bay == FIGHTER_BAY:
+    if canon == 'ramjet':
+        source = template if template is not None else row
+        alt = alt_launch_ranges(
+            case, source, launches=RAMJET_AIRCRAFT_LAUNCHES, label_text=True,
+        )
+        row.update(alt)
+    elif bay == FIGHTER_BAY:
         # 构型已按战斗机发射条件寻优，轰-6 / 轰-20 / 歼-36 只改发射条件。
         alt = alt_launch_ranges(case, row, launches=FIGHTER_ALT_LAUNCHES)
         row.update(alt)
