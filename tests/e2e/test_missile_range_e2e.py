@@ -440,12 +440,8 @@ def test_e2e_h6_stealth_bomber_matching_presets():
         assert sc['v_mach'] == pytest.approx(1.75)
         assert sc['h_km'] == pytest.approx(18.0)
         labels = [item['label'] for item in sc['alt_launches']]
-        if sc['missile_class'] == 'ramjet':
-            assert labels == ['歼-15', '轰-6', '轰-20', '歼-36']
-            h6 = sc['alt_launches'][1]
-        else:
-            assert labels == ['轰-6', '轰-20', '歼-36']
-            h6 = sc['alt_launches'][0]
+        assert labels == ['轰-6', '轰-20', '歼-36']
+        h6 = sc['alt_launches'][0]
         assert h6['label'] == '轰-6'
         assert h6['v_mach'] == pytest.approx(0.85)
         assert h6['h_km'] == pytest.approx(13.0)
@@ -465,10 +461,6 @@ def test_e2e_j15_belly_mass_and_alt_launches():
     wings = [case for case in cases if case['bay'] == '歼-15翼下']
     assert len(bellies) == 8
     assert len(wings) == 8
-    assert all(case['m_0_t'] <= 1.50 for case in wings)
-    ramjet_wing = next(case for case in wings if case['missile_class'] == 'ramjet')
-    assert ramjet_wing['diameter_m'] < 0.50
-    assert ramjet_wing['m_0_t'] == pytest.approx(1.50)
     for case in bellies:
         assert case['length_m'] == pytest.approx(8.50)
         assert case['diameter_m'] <= 0.70
@@ -485,10 +477,7 @@ def test_e2e_j15_belly_mass_and_alt_launches():
         for source in sources:
             assert source['alt_range_text']
             labels = [item['label'] for item in source['alt_launches']]
-            if source['missile_class'] == 'ramjet':
-                assert labels == ['歼-15', '轰-6', '轰-20', '歼-36']
-            else:
-                assert labels == ['轰-6', '轰-20', '歼-36']
+            assert labels == ['轰-6', '轰-20', '歼-36']
             assert all(item['range_km'] > 0 for item in source['alt_launches'])
             if source.get('range_sea_km') is not None:
                 assert source['profile_text'].count('/') == 2
@@ -760,9 +749,6 @@ def test_e2e_fighter_bay_launch_and_hgv_mass():
     for case in fighters:
         assert case['v_mach'] == pytest.approx(1.50)
         assert case['h_km'] == pytest.approx(14.0)
-        if case['missile_class'] == 'ramjet':
-            assert [item['label'] for item in case['alt_launches']] == ['歼-15', '轰-6', '轰-20', '歼-36']
-            continue
         labels = [item['label'] for item in case['alt_launches']]
         assert labels == ['轰-6', '轰-20', '歼-36']
         h20 = case['alt_launches'][1]

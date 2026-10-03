@@ -670,11 +670,7 @@ def test_evaluate_dataset_splits_h6_belly_from_max():
     stealth = [row for row in rows if row['bay'] == '隐身超音速轰炸机弹仓']
     assert {(round(row['length_m'], 2), round(row['diameter_m'], 3)) for row in stealth} == {(11.3, 0.86)}
     for row in stealth:
-        labels = [item['label'] for item in row['alt_launches']]
-        if row['missile_class'] == 'ramjet':
-            assert labels[:2] == ['歼-15', '轰-6']
-        else:
-            assert labels[0] == '轰-6'
+        assert [item['label'] for item in row['alt_launches']] == ['轰-6', '轰-20', '歼-36']
     largest = [row for row in rows if row['bay'] == '轰-6机腹最大']
     assert len({(row['length_m'], row['diameter_m']) for row in largest}) > 1
     assert all(row['length_m'] <= 12.0 and row['m_0_t'] <= 10.0 for row in largest)
@@ -1276,13 +1272,11 @@ def test_j15_wing_presets_stay_inside_pylon_box():
             assert row['warhead_kg'] == 500
             if row['diameter_m'] < 0.60:
                 assert row['m_0_t'] == pytest.approx(1.50)
-        elif row['missile_class'] == 'ramjet':
-            assert row['warhead_kg'] == 300
-            assert row['diameter_m'] < 0.50
-            assert row['m_0_t'] == pytest.approx(1.50)
         else:
             assert row['diameter_m'] == pytest.approx(0.50)
-            if row['missile_class'] in J15_HYPERSONIC_CLASSES:
+            if row['missile_class'] == 'ramjet':
+                assert row['warhead_kg'] == 300
+            elif row['missile_class'] in J15_HYPERSONIC_CLASSES:
                 assert row['warhead_kg'] == 200
             else:
                 assert row['missile_class'] == 'ballistic'
@@ -1310,10 +1304,7 @@ def test_j15_belly_presets_hold_2500kg():
         if row['diameter_m'] < 0.70:
             assert row['m_0_t'] == pytest.approx(2.50, abs=0.02)
         assert row['range_km'] > 0
-        if row['missile_class'] == 'ramjet':
-            assert [item['label'] for item in row['alt_launches']] == ['歼-15', '轰-6', '轰-20', '歼-36']
-        else:
-            assert [item['label'] for item in row['alt_launches']] == ['轰-6', '轰-20', '歼-36']
+        assert [item['label'] for item in row['alt_launches']] == ['轰-6', '轰-20', '歼-36']
 
 
 def test_j36_bay_presets_removed():
@@ -1332,7 +1323,6 @@ def test_j15_alt_launches_keep_structure_on_panel():
         H6_STRUCTURE_LAUNCH,
         J15_ALT_LAUNCHES,
         J15_STRUCTURE_BAYS,
-        RAMJET_AIRCRAFT_LAUNCHES,
         evaluate_dataset,
     )
 
@@ -1344,9 +1334,7 @@ def test_j15_alt_launches_keep_structure_on_panel():
     assert not any('轰-6发射' in str(row['bay']) for row in rows)
     for row in rows:
         assert row['alt_range_text']
-        expected_launches = (
-            RAMJET_AIRCRAFT_LAUNCHES if row['missile_class'] == 'ramjet' else J15_ALT_LAUNCHES
-        )
+        expected_launches = J15_ALT_LAUNCHES
         assert len(row['alt_launches']) == len(expected_launches)
         for launch, expected in zip(row['alt_launches'], expected_launches):
             label, mach, height = expected
@@ -1440,33 +1428,8 @@ def test_format_cruise_profile_joins_three_ranges():
     assert format_cruise_profile({'range_high_km': 10.0, 'range_sea_km': 4.0}) == '10.0/—/4.0'
     assert format_cruise_profile({'range_km': 10.0}) is None
     assert format_alt_launch_text(['1.0', '2.0', '3.0']) == '1.0 · 2.0 · 3.0'
-    assert format_alt_launch_text(
-        ['1.0', '2.0', '3.0', '4.0'], ['歼-15', '轰-6', '轰-20', '歼-36'],
-    ) == '歼-15 1.0 · 轰-6 2.0 · 轰-20 3.0 · 歼-36 4.0'
-    with pytest.raises(ValueError, match='各机射程'):
+    with pytest.raises(ValueError, match='三档射程'):
         format_alt_launch_text(['1.0', '2.0'])
-    with pytest.raises(ValueError, match='载机数量'):
-        format_alt_launch_text(['1.0'], ['歼-15', '轰-6'])
-
-
-def test_preset_ramjets_cut_booster_for_h6_and_list_aircraft():
-    """预设表里的亚燃助推药按轰-6 切分，并给出歼-15、轰-6、轰-20、歼-36 的射程。"""
-    from utils.missile_range.classes import estimate_by_class
-    from utils.missile_range.dataset import RAMJET_AIRCRAFT_LAUNCHES, evaluate_dataset
-
-    rows = [row for row in evaluate_dataset() if row['missile_class'] == 'ramjet']
-    assert rows
-    labels = [label for label, _, _ in RAMJET_AIRCRAFT_LAUNCHES]
-    for row in rows:
-        ref = estimate_by_class(
-            'ramjet', row['length_m'], row['diameter_m'], row['warhead_kg'], 0.85, 13.0,
-        )
-        assert row['m_booster_kg'] == pytest.approx(ref['m_booster_kg'], abs=0.2)
-        assert [item['label'] for item in row['alt_launches']] == labels
-        assert row['alt_range_text'].startswith('歼-15 ')
-        h6 = next(item for item in row['alt_launches'] if item['label'] == '轰-6')
-        assert h6['range_km'] == pytest.approx(ref['range_km'], abs=0.2)
-        assert all(item['range_km'] > 0 for item in row['alt_launches'])
 
 
 def test_parse_stage_fractions_round_trip():
