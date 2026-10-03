@@ -966,16 +966,16 @@ def _optimize_hgv_geometry_compute(
     if floor_fineness <= 0:
         raise ValueError('长细比下限必须大于 0')
     d_min, d_max = hgv_head_diameter_bounds(diameter_m, min_d_head_m, max_d_head_m)
-    # 45% 只限制装得下时的加长。容积底线更长时，搜索至少要覆盖装得下的那一档。
     l_ratio_max = length_m * max_head_length_ratio
     l_room = length_m - HGV_MIN_BOOSTER_M
-    if l_room <= 0:
+    if pack_warhead and l_room <= 0:
         raise ValueError('弹长不足以同时放下滑翔体和助推级')
     vol_req = head_volume_m3(warhead_mass_kg, hgv_type)
     common = dict(
         length_m=length_m, diameter_m=diameter_m, warhead_mass_kg=warhead_mass_kg,
         hgv_type=hgv_type, v_launch_mach=v_launch_mach, h_launch_km=h_launch_km,
         isp_s=isp_s, propellant_density=propellant_density,
+        pack_warhead=pack_warhead,
     )
     base_raw = estimate_hgv_unrounded(**common)
     best_raw = dict(base_raw)
@@ -983,9 +983,15 @@ def _optimize_hgv_geometry_compute(
         dh = d_min + (d_max - d_min) * (i / grid_points_d)
         vol_len = uncapped_head_length_m(vol_req, dh, hgv_type)
         lh_min = max(vol_len, floor_fineness * dh)
-        if lh_min > l_room:
-            continue
-        l_max = min(l_room, max(l_ratio_max, lh_min))
+        if pack_warhead:
+            # 装得下时仍停在 45%；装不下则至少搜到容积长度。
+            if lh_min > l_room:
+                continue
+            l_max = min(l_room, max(l_ratio_max, lh_min))
+        else:
+            l_max = l_ratio_max
+            if lh_min > l_max:
+                continue
         for j in range(grid_points_l + 1):
             lh = lh_min + (l_max - lh_min) * (j / grid_points_l)
             try:

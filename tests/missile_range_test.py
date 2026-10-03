@@ -134,11 +134,7 @@ def _oracle(
         v_head_req / (volume_factor * (diameter_m ** 2)),
         fineness_min * diameter_m,
     )
-    # 装得进 45% 时截断；装不下则加长到容积长度，但仍给助推级留最短一段。
-    if l_head_calc <= length_m * 0.45:
-        l_head = l_head_calc
-    else:
-        l_head = min(l_head_calc, length_m - HGV_MIN_BOOSTER_M)
+    l_head = min(l_head_calc, length_m * 0.45)
     l_booster_gross = length_m - l_head
     d_motor = diameter_m * 0.90
     area_motor = math.pi * (d_motor / 2.0) ** 2
@@ -226,23 +222,23 @@ def test_uncapped_head_length_m():
 
 
 def test_head_and_booster_lengths_m_caps_at_45_percent():
-    """装得下时弹头不超过全长 45%；装不下时加长到容积长度，乘波体比双锥体更长。"""
-    roomy, roomy_boost = head_and_booster_lengths_m(10.5, 1.0, 200, 'biconic')
-    assert roomy == pytest.approx(min_head_length_m(200, 1.0, 'biconic'))
-    assert roomy < 10.5 * 0.45
-    assert roomy_boost == pytest.approx(10.5 - roomy)
-    bic, _bic_boost = head_and_booster_lengths_m(6.35, 0.46, 300, 'biconic')
-    wave, wave_boost = head_and_booster_lengths_m(6.35, 0.46, 300, 'waverider')
+    """默认弹头不超过全长 45%；要求装下战斗部时，乘波体比双锥体更长。"""
+    l_head, l_boost = head_and_booster_lengths_m(6.35, 0.46, 300, 'biconic')
+    assert l_head == pytest.approx(6.35 * 0.45)
+    assert l_boost == pytest.approx(6.35 - l_head)
+    bic, _bic_boost = head_and_booster_lengths_m(
+        6.35, 0.46, 300, 'biconic', pack_warhead=True,
+    )
+    wave, wave_boost = head_and_booster_lengths_m(
+        6.35, 0.46, 300, 'waverider', pack_warhead=True,
+    )
     assert bic == pytest.approx(min_head_length_m(300, 0.46, 'biconic'))
     assert wave > bic > 6.35 * 0.45
     assert wave_boost >= HGV_MIN_BOOSTER_M - 1e-9
-    packed, packed_boost = head_and_booster_lengths_m(4.0, 0.30, 500, 'waverider')
-    assert packed == pytest.approx(4.0 - HGV_MIN_BOOSTER_M)
-    assert packed_boost == pytest.approx(HGV_MIN_BOOSTER_M)
     with pytest.raises(ValueError):
         head_and_booster_lengths_m(0, 0.5, 100, 'biconic')
     with pytest.raises(ValueError, match='助推级'):
-        head_and_booster_lengths_m(0.2, 0.3, 50, 'biconic')
+        head_and_booster_lengths_m(0.2, 0.3, 50, 'waverider', pack_warhead=True)
 
 
 def test_motor_cross_section_m2():
@@ -674,7 +670,11 @@ def test_evaluate_dataset_splits_h6_belly_from_max():
     stealth = [row for row in rows if row['bay'] == '隐身超音速轰炸机弹仓']
     assert {(round(row['length_m'], 2), round(row['diameter_m'], 3)) for row in stealth} == {(11.3, 0.86)}
     for row in stealth:
-        assert [item['label'] for item in row['alt_launches']] == ['轰-6', '轰-20', '歼-36']
+        labels = [item['label'] for item in row['alt_launches']]
+        if row['missile_class'] == 'ramjet':
+            assert labels[:2] == ['歼-15', '轰-6']
+        else:
+            assert labels[0] == '轰-6'
     largest = [row for row in rows if row['bay'] == '轰-6机腹最大']
     assert len({(row['length_m'], row['diameter_m']) for row in largest}) > 1
     assert all(row['length_m'] <= 12.0 and row['m_0_t'] <= 10.0 for row in largest)

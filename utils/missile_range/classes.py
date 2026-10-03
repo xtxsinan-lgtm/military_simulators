@@ -2455,6 +2455,7 @@ def estimate_by_class(
     d_head_m: float | None = None,
     stage_fractions: tuple[float, ...] | None = None,
     booster_propellant_kg: float | None = None,
+    pack_warhead: bool = False,
 ) -> dict:
     """按弹种估算。双锥体和乘波体助推滑翔由 missile_class 区分。
 
@@ -2473,6 +2474,7 @@ def estimate_by_class(
             l_head_m=l_head_m, d_head_m=d_head_m,
             stage_fractions=stage_fractions,
             optimize_geometry=use_opt,
+            pack_warhead=pack_warhead,
         )
         result = dict(result)
         # 滑翔下限对照同一外形的弹道弧，助推分级同样按射程搜索。

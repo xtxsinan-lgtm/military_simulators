@@ -244,7 +244,7 @@ def alt_launch_ranges(
     template: dict[str, Any],
     launches: tuple[tuple[str, float, float], ...] = J15_ALT_LAUNCHES,
 ) -> dict[str, Any]:
-    """同一结构下，按轰-6、轰-20、歼-36 的发射条件重算射程。"""
+    """同一结构下，按给定载机的发射条件重算射程。"""
     lock = fit_locked_head(
         structure_lock_kwargs(template),
         float(case['length']), float(case['diameter']), float(case['warhead']),
@@ -351,9 +351,10 @@ def evaluate_case(
     canon = resolve_missile_class(str(case.get('missile_class') or 'hgv_biconic'))
     bay = str(case.get('bay') or '')
     # 机腹先按轰-6 把助推切分和滑翔体定死，本行再按歼-15 发射条件算射程。
-    # 普通战斗机按自己的发射条件定构型，不套用轰-6 的助推切分。
+    # 亚燃不论哪个弹仓，助推药都按轰-6 切分后冻结。普通战斗机的其他弹种不套用这套切分。
     template = None
     lock: dict[str, Any] = {}
+    # 亚燃按轰-6 切助推药。机腹其余弹种也按轰-6 定结构。战斗机滑翔弹按自己的发射条件装弹头。
     if bay == H6_STRUCTURE_BAY:
         template = estimate_by_class(
             missile_class=canon,
@@ -379,6 +380,7 @@ def evaluate_case(
         h_launch_km=float(case['h_km']),
         isp_s=isp_s,
         propellant_density=propellant_density,
+        pack_warhead=bay == FIGHTER_BAY and canon.startswith('hgv'),
         **lock,
     )
     row: dict[str, Any] = {

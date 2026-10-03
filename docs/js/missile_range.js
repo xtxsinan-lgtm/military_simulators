@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 55;
+const APP_VERSION = 56;
 
 /** 在 Worker 里调用估算入口，主线程不跑 Python */
 const MISSILE_RANGE_RUN_SNIPPET = `
