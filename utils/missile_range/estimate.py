@@ -855,6 +855,7 @@ def estimate_hgv(
             min_d_head_m=min_d_head_m,
             max_d_head_m=max_d_head_m,
             max_head_length_ratio=max_head_length_ratio,
+            pack_warhead=pack_warhead,
         )['result']
     raw = estimate_hgv_unrounded(
         length_m=length_m,
@@ -868,6 +869,7 @@ def estimate_hgv(
         l_head_m=l_head_m,
         d_head_m=d_head_m,
         stage_fractions=stage_fractions,
+        pack_warhead=pack_warhead,
     )
     return _round_hgv_result(
         raw['m_0'], raw['l_head_m'], raw['l_booster_m'], raw['m_propellant'],
@@ -891,6 +893,7 @@ def _optimize_geometry_cache_key(
     max_head_length_ratio: float,
     grid_points_d: int,
     grid_points_l: int,
+    pack_warhead: bool = False,
 ) -> tuple:
     """把寻优参数收成可哈希键，避免预设表反复扫同一发弹。"""
     return (
@@ -901,6 +904,7 @@ def _optimize_geometry_cache_key(
         None if min_d_head_m is None else round(float(min_d_head_m), 6),
         None if max_d_head_m is None else round(float(max_d_head_m), 6),
         round(max_head_length_ratio, 6), int(grid_points_d), int(grid_points_l),
+        bool(pack_warhead),
     )
 
 
@@ -925,12 +929,14 @@ def optimize_hgv_geometry(
     max_head_length_ratio: float = HGV_MAX_HEAD_LENGTH_RATIO,
     grid_points_d: int = 24,
     grid_points_l: int = 24,
+    pack_warhead: bool = False,
 ) -> dict:
     """搜索包含战斗部与制控组件的滑翔体最优长度与直径（使总射程最大）。"""
     key = _optimize_geometry_cache_key(
         length_m, diameter_m, warhead_mass_kg, hgv_type, v_launch_mach,
         h_launch_km, isp_s, propellant_density, min_fineness, min_d_head_m,
         max_d_head_m, max_head_length_ratio, grid_points_d, grid_points_l,
+        pack_warhead,
     )
     return copy.deepcopy(_optimize_hgv_geometry_cached(key))
 
@@ -950,6 +956,7 @@ def _optimize_hgv_geometry_compute(
     max_head_length_ratio: float,
     grid_points_d: int,
     grid_points_l: int,
+    pack_warhead: bool = False,
 ) -> dict:
     """真正扫网格的滑翔体寻优。网格比较用未舍入射程。"""
     hgv_type = normalize_hgv_type(hgv_type)

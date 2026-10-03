@@ -184,11 +184,12 @@ def head_and_booster_lengths_m(
     warhead_mass_kg: float,
     hgv_type: str,
     enforce_min_fineness: bool = True,
+    pack_warhead: bool = False,
 ) -> tuple[float, float]:
-    """弹头长度取容积与长细比底线的较大值，其余视为助推级。
+    """弹头长度取容积与长细比底线的较大值，默认不超过全长 45%，其余视为助推级。
 
-    装得进全长 45% 时不超过这个比例。装不下时把弹头加长到容积长度，
-    乘波体容积系数更小，同样战斗部会比双锥体更长、助推级更短。
+    pack_warhead 为真且装不进 45% 时，把弹头加长到容积长度。
+    乘波体容积系数更小，同样战斗部会比双锥体更长、助推级更短、总重更轻。
     仍给助推级留下最短长度，避免药柱被弹头吃光。
     """
     if length_m <= 0:
@@ -197,13 +198,13 @@ def head_and_booster_lengths_m(
         warhead_mass_kg, diameter_m, hgv_type, enforce_min_fineness=enforce_min_fineness,
     )
     cap = length_m * HGV_MAX_HEAD_LENGTH_RATIO
+    if not pack_warhead or raw <= cap:
+        l_head = min(raw, cap)
+        return l_head, length_m - l_head
     room = length_m - HGV_MIN_BOOSTER_M
     if room <= 0:
         raise ValueError('弹长不足以同时放下滑翔体和助推级')
-    if raw <= cap:
-        l_head = raw
-    else:
-        l_head = min(raw, room)
+    l_head = min(raw, room)
     return l_head, length_m - l_head
 
 
@@ -722,6 +723,7 @@ def estimate_hgv_unrounded(
     d_head_m: float | None = None,
     enforce_min_fineness: bool = True,
     stage_fractions: tuple[float, ...] | None = None,
+    pack_warhead: bool = False,
 ) -> dict:
     """估算助推滑翔弹，返回未舍入的质量、速度与射程，供几何搜索比较。"""
     hgv_type = normalize_hgv_type(hgv_type)
@@ -748,6 +750,7 @@ def estimate_hgv_unrounded(
         l_head, l_booster = head_and_booster_lengths_m(
             length_m, d_head, warhead_mass_kg, hgv_type,
             enforce_min_fineness=enforce_min_fineness,
+            pack_warhead=pack_warhead,
         )
     if specified and head_packaging_volume_m3(l_head, d_head, hgv_type) + 1e-9 < vol_req:
         raise ValueError('滑翔体容积不足以容纳战斗部与制控组件')
@@ -831,6 +834,7 @@ def estimate_hgv(
     min_d_head_m: float | None = None,
     max_d_head_m: float | None = None,
     max_head_length_ratio: float = HGV_MAX_HEAD_LENGTH_RATIO,
+    pack_warhead: bool = False,
 ) -> dict:
     """估算起飞质量、关机马赫数、升阻比与总射程（千米）。
 
@@ -851,6 +855,7 @@ def estimate_hgv(
             min_d_head_m=min_d_head_m,
             max_d_head_m=max_d_head_m,
             max_head_length_ratio=max_head_length_ratio,
+            pack_warhead=pack_warhead,
         )['result']
     raw = estimate_hgv_unrounded(
         length_m=length_m,
@@ -864,6 +869,7 @@ def estimate_hgv(
         l_head_m=l_head_m,
         d_head_m=d_head_m,
         stage_fractions=stage_fractions,
+        pack_warhead=pack_warhead,
     )
     return _round_hgv_result(
         raw['m_0'], raw['l_head_m'], raw['l_booster_m'], raw['m_propellant'],
@@ -887,6 +893,7 @@ def _optimize_geometry_cache_key(
     max_head_length_ratio: float,
     grid_points_d: int,
     grid_points_l: int,
+    pack_warhead: bool = False,
 ) -> tuple:
     """把寻优参数收成可哈希键，避免预设表反复扫同一发弹。"""
     return (
@@ -897,6 +904,7 @@ def _optimize_geometry_cache_key(
         None if min_d_head_m is None else round(float(min_d_head_m), 6),
         None if max_d_head_m is None else round(float(max_d_head_m), 6),
         round(max_head_length_ratio, 6), int(grid_points_d), int(grid_points_l),
+        bool(pack_warhead),
     )
 
 
@@ -921,12 +929,14 @@ def optimize_hgv_geometry(
     max_head_length_ratio: float = HGV_MAX_HEAD_LENGTH_RATIO,
     grid_points_d: int = 24,
     grid_points_l: int = 24,
+    pack_warhead: bool = False,
 ) -> dict:
     """搜索包含战斗部与制控组件的滑翔体最优长度与直径（使总射程最大）。"""
     key = _optimize_geometry_cache_key(
         length_m, diameter_m, warhead_mass_kg, hgv_type, v_launch_mach,
         h_launch_km, isp_s, propellant_density, min_fineness, min_d_head_m,
         max_d_head_m, max_head_length_ratio, grid_points_d, grid_points_l,
+        pack_warhead,
     )
     return copy.deepcopy(_optimize_hgv_geometry_cached(key))
 
@@ -946,6 +956,7 @@ def _optimize_hgv_geometry_compute(
     max_head_length_ratio: float,
     grid_points_d: int,
     grid_points_l: int,
+    pack_warhead: bool = False,
 ) -> dict:
     """真正扫网格的滑翔体寻优。网格比较用未舍入射程。"""
     hgv_type = normalize_hgv_type(hgv_type)
