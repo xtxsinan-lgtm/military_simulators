@@ -43,8 +43,9 @@ page {
 .td { color: #d7e2e4; flex: 1; }
 .tr.on .td { color: #ffb020; }
 .scroll-x { overflow-x: auto; }
-.table { min-width: 1090rpx; }
+.table { min-width: 1180rpx; }
 .col { width: 110rpx; flex: none; }
+.col.wh { width: 160rpx; }
 .col.isp { width: 200rpx; }
 .col.wide { width: 220rpx; }
 .col.bay { width: 220rpx; }

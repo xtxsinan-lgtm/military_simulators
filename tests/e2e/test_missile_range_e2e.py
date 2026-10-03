@@ -13,28 +13,37 @@ from utils.missile_range.dataset import MISSILE_DATASET, all_missile_cases, eval
 from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV, ROOT
 
 
-def _assert_bays_sorted_by_size_then_range(cases: list[dict]) -> None:
-    """同一载机连续成组：先按尺寸从大到小，同尺寸内射程从高到低。"""
+def _assert_bays_sorted_by_liftoff_then_warhead(cases: list[dict]) -> None:
+    """载机连续成组：按最大起飞质量降序，组内战斗部升序，同战斗部射程降序。"""
     bays = [case['bay'] for case in cases]
     seen: set[str] = set()
     previous = None
+    bay_order: list[str] = []
     for bay in bays:
         if bay == previous:
             continue
         assert bay not in seen
         seen.add(bay)
+        bay_order.append(bay)
         previous = bay
+    bay_mass = {
+        bay: max(float(case['m_0_t']) for case in cases if case['bay'] == bay)
+        for bay in bay_order
+    }
+    masses = [bay_mass[bay] for bay in bay_order]
+    assert masses == sorted(masses, reverse=True)
     h6 = [case for case in cases if case['bay'] == '超音速隐身轰炸机·轰6发射']
     largest = [case for case in cases if case['bay'] == '轰-6机腹最大']
     assert h6 and largest
     assert {(round(case['length_m'], 2), round(case['diameter_m'], 3)) for case in h6} == {(11.3, 0.86)}
     assert len({(case['length_m'], case['diameter_m']) for case in largest}) >= 2
+    assert bay_mass['轰-6机腹最大'] >= bay_mass['超音速隐身轰炸机·轰6发射']
     for _, bay_rows in groupby(cases, key=lambda case: case['bay']):
         rows = list(bay_rows)
-        sizes = [(float(row['length_m']), float(row['diameter_m'])) for row in rows]
-        assert sizes == sorted(sizes, key=lambda size: (-size[0], -size[1]))
-        for _, size_rows in groupby(rows, key=lambda row: (float(row['length_m']), float(row['diameter_m']))):
-            ranges = [float(row['range_km']) for row in size_rows]
+        warheads = [float(row['warhead_kg']) for row in rows]
+        assert warheads == sorted(warheads)
+        for _, same in groupby(rows, key=lambda row: float(row['warhead_kg'])):
+            ranges = [float(row['range_km']) for row in same]
             assert ranges == sorted(ranges, reverse=True)
 
 
@@ -81,9 +90,8 @@ def test_e2e_missile_range_catalog_and_pages():
         load_carriers_csv(CARRIERS_CSV),
     )
     assert any(s['id'] == 'missile_range' for s in SIMULATORS)
-    assert payload['missile_range']['cases'][0]['bay'] == '轰-6机腹最大'
-    assert payload['missile_range']['cases'][0]['length_m'] >= payload['missile_range']['cases'][1]['length_m']
-    _assert_bays_sorted_by_size_then_range(payload['missile_range']['cases'])
+    assert payload['missile_range']['cases'][0]['bay'] == payload['missile_range']['cases'][1]['bay']
+    _assert_bays_sorted_by_liftoff_then_warhead(payload['missile_range']['cases'])
     assert 'type_labels' not in payload['missile_range']
     assert 'hgv_type' not in payload['missile_range']['defaults']
     assert payload['missile_range']['defaults']['ballistic_single_stage'] is False
@@ -94,9 +102,8 @@ def test_e2e_missile_range_catalog_and_pages():
     assert status == 200
     assert any(s['id'] == 'missile_range' for s in api['simulators'])
     assert len(api['missile_range']['cases']) == len(all_missile_cases())
-    assert api['missile_range']['cases'][0]['bay'] == '轰-6机腹最大'
-    assert api['missile_range']['cases'][0]['length_m'] >= api['missile_range']['cases'][1]['length_m']
-    _assert_bays_sorted_by_size_then_range(api['missile_range']['cases'])
+    assert api['missile_range']['cases'][0]['bay'] == api['missile_range']['cases'][1]['bay']
+    _assert_bays_sorted_by_liftoff_then_warhead(api['missile_range']['cases'])
     class_ids = {item['id'] for item in api['missile_range']['classes']}
     assert {'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket', 'ballistic'} <= class_ids
     assert 'hgv' not in class_ids
@@ -124,6 +131,9 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'isp_air_s' in js
     assert '吸气比冲' in js
     assert '载机' in js
+    assert '战斗部重量' in js
+    assert '弹头 kg' not in js
+    assert '弹头重量' not in js
     assert '折叠弹翼' in js
     assert 'missile-range.html' in (ROOT / 'docs' / 'takeoff.html').read_text(encoding='utf-8')
     assert 'missile-range.html' in (ROOT / 'docs' / 'combat-radius.html').read_text(encoding='utf-8')
@@ -135,6 +145,8 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '全掠海' in view
     assert '混合弹道' in view
     assert '载机' in view
+    assert '战斗部重量' in view
+    assert '弹头重量' not in view
     assert '折叠弹翼' in view
     assert '吸气比冲' in view
     assert '仅单级' in view
@@ -143,6 +155,8 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'missile_class' in mini_js
     mini_wxml = (ROOT / 'miniprogram' / 'pages' / 'missile_range' / 'missile_range.wxml').read_text(encoding='utf-8')
     assert '载机' in mini_wxml
+    assert '战斗部重量' in mini_wxml
+    assert '弹头重量' not in mini_wxml
     assert '混合弹道' in mini_wxml
     assert '折叠弹翼' in mini_wxml
     assert '末端射程' not in mini_wxml
@@ -730,5 +744,47 @@ def test_e2e_h6_belly_max_is_separate_from_shared_bay():
     result = json.loads(body_e.decode())['result']
     assert result['range_km'] == sample['range_km']
     assert result['m_0_t'] <= 10.0
+
+
+@pytest.mark.e2e
+def test_e2e_tube_ground_launchers_and_j36_warheads():
+    """预设接口带上鱼雷管加弹、地面发射平台，以及歼-36 的 300 kg 弹种。"""
+    status, _, body = handle_request(
+        'POST', '/api/missile_range/simulate', json.dumps({'action': 'presets'}).encode(),
+    )
+    assert status == 200
+    cases = json.loads(body.decode())['cases']
+    _assert_bays_sorted_by_liftoff_then_warhead(cases)
+
+    def rows_of(bay: str, missile_class: str | None = None) -> list[dict]:
+        return [
+            case for case in cases
+            if case['bay'] == bay and (missile_class is None or case['missile_class'] == missile_class)
+        ]
+
+    j36_wave = rows_of('歼-36弹仓', 'hgv_waverider')
+    assert {int(case['warhead_kg']) for case in j36_wave} == {300, 600}
+    assert {int(case['warhead_kg']) for case in rows_of('歼-36弹仓', 'hgv_biconic')} == {300, 600}
+    assert {int(case['warhead_kg']) for case in rows_of('歼-36弹仓', 'scramjet')} == {300, 600}
+    for missile_class in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket'):
+        tube = rows_of('533mm鱼雷', missile_class)
+        assert {int(case['warhead_kg']) for case in tube} == {160, 300, 600}
+        assert all(case['v_mach'] == 0 and case['h_km'] == 0 for case in tube)
+    assert {int(case['warhead_kg']) for case in rows_of('533mm鱼雷', 'ballistic')} == {160, 300}
+
+    ground = {
+        '750战术导弹': {'ramjet': {500}, 'ballistic': {150, 300}},
+        '370远火': {'ballistic': {90, 160, 300}},
+        '300远火': {'ballistic': {300}},
+        '海马斯火箭弹': {'ballistic': {90}},
+        'PrSM': {'ballistic': {90}},
+        'ATACMS': {'ballistic': {90}},
+    }
+    for bay, classes in ground.items():
+        for missile_class, warheads in classes.items():
+            picked = rows_of(bay, missile_class)
+            assert {int(case['warhead_kg']) for case in picked} == warheads
+            assert all(case['v_mach'] == 0 and case['h_km'] == 0 for case in picked)
+            assert all(case['range_km'] > 0 for case in picked)
 
 

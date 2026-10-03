@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 45;
+const APP_VERSION = 46;
 
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
@@ -312,7 +312,7 @@ function renderTable() {
     <table>
       <thead>
         <tr>
-          <th>ID</th><th>尺寸 m</th><th>载机</th><th>弹头 kg</th><th>弹种</th><th>发射条件</th>
+          <th>ID</th><th>尺寸 m</th><th>载机</th><th>战斗部重量</th><th>弹种</th><th>发射条件</th>
           <th>起飞 t</th><th>Ma</th><th>比冲 s</th><th>射程 km</th><th>助推分级</th><th>混合 km</th><th>掠海 km</th>
         </tr>
       </thead>

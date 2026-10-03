@@ -132,7 +132,7 @@
           <text class="col">ID</text>
           <text class="col wide">尺寸</text>
           <text class="col bay">载机</text>
-          <text class="col">弹头</text>
+          <text class="col wh">战斗部重量</text>
           <text class="col">弹种</text>
           <text class="col isp">比冲</text>
           <text class="col">射程</text>
@@ -144,7 +144,7 @@
           <text class="td col">{{item.id}}</text>
           <text class="td col wide">{{item.size_m}}</text>
           <text class="td col bay">{{item.bay || '—'}}</text>
-          <text class="td col">{{item.warhead_kg}}</text>
+          <text class="td col wh">{{item.warhead_kg}}</text>
           <text class="td col">{{item.kind}}<text class="tag-alert" wx:if="{{item.reached_takeover === false}}">未达速</text></text>
           <text class="td col isp">{{item.ispText}}</text>
           <text class="td col">{{item.range_km}}</text>

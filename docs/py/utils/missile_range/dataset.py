@@ -155,37 +155,37 @@ def format_launch(v_mach: float, h_km: float) -> str:
     return f'Ma {v_mach:g} @ {h_km:g}km'
 
 
-def sort_missile_range_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """按载机平台分组；同一平台内先按尺寸从大到小，同尺寸再按射程从高到低。
+def _row_liftoff_t(row: dict[str, Any]) -> float:
+    """起飞质量（吨）。预设表用 m_0_t；缺省时按 0。"""
+    return float(row.get('m_0_t') or 0.0)
 
-    尺寸比较先看弹长，再看弹径。轰-6机腹最大这类同一挂架有多套尺寸时，
-    同一尺寸的各弹种会排在一起，而不是按射程把不同尺寸穿插开。
+
+def sort_missile_range_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """按载机分组显示。
+
+    载机之间按该载机里起飞质量最大的一发降序；起飞质量相同再按载机名称。
+    同一载机内按战斗部重量升序，同一战斗部再按射程降序。
     """
     copied = [dict(row) for row in rows]
-    bay_sizes: dict[str, tuple[float, float]] = {}
+    bay_mass: dict[str, float] = {}
     for row in copied:
         bay = str(row.get('bay') or '')
-        size = (float(row.get('length_m') or 0.0), float(row.get('diameter_m') or 0.0))
-        current = bay_sizes.get(bay)
-        if current is None or size > current:
-            bay_sizes[bay] = size
+        mass = _row_liftoff_t(row)
+        current = bay_mass.get(bay)
+        if current is None or mass > current:
+            bay_mass[bay] = mass
     bay_order = {
         bay: index
         for index, (bay, _) in enumerate(
-            sorted(
-                bay_sizes.items(),
-                key=lambda item: (-item[1][0], -item[1][1], item[0]),
-            )
+            sorted(bay_mass.items(), key=lambda item: (-item[1], item[0]))
         )
     }
     ordered = sorted(
         copied,
         key=lambda row: (
             bay_order.get(str(row.get('bay') or ''), len(bay_order)),
-            -float(row.get('length_m') or 0.0),
-            -float(row.get('diameter_m') or 0.0),
+            float(row.get('warhead_kg') or 0.0),
             -float(row.get('range_km') or 0.0),
-            -float(row.get('warhead_kg') or 0.0),
             int(row.get('id') or 0),
         ),
     )
