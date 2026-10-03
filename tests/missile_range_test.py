@@ -8,6 +8,7 @@ import pytest
 from apps.missile_range_web import run_missile_range, run_missile_range_json
 from simulators.missile_range.missile_range import (
     _required_float,
+    include_dataset_rows,
     opt_float,
     opt_optional_float,
     run_dataset_from_params,
@@ -17,8 +18,10 @@ from simulators.missile_range.missile_range import (
 from utils.missile_range.dataset import (
     MISSILE_DATASET,
     PROPULSION_DATASET,
+    _cached_default_dataset,
     all_missile_cases,
     build_missile_range_catalog_payload,
+    dataset_propellant_key,
     evaluate_case,
     evaluate_dataset,
     filter_takeover_failed,
@@ -482,6 +485,53 @@ def test_evaluate_dataset_and_catalog():
     assert payload['cases'][0]['range_km'] == rows[0]['range_km']
     assert G0 == pytest.approx(9.80665)
     assert SOUND_SPEED_M_S == 295.0
+
+
+def test_dataset_propellant_key_rounds():
+    """推进剂缓存键按六位小数对齐，避免浮点噪声拆成两次整表计算。"""
+    assert dataset_propellant_key(264, 1760) == (264.0, 1760.0)
+    assert dataset_propellant_key(264.0000004, 1760.0000004) == (264.0, 1760.0)
+    assert dataset_propellant_key('300', '1900') == (300.0, 1900.0)
+
+
+def test_cached_default_dataset_copy_is_isolated():
+    """默认样本表走缓存，调用方改射程不会污染下一次结果。"""
+    key = dataset_propellant_key(264, 1760)
+    first = evaluate_dataset()
+    cached = _cached_default_dataset(*key)
+    first[0]['range_km'] = -1
+    again = evaluate_dataset()
+    assert again[0]['range_km'] != -1
+    assert again[0]['range_km'] == cached[0]['range_km']
+    assert again == evaluate_dataset(isp_s=264, propellant_density=1760)
+
+
+def test_include_dataset_rows_flag():
+    """include_rows 为假时只返回当前这一发，不再附带整张样本表。"""
+    assert include_dataset_rows({}) is True
+    assert include_dataset_rows({'include_rows': True}) is True
+    assert include_dataset_rows({'include_rows': False}) is False
+    assert include_dataset_rows({'include_rows': 'false'}) is False
+    assert include_dataset_rows({'include_rows': '0'}) is False
+    skipped = run_estimate_from_params({
+        'length_m': 6.35,
+        'diameter_m': 0.51,
+        'warhead_kg': 160,
+        'missile_class': 'ramjet',
+        'include_rows': False,
+    })
+    assert skipped['success'] is True
+    assert 'rows' not in skipped
+    assert skipped['result']['range_km'] > 0
+    kept = run_estimate_from_params({
+        'length_m': 6.35,
+        'diameter_m': 0.51,
+        'warhead_kg': 160,
+        'missile_class': 'ramjet',
+        'include_rows': True,
+    })
+    assert len(kept['rows']) == len(all_missile_cases())
+    assert kept['result']['range_km'] == skipped['result']['range_km']
 
 
 def test_row_liftoff_t():

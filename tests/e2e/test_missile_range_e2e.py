@@ -120,6 +120,11 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '寻优滑翔体尺寸' in html
     assert 'optimize_geometry' in js
     assert 'run_missile_range_json' in js
+    assert 'include_rows' in js
+    assert 'missile_range_worker.js' in js
+    assert 'new Worker' in js
+    worker_js = (ROOT / 'docs' / 'js' / 'missile_range_worker.js').read_text(encoding='utf-8')
+    assert 'loadPyodide' in worker_js
     assert 'utils/database_csv.py' in js
     assert 'data/missile_range_preset_database.csv' in js
     assert 'py_data_files' in (ROOT / 'ios' / 'CarrierTakeOff' / 'Resources' / 'engine.js').read_text(encoding='utf-8')
@@ -165,6 +170,8 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '仅单级' in mini_wxml
     assert '寻优滑翔体' in mini_wxml
     assert 'optimize_geometry' in mini_js
+    assert 'include_rows' in mini_js
+    assert 'include_rows' in (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileRangeViewModel.swift').read_text(encoding='utf-8')
 
 
 @pytest.mark.e2e

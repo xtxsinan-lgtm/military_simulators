@@ -5,6 +5,13 @@ const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
 const APP_VERSION = 50;
 
+/** 在 Worker 里调用估算入口，主线程不跑 Python */
+const MISSILE_RANGE_RUN_SNIPPET = `
+import json
+from apps.missile_range_web import run_missile_range_json
+json.dumps(run_missile_range_json(_missile_range_payload), ensure_ascii=False)
+`;
+
 const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
   'utils/paths.py',
@@ -39,11 +46,17 @@ const MISSILE_RANGE_IMPORTS = [
 ];
 
 let data = null;
-let pyodide = null;
+let worker = null;
+let engineReady = null;
 let pyReady = false;
 let runLock = false;
+let runSerial = 0;
+const pendingRuns = new Map();
 let rows = [];
 let activeId = null;
+/** 当前样本表对应的固体比冲和密度。没变就不必重算整表。 */
+let tableIsp = 264;
+let tableDensity = 1760;
 
 function $(id) {
   return document.getElementById(id);
@@ -347,86 +360,127 @@ function selectPreset(id) {
     : 'PRESET';
 }
 
-async function loadPythonModules() {
-  pyodide.runPython(`
-import sys
-from pathlib import Path
-Path('/py').mkdir(parents=True, exist_ok=True)
-if '/py' not in sys.path:
-    sys.path.insert(0, '/py')
-`);
-  for (const name of MISSILE_RANGE_PY_FILES) {
-    const code = data.py_sources[name];
-    if (!code) throw new Error(`缺少 Python 模块: ${name}`);
-    const parts = name.split('/');
-    let dir = '/py';
-    for (let i = 0; i < parts.length - 1; i += 1) {
-      dir += `/${parts[i]}`;
-      try { pyodide.FS.mkdir(dir); } catch { /* 目录已存在 */ }
-    }
-    pyodide.FS.writeFile(`/py/${name}`, code);
-  }
-  for (const name of (data.py_data_files || MISSILE_RANGE_DATA_FILES)) {
-    const code = data.py_sources[name];
-    if (!code) throw new Error(`缺少数据文件: ${name}`);
-    const parts = name.split('/');
-    let dir = '/py';
-    for (let i = 0; i < parts.length - 1; i += 1) {
-      dir += `/${parts[i]}`;
-      try { pyodide.FS.mkdir(dir); } catch { /* 目录已存在 */ }
-    }
-    pyodide.FS.writeFile(`/py/${name}`, code);
-  }
-  pyodide.globals.set(
-    '_missile_interception_cfg',
-    JSON.stringify(data.missile_interception_config || {}),
-  );
-  await pyodide.runPythonAsync(`
-import json
-from utils.missile_interception.missile_interception_config import inject_missile_interception_config
-inject_missile_interception_config(json.loads(_missile_interception_cfg))
-`);
-  pyodide.globals.set('_py_import_order', MISSILE_RANGE_IMPORTS);
-  await pyodide.runPythonAsync(`
-import importlib
-for _name in _py_import_order:
-    importlib.import_module(_name)
-`);
+function propellantChanged(isp, density) {
+  return Math.abs(isp - tableIsp) > 1e-4 || Math.abs(density - tableDensity) > 1e-4;
 }
 
-async function initPyodide() {
-  if (pyReady) return;
+function collectEngineFiles() {
+  const names = [
+    ...MISSILE_RANGE_PY_FILES,
+    ...(data.py_data_files || MISSILE_RANGE_DATA_FILES),
+  ];
+  const files = {};
+  for (const name of names) {
+    const code = data.py_sources && data.py_sources[name];
+    if (!code) {
+      throw new Error(name.endsWith('.csv') ? `缺少数据文件: ${name}` : `缺少 Python 模块: ${name}`);
+    }
+    files[name] = code;
+  }
+  return files;
+}
+
+function rejectPending(err) {
+  for (const [id, pending] of pendingRuns) {
+    pendingRuns.delete(id);
+    pending.reject(err);
+  }
+}
+
+function bootEngine() {
+  const files = collectEngineFiles();
   $('clock').textContent = 'LOADING';
-  const { loadPyodide } = await import(
-    `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/pyodide.mjs`
-  );
-  pyodide = await loadPyodide();
-  await loadPythonModules();
-  pyReady = true;
-  $('clock').textContent = 'READY';
+  worker = new Worker(new URL('./missile_range_worker.js', import.meta.url), { type: 'module' });
+  const ready = new Promise((resolve, reject) => {
+    worker.onmessage = (event) => {
+      const msg = event.data || {};
+      if (msg.type === 'ready') {
+        pyReady = true;
+        $('clock').textContent = 'READY';
+        resolve();
+        return;
+      }
+      if (msg.type === 'error' && msg.id == null) {
+        reject(new Error(msg.error || '计算引擎加载失败'));
+        return;
+      }
+      const pending = pendingRuns.get(msg.id);
+      if (!pending) return;
+      pendingRuns.delete(msg.id);
+      if (msg.type === 'result') {
+        try {
+          pending.resolve(JSON.parse(msg.raw));
+        } catch (err) {
+          pending.reject(err);
+        }
+        return;
+      }
+      pending.reject(new Error(msg.error || '估算失败'));
+    };
+    worker.onerror = (event) => {
+      const err = new Error(event.message || '计算引擎加载失败');
+      rejectPending(err);
+      if (!pyReady) reject(err);
+    };
+  });
+  worker.postMessage({
+    type: 'init',
+    pyodideVersion: PYODIDE_VERSION,
+    files,
+    config: data.missile_interception_config || {},
+    imports: MISSILE_RANGE_IMPORTS,
+    runSnippet: MISSILE_RANGE_RUN_SNIPPET,
+  });
+  return ready.catch((err) => {
+    engineReady = null;
+    pyReady = false;
+    if (worker) {
+      worker.terminate();
+      worker = null;
+    }
+    $('clock').textContent = 'ENGINE ERR';
+    throw err;
+  });
+}
+
+function ensureEngine() {
+  if (!engineReady) engineReady = bootEngine();
+  return engineReady;
 }
 
 async function callPython(action, params) {
+  await ensureEngine();
+  const id = runSerial + 1;
+  runSerial = id;
   const payload = JSON.stringify({ action, params });
-  pyodide.globals.set('_missile_range_payload', payload);
-  const raw = await pyodide.runPythonAsync(`
-import json
-from apps.missile_range_web import run_missile_range_json
-json.dumps(run_missile_range_json(_missile_range_payload), ensure_ascii=False)
-`);
-  return JSON.parse(raw);
+  return new Promise((resolve, reject) => {
+    pendingRuns.set(id, { resolve, reject });
+    worker.postMessage({
+      type: 'run',
+      id,
+      payload,
+      runSnippet: MISSILE_RANGE_RUN_SNIPPET,
+    });
+  });
 }
 
 async function runEstimate() {
   if (runLock) return;
   runLock = true;
   $('runBtn').disabled = true;
-  $('status').textContent = 'RUNNING';
+  const params = readForm();
+  const refreshRows = propellantChanged(params.isp_s, params.propellant_density);
+  params.include_rows = refreshRows;
+  $('status').textContent = pyReady ? 'RUNNING' : 'LOADING';
   try {
-    await initPyodide();
-    const res = await callPython('estimate', readForm());
+    const res = await callPython('estimate', params);
     if (!res.success) throw new Error(res.error || '估算失败');
-    if (Array.isArray(res.rows) && res.rows.length) rows = res.rows;
+    if (refreshRows && Array.isArray(res.rows) && res.rows.length) {
+      rows = res.rows;
+      tableIsp = params.isp_s;
+      tableDensity = params.propellant_density;
+      fillPresetSelect();
+    }
     activeId = null;
     renderResult(res.result, '当前参数');
     renderTable();
@@ -454,8 +508,14 @@ async function main() {
   }
   rows = block.cases;
   const defaults = block.defaults || {};
-  if (defaults.isp_s != null) $('ispS').value = defaults.isp_s;
-  if (defaults.propellant_density != null) $('density').value = defaults.propellant_density;
+  if (defaults.isp_s != null) {
+    $('ispS').value = defaults.isp_s;
+    tableIsp = Number(defaults.isp_s);
+  }
+  if (defaults.propellant_density != null) {
+    $('density').value = defaults.propellant_density;
+    tableDensity = Number(defaults.propellant_density);
+  }
   if (defaults.ballistic_single_stage != null) $('ballisticSingleStage').checked = !!defaults.ballistic_single_stage;
   fillClassSelect();
   fillPresetSelect();
@@ -474,6 +534,10 @@ async function main() {
     if ($('failOnly').checked && shown.length && !shown.some((row) => row.id === activeId)) {
       selectPreset(shown[0].id);
     }
+  });
+  ensureEngine().catch((err) => {
+    $('clock').textContent = 'ENGINE ERR';
+    console.error(err);
   });
 }
 

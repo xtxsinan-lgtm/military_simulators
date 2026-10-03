@@ -25,6 +25,9 @@ final class MissileRangeViewModel: ObservableObject {
     @Published var statusText = "加载中…"
     @Published var running = false
     @Published var failOnly = false
+    /// 当前样本表所用的固体比冲和密度。没变时不再整表重算。
+    private var tableIsp = 264.0
+    private var tableDensity = 1760.0
 
     var displayedRows: [MissileRangeCase] {
         failOnly ? rows.filter { $0.reached_takeover == false } : rows
@@ -50,8 +53,14 @@ final class MissileRangeViewModel: ObservableObject {
             rows = loaded
             classOptions = catalog.missile_range?.classes ?? []
             if let defaults = catalog.missile_range?.defaults {
-                if let isp = defaults.isp_s { ispS = text(isp) }
-                if let rho = defaults.propellant_density { density = text(rho) }
+                if let isp = defaults.isp_s {
+                    tableIsp = isp
+                    ispS = text(isp)
+                }
+                if let rho = defaults.propellant_density {
+                    tableDensity = rho
+                    density = text(rho)
+                }
                 if let singleStage = defaults.ballistic_single_stage { ballisticSingleStage = singleStage }
             }
             applyCase(loaded[0])
@@ -152,6 +161,12 @@ final class MissileRangeViewModel: ObservableObject {
         if showAirIsp {
             params["isp_air_s"] = number(ispAir, 0)
         }
+        let isp = number(ispS, 264)
+        let densityValue = number(density, 1760)
+        let refreshRows = abs(isp - tableIsp) > 1e-4 || abs(densityValue - tableDensity) > 1e-4
+        params["isp_s"] = isp
+        params["propellant_density"] = densityValue
+        params["include_rows"] = refreshRows
         let payload: [String: Any] = [
             "action": "estimate",
             "params": params,
@@ -162,8 +177,10 @@ final class MissileRangeViewModel: ObservableObject {
                 statusText = res.error ?? "估算失败"
             } else {
                 result = res.result
-                if let next = res.rows, !next.isEmpty {
+                if refreshRows, let next = res.rows, !next.isEmpty {
                     rows = next
+                    tableIsp = isp
+                    tableDensity = densityValue
                 }
                 activeId = nil
                 statusText = res.result?.reached_takeover == false ? "⚠️ 未达工作速度" : "DONE"

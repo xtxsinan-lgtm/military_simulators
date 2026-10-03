@@ -57,6 +57,15 @@ def _required_float(params: dict[str, Any], key: str) -> float:
     return float(params[key])
 
 
+def include_dataset_rows(params: dict[str, Any]) -> bool:
+    """单发估算是否附带重算整张样本表。
+
+    缺省仍返回样本表，供小程序和已有调用方使用。
+    网页在固体比冲和密度都没变时传 include_rows=false，只算当前这一发。
+    """
+    return opt_bool(params.get('include_rows'), True)
+
+
 def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
     """按表单参数估算一发。固体比冲重算预设表；吸气比冲只作用于当前这一发。"""
     params = params or {}
@@ -84,10 +93,12 @@ def run_estimate_from_params(params: dict[str, Any] | None) -> dict[str, Any]:
             l_head_m=opt_optional_float(params.get('l_head_m')),
             d_head_m=opt_optional_float(params.get('d_head_m')),
         )
-        rows = evaluate_dataset(isp_s=isp, propellant_density=density)
+        payload: dict[str, Any] = {'success': True, 'result': result}
+        if include_dataset_rows(params):
+            payload['rows'] = evaluate_dataset(isp_s=isp, propellant_density=density)
+        return payload
     except (TypeError, ValueError) as exc:
         return {'success': False, 'error': str(exc)}
-    return {'success': True, 'result': result, 'rows': rows}
 
 
 def run_optimize_geometry_from_params(params: dict[str, Any] | None) -> dict[str, Any]:

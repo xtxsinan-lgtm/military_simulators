@@ -1,6 +1,8 @@
 """导弹射程预设样本，以及前端共用的目录载荷。"""
 from __future__ import annotations
 
+import copy
+from functools import lru_cache
 from typing import Any
 
 from utils.database_csv import load_missile_range_preset_csv
@@ -371,18 +373,39 @@ def filter_takeover_failed(
     return [row for row in copied if row.get('reached_takeover') is False]
 
 
+def dataset_propellant_key(isp_s: float, propellant_density: float) -> tuple[float, float]:
+    """把固体比冲和推进剂密度收成样本表缓存键。"""
+    return (round(float(isp_s), 6), round(float(propellant_density), 6))
+
+
+@lru_cache(maxsize=4)
+def _cached_default_dataset(isp_key: float, density_key: float) -> list[dict[str, Any]]:
+    """按推进剂假设缓存默认样本表，避免网页每次估算都重扫一百多发。"""
+    evaluated = [
+        evaluate_case(case, isp_s=isp_key, propellant_density=density_key)
+        for case in all_missile_cases()
+    ]
+    return sort_missile_range_rows(evaluated)
+
+
 def evaluate_dataset(
     dataset: list[dict[str, Any]] | None = None,
     isp_s: float = DEFAULT_ISP_S,
     propellant_density: float = DEFAULT_PROPELLANT_DENSITY,
 ) -> list[dict[str, Any]]:
-    """按当前比冲与密度重算整张样本表，并生成展示顺序。"""
-    rows = dataset if dataset is not None else all_missile_cases()
-    evaluated = [
-        evaluate_case(case, isp_s=isp_s, propellant_density=propellant_density)
-        for case in rows
-    ]
-    return sort_missile_range_rows(evaluated)
+    """按当前比冲与密度重算整张样本表，并生成展示顺序。
+
+    默认样本表按推进剂假设缓存。返回的是副本，改一行不会影响下次结果。
+    传入自定义 dataset 时不走缓存。
+    """
+    if dataset is not None:
+        evaluated = [
+            evaluate_case(case, isp_s=isp_s, propellant_density=propellant_density)
+            for case in dataset
+        ]
+        return sort_missile_range_rows(evaluated)
+    key = dataset_propellant_key(isp_s, propellant_density)
+    return copy.deepcopy(_cached_default_dataset(*key))
 
 
 def build_missile_range_catalog_payload() -> dict[str, Any]:

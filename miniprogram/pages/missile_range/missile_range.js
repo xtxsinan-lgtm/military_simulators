@@ -102,6 +102,8 @@ Page({
         }
         const classes = block.classes || [];
         const defaults = block.defaults || {};
+        this.tableIsp = defaults.isp_s != null ? Number(defaults.isp_s) : 264;
+        this.tableDensity = defaults.propellant_density != null ? Number(defaults.propellant_density) : 1760;
         this.setData({
           classes,
           classNames: classes.map((item) => item.label),
@@ -252,6 +254,11 @@ Page({
       },
     };
     if (this.data.showAirIsp) payload.params.isp_air_s = num(this.data.ispAir, 0);
+    const isp = payload.params.isp_s;
+    const density = payload.params.propellant_density;
+    const refreshRows = Math.abs(isp - (this.tableIsp ?? 264)) > 1e-4
+      || Math.abs(density - (this.tableDensity ?? 1760)) > 1e-4;
+    payload.params.include_rows = refreshRows;
     this.setData({ running: true, statusText: 'RUNNING' });
     api.runMissileRangeSimulation(payload)
       .then((res) => {
@@ -262,7 +269,11 @@ Page({
         if (result.range_mixed_km === undefined) result.range_mixed_km = null;
         result.profileText = profileTextOf(result);
         if (result.range_terminal_km === undefined) result.range_terminal_km = null;
-        const rows = (res.rows && res.rows.length ? res.rows : this.data.cases).map(decorate);
+        if (refreshRows && res.rows && res.rows.length) {
+          this.tableIsp = isp;
+          this.tableDensity = density;
+        }
+        const rows = (refreshRows && res.rows && res.rows.length ? res.rows : this.data.cases).map(decorate);
         const visible = this.data.failOnly
           ? rows.filter((row) => row.reached_takeover === false)
           : rows;
@@ -270,6 +281,7 @@ Page({
         this.setData({
           result: res.result,
           cases: rows,
+          caseNames: rows.map((row) => row.name),
           rows: visible,
           failCount: rows.filter((row) => row.reached_takeover === false).length,
           okCount: rows.filter((row) => row.reached_takeover === true).length,
