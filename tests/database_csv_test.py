@@ -198,7 +198,7 @@ def test_load_missile_range_preset_csv():
     groups = {row['speed_group'] for row in rows}
     assert groups == {'supersonic', 'subsonic'}
     bays = {row['bay'] for row in rows}
-    assert '轰-6机腹' in bays
+    assert '超音速隐身轰炸机·轰6发射' in bays
     assert '轰-6机腹最大' in bays
     assert '1280垂发' in bays
     assert '533mm鱼雷' in bays
