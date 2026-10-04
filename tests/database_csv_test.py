@@ -205,6 +205,9 @@ def test_load_missile_range_preset_csv():
     assert '轰-6机腹' not in bays
     assert '1280垂发' in bays
     assert '533mm鱼雷' in bays
+    vls_1280 = [row for row in rows if row['bay'] == '1280垂发']
+    assert {row['speed_group'] for row in vls_1280} == {'supersonic', 'subsonic'}
+    assert all(row['diameter_m'] == pytest.approx(1.13) for row in vls_1280)
 
 
 def test_load_missile_range_preset_csv_rejects_bad_file(tmp_path):
