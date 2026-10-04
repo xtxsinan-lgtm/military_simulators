@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -13157,11 +13157,11 @@ module.exports = {
         "name": "阵风 M / M88-2",
         "carrier": true,
         "max_cruise_mach": null,
-        "max_possible_cruise_mach": 1.0542,
+        "max_possible_cruise_mach": 1.0518,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 4700.0,
-        "fuel_usable_kg": 3549.7,
+        "fuel_usable_kg": 3547.0,
         "n_engines": 2,
         "mission_fuel": {
           "reserve_min": 45.0
@@ -13174,19 +13174,19 @@ module.exports = {
             "feasible": true,
             "fail_reason": null,
             "alt_m": 12600.0,
-            "ld": 9.4538,
+            "ld": 9.4287,
             "thrust_avail_kN": 25.053,
-            "load": 0.5718,
-            "eta_th": 0.355571,
-            "eta_p": 0.518056,
-            "eta_o": 0.184206,
-            "score": 1.741442,
-            "radius_km": 967.44,
-            "fuel_kg_per_km": 1.835,
+            "load": 0.5733,
+            "eta_th": 0.356241,
+            "eta_p": 0.517314,
+            "eta_o": 0.184289,
+            "score": 1.737603,
+            "radius_km": 964.5,
+            "fuel_kg_per_km": 1.839,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.696,
-            "max_ld": 9.498,
+            "tsfc_mg_n_s": 29.682,
+            "max_ld": 9.4718,
             "max_ld_alt_m": 12400.0,
             "max_ld_thrust_mode": "military"
           },
@@ -13197,19 +13197,19 @@ module.exports = {
             "feasible": true,
             "fail_reason": null,
             "alt_m": 14600.0,
-            "ld": 7.1173,
+            "ld": 7.0904,
             "thrust_avail_kN": 20.855,
-            "load": 0.9124,
-            "eta_th": 0.473409,
-            "eta_p": 0.462042,
-            "eta_o": 0.218735,
-            "score": 1.556807,
-            "radius_km": 864.87,
-            "fuel_kg_per_km": 2.052,
+            "load": 0.9159,
+            "eta_th": 0.474192,
+            "eta_p": 0.461024,
+            "eta_o": 0.218614,
+            "score": 1.550062,
+            "radius_km": 860.4,
+            "fuel_kg_per_km": 2.061,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 31.26,
-            "max_ld": 7.5409,
+            "tsfc_mg_n_s": 31.277,
+            "max_ld": 7.5142,
             "max_ld_alt_m": 15400.0,
             "max_ld_thrust_mode": "afterburner"
           },
@@ -13232,7 +13232,7 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 5.3421,
+            "max_ld": 5.3218,
             "max_ld_alt_m": 16800.0,
             "max_ld_thrust_mode": "afterburner"
           },
@@ -13255,7 +13255,7 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 4.4238,
+            "max_ld": 4.399,
             "max_ld_alt_m": 16400.0,
             "max_ld_thrust_mode": "afterburner"
           },
@@ -13278,8 +13278,8 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 3.7325,
-            "max_ld_alt_m": 16200.0,
+            "max_ld": 3.6458,
+            "max_ld_alt_m": 16000.0,
             "max_ld_thrust_mode": "afterburner"
           },
           {
@@ -13301,8 +13301,8 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 1.8138,
-            "max_ld_alt_m": 13000.0,
+            "max_ld": 1.5446,
+            "max_ld_alt_m": 12000.0,
             "max_ld_thrust_mode": "afterburner"
           },
           {
@@ -13400,23 +13400,23 @@ module.exports = {
           {
             "id": "max_possible_cruise",
             "label": "最大巡航速度",
-            "mach": 1.0542,
+            "mach": 1.0518,
             "feasible": true,
             "fail_reason": null,
             "alt_m": 11000.0,
-            "ld": 3.8439,
-            "thrust_avail_kN": 38.296,
+            "ld": 3.8507,
+            "thrust_avail_kN": 38.228,
             "load": 0.92,
-            "eta_th": 0.477022,
-            "eta_p": 0.47796,
-            "eta_o": 0.227998,
-            "score": 0.876401,
-            "radius_km": 486.87,
-            "fuel_kg_per_km": 3.645,
-            "mixed_radius_km": 647.76,
-            "mixed_fuel_kg_per_km": 2.74,
-            "tsfc_mg_n_s": 31.615,
-            "max_ld": 6.5839,
+            "eta_th": 0.476943,
+            "eta_p": 0.477178,
+            "eta_o": 0.227587,
+            "score": 0.876379,
+            "radius_km": 486.46,
+            "fuel_kg_per_km": 3.646,
+            "mixed_radius_km": 646.73,
+            "mixed_fuel_kg_per_km": 2.742,
+            "tsfc_mg_n_s": 31.601,
+            "max_ld": 6.5933,
             "max_ld_alt_m": 16000.0,
             "max_ld_thrust_mode": "afterburner"
           }
@@ -13428,10 +13428,10 @@ module.exports = {
           "max_speed_mach": 1.76,
           "max_speed_kmh": 1869.4,
           "max_speed_kts": 1009.4,
-          "alt_m": 12400.0,
-          "ld": 1.6356,
-          "load": 0.9975,
-          "thrust_avail_kN": 83.009
+          "alt_m": 11000.0,
+          "ld": 1.3085,
+          "load": 0.9998,
+          "thrust_avail_kN": 103.519
         },
         "afterburner_best_altitude": [
           {
@@ -13439,15 +13439,15 @@ module.exports = {
             "label": "Ma 0.8",
             "feasible": true,
             "alt_m": 12600.0,
-            "ld": 9.4538,
+            "ld": 9.4287,
             "thrust_avail_kN": 37.58,
-            "load": 0.3812,
-            "eta_th": 0.355571,
-            "eta_p": 0.518056,
-            "eta_o": 0.184206,
-            "score": 1.741442,
-            "radius_km": 967.44,
-            "fuel_kg_per_km": 1.835,
+            "load": 0.3822,
+            "eta_th": 0.356241,
+            "eta_p": 0.517314,
+            "eta_o": 0.184289,
+            "score": 1.737603,
+            "radius_km": 964.5,
+            "fuel_kg_per_km": 1.839,
             "reheat": false,
             "thrust_mode": "military",
             "ab_ceiling_km": 14.8
@@ -13457,15 +13457,15 @@ module.exports = {
             "label": "Ma 1",
             "feasible": true,
             "alt_m": 15200.0,
-            "ld": 7.5094,
+            "ld": 7.4821,
             "thrust_avail_kN": 28.458,
-            "load": 0.6337,
-            "eta_th": 0.481766,
-            "eta_p": 0.451055,
-            "eta_o": 0.217303,
-            "score": 1.631815,
-            "radius_km": 906.54,
-            "fuel_kg_per_km": 1.958,
+            "load": 0.636,
+            "eta_th": 0.482494,
+            "eta_p": 0.450085,
+            "eta_o": 0.217163,
+            "score": 1.624844,
+            "radius_km": 901.91,
+            "fuel_kg_per_km": 1.966,
             "reheat": false,
             "thrust_mode": "military",
             "ab_ceiling_km": 16.6
@@ -13474,16 +13474,16 @@ module.exports = {
             "mach": 1.2,
             "label": "Ma 1.2",
             "feasible": true,
-            "alt_m": 13200.0,
-            "ld": 3.984,
-            "thrust_avail_kN": 45.515,
-            "load": 0.7469,
+            "alt_m": 13400.0,
+            "ld": 4.0521,
+            "thrust_avail_kN": 44.101,
+            "load": 0.7579,
             "eta_th": 0.497997,
             "eta_p": 0.50272,
-            "eta_o": 0.180554,
-            "score": 0.719325,
-            "radius_km": 399.61,
-            "fuel_kg_per_km": 4.441,
+            "eta_o": 0.174685,
+            "score": 0.707832,
+            "radius_km": 392.9,
+            "fuel_kg_per_km": 4.514,
             "reheat": true,
             "thrust_mode": "afterburner",
             "ab_ceiling_km": 16.8
@@ -13492,16 +13492,16 @@ module.exports = {
             "mach": 1.35,
             "label": "Ma 1.35",
             "feasible": true,
-            "alt_m": 14000.0,
-            "ld": 3.6488,
-            "thrust_avail_kN": 45.453,
-            "load": 0.8166,
+            "alt_m": 14200.0,
+            "ld": 3.6972,
+            "thrust_avail_kN": 44.041,
+            "load": 0.8317,
             "eta_th": 0.499691,
             "eta_p": 0.549769,
-            "eta_o": 0.165393,
-            "score": 0.603482,
-            "radius_km": 335.26,
-            "fuel_kg_per_km": 5.294,
+            "eta_o": 0.160235,
+            "score": 0.592417,
+            "radius_km": 328.84,
+            "fuel_kg_per_km": 5.393,
             "reheat": true,
             "thrust_mode": "afterburner",
             "ab_ceiling_km": 16.4
@@ -13510,37 +13510,37 @@ module.exports = {
             "mach": 1.5,
             "label": "Ma 1.5",
             "feasible": true,
-            "alt_m": 15000.0,
-            "ld": 3.3882,
-            "thrust_avail_kN": 44.149,
-            "load": 0.9054,
+            "alt_m": 15200.0,
+            "ld": 3.4157,
+            "thrust_avail_kN": 42.778,
+            "load": 0.9268,
             "eta_th": 0.497591,
             "eta_p": 0.596118,
-            "eta_o": 0.152182,
-            "score": 0.515626,
-            "radius_km": 286.45,
-            "fuel_kg_per_km": 6.196,
+            "eta_o": 0.147531,
+            "score": 0.503929,
+            "radius_km": 279.72,
+            "fuel_kg_per_km": 6.34,
             "reheat": true,
             "thrust_mode": "afterburner",
-            "ab_ceiling_km": 16.2
+            "ab_ceiling_km": 16.0
           },
           {
             "mach": 1.75,
             "label": "Ma 1.75",
             "feasible": true,
-            "alt_m": 13000.0,
-            "ld": 1.8138,
-            "thrust_avail_kN": 74.89,
-            "load": 0.997,
+            "alt_m": 12000.0,
+            "ld": 1.5446,
+            "thrust_avail_kN": 87.684,
+            "load": 1.0,
             "eta_th": 0.481786,
             "eta_p": 0.673819,
-            "eta_o": 0.148049,
-            "score": 0.268536,
-            "radius_km": 149.18,
-            "fuel_kg_per_km": 11.897,
+            "eta_o": 0.147566,
+            "score": 0.227924,
+            "radius_km": 126.52,
+            "fuel_kg_per_km": 14.018,
             "reheat": true,
             "thrust_mode": "afterburner",
-            "ab_ceiling_km": 13.0
+            "ab_ceiling_km": 12.0
           },
           {
             "mach": 2.0,
@@ -13603,11 +13603,11 @@ module.exports = {
         "name": "阵风 / M88-2",
         "carrier": false,
         "max_cruise_mach": null,
-        "max_possible_cruise_mach": 1.0574,
+        "max_possible_cruise_mach": 1.0549,
         "max_radius_mach": null,
         "max_radius_km": null,
         "fuel_kg": 4700.0,
-        "fuel_usable_kg": 3941.2,
+        "fuel_usable_kg": 3939.4,
         "n_engines": 2,
         "mission_fuel": {
           "reserve_min": 30.0
@@ -13620,19 +13620,19 @@ module.exports = {
             "feasible": true,
             "fail_reason": null,
             "alt_m": 12800.0,
-            "ld": 9.3529,
+            "ld": 9.3281,
             "thrust_avail_kN": 24.275,
-            "load": 0.5706,
-            "eta_th": 0.355028,
-            "eta_p": 0.518656,
-            "eta_o": 0.184138,
-            "score": 1.722227,
-            "radius_km": 1127.41,
-            "fuel_kg_per_km": 1.748,
+            "load": 0.5721,
+            "eta_th": 0.3557,
+            "eta_p": 0.517913,
+            "eta_o": 0.184222,
+            "score": 1.71843,
+            "radius_km": 1124.39,
+            "fuel_kg_per_km": 1.752,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 29.706,
-            "max_ld": 9.4175,
+            "tsfc_mg_n_s": 29.693,
+            "max_ld": 9.3915,
             "max_ld_alt_m": 12600.0,
             "max_ld_thrust_mode": "military"
           },
@@ -13642,20 +13642,20 @@ module.exports = {
             "mach": 1.0,
             "feasible": true,
             "fail_reason": null,
-            "alt_m": 15000.0,
-            "ld": 7.2167,
-            "thrust_avail_kN": 19.58,
-            "load": 0.9168,
-            "eta_th": 0.474402,
-            "eta_p": 0.460751,
-            "eta_o": 0.218581,
-            "score": 1.57743,
-            "radius_km": 1032.62,
-            "fuel_kg_per_km": 1.908,
+            "alt_m": 14800.0,
+            "ld": 7.041,
+            "thrust_avail_kN": 20.208,
+            "load": 0.9105,
+            "eta_th": 0.472975,
+            "eta_p": 0.462607,
+            "eta_o": 0.218801,
+            "score": 1.540586,
+            "radius_km": 1008.03,
+            "fuel_kg_per_km": 1.954,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 31.282,
-            "max_ld": 7.459,
+            "tsfc_mg_n_s": 31.25,
+            "max_ld": 7.4326,
             "max_ld_alt_m": 15600.0,
             "max_ld_thrust_mode": "afterburner"
           },
@@ -13678,7 +13678,7 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 5.3765,
+            "max_ld": 5.3563,
             "max_ld_alt_m": 17200.0,
             "max_ld_thrust_mode": "afterburner"
           },
@@ -13701,8 +13701,8 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 4.4553,
-            "max_ld_alt_m": 16800.0,
+            "max_ld": 4.3801,
+            "max_ld_alt_m": 16600.0,
             "max_ld_thrust_mode": "afterburner"
           },
           {
@@ -13724,7 +13724,7 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 3.7115,
+            "max_ld": 3.6777,
             "max_ld_alt_m": 16400.0,
             "max_ld_thrust_mode": "afterburner"
           },
@@ -13747,8 +13747,8 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 1.8429,
-            "max_ld_alt_m": 13400.0,
+            "max_ld": 1.5257,
+            "max_ld_alt_m": 12200.0,
             "max_ld_thrust_mode": "afterburner"
           },
           {
@@ -13846,23 +13846,23 @@ module.exports = {
           {
             "id": "max_possible_cruise",
             "label": "最大巡航速度",
-            "mach": 1.0574,
+            "mach": 1.0549,
             "feasible": true,
             "fail_reason": null,
             "alt_m": 11000.0,
-            "ld": 3.668,
-            "thrust_avail_kN": 38.389,
+            "ld": 3.6748,
+            "thrust_avail_kN": 38.318,
             "load": 0.92,
-            "eta_th": 0.477128,
-            "eta_p": 0.479032,
-            "eta_o": 0.22856,
-            "score": 0.838349,
-            "radius_km": 548.8,
+            "eta_th": 0.477046,
+            "eta_p": 0.47821,
+            "eta_o": 0.228128,
+            "score": 0.838334,
+            "radius_km": 548.53,
             "fuel_kg_per_km": 3.591,
-            "mixed_radius_km": 738.24,
-            "mixed_fuel_kg_per_km": 2.669,
-            "tsfc_mg_n_s": 31.634,
-            "max_ld": 6.487,
+            "mixed_radius_km": 737.35,
+            "mixed_fuel_kg_per_km": 2.671,
+            "tsfc_mg_n_s": 31.62,
+            "max_ld": 6.4962,
             "max_ld_alt_m": 16200.0,
             "max_ld_thrust_mode": "afterburner"
           }
@@ -13874,10 +13874,10 @@ module.exports = {
           "max_speed_mach": 1.76,
           "max_speed_kmh": 1869.4,
           "max_speed_kts": 1009.4,
-          "alt_m": 12800.0,
-          "ld": 1.6625,
-          "load": 0.9999,
-          "thrust_avail_kN": 77.934
+          "alt_m": 11200.0,
+          "ld": 1.2921,
+          "load": 0.9996,
+          "thrust_avail_kN": 100.305
         },
         "afterburner_best_altitude": [
           {
@@ -13885,15 +13885,15 @@ module.exports = {
             "label": "Ma 0.8",
             "feasible": true,
             "alt_m": 12800.0,
-            "ld": 9.3529,
+            "ld": 9.3281,
             "thrust_avail_kN": 36.413,
-            "load": 0.3804,
-            "eta_th": 0.355028,
-            "eta_p": 0.518656,
-            "eta_o": 0.184138,
-            "score": 1.722227,
-            "radius_km": 1127.41,
-            "fuel_kg_per_km": 1.748,
+            "load": 0.3814,
+            "eta_th": 0.3557,
+            "eta_p": 0.517913,
+            "eta_o": 0.184222,
+            "score": 1.71843,
+            "radius_km": 1124.39,
+            "fuel_kg_per_km": 1.752,
             "reheat": false,
             "thrust_mode": "military",
             "ab_ceiling_km": 15.0
@@ -13903,15 +13903,15 @@ module.exports = {
             "label": "Ma 1",
             "feasible": true,
             "alt_m": 15400.0,
-            "ld": 7.4411,
+            "ld": 7.414,
             "thrust_avail_kN": 27.575,
-            "load": 0.6314,
-            "eta_th": 0.481015,
-            "eta_p": 0.452054,
-            "eta_o": 0.217445,
-            "score": 1.618026,
-            "radius_km": 1059.2,
-            "fuel_kg_per_km": 1.86,
+            "load": 0.6337,
+            "eta_th": 0.481748,
+            "eta_p": 0.451079,
+            "eta_o": 0.217306,
+            "score": 1.611105,
+            "radius_km": 1054.17,
+            "fuel_kg_per_km": 1.869,
             "reheat": false,
             "thrust_mode": "military",
             "ab_ceiling_km": 16.8
@@ -13921,15 +13921,15 @@ module.exports = {
             "label": "Ma 1.2",
             "feasible": true,
             "alt_m": 13600.0,
-            "ld": 4.0366,
+            "ld": 4.0165,
             "thrust_avail_kN": 42.732,
-            "load": 0.751,
+            "load": 0.7548,
             "eta_th": 0.497997,
             "eta_p": 0.50272,
-            "eta_o": 0.178271,
-            "score": 0.719614,
-            "radius_km": 471.08,
-            "fuel_kg_per_km": 4.183,
+            "eta_o": 0.176274,
+            "score": 0.708013,
+            "radius_km": 463.26,
+            "fuel_kg_per_km": 4.252,
             "reheat": true,
             "thrust_mode": "afterburner",
             "ab_ceiling_km": 17.2
@@ -13939,33 +13939,33 @@ module.exports = {
             "label": "Ma 1.35",
             "feasible": true,
             "alt_m": 14400.0,
-            "ld": 3.692,
+            "ld": 3.6673,
             "thrust_avail_kN": 42.674,
-            "load": 0.8222,
+            "load": 0.8278,
             "eta_th": 0.499691,
             "eta_p": 0.549769,
-            "eta_o": 0.163409,
-            "score": 0.603307,
-            "radius_km": 394.94,
-            "fuel_kg_per_km": 4.99,
+            "eta_o": 0.161534,
+            "score": 0.5924,
+            "radius_km": 387.62,
+            "fuel_kg_per_km": 5.082,
             "reheat": true,
             "thrust_mode": "afterburner",
-            "ab_ceiling_km": 16.8
+            "ab_ceiling_km": 16.6
           },
           {
             "mach": 1.5,
             "label": "Ma 1.5",
             "feasible": true,
             "alt_m": 15400.0,
-            "ld": 3.4243,
+            "ld": 3.3906,
             "thrust_avail_kN": 41.45,
-            "load": 0.9127,
+            "load": 0.9218,
             "eta_th": 0.497591,
             "eta_p": 0.596118,
-            "eta_o": 0.150535,
-            "score": 0.515475,
-            "radius_km": 337.44,
-            "fuel_kg_per_km": 5.84,
+            "eta_o": 0.148584,
+            "score": 0.50379,
+            "radius_km": 329.64,
+            "fuel_kg_per_km": 5.975,
             "reheat": true,
             "thrust_mode": "afterburner",
             "ab_ceiling_km": 16.4
@@ -13974,19 +13974,19 @@ module.exports = {
             "mach": 1.75,
             "label": "Ma 1.75",
             "feasible": true,
-            "alt_m": 13400.0,
-            "ld": 1.8429,
-            "thrust_avail_kN": 70.312,
-            "load": 0.9998,
+            "alt_m": 12200.0,
+            "ld": 1.5257,
+            "thrust_avail_kN": 84.962,
+            "load": 0.9994,
             "eta_th": 0.481786,
             "eta_p": 0.673819,
-            "eta_o": 0.147601,
-            "score": 0.272014,
-            "radius_km": 178.07,
-            "fuel_kg_per_km": 11.067,
+            "eta_o": 0.147663,
+            "score": 0.225291,
+            "radius_km": 147.41,
+            "fuel_kg_per_km": 13.362,
             "reheat": true,
             "thrust_mode": "afterburner",
-            "ab_ceiling_km": 13.4
+            "ab_ceiling_km": 12.2
           },
           {
             "mach": 2.0,
@@ -18577,12 +18577,12 @@ module.exports = {
         "success": true,
         "name": "台风 / EJ200",
         "carrier": false,
-        "max_cruise_mach": 1.38,
-        "max_possible_cruise_mach": 1.4431,
-        "max_radius_mach": 1.3,
-        "max_radius_km": 482.78,
+        "max_cruise_mach": 1.37,
+        "max_possible_cruise_mach": 1.4275,
+        "max_radius_mach": 1.31,
+        "max_radius_km": 466.39,
         "fuel_kg": 4500.0,
-        "fuel_usable_kg": 3680.6,
+        "fuel_usable_kg": 3679.1,
         "n_engines": 2,
         "mission_fuel": {
           "reserve_min": 30.0
@@ -18595,19 +18595,19 @@ module.exports = {
             "feasible": true,
             "fail_reason": null,
             "alt_m": 13000.0,
-            "ld": 9.5888,
+            "ld": 9.565,
             "thrust_avail_kN": 27.822,
-            "load": 0.5187,
-            "eta_th": 0.317054,
-            "eta_p": 0.565978,
-            "eta_o": 0.179446,
-            "score": 1.720663,
-            "radius_km": 982.51,
-            "fuel_kg_per_km": 1.873,
+            "load": 0.52,
+            "eta_th": 0.317687,
+            "eta_p": 0.565267,
+            "eta_o": 0.179578,
+            "score": 1.717669,
+            "radius_km": 980.38,
+            "fuel_kg_per_km": 1.876,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 30.483,
-            "max_ld": 9.7193,
+            "tsfc_mg_n_s": 30.461,
+            "max_ld": 9.6933,
             "max_ld_alt_m": 12600.0,
             "max_ld_thrust_mode": "military"
           },
@@ -18618,19 +18618,19 @@ module.exports = {
             "feasible": true,
             "fail_reason": null,
             "alt_m": 15600.0,
-            "ld": 7.6417,
+            "ld": 7.6157,
             "thrust_avail_kN": 20.971,
-            "load": 0.8635,
-            "eta_th": 0.450609,
-            "eta_p": 0.49489,
-            "eta_o": 0.223002,
-            "score": 1.704106,
-            "radius_km": 973.05,
-            "fuel_kg_per_km": 1.891,
+            "load": 0.8664,
+            "eta_th": 0.451385,
+            "eta_p": 0.493941,
+            "eta_o": 0.222958,
+            "score": 1.697986,
+            "radius_km": 969.14,
+            "fuel_kg_per_km": 1.898,
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
-            "tsfc_mg_n_s": 30.662,
-            "max_ld": 7.6417,
+            "tsfc_mg_n_s": 30.668,
+            "max_ld": 7.6157,
             "max_ld_alt_m": 15600.0,
             "max_ld_thrust_mode": "military"
           },
@@ -18640,20 +18640,20 @@ module.exports = {
             "mach": 1.2,
             "feasible": true,
             "fail_reason": null,
-            "alt_m": 11600.0,
-            "ld": 3.2912,
-            "thrust_avail_kN": 45.741,
-            "load": 0.9192,
-            "eta_th": 0.467353,
-            "eta_p": 0.545386,
-            "eta_o": 0.254888,
-            "score": 0.838886,
-            "radius_km": 479.01,
-            "fuel_kg_per_km": 3.842,
-            "mixed_radius_km": 644.03,
-            "mixed_fuel_kg_per_km": 2.857,
+            "alt_m": 11400.0,
+            "ld": 3.1902,
+            "thrust_avail_kN": 47.206,
+            "load": 0.9188,
+            "eta_th": 0.467271,
+            "eta_p": 0.545486,
+            "eta_o": 0.25489,
+            "score": 0.813138,
+            "radius_km": 464.11,
+            "fuel_kg_per_km": 3.964,
+            "mixed_radius_km": 629.98,
+            "mixed_fuel_kg_per_km": 2.92,
             "tsfc_mg_n_s": 32.191,
-            "max_ld": 5.6036,
+            "max_ld": 5.5849,
             "max_ld_alt_m": 17800.0,
             "max_ld_thrust_mode": "afterburner"
           },
@@ -18663,20 +18663,20 @@ module.exports = {
             "mach": 1.35,
             "feasible": true,
             "fail_reason": null,
-            "alt_m": 11800.0,
-            "ld": 3.0191,
-            "thrust_avail_kN": 49.99,
-            "load": 0.9168,
-            "eta_th": 0.464919,
-            "eta_p": 0.594938,
-            "eta_o": 0.276598,
-            "score": 0.835065,
-            "radius_km": 476.83,
-            "fuel_kg_per_km": 3.859,
-            "mixed_radius_km": 642.05,
-            "mixed_fuel_kg_per_km": 2.866,
-            "tsfc_mg_n_s": 33.372,
-            "max_ld": 5.0017,
+            "alt_m": 11600.0,
+            "ld": 2.9205,
+            "thrust_avail_kN": 51.592,
+            "load": 0.9184,
+            "eta_th": 0.465305,
+            "eta_p": 0.594492,
+            "eta_o": 0.27662,
+            "score": 0.807856,
+            "radius_km": 461.09,
+            "fuel_kg_per_km": 3.99,
+            "mixed_radius_km": 627.2,
+            "mixed_fuel_kg_per_km": 2.933,
+            "tsfc_mg_n_s": 33.37,
+            "max_ld": 4.9776,
             "max_ld_alt_m": 18000.0,
             "max_ld_thrust_mode": "afterburner"
           },
@@ -18699,7 +18699,7 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 4.1496,
+            "max_ld": 4.1168,
             "max_ld_alt_m": 17600.0,
             "max_ld_thrust_mode": "afterburner"
           },
@@ -18722,8 +18722,8 @@ module.exports = {
             "mixed_radius_km": null,
             "mixed_fuel_kg_per_km": null,
             "tsfc_mg_n_s": null,
-            "max_ld": 3.1449,
-            "max_ld_alt_m": 17200.0,
+            "max_ld": 3.0311,
+            "max_ld_alt_m": 17000.0,
             "max_ld_thrust_mode": "afterburner"
           },
           {
@@ -18798,69 +18798,69 @@ module.exports = {
           {
             "id": "max_cruise",
             "label": "实用最大巡航速度",
-            "mach": 1.38,
+            "mach": 1.37,
             "feasible": true,
             "fail_reason": null,
-            "alt_m": 11800.0,
-            "ld": 2.9395,
-            "thrust_avail_kN": 51.234,
-            "load": 0.9188,
-            "eta_th": 0.464517,
-            "eta_p": 0.604025,
-            "eta_o": 0.28058,
-            "score": 0.824773,
-            "radius_km": 470.95,
-            "fuel_kg_per_km": 3.908,
-            "mixed_radius_km": 636.71,
-            "mixed_fuel_kg_per_km": 2.89,
-            "tsfc_mg_n_s": 33.63,
-            "max_ld": 4.8824,
+            "alt_m": 11600.0,
+            "ld": 2.8686,
+            "thrust_avail_kN": 52.444,
+            "load": 0.9198,
+            "eta_th": 0.465086,
+            "eta_p": 0.600524,
+            "eta_o": 0.279295,
+            "score": 0.801199,
+            "radius_km": 457.29,
+            "fuel_kg_per_km": 4.023,
+            "mixed_radius_km": 623.68,
+            "mixed_fuel_kg_per_km": 2.95,
+            "tsfc_mg_n_s": 33.54,
+            "max_ld": 4.899,
             "max_ld_alt_m": 18000.0,
             "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "max_radius_cruise",
             "label": "最大半径超音速巡航速度",
-            "mach": 1.3,
+            "mach": 1.31,
             "feasible": true,
             "fail_reason": null,
-            "alt_m": 11800.0,
-            "ld": 3.1346,
-            "thrust_avail_kN": 47.998,
-            "load": 0.9197,
-            "eta_th": 0.466715,
-            "eta_p": 0.577937,
-            "eta_o": 0.269732,
-            "score": 0.845498,
-            "radius_km": 482.78,
-            "fuel_kg_per_km": 3.812,
-            "mixed_radius_km": 647.43,
-            "mixed_fuel_kg_per_km": 2.842,
-            "tsfc_mg_n_s": 32.954,
-            "max_ld": 5.1882,
+            "alt_m": 11600.0,
+            "ld": 3.0137,
+            "thrust_avail_kN": 49.939,
+            "load": 0.9194,
+            "eta_th": 0.466467,
+            "eta_p": 0.581264,
+            "eta_o": 0.27114,
+            "score": 0.817139,
+            "radius_km": 466.39,
+            "fuel_kg_per_km": 3.944,
+            "mixed_radius_km": 632.08,
+            "mixed_fuel_kg_per_km": 2.91,
+            "tsfc_mg_n_s": 33.035,
+            "max_ld": 5.1285,
             "max_ld_alt_m": 18000.0,
             "max_ld_thrust_mode": "afterburner"
           },
           {
             "id": "max_possible_cruise",
             "label": "最大巡航速度",
-            "mach": 1.4431,
+            "mach": 1.4275,
             "feasible": true,
             "fail_reason": null,
             "alt_m": 11000.0,
-            "ld": 2.4566,
-            "thrust_avail_kN": 61.224,
+            "ld": 2.4884,
+            "thrust_avail_kN": 60.442,
             "load": 0.92,
-            "eta_th": 0.462279,
-            "eta_p": 0.623918,
-            "eta_o": 0.288424,
-            "score": 0.708544,
-            "radius_km": 404.58,
-            "fuel_kg_per_km": 4.549,
-            "mixed_radius_km": 573.15,
-            "mixed_fuel_kg_per_km": 3.211,
-            "tsfc_mg_n_s": 34.211,
-            "max_ld": 4.4554,
+            "eta_th": 0.462997,
+            "eta_p": 0.618925,
+            "eta_o": 0.286561,
+            "score": 0.713074,
+            "radius_km": 406.99,
+            "fuel_kg_per_km": 4.52,
+            "mixed_radius_km": 575.2,
+            "mixed_fuel_kg_per_km": 3.198,
+            "tsfc_mg_n_s": 34.062,
+            "max_ld": 4.5624,
             "max_ld_alt_m": 17800.0,
             "max_ld_thrust_mode": "afterburner"
           }
@@ -18872,10 +18872,10 @@ module.exports = {
           "max_speed_mach": 1.88,
           "max_speed_kmh": 1996.8,
           "max_speed_kts": 1078.2,
-          "alt_m": 12800.0,
-          "ld": 1.417,
-          "load": 0.9979,
-          "thrust_avail_kN": 97.854
+          "alt_m": 11000.0,
+          "ld": 1.0655,
+          "load": 0.9991,
+          "thrust_avail_kN": 129.978
         },
         "afterburner_best_altitude": [
           {
@@ -18883,15 +18883,15 @@ module.exports = {
             "label": "Ma 0.8",
             "feasible": true,
             "alt_m": 13000.0,
-            "ld": 9.5888,
+            "ld": 9.565,
             "thrust_avail_kN": 41.733,
-            "load": 0.3458,
-            "eta_th": 0.317054,
-            "eta_p": 0.565978,
-            "eta_o": 0.179446,
-            "score": 1.720663,
-            "radius_km": 982.51,
-            "fuel_kg_per_km": 1.873,
+            "load": 0.3466,
+            "eta_th": 0.317687,
+            "eta_p": 0.565267,
+            "eta_o": 0.179578,
+            "score": 1.717669,
+            "radius_km": 980.38,
+            "fuel_kg_per_km": 1.876,
             "reheat": false,
             "thrust_mode": "military",
             "ab_ceiling_km": 15.2
@@ -18901,15 +18901,15 @@ module.exports = {
             "label": "Ma 1",
             "feasible": true,
             "alt_m": 15600.0,
-            "ld": 7.6417,
+            "ld": 7.6157,
             "thrust_avail_kN": 31.456,
-            "load": 0.5756,
-            "eta_th": 0.450609,
-            "eta_p": 0.49489,
-            "eta_o": 0.223002,
-            "score": 1.704106,
-            "radius_km": 973.05,
-            "fuel_kg_per_km": 1.891,
+            "load": 0.5776,
+            "eta_th": 0.451385,
+            "eta_p": 0.493941,
+            "eta_o": 0.222958,
+            "score": 1.697986,
+            "radius_km": 969.14,
+            "fuel_kg_per_km": 1.898,
             "reheat": false,
             "thrust_mode": "military",
             "ab_ceiling_km": 17.2
@@ -18918,18 +18918,18 @@ module.exports = {
             "mach": 1.2,
             "label": "Ma 1.2",
             "feasible": true,
-            "alt_m": 13800.0,
-            "ld": 4.2655,
-            "thrust_avail_kN": 48.496,
-            "load": 0.6689,
-            "eta_th": 0.485958,
-            "eta_p": 0.522177,
-            "eta_o": 0.250717,
-            "score": 1.069437,
-            "radius_km": 610.65,
-            "fuel_kg_per_km": 3.014,
-            "reheat": true,
-            "thrust_mode": "afterburner",
+            "alt_m": 13600.0,
+            "ld": 4.1558,
+            "thrust_avail_kN": 50.05,
+            "load": 0.6653,
+            "eta_th": 0.485506,
+            "eta_p": 0.522755,
+            "eta_o": 0.253801,
+            "score": 1.054733,
+            "radius_km": 602.0,
+            "fuel_kg_per_km": 3.056,
+            "reheat": false,
+            "thrust_mode": "military",
             "ab_ceiling_km": 18.0
           },
           {
@@ -18937,33 +18937,33 @@ module.exports = {
             "label": "Ma 1.35",
             "feasible": true,
             "alt_m": 13800.0,
-            "ld": 3.8051,
+            "ld": 3.7782,
             "thrust_avail_kN": 54.7,
-            "load": 0.6648,
-            "eta_th": 0.484075,
-            "eta_p": 0.572285,
-            "eta_o": 0.277029,
-            "score": 1.054136,
-            "radius_km": 601.92,
-            "fuel_kg_per_km": 3.057,
-            "reheat": false,
-            "thrust_mode": "military",
+            "load": 0.6695,
+            "eta_th": 0.484701,
+            "eta_p": 0.571525,
+            "eta_o": 0.272798,
+            "score": 1.030682,
+            "radius_km": 588.27,
+            "fuel_kg_per_km": 3.127,
+            "reheat": true,
+            "thrust_mode": "afterburner",
             "ab_ceiling_km": 18.0
           },
           {
             "mach": 1.5,
             "label": "Ma 1.5",
             "feasible": true,
-            "alt_m": 13600.0,
-            "ld": 2.9872,
-            "thrust_avail_kN": 63.875,
-            "load": 0.7252,
+            "alt_m": 13800.0,
+            "ld": 3.0229,
+            "thrust_avail_kN": 61.891,
+            "load": 0.7396,
             "eta_th": 0.47875,
             "eta_p": 0.620512,
-            "eta_o": 0.230191,
-            "score": 0.687625,
-            "radius_km": 392.64,
-            "fuel_kg_per_km": 4.687,
+            "eta_o": 0.219245,
+            "score": 0.662756,
+            "radius_km": 378.27,
+            "fuel_kg_per_km": 4.863,
             "reheat": true,
             "thrust_mode": "afterburner",
             "ab_ceiling_km": 17.6
@@ -18972,19 +18972,19 @@ module.exports = {
             "mach": 1.75,
             "label": "Ma 1.75",
             "feasible": true,
-            "alt_m": 17200.0,
-            "ld": 3.1449,
-            "thrust_avail_kN": 44.319,
-            "load": 0.9928,
+            "alt_m": 17000.0,
+            "ld": 3.0311,
+            "thrust_avail_kN": 45.74,
+            "load": 0.998,
             "eta_th": 0.45334,
             "eta_p": 0.703743,
-            "eta_o": 0.146177,
-            "score": 0.459709,
-            "radius_km": 262.5,
-            "fuel_kg_per_km": 7.011,
+            "eta_o": 0.145326,
+            "score": 0.440501,
+            "radius_km": 251.42,
+            "fuel_kg_per_km": 7.317,
             "reheat": true,
             "thrust_mode": "afterburner",
-            "ab_ceiling_km": 17.2
+            "ab_ceiling_km": 17.0
           },
           {
             "mach": 2.0,
@@ -25308,6 +25308,4474 @@ module.exports = {
             "ab_ceiling_km": null
           }
         ]
+      }
+    }
+  },
+  "loadout_catalog": {
+    "version": 2,
+    "munitions": [
+      {
+        "id": "drop_tank_610",
+        "name": "610加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1975.0,
+        "dry_mass_kg": 120.0,
+        "fuel_kg": 1855.0,
+        "length_m": 5.0,
+        "diameter_m": 0.81,
+        "notes": "F-15 常用 610 US gal 外挂油箱；燃油约 4090 lb"
+      },
+      {
+        "id": "mk82",
+        "name": "MK-82 (500lb)",
+        "category": "unguided_bomb",
+        "mass_kg": 241.0,
+        "dry_mass_kg": 241.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.21,
+        "diameter_m": 0.273,
+        "notes": "低阻通用炸弹"
+      },
+      {
+        "id": "mk84",
+        "name": "MK-84 (2000lb)",
+        "category": "unguided_bomb",
+        "mass_kg": 925.0,
+        "dry_mass_kg": 925.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.84,
+        "diameter_m": 0.46,
+        "notes": "低阻通用炸弹"
+      },
+      {
+        "id": "gbu12",
+        "name": "GBU-12 (500lb)",
+        "category": "laser_bomb",
+        "mass_kg": 230.0,
+        "dry_mass_kg": 230.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.27,
+        "diameter_m": 0.273,
+        "notes": "Paveway II / Mk-82"
+      },
+      {
+        "id": "gbu10",
+        "name": "GBU-10 (2000lb)",
+        "category": "laser_bomb",
+        "mass_kg": 960.0,
+        "dry_mass_kg": 960.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.32,
+        "diameter_m": 0.46,
+        "notes": "Paveway II / Mk-84"
+      },
+      {
+        "id": "gbu24",
+        "name": "GBU-24 (2000lb)",
+        "category": "laser_bomb",
+        "mass_kg": 1050.0,
+        "dry_mass_kg": 1050.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.39,
+        "diameter_m": 0.46,
+        "notes": "Paveway III"
+      },
+      {
+        "id": "gbu27",
+        "name": "GBU-27 (2000lb)",
+        "category": "laser_bomb",
+        "mass_kg": 985.0,
+        "dry_mass_kg": 985.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.24,
+        "diameter_m": 0.46,
+        "notes": "加固型激光制导炸弹"
+      },
+      {
+        "id": "gbu28",
+        "name": "GBU-28 (5000lb)",
+        "category": "laser_bomb",
+        "mass_kg": 2130.0,
+        "dry_mass_kg": 2130.0,
+        "fuel_kg": 0.0,
+        "length_m": 5.84,
+        "diameter_m": 0.37,
+        "notes": "重型钻地激光制导炸弹"
+      },
+      {
+        "id": "gbu31",
+        "name": "GBU-31 (2000lb)",
+        "category": "jdam",
+        "mass_kg": 925.0,
+        "dry_mass_kg": 925.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.88,
+        "diameter_m": 0.46,
+        "notes": "JDAM / Mk-84"
+      },
+      {
+        "id": "gbu38",
+        "name": "GBU-38 (500lb)",
+        "category": "jdam",
+        "mass_kg": 253.0,
+        "dry_mass_kg": 253.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.35,
+        "diameter_m": 0.273,
+        "notes": "JDAM / Mk-82"
+      },
+      {
+        "id": "gbu54",
+        "name": "GBU-54 LJDAM",
+        "category": "jdam",
+        "mass_kg": 253.0,
+        "dry_mass_kg": 253.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.35,
+        "diameter_m": 0.273,
+        "notes": "激光 JDAM / Mk-82"
+      },
+      {
+        "id": "gbu39",
+        "name": "GBU-39 SDB",
+        "category": "glide_bomb",
+        "mass_kg": 129.0,
+        "dry_mass_kg": 129.0,
+        "fuel_kg": 0.0,
+        "length_m": 1.8,
+        "diameter_m": 0.19,
+        "notes": "小直径炸弹；BRU 多挂时按枚数计"
+      },
+      {
+        "id": "agm65",
+        "name": "AGM-65 Maverick",
+        "category": "agm",
+        "mass_kg": 300.0,
+        "dry_mass_kg": 300.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.49,
+        "diameter_m": 0.305,
+        "notes": "空对地导弹；LAU-88 可三联"
+      },
+      {
+        "id": "agm130",
+        "name": "AGM-130",
+        "category": "agm",
+        "mass_kg": 1320.0,
+        "dry_mass_kg": 1320.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.94,
+        "diameter_m": 0.46,
+        "notes": "动力滑翔炸弹"
+      },
+      {
+        "id": "gbu15",
+        "name": "GBU-15",
+        "category": "glide_bomb",
+        "mass_kg": 1135.0,
+        "dry_mass_kg": 1135.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.94,
+        "diameter_m": 0.46,
+        "notes": "电视/红外制导滑翔炸弹"
+      },
+      {
+        "id": "agm154",
+        "name": "AGM-154 JSOW",
+        "category": "glide_bomb",
+        "mass_kg": 483.0,
+        "dry_mass_kg": 483.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.1,
+        "diameter_m": 0.33,
+        "notes": "防区外滑翔武器（方形截面按等效直径）"
+      },
+      {
+        "id": "aim120",
+        "name": "AIM-120 AMRAAM",
+        "category": "aam",
+        "mass_kg": 152.0,
+        "dry_mass_kg": 152.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.65,
+        "diameter_m": 0.178,
+        "notes": "中距空空弹（与机型库一致）"
+      },
+      {
+        "id": "aim7",
+        "name": "AIM-7 Sparrow",
+        "category": "aam",
+        "mass_kg": 230.0,
+        "dry_mass_kg": 230.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.66,
+        "diameter_m": 0.203,
+        "notes": "半主动雷达中距弹"
+      },
+      {
+        "id": "aim9",
+        "name": "AIM-9 Sidewinder",
+        "category": "aam",
+        "mass_kg": 86.0,
+        "dry_mass_kg": 86.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.87,
+        "diameter_m": 0.127,
+        "notes": "近距格斗弹（含 9X 量级）"
+      },
+      {
+        "id": "catm9",
+        "name": "CATM-9 训练弹",
+        "category": "training",
+        "mass_kg": 86.0,
+        "dry_mass_kg": 86.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.87,
+        "diameter_m": 0.127,
+        "notes": "AIM-9 外形训练弹"
+      },
+      {
+        "id": "bdu33",
+        "name": "BDU-33",
+        "category": "training",
+        "mass_kg": 11.0,
+        "dry_mass_kg": 11.0,
+        "fuel_kg": 0.0,
+        "length_m": 0.57,
+        "diameter_m": 0.1,
+        "notes": "小练习弹；SUU-20 可挂 6 枚"
+      },
+      {
+        "id": "bdu38",
+        "name": "BDU-38",
+        "category": "training",
+        "mass_kg": 240.0,
+        "dry_mass_kg": 240.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.2,
+        "diameter_m": 0.27,
+        "notes": "练习炸弹"
+      },
+      {
+        "id": "bdu50",
+        "name": "BDU-50",
+        "category": "training",
+        "mass_kg": 240.0,
+        "dry_mass_kg": 240.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.2,
+        "diameter_m": 0.27,
+        "notes": "练习炸弹"
+      },
+      {
+        "id": "cbu87",
+        "name": "CBU-87",
+        "category": "cluster",
+        "mass_kg": 430.0,
+        "dry_mass_kg": 430.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.33,
+        "diameter_m": 0.4,
+        "notes": "集束炸弹"
+      },
+      {
+        "id": "cbu97",
+        "name": "CBU-97",
+        "category": "cluster",
+        "mass_kg": 450.0,
+        "dry_mass_kg": 450.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.33,
+        "diameter_m": 0.4,
+        "notes": "传感器引信武器"
+      },
+      {
+        "id": "cbu103",
+        "name": "CBU-103 WCMD",
+        "category": "cluster",
+        "mass_kg": 430.0,
+        "dry_mass_kg": 430.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.33,
+        "diameter_m": 0.4,
+        "notes": "风修正集束"
+      },
+      {
+        "id": "cbu105",
+        "name": "CBU-105 WCMD",
+        "category": "cluster",
+        "mass_kg": 450.0,
+        "dry_mass_kg": 450.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.33,
+        "diameter_m": 0.4,
+        "notes": "风修正传感器引信"
+      },
+      {
+        "id": "mk20",
+        "name": "MK-20 Rockeye",
+        "category": "cluster",
+        "mass_kg": 222.0,
+        "dry_mass_kg": 222.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.34,
+        "diameter_m": 0.335,
+        "notes": "反装甲集束"
+      },
+      {
+        "id": "blu107",
+        "name": "BLU-107 Durandal",
+        "category": "runway",
+        "mass_kg": 195.0,
+        "dry_mass_kg": 195.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.223,
+        "notes": "反跑道炸弹"
+      },
+      {
+        "id": "litening",
+        "name": "LITENING 瞄准吊舱",
+        "category": "pod",
+        "mass_kg": 200.0,
+        "dry_mass_kg": 200.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.2,
+        "diameter_m": 0.406,
+        "notes": "瞄准吊舱"
+      },
+      {
+        "id": "sniper",
+        "name": "SNIPER 瞄准吊舱",
+        "category": "pod",
+        "mass_kg": 200.0,
+        "dry_mass_kg": 200.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.41,
+        "diameter_m": 0.305,
+        "notes": "瞄准吊舱"
+      },
+      {
+        "id": "lantirn_tgt",
+        "name": "LANTIRN 瞄准吊舱",
+        "category": "pod",
+        "mass_kg": 200.0,
+        "dry_mass_kg": 200.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.51,
+        "diameter_m": 0.381,
+        "notes": "LANTIRN 目标吊舱"
+      },
+      {
+        "id": "lantirn_nav",
+        "name": "LANTIRN 导航吊舱",
+        "category": "pod",
+        "mass_kg": 195.0,
+        "dry_mass_kg": 195.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.51,
+        "diameter_m": 0.356,
+        "notes": "LANTIRN NAVFLIR"
+      },
+      {
+        "id": "axq14",
+        "name": "AXQ-14 数据链吊舱",
+        "category": "pod",
+        "mass_kg": 200.0,
+        "dry_mass_kg": 200.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.4,
+        "notes": "武器数据链"
+      },
+      {
+        "id": "zsw1",
+        "name": "ZSW-1 数据链吊舱",
+        "category": "pod",
+        "mass_kg": 200.0,
+        "dry_mass_kg": 200.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.4,
+        "notes": "武器数据链"
+      },
+      {
+        "id": "ais_pod",
+        "name": "AIS 训练吊舱",
+        "category": "pod",
+        "mass_kg": 50.0,
+        "dry_mass_kg": 50.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.0,
+        "diameter_m": 0.2,
+        "notes": "空战机动仪表吊舱"
+      },
+      {
+        "id": "travel_pod",
+        "name": "Travel Pod",
+        "category": "pod",
+        "mass_kg": 50.0,
+        "dry_mass_kg": 50.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.0,
+        "diameter_m": 0.4,
+        "notes": "旅行吊舱"
+      },
+      {
+        "id": "suu20_bdu33x6",
+        "name": "SUU-20+BDU-33×6",
+        "category": "training",
+        "mass_kg": 150.0,
+        "dry_mass_kg": 150.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.0,
+        "diameter_m": 0.4,
+        "notes": "练习弹挂架含 6 枚 BDU-33"
+      },
+      {
+        "id": "mk83",
+        "name": "MK-83 (1000lb)",
+        "category": "unguided_bomb",
+        "mass_kg": 454.0,
+        "dry_mass_kg": 454.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.99,
+        "diameter_m": 0.356,
+        "notes": "低阻通用炸弹"
+      },
+      {
+        "id": "gbu16",
+        "name": "GBU-16 (1000lb)",
+        "category": "laser_bomb",
+        "mass_kg": 454.0,
+        "dry_mass_kg": 454.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.78,
+        "diameter_m": 0.356,
+        "notes": "Paveway II / Mk-83"
+      },
+      {
+        "id": "agm84",
+        "name": "AGM-84 Harpoon",
+        "category": "asm",
+        "mass_kg": 520.0,
+        "dry_mass_kg": 520.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.84,
+        "diameter_m": 0.343,
+        "notes": "空舰导弹"
+      },
+      {
+        "id": "agm88",
+        "name": "AGM-88 HARM",
+        "category": "arm",
+        "mass_kg": 360.0,
+        "dry_mass_kg": 360.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.17,
+        "diameter_m": 0.254,
+        "notes": "反辐射导弹"
+      },
+      {
+        "id": "slam_er",
+        "name": "AGM-84H SLAM-ER",
+        "category": "asm",
+        "mass_kg": 725.0,
+        "dry_mass_kg": 725.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.36,
+        "diameter_m": 0.343,
+        "notes": "防区外对地/反舰巡航导弹"
+      },
+      {
+        "id": "drop_tank_330",
+        "name": "330加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1130.0,
+        "dry_mass_kg": 120.0,
+        "fuel_kg": 1010.0,
+        "length_m": 4.5,
+        "diameter_m": 0.66,
+        "notes": "F/A-18C/D 常用 330 US gal 外挂油箱"
+      },
+      {
+        "id": "drop_tank_480",
+        "name": "480加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1606.0,
+        "dry_mass_kg": 150.0,
+        "fuel_kg": 1456.0,
+        "length_m": 5.2,
+        "diameter_m": 0.76,
+        "notes": "F/A-18E/F 常用 480 US gal 外挂油箱"
+      }
+    ],
+    "aircraft": {
+      "F-15E": {
+        "id": "F-15E",
+        "name": "F-15E",
+        "stations": [
+          {
+            "id": "sta2",
+            "label": "2 左翼下挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "drop_tank_610@1",
+                "munition_id": "drop_tank_610",
+                "qty": 1.0,
+                "label": "610加仑副油箱",
+                "mass_kg": 1975.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 1855.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk84@1",
+                "munition_id": "mk84",
+                "qty": 1.0,
+                "label": "MK-84 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu27@1",
+                "munition_id": "gbu27",
+                "qty": 1.0,
+                "label": "GBU-27 (2000lb)",
+                "mass_kg": 985.0,
+                "dry_mass_kg": 985.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu28@1",
+                "munition_id": "gbu28",
+                "qty": 1.0,
+                "label": "GBU-28 (5000lb)",
+                "mass_kg": 2130.0,
+                "dry_mass_kg": 2130.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu54@1",
+                "munition_id": "gbu54",
+                "qty": 1.0,
+                "label": "GBU-54 LJDAM",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@3",
+                "munition_id": "agm65",
+                "qty": 3.0,
+                "label": "AGM-65 ×3 (LAU-88)",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 900.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm130@1",
+                "munition_id": "agm130",
+                "qty": 1.0,
+                "label": "AGM-130",
+                "mass_kg": 1320.0,
+                "dry_mass_kg": 1320.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu15@1",
+                "munition_id": "gbu15",
+                "qty": 1.0,
+                "label": "GBU-15",
+                "mass_kg": 1135.0,
+                "dry_mass_kg": 1135.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu38@1",
+                "munition_id": "bdu38",
+                "qty": 1.0,
+                "label": "BDU-38",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta5",
+            "label": "5 机腹中线挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "drop_tank_610@1",
+                "munition_id": "drop_tank_610",
+                "qty": 1.0,
+                "label": "610加仑副油箱",
+                "mass_kg": 1975.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 1855.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk84@1",
+                "munition_id": "mk84",
+                "qty": 1.0,
+                "label": "MK-84 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu27@1",
+                "munition_id": "gbu27",
+                "qty": 1.0,
+                "label": "GBU-27 (2000lb)",
+                "mass_kg": 985.0,
+                "dry_mass_kg": 985.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu28@1",
+                "munition_id": "gbu28",
+                "qty": 1.0,
+                "label": "GBU-28 (5000lb)",
+                "mass_kg": 2130.0,
+                "dry_mass_kg": 2130.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu39@4",
+                "munition_id": "gbu39",
+                "qty": 4.0,
+                "label": "GBU-39 SDB ×4 (BRU)",
+                "mass_kg": 516.0,
+                "dry_mass_kg": 516.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu54@1",
+                "munition_id": "gbu54",
+                "qty": 1.0,
+                "label": "GBU-54 LJDAM",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "axq14@1",
+                "munition_id": "axq14",
+                "qty": 1.0,
+                "label": "AXQ-14 数据链吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "zsw1@1",
+                "munition_id": "zsw1",
+                "qty": 1.0,
+                "label": "ZSW-1 数据链吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "suu20_bdu33x6@1",
+                "munition_id": "suu20_bdu33x6",
+                "qty": 1.0,
+                "label": "BDU-33×6 (SUU-20)",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu38@1",
+                "munition_id": "bdu38",
+                "qty": 1.0,
+                "label": "BDU-38",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta8",
+            "label": "8 右翼下挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "drop_tank_610@1",
+                "munition_id": "drop_tank_610",
+                "qty": 1.0,
+                "label": "610加仑副油箱",
+                "mass_kg": 1975.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 1855.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk84@1",
+                "munition_id": "mk84",
+                "qty": 1.0,
+                "label": "MK-84 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu27@1",
+                "munition_id": "gbu27",
+                "qty": 1.0,
+                "label": "GBU-27 (2000lb)",
+                "mass_kg": 985.0,
+                "dry_mass_kg": 985.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu28@1",
+                "munition_id": "gbu28",
+                "qty": 1.0,
+                "label": "GBU-28 (5000lb)",
+                "mass_kg": 2130.0,
+                "dry_mass_kg": 2130.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu54@1",
+                "munition_id": "gbu54",
+                "qty": 1.0,
+                "label": "GBU-54 LJDAM",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@3",
+                "munition_id": "agm65",
+                "qty": 3.0,
+                "label": "AGM-65 ×3 (LAU-88)",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 900.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm130@1",
+                "munition_id": "agm130",
+                "qty": 1.0,
+                "label": "AGM-130",
+                "mass_kg": 1320.0,
+                "dry_mass_kg": 1320.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu15@1",
+                "munition_id": "gbu15",
+                "qty": 1.0,
+                "label": "GBU-15",
+                "mass_kg": 1135.0,
+                "dry_mass_kg": 1135.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu38@1",
+                "munition_id": "bdu38",
+                "qty": 1.0,
+                "label": "BDU-38",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta2a",
+            "label": "2A 左翼挂架外侧轨",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "catm9@1",
+                "munition_id": "catm9",
+                "qty": 1.0,
+                "label": "CATM-9 训练弹",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "suu20_bdu33x6@1",
+                "munition_id": "suu20_bdu33x6",
+                "qty": 1.0,
+                "label": "BDU-33×6 (SUU-20)",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ais_pod@1",
+                "munition_id": "ais_pod",
+                "qty": 1.0,
+                "label": "AIS 训练吊舱",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta2b",
+            "label": "2B 左翼挂架内侧轨",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "catm9@1",
+                "munition_id": "catm9",
+                "qty": 1.0,
+                "label": "CATM-9 训练弹",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ais_pod@1",
+                "munition_id": "ais_pod",
+                "qty": 1.0,
+                "label": "AIS 训练吊舱",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta8a",
+            "label": "8A 右翼挂架内侧轨",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "catm9@1",
+                "munition_id": "catm9",
+                "qty": 1.0,
+                "label": "CATM-9 训练弹",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ais_pod@1",
+                "munition_id": "ais_pod",
+                "qty": 1.0,
+                "label": "AIS 训练吊舱",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta8b",
+            "label": "8B 右翼挂架外侧轨",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "catm9@1",
+                "munition_id": "catm9",
+                "qty": 1.0,
+                "label": "CATM-9 训练弹",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "suu20_bdu33x6@1",
+                "munition_id": "suu20_bdu33x6",
+                "qty": 1.0,
+                "label": "BDU-33×6 (SUU-20)",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ais_pod@1",
+                "munition_id": "ais_pod",
+                "qty": 1.0,
+                "label": "AIS 训练吊舱",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "lcft_inbd",
+            "label": "L CFT 内侧",
+            "mount_style": "cft",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim120@2",
+                "munition_id": "aim120",
+                "qty": 2.0,
+                "label": "AIM-120 AMRAAM ×2",
+                "mass_kg": 304.0,
+                "dry_mass_kg": 304.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@2",
+                "munition_id": "aim7",
+                "qty": 2.0,
+                "label": "AIM-7 Sparrow ×2",
+                "mass_kg": 460.0,
+                "dry_mass_kg": 460.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@2",
+                "munition_id": "mk82",
+                "qty": 2.0,
+                "label": "MK-82 (500lb) ×2",
+                "mass_kg": 482.0,
+                "dry_mass_kg": 482.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@3",
+                "munition_id": "mk82",
+                "qty": 3.0,
+                "label": "MK-82 (500lb) ×3",
+                "mass_kg": 723.0,
+                "dry_mass_kg": 723.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk84@1",
+                "munition_id": "mk84",
+                "qty": 1.0,
+                "label": "MK-84 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk84@2",
+                "munition_id": "mk84",
+                "qty": 2.0,
+                "label": "MK-84 (2000lb) ×2",
+                "mass_kg": 1850.0,
+                "dry_mass_kg": 1850.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@2",
+                "munition_id": "gbu12",
+                "qty": 2.0,
+                "label": "GBU-12 (500lb) ×2",
+                "mass_kg": 460.0,
+                "dry_mass_kg": 460.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu27@1",
+                "munition_id": "gbu27",
+                "qty": 1.0,
+                "label": "GBU-27 (2000lb)",
+                "mass_kg": 985.0,
+                "dry_mass_kg": 985.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@2",
+                "munition_id": "gbu31",
+                "qty": 2.0,
+                "label": "GBU-31 (2000lb) ×2",
+                "mass_kg": 1850.0,
+                "dry_mass_kg": 1850.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@2",
+                "munition_id": "gbu38",
+                "qty": 2.0,
+                "label": "GBU-38 (500lb) ×2",
+                "mass_kg": 506.0,
+                "dry_mass_kg": 506.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@3",
+                "munition_id": "gbu38",
+                "qty": 3.0,
+                "label": "GBU-38 (500lb) ×3",
+                "mass_kg": 759.0,
+                "dry_mass_kg": 759.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu39@8",
+                "munition_id": "gbu39",
+                "qty": 8.0,
+                "label": "GBU-39 SDB ×8 (2×BRU)",
+                "mass_kg": 1032.0,
+                "dry_mass_kg": 1032.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu54@1",
+                "munition_id": "gbu54",
+                "qty": 1.0,
+                "label": "GBU-54 LJDAM",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu54@2",
+                "munition_id": "gbu54",
+                "qty": 2.0,
+                "label": "GBU-54 LJDAM ×2",
+                "mass_kg": 506.0,
+                "dry_mass_kg": 506.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu54@3",
+                "munition_id": "gbu54",
+                "qty": 3.0,
+                "label": "GBU-54 LJDAM ×3",
+                "mass_kg": 759.0,
+                "dry_mass_kg": 759.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@1",
+                "munition_id": "cbu87",
+                "qty": 1.0,
+                "label": "CBU-87",
+                "mass_kg": 430.0,
+                "dry_mass_kg": 430.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@2",
+                "munition_id": "cbu87",
+                "qty": 2.0,
+                "label": "CBU-87 ×2",
+                "mass_kg": 860.0,
+                "dry_mass_kg": 860.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@3",
+                "munition_id": "cbu87",
+                "qty": 3.0,
+                "label": "CBU-87 ×3",
+                "mass_kg": 1290.0,
+                "dry_mass_kg": 1290.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@1",
+                "munition_id": "cbu97",
+                "qty": 1.0,
+                "label": "CBU-97",
+                "mass_kg": 450.0,
+                "dry_mass_kg": 450.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@2",
+                "munition_id": "cbu97",
+                "qty": 2.0,
+                "label": "CBU-97 ×2",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 900.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@3",
+                "munition_id": "cbu97",
+                "qty": 3.0,
+                "label": "CBU-97 ×3",
+                "mass_kg": 1350.0,
+                "dry_mass_kg": 1350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu103@1",
+                "munition_id": "cbu103",
+                "qty": 1.0,
+                "label": "CBU-103 WCMD",
+                "mass_kg": 430.0,
+                "dry_mass_kg": 430.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu103@2",
+                "munition_id": "cbu103",
+                "qty": 2.0,
+                "label": "CBU-103 WCMD ×2",
+                "mass_kg": 860.0,
+                "dry_mass_kg": 860.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu103@3",
+                "munition_id": "cbu103",
+                "qty": 3.0,
+                "label": "CBU-103 WCMD ×3",
+                "mass_kg": 1290.0,
+                "dry_mass_kg": 1290.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu105@1",
+                "munition_id": "cbu105",
+                "qty": 1.0,
+                "label": "CBU-105 WCMD",
+                "mass_kg": 450.0,
+                "dry_mass_kg": 450.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu105@2",
+                "munition_id": "cbu105",
+                "qty": 2.0,
+                "label": "CBU-105 WCMD ×2",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 900.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu105@3",
+                "munition_id": "cbu105",
+                "qty": 3.0,
+                "label": "CBU-105 WCMD ×3",
+                "mass_kg": 1350.0,
+                "dry_mass_kg": 1350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@1",
+                "munition_id": "mk20",
+                "qty": 1.0,
+                "label": "MK-20 Rockeye",
+                "mass_kg": 222.0,
+                "dry_mass_kg": 222.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@2",
+                "munition_id": "mk20",
+                "qty": 2.0,
+                "label": "MK-20 Rockeye ×2",
+                "mass_kg": 444.0,
+                "dry_mass_kg": 444.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@3",
+                "munition_id": "mk20",
+                "qty": 3.0,
+                "label": "MK-20 Rockeye ×3",
+                "mass_kg": 666.0,
+                "dry_mass_kg": 666.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@1",
+                "munition_id": "blu107",
+                "qty": 1.0,
+                "label": "BLU-107 Durandal",
+                "mass_kg": 195.0,
+                "dry_mass_kg": 195.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@2",
+                "munition_id": "blu107",
+                "qty": 2.0,
+                "label": "BLU-107 Durandal ×2",
+                "mass_kg": 390.0,
+                "dry_mass_kg": 390.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@3",
+                "munition_id": "blu107",
+                "qty": 3.0,
+                "label": "BLU-107 Durandal ×3",
+                "mass_kg": 585.0,
+                "dry_mass_kg": 585.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "travel_pod@1",
+                "munition_id": "travel_pod",
+                "qty": 1.0,
+                "label": "Travel Pod",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "travel_pod@2",
+                "munition_id": "travel_pod",
+                "qty": 2.0,
+                "label": "Travel Pod ×2",
+                "mass_kg": 100.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@1",
+                "munition_id": "bdu50",
+                "qty": 1.0,
+                "label": "BDU-50",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@2",
+                "munition_id": "bdu50",
+                "qty": 2.0,
+                "label": "BDU-50 ×2",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@3",
+                "munition_id": "bdu50",
+                "qty": 3.0,
+                "label": "BDU-50 ×3",
+                "mass_kg": 720.0,
+                "dry_mass_kg": 720.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu38@1",
+                "munition_id": "bdu38",
+                "qty": 1.0,
+                "label": "BDU-38",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "lcft_outbd",
+            "label": "L CFT 外侧",
+            "mount_style": "cft",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@2",
+                "munition_id": "mk82",
+                "qty": 2.0,
+                "label": "MK-82 (500lb) ×2",
+                "mass_kg": 482.0,
+                "dry_mass_kg": 482.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@3",
+                "munition_id": "mk82",
+                "qty": 3.0,
+                "label": "MK-82 (500lb) ×3",
+                "mass_kg": 723.0,
+                "dry_mass_kg": 723.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@2",
+                "munition_id": "gbu12",
+                "qty": 2.0,
+                "label": "GBU-12 (500lb) ×2",
+                "mass_kg": 460.0,
+                "dry_mass_kg": 460.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@1",
+                "munition_id": "cbu87",
+                "qty": 1.0,
+                "label": "CBU-87",
+                "mass_kg": 430.0,
+                "dry_mass_kg": 430.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@2",
+                "munition_id": "cbu87",
+                "qty": 2.0,
+                "label": "CBU-87 ×2",
+                "mass_kg": 860.0,
+                "dry_mass_kg": 860.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@3",
+                "munition_id": "cbu87",
+                "qty": 3.0,
+                "label": "CBU-87 ×3",
+                "mass_kg": 1290.0,
+                "dry_mass_kg": 1290.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@1",
+                "munition_id": "cbu97",
+                "qty": 1.0,
+                "label": "CBU-97",
+                "mass_kg": 450.0,
+                "dry_mass_kg": 450.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@2",
+                "munition_id": "cbu97",
+                "qty": 2.0,
+                "label": "CBU-97 ×2",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 900.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@3",
+                "munition_id": "cbu97",
+                "qty": 3.0,
+                "label": "CBU-97 ×3",
+                "mass_kg": 1350.0,
+                "dry_mass_kg": 1350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@1",
+                "munition_id": "mk20",
+                "qty": 1.0,
+                "label": "MK-20 Rockeye",
+                "mass_kg": 222.0,
+                "dry_mass_kg": 222.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@2",
+                "munition_id": "mk20",
+                "qty": 2.0,
+                "label": "MK-20 Rockeye ×2",
+                "mass_kg": 444.0,
+                "dry_mass_kg": 444.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@3",
+                "munition_id": "mk20",
+                "qty": 3.0,
+                "label": "MK-20 Rockeye ×3",
+                "mass_kg": 666.0,
+                "dry_mass_kg": 666.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@1",
+                "munition_id": "blu107",
+                "qty": 1.0,
+                "label": "BLU-107 Durandal",
+                "mass_kg": 195.0,
+                "dry_mass_kg": 195.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@2",
+                "munition_id": "blu107",
+                "qty": 2.0,
+                "label": "BLU-107 Durandal ×2",
+                "mass_kg": 390.0,
+                "dry_mass_kg": 390.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@3",
+                "munition_id": "blu107",
+                "qty": 3.0,
+                "label": "BLU-107 Durandal ×3",
+                "mass_kg": 585.0,
+                "dry_mass_kg": 585.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@1",
+                "munition_id": "bdu50",
+                "qty": 1.0,
+                "label": "BDU-50",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@2",
+                "munition_id": "bdu50",
+                "qty": 2.0,
+                "label": "BDU-50 ×2",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@3",
+                "munition_id": "bdu50",
+                "qty": 3.0,
+                "label": "BDU-50 ×3",
+                "mass_kg": 720.0,
+                "dry_mass_kg": 720.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "rcft_inbd",
+            "label": "R CFT 内侧",
+            "mount_style": "cft",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim120@2",
+                "munition_id": "aim120",
+                "qty": 2.0,
+                "label": "AIM-120 AMRAAM ×2",
+                "mass_kg": 304.0,
+                "dry_mass_kg": 304.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@2",
+                "munition_id": "aim7",
+                "qty": 2.0,
+                "label": "AIM-7 Sparrow ×2",
+                "mass_kg": 460.0,
+                "dry_mass_kg": 460.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@2",
+                "munition_id": "mk82",
+                "qty": 2.0,
+                "label": "MK-82 (500lb) ×2",
+                "mass_kg": 482.0,
+                "dry_mass_kg": 482.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@3",
+                "munition_id": "mk82",
+                "qty": 3.0,
+                "label": "MK-82 (500lb) ×3",
+                "mass_kg": 723.0,
+                "dry_mass_kg": 723.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk84@1",
+                "munition_id": "mk84",
+                "qty": 1.0,
+                "label": "MK-84 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk84@2",
+                "munition_id": "mk84",
+                "qty": 2.0,
+                "label": "MK-84 (2000lb) ×2",
+                "mass_kg": 1850.0,
+                "dry_mass_kg": 1850.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@2",
+                "munition_id": "gbu12",
+                "qty": 2.0,
+                "label": "GBU-12 (500lb) ×2",
+                "mass_kg": 460.0,
+                "dry_mass_kg": 460.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu27@1",
+                "munition_id": "gbu27",
+                "qty": 1.0,
+                "label": "GBU-27 (2000lb)",
+                "mass_kg": 985.0,
+                "dry_mass_kg": 985.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu27@2",
+                "munition_id": "gbu27",
+                "qty": 2.0,
+                "label": "GBU-27 (2000lb) ×2",
+                "mass_kg": 1970.0,
+                "dry_mass_kg": 1970.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@2",
+                "munition_id": "gbu31",
+                "qty": 2.0,
+                "label": "GBU-31 (2000lb) ×2",
+                "mass_kg": 1850.0,
+                "dry_mass_kg": 1850.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@2",
+                "munition_id": "gbu38",
+                "qty": 2.0,
+                "label": "GBU-38 (500lb) ×2",
+                "mass_kg": 506.0,
+                "dry_mass_kg": 506.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@3",
+                "munition_id": "gbu38",
+                "qty": 3.0,
+                "label": "GBU-38 (500lb) ×3",
+                "mass_kg": 759.0,
+                "dry_mass_kg": 759.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu39@8",
+                "munition_id": "gbu39",
+                "qty": 8.0,
+                "label": "GBU-39 SDB ×8 (2×BRU)",
+                "mass_kg": 1032.0,
+                "dry_mass_kg": 1032.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu54@1",
+                "munition_id": "gbu54",
+                "qty": 1.0,
+                "label": "GBU-54 LJDAM",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu54@2",
+                "munition_id": "gbu54",
+                "qty": 2.0,
+                "label": "GBU-54 LJDAM ×2",
+                "mass_kg": 506.0,
+                "dry_mass_kg": 506.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu54@3",
+                "munition_id": "gbu54",
+                "qty": 3.0,
+                "label": "GBU-54 LJDAM ×3",
+                "mass_kg": 759.0,
+                "dry_mass_kg": 759.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@1",
+                "munition_id": "cbu87",
+                "qty": 1.0,
+                "label": "CBU-87",
+                "mass_kg": 430.0,
+                "dry_mass_kg": 430.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@2",
+                "munition_id": "cbu87",
+                "qty": 2.0,
+                "label": "CBU-87 ×2",
+                "mass_kg": 860.0,
+                "dry_mass_kg": 860.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@3",
+                "munition_id": "cbu87",
+                "qty": 3.0,
+                "label": "CBU-87 ×3",
+                "mass_kg": 1290.0,
+                "dry_mass_kg": 1290.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@1",
+                "munition_id": "cbu97",
+                "qty": 1.0,
+                "label": "CBU-97",
+                "mass_kg": 450.0,
+                "dry_mass_kg": 450.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@2",
+                "munition_id": "cbu97",
+                "qty": 2.0,
+                "label": "CBU-97 ×2",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 900.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@3",
+                "munition_id": "cbu97",
+                "qty": 3.0,
+                "label": "CBU-97 ×3",
+                "mass_kg": 1350.0,
+                "dry_mass_kg": 1350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu103@1",
+                "munition_id": "cbu103",
+                "qty": 1.0,
+                "label": "CBU-103 WCMD",
+                "mass_kg": 430.0,
+                "dry_mass_kg": 430.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu103@2",
+                "munition_id": "cbu103",
+                "qty": 2.0,
+                "label": "CBU-103 WCMD ×2",
+                "mass_kg": 860.0,
+                "dry_mass_kg": 860.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu103@3",
+                "munition_id": "cbu103",
+                "qty": 3.0,
+                "label": "CBU-103 WCMD ×3",
+                "mass_kg": 1290.0,
+                "dry_mass_kg": 1290.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu105@1",
+                "munition_id": "cbu105",
+                "qty": 1.0,
+                "label": "CBU-105 WCMD",
+                "mass_kg": 450.0,
+                "dry_mass_kg": 450.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu105@2",
+                "munition_id": "cbu105",
+                "qty": 2.0,
+                "label": "CBU-105 WCMD ×2",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 900.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu105@3",
+                "munition_id": "cbu105",
+                "qty": 3.0,
+                "label": "CBU-105 WCMD ×3",
+                "mass_kg": 1350.0,
+                "dry_mass_kg": 1350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@1",
+                "munition_id": "mk20",
+                "qty": 1.0,
+                "label": "MK-20 Rockeye",
+                "mass_kg": 222.0,
+                "dry_mass_kg": 222.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@2",
+                "munition_id": "mk20",
+                "qty": 2.0,
+                "label": "MK-20 Rockeye ×2",
+                "mass_kg": 444.0,
+                "dry_mass_kg": 444.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@3",
+                "munition_id": "mk20",
+                "qty": 3.0,
+                "label": "MK-20 Rockeye ×3",
+                "mass_kg": 666.0,
+                "dry_mass_kg": 666.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@1",
+                "munition_id": "blu107",
+                "qty": 1.0,
+                "label": "BLU-107 Durandal",
+                "mass_kg": 195.0,
+                "dry_mass_kg": 195.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@2",
+                "munition_id": "blu107",
+                "qty": 2.0,
+                "label": "BLU-107 Durandal ×2",
+                "mass_kg": 390.0,
+                "dry_mass_kg": 390.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@3",
+                "munition_id": "blu107",
+                "qty": 3.0,
+                "label": "BLU-107 Durandal ×3",
+                "mass_kg": 585.0,
+                "dry_mass_kg": 585.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "travel_pod@1",
+                "munition_id": "travel_pod",
+                "qty": 1.0,
+                "label": "Travel Pod",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "travel_pod@2",
+                "munition_id": "travel_pod",
+                "qty": 2.0,
+                "label": "Travel Pod ×2",
+                "mass_kg": 100.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@1",
+                "munition_id": "bdu50",
+                "qty": 1.0,
+                "label": "BDU-50",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@2",
+                "munition_id": "bdu50",
+                "qty": 2.0,
+                "label": "BDU-50 ×2",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@3",
+                "munition_id": "bdu50",
+                "qty": 3.0,
+                "label": "BDU-50 ×3",
+                "mass_kg": 720.0,
+                "dry_mass_kg": 720.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu38@1",
+                "munition_id": "bdu38",
+                "qty": 1.0,
+                "label": "BDU-38",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "rcft_outbd",
+            "label": "R CFT 外侧",
+            "mount_style": "cft",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@2",
+                "munition_id": "mk82",
+                "qty": 2.0,
+                "label": "MK-82 (500lb) ×2",
+                "mass_kg": 482.0,
+                "dry_mass_kg": 482.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@3",
+                "munition_id": "mk82",
+                "qty": 3.0,
+                "label": "MK-82 (500lb) ×3",
+                "mass_kg": 723.0,
+                "dry_mass_kg": 723.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@2",
+                "munition_id": "gbu12",
+                "qty": 2.0,
+                "label": "GBU-12 (500lb) ×2",
+                "mass_kg": 460.0,
+                "dry_mass_kg": 460.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@1",
+                "munition_id": "cbu87",
+                "qty": 1.0,
+                "label": "CBU-87",
+                "mass_kg": 430.0,
+                "dry_mass_kg": 430.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@2",
+                "munition_id": "cbu87",
+                "qty": 2.0,
+                "label": "CBU-87 ×2",
+                "mass_kg": 860.0,
+                "dry_mass_kg": 860.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@3",
+                "munition_id": "cbu87",
+                "qty": 3.0,
+                "label": "CBU-87 ×3",
+                "mass_kg": 1290.0,
+                "dry_mass_kg": 1290.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@1",
+                "munition_id": "cbu97",
+                "qty": 1.0,
+                "label": "CBU-97",
+                "mass_kg": 450.0,
+                "dry_mass_kg": 450.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@2",
+                "munition_id": "cbu97",
+                "qty": 2.0,
+                "label": "CBU-97 ×2",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 900.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu97@3",
+                "munition_id": "cbu97",
+                "qty": 3.0,
+                "label": "CBU-97 ×3",
+                "mass_kg": 1350.0,
+                "dry_mass_kg": 1350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@1",
+                "munition_id": "mk20",
+                "qty": 1.0,
+                "label": "MK-20 Rockeye",
+                "mass_kg": 222.0,
+                "dry_mass_kg": 222.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@2",
+                "munition_id": "mk20",
+                "qty": 2.0,
+                "label": "MK-20 Rockeye ×2",
+                "mass_kg": 444.0,
+                "dry_mass_kg": 444.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk20@3",
+                "munition_id": "mk20",
+                "qty": 3.0,
+                "label": "MK-20 Rockeye ×3",
+                "mass_kg": 666.0,
+                "dry_mass_kg": 666.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@1",
+                "munition_id": "blu107",
+                "qty": 1.0,
+                "label": "BLU-107 Durandal",
+                "mass_kg": 195.0,
+                "dry_mass_kg": 195.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@2",
+                "munition_id": "blu107",
+                "qty": 2.0,
+                "label": "BLU-107 Durandal ×2",
+                "mass_kg": 390.0,
+                "dry_mass_kg": 390.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blu107@3",
+                "munition_id": "blu107",
+                "qty": 3.0,
+                "label": "BLU-107 Durandal ×3",
+                "mass_kg": 585.0,
+                "dry_mass_kg": 585.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@1",
+                "munition_id": "bdu50",
+                "qty": 1.0,
+                "label": "BDU-50",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@2",
+                "munition_id": "bdu50",
+                "qty": 2.0,
+                "label": "BDU-50 ×2",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bdu50@3",
+                "munition_id": "bdu50",
+                "qty": 3.0,
+                "label": "BDU-50 ×3",
+                "mass_kg": 720.0,
+                "dry_mass_kg": 720.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "ltp",
+            "label": "LTP 左侧瞄准吊舱",
+            "mount_style": "chin_pod",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "litening@1",
+                "munition_id": "litening",
+                "qty": 1.0,
+                "label": "LITENING 瞄准吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "lantirn_tgt@1",
+                "munition_id": "lantirn_tgt",
+                "qty": 1.0,
+                "label": "LANTIRN 瞄准吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "sniper@1",
+                "munition_id": "sniper",
+                "qty": 1.0,
+                "label": "SNIPER 瞄准吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "lnp",
+            "label": "LNP 导航吊舱",
+            "mount_style": "chin_pod",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "lantirn_nav@1",
+                "munition_id": "lantirn_nav",
+                "qty": 1.0,
+                "label": "LANTIRN 导航吊舱",
+                "mass_kg": 195.0,
+                "dry_mass_kg": 195.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          }
+        ],
+        "default_selection": {
+          "sta2a": "aim120@1",
+          "sta2b": "aim120@1",
+          "sta8a": "aim120@1",
+          "sta8b": "aim120@1"
+        }
+      },
+      "FA-18C": {
+        "id": "FA-18C",
+        "name": "F/A-18C/D Hornet",
+        "stations": [
+          {
+            "id": "sta1",
+            "label": "1 左翼尖",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta2",
+            "label": "2 左外侧挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "slam_er@1",
+                "munition_id": "slam_er",
+                "qty": 1.0,
+                "label": "AGM-84H SLAM-ER",
+                "mass_kg": 725.0,
+                "dry_mass_kg": 725.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta3",
+            "label": "3 左内侧挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_330@1",
+                "munition_id": "drop_tank_330",
+                "qty": 1.0,
+                "label": "330加仑副油箱",
+                "mass_kg": 1130.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 1010.0
+              }
+            ]
+          },
+          {
+            "id": "sta4",
+            "label": "4 左进气道侧挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta5",
+            "label": "5 机腹中线挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_330@1",
+                "munition_id": "drop_tank_330",
+                "qty": 1.0,
+                "label": "330加仑副油箱",
+                "mass_kg": 1130.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 1010.0
+              }
+            ]
+          },
+          {
+            "id": "sta6",
+            "label": "6 右进气道侧挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta7",
+            "label": "7 右内侧挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_330@1",
+                "munition_id": "drop_tank_330",
+                "qty": 1.0,
+                "label": "330加仑副油箱",
+                "mass_kg": 1130.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 1010.0
+              }
+            ]
+          },
+          {
+            "id": "sta8",
+            "label": "8 右外侧挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "slam_er@1",
+                "munition_id": "slam_er",
+                "qty": 1.0,
+                "label": "AGM-84H SLAM-ER",
+                "mass_kg": 725.0,
+                "dry_mass_kg": 725.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta9",
+            "label": "9 右翼尖",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          }
+        ],
+        "default_selection": {
+          "sta1": "aim9@1",
+          "sta4": "aim120@1",
+          "sta6": "aim120@1",
+          "sta9": "aim9@1"
+        }
+      },
+      "FA-18E": {
+        "id": "FA-18E",
+        "name": "F/A-18E Super Hornet",
+        "stations": [
+          {
+            "id": "sta1",
+            "label": "1 左翼尖",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta2",
+            "label": "2 左外侧挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta3",
+            "label": "3 左中外挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "slam_er@1",
+                "munition_id": "slam_er",
+                "qty": 1.0,
+                "label": "AGM-84H SLAM-ER",
+                "mass_kg": 725.0,
+                "dry_mass_kg": 725.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_480@1",
+                "munition_id": "drop_tank_480",
+                "qty": 1.0,
+                "label": "480加仑副油箱",
+                "mass_kg": 1606.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 1456.0
+              }
+            ]
+          },
+          {
+            "id": "sta4",
+            "label": "4 左中内挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "slam_er@1",
+                "munition_id": "slam_er",
+                "qty": 1.0,
+                "label": "AGM-84H SLAM-ER",
+                "mass_kg": 725.0,
+                "dry_mass_kg": 725.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_480@1",
+                "munition_id": "drop_tank_480",
+                "qty": 1.0,
+                "label": "480加仑副油箱",
+                "mass_kg": 1606.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 1456.0
+              }
+            ]
+          },
+          {
+            "id": "sta5",
+            "label": "5 左进气道侧挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta6",
+            "label": "6 机腹中线挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_480@1",
+                "munition_id": "drop_tank_480",
+                "qty": 1.0,
+                "label": "480加仑副油箱",
+                "mass_kg": 1606.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 1456.0
+              }
+            ]
+          },
+          {
+            "id": "sta7",
+            "label": "7 右进气道侧挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta8",
+            "label": "8 右中内挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "slam_er@1",
+                "munition_id": "slam_er",
+                "qty": 1.0,
+                "label": "AGM-84H SLAM-ER",
+                "mass_kg": 725.0,
+                "dry_mass_kg": 725.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_480@1",
+                "munition_id": "drop_tank_480",
+                "qty": 1.0,
+                "label": "480加仑副油箱",
+                "mass_kg": 1606.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 1456.0
+              }
+            ]
+          },
+          {
+            "id": "sta9",
+            "label": "9 右中外挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "slam_er@1",
+                "munition_id": "slam_er",
+                "qty": 1.0,
+                "label": "AGM-84H SLAM-ER",
+                "mass_kg": 725.0,
+                "dry_mass_kg": 725.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm154@1",
+                "munition_id": "agm154",
+                "qty": 1.0,
+                "label": "AGM-154 JSOW",
+                "mass_kg": 483.0,
+                "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta10",
+            "label": "10 右外侧挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7 Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm88@1",
+                "munition_id": "agm88",
+                "qty": 1.0,
+                "label": "AGM-88 HARM",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta11",
+            "label": "11 右翼尖",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9 Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          }
+        ],
+        "default_selection": {
+          "sta1": "aim9@1",
+          "sta5": "aim120@1",
+          "sta7": "aim120@1",
+          "sta11": "aim9@1"
+        }
       }
     }
   },

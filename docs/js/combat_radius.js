@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 82;
+const APP_VERSION = 83;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -16,10 +16,13 @@ const COMBAT_RADIUS_PY_FILES = [
   'utils/combat_radius/military_thrust.py',
   'utils/combat_radius/engine_efficiency.py',
   'utils/combat_radius/cruise_load.py',
+  'utils/combat_radius/loadout.py',
   'utils/combat_radius/breguet.py',
   'utils/combat_radius/cruise_search.py',
   'utils/combat_radius/max_speed_search.py',
   'utils/combat_radius/combat_radius_presets.py',
+  'data/munitions_database.csv',
+  'data/aircraft_stations_database.json',
   'simulators/__init__.py',
   'simulators/combat_radius/__init__.py',
   'simulators/combat_radius/combat_radius.py',
@@ -35,6 +38,7 @@ const COMBAT_RADIUS_IMPORTS = [
   'utils.combat_radius.military_thrust',
   'utils.combat_radius.engine_efficiency',
   'utils.combat_radius.cruise_load',
+  'utils.combat_radius.loadout',
   'utils.combat_radius.breguet',
   'utils.combat_radius.cruise_search',
   'utils.combat_radius.max_speed_search',
@@ -56,6 +60,8 @@ let currentAircraftName = '';
 let f135TsfcMode = 'published';
 /** 选机后尚未改其它参数时，切回 1.22 可直接用预计算快照。 */
 let snapshotEligible = false;
+/** 当前机型挂点选择：station_id → option key。 */
+let loadoutSelection = {};
 
 function $(id) {
   return document.getElementById(id);
@@ -215,6 +221,80 @@ function wingLoadingFromCombatMass(emptyKg, fuelKg, area, nPilots, missileKg, nM
   return massT / area;
 }
 
+/** 当前机型是否有挂点挂载表。 */
+function currentLoadoutAircraft() {
+  const id = $('tgtPreset') ? $('tgtPreset').value : '';
+  const catalog = data?.loadout_catalog?.aircraft || {};
+  return id && catalog[id] ? catalog[id] : null;
+}
+
+/** 按当前选择汇总挂载干重与外挂燃油（前端即时显示）。 */
+function summarizeLoadoutSelection(acLoadout, selection) {
+  let payload = 0;
+  let extFuel = 0;
+  (acLoadout?.stations || []).forEach((st) => {
+    const key = selection[st.id] || '';
+    if (!key) return;
+    const opt = (st.options || []).find((o) => o.key === key);
+    if (!opt) return;
+    payload += Number(opt.dry_mass_kg) || 0;
+    extFuel += Number(opt.fuel_kg) || 0;
+  });
+  return { payload_mass_kg: payload, external_fuel_kg: extFuel };
+}
+
+function syncLoadoutSummaryFields() {
+  const ac = currentLoadoutAircraft();
+  if (!ac || !$('loadoutPayload')) return;
+  const sum = summarizeLoadoutSelection(ac, loadoutSelection);
+  $('loadoutPayload').value = fmtDerived(sum.payload_mass_kg, 1);
+  $('loadoutExtFuel').value = fmtDerived(sum.external_fuel_kg, 1);
+  // 兼容旧字段：整包挂载按 1 件计入空战重量
+  if ($('wtMissile')) $('wtMissile').value = String(sum.payload_mass_kg);
+  if ($('wtNMissiles')) $('wtNMissiles').value = sum.payload_mass_kg > 0 ? '1' : '0';
+}
+
+function renderLoadoutPanel(aircraftId) {
+  const box = $('loadoutBox');
+  const simple = $('simpleWeaponsBox');
+  const host = $('loadoutStations');
+  if (!box || !host) return;
+  const ac = (data?.loadout_catalog?.aircraft || {})[aircraftId];
+  if (!ac) {
+    box.hidden = true;
+    if (simple) simple.hidden = false;
+    loadoutSelection = {};
+    return;
+  }
+  box.hidden = false;
+  if (simple) simple.hidden = true;
+  const defaults = ac.default_selection || {};
+  loadoutSelection = {};
+  (ac.stations || []).forEach((st) => {
+    loadoutSelection[st.id] = defaults[st.id] || '';
+  });
+  host.innerHTML = (ac.stations || []).map((st) => {
+    const opts = (st.options || []).map((o) => (
+      `<option value="${o.key}">${o.label}</option>`
+    )).join('');
+    return `<div class="field">
+      <label>${st.label}</label>
+      <select data-station="${st.id}" class="loadout-station">${opts}</select>
+    </div>`;
+  }).join('');
+  host.querySelectorAll('select.loadout-station').forEach((sel) => {
+    const sid = sel.getAttribute('data-station');
+    sel.value = loadoutSelection[sid] || '';
+    sel.addEventListener('change', () => {
+      loadoutSelection[sid] = sel.value || '';
+      syncLoadoutSummaryFields();
+      syncDerivedLoads();
+      scheduleLiveDash();
+    });
+  });
+  syncLoadoutSummaryFields();
+}
+
 function fmtDerived(n, digits) {
   if (n == null || !Number.isFinite(n)) return '';
   return String(Number(n.toFixed(digits)));
@@ -225,9 +305,19 @@ function syncDerivedLoads() {
   if (!$('tgt_AR') || !$('tgt_wl')) return;
   const ar = aspectRatioFromGeometry(Number($('tgt_span').value), Number($('tgt_area').value));
   if (ar != null) $('tgt_AR').value = fmtDerived(ar, 4);
+  const ac = currentLoadoutAircraft();
+  let fuelKg = Number($('wtFuel').value);
+  let missileKg = Number($('wtMissile').value);
+  let nMissiles = Number($('wtNMissiles').value);
+  if (ac) {
+    const sum = summarizeLoadoutSelection(ac, loadoutSelection);
+    fuelKg = Number($('wtFuel').value) + sum.external_fuel_kg;
+    missileKg = sum.payload_mass_kg;
+    nMissiles = sum.payload_mass_kg > 0 ? 1 : 0;
+  }
   const wl = wingLoadingFromCombatMass(
-    $('wtEmpty').value, $('wtFuel').value, Number($('tgt_area').value),
-    $('wtPilots').value, $('wtMissile').value, $('wtNMissiles').value,
+    $('wtEmpty').value, fuelKg, Number($('tgt_area').value),
+    $('wtPilots').value, missileKg, nMissiles,
   );
   if (wl != null) $('tgt_wl').value = fmtDerived(wl, 6);
 }
@@ -280,6 +370,7 @@ function applyPresetToFields(preset) {
     $('tgt_sweep_kink').value = preset.sweep_kink_span_frac != null ? preset.sweep_kink_span_frac : '';
   }
   applyWeightFromPreset(preset);
+  renderLoadoutPanel(preset.id);
   syncDoubleDeltaFields();
   syncDerivedLoads();
   f135TsfcMode = 'published';
@@ -444,6 +535,14 @@ function readDashboardParams() {
   if ($('tgt_type_label') && $('tgt_type_label').value) {
     params.type_label = $('tgt_type_label').value;
   }
+  const ac = currentLoadoutAircraft();
+  if (ac) {
+    params.aircraft_id = ac.id;
+    params.loadout = {
+      aircraft_id: ac.id,
+      selection: { ...loadoutSelection },
+    };
+  }
   return params;
 }
 
@@ -491,6 +590,13 @@ if '/py' not in sys.path:
   pyodide.globals.set('_combat_radius_cfg', JSON.stringify(data.combat_radius_config || {}));
   pyodide.globals.set('_cr_ac', JSON.stringify(data.combat_radius_presets || []));
   pyodide.globals.set('_cr_eng', JSON.stringify(data.combat_radius_engine_presets || []));
+  // 挂载 CSV/JSON 写入虚拟盘，供 loadout 模块读盘
+  for (const name of ['data/munitions_database.csv', 'data/aircraft_stations_database.json']) {
+    const text = data.py_sources[name];
+    if (text == null) continue;
+    try { pyodide.FS.mkdir('/py/data'); } catch { /* exists */ }
+    pyodide.FS.writeFile(`/py/${name}`, text);
+  }
   await pyodide.runPythonAsync(`
 import json
 from utils.combat_radius.combat_radius_config import inject_combat_radius_config

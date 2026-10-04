@@ -156,6 +156,20 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var wtNMissiles = "4"
     @Published var wtEngines = "1"
     @Published var wtCarrier = false
+    @Published var showLoadout = false
+    @Published var loadoutRows: [LoadoutStationRow] = []
+    @Published var loadoutSelection: [String: String] = [:]
+    @Published var loadoutPayload = ""
+    @Published var loadoutExtFuel = ""
+    private var loadoutCatalog: [String: LoadoutAircraftItem] = [:]
+
+    /// 挂点 UI 行
+    struct LoadoutStationRow: Identifiable {
+        var id: String
+        var label: String
+        var options: [LoadoutOptionItem]
+        var selectedKey: String
+    }
     @Published var showF135TsfcToggle = false
     @Published var f135TsfcMode = "published"
     @Published var f135TsfcPublishedLabel = "×1.22 公开军推"
@@ -197,6 +211,7 @@ final class CombatRadiusViewModel: ObservableObject {
             )
             enginePresets = catalog.combat_radius_engine_presets ?? []
             resultsMap = catalog.combat_radius_results?.aircraft ?? [:]
+            loadoutCatalog = catalog.loadout_catalog?.aircraft ?? [:]
             if let labels = catalog.combat_radius_config?.planform_labels, !labels.isEmpty {
                 let order = ["trapezoidal", "swept", "delta", "double_delta", "diamond", "lambda", "unswept"]
                 planformOptions = orderedPairs(labels, preferred: order)
@@ -262,6 +277,7 @@ final class CombatRadiusViewModel: ObservableObject {
         applying = true
         tgt.apply(p)
         applyWeight(from: p)
+        applyLoadout(for: p.id)
         refreshDerivedLoads()
         if let engId = p.engine_id, enginePresets.contains(where: { $0.id == engId }) {
             selectedEngineId = engId
@@ -274,11 +290,65 @@ final class CombatRadiusViewModel: ObservableObject {
         }
     }
 
+    /// 按机型挂点表填充默认挂载 UI
+    func applyLoadout(for aircraftId: String) {
+        guard let ac = loadoutCatalog[aircraftId], let stations = ac.stations, !stations.isEmpty else {
+            showLoadout = false
+            loadoutRows = []
+            loadoutSelection = [:]
+            loadoutPayload = ""
+            loadoutExtFuel = ""
+            return
+        }
+        showLoadout = true
+        let defaults = ac.default_selection ?? [:]
+        var selection: [String: String] = [:]
+        loadoutRows = stations.map { st in
+            let key = defaults[st.id] ?? ""
+            selection[st.id] = key
+            return LoadoutStationRow(
+                id: st.id,
+                label: st.label ?? st.id,
+                options: st.options ?? [],
+                selectedKey: key
+            )
+        }
+        loadoutSelection = selection
+        syncLoadoutSummary()
+    }
+
+    /// 挂点选择变更
+    func setLoadout(stationId: String, key: String) {
+        loadoutSelection[stationId] = key
+        if let idx = loadoutRows.firstIndex(where: { $0.id == stationId }) {
+            loadoutRows[idx].selectedKey = key
+        }
+        syncLoadoutSummary()
+        scheduleLiveDash()
+    }
+
+    /// 汇总挂载干重与外油，并回写中距弹字段
+    func syncLoadoutSummary() {
+        var payload = 0.0
+        var extFuel = 0.0
+        for row in loadoutRows {
+            let key = loadoutSelection[row.id] ?? ""
+            guard let opt = row.options.first(where: { $0.key == key }) else { continue }
+            payload += opt.dry_mass_kg ?? 0
+            extFuel += opt.fuel_kg ?? 0
+        }
+        loadoutPayload = String(format: "%.1f", payload)
+        loadoutExtFuel = String(format: "%.1f", extFuel)
+        wtMissile = String(format: "%.1f", payload)
+        wtNMissiles = payload > 0 ? "1" : "0"
+    }
+
     /// 按当前翼展、翼面积与重量刷新只读展弦比和翼载荷。
     func refreshDerivedLoads() {
+        let ext = showLoadout ? (Double(loadoutExtFuel) ?? 0) : 0
         tgt.refreshDerived(
             emptyKg: Double(wtEmpty) ?? 0,
-            fuelKg: Double(wtFuel) ?? 0,
+            fuelKg: (Double(wtFuel) ?? 0) + ext,
             nPilots: Double(wtPilots) ?? 1,
             missileKg: Double(wtMissile) ?? 0,
             nMissiles: Double(wtNMissiles) ?? 4
@@ -368,6 +438,13 @@ final class CombatRadiusViewModel: ObservableObject {
         params["tsfc_install_mult"] = currentTsfcInstallMult()
         if !tgt.typeLabel.isEmpty {
             params["type_label"] = tgt.typeLabel
+        }
+        if showLoadout, !selectedTgtId.isEmpty {
+            params["aircraft_id"] = selectedTgtId
+            params["loadout"] = [
+                "aircraft_id": selectedTgtId,
+                "selection": loadoutSelection,
+            ]
         }
         return params
     }

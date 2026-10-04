@@ -1,0 +1,46 @@
+id,name,category,mass_kg,dry_mass_kg,fuel_kg,length_m,diameter_m,notes
+drop_tank_610,610加仑副油箱,fuel_tank,1975,120,1855,5.00,0.81,F-15 常用 610 US gal 外挂油箱；燃油约 4090 lb
+mk82,MK-82 (500lb),unguided_bomb,241,241,0,2.21,0.273,低阻通用炸弹
+mk84,MK-84 (2000lb),unguided_bomb,925,925,0,3.84,0.46,低阻通用炸弹
+gbu12,GBU-12 (500lb),laser_bomb,230,230,0,3.27,0.273,Paveway II / Mk-82
+gbu10,GBU-10 (2000lb),laser_bomb,960,960,0,4.32,0.46,Paveway II / Mk-84
+gbu24,GBU-24 (2000lb),laser_bomb,1050,1050,0,4.39,0.46,Paveway III
+gbu27,GBU-27 (2000lb),laser_bomb,985,985,0,4.24,0.46,加固型激光制导炸弹
+gbu28,GBU-28 (5000lb),laser_bomb,2130,2130,0,5.84,0.37,重型钻地激光制导炸弹
+gbu31,GBU-31 (2000lb),jdam,925,925,0,3.88,0.46,JDAM / Mk-84
+gbu38,GBU-38 (500lb),jdam,253,253,0,2.35,0.273,JDAM / Mk-82
+gbu54,GBU-54 LJDAM,jdam,253,253,0,2.35,0.273,激光 JDAM / Mk-82
+gbu39,GBU-39 SDB,glide_bomb,129,129,0,1.80,0.190,小直径炸弹；BRU 多挂时按枚数计
+agm65,AGM-65 Maverick,agm,300,300,0,2.49,0.305,空对地导弹；LAU-88 可三联
+agm130,AGM-130,agm,1320,1320,0,3.94,0.46,动力滑翔炸弹
+gbu15,GBU-15,glide_bomb,1135,1135,0,3.94,0.46,电视/红外制导滑翔炸弹
+agm154,AGM-154 JSOW,glide_bomb,483,483,0,4.10,0.330,防区外滑翔武器（方形截面按等效直径）
+aim120,AIM-120 AMRAAM,aam,152,152,0,3.65,0.178,中距空空弹（与机型库一致）
+aim7,AIM-7 Sparrow,aam,230,230,0,3.66,0.203,半主动雷达中距弹
+aim9,AIM-9 Sidewinder,aam,86,86,0,2.87,0.127,近距格斗弹（含 9X 量级）
+catm9,CATM-9 训练弹,training,86,86,0,2.87,0.127,AIM-9 外形训练弹
+bdu33,BDU-33,training,11,11,0,0.57,0.100,小练习弹；SUU-20 可挂 6 枚
+bdu38,BDU-38,training,240,240,0,2.20,0.270,练习炸弹
+bdu50,BDU-50,training,240,240,0,2.20,0.270,练习炸弹
+cbu87,CBU-87,cluster,430,430,0,2.33,0.400,集束炸弹
+cbu97,CBU-97,cluster,450,450,0,2.33,0.400,传感器引信武器
+cbu103,CBU-103 WCMD,cluster,430,430,0,2.33,0.400,风修正集束
+cbu105,CBU-105 WCMD,cluster,450,450,0,2.33,0.400,风修正传感器引信
+mk20,MK-20 Rockeye,cluster,222,222,0,2.34,0.335,反装甲集束
+blu107,BLU-107 Durandal,runway,195,195,0,2.50,0.223,反跑道炸弹
+litening,LITENING 瞄准吊舱,pod,200,200,0,2.20,0.406,瞄准吊舱
+sniper,SNIPER 瞄准吊舱,pod,200,200,0,2.41,0.305,瞄准吊舱
+lantirn_tgt,LANTIRN 瞄准吊舱,pod,200,200,0,2.51,0.381,LANTIRN 目标吊舱
+lantirn_nav,LANTIRN 导航吊舱,pod,195,195,0,2.51,0.356,LANTIRN NAVFLIR
+axq14,AXQ-14 数据链吊舱,pod,200,200,0,2.50,0.400,武器数据链
+zsw1,ZSW-1 数据链吊舱,pod,200,200,0,2.50,0.400,武器数据链
+ais_pod,AIS 训练吊舱,pod,50,50,0,2.00,0.200,空战机动仪表吊舱
+travel_pod,Travel Pod,pod,50,50,0,2.00,0.400,旅行吊舱
+suu20_bdu33x6,SUU-20+BDU-33×6,training,150,150,0,3.00,0.400,练习弹挂架含 6 枚 BDU-33
+mk83,MK-83 (1000lb),unguided_bomb,454,454,0,2.99,0.356,低阻通用炸弹
+gbu16,GBU-16 (1000lb),laser_bomb,454,454,0,3.78,0.356,Paveway II / Mk-83
+agm84,AGM-84 Harpoon,asm,520,520,0,3.84,0.343,空舰导弹
+agm88,AGM-88 HARM,arm,360,360,0,4.17,0.254,反辐射导弹
+slam_er,AGM-84H SLAM-ER,asm,725,725,0,4.36,0.343,防区外对地/反舰巡航导弹
+drop_tank_330,330加仑副油箱,fuel_tank,1130,120,1010,4.50,0.66,F/A-18C/D 常用 330 US gal 外挂油箱
+drop_tank_480,480加仑副油箱,fuel_tank,1606,150,1456,5.20,0.76,F/A-18E/F 常用 480 US gal 外挂油箱

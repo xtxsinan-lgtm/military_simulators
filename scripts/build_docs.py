@@ -46,6 +46,7 @@ PY_LOAD_ORDER = [
     'utils/combat_radius/military_thrust.py',
     'utils/combat_radius/engine_efficiency.py',
     'utils/combat_radius/cruise_load.py',
+    'utils/combat_radius/loadout.py',
     'utils/combat_radius/breguet.py',
     'utils/combat_radius/cruise_search.py',
     'utils/combat_radius/max_speed_search.py',
@@ -99,6 +100,7 @@ PY_IMPORT_ORDER = [
     'utils.combat_radius.military_thrust',
     'utils.combat_radius.engine_efficiency',
     'utils.combat_radius.cruise_load',
+    'utils.combat_radius.loadout',
     'utils.combat_radius.breguet',
     'utils.combat_radius.cruise_search',
     'utils.combat_radius.max_speed_search',
@@ -122,6 +124,8 @@ PY_IMPORT_ORDER = [
 # 非 Python 数据文件：写入虚拟文件系统，不参与 import
 PY_DATA_FILES = (
     'data/missile_range_preset_database.csv',
+    'data/munitions_database.csv',
+    'data/aircraft_stations_database.json',
 )
 
 

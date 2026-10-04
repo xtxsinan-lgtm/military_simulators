@@ -123,17 +123,37 @@
       <input class="input" type="number" value="{{wtPilots}}" data-key="wtPilots" bindinput="onField"/>
     </view>
     <view class="field">
-      <view class="field-label"><text>单枚中距弹</text><text class="unit">kg</text></view>
-      <input class="input" type="digit" value="{{wtMissile}}" data-key="wtMissile" bindinput="onField"/>
-    </view>
-    <view class="field">
-      <view class="field-label"><text>挂弹数</text></view>
-      <input class="input" type="number" value="{{wtNMissiles}}" data-key="wtNMissiles" bindinput="onField"/>
-    </view>
-    <view class="field">
       <view class="field-label"><text>发动机台数</text></view>
       <input class="input" type="number" value="{{wtEngines}}" data-key="wtEngines" bindinput="onField"/>
     </view>
+    <block wx:if="{{!showLoadout}}">
+      <view class="field">
+        <view class="field-label"><text>单枚中距弹</text><text class="unit">kg</text></view>
+        <input class="input" type="digit" value="{{wtMissile}}" data-key="wtMissile" bindinput="onField"/>
+      </view>
+      <view class="field">
+        <view class="field-label"><text>挂弹数</text></view>
+        <input class="input" type="number" value="{{wtNMissiles}}" data-key="wtNMissiles" bindinput="onField"/>
+      </view>
+    </block>
+    <block wx:if="{{showLoadout}}">
+      <view class="section cyan">▸ 挂载配置</view>
+      <view class="note">按挂点选择副油箱/弹药；质量与阻力按公开尺寸估算。</view>
+      <view class="field" wx:for="{{loadoutRows}}" wx:key="id">
+        <view class="field-label"><text>{{item.label}}</text></view>
+        <picker mode="selector" range="{{item.optionLabels}}" value="{{item.index}}" data-station="{{item.id}}" bindchange="onLoadoutStation">
+          <view class="picker-val">{{item.optionLabels[item.index]}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <view class="field-label"><text>挂载干重</text><text class="unit">kg · 计算</text></view>
+        <view class="input input-readonly">{{loadoutPayload || '—'}}</view>
+      </view>
+      <view class="field">
+        <view class="field-label"><text>外挂燃油</text><text class="unit">kg · 计算</text></view>
+        <view class="input input-readonly">{{loadoutExtFuel || '—'}}</view>
+      </view>
+    </block>
     <view class="check-row">
       <label><switch checked="{{wtCarrier}}" bindchange="onCarrierSwitch"/> 舰载弹射 45 min；垂起与陆基 30 min</label>
     </view>
