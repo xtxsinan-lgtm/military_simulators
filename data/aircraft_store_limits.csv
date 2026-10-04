@@ -1,0 +1,7 @@
+aircraft_id,store_id,max_count,scope,notes
+MiG-29K,tank_1900l,1,aircraft,机腹中央副油箱最多 1 个
+MiG-29K,optronic_pod,1,aircraft,光电吊舱最多 1 个
+MiG-29K,tank_1500l,2,aircraft,"1,500 L 副油箱全机最多 2 个（最内侧挂点）"
+MiG-29K,r27er1,2,aircraft,R-27ER1 仅最内侧挂点且全机最多 2 枚
+MiG-29K,r27et1,2,aircraft,R-27ET1 仅最内侧挂点且全机最多 2 枚
+MiG-29K,active_jammer,2,aircraft,主动干扰机全机最多 2 个（最外侧挂点）

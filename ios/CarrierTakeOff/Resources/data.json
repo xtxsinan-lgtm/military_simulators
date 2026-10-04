@@ -1,5 +1,5 @@
 {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -30275,6 +30275,423 @@
       }
     ]
   },
+  "aircraft_stores": {
+    "stores": [
+      {
+        "id": "active_jammer",
+        "name": "主动干扰机 Active jammer",
+        "category": "ecm",
+        "mass_kg": 150.0,
+        "length_m": 2.0,
+        "diameter_m": 0.3,
+        "notes": "自卫电子战；最外侧挂点；全机最多 2 个"
+      },
+      {
+        "id": "bomb_50_500",
+        "name": "50–500 kg 无制导炸弹",
+        "category": "bomb_unguided",
+        "mass_kg": 250.0,
+        "length_m": 2.0,
+        "diameter_m": 0.35,
+        "notes": "各型无制导炸弹；质量按 250 kg 代表值估算"
+      },
+      {
+        "id": "kab500kr",
+        "name": "KAB-500KR",
+        "category": "bomb_guided",
+        "mass_kg": 500.0,
+        "length_m": 3.05,
+        "diameter_m": 0.4,
+        "notes": "电视制导炸弹"
+      },
+      {
+        "id": "kab500l",
+        "name": "KAB-500L",
+        "category": "bomb_guided",
+        "mass_kg": 500.0,
+        "length_m": 3.05,
+        "diameter_m": 0.4,
+        "notes": "激光制导炸弹"
+      },
+      {
+        "id": "kab500od",
+        "name": "KAB-500OD",
+        "category": "bomb_guided",
+        "mass_kg": 500.0,
+        "length_m": 3.05,
+        "diameter_m": 0.4,
+        "notes": "光学制导炸弹"
+      },
+      {
+        "id": "kh29l",
+        "name": "Kh-29L",
+        "category": "agm",
+        "mass_kg": 660.0,
+        "length_m": 3.89,
+        "diameter_m": 0.38,
+        "notes": "激光制导空地导弹"
+      },
+      {
+        "id": "kh29t",
+        "name": "Kh-29T",
+        "category": "agm",
+        "mass_kg": 660.0,
+        "length_m": 3.89,
+        "diameter_m": 0.38,
+        "notes": "电视制导空地导弹"
+      },
+      {
+        "id": "kh31a",
+        "name": "Kh-31A",
+        "category": "agm",
+        "mass_kg": 610.0,
+        "length_m": 4.7,
+        "diameter_m": 0.36,
+        "notes": "反辐射/反舰导弹"
+      },
+      {
+        "id": "kh31p",
+        "name": "Kh-31P",
+        "category": "agm",
+        "mass_kg": 600.0,
+        "length_m": 4.7,
+        "diameter_m": 0.36,
+        "notes": "反辐射导弹"
+      },
+      {
+        "id": "kh35",
+        "name": "Kh-35 (Kh-35UE)",
+        "category": "agm",
+        "mass_kg": 520.0,
+        "length_m": 3.85,
+        "diameter_m": 0.42,
+        "notes": "反舰导弹"
+      },
+      {
+        "id": "optronic_pod",
+        "name": "光电吊舱 Optronic pod",
+        "category": "pod_optronic",
+        "mass_kg": 200.0,
+        "length_m": 2.5,
+        "diameter_m": 0.35,
+        "notes": "机腹中央；全机最多 1 个"
+      },
+      {
+        "id": "r27er1",
+        "name": "R-27ER1 (R-27ER)",
+        "category": "aam_mrm",
+        "mass_kg": 350.0,
+        "length_m": 4.78,
+        "diameter_m": 0.23,
+        "notes": "增程半主动雷达弹；仅最内侧挂点；全机最多 2 枚"
+      },
+      {
+        "id": "r27et1",
+        "name": "R-27ET1 (R-27ET)",
+        "category": "aam_mrm",
+        "mass_kg": 345.0,
+        "length_m": 4.5,
+        "diameter_m": 0.23,
+        "notes": "增程红外制导弹；仅最内侧挂点；全机最多 2 枚"
+      },
+      {
+        "id": "r27r1",
+        "name": "R-27R1 (R-27R)",
+        "category": "aam_mrm",
+        "mass_kg": 253.0,
+        "length_m": 4.08,
+        "diameter_m": 0.23,
+        "notes": "中距半主动雷达弹"
+      },
+      {
+        "id": "r27t1",
+        "name": "R-27T1 (R-27T)",
+        "category": "aam_mrm",
+        "mass_kg": 248.0,
+        "length_m": 3.77,
+        "diameter_m": 0.23,
+        "notes": "中距红外制导弹"
+      },
+      {
+        "id": "r73e",
+        "name": "R-73E",
+        "category": "aam_wvr",
+        "mass_kg": 105.0,
+        "length_m": 2.93,
+        "diameter_m": 0.17,
+        "notes": "近距红外格斗弹"
+      },
+      {
+        "id": "rvv_ae",
+        "name": "RVV-AE (R-77)",
+        "category": "aam_bvr",
+        "mass_kg": 175.0,
+        "length_m": 3.6,
+        "diameter_m": 0.2,
+        "notes": "中距主动雷达弹"
+      },
+      {
+        "id": "s24b",
+        "name": "S-24B 重型火箭弹",
+        "category": "rocket",
+        "mass_kg": 235.0,
+        "length_m": 2.33,
+        "diameter_m": 0.24,
+        "notes": "240 mm 单发火箭"
+      },
+      {
+        "id": "s8_b8m1",
+        "name": "S-8 火箭巢 B-8M1",
+        "category": "rocket",
+        "mass_kg": 150.0,
+        "length_m": 1.57,
+        "diameter_m": 0.2,
+        "notes": "80 mm 火箭发射巢"
+      },
+      {
+        "id": "tank_1500l",
+        "name": "1,500 L 副油箱",
+        "category": "tank",
+        "mass_kg": 1220.0,
+        "length_m": 4.5,
+        "diameter_m": 0.55,
+        "notes": "最内侧挂点；含燃油约 1150 kg；全机最多 2 个"
+      },
+      {
+        "id": "tank_1900l",
+        "name": "1,900 L 副油箱",
+        "category": "tank",
+        "mass_kg": 1520.0,
+        "length_m": 5.4,
+        "diameter_m": 0.6,
+        "notes": "机腹中央挂点；含燃油约 1450 kg"
+      }
+    ],
+    "aircraft": {
+      "MiG-29K": {
+        "aircraft_id": "MiG-29K",
+        "station_count": 9,
+        "builtin_gun": "built_in_gun",
+        "stations": [
+          {
+            "station_id": "centerline",
+            "name": "机腹中央挂点 Station 5",
+            "side": "center",
+            "position_rank": 0,
+            "allowed_stores": [
+              "tank_1900l",
+              "optronic_pod"
+            ],
+            "notes": "副油箱或光电吊舱二选一"
+          },
+          {
+            "station_id": "wing_inner_l",
+            "name": "左翼最内侧挂点 Station 1",
+            "side": "left",
+            "position_rank": 1,
+            "allowed_stores": [
+              "rvv_ae",
+              "r73e",
+              "r27r1",
+              "r27t1",
+              "r27er1",
+              "r27et1",
+              "kh29t",
+              "kh29l",
+              "kh31a",
+              "kh31p",
+              "kh35",
+              "kab500kr",
+              "kab500od",
+              "kab500l",
+              "bomb_50_500",
+              "s24b",
+              "s8_b8m1",
+              "tank_1500l"
+            ],
+            "notes": "全谱空对空/空对地/制导炸弹/无制导武器/火箭/副油箱"
+          },
+          {
+            "station_id": "wing_inner_r",
+            "name": "右翼最内侧挂点 Station 1",
+            "side": "right",
+            "position_rank": 1,
+            "allowed_stores": [
+              "rvv_ae",
+              "r73e",
+              "r27r1",
+              "r27t1",
+              "r27er1",
+              "r27et1",
+              "kh29t",
+              "kh29l",
+              "kh31a",
+              "kh31p",
+              "kh35",
+              "kab500kr",
+              "kab500od",
+              "kab500l",
+              "bomb_50_500",
+              "s24b",
+              "s8_b8m1",
+              "tank_1500l"
+            ],
+            "notes": "同左翼最内侧"
+          },
+          {
+            "station_id": "wing_mid_inner_l",
+            "name": "左翼次内侧挂点 Station 2",
+            "side": "left",
+            "position_rank": 2,
+            "allowed_stores": [
+              "rvv_ae",
+              "r73e",
+              "r27r1",
+              "r27t1",
+              "kh29t",
+              "kh29l",
+              "kh31a",
+              "kh31p",
+              "kh35",
+              "kab500kr",
+              "kab500od",
+              "kab500l",
+              "bomb_50_500",
+              "s24b",
+              "s8_b8m1"
+            ],
+            "notes": "不含 R-27ER/ET 与 1"
+          },
+          {
+            "station_id": "wing_mid_inner_r",
+            "name": "右翼次内侧挂点 Station 2",
+            "side": "right",
+            "position_rank": 2,
+            "allowed_stores": [
+              "rvv_ae",
+              "r73e",
+              "r27r1",
+              "r27t1",
+              "kh29t",
+              "kh29l",
+              "kh31a",
+              "kh31p",
+              "kh35",
+              "kab500kr",
+              "kab500od",
+              "kab500l",
+              "bomb_50_500",
+              "s24b",
+              "s8_b8m1"
+            ],
+            "notes": "同左翼次内侧"
+          },
+          {
+            "station_id": "wing_mid_outer_l",
+            "name": "左翼次外侧挂点 Station 3",
+            "side": "left",
+            "position_rank": 3,
+            "allowed_stores": [
+              "rvv_ae",
+              "r73e",
+              "bomb_50_500"
+            ],
+            "notes": "空对空 + 无制导炸弹"
+          },
+          {
+            "station_id": "wing_mid_outer_r",
+            "name": "右翼次外侧挂点 Station 3",
+            "side": "right",
+            "position_rank": 3,
+            "allowed_stores": [
+              "rvv_ae",
+              "r73e",
+              "bomb_50_500"
+            ],
+            "notes": "同左翼次外侧"
+          },
+          {
+            "station_id": "wing_outer_l",
+            "name": "左翼最外侧挂点 Station 4",
+            "side": "left",
+            "position_rank": 4,
+            "allowed_stores": [
+              "rvv_ae",
+              "r73e",
+              "bomb_50_500",
+              "active_jammer"
+            ],
+            "notes": "空对空 + 无制导炸弹 + 主动干扰机"
+          },
+          {
+            "station_id": "wing_outer_r",
+            "name": "右翼最外侧挂点 Station 4",
+            "side": "right",
+            "position_rank": 4,
+            "allowed_stores": [
+              "rvv_ae",
+              "r73e",
+              "bomb_50_500",
+              "active_jammer"
+            ],
+            "notes": "同左翼最外侧"
+          }
+        ],
+        "limits": [
+          {
+            "store_id": "tank_1900l",
+            "max_count": 1,
+            "scope": "aircraft",
+            "notes": "机腹中央副油箱最多 1 个"
+          },
+          {
+            "store_id": "optronic_pod",
+            "max_count": 1,
+            "scope": "aircraft",
+            "notes": "光电吊舱最多 1 个"
+          },
+          {
+            "store_id": "tank_1500l",
+            "max_count": 2,
+            "scope": "aircraft",
+            "notes": "1,500 L 副油箱全机最多 2 个（最内侧挂点）"
+          },
+          {
+            "store_id": "r27er1",
+            "max_count": 2,
+            "scope": "aircraft",
+            "notes": "R-27ER1 仅最内侧挂点且全机最多 2 枚"
+          },
+          {
+            "store_id": "r27et1",
+            "max_count": 2,
+            "scope": "aircraft",
+            "notes": "R-27ET1 仅最内侧挂点且全机最多 2 枚"
+          },
+          {
+            "store_id": "active_jammer",
+            "max_count": 2,
+            "scope": "aircraft",
+            "notes": "主动干扰机全机最多 2 个（最外侧挂点）"
+          }
+        ],
+        "notes": "MiG-29 MRCA STORES CAPABILITY 挂载示意图；9 外部挂点 + 内置航炮"
+      }
+    },
+    "categories": {
+      "gun": "gun",
+      "aam_bvr": "aam_bvr",
+      "aam_wvr": "aam_wvr",
+      "aam_mrm": "aam_mrm",
+      "agm": "agm",
+      "bomb_guided": "bomb_guided",
+      "bomb_unguided": "bomb_unguided",
+      "rocket": "rocket",
+      "tank": "tank",
+      "pod_optronic": "pod_optronic",
+      "ecm": "ecm"
+    }
+  },
   "py_load_order": [
     "utils/__init__.py",
     "utils/paths.py",
@@ -30381,7 +30798,7 @@
   ],
   "py_sources": {
     "utils/__init__.py": "\"\"\"仿真工具包。\"\"\"\n",
-    "utils/paths.py": "\"\"\"项目根目录与数据文件路径。\"\"\"\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parent.parent\nDATA_DIR = ROOT / 'data'\nOUTPUT_DIR = ROOT / 'output'\n\nAIRCRAFT_CSV = DATA_DIR / 'aircraft_database.csv'\nCARRIERS_CSV = DATA_DIR / 'carriers_database.csv'\n# 饱和打击：导弹库（反舰弹 / 防空弹）与雷达库（预警机 / 舰载雷达）分表\nMISSILE_INTERCEPTION_MISSILE_CSV = DATA_DIR / 'missile_interception_missile_database.csv'\nMISSILE_INTERCEPTION_RADAR_CSV = DATA_DIR / 'missile_interception_radar_database.csv'\nMISSILE_RANGE_PRESET_CSV = DATA_DIR / 'missile_range_preset_database.csv'\nBASELINE_JSON = DATA_DIR / 'baseline_before.json'\nTAKEOFF_CONFIG_JSON = DATA_DIR / 'takeoff_config.json'\nMISSILE_INTERCEPTION_CONFIG_JSON = DATA_DIR / 'missile_interception_config.json'\n# 作战半径与起飞共用同一机型库；起飞加载器只取填写了 mtow_kg 的机型\nCOMBAT_RADIUS_AIRCRAFT_CSV = AIRCRAFT_CSV\nCOMBAT_RADIUS_ENGINE_CSV = DATA_DIR / 'aircraft_engine_database.csv'\nCOMBAT_RADIUS_CONFIG_JSON = DATA_DIR / 'combat_radius_config.json'\nCOMBAT_RADIUS_RESULTS_JSON = DATA_DIR / 'combat_radius_results.json'\nSURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'\n",
+    "utils/paths.py": "\"\"\"项目根目录与数据文件路径。\"\"\"\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parent.parent\nDATA_DIR = ROOT / 'data'\nOUTPUT_DIR = ROOT / 'output'\n\nAIRCRAFT_CSV = DATA_DIR / 'aircraft_database.csv'\nCARRIERS_CSV = DATA_DIR / 'carriers_database.csv'\n# 饱和打击：导弹库（反舰弹 / 防空弹）与雷达库（预警机 / 舰载雷达）分表\nMISSILE_INTERCEPTION_MISSILE_CSV = DATA_DIR / 'missile_interception_missile_database.csv'\nMISSILE_INTERCEPTION_RADAR_CSV = DATA_DIR / 'missile_interception_radar_database.csv'\nMISSILE_RANGE_PRESET_CSV = DATA_DIR / 'missile_range_preset_database.csv'\nBASELINE_JSON = DATA_DIR / 'baseline_before.json'\nTAKEOFF_CONFIG_JSON = DATA_DIR / 'takeoff_config.json'\nMISSILE_INTERCEPTION_CONFIG_JSON = DATA_DIR / 'missile_interception_config.json'\n# 作战半径与起飞共用同一机型库；起飞加载器只取填写了 mtow_kg 的机型\nCOMBAT_RADIUS_AIRCRAFT_CSV = AIRCRAFT_CSV\nCOMBAT_RADIUS_ENGINE_CSV = DATA_DIR / 'aircraft_engine_database.csv'\nCOMBAT_RADIUS_CONFIG_JSON = DATA_DIR / 'combat_radius_config.json'\nCOMBAT_RADIUS_RESULTS_JSON = DATA_DIR / 'combat_radius_results.json'\nSTORES_DATABASE_CSV = DATA_DIR / 'stores_database.csv'\nAIRCRAFT_STATIONS_CSV = DATA_DIR / 'aircraft_stations.csv'\nAIRCRAFT_STORE_LIMITS_CSV = DATA_DIR / 'aircraft_store_limits.csv'\nSURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'\n",
     "utils/takeoff/__init__.py": "\"\"\"Package.\"\"\"\n",
     "utils/takeoff/takeoff_config.py": "\"\"\"航母舰载机起飞仿真默认参数 — 从 data/takeoff_config.json 加载。\"\"\"\nfrom __future__ import annotations\n\nimport json\nfrom functools import lru_cache\nfrom pathlib import Path\nfrom typing import Any\n\nfrom utils.paths import TAKEOFF_CONFIG_JSON\n\n_INJECTED: dict[str, Any] | None = None\n\n\ndef inject_takeoff_config(cfg: dict[str, Any]) -> None:\n    \"\"\"注入配置（Pyodide / 测试用）；优先于磁盘文件。\"\"\"\n    global _INJECTED\n    _INJECTED = dict(cfg)\n    load_takeoff_config.cache_clear()\n\n\n@lru_cache(maxsize=1)\ndef load_takeoff_config(path: str | Path | None = None) -> dict[str, Any]:\n    \"\"\"加载起飞配置 JSON；路径缺省为 data/takeoff_config.json。\"\"\"\n    if _INJECTED is not None:\n        return dict(_INJECTED)\n    p = Path(path) if path is not None else TAKEOFF_CONFIG_JSON\n    return json.loads(p.read_text(encoding='utf-8'))\n\n\ndef shared_config() -> dict[str, Any]:\n    return dict(load_takeoff_config()['shared'])\n\n\ndef physics_config() -> dict[str, Any]:\n    return dict(load_takeoff_config()['physics'])\n\n\ndef ui_config() -> dict[str, Any]:\n    return dict(load_takeoff_config()['ui'])\n\n\ndef mode_config(mode: str) -> dict[str, Any]:\n    \"\"\"返回指定模式的配置，并注入共享 mu 等字段。\"\"\"\n    cfg = load_takeoff_config()\n    data = dict(cfg['modes'][mode])\n    data['mu'] = cfg['shared']['mu']\n    return data\n\n\ndef cfg_range(spec: dict[str, int]) -> range:\n    \"\"\"将 {start,end,step} 转为 Python range。\"\"\"\n    return range(spec['start'], spec['end'], spec['step'])\n\n\ndef build_takeoff_config_payload() -> dict[str, Any]:\n    \"\"\"构建前端/小程序/iOS 共用的起飞配置片段。\"\"\"\n    cfg = load_takeoff_config()\n    return {\n        'version': cfg.get('version', 1),\n        'shared': dict(cfg['shared']),\n        'physics': dict(cfg['physics']),\n        'ui': dict(cfg['ui']),\n           'modes': {name: dict(mode) for name, mode in cfg['modes'].items()},\n           'stovl_strategy_descriptions': dict(cfg.get('stovl_strategy_descriptions', {})),\n           'tiltrotor_strategy_descriptions': dict(cfg.get('tiltrotor_strategy_descriptions', {})),\n    }\n",
     "utils/takeoff/takeoff_input.py": "\"\"\"起飞仿真输入校验与结果高亮卡片（三端共用结构化字段）。\"\"\"\nfrom __future__ import annotations\n\nfrom typing import Any\n\n# 舰载起飞允许超过最大起飞重量的上限（仍仿真，但前端须提示）\nMTOW_OVERLOAD_ALLOWANCE_KG = 3000.0\n\n\ndef _parse_mass(value: float | None) -> float | None:\n    \"\"\"解析重量；无法得到有限正负值时返回 None。\"\"\"\n    if value is None:\n        return None\n    try:\n        mass = float(value)\n    except (TypeError, ValueError):\n        return None\n    if mass != mass:  # NaN\n        return None\n    return mass\n\n\ndef validate_takeoff_mass(\n    mass_kg: float,\n    mtow_kg: float,\n    empty_kg: float | None = None,\n) -> str | None:\n    \"\"\"校验起飞重量。合法（含超 MTOW 不超过 3 t）返回 None，否则返回中文错误。\"\"\"\n    try:\n        mass = float(mass_kg)\n    except (TypeError, ValueError):\n        return '请填写有效的起飞重量'\n    if mass != mass:  # NaN\n        return '请填写有效的起飞重量'\n    if mass <= 0:\n        return '起飞重量必须为正数'\n    mtow = _parse_mass(mtow_kg)\n    if mtow is not None and mass > mtow + MTOW_OVERLOAD_ALLOWANCE_KG + 1e-6:\n        return (\n            f'起飞重量 {mass:.0f} kg 超出最大起飞重量 {mtow:.0f} kg'\n            f'（最多允许超重 {MTOW_OVERLOAD_ALLOWANCE_KG:.0f} kg）'\n        )\n    if empty_kg is not None:\n        empty = _parse_mass(empty_kg)\n        if empty is not None and mass + 1e-6 < empty:\n            return f'起飞重量 {mass:.0f} kg 低于空重 {empty:.0f} kg'\n    return None\n\n\ndef takeoff_mass_over_mtow_warning(\n    mass_kg: float,\n    mtow_kg: float,\n) -> str | None:\n    \"\"\"超过 MTOW 但仍在 3 t 裕度内时返回提示；否则 None。\"\"\"\n    mass = _parse_mass(mass_kg)\n    mtow = _parse_mass(mtow_kg)\n    if mass is None or mtow is None:\n        return None\n    if mass <= 0:\n        return None\n    if mass <= mtow + 1e-6:\n        return None\n    if mass > mtow + MTOW_OVERLOAD_ALLOWANCE_KG + 1e-6:\n        return None\n    over_kg = mass - mtow\n    return (\n        f'起飞重量已超过最大起飞重量 {mtow:.0f} kg'\n        f'（超重 {over_kg:.0f} kg，仿真仍可进行）'\n    )\n\n\ndef mass_range_hint(empty_kg: float | None, mtow_kg: float | None) -> str:\n    \"\"\"重量输入旁的合理范围文案，例如「范围：空重 14651 – MTOW 27200 kg（最多可超 3000 kg）」。\"\"\"\n    parts: list[str] = []\n    if empty_kg is not None:\n        try:\n            parts.append(f'空重 {float(empty_kg):.0f}')\n        except (TypeError, ValueError):\n            pass\n    if mtow_kg is not None:\n        try:\n            parts.append(f'MTOW {float(mtow_kg):.0f}')\n        except (TypeError, ValueError):\n            pass\n    if not parts:\n        return ''\n    hint = '范围：' + ' – '.join(parts) + ' kg'\n    if mtow_kg is not None and _parse_mass(mtow_kg) is not None:\n        hint += f'（最多可超 {MTOW_OVERLOAD_ALLOWANCE_KG:.0f} kg）'\n    return hint\n\n\ndef _fmt_num(value: float, digits: int = 1) -> str:\n    \"\"\"格式化高亮卡片数值。\"\"\"\n    return f'{float(value):.{digits}f}'\n\n\ndef build_takeoff_highlights(\n    distance_m: float | None,\n    deck_margin_m: float | None,\n    exit_speed_mps: float | None,\n    exit_time_s: float | None,\n    deck_launch_ok: bool | None = None,\n) -> list[dict[str, Any]]:\n    \"\"\"核心结果卡片：起飞距离、甲板余量、离舰速度、离舰用时。\"\"\"\n    cards: list[dict[str, Any]] = []\n    if distance_m is not None:\n        cards.append({\n            'key': 'distance',\n            'label': '起飞距离',\n            'value': f'{_fmt_num(distance_m, 1)} m',\n            'tone': 'accent',\n        })\n    if deck_margin_m is not None:\n        margin = float(deck_margin_m)\n        if margin >= 0:\n            cards.append({\n                'key': 'margin',\n                'label': '甲板余量',\n                'value': f'{_fmt_num(margin, 1)} m',\n                'tone': 'ok',\n            })\n        else:\n            cards.append({\n                'key': 'margin',\n                'label': '超出甲板',\n                'value': f'{_fmt_num(-margin, 1)} m',\n                'tone': 'danger',\n            })\n    elif deck_launch_ok is False:\n        cards.append({\n            'key': 'margin',\n            'label': '甲板起飞',\n            'value': '不足',\n            'tone': 'danger',\n        })\n    if exit_speed_mps is not None:\n        cards.append({\n            'key': 'speed',\n            'label': '离舰速度',\n            'value': f'{_fmt_num(exit_speed_mps, 1)} m/s',\n            'tone': 'accent',\n        })\n    if exit_time_s is not None:\n        cards.append({\n            'key': 'time',\n            'label': '离舰用时',\n            'value': f'{_fmt_num(exit_time_s, 2)} s',\n            'tone': 'accent',\n        })\n    return cards\n\n\ndef extract_exit_kinematics(result: dict[str, Any] | None) -> tuple[float | None, float | None]:\n    \"\"\"从仿真内层 result 读取离舰速度与用时。\"\"\"\n    if not result:\n        return None, None\n    speed = result.get('v_deck_mps')\n    if speed is None:\n        speed = result.get('v_gs_mps')\n    time_s = result.get('t_deck_s')\n    if time_s is None:\n        time_s = result.get('t_s')\n    try:\n        speed_f = float(speed) if speed is not None else None\n    except (TypeError, ValueError):\n        speed_f = None\n    try:\n        time_f = float(time_s) if time_s is not None else None\n    except (TypeError, ValueError):\n        time_f = None\n    return speed_f, time_f\n",
