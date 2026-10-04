@@ -16,7 +16,50 @@ struct CatalogPayload: Codable {
     var combat_radius_engine_presets: [CombatRadiusEnginePresetItem]?
     var combat_radius_config: CombatRadiusConfigPayload?
     var combat_radius_results: CombatRadiusResultsPayload?
+    var loadout_catalog: LoadoutCatalogPayload?
     var missile_range: MissileRangePayload?
+}
+
+/// 非隐身机挂点挂载目录
+struct LoadoutCatalogPayload: Codable {
+    var version: Int?
+    var munitions: [LoadoutMunitionItem]?
+    var aircraft: [String: LoadoutAircraftItem]?
+}
+
+struct LoadoutMunitionItem: Codable, Hashable {
+    var id: String
+    var name: String?
+    var category: String?
+    var mass_kg: Double?
+    var dry_mass_kg: Double?
+    var fuel_kg: Double?
+    var length_m: Double?
+    var diameter_m: Double?
+}
+
+struct LoadoutAircraftItem: Codable, Hashable {
+    var id: String
+    var name: String?
+    var stations: [LoadoutStationItem]?
+    var default_selection: [String: String]?
+}
+
+struct LoadoutStationItem: Codable, Hashable, Identifiable {
+    var id: String
+    var label: String?
+    var mount_style: String?
+    var options: [LoadoutOptionItem]?
+}
+
+struct LoadoutOptionItem: Codable, Hashable {
+    var key: String
+    var munition_id: String?
+    var qty: Double?
+    var label: String?
+    var mass_kg: Double?
+    var dry_mass_kg: Double?
+    var fuel_kg: Double?
 }
 
 struct TakeoffConfigPayload: Codable {

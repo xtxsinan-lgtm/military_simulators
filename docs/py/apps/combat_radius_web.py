@@ -18,6 +18,10 @@ from utils.combat_radius.combat_radius_presets import (
     build_combat_radius_engine_presets_payload,
     build_combat_radius_presets_payload,
 )
+from utils.combat_radius.loadout import (
+    apply_loadout_to_params,
+    build_loadout_catalog_payload,
+)
 
 _ACTIONS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     'predict_ld': run_predict_ld_from_params,
@@ -65,12 +69,21 @@ def run_combat_radius(
             'success': True,
             'presets': build_combat_radius_presets_payload(),
             'engine_presets': build_combat_radius_engine_presets_payload(),
+            'loadout_catalog': build_loadout_catalog_payload(),
         }
+    if action == 'loadout_catalog':
+        return {'success': True, 'loadout_catalog': build_loadout_catalog_payload()}
     handler = _ACTIONS.get(action)
     if handler is None:
         return {'success': False, 'error': f'未知 action: {action}'}
     try:
-        return handler(params)
+        prepared = apply_loadout_to_params(params)
+        result = handler(prepared)
+        # 把挂载汇总带回前端，便于核对质量与外油
+        if isinstance(result, dict) and prepared.get('loadout_summary') is not None:
+            result = dict(result)
+            result['loadout_summary'] = prepared['loadout_summary']
+        return result
     except Exception as exc:
         return {'success': False, 'error': str(exc)}
 

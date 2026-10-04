@@ -21,9 +21,21 @@ struct CombatRadiusView: View {
                     field("空重 (kg)", text: $vm.wtEmpty)
                     field("内油 (kg)", text: $vm.wtFuel)
                     field("飞行员数", text: $vm.wtPilots)
-                    field("单枚中距弹 (kg)", text: $vm.wtMissile)
-                    field("挂弹数", text: $vm.wtNMissiles)
                     field("发动机台数", text: $vm.wtEngines)
+                    if vm.showLoadout {
+                        sectionLabel("▸ 挂载配置", color: CombatRadiusTheme.cyan)
+                        Text("按挂点选择副油箱/弹药；质量与阻力按公开尺寸估算。")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(CombatRadiusTheme.textDim)
+                        ForEach(vm.loadoutRows) { row in
+                            loadoutPicker(row)
+                        }
+                        field("挂载干重 (kg)", text: .constant(vm.loadoutPayload.isEmpty ? "—" : vm.loadoutPayload), readonly: true, live: false)
+                        field("外挂燃油 (kg)", text: .constant(vm.loadoutExtFuel.isEmpty ? "—" : vm.loadoutExtFuel), readonly: true, live: false)
+                    } else {
+                        field("单枚中距弹 (kg)", text: $vm.wtMissile)
+                        field("挂弹数", text: $vm.wtNMissiles)
+                    }
                     Toggle("舰载弹射 45 min；垂起与陆基 30 min", isOn: $vm.wtCarrier)
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.text)
@@ -454,6 +466,24 @@ struct CombatRadiusView: View {
             .pickerStyle(.menu)
             .tint(CombatRadiusTheme.cyan)
             .onChange(of: selection.wrappedValue) { _, _ in vm.scheduleLiveDash() }
+        }
+    }
+
+    private func loadoutPicker(_ row: CombatRadiusViewModel.LoadoutStationRow) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(row.label)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(CombatRadiusTheme.textDim)
+            Picker(row.label, selection: Binding(
+                get: { vm.loadoutSelection[row.id] ?? "" },
+                set: { vm.setLoadout(stationId: row.id, key: $0) }
+            )) {
+                ForEach(row.options, id: \.key) { opt in
+                    Text(opt.label ?? opt.key).tag(opt.key)
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(CombatRadiusTheme.cyan)
         }
     }
 }

@@ -99,13 +99,61 @@ function weightFromPreset(p) {
   return patch;
 }
 
+/** 构建挂点 UI 行与默认选择。 */
+function buildLoadoutRows(acLoadout) {
+  if (!acLoadout) {
+    return { showLoadout: false, loadoutRows: [], loadoutSelection: {}, loadoutPayload: '', loadoutExtFuel: '' };
+  }
+  const defaults = acLoadout.default_selection || {};
+  const selection = {};
+  const rows = (acLoadout.stations || []).map((st) => {
+    const options = st.options || [];
+    const labels = options.map((o) => o.label);
+    const key = defaults[st.id] || '';
+    selection[st.id] = key;
+    let index = options.findIndex((o) => o.key === key);
+    if (index < 0) index = 0;
+    return {
+      id: st.id,
+      label: st.label,
+      optionKeys: options.map((o) => o.key),
+      optionLabels: labels,
+      index,
+      options,
+    };
+  });
+  const sum = summarizeLoadout(rows, selection);
+  return {
+    showLoadout: true,
+    loadoutRows: rows,
+    loadoutSelection: selection,
+    loadoutPayload: fmtDerived(sum.payload, 1),
+    loadoutExtFuel: fmtDerived(sum.extFuel, 1),
+    wtMissile: String(sum.payload),
+    wtNMissiles: sum.payload > 0 ? '1' : '0',
+  };
+}
+
+function summarizeLoadout(rows, selection) {
+  let payload = 0;
+  let extFuel = 0;
+  (rows || []).forEach((row) => {
+    const key = selection[row.id] || '';
+    const opt = (row.options || []).find((o) => o.key === key);
+    if (!opt) return;
+    payload += Number(opt.dry_mass_kg) || 0;
+    extFuel += Number(opt.fuel_kg) || 0;
+  });
+  return { payload, extFuel };
+}
+
 function fmtDerived(n, digits) {
   if (n == null || !Number.isFinite(n)) return '';
   return String(Number(n.toFixed(digits)));
 }
 
 /** 按翼展、翼面积与空战重量覆盖展弦比和翼载荷。 */
-function applyDerivedLoads(tgt, wt) {
+function applyDerivedLoads(tgt, wt, loadoutExtraFuel) {
   const out = Object.assign({}, tgt);
   const span = Number(out.wingspan_m);
   const area = Number(out.wing_area_m2);
@@ -113,7 +161,7 @@ function applyDerivedLoads(tgt, wt) {
     out.AR = fmtDerived((span * span) / area, 4);
   }
   const empty = Number(wt.wtEmpty);
-  const fuel = Number(wt.wtFuel);
+  const fuel = Number(wt.wtFuel) + (Number(loadoutExtraFuel) || 0);
   if (area > 0 && Number.isFinite(empty) && Number.isFinite(fuel) && empty >= 0 && fuel >= 0) {
     const pilots = Number.isFinite(Number(wt.wtPilots)) ? Number(wt.wtPilots) : 1;
     const missile = Number.isFinite(Number(wt.wtMissile)) ? Number(wt.wtMissile) : 0;
@@ -283,6 +331,12 @@ Page({
     f135TsfcPublished: 1.22,
     f135TsfcLpcOnly: 1.04,
     snapshotEligible: false,
+    loadoutCatalog: {},
+    showLoadout: false,
+    loadoutRows: [],
+    loadoutSelection: {},
+    loadoutPayload: '',
+    loadoutExtFuel: '',
   },
 
   onShow() {
@@ -318,10 +372,16 @@ Page({
           || engines.find((p) => p.id === ui.default_engine_id)
           || engines[0];
         const wt = weightFromPreset(tgtp);
+        const loadoutCatalog = (data.loadout_catalog && data.loadout_catalog.aircraft) || {};
+        const loadoutPatch = buildLoadoutRows(tgtp && loadoutCatalog[tgtp.id]);
+        const wtMerged = Object.assign({}, wt, {
+          wtMissile: loadoutPatch.wtMissile != null ? loadoutPatch.wtMissile : wt.wtMissile,
+          wtNMissiles: loadoutPatch.wtNMissiles != null ? loadoutPatch.wtNMissiles : wt.wtNMissiles,
+        });
         this.setData({
           presets,
           presetNames,
-          tgt: applyDerivedLoads(cloneAc(tgtp), wt),
+          tgt: applyDerivedLoads(cloneAc(tgtp), wtMerged, loadoutPatch.loadoutExtFuel),
           tgtPresetIndex: findIdx(ui.default_target_id),
           enginePresets: engines,
           engineNames,
@@ -340,7 +400,9 @@ Page({
           storeMountNames,
           storeMountIndex: Math.max(0, storeMountIds.indexOf((tgtp && tgtp.store_mount) || 'internal')),
           resultsMap: (data.combat_radius_results && data.combat_radius_results.aircraft) || {},
-          ...wt,
+          loadoutCatalog,
+          ...wtMerged,
+          ...loadoutPatch,
           ...f135Toggle,
           showF135TsfcToggle: isF35TsfcToggleAircraft(tgtp && tgtp.id, f135Toggle.f135TsfcAircraftIds),
           f135TsfcMode: 'published',
@@ -443,8 +505,9 @@ Page({
     if (idx > 0) {
       const p = this.data.presets[idx - 1];
       const wt = weightFromPreset(p);
-      Object.assign(patch, wt);
-      patch.tgt = applyDerivedLoads(cloneAc(p), wt);
+      const loadoutPatch = buildLoadoutRows(this.data.loadoutCatalog[p.id]);
+      Object.assign(patch, wt, loadoutPatch);
+      patch.tgt = applyDerivedLoads(cloneAc(p), patch, loadoutPatch.loadoutExtFuel);
       patch.inletIndex = Math.max(0, this.data.inletIds.indexOf(p.inlet || 'dsi'));
       patch.storeMountIndex = Math.max(0, this.data.storeMountIds.indexOf(p.store_mount || 'internal'));
       if (p.engine_id) {
@@ -461,8 +524,35 @@ Page({
     } else {
       patch.f135TsfcMode = 'published';
       patch.showF135TsfcToggle = false;
+      patch.showLoadout = false;
+      patch.loadoutRows = [];
       this.setData(patch);
     }
+  },
+
+  onLoadoutStation(e) {
+    const sid = e.currentTarget.dataset.station;
+    const idx = Number(e.detail.value);
+    const rows = (this.data.loadoutRows || []).map((row) => {
+      if (row.id !== sid) return row;
+      const key = row.optionKeys[idx] || '';
+      return Object.assign({}, row, { index: idx, key });
+    });
+    const selection = Object.assign({}, this.data.loadoutSelection);
+    const row = rows.find((r) => r.id === sid);
+    selection[sid] = row ? (row.optionKeys[idx] || '') : '';
+    const sum = summarizeLoadout(rows, selection);
+    const patch = {
+      loadoutRows: rows,
+      loadoutSelection: selection,
+      loadoutPayload: fmtDerived(sum.payload, 1),
+      loadoutExtFuel: fmtDerived(sum.extFuel, 1),
+      wtMissile: String(sum.payload),
+      wtNMissiles: sum.payload > 0 ? '1' : '0',
+    };
+    patch.tgt = applyDerivedLoads(this.data.tgt, Object.assign({}, this.data, patch), sum.extFuel);
+    this.setData(patch);
+    this.scheduleLiveDash();
   },
 
   onEnginePreset(e) {
@@ -559,6 +649,17 @@ Page({
     params.tsfc_install_mult = resolvePageTsfcInstallMult(this);
     if (this.data.tgt && this.data.tgt.type_label) {
       params.type_label = this.data.tgt.type_label;
+    }
+    if (this.data.showLoadout) {
+      const idx = this.data.tgtPresetIndex;
+      const ac = idx > 0 ? this.data.presets[idx - 1] : null;
+      if (ac) {
+        params.aircraft_id = ac.id;
+        params.loadout = {
+          aircraft_id: ac.id,
+          selection: Object.assign({}, this.data.loadoutSelection),
+        };
+      }
     }
     return params;
   },

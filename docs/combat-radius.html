@@ -40,11 +40,22 @@
       </div>
       <div class="pair">
         <div class="field"><label>飞行员数</label><input type="number" id="wtPilots" step="1" min="0" value="1"></div>
-        <div class="field"><label>单枚中距弹 <span class="unit">kg</span></label><input type="number" id="wtMissile" step="1" min="0"></div>
-      </div>
-      <div class="pair">
-        <div class="field"><label>挂弹数</label><input type="number" id="wtNMissiles" step="1" min="0" value="4"></div>
         <div class="field"><label>发动机台数</label><input type="number" id="wtEngines" step="1" min="1" value="1"></div>
+      </div>
+      <div id="simpleWeaponsBox">
+        <div class="pair">
+          <div class="field"><label>单枚中距弹 <span class="unit">kg</span></label><input type="number" id="wtMissile" step="1" min="0"></div>
+          <div class="field"><label>挂弹数</label><input type="number" id="wtNMissiles" step="1" min="0" value="4"></div>
+        </div>
+      </div>
+      <div id="loadoutBox" hidden>
+        <div class="section-label cyan">▸ 挂载配置</div>
+        <p class="note">按挂点选择副油箱/弹药；质量与阻力按公开尺寸估算，副油箱燃油并入任务总油。点「计算作战半径」后按当前挂载重算。</p>
+        <div id="loadoutStations"></div>
+        <div class="pair">
+          <div class="field"><label>挂载干重 <span class="unit">kg · 计算</span></label><input id="loadoutPayload" type="number" readonly tabindex="-1"></div>
+          <div class="field"><label>外挂燃油 <span class="unit">kg · 计算</span></label><input id="loadoutExtFuel" type="number" readonly tabindex="-1"></div>
+        </div>
       </div>
       <div class="check-row">
         <label><input type="checkbox" id="wtCarrier"> 舰载弹射 45 min；垂起与陆基 30 min</label>
