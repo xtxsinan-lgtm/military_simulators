@@ -69,6 +69,9 @@ def test_build_catalog_payload_modes():
     assert 'slipstream_wake_factor' in tilt_mode
     assert 'A' in payload['takeoff_config']['tiltrotor_strategy_descriptions']
     assert payload['missile_interception_config']['traj_types']['glide']
+    assert 'aircraft_stores' in payload
+    assert 'F-14' in payload['aircraft_stores']['aircraft_store_layouts']
+    assert len(payload['aircraft_stores']['aircraft_store_layouts']['F-14']) == 10
 
 
 def test_docs_missile_interception_page_exists_and_links():

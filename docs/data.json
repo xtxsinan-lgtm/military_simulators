@@ -1,5 +1,5 @@
 {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -609,7 +609,7 @@
       "empty_kg": 19838.0,
       "internal_fuel_kg": 7348.0,
       "max_payload_kg": 6700.0,
-      "bvr_missile": "AIM-120C AMRAAM",
+      "bvr_missile": "AIM-54 Phoenix",
       "missile_mass_kg": 152.0,
       "cd0": 0.03409786528070792,
       "t_max_sl_n": 250900.0,
@@ -623,7 +623,7 @@
       "prop_diameter_m": null,
       "nacelle_blockage_frac": null,
       "n_pilots": 2,
-      "notes": "变后掠；起飞按前掠 20° / 翼展 19.54 m；双座；F-14B/D F110；机身截面为估算；Wikipedia F-14D 空重 19838 kg；变后掠，起飞与作战半径均按前掠 20°；主翼暴露 37.8 m²、平尾 11.5 m²、双垂尾两侧合计 9.4 m² 为估计；斜板进气道按加莱特；外挂挂架",
+      "notes": "变后掠；起飞按前掠 20° / 翼展 19.54 m；双座；F-14B/D F110；机身截面为估算；Wikipedia F-14D 空重 19838 kg；变后掠，起飞与作战半径均按前掠 20°；主翼暴露 37.8 m²、平尾 11.5 m²、双垂尾两侧合计 9.4 m² 为估计；斜板进气道按加莱特；8 挂点外挂（AIM-9/7/54、TARPS、280 加仑油箱）",
       "layout": "conventional",
       "canard_htail_area_m2": 11.5
     },
@@ -4358,7 +4358,7 @@
       "missile_mass_kg": 152.0,
       "n_engines": 2,
       "max_payload_kg": 6700.0,
-      "notes": "变后掠；起飞按前掠 20° / 翼展 19.54 m；双座；F-14B/D F110；机身截面为估算；Wikipedia F-14D 空重 19838 kg；变后掠，起飞与作战半径均按前掠 20°；主翼暴露 37.8 m²、平尾 11.5 m²、双垂尾两侧合计 9.4 m² 为估计；斜板进气道按加莱特；外挂挂架",
+      "notes": "变后掠；起飞按前掠 20° / 翼展 19.54 m；双座；F-14B/D F110；机身截面为估算；Wikipedia F-14D 空重 19838 kg；变后掠，起飞与作战半径均按前掠 20°；主翼暴露 37.8 m²、平尾 11.5 m²、双垂尾两侧合计 9.4 m² 为估计；斜板进气道按加莱特；8 挂点外挂（AIM-9/7/54、TARPS、280 加仑油箱）",
       "wing_area_m2": 52.49,
       "mach_angle_deg": 27.1,
       "length_m": 19.1,
@@ -4373,7 +4373,7 @@
       "main_wing_area_m2": 37.8,
       "canard_htail_area_m2": 11.5,
       "vtail_area_m2": 9.4,
-      "bvr_missile": "AIM-120C AMRAAM",
+      "bvr_missile": "AIM-54 Phoenix",
       "engine_id": "f110",
       "type_label": "conventional",
       "aircraft_role": "fighter",
@@ -30275,6 +30275,197 @@
       }
     ]
   },
+  "aircraft_stores": {
+    "store_types": [
+      {
+        "id": "aim-9",
+        "name": "AIM-9 Sidewinder",
+        "mass_kg": 85.0,
+        "length_m": 2.87,
+        "diameter_m": 0.127,
+        "store_mount": "pylon",
+        "drag_weight": 0.4,
+        "notes": "近距红外格斗弹"
+      },
+      {
+        "id": "aim-7",
+        "name": "AIM-7 Sparrow",
+        "mass_kg": 231.0,
+        "length_m": 3.66,
+        "diameter_m": 0.203,
+        "store_mount": "pylon",
+        "drag_weight": 1.0,
+        "notes": "半主动雷达中距弹"
+      },
+      {
+        "id": "aim-54",
+        "name": "AIM-54 Phoenix",
+        "mass_kg": 463.0,
+        "length_m": 3.96,
+        "diameter_m": 0.38,
+        "store_mount": "pylon",
+        "drag_weight": 2.5,
+        "notes": "主动雷达远程弹；需 Adapter & Launcher"
+      },
+      {
+        "id": "stub-pylon",
+        "name": "Stub Pylon",
+        "mass_kg": 45.0,
+        "length_m": 0.6,
+        "diameter_m": 0.15,
+        "store_mount": "pylon",
+        "drag_weight": 0.1,
+        "notes": "固定短翼挂架及适配器"
+      },
+      {
+        "id": "tank-280",
+        "name": "280-Gallon External Fuel Tank",
+        "mass_kg": 1043.0,
+        "length_m": 4.5,
+        "diameter_m": 0.6,
+        "store_mount": "pylon",
+        "drag_weight": 1.8,
+        "notes": "280 加仑副油箱（无尾翼版）"
+      },
+      {
+        "id": "tarps",
+        "name": "TARPS Pod",
+        "mass_kg": 820.0,
+        "length_m": 4.9,
+        "diameter_m": 0.35,
+        "store_mount": "pylon",
+        "drag_weight": 1.5,
+        "notes": "战术空中侦察管道系统吊舱"
+      }
+    ],
+    "aircraft_store_layouts": {
+      "F-14": [
+        {
+          "station_id": "1",
+          "label": "Station 1 左翼下侧挂架",
+          "zone": "wing",
+          "allowed_store_ids": [
+            "aim-9",
+            "stub-pylon"
+          ],
+          "notes": "AIM-7/AIM-54 见 1b"
+        },
+        {
+          "station_id": "1b",
+          "label": "Station 1b 左翼内侧",
+          "zone": "wing",
+          "allowed_store_ids": [
+            "aim-7",
+            "aim-54",
+            "stub-pylon"
+          ],
+          "notes": "AIM-54 需 Adapter & Launcher"
+        },
+        {
+          "station_id": "2",
+          "label": "Station 2 左进气道下",
+          "zone": "intake",
+          "allowed_store_ids": [
+            "tank-280"
+          ],
+          "notes": "280 加仑副油箱"
+        },
+        {
+          "station_id": "3",
+          "label": "Station 3 机腹通道左",
+          "zone": "belly",
+          "allowed_store_ids": [
+            "aim-7",
+            "aim-54"
+          ],
+          "notes": "配合 Weapon Rail/Launcher"
+        },
+        {
+          "station_id": "4",
+          "label": "Station 4 机腹通道",
+          "zone": "belly",
+          "allowed_store_ids": [
+            "aim-7",
+            "aim-54"
+          ],
+          "notes": "配合 Weapon Rail/Launcher"
+        },
+        {
+          "station_id": "5",
+          "label": "Station 5 机腹通道中",
+          "zone": "belly",
+          "allowed_store_ids": [
+            "aim-7",
+            "aim-54",
+            "tarps"
+          ],
+          "notes": "TARPS 仅 Station 5"
+        },
+        {
+          "station_id": "6",
+          "label": "Station 6 机腹通道右",
+          "zone": "belly",
+          "allowed_store_ids": [
+            "aim-7",
+            "aim-54"
+          ],
+          "notes": "配合 Weapon Rail/Launcher"
+        },
+        {
+          "station_id": "7",
+          "label": "Station 7 右进气道下",
+          "zone": "intake",
+          "allowed_store_ids": [
+            "tank-280"
+          ],
+          "notes": "280 加仑副油箱"
+        },
+        {
+          "station_id": "8",
+          "label": "Station 8 右翼下侧挂架",
+          "zone": "wing",
+          "allowed_store_ids": [
+            "aim-9",
+            "stub-pylon"
+          ],
+          "notes": "AIM-7/AIM-54 见 8b"
+        },
+        {
+          "station_id": "8b",
+          "label": "Station 8b 右翼内侧",
+          "zone": "wing",
+          "allowed_store_ids": [
+            "aim-7",
+            "aim-54",
+            "stub-pylon"
+          ],
+          "notes": "AIM-54 需 Adapter & Launcher"
+        }
+      ]
+    },
+    "aircraft_loadout_presets": {
+      "F-14": [
+        {
+          "preset_id": "cap",
+          "name": "舰队防空（CAP）",
+          "loadout": "1:aim-9;1b:aim-54;3:aim-7;4:aim-54;5:aim-54;6:aim-7;8:aim-9;8b:aim-54",
+          "notes": "2×AIM-9 + 4×AIM-54 + 2×AIM-7"
+        },
+        {
+          "preset_id": "tarps",
+          "name": "侦察（TARPS）",
+          "loadout": "1:aim-9;1b:aim-7;3:aim-7;5:tarps;6:aim-7;8:aim-9;8b:aim-7",
+          "notes": "2×AIM-9 + 3×AIM-7 + TARPS"
+        },
+        {
+          "preset_id": "tank",
+          "name": "转场（副油箱）",
+          "loadout": "1:aim-9;2:tank-280;3:aim-7;6:aim-7;7:tank-280;8:aim-9",
+          "notes": "2×AIM-9 + 2×AIM-7 + 2×280 加仑副油箱"
+        }
+      ]
+    }
+  },
   "py_load_order": [
     "utils/__init__.py",
     "utils/paths.py",
@@ -30381,7 +30572,7 @@
   ],
   "py_sources": {
     "utils/__init__.py": "\"\"\"仿真工具包。\"\"\"\n",
-    "utils/paths.py": "\"\"\"项目根目录与数据文件路径。\"\"\"\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parent.parent\nDATA_DIR = ROOT / 'data'\nOUTPUT_DIR = ROOT / 'output'\n\nAIRCRAFT_CSV = DATA_DIR / 'aircraft_database.csv'\nCARRIERS_CSV = DATA_DIR / 'carriers_database.csv'\n# 饱和打击：导弹库（反舰弹 / 防空弹）与雷达库（预警机 / 舰载雷达）分表\nMISSILE_INTERCEPTION_MISSILE_CSV = DATA_DIR / 'missile_interception_missile_database.csv'\nMISSILE_INTERCEPTION_RADAR_CSV = DATA_DIR / 'missile_interception_radar_database.csv'\nMISSILE_RANGE_PRESET_CSV = DATA_DIR / 'missile_range_preset_database.csv'\nBASELINE_JSON = DATA_DIR / 'baseline_before.json'\nTAKEOFF_CONFIG_JSON = DATA_DIR / 'takeoff_config.json'\nMISSILE_INTERCEPTION_CONFIG_JSON = DATA_DIR / 'missile_interception_config.json'\n# 作战半径与起飞共用同一机型库；起飞加载器只取填写了 mtow_kg 的机型\nCOMBAT_RADIUS_AIRCRAFT_CSV = AIRCRAFT_CSV\nCOMBAT_RADIUS_ENGINE_CSV = DATA_DIR / 'aircraft_engine_database.csv'\nCOMBAT_RADIUS_CONFIG_JSON = DATA_DIR / 'combat_radius_config.json'\nCOMBAT_RADIUS_RESULTS_JSON = DATA_DIR / 'combat_radius_results.json'\nSURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'\n",
+    "utils/paths.py": "\"\"\"项目根目录与数据文件路径。\"\"\"\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parent.parent\nDATA_DIR = ROOT / 'data'\nOUTPUT_DIR = ROOT / 'output'\n\nAIRCRAFT_CSV = DATA_DIR / 'aircraft_database.csv'\nCARRIERS_CSV = DATA_DIR / 'carriers_database.csv'\n# 饱和打击：导弹库（反舰弹 / 防空弹）与雷达库（预警机 / 舰载雷达）分表\nMISSILE_INTERCEPTION_MISSILE_CSV = DATA_DIR / 'missile_interception_missile_database.csv'\nMISSILE_INTERCEPTION_RADAR_CSV = DATA_DIR / 'missile_interception_radar_database.csv'\nMISSILE_RANGE_PRESET_CSV = DATA_DIR / 'missile_range_preset_database.csv'\nBASELINE_JSON = DATA_DIR / 'baseline_before.json'\nTAKEOFF_CONFIG_JSON = DATA_DIR / 'takeoff_config.json'\nMISSILE_INTERCEPTION_CONFIG_JSON = DATA_DIR / 'missile_interception_config.json'\n# 作战半径与起飞共用同一机型库；起飞加载器只取填写了 mtow_kg 的机型\nCOMBAT_RADIUS_AIRCRAFT_CSV = AIRCRAFT_CSV\nCOMBAT_RADIUS_ENGINE_CSV = DATA_DIR / 'aircraft_engine_database.csv'\nCOMBAT_RADIUS_CONFIG_JSON = DATA_DIR / 'combat_radius_config.json'\nCOMBAT_RADIUS_RESULTS_JSON = DATA_DIR / 'combat_radius_results.json'\nSURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'\n# 飞机外挂/挂点模型\nSTORE_TYPES_CSV = DATA_DIR / 'store_types.csv'\nAIRCRAFT_STORE_LAYOUTS_CSV = DATA_DIR / 'aircraft_store_layouts.csv'\nAIRCRAFT_LOADOUT_PRESETS_CSV = DATA_DIR / 'aircraft_loadout_presets.csv'\n",
     "utils/takeoff/__init__.py": "\"\"\"Package.\"\"\"\n",
     "utils/takeoff/takeoff_config.py": "\"\"\"航母舰载机起飞仿真默认参数 — 从 data/takeoff_config.json 加载。\"\"\"\nfrom __future__ import annotations\n\nimport json\nfrom functools import lru_cache\nfrom pathlib import Path\nfrom typing import Any\n\nfrom utils.paths import TAKEOFF_CONFIG_JSON\n\n_INJECTED: dict[str, Any] | None = None\n\n\ndef inject_takeoff_config(cfg: dict[str, Any]) -> None:\n    \"\"\"注入配置（Pyodide / 测试用）；优先于磁盘文件。\"\"\"\n    global _INJECTED\n    _INJECTED = dict(cfg)\n    load_takeoff_config.cache_clear()\n\n\n@lru_cache(maxsize=1)\ndef load_takeoff_config(path: str | Path | None = None) -> dict[str, Any]:\n    \"\"\"加载起飞配置 JSON；路径缺省为 data/takeoff_config.json。\"\"\"\n    if _INJECTED is not None:\n        return dict(_INJECTED)\n    p = Path(path) if path is not None else TAKEOFF_CONFIG_JSON\n    return json.loads(p.read_text(encoding='utf-8'))\n\n\ndef shared_config() -> dict[str, Any]:\n    return dict(load_takeoff_config()['shared'])\n\n\ndef physics_config() -> dict[str, Any]:\n    return dict(load_takeoff_config()['physics'])\n\n\ndef ui_config() -> dict[str, Any]:\n    return dict(load_takeoff_config()['ui'])\n\n\ndef mode_config(mode: str) -> dict[str, Any]:\n    \"\"\"返回指定模式的配置，并注入共享 mu 等字段。\"\"\"\n    cfg = load_takeoff_config()\n    data = dict(cfg['modes'][mode])\n    data['mu'] = cfg['shared']['mu']\n    return data\n\n\ndef cfg_range(spec: dict[str, int]) -> range:\n    \"\"\"将 {start,end,step} 转为 Python range。\"\"\"\n    return range(spec['start'], spec['end'], spec['step'])\n\n\ndef build_takeoff_config_payload() -> dict[str, Any]:\n    \"\"\"构建前端/小程序/iOS 共用的起飞配置片段。\"\"\"\n    cfg = load_takeoff_config()\n    return {\n        'version': cfg.get('version', 1),\n        'shared': dict(cfg['shared']),\n        'physics': dict(cfg['physics']),\n        'ui': dict(cfg['ui']),\n           'modes': {name: dict(mode) for name, mode in cfg['modes'].items()},\n           'stovl_strategy_descriptions': dict(cfg.get('stovl_strategy_descriptions', {})),\n           'tiltrotor_strategy_descriptions': dict(cfg.get('tiltrotor_strategy_descriptions', {})),\n    }\n",
     "utils/takeoff/takeoff_input.py": "\"\"\"起飞仿真输入校验与结果高亮卡片（三端共用结构化字段）。\"\"\"\nfrom __future__ import annotations\n\nfrom typing import Any\n\n# 舰载起飞允许超过最大起飞重量的上限（仍仿真，但前端须提示）\nMTOW_OVERLOAD_ALLOWANCE_KG = 3000.0\n\n\ndef _parse_mass(value: float | None) -> float | None:\n    \"\"\"解析重量；无法得到有限正负值时返回 None。\"\"\"\n    if value is None:\n        return None\n    try:\n        mass = float(value)\n    except (TypeError, ValueError):\n        return None\n    if mass != mass:  # NaN\n        return None\n    return mass\n\n\ndef validate_takeoff_mass(\n    mass_kg: float,\n    mtow_kg: float,\n    empty_kg: float | None = None,\n) -> str | None:\n    \"\"\"校验起飞重量。合法（含超 MTOW 不超过 3 t）返回 None，否则返回中文错误。\"\"\"\n    try:\n        mass = float(mass_kg)\n    except (TypeError, ValueError):\n        return '请填写有效的起飞重量'\n    if mass != mass:  # NaN\n        return '请填写有效的起飞重量'\n    if mass <= 0:\n        return '起飞重量必须为正数'\n    mtow = _parse_mass(mtow_kg)\n    if mtow is not None and mass > mtow + MTOW_OVERLOAD_ALLOWANCE_KG + 1e-6:\n        return (\n            f'起飞重量 {mass:.0f} kg 超出最大起飞重量 {mtow:.0f} kg'\n            f'（最多允许超重 {MTOW_OVERLOAD_ALLOWANCE_KG:.0f} kg）'\n        )\n    if empty_kg is not None:\n        empty = _parse_mass(empty_kg)\n        if empty is not None and mass + 1e-6 < empty:\n            return f'起飞重量 {mass:.0f} kg 低于空重 {empty:.0f} kg'\n    return None\n\n\ndef takeoff_mass_over_mtow_warning(\n    mass_kg: float,\n    mtow_kg: float,\n) -> str | None:\n    \"\"\"超过 MTOW 但仍在 3 t 裕度内时返回提示；否则 None。\"\"\"\n    mass = _parse_mass(mass_kg)\n    mtow = _parse_mass(mtow_kg)\n    if mass is None or mtow is None:\n        return None\n    if mass <= 0:\n        return None\n    if mass <= mtow + 1e-6:\n        return None\n    if mass > mtow + MTOW_OVERLOAD_ALLOWANCE_KG + 1e-6:\n        return None\n    over_kg = mass - mtow\n    return (\n        f'起飞重量已超过最大起飞重量 {mtow:.0f} kg'\n        f'（超重 {over_kg:.0f} kg，仿真仍可进行）'\n    )\n\n\ndef mass_range_hint(empty_kg: float | None, mtow_kg: float | None) -> str:\n    \"\"\"重量输入旁的合理范围文案，例如「范围：空重 14651 – MTOW 27200 kg（最多可超 3000 kg）」。\"\"\"\n    parts: list[str] = []\n    if empty_kg is not None:\n        try:\n            parts.append(f'空重 {float(empty_kg):.0f}')\n        except (TypeError, ValueError):\n            pass\n    if mtow_kg is not None:\n        try:\n            parts.append(f'MTOW {float(mtow_kg):.0f}')\n        except (TypeError, ValueError):\n            pass\n    if not parts:\n        return ''\n    hint = '范围：' + ' – '.join(parts) + ' kg'\n    if mtow_kg is not None and _parse_mass(mtow_kg) is not None:\n        hint += f'（最多可超 {MTOW_OVERLOAD_ALLOWANCE_KG:.0f} kg）'\n    return hint\n\n\ndef _fmt_num(value: float, digits: int = 1) -> str:\n    \"\"\"格式化高亮卡片数值。\"\"\"\n    return f'{float(value):.{digits}f}'\n\n\ndef build_takeoff_highlights(\n    distance_m: float | None,\n    deck_margin_m: float | None,\n    exit_speed_mps: float | None,\n    exit_time_s: float | None,\n    deck_launch_ok: bool | None = None,\n) -> list[dict[str, Any]]:\n    \"\"\"核心结果卡片：起飞距离、甲板余量、离舰速度、离舰用时。\"\"\"\n    cards: list[dict[str, Any]] = []\n    if distance_m is not None:\n        cards.append({\n            'key': 'distance',\n            'label': '起飞距离',\n            'value': f'{_fmt_num(distance_m, 1)} m',\n            'tone': 'accent',\n        })\n    if deck_margin_m is not None:\n        margin = float(deck_margin_m)\n        if margin >= 0:\n            cards.append({\n                'key': 'margin',\n                'label': '甲板余量',\n                'value': f'{_fmt_num(margin, 1)} m',\n                'tone': 'ok',\n            })\n        else:\n            cards.append({\n                'key': 'margin',\n                'label': '超出甲板',\n                'value': f'{_fmt_num(-margin, 1)} m',\n                'tone': 'danger',\n            })\n    elif deck_launch_ok is False:\n        cards.append({\n            'key': 'margin',\n            'label': '甲板起飞',\n            'value': '不足',\n            'tone': 'danger',\n        })\n    if exit_speed_mps is not None:\n        cards.append({\n            'key': 'speed',\n            'label': '离舰速度',\n            'value': f'{_fmt_num(exit_speed_mps, 1)} m/s',\n            'tone': 'accent',\n        })\n    if exit_time_s is not None:\n        cards.append({\n            'key': 'time',\n            'label': '离舰用时',\n            'value': f'{_fmt_num(exit_time_s, 2)} s',\n            'tone': 'accent',\n        })\n    return cards\n\n\ndef extract_exit_kinematics(result: dict[str, Any] | None) -> tuple[float | None, float | None]:\n    \"\"\"从仿真内层 result 读取离舰速度与用时。\"\"\"\n    if not result:\n        return None, None\n    speed = result.get('v_deck_mps')\n    if speed is None:\n        speed = result.get('v_gs_mps')\n    time_s = result.get('t_deck_s')\n    if time_s is None:\n        time_s = result.get('t_s')\n    try:\n        speed_f = float(speed) if speed is not None else None\n    except (TypeError, ValueError):\n        speed_f = None\n    try:\n        time_f = float(time_s) if time_s is not None else None\n    except (TypeError, ValueError):\n        time_f = None\n    return speed_f, time_f\n",

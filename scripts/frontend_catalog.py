@@ -30,7 +30,7 @@ TILTROTOR_STRATEGIES = {
 }
 
 # data.json 结构版本；字段变更时递增
-DATA_VERSION = 36
+DATA_VERSION = 37
 
 # 启动页可选模拟器（HTML / 小程序 / iOS 同源）
 SIMULATORS = [
@@ -113,6 +113,7 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
     )
     from utils.combat_radius.combat_radius_results import build_combat_radius_results_catalog_payload
     from utils.missile_interception.missile_interception_presets import build_missile_interception_presets_payload
+    from utils.stores.store_catalog import build_store_catalog_payload
 
     return {
         'version': DATA_VERSION,
@@ -134,4 +135,5 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'combat_radius_config': build_combat_radius_config_payload(),
         'combat_radius_results': build_combat_radius_results_catalog_payload(),
         'missile_range': build_missile_range_catalog_payload(),
+        'aircraft_stores': build_store_catalog_payload(),
     }
