@@ -39,4 +39,7 @@ RAFALE_MOUNT_STATIONS_CSV = DATA_DIR / 'rafale_mount_stations.csv'
 RAFALE_MOUNT_STORES_CSV = DATA_DIR / 'rafale_mount_stores.csv'
 AIRCRAFT_WEAPON_STATIONS_CSV = DATA_DIR / 'aircraft_weapon_stations.csv'
 AIRCRAFT_WEAPON_CONFIG_JSON = DATA_DIR / 'aircraft_weapon_config.json'
+# JF-17/FC-1 外挂兼容库（store_id 列，与 F-16 catalog 分列）
+FC1_STORE_CATALOG_CSV = DATA_DIR / 'fc1_store_catalog.csv'
+FC1_STORE_MOUNTS_CSV = DATA_DIR / 'aircraft_store_mounts.csv'
 SURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'

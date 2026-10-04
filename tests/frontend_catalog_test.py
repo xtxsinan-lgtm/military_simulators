@@ -83,6 +83,7 @@ def test_build_catalog_payload_modes():
     assert 'aircraft_weapons' in payload
     gripen_stations = payload['aircraft_weapons']['aircraft']['Gripen-CD']['stations']
     assert [s['id'] for s in gripen_stations] == ['1', '2', '3', '4', '5', 'G']
+    assert 'FC-1' in payload['aircraft_stores']['aircraft']
 
 
 def test_docs_missile_interception_page_exists_and_links():
