@@ -62,3 +62,9 @@ page {
 .weapon-cat-label { color: #7b8e92; font-size: 20rpx; margin-bottom: 6rpx; }
 .weapon-item { font-size: 22rpx; line-height: 1.55; color: #d7e2e4; padding-left: 12rpx; }
 .weapon-note { color: #ffb020; font-size: 20rpx; }
+.section-label { color: #5fd8e8; font-size: 20rpx; margin: 8rpx 0 12rpx; letter-spacing: 2rpx; }
+.section-label.cyan { color: #5fd8e8; }
+.loadout-image-wrap { margin: 8rpx 0 20rpx; }
+.loadout-image {
+  display: block; width: 100%; background: #0e161b; border: 1px solid #1c2b30;
+}

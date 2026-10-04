@@ -21,11 +21,3 @@ bomb_50_500,50–500 kg 无制导炸弹,bomb_unguided,250,2.0,0.35,各型无制�
 s24b,S-24B 重型火箭弹,rocket,235,2.33,0.24,240 mm 单发火箭
 s8_b8m1,S-8 火箭巢 B-8M1,rocket,150,1.57,0.20,80 mm 火箭发射巢
 active_jammer,主动干扰机 Active jammer,ecm,150,2.0,0.30,自卫电子战；最外侧挂点；全机最多 2 个
-aim9,AIM-9 响尾蛇,aam,85,,,空对空导弹；Sidewinder 典型值
-maverick,AGM-65 小牛,agm,210,,,空对地导弹
-mk82,MK-82 炸弹,bomb,227,,,500 lb 通用炸弹
-cbu58,CBU-58 集束炸弹,dispenser,195,,,集束弹药
-mk20,MK-20 石眼集束炸弹,dispenser,222,,,Rockeye 集束炸弹
-lau3,LAU-3 火箭发射器,rocket,135,,,19 管 70 mm 火箭巢（空重）
-tank150,150 加仑副油箱,fuel_tank,605,,,约 570 kg 燃油 + 油箱结构
-agts36,AGTS-36 拖曳靶,target,150,,,拖曳靶

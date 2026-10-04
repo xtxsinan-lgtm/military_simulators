@@ -100,6 +100,10 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'dryToMaxRatio' in cr_vm
     assert 'tsl > 0' in cr_vm
     models = (IOS_ROOT / 'Models.swift').read_text(encoding='utf-8')
+    assert 'combat_radius_loadout_images' in models
+    assert 'CombatRadiusLoadoutImagesPayload' in models
+    assert 'loadoutImageUrl' in cr_vm
+    assert 'syncLoadoutImage' in cr_vm
     assert 'combat_radius_results' in models
     assert 'sweep_inner_deg' in models
     assert 'fuse_width_m' in models
@@ -117,6 +121,7 @@ def test_ios_uses_local_engine_not_http_api():
     assert 'max_ld' in models
     assert 'altitude_scan' in models
     cr_view = (IOS_ROOT / 'CombatRadiusView.swift').read_text(encoding='utf-8')
+    assert '外挂挂载示意' in cr_view
     assert '实用最大巡航速度' in cr_view
     assert '最大巡航速度' in cr_view
     assert '计算作战半径' in cr_view

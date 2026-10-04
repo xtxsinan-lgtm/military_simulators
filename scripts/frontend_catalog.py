@@ -8,6 +8,7 @@ from utils.specs import A2A_MISSILE_COUNT, PILOT_LOAD_KG
 from utils.takeoff.takeoff_config import build_takeoff_config_payload
 from utils.takeoff.takeoff_physics import PITCH_MAX_DEG
 from utils.combat_radius.combat_radius_config import build_combat_radius_config_payload
+from utils.combat_radius.combat_radius_loadout_images import build_combat_radius_loadout_images_payload
 from utils.missile_interception.missile_interception_config import build_missile_interception_config_payload
 from utils.aircraft_stores import build_fc1_stores_payload
 from utils.missile_range.dataset import build_missile_range_catalog_payload
@@ -142,6 +143,7 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'combat_radius_presets': build_combat_radius_presets_payload(),
         'combat_radius_engine_presets': build_combat_radius_engine_presets_payload(),
         'combat_radius_config': build_combat_radius_config_payload(),
+        'combat_radius_loadout_images': build_combat_radius_loadout_images_payload(),
         'combat_radius_results': build_combat_radius_results_catalog_payload(),
         'loadout_catalog': build_loadout_catalog_payload(),
         'missile_range': build_missile_range_catalog_payload(),

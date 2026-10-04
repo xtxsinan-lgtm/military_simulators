@@ -6,22 +6,22 @@ import pytest
 from scripts.frontend_catalog import build_catalog_payload
 from utils.aircraft_stores import build_fc1_stores_payload, stores_for_aircraft
 from utils.database_csv import (
-    load_aircraft_store_catalog_csv,
-    load_aircraft_store_mounts_csv,
+    load_fc1_store_catalog_csv,
+    load_fc1_store_mounts_csv,
     load_aircraft_csv,
     load_carriers_csv,
 )
 from utils.paths import (
     AIRCRAFT_CSV,
-    AIRCRAFT_STORE_CATALOG_CSV,
-    AIRCRAFT_STORE_MOUNTS_CSV,
     CARRIERS_CSV,
+    FC1_STORE_CATALOG_CSV,
+    FC1_STORE_MOUNTS_CSV,
 )
 
 
 def test_store_catalog_loads_fc1_weapons():
     """弹药目录应包含 FC-1 图示中的主要外挂。"""
-    rows = load_aircraft_store_catalog_csv()
+    rows = load_fc1_store_catalog_csv()
     ids = {row['store_id'] for row in rows}
     for store_id in (
         'pl5e2', 'pl12', 'mar1', 'c802a', 'ls6_500', 'bomb_1000', 'bomb_500',
@@ -94,14 +94,14 @@ def test_fc1_centerline_no_wing_only_stores():
 
 def test_mount_rows_reference_valid_stores():
     """挂点表中的 store_id 必须在弹药目录中存在。"""
-    catalog_ids = {row['store_id'] for row in load_aircraft_store_catalog_csv()}
-    for row in load_aircraft_store_mounts_csv():
+    catalog_ids = {row['store_id'] for row in load_fc1_store_catalog_csv()}
+    for row in load_fc1_store_mounts_csv():
         assert row['store_id'] in catalog_ids
 
 
 def test_build_payload_rejects_unknown_store():
     """挂点表引用未知弹药时应报错。"""
-    mounts = load_aircraft_store_mounts_csv()
+    mounts = load_fc1_store_mounts_csv()
     bad = dict(mounts[0])
     bad['store_id'] = 'missing_store'
     with pytest.raises(ValueError, match='未知 store_id'):

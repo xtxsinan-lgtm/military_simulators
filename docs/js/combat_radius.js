@@ -66,6 +66,8 @@ let flightProfileMode = 'hi_hi_hi';
 let snapshotEligible = false;
 /** 当前机型挂点选择：station_id → option key。 */
 let loadoutSelection = {};
+/** Web 端挂载图相对 docs/ 的路径前缀。 */
+const LOADOUT_IMAGE_BASE = 'assets/combat_radius/loadout/';
 
 function $(id) {
   return document.getElementById(id);
@@ -356,12 +358,30 @@ function selectedAircraftName(fallback = '未命名') {
   return currentAircraftName || fallback;
 }
 
+/** 按机型 id 显示/隐藏外挂挂载示意图。 */
+function syncLoadoutImage(aircraftId) {
+  const wrap = $('loadoutImageWrap');
+  const img = $('loadoutImage');
+  if (!wrap || !img) return;
+  const mapping = data?.combat_radius_loadout_images?.aircraft || {};
+  const file = mapping[aircraftId];
+  if (!file) {
+    wrap.hidden = true;
+    img.removeAttribute('src');
+    return;
+  }
+  img.src = `${LOADOUT_IMAGE_BASE}${file}`;
+  img.alt = `${selectedAircraftName('机型')} 挂载示意图`;
+  wrap.hidden = false;
+}
+
 function applyPresetToFields(preset) {
   if (!preset) {
     currentAircraftName = '';
     f135TsfcMode = 'published';
     syncF135TsfcToggle('');
     renderWeaponStations('');
+    syncLoadoutImage('');
     return;
   }
   applyingPreset = true;
@@ -406,6 +426,7 @@ function applyPresetToFields(preset) {
   f135TsfcMode = 'published';
   syncF135TsfcToggle(preset.id);
   renderWeaponStations(preset.id);
+  syncLoadoutImage(preset.id);
   applyingPreset = false;
 }
 

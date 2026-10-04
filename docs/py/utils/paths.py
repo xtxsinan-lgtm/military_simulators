@@ -21,6 +21,8 @@ MISSILE_INTERCEPTION_CONFIG_JSON = DATA_DIR / 'missile_interception_config.json'
 COMBAT_RADIUS_AIRCRAFT_CSV = AIRCRAFT_CSV
 COMBAT_RADIUS_ENGINE_CSV = DATA_DIR / 'aircraft_engine_database.csv'
 COMBAT_RADIUS_CONFIG_JSON = DATA_DIR / 'combat_radius_config.json'
+COMBAT_RADIUS_LOADOUT_DIR = DATA_DIR / 'combat_radius_loadout'
+COMBAT_RADIUS_LOADOUT_IMAGES_JSON = DATA_DIR / 'combat_radius_loadout_images.json'
 COMBAT_RADIUS_RESULTS_JSON = DATA_DIR / 'combat_radius_results.json'
 # 作战半径挂点挂载（munitions + stations JSON）
 MUNITIONS_CSV = DATA_DIR / 'munitions_database.csv'
@@ -49,12 +51,13 @@ FC1_STORE_MOUNTS_CSV = DATA_DIR / 'aircraft_store_mounts.csv'
 AIRCRAFT_STORES_CSV = DATA_DIR / 'aircraft_stores_database.csv'
 TEJAS_HARDPOINTS_CSV = DATA_DIR / 'aircraft_hardpoints_database.csv'
 AIRCRAFT_FIXED_EQUIPMENT_CSV = DATA_DIR / 'aircraft_fixed_equipment_database.csv'
-# FA-50 外挂挂点（与 Tejas 分列 CSV）
+# FA-50 外挂挂点（与 Tejas / MiG-29 分列 CSV）
+FA50_STORES_CSV = DATA_DIR / 'fa50_stores_database.csv'
 FA50_HARDPOINTS_CSV = DATA_DIR / 'aircraft_hardpoints.csv'
 FA50_HARDPOINT_STORES_CSV = DATA_DIR / 'aircraft_hardpoint_stores.csv'
 FA50_LOADOUT_PRESETS_CSV = DATA_DIR / 'loadout_presets.csv'
 # hardpoints.py 兼容别名
-STORES_CSV = STORES_DATABASE_CSV
+STORES_CSV = FA50_STORES_CSV
 AIRCRAFT_HARDPOINTS_CSV = FA50_HARDPOINTS_CSV
 AIRCRAFT_HARDPOINT_STORES_CSV = FA50_HARDPOINT_STORES_CSV
 LOADOUT_PRESETS_CSV = FA50_LOADOUT_PRESETS_CSV

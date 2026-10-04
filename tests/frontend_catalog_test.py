@@ -43,6 +43,8 @@ def test_build_catalog_payload_modes():
     assert 'combat_radius_presets' in payload
     assert 'combat_radius_engine_presets' in payload
     assert 'combat_radius_config' in payload
+    assert 'combat_radius_loadout_images' in payload
+    assert payload['combat_radius_loadout_images']['aircraft']['F-15E'] == 'f15e.jpg'
     assert 'combat_radius_results' in payload
     assert payload['combat_radius_config']['mission_fuel']['carrier_reserve_min'] == 45
     assert payload['combat_radius_config']['engine']['dry_to_max_thrust_ratio'] == 0.7
@@ -145,6 +147,10 @@ def test_docs_combat_radius_page_exists_and_links():
     assert js.is_file() and css.is_file()
     html = page.read_text(encoding='utf-8')
     js_text = js.read_text(encoding='utf-8')
+    assert 'loadoutImageWrap' in html
+    assert '外挂挂载示意' in html
+    assert 'syncLoadoutImage' in js_text
+    assert 'combat_radius_loadout_images' in js_text
     assert 'combat_radius.js' in html
     assert 'index.html' in html
     assert 'run_combat_radius_json' in js_text

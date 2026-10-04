@@ -14,8 +14,8 @@ from utils.database_csv import (
 )
 from utils.paths import (
     AIRCRAFT_FIXED_EQUIPMENT_CSV,
-    AIRCRAFT_HARDPOINTS_CSV,
     AIRCRAFT_STORES_CSV,
+    TEJAS_HARDPOINTS_CSV,
 )
 
 
@@ -29,7 +29,7 @@ def test_load_aircraft_stores_csv_has_tejas_weapons():
 
 def test_load_aircraft_hardpoints_csv_tejas_station_limits():
     """光辉各挂点限重与允许外挂符合公开挂点表。"""
-    rows = {r['station_id']: r for r in load_aircraft_hardpoints_csv(AIRCRAFT_HARDPOINTS_CSV)
+    rows = {r['station_id']: r for r in load_aircraft_hardpoints_csv(TEJAS_HARDPOINTS_CSV)
             if r['aircraft_id'] == 'Tejas'}
     assert rows['wtip_r']['max_mass_kg'] == pytest.approx(310)
     assert rows['wtip_r']['allowed_stores'] == ['aspj']

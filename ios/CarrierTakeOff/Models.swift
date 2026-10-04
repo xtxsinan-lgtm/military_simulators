@@ -15,6 +15,7 @@ struct CatalogPayload: Codable {
     var combat_radius_presets: [CombatRadiusPresetItem]?
     var combat_radius_engine_presets: [CombatRadiusEnginePresetItem]?
     var combat_radius_config: CombatRadiusConfigPayload?
+    var combat_radius_loadout_images: CombatRadiusLoadoutImagesPayload?
     var combat_radius_results: CombatRadiusResultsPayload?
     var loadout_catalog: LoadoutCatalogPayload?
     var missile_range: MissileRangePayload?
@@ -119,6 +120,12 @@ struct SimulatorEntry: Codable, Identifiable, Hashable {
     var html: String?
     var miniprogram_page: String?
     var ios_route: String?
+}
+
+/// 作战半径机型挂载示意图映射
+struct CombatRadiusLoadoutImagesPayload: Codable {
+    var version: Int?
+    var aircraft: [String: String]?
 }
 
 /// 作战半径配置

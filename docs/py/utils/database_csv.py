@@ -60,14 +60,38 @@ MISSILE_RANGE_PRESET_CSV_COLUMNS = (
 )
 MISSILE_RANGE_SPEED_GROUPS = ('supersonic', 'subsonic')
 
-# 战斗机外挂：弹药目录与机型挂点兼容表
-AIRCRAFT_STORE_CATALOG_CSV_COLUMNS = (
+# FC-1 外挂弹药目录（store_id 列）
+FC1_STORE_CATALOG_CSV_COLUMNS = (
     'store_id', 'name', 'category', 'mass_kg', 'length_m', 'diameter_m', 'notes',
 )
 AIRCRAFT_STORE_MOUNTS_CSV_COLUMNS = (
     'aircraft_id', 'station_group', 'station_ids', 'group_label',
     'store_id', 'max_qty', 'notes',
 )
+AIRCRAFT_WEAPON_STATIONS_CSV_COLUMNS = (
+    'aircraft_id', 'station_id', 'station_name', 'category', 'weapon_id', 'weapon_name', 'notes',
+)
+AIRCRAFT_STORES_CSV_COLUMNS = (
+    'store_id', 'name_en', 'name_zh', 'category', 'typical_mass_kg', 'notes',
+)
+AIRCRAFT_HARDPOINTS_CSV_COLUMNS = (
+    'aircraft_id', 'station_id', 'name_zh', 'position', 'side', 'max_mass_kg',
+    'allowed_stores', 'notes',
+)
+AIRCRAFT_FIXED_EQUIPMENT_CSV_COLUMNS = (
+    'aircraft_id', 'equipment_id', 'name_zh', 'location', 'notes',
+)
+WEAPON_STORE_CSV_COLUMNS = (
+    'id', 'name', 'category', 'mass_kg', 'length_m', 'diameter_m', 'notes',
+)
+WEAPON_STORE_CATEGORIES = ('a2a', 'pgm', 'battlefield', 'asm', 'aux', 'fixed')
+TYPHOON_STORE_STATIONS_CSV_COLUMNS = (
+    'station_id', 'name', 'mount', 'position_index', 'notes',
+)
+TYPHOON_STORE_COMPATIBILITY_CSV_COLUMNS = (
+    'station_id', 'weapon_id', 'max_qty', 'notes',
+)
+TYPHOON_STORE_MOUNTS = ('pylon', 'semi_recessed', 'centerline', 'fixed')
 
 COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
     'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'max_tsl_kN',
@@ -549,7 +573,7 @@ def load_fc1_store_catalog_csv(path: str | Path | None = None) -> list[dict[str,
         reader = csv.DictReader(f)
         if reader.fieldnames is None:
             raise ValueError(f'{csv_path} 缺少表头')
-        missing = [c for c in AIRCRAFT_STORE_CATALOG_CSV_COLUMNS if c not in reader.fieldnames]
+        missing = [c for c in FC1_STORE_CATALOG_CSV_COLUMNS if c not in reader.fieldnames]
         if missing:
             raise ValueError(f'{csv_path} 缺少列: {missing}')
         for row in reader:
