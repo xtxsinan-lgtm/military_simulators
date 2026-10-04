@@ -26335,6 +26335,127 @@
         "length_m": 5.2,
         "diameter_m": 0.76,
         "notes": "F/A-18E/F 常用 480 US gal 外挂油箱"
+      },
+      {
+        "id": "aam3",
+        "name": "AAM-3（90式）",
+        "category": "aam",
+        "mass_kg": 91.0,
+        "dry_mass_kg": 91.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.87,
+        "diameter_m": 0.127,
+        "notes": "日本短距格斗弹；F-2 翼尖/外侧常用"
+      },
+      {
+        "id": "aam4",
+        "name": "AAM-4（99式）",
+        "category": "aam",
+        "mass_kg": 163.0,
+        "dry_mass_kg": 163.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.667,
+        "diameter_m": 0.203,
+        "notes": "日本主动雷达中距弹；F-2 默认 BVR"
+      },
+      {
+        "id": "asm1",
+        "name": "ASM-1（80式）",
+        "category": "asm",
+        "mass_kg": 598.0,
+        "dry_mass_kg": 598.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.0,
+        "diameter_m": 0.356,
+        "notes": "空舰导弹 Type 80"
+      },
+      {
+        "id": "asm2",
+        "name": "ASM-2（93式）",
+        "category": "asm",
+        "mass_kg": 754.0,
+        "dry_mass_kg": 754.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.0,
+        "diameter_m": 0.356,
+        "notes": "空舰导弹 Type 93"
+      },
+      {
+        "id": "gcs1",
+        "name": "GCS-1 制导炸弹",
+        "category": "guided_bomb",
+        "mass_kg": 454.0,
+        "dry_mass_kg": 454.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.99,
+        "diameter_m": 0.356,
+        "notes": "红外制导炸弹"
+      },
+      {
+        "id": "jm117",
+        "name": "JM117（340kg）",
+        "category": "unguided_bomb",
+        "mass_kg": 340.0,
+        "dry_mass_kg": 340.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.32,
+        "notes": "日本 340 kg 通用炸弹"
+      },
+      {
+        "id": "drop_tank_300",
+        "name": "300加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1135.0,
+        "dry_mass_kg": 120.0,
+        "fuel_kg": 1015.0,
+        "length_m": 4.3,
+        "diameter_m": 0.66,
+        "notes": "F-2 中线 300 US gal"
+      },
+      {
+        "id": "drop_tank_600",
+        "name": "600加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1960.0,
+        "dry_mass_kg": 150.0,
+        "fuel_kg": 1810.0,
+        "length_m": 5.5,
+        "diameter_m": 0.81,
+        "notes": "F-2 内侧 600 US gal"
+      },
+      {
+        "id": "mk82_ter3",
+        "name": "MK-82×3（BRU-42）",
+        "category": "unguided_bomb",
+        "mass_kg": 723.0,
+        "dry_mass_kg": 723.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.0,
+        "diameter_m": 0.4,
+        "notes": "TER 三挂 Mk-82"
+      },
+      {
+        "id": "jm117_ter3",
+        "name": "JM117×3（BRU-42）",
+        "category": "unguided_bomb",
+        "mass_kg": 1020.0,
+        "dry_mass_kg": 1020.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.0,
+        "diameter_m": 0.4,
+        "notes": "TER 三挂 JM117"
+      },
+      {
+        "id": "jlau3",
+        "name": "JLAU-3/A 火箭巢",
+        "category": "rocket_pod",
+        "mass_kg": 120.0,
+        "dry_mass_kg": 120.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.75,
+        "diameter_m": 0.35,
+        "notes": "19管 70 mm 火箭"
       }
     ],
     "aircraft": {
@@ -30302,6 +30423,755 @@
           "sta5": "aim120@1",
           "sta7": "aim120@1",
           "sta11": "aim9@1"
+        }
+      },
+      "F-2": {
+        "id": "F-2",
+        "name": "F-2A",
+        "stations": [
+          {
+            "id": "sta1",
+            "label": "1 左翼尖（STA-1）",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aam3@1",
+                "munition_id": "aam3",
+                "qty": 1.0,
+                "label": "AAM-3（90式）",
+                "mass_kg": 91.0,
+                "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9L Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta2",
+            "label": "2 左外侧挂点（STA-2）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aam3@1",
+                "munition_id": "aam3",
+                "qty": 1.0,
+                "label": "AAM-3（90式）",
+                "mass_kg": 91.0,
+                "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9L Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7M Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aam4@1",
+                "munition_id": "aam4",
+                "qty": 1.0,
+                "label": "AAM-4（99式）",
+                "mass_kg": 163.0,
+                "dry_mass_kg": 163.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta3",
+            "label": "3 左主挂点（STA-3，in/out）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aam3@1",
+                "munition_id": "aam3",
+                "qty": 1.0,
+                "label": "AAM-3（90式）",
+                "mass_kg": 91.0,
+                "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9L Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7M Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aam4@1",
+                "munition_id": "aam4",
+                "qty": 1.0,
+                "label": "AAM-4（99式）",
+                "mass_kg": 163.0,
+                "dry_mass_kg": 163.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm1@1",
+                "munition_id": "asm1",
+                "qty": 1.0,
+                "label": "ASM-1（80式）",
+                "mass_kg": 598.0,
+                "dry_mass_kg": 598.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm2@1",
+                "munition_id": "asm2",
+                "qty": 1.0,
+                "label": "ASM-2（93式）",
+                "mass_kg": 754.0,
+                "dry_mass_kg": 754.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta4",
+            "label": "4 左内侧挂点（STA-4）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "asm1@1",
+                "munition_id": "asm1",
+                "qty": 1.0,
+                "label": "ASM-1（80式）",
+                "mass_kg": 598.0,
+                "dry_mass_kg": 598.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm2@1",
+                "munition_id": "asm2",
+                "qty": 1.0,
+                "label": "ASM-2（93式）",
+                "mass_kg": 754.0,
+                "dry_mass_kg": 754.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_600@1",
+                "munition_id": "drop_tank_600",
+                "qty": 1.0,
+                "label": "600加仑副油箱",
+                "mass_kg": 1960.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 1810.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82_ter3@1",
+                "munition_id": "mk82_ter3",
+                "qty": 1.0,
+                "label": "MK-82×3（BRU-42）",
+                "mass_kg": 723.0,
+                "dry_mass_kg": 723.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "jm117@1",
+                "munition_id": "jm117",
+                "qty": 1.0,
+                "label": "JM117（340kg）",
+                "mass_kg": 340.0,
+                "dry_mass_kg": 340.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "jm117_ter3@1",
+                "munition_id": "jm117_ter3",
+                "qty": 1.0,
+                "label": "JM117×3（BRU-42）",
+                "mass_kg": 1020.0,
+                "dry_mass_kg": 1020.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@1",
+                "munition_id": "cbu87",
+                "qty": 1.0,
+                "label": "CBU-87",
+                "mass_kg": 430.0,
+                "dry_mass_kg": 430.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gcs1@1",
+                "munition_id": "gcs1",
+                "qty": 1.0,
+                "label": "GCS-1 制导炸弹",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "jlau3@1",
+                "munition_id": "jlau3",
+                "qty": 1.0,
+                "label": "JLAU-3/A 火箭巢",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta5",
+            "label": "5 左机身挂点（STA-5，wet）",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "drop_tank_600@1",
+                "munition_id": "drop_tank_600",
+                "qty": 1.0,
+                "label": "600加仑副油箱",
+                "mass_kg": 1960.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 1810.0
+              },
+              {
+                "key": "aam4@1",
+                "munition_id": "aam4",
+                "qty": 1.0,
+                "label": "AAM-4（99式）",
+                "mass_kg": 163.0,
+                "dry_mass_kg": 163.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7M Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aam3@1",
+                "munition_id": "aam3",
+                "qty": 1.0,
+                "label": "AAM-3（90式）",
+                "mass_kg": 91.0,
+                "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9L Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta6",
+            "label": "6 机腹中线（STA-6，wet）",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "drop_tank_300@1",
+                "munition_id": "drop_tank_300",
+                "qty": 1.0,
+                "label": "300加仑副油箱",
+                "mass_kg": 1135.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 1015.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gcs1@1",
+                "munition_id": "gcs1",
+                "qty": 1.0,
+                "label": "GCS-1 制导炸弹",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta7",
+            "label": "7 右机身挂点（STA-7，wet）",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "drop_tank_600@1",
+                "munition_id": "drop_tank_600",
+                "qty": 1.0,
+                "label": "600加仑副油箱",
+                "mass_kg": 1960.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 1810.0
+              },
+              {
+                "key": "aam4@1",
+                "munition_id": "aam4",
+                "qty": 1.0,
+                "label": "AAM-4（99式）",
+                "mass_kg": 163.0,
+                "dry_mass_kg": 163.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7M Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aam3@1",
+                "munition_id": "aam3",
+                "qty": 1.0,
+                "label": "AAM-3（90式）",
+                "mass_kg": 91.0,
+                "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9L Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta8",
+            "label": "8 右内侧挂点（STA-8）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "asm1@1",
+                "munition_id": "asm1",
+                "qty": 1.0,
+                "label": "ASM-1（80式）",
+                "mass_kg": 598.0,
+                "dry_mass_kg": 598.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm2@1",
+                "munition_id": "asm2",
+                "qty": 1.0,
+                "label": "ASM-2（93式）",
+                "mass_kg": 754.0,
+                "dry_mass_kg": 754.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_600@1",
+                "munition_id": "drop_tank_600",
+                "qty": 1.0,
+                "label": "600加仑副油箱",
+                "mass_kg": 1960.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 1810.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82_ter3@1",
+                "munition_id": "mk82_ter3",
+                "qty": 1.0,
+                "label": "MK-82×3（BRU-42）",
+                "mass_kg": 723.0,
+                "dry_mass_kg": 723.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "jm117@1",
+                "munition_id": "jm117",
+                "qty": 1.0,
+                "label": "JM117（340kg）",
+                "mass_kg": 340.0,
+                "dry_mass_kg": 340.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "jm117_ter3@1",
+                "munition_id": "jm117_ter3",
+                "qty": 1.0,
+                "label": "JM117×3（BRU-42）",
+                "mass_kg": 1020.0,
+                "dry_mass_kg": 1020.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cbu87@1",
+                "munition_id": "cbu87",
+                "qty": 1.0,
+                "label": "CBU-87",
+                "mass_kg": 430.0,
+                "dry_mass_kg": 430.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gcs1@1",
+                "munition_id": "gcs1",
+                "qty": 1.0,
+                "label": "GCS-1 制导炸弹",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "jlau3@1",
+                "munition_id": "jlau3",
+                "qty": 1.0,
+                "label": "JLAU-3/A 火箭巢",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta9",
+            "label": "9 右主挂点（STA-9，in/out）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aam3@1",
+                "munition_id": "aam3",
+                "qty": 1.0,
+                "label": "AAM-3（90式）",
+                "mass_kg": 91.0,
+                "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9L Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7M Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aam4@1",
+                "munition_id": "aam4",
+                "qty": 1.0,
+                "label": "AAM-4（99式）",
+                "mass_kg": 163.0,
+                "dry_mass_kg": 163.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm1@1",
+                "munition_id": "asm1",
+                "qty": 1.0,
+                "label": "ASM-1（80式）",
+                "mass_kg": 598.0,
+                "dry_mass_kg": 598.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm2@1",
+                "munition_id": "asm2",
+                "qty": 1.0,
+                "label": "ASM-2（93式）",
+                "mass_kg": 754.0,
+                "dry_mass_kg": 754.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta10",
+            "label": "10 右外侧挂点（STA-10）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aam3@1",
+                "munition_id": "aam3",
+                "qty": 1.0,
+                "label": "AAM-3（90式）",
+                "mass_kg": 91.0,
+                "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9L Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim7@1",
+                "munition_id": "aim7",
+                "qty": 1.0,
+                "label": "AIM-7M Sparrow",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aam4@1",
+                "munition_id": "aam4",
+                "qty": 1.0,
+                "label": "AAM-4（99式）",
+                "mass_kg": 163.0,
+                "dry_mass_kg": 163.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "sta11",
+            "label": "11 右翼尖（STA-11）",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aam3@1",
+                "munition_id": "aam3",
+                "qty": 1.0,
+                "label": "AAM-3（90式）",
+                "mass_kg": 91.0,
+                "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9@1",
+                "munition_id": "aim9",
+                "qty": 1.0,
+                "label": "AIM-9L Sidewinder",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          }
+        ],
+        "default_selection": {
+          "sta1": "aam3@1",
+          "sta2": "aam4@1",
+          "sta10": "aam4@1",
+          "sta11": "aam3@1"
         }
       }
     }
