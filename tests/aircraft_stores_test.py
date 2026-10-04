@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 
 from scripts.frontend_catalog import build_catalog_payload
-from utils.aircraft_stores import build_aircraft_stores_payload, stores_for_aircraft
+from utils.aircraft_stores import build_fc1_stores_payload, stores_for_aircraft
 from utils.database_csv import (
     load_aircraft_store_catalog_csv,
     load_aircraft_store_mounts_csv,
@@ -33,7 +33,7 @@ def test_store_catalog_loads_fc1_weapons():
 
 def test_fc1_mounts_cover_seven_stations():
     """FC-1 挂点 1–7 应完整覆盖，且对称挂点能力一致。"""
-    payload = build_aircraft_stores_payload()
+    payload = build_fc1_stores_payload()
     groups = payload['aircraft']['FC-1']
     assert len(groups) == 4
 
@@ -105,21 +105,23 @@ def test_build_payload_rejects_unknown_store():
     bad = dict(mounts[0])
     bad['store_id'] = 'missing_store'
     with pytest.raises(ValueError, match='未知 store_id'):
-        build_aircraft_stores_payload(mounts=[bad])
+        build_fc1_stores_payload(mounts=[bad])
 
 
-def test_catalog_payload_includes_aircraft_stores():
-    """前端 catalog 应携带 aircraft_stores 字段。"""
+def test_catalog_payload_includes_fc1_stores():
+    """前端 catalog 应携带 fc1_stores 字段。"""
     payload = build_catalog_payload(
         load_aircraft_csv(AIRCRAFT_CSV),
         load_carriers_csv(CARRIERS_CSV),
     )
-    assert 'aircraft_stores' in payload
-    assert 'FC-1' in payload['aircraft_stores']['aircraft']
-    assert payload['aircraft_stores']['stores']['pl12']['name'].startswith('PL-12')
+    assert 'fc1_stores' in payload
+    assert 'FC-1' in payload['fc1_stores']['aircraft']
+    assert payload['fc1_stores']['stores']['pl12']['name'].startswith('PL-12')
 
 
 def test_csv_files_exist():
     """外挂 CSV 源文件应存在。"""
-    assert AIRCRAFT_STORE_CATALOG_CSV.is_file()
-    assert AIRCRAFT_STORE_MOUNTS_CSV.is_file()
+    from utils.paths import FC1_STORE_CATALOG_CSV, FC1_STORE_MOUNTS_CSV
+
+    assert FC1_STORE_CATALOG_CSV.is_file()
+    assert FC1_STORE_MOUNTS_CSV.is_file()
