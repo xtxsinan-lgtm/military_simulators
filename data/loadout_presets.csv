@@ -1,0 +1,11 @@
+aircraft_id,preset_id,name,station_id,store_id,count,notes
+FA-50,fa50_a2a_tip,空战（翼尖 AIM-9）,tip_l,aim9,1,典型空优轻挂载
+FA-50,fa50_a2a_tip,空战（翼尖 AIM-9）,tip_r,aim9,1,
+FA-50,fa50_cas_light,对地轻挂载,out_l,maverick,1,外侧各 1 枚小牛
+FA-50,fa50_cas_light,对地轻挂载,out_r,maverick,1,
+FA-50,fa50_cas_heavy,对地重挂载,in_l,mk82,3,内侧各 3 枚 MK-82
+FA-50,fa50_cas_heavy,对地重挂载,in_r,mk82,3,
+FA-50,fa50_cas_heavy,对地重挂载,center,mk82,1,机腹 1 枚 MK-82
+FA-50,fa50_ferry,转场（三油箱）,in_l,tank150,1,内翼 + 机腹副油箱
+FA-50,fa50_ferry,转场（三油箱）,in_r,tank150,1,
+FA-50,fa50_ferry,转场（三油箱）,center,tank150,1,

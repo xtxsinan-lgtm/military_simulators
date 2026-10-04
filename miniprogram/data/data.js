@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -30276,6 +30276,444 @@ module.exports = {
         "burn_time_s": 21.0,
         "extra_gravity_m_s": 0.0,
         "stage_locked": false
+      }
+    ]
+  },
+  "stores_catalog": {
+    "stores": [
+      {
+        "id": "aim9",
+        "name": "AIM-9 响尾蛇",
+        "category": "aam",
+        "mass_kg": 85.0,
+        "notes": "空对空导弹；Sidewinder 典型值"
+      },
+      {
+        "id": "maverick",
+        "name": "AGM-65 小牛",
+        "category": "agm",
+        "mass_kg": 210.0,
+        "notes": "空对地导弹"
+      },
+      {
+        "id": "mk82",
+        "name": "MK-82 炸弹",
+        "category": "bomb",
+        "mass_kg": 227.0,
+        "notes": "500 lb 通用炸弹"
+      },
+      {
+        "id": "cbu58",
+        "name": "CBU-58 集束炸弹",
+        "category": "dispenser",
+        "mass_kg": 195.0,
+        "notes": "集束弹药"
+      },
+      {
+        "id": "mk20",
+        "name": "MK-20 石眼集束炸弹",
+        "category": "dispenser",
+        "mass_kg": 222.0,
+        "notes": "Rockeye 集束炸弹"
+      },
+      {
+        "id": "lau3",
+        "name": "LAU-3 火箭发射器",
+        "category": "rocket",
+        "mass_kg": 135.0,
+        "notes": "19 管 70 mm 火箭巢（空重）"
+      },
+      {
+        "id": "tank150",
+        "name": "150 加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 605.0,
+        "notes": "约 570 kg 燃油 + 油箱结构"
+      },
+      {
+        "id": "agts36",
+        "name": "AGTS-36 拖曳靶",
+        "category": "target",
+        "mass_kg": 150.0,
+        "notes": "拖曳靶"
+      }
+    ],
+    "aircraft": [
+      {
+        "aircraft_id": "FA-50",
+        "stations": [
+          {
+            "aircraft_id": "FA-50",
+            "station_id": "tip_l",
+            "name": "翼尖挂点（左）",
+            "position_order": 1,
+            "max_mass_lb": 250.0,
+            "max_mass_kg": 113.4,
+            "load_factor_g": 8.0,
+            "notes": "最外侧",
+            "allowed_stores": [
+              {
+                "store_id": "aim9",
+                "max_count": 1,
+                "name": "AIM-9 响尾蛇",
+                "category": "aam",
+                "mass_kg": 85.0
+              }
+            ]
+          },
+          {
+            "aircraft_id": "FA-50",
+            "station_id": "out_l",
+            "name": "外侧翼下挂点 BL 120（左）",
+            "position_order": 2,
+            "max_mass_lb": 1250.0,
+            "max_mass_kg": 567.0,
+            "load_factor_g": 5.5,
+            "notes": "",
+            "allowed_stores": [
+              {
+                "store_id": "maverick",
+                "max_count": 1,
+                "name": "AGM-65 小牛",
+                "category": "agm",
+                "mass_kg": 210.0
+              },
+              {
+                "store_id": "mk82",
+                "max_count": 1,
+                "name": "MK-82 炸弹",
+                "category": "bomb",
+                "mass_kg": 227.0
+              },
+              {
+                "store_id": "cbu58",
+                "max_count": 1,
+                "name": "CBU-58 集束炸弹",
+                "category": "dispenser",
+                "mass_kg": 195.0
+              },
+              {
+                "store_id": "mk20",
+                "max_count": 1,
+                "name": "MK-20 石眼集束炸弹",
+                "category": "dispenser",
+                "mass_kg": 222.0
+              },
+              {
+                "store_id": "lau3",
+                "max_count": 1,
+                "name": "LAU-3 火箭发射器",
+                "category": "rocket",
+                "mass_kg": 135.0
+              }
+            ]
+          },
+          {
+            "aircraft_id": "FA-50",
+            "station_id": "in_l",
+            "name": "内侧翼下挂点 BL 80（左）",
+            "position_order": 3,
+            "max_mass_lb": 2250.0,
+            "max_mass_kg": 1020.6,
+            "load_factor_g": 5.5,
+            "notes": "",
+            "allowed_stores": [
+              {
+                "store_id": "tank150",
+                "max_count": 1,
+                "name": "150 加仑副油箱",
+                "category": "fuel_tank",
+                "mass_kg": 605.0
+              },
+              {
+                "store_id": "maverick",
+                "max_count": 2,
+                "name": "AGM-65 小牛",
+                "category": "agm",
+                "mass_kg": 210.0
+              },
+              {
+                "store_id": "mk82",
+                "max_count": 3,
+                "name": "MK-82 炸弹",
+                "category": "bomb",
+                "mass_kg": 227.0
+              },
+              {
+                "store_id": "cbu58",
+                "max_count": 1,
+                "name": "CBU-58 集束炸弹",
+                "category": "dispenser",
+                "mass_kg": 195.0
+              },
+              {
+                "store_id": "mk20",
+                "max_count": 3,
+                "name": "MK-20 石眼集束炸弹",
+                "category": "dispenser",
+                "mass_kg": 222.0
+              },
+              {
+                "store_id": "agts36",
+                "max_count": 1,
+                "name": "AGTS-36 拖曳靶",
+                "category": "target",
+                "mass_kg": 150.0
+              },
+              {
+                "store_id": "lau3",
+                "max_count": 2,
+                "name": "LAU-3 火箭发射器",
+                "category": "rocket",
+                "mass_kg": 135.0
+              }
+            ]
+          },
+          {
+            "aircraft_id": "FA-50",
+            "station_id": "center",
+            "name": "机腹中心挂点",
+            "position_order": 4,
+            "max_mass_lb": 2250.0,
+            "max_mass_kg": 1020.6,
+            "load_factor_g": 4.5,
+            "notes": "",
+            "allowed_stores": [
+              {
+                "store_id": "tank150",
+                "max_count": 1,
+                "name": "150 加仑副油箱",
+                "category": "fuel_tank",
+                "mass_kg": 605.0
+              },
+              {
+                "store_id": "mk82",
+                "max_count": 1,
+                "name": "MK-82 炸弹",
+                "category": "bomb",
+                "mass_kg": 227.0
+              },
+              {
+                "store_id": "mk20",
+                "max_count": 1,
+                "name": "MK-20 石眼集束炸弹",
+                "category": "dispenser",
+                "mass_kg": 222.0
+              }
+            ]
+          },
+          {
+            "aircraft_id": "FA-50",
+            "station_id": "in_r",
+            "name": "内侧翼下挂点 BL 80（右）",
+            "position_order": 5,
+            "max_mass_lb": 2250.0,
+            "max_mass_kg": 1020.6,
+            "load_factor_g": 5.5,
+            "notes": "",
+            "allowed_stores": [
+              {
+                "store_id": "tank150",
+                "max_count": 1,
+                "name": "150 加仑副油箱",
+                "category": "fuel_tank",
+                "mass_kg": 605.0
+              },
+              {
+                "store_id": "maverick",
+                "max_count": 2,
+                "name": "AGM-65 小牛",
+                "category": "agm",
+                "mass_kg": 210.0
+              },
+              {
+                "store_id": "mk82",
+                "max_count": 3,
+                "name": "MK-82 炸弹",
+                "category": "bomb",
+                "mass_kg": 227.0
+              },
+              {
+                "store_id": "cbu58",
+                "max_count": 1,
+                "name": "CBU-58 集束炸弹",
+                "category": "dispenser",
+                "mass_kg": 195.0
+              },
+              {
+                "store_id": "mk20",
+                "max_count": 3,
+                "name": "MK-20 石眼集束炸弹",
+                "category": "dispenser",
+                "mass_kg": 222.0
+              },
+              {
+                "store_id": "agts36",
+                "max_count": 1,
+                "name": "AGTS-36 拖曳靶",
+                "category": "target",
+                "mass_kg": 150.0
+              },
+              {
+                "store_id": "lau3",
+                "max_count": 2,
+                "name": "LAU-3 火箭发射器",
+                "category": "rocket",
+                "mass_kg": 135.0
+              }
+            ]
+          },
+          {
+            "aircraft_id": "FA-50",
+            "station_id": "out_r",
+            "name": "外侧翼下挂点 BL 120（右）",
+            "position_order": 6,
+            "max_mass_lb": 1250.0,
+            "max_mass_kg": 567.0,
+            "load_factor_g": 5.5,
+            "notes": "",
+            "allowed_stores": [
+              {
+                "store_id": "maverick",
+                "max_count": 1,
+                "name": "AGM-65 小牛",
+                "category": "agm",
+                "mass_kg": 210.0
+              },
+              {
+                "store_id": "mk82",
+                "max_count": 1,
+                "name": "MK-82 炸弹",
+                "category": "bomb",
+                "mass_kg": 227.0
+              },
+              {
+                "store_id": "cbu58",
+                "max_count": 1,
+                "name": "CBU-58 集束炸弹",
+                "category": "dispenser",
+                "mass_kg": 195.0
+              },
+              {
+                "store_id": "mk20",
+                "max_count": 1,
+                "name": "MK-20 石眼集束炸弹",
+                "category": "dispenser",
+                "mass_kg": 222.0
+              },
+              {
+                "store_id": "lau3",
+                "max_count": 1,
+                "name": "LAU-3 火箭发射器",
+                "category": "rocket",
+                "mass_kg": 135.0
+              }
+            ]
+          },
+          {
+            "aircraft_id": "FA-50",
+            "station_id": "tip_r",
+            "name": "翼尖挂点（右）",
+            "position_order": 7,
+            "max_mass_lb": 250.0,
+            "max_mass_kg": 113.4,
+            "load_factor_g": 8.0,
+            "notes": "最外侧",
+            "allowed_stores": [
+              {
+                "store_id": "aim9",
+                "max_count": 1,
+                "name": "AIM-9 响尾蛇",
+                "category": "aam",
+                "mass_kg": 85.0
+              }
+            ]
+          }
+        ],
+        "loadout_presets": [
+          {
+            "id": "fa50_a2a_tip",
+            "name": "空战（翼尖 AIM-9）",
+            "aircraft_id": "FA-50",
+            "notes": "典型空优轻挂载",
+            "stations": [
+              {
+                "station_id": "tip_l",
+                "store_id": "aim9",
+                "count": 1
+              },
+              {
+                "station_id": "tip_r",
+                "store_id": "aim9",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "id": "fa50_cas_heavy",
+            "name": "对地重挂载",
+            "aircraft_id": "FA-50",
+            "notes": "内侧各 3 枚 MK-82",
+            "stations": [
+              {
+                "station_id": "in_l",
+                "store_id": "mk82",
+                "count": 3
+              },
+              {
+                "station_id": "in_r",
+                "store_id": "mk82",
+                "count": 3
+              },
+              {
+                "station_id": "center",
+                "store_id": "mk82",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "id": "fa50_cas_light",
+            "name": "对地轻挂载",
+            "aircraft_id": "FA-50",
+            "notes": "外侧各 1 枚小牛",
+            "stations": [
+              {
+                "station_id": "out_l",
+                "store_id": "maverick",
+                "count": 1
+              },
+              {
+                "station_id": "out_r",
+                "store_id": "maverick",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "id": "fa50_ferry",
+            "name": "转场（三油箱）",
+            "aircraft_id": "FA-50",
+            "notes": "内翼 + 机腹副油箱",
+            "stations": [
+              {
+                "station_id": "in_l",
+                "store_id": "tank150",
+                "count": 1
+              },
+              {
+                "station_id": "in_r",
+                "store_id": "tank150",
+                "count": 1
+              },
+              {
+                "station_id": "center",
+                "store_id": "tank150",
+                "count": 1
+              }
+            ]
+          }
+        ]
       }
     ]
   }
