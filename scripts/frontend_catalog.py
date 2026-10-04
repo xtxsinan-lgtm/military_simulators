@@ -117,6 +117,7 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
     from utils.combat_radius.loadout import build_loadout_catalog_payload
     from utils.missile_interception.missile_interception_presets import build_missile_interception_presets_payload
     from utils.aircraft_pylon import build_aircraft_pylon_payload
+    from utils.aircraft_mount.rafale_mount import build_rafale_mount_catalog_payload
 
     return {
         'version': DATA_VERSION,
@@ -142,4 +143,5 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'aircraft_stores': build_combined_aircraft_stores_payload(),
         'aircraft_loadout': build_aircraft_loadout_catalog_payload(),
         'aircraft_pylon': build_aircraft_pylon_payload(),
+        'rafale_mount': build_rafale_mount_catalog_payload(),
     }

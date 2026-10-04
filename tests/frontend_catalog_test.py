@@ -290,6 +290,8 @@ def test_pyodide_bundles_missile_range_preset_csv():
     from scripts.build_docs import collect_py_sources
     sources = collect_py_sources()
     assert 'data/missile_range_preset_database.csv' in sources
+    assert 'data/rafale_mount_stations.csv' in sources
+    assert 'data/rafale_mount_stores.csv' in sources
     assert 'utils/missile_range/dataset.py' in sources
 
 
@@ -339,6 +341,10 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     assert len(payload['carriers']) >= 1
     assert 'MiG-29K' in payload['aircraft_stores']['aircraft']
     assert payload['aircraft_stores']['aircraft']['MiG-29K']['station_count'] == 9
+    mount = payload['rafale_mount']
+    assert mount['aircraft_ids'] == ['Rafale', 'Rafale-M']
+    assert len(mount['stations']) == 16
+    assert 'meteor' in {s['id'] for s in mount['stores_by_station']['AFT_LAT_R']}
 
 
 def test_web_simulator_modes_match_frontend_catalog():
