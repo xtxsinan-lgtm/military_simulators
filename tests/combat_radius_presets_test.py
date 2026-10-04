@@ -18,6 +18,7 @@ from utils.combat_radius.combat_radius_presets import (
     preset_to_aircraft_dict,
     sort_presets_by_nation_then_name,
 )
+from utils.combat_radius.lift_drag import geometric_wetted_area_m2
 from utils.paths import COMBAT_RADIUS_AIRCRAFT_CSV, COMBAT_RADIUS_ENGINE_CSV
 
 # 作战半径仅含分段浸润几何机型（未填几何的 AV-8B 等仍不入选）
@@ -144,6 +145,18 @@ def test_load_presets_contains_anchors_and_j20():
     assert f35['inlet'] == 'dsi'
 
 
+def test_f16_wetted_area_matches_jsbsim_anchor():
+    """F-16 分段浸润锚定 JSBSim 部件和（约 130.4 m²）。"""
+    f16 = get_preset_by_id(load_presets(), 'F-16')
+    assert f16 is not None
+    assert f16['main_wing_area_m2'] == pytest.approx(15.85)
+    assert f16['canard_htail_area_m2'] == pytest.approx(5.92)
+    assert f16['vtail_area_m2'] == pytest.approx(5.09)
+    assert f16['ventral_fin_area_m2'] == pytest.approx(1.42)
+    ac = preset_to_aircraft(f16)
+    assert geometric_wetted_area_m2(ac) == pytest.approx(130.4, abs=0.3)
+
+
 def test_j10c_preset_canard_delta_ws10b():
     """歼-10C：三角翼鸭式、涡扇10B、陆基；几何来自公开资料。"""
     from utils.combat_radius.cruise_load import wing_loading_t_m2
@@ -167,6 +180,8 @@ def test_j10c_preset_canard_delta_ws10b():
         9750, 3860, 37.0, 1, 210,
     ), abs=1e-6)
     assert j10c['canard_htail_area_m2'] == pytest.approx(4.9)
+    assert j10c['vtail_area_m2'] == pytest.approx(5.5)
+    assert j10c['ventral_fin_area_m2'] == pytest.approx(1.7)
     ac = preset_to_aircraft(j10c)
     assert ac.mach_angle_deg == pytest.approx(16.2)
 
@@ -192,7 +207,7 @@ def test_typhoon_rafale_su57_kf21_kaan_su75_presets():
     assert typhoon['empty_kg'] == pytest.approx(11000)
     assert typhoon['internal_fuel_kg'] == pytest.approx(4500)
     assert typhoon['canard_htail_area_m2'] == pytest.approx(2.4)
-    assert typhoon['main_wing_area_m2'] == pytest.approx(40.0)
+    assert typhoon['main_wing_area_m2'] == pytest.approx(39.5)
     assert typhoon['vtail_area_m2'] == pytest.approx(7.8)
     assert typhoon['mach_angle_deg'] == pytest.approx(18.9)
     assert typhoon['AR'] == pytest.approx(10.95 ** 2 / 51.2, abs=0.005)
@@ -207,7 +222,7 @@ def test_typhoon_rafale_su57_kf21_kaan_su75_presets():
     assert rafale_m['layout'] == 'canard'
     assert rafale_m['engine_id'] == 'm88'
     assert rafale_m['empty_kg'] == pytest.approx(10600)
-    assert rafale_m['main_wing_area_m2'] == pytest.approx(34.7)
+    assert rafale_m['main_wing_area_m2'] == pytest.approx(34.0)
     assert rafale_m['vtail_area_m2'] == pytest.approx(6.3)
     assert rafale_m['store_mount'] == 'semi_recessed'
 
