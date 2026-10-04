@@ -1,0 +1,29 @@
+aircraft_id,station_group,station_ids,group_label,store_id,max_qty,notes
+FC-1,wingtip,1;7,翼尖挂点,pl5e2,1,
+FC-1,outer_wing,2;6,外翼挂点,pl5e2,2,挂架可挂 2 枚
+FC-1,outer_wing,2;6,外翼挂点,pl12,2,挂架可挂 2 枚
+FC-1,outer_wing,2;6,外翼挂点,mar1,1,
+FC-1,outer_wing,2;6,外翼挂点,ls6_500,1,
+FC-1,outer_wing,2;6,外翼挂点,bomb_500,1,
+FC-1,outer_wing,2;6,外翼挂点,bomb_250,2,复合挂架可挂 2 枚
+FC-1,outer_wing,2;6,外翼挂点,rocket,1,
+FC-1,outer_wing,2;6,外翼挂点,practice_bomb,2,复合挂架可挂 2 枚
+FC-1,inner_wing,3;5,内翼挂点,mar1,1,
+FC-1,inner_wing,3;5,内翼挂点,c802a,1,
+FC-1,inner_wing,3;5,内翼挂点,ls6_500,1,
+FC-1,inner_wing,3;5,内翼挂点,bomb_1000,1,
+FC-1,inner_wing,3;5,内翼挂点,bomb_500,1,
+FC-1,inner_wing,3;5,内翼挂点,bomb_250,2,复合挂架可挂 2 枚
+FC-1,inner_wing,3;5,内翼挂点,practice_bomb,2,复合挂架可挂 2 枚
+FC-1,inner_wing,3;5,内翼挂点,ft_800,1,
+FC-1,inner_wing,3;5,内翼挂点,ft_1100,1,
+FC-1,inner_wing,3;5,内翼挂点,hatf8,1,
+FC-1,inner_wing,3;5,内翼挂点,wmd7,1,
+FC-1,inner_wing,3;5,内翼挂点,kg300g,1,
+FC-1,centerline,4,机腹中线挂点,c802a,1,
+FC-1,centerline,4,机腹中线挂点,ls6_500,1,
+FC-1,centerline,4,机腹中线挂点,bomb_1000,1,
+FC-1,centerline,4,机腹中线挂点,ft_800,1,
+FC-1,centerline,4,机腹中线挂点,hatf8,1,
+FC-1,centerline,4,机腹中线挂点,wmd7,1,
+FC-1,centerline,4,机腹中线挂点,kg300g,1,

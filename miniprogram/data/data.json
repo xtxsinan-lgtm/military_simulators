@@ -1,5 +1,5 @@
 {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -30274,5 +30274,327 @@
         "stage_locked": false
       }
     ]
+  },
+  "aircraft_stores": {
+    "stores": {
+      "pl5e2": {
+        "id": "pl5e2",
+        "name": "PL-5E-II 近距格斗弹",
+        "category": "aam",
+        "mass_kg": 83.0,
+        "length_m": 2.893,
+        "diameter_m": 0.127,
+        "notes": "SRAAM"
+      },
+      "pl12": {
+        "id": "pl12",
+        "name": "PL-12 中距空空弹",
+        "category": "aam",
+        "mass_kg": 199.0,
+        "length_m": 3.85,
+        "diameter_m": 0.203,
+        "notes": "MRAAM"
+      },
+      "mar1": {
+        "id": "mar1",
+        "name": "MAR-1 反辐射导弹",
+        "category": "arm",
+        "mass_kg": 510.0,
+        "length_m": 4.2,
+        "diameter_m": 0.36,
+        "notes": "ARM"
+      },
+      "c802a": {
+        "id": "c802a",
+        "name": "C-802A 反舰导弹",
+        "category": "asm",
+        "mass_kg": 715.0,
+        "length_m": 6.392,
+        "diameter_m": 0.36,
+        "notes": "AShM"
+      },
+      "ls6_500": {
+        "id": "ls6_500",
+        "name": "LS-6 500kg 精确制导弹",
+        "category": "bomb_pgm",
+        "mass_kg": 540.0,
+        "length_m": 3.66,
+        "diameter_m": 0.38,
+        "notes": "PGM"
+      },
+      "bomb_1000": {
+        "id": "bomb_1000",
+        "name": "1000kg 航空炸弹",
+        "category": "bomb",
+        "mass_kg": 1000.0,
+        "length_m": 2.5,
+        "diameter_m": 0.45,
+        "notes": "重型航空炸弹"
+      },
+      "bomb_500": {
+        "id": "bomb_500",
+        "name": "500kg 航空炸弹",
+        "category": "bomb",
+        "mass_kg": 500.0,
+        "length_m": 2.0,
+        "diameter_m": 0.356,
+        "notes": "航空炸弹"
+      },
+      "bomb_250": {
+        "id": "bomb_250",
+        "name": "250kg 航空炸弹",
+        "category": "bomb",
+        "mass_kg": 250.0,
+        "length_m": 1.8,
+        "diameter_m": 0.3,
+        "notes": "航空炸弹"
+      },
+      "practice_bomb": {
+        "id": "practice_bomb",
+        "name": "训练弹",
+        "category": "bomb",
+        "mass_kg": 250.0,
+        "length_m": 1.5,
+        "diameter_m": 0.28,
+        "notes": "训练弹"
+      },
+      "rocket": {
+        "id": "rocket",
+        "name": "火箭弹发射巢",
+        "category": "rocket_pod",
+        "mass_kg": 122.0,
+        "length_m": 2.75,
+        "diameter_m": 0.26,
+        "notes": "火箭弹"
+      },
+      "ft_800": {
+        "id": "ft_800",
+        "name": "210gal / 800L 副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 600.0,
+        "length_m": 3.5,
+        "diameter_m": 0.48,
+        "notes": "副油箱"
+      },
+      "ft_1100": {
+        "id": "ft_1100",
+        "name": "290gal / 1100L 副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 850.0,
+        "length_m": 4.6,
+        "diameter_m": 0.52,
+        "notes": "副油箱"
+      },
+      "hatf8": {
+        "id": "hatf8",
+        "name": "Hatf-VIII 巡航导弹",
+        "category": "cruise",
+        "mass_kg": 900.0,
+        "length_m": 4.85,
+        "diameter_m": 0.4,
+        "notes": "ALCM"
+      },
+      "wmd7": {
+        "id": "wmd7",
+        "name": "WMD-7 光电瞄准吊舱",
+        "category": "pod",
+        "mass_kg": 280.0,
+        "length_m": 2.1,
+        "diameter_m": 0.39,
+        "notes": "TGP"
+      },
+      "kg300g": {
+        "id": "kg300g",
+        "name": "KG300G 电子干扰吊舱",
+        "category": "pod",
+        "mass_kg": 300.0,
+        "length_m": 2.2,
+        "diameter_m": 0.39,
+        "notes": "ECM"
+      }
+    },
+    "aircraft": {
+      "FC-1": [
+        {
+          "group": "wingtip",
+          "label": "翼尖挂点",
+          "station_ids": [
+            1,
+            7
+          ],
+          "stores": [
+            {
+              "store_id": "pl5e2",
+              "max_qty": 1,
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "group": "outer_wing",
+          "label": "外翼挂点",
+          "station_ids": [
+            2,
+            6
+          ],
+          "stores": [
+            {
+              "store_id": "pl5e2",
+              "max_qty": 2,
+              "notes": "挂架可挂 2 枚"
+            },
+            {
+              "store_id": "pl12",
+              "max_qty": 2,
+              "notes": "挂架可挂 2 枚"
+            },
+            {
+              "store_id": "mar1",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "ls6_500",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "bomb_500",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "bomb_250",
+              "max_qty": 2,
+              "notes": "复合挂架可挂 2 枚"
+            },
+            {
+              "store_id": "rocket",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "practice_bomb",
+              "max_qty": 2,
+              "notes": "复合挂架可挂 2 枚"
+            }
+          ]
+        },
+        {
+          "group": "inner_wing",
+          "label": "内翼挂点",
+          "station_ids": [
+            3,
+            5
+          ],
+          "stores": [
+            {
+              "store_id": "mar1",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "c802a",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "ls6_500",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "bomb_1000",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "bomb_500",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "bomb_250",
+              "max_qty": 2,
+              "notes": "复合挂架可挂 2 枚"
+            },
+            {
+              "store_id": "practice_bomb",
+              "max_qty": 2,
+              "notes": "复合挂架可挂 2 枚"
+            },
+            {
+              "store_id": "ft_800",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "ft_1100",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "hatf8",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "wmd7",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "kg300g",
+              "max_qty": 1,
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "group": "centerline",
+          "label": "机腹中线挂点",
+          "station_ids": [
+            4
+          ],
+          "stores": [
+            {
+              "store_id": "c802a",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "ls6_500",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "bomb_1000",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "ft_800",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "hatf8",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "wmd7",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "kg300g",
+              "max_qty": 1,
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    }
   }
 }

@@ -1,0 +1,16 @@
+store_id,name,category,mass_kg,length_m,diameter_m,notes
+pl5e2,PL-5E-II 近距格斗弹,aam,83,2.893,0.127,SRAAM
+pl12,PL-12 中距空空弹,aam,199,3.850,0.203,MRAAM
+mar1,MAR-1 反辐射导弹,arm,510,4.200,0.360,ARM
+c802a,C-802A 反舰导弹,asm,715,6.392,0.360,AShM
+ls6_500,LS-6 500kg 精确制导弹,bomb_pgm,540,3.660,0.380,PGM
+bomb_1000,1000kg 航空炸弹,bomb,1000,2.500,0.450,重型航空炸弹
+bomb_500,500kg 航空炸弹,bomb,500,2.000,0.356,航空炸弹
+bomb_250,250kg 航空炸弹,bomb,250,1.800,0.300,航空炸弹
+practice_bomb,训练弹,bomb,250,1.500,0.280,训练弹
+rocket,火箭弹发射巢,rocket_pod,122,2.750,0.260,火箭弹
+ft_800,210gal / 800L 副油箱,fuel_tank,600,3.500,0.480,副油箱
+ft_1100,290gal / 1100L 副油箱,fuel_tank,850,4.600,0.520,副油箱
+hatf8,Hatf-VIII 巡航导弹,cruise,900,4.850,0.400,ALCM
+wmd7,WMD-7 光电瞄准吊舱,pod,280,2.100,0.390,TGP
+kg300g,KG300G 电子干扰吊舱,pod,300,2.200,0.390,ECM

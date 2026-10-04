@@ -60,6 +60,15 @@ MISSILE_RANGE_PRESET_CSV_COLUMNS = (
 )
 MISSILE_RANGE_SPEED_GROUPS = ('supersonic', 'subsonic')
 
+# 战斗机外挂：弹药目录与机型挂点兼容表
+AIRCRAFT_STORE_CATALOG_CSV_COLUMNS = (
+    'store_id', 'name', 'category', 'mass_kg', 'length_m', 'diameter_m', 'notes',
+)
+AIRCRAFT_STORE_MOUNTS_CSV_COLUMNS = (
+    'aircraft_id', 'station_group', 'station_ids', 'group_label',
+    'store_id', 'max_qty', 'notes',
+)
+
 COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
     'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'max_tsl_kN',
     'tsfc_install_mult', 'notes',
@@ -488,6 +497,75 @@ def load_missile_interception_presets_csv(
         'ship': radars['ship'],
         'sam': missiles['sam'],
     }
+
+
+def load_aircraft_store_catalog_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从外挂弹药目录 CSV 加载各型弹药/吊舱规格。"""
+    from utils.paths import AIRCRAFT_STORE_CATALOG_CSV
+
+    csv_path = Path(path) if path is not None else AIRCRAFT_STORE_CATALOG_CSV
+    if not csv_path.is_file():
+        raise ValueError(f'{csv_path} 不存在')
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in AIRCRAFT_STORE_CATALOG_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            store_id = (row.get('store_id') or '').strip()
+            if not store_id:
+                continue
+            rows.append({
+                'store_id': store_id,
+                'name': (row.get('name') or '').strip(),
+                'category': (row.get('category') or '').strip(),
+                'mass_kg': _parse_float(row.get('mass_kg') or '', 'mass_kg'),
+                'length_m': _parse_float(row.get('length_m') or '', 'length_m'),
+                'diameter_m': _parse_float(row.get('diameter_m') or '', 'diameter_m'),
+                'notes': (row.get('notes') or '').strip(),
+            })
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效外挂弹药记录')
+    return rows
+
+
+def load_aircraft_store_mounts_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从机型挂点兼容 CSV 加载各挂点组可选弹药。"""
+    from utils.paths import AIRCRAFT_STORE_MOUNTS_CSV
+
+    csv_path = Path(path) if path is not None else AIRCRAFT_STORE_MOUNTS_CSV
+    if not csv_path.is_file():
+        raise ValueError(f'{csv_path} 不存在')
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in AIRCRAFT_STORE_MOUNTS_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            aircraft_id = (row.get('aircraft_id') or '').strip()
+            if not aircraft_id:
+                continue
+            max_qty_raw = (row.get('max_qty') or '').strip()
+            if not max_qty_raw:
+                raise ValueError(f'{csv_path} 行 aircraft_id={aircraft_id} 缺少 max_qty')
+            rows.append({
+                'aircraft_id': aircraft_id,
+                'station_group': (row.get('station_group') or '').strip(),
+                'station_ids': (row.get('station_ids') or '').strip(),
+                'group_label': (row.get('group_label') or '').strip(),
+                'store_id': (row.get('store_id') or '').strip(),
+                'max_qty': int(max_qty_raw),
+                'notes': (row.get('notes') or '').strip(),
+            })
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效挂点兼容记录')
+    return rows
 
 
 def load_missile_range_preset_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
