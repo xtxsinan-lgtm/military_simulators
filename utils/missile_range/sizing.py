@@ -5,8 +5,8 @@ from typing import Any
 
 from utils.missile_range.classes import estimate_by_class, resolve_missile_class
 
-# 轰-6 机腹外形上限：弹长不超过 13 m，弹径不超过 1 m，起飞质量不超过 15 t。
-H6_BELLY_MAX_BAY = '轰-6机腹'
+# 隐身超音速轰炸机弹仓外形上限，按轰-6 发射条件寻优：弹长不超过 13 m，弹径不超过 1 m，起飞质量不超过 15 t。
+H6_BELLY_MAX_BAY = '隐身超音速轰炸机弹仓'
 H6_BELLY_MAX_LENGTH_M = 13.0
 H6_BELLY_MAX_DIAMETER_M = 1.0
 H6_BELLY_MAX_MASS_T = 15.0

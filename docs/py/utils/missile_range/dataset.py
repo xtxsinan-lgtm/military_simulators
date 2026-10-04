@@ -43,7 +43,9 @@ SPEED_GROUP_CLASSES = {
 # 翼下按歼-15 发射条件定外形。机腹的助推切分按轰-6 搜索后再冻结。
 J15_STRUCTURE_BAYS = ('歼-15翼下', '歼-15机腹')
 # 这几组在本行发射条件之外，用同一结构另算轰-6、轰-20、歼-36，单独一栏显示。
-ALT_RANGE_BAYS = J15_STRUCTURE_BAYS + ('隐身超音速轰炸机弹仓',)
+# 隐身超音速轰炸机弹仓的外形已按轰-6 寻优，本行只改发射条件重算射程。
+STEALTH_SUPERSONIC_BAY = '隐身超音速轰炸机弹仓'
+ALT_RANGE_BAYS = J15_STRUCTURE_BAYS + (STEALTH_SUPERSONIC_BAY,)
 # 歼-15 机腹：助推分级、滑翔体和助推药按轰-6 的发射条件搜索。
 H6_STRUCTURE_BAY = '歼-15机腹'
 H6_STRUCTURE_LAUNCH = (0.85, 13.0)
@@ -352,10 +354,10 @@ def evaluate_case(
     """计算单条预设，并附上界面用的尺寸与弹种字段。"""
     canon = resolve_missile_class(str(case.get('missile_class') or 'hgv_biconic'))
     bay = str(case.get('bay') or '')
-    # 机腹按轰-6 把助推切分和滑翔体定死。亚燃只有歼-15 翼下另按轰-6 切助推药。
+    # 机腹和隐身超音速弹仓按轰-6 把助推切分和滑翔体定死。亚燃只有歼-15 翼下另按轰-6 切助推药。
     template = None
     lock: dict[str, Any] = {}
-    if bay == H6_STRUCTURE_BAY or (canon == 'ramjet' and bay == J15_WING_BAY):
+    if bay in (H6_STRUCTURE_BAY, STEALTH_SUPERSONIC_BAY) or (canon == 'ramjet' and bay == J15_WING_BAY):
         template = estimate_by_class(
             missile_class=canon,
             length_m=float(case['length']),
@@ -412,7 +414,7 @@ def evaluate_case(
         alt = alt_launch_ranges(case, row, launches=FIGHTER_ALT_LAUNCHES)
         row.update(alt)
     elif bay in ALT_RANGE_BAYS:
-        # 机腹的冻结结构来自轰-6；翼下和隐身超音速轰炸机弹仓沿用本行已经搜好的结构。
+        # 机腹和隐身超音速弹仓的冻结结构来自轰-6；翼下沿用本行已经搜好的结构。
         alt = alt_launch_ranges(case, template if template is not None else row)
         row.update(alt)
     if result.get('reached_takeover') is False:
