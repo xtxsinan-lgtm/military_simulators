@@ -34,7 +34,7 @@ description: >-
 2. CSV / JSON / 源码：在**当前文件**上增删改对应条目。其他改动的行、列、字段保留。
 3. 同一处两边都改了：保留双方意图，合成一份能通过测试的结果。说不清时先停下来问用户，不要选一边整段丢掉。
 4. 与本次无关的其他文件：保持原样。提交时只加入本次相关文件，不要 `git restore` / `git checkout --` 清掉它们。
-5. 远程分叉：`git pull`（merge）后再 push。冲突时逐处合并双方。禁止 `git push --force`、`git reset --hard` 来盖掉其他提交。
+5. 远程分叉：在 **`main`** 上 `git pull origin main`（merge）后再 `git push origin main`。冲突时逐处合并双方。禁止 `git push --force`、`git reset --hard` 来盖掉其他提交。本仓库不走 feature 分支；见 `push-to-github`。
 6. `docs/data.json`、`physics.js` 等**生成物**：先把源码 merge 好，再跑 `python3 scripts/build_all.py` 重建。不要手改生成物，也不要用旧生成物覆盖新生成物。
 
 ## 反例（禁止）

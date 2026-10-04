@@ -1,0 +1,16 @@
+# Git：main 直推
+
+本仓库 Cloud Agent / 本地 Agent **一律在 `main` 上工作并 push**，不要为任务开 feature 分支，也不要默认创建 Pull Request。
+
+## 必做
+
+- 开始改代码前：`git checkout main`，并 `git fetch` / `git pull origin main`
+- 改完后：在 `main` 上 commit，再 `git push origin main`
+- 与远程分叉时用 merge 拉取合并；禁止 force push 覆盖 `main`
+
+## 禁止
+
+- `git checkout -b cursor/...` 或任何任务用 feature 分支（除非用户明确要求）
+- 默认调用建 PR / 更新 PR 流程（除非用户明确要求开 PR）
+
+本规则与 `.cursor/skills/push-to-github` 一致，并优先于 Cloud Agent 默认的分支+PR 流程。
