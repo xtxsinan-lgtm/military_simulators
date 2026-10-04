@@ -23,6 +23,9 @@ from utils.database_csv import (
     load_missile_interception_presets_csv,
     load_missile_interception_radar_csv,
     load_missile_range_preset_csv,
+    load_typhoon_store_compatibility_csv,
+    load_typhoon_store_stations_csv,
+    load_weapon_store_csv,
 )
 from utils.paths import (
     AIRCRAFT_CSV,
@@ -32,6 +35,9 @@ from utils.paths import (
     MISSILE_INTERCEPTION_MISSILE_CSV,
     MISSILE_INTERCEPTION_RADAR_CSV,
     MISSILE_RANGE_PRESET_CSV,
+    TYPHOON_STORE_COMPATIBILITY_CSV,
+    TYPHOON_STORE_STATIONS_CSV,
+    WEAPON_STORE_CSV,
 )
 
 
@@ -209,6 +215,24 @@ def test_load_missile_range_preset_csv():
     vls_1280 = [row for row in rows if row['bay'] == '1280垂发']
     assert {row['speed_group'] for row in vls_1280} == {'supersonic', 'subsonic'}
     assert all(row['diameter_m'] == pytest.approx(1.13) for row in vls_1280)
+
+
+def test_load_weapon_store_csv():
+    """武器库 CSV 应加载台风清单中的弹种。"""
+    rows = load_weapon_store_csv(WEAPON_STORE_CSV)
+    assert len(rows) >= 20
+    assert any(row['id'] == 'amraam' and row['category'] == 'a2a' for row in rows)
+    assert any(row['id'] == 'bk27' and row['category'] == 'fixed' for row in rows)
+
+
+def test_load_typhoon_store_csvs():
+    """台风挂点与兼容表应成对加载。"""
+    stations = load_typhoon_store_stations_csv(TYPHOON_STORE_STATIONS_CSV)
+    compat = load_typhoon_store_compatibility_csv(TYPHOON_STORE_COMPATIBILITY_CSV)
+    assert len(stations) == 10
+    assert len(compat) >= 80
+    station_ids = {row['station_id'] for row in stations}
+    assert station_ids == {row['station_id'] for row in compat}
 
 
 def test_load_missile_range_preset_csv_rejects_bad_file(tmp_path):

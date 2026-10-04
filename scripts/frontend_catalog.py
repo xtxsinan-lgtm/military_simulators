@@ -15,6 +15,7 @@ from utils.aircraft_loadout.catalog import build_aircraft_loadout_catalog_payloa
 from utils.stores import build_combined_aircraft_stores_payload
 from utils.aircraft_weapons.catalog import build_aircraft_weapons_payload
 from utils.aircraft_hardpoints import build_aircraft_hardpoints_catalog_payload
+from utils.weapon_loadout.typhoon_stores import build_weapon_loadout_catalog_payload
 
 MODES = {
     'ski_jump': '滑跃起飞',
@@ -152,4 +153,5 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'fc1_stores': build_fc1_stores_payload(),
         'aircraft_hardpoints': build_aircraft_hardpoints_catalog_payload(),
         'stores_catalog': build_stores_catalog_payload(),
+        'weapon_loadout': build_weapon_loadout_catalog_payload(),
     }

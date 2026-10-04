@@ -1,0 +1,11 @@
+station_id,name,mount,position_index,notes
+1,左翼最外侧挂点,pylon,1,图表从左至右第 1 位
+2,左翼次外侧挂点,pylon,2,
+3,左翼内侧挂点,pylon,3,可挂副油箱
+4,机腹前左/后左半埋挂点,semi_recessed,4,半埋中距弹；含前左与后左两个物理站位
+5,机腹中心挂点,centerline,5,可挂副油箱
+6,机腹前右/后右半埋挂点,semi_recessed,6,半埋中距弹；含前右与后右两个物理站位
+7,右翼内侧挂点,pylon,7,可挂副油箱
+8,右翼次外侧挂点,pylon,8,
+9,右翼最外侧挂点,pylon,9,
+10,内置固定武器,fixed,10,BK-27 航炮

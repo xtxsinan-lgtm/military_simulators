@@ -92,6 +92,11 @@ def test_build_catalog_payload_modes():
     assert 'aircraft_hardpoints' in payload
     tejas_hp = payload['aircraft_hardpoints']['by_aircraft']['Tejas']
     assert any(s['id'] == 'centre' for s in tejas_hp['stations'])
+    assert 'weapon_loadout' in payload
+    typhoon = payload['weapon_loadout']['typhoon']
+    assert typhoon['aircraft_id'] == 'Typhoon'
+    assert len(typhoon['stations']) == 10
+    assert typhoon['stations'][0]['name'] == '左翼最外侧挂点'
 
 
 def test_docs_missile_interception_page_exists_and_links():

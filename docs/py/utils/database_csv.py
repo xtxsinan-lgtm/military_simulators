@@ -1214,3 +1214,118 @@ def load_aircraft_fixed_equipment_csv(path: str | Path | None = None) -> list[di
                 item['notes'] = notes
             rows.append(item)
     return rows
+
+
+def load_weapon_store_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载战斗机外挂弹药/设备库。"""
+    from utils.paths import WEAPON_STORE_CSV
+
+    csv_path = Path(path) if path is not None else WEAPON_STORE_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in WEAPON_STORE_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            item_id = (row.get('id') or '').strip()
+            name = (row.get('name') or '').strip()
+            category = (row.get('category') or '').strip()
+            if not item_id or not name or not category:
+                continue
+            if category not in WEAPON_STORE_CATEGORIES:
+                raise ValueError(
+                    f'{csv_path} 未知 category={category!r}（id={item_id}）'
+                )
+            item: dict[str, Any] = {
+                'id': item_id,
+                'name': name,
+                'category': category,
+                'mass_kg': _parse_float(row.get('mass_kg') or '', 'mass_kg'),
+                'length_m': _parse_float(row.get('length_m') or '', 'length_m'),
+                'diameter_m': _parse_float(row.get('diameter_m') or '', 'diameter_m'),
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效武器记录')
+    return rows
+
+
+def load_typhoon_store_stations_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载台风挂点定义（图表从左至右编号）。"""
+    from utils.paths import TYPHOON_STORE_STATIONS_CSV
+
+    csv_path = Path(path) if path is not None else TYPHOON_STORE_STATIONS_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in TYPHOON_STORE_STATIONS_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            station_id = (row.get('station_id') or '').strip()
+            name = (row.get('name') or '').strip()
+            mount = (row.get('mount') or '').strip()
+            if not station_id or not name or not mount:
+                continue
+            if mount not in TYPHOON_STORE_MOUNTS:
+                raise ValueError(
+                    f'{csv_path} 未知 mount={mount!r}（station_id={station_id}）'
+                )
+            item: dict[str, Any] = {
+                'station_id': _parse_int(station_id, 'station_id'),
+                'name': name,
+                'mount': mount,
+                'position_index': _parse_int(row.get('position_index') or '', 'position_index'),
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效挂点记录')
+    return rows
+
+
+def load_typhoon_store_compatibility_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载台风挂点—弹药兼容表。"""
+    from utils.paths import TYPHOON_STORE_COMPATIBILITY_CSV
+
+    csv_path = Path(path) if path is not None else TYPHOON_STORE_COMPATIBILITY_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in TYPHOON_STORE_COMPATIBILITY_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            station_id = (row.get('station_id') or '').strip()
+            weapon_id = (row.get('weapon_id') or '').strip()
+            if not station_id or not weapon_id:
+                continue
+            max_qty = _parse_int(row.get('max_qty') or '', 'max_qty')
+            if max_qty <= 0:
+                raise ValueError(
+                    f'{csv_path} station_id={station_id} weapon_id={weapon_id} max_qty 须为正'
+                )
+            item: dict[str, Any] = {
+                'station_id': _parse_int(station_id, 'station_id'),
+                'weapon_id': weapon_id,
+                'max_qty': max_qty,
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效兼容记录')
+    return rows
