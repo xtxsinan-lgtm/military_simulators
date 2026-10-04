@@ -42,7 +42,17 @@ AIRCRAFT_WEAPON_CONFIG_JSON = DATA_DIR / 'aircraft_weapon_config.json'
 # JF-17/FC-1 外挂兼容库（store_id 列，与 F-16 catalog 分列）
 FC1_STORE_CATALOG_CSV = DATA_DIR / 'fc1_store_catalog.csv'
 FC1_STORE_MOUNTS_CSV = DATA_DIR / 'aircraft_store_mounts.csv'
+# LCA Tejas 外挂挂点
 AIRCRAFT_STORES_CSV = DATA_DIR / 'aircraft_stores_database.csv'
-AIRCRAFT_HARDPOINTS_CSV = DATA_DIR / 'aircraft_hardpoints_database.csv'
+TEJAS_HARDPOINTS_CSV = DATA_DIR / 'aircraft_hardpoints_database.csv'
 AIRCRAFT_FIXED_EQUIPMENT_CSV = DATA_DIR / 'aircraft_fixed_equipment_database.csv'
+# FA-50 外挂挂点（与 Tejas 分列 CSV）
+FA50_HARDPOINTS_CSV = DATA_DIR / 'aircraft_hardpoints.csv'
+FA50_HARDPOINT_STORES_CSV = DATA_DIR / 'aircraft_hardpoint_stores.csv'
+FA50_LOADOUT_PRESETS_CSV = DATA_DIR / 'loadout_presets.csv'
+# hardpoints.py 兼容别名
+STORES_CSV = STORES_DATABASE_CSV
+AIRCRAFT_HARDPOINTS_CSV = FA50_HARDPOINTS_CSV
+AIRCRAFT_HARDPOINT_STORES_CSV = FA50_HARDPOINT_STORES_CSV
+LOADOUT_PRESETS_CSV = FA50_LOADOUT_PRESETS_CSV
 SURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'

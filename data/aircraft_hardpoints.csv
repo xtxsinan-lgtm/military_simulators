@@ -1,0 +1,8 @@
+aircraft_id,station_id,name,position_order,max_mass_lb,max_mass_kg,load_factor_g,notes
+FA-50,tip_l,翼尖挂点（左）,1,250,113.4,8.0,最外侧
+FA-50,tip_r,翼尖挂点（右）,7,250,113.4,8.0,最外侧
+FA-50,out_l,外侧翼下挂点 BL 120（左）,2,1250,567.0,5.5,
+FA-50,out_r,外侧翼下挂点 BL 120（右）,6,1250,567.0,5.5,
+FA-50,in_l,内侧翼下挂点 BL 80（左）,3,2250,1020.6,5.5,
+FA-50,in_r,内侧翼下挂点 BL 80（右）,5,2250,1020.6,5.5,
+FA-50,center,机腹中心挂点,4,2250,1020.6,4.5,

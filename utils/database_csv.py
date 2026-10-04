@@ -1143,10 +1143,10 @@ def load_aircraft_stores_csv(path: str | Path | None = None) -> dict[str, dict[s
 
 
 def load_aircraft_hardpoints_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
-    """加载战斗机挂点表。"""
-    from utils.paths import AIRCRAFT_HARDPOINTS_CSV, AIRCRAFT_STORES_CSV
+    """加载 Tejas 等机型挂点表（aircraft_hardpoints_database.csv）。"""
+    from utils.paths import AIRCRAFT_STORES_CSV, TEJAS_HARDPOINTS_CSV
 
-    csv_path = Path(path) if path is not None else AIRCRAFT_HARDPOINTS_CSV
+    csv_path = Path(path) if path is not None else TEJAS_HARDPOINTS_CSV
     stores = load_aircraft_stores_csv(AIRCRAFT_STORES_CSV)
     rows: list[dict[str, Any]] = []
     with csv_path.open('r', encoding='utf-8-sig', newline='') as f:

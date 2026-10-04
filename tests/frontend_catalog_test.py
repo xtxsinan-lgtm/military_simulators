@@ -50,6 +50,11 @@ def test_build_catalog_payload_modes():
     assert payload['combat_radius_config']['store_mount_labels']['pylon'] == '挂架'
     assert payload['combat_radius_config']['flight_profiles']['default'] == 'hi_hi_hi'
     assert len(payload['combat_radius_config']['flight_profiles']['options']) == 3
+    assert 'stores_catalog' in payload
+    fa50_stores = next(
+        a for a in payload['stores_catalog']['aircraft'] if a['aircraft_id'] == 'FA-50'
+    )
+    assert len(fa50_stores['stations']) == 7
     assert any(p['id'] == 'J-20' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-50' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'J-15' for p in payload['combat_radius_presets'])
