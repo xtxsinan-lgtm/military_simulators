@@ -983,3 +983,47 @@ def load_rafale_mount_stores_csv(path: str | Path | None = None) -> list[dict[st
     if not rows:
         raise ValueError(f'{csv_path} 未读到有效兼容记录')
     return rows
+
+
+def load_aircraft_weapon_stations_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从战斗机外挂挂点 CSV 加载每行弹药记录。"""
+    from utils.paths import AIRCRAFT_WEAPON_STATIONS_CSV
+
+    csv_path = Path(path) if path is not None else AIRCRAFT_WEAPON_STATIONS_CSV
+    if not csv_path.is_file():
+        return []
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in AIRCRAFT_WEAPON_STATIONS_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            aircraft_id = (row.get('aircraft_id') or '').strip()
+            station_id = (row.get('station_id') or '').strip()
+            station_name = (row.get('station_name') or '').strip()
+            category = (row.get('category') or '').strip()
+            weapon_id = (row.get('weapon_id') or '').strip()
+            weapon_name = (row.get('weapon_name') or '').strip()
+            if not aircraft_id and not station_id and not weapon_id:
+                continue
+            if not all([aircraft_id, station_id, station_name, category, weapon_id, weapon_name]):
+                raise ValueError(
+                    f'{csv_path} 存在不完整行: aircraft={aircraft_id!r} station={station_id!r} '
+                    f'weapon={weapon_id!r}'
+                )
+            item: dict[str, Any] = {
+                'aircraft_id': aircraft_id,
+                'station_id': station_id,
+                'station_name': station_name,
+                'category': category,
+                'weapon_id': weapon_id,
+                'weapon_name': weapon_name,
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    return rows

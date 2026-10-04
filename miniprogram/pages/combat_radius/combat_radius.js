@@ -82,6 +82,25 @@ function cloneAc(src) {
   return Object.assign({}, EMPTY_AC, src || {});
 }
 
+/** 把 catalog aircraft_weapons 转为小程序展示结构。 */
+function weaponStationsForAircraft(aircraftWeapons, aircraftId) {
+  const ac = aircraftWeapons && aircraftWeapons.aircraft && aircraftWeapons.aircraft[aircraftId];
+  if (!ac || !ac.stations || !ac.stations.length) return [];
+  return ac.stations.map((station) => ({
+    id: station.id,
+    head: `${station.id === 'G' ? 'G' : `挂点 ${station.id}`} · ${station.name}`,
+    categories: (station.categories || []).map((cat) => ({
+      id: cat.id,
+      label: cat.label,
+      weapons: (cat.weapons || []).map((w) => ({
+        id: w.id,
+        name: w.name,
+        notes: w.notes || '',
+      })),
+    })),
+  }));
+}
+
 function weightFromPreset(p) {
   if (!p) return {};
   const patch = { wtNMissiles: '4' };
@@ -340,6 +359,8 @@ Page({
     flightProfileId: 'hi_hi_hi',
     flightProfileNote: '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。',
     defaultFlightProfileId: 'hi_hi_hi',
+    aircraftWeapons: null,
+    weaponStations: [],
   },
 
   onShow() {
@@ -389,6 +410,13 @@ Page({
           presets,
           presetNames,
           tgt: applyDerivedLoads(cloneAc(tgtp), wtMerged, loadoutPatch.loadoutExtFuel),
+        const aircraftWeapons = data.aircraft_weapons || null;
+        this.setData({
+          presets,
+          presetNames,
+          aircraftWeapons,
+          weaponStations: weaponStationsForAircraft(aircraftWeapons, tgtp && tgtp.id),
+          tgt: applyDerivedLoads(cloneAc(tgtp), wt),
           tgtPresetIndex: findIdx(ui.default_target_id),
           enginePresets: engines,
           engineNames,
@@ -530,6 +558,7 @@ Page({
       }
       patch.f135TsfcMode = 'published';
       patch.showF135TsfcToggle = isF35TsfcToggleAircraft(p.id, this.data.f135TsfcAircraftIds);
+      patch.weaponStations = weaponStationsForAircraft(this.data.aircraftWeapons, p.id);
       this.setData(patch);
       this.showSnapshot(p.id);
     } else {
@@ -537,6 +566,7 @@ Page({
       patch.showF135TsfcToggle = false;
       patch.showLoadout = false;
       patch.loadoutRows = [];
+      patch.weaponStations = [];
       this.setData(patch);
     }
   },

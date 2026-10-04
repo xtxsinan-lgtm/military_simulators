@@ -12,6 +12,7 @@ from utils.missile_interception.missile_interception_config import build_missile
 from utils.missile_range.dataset import build_missile_range_catalog_payload
 from utils.aircraft_loadout.catalog import build_aircraft_loadout_catalog_payload
 from utils.stores import build_combined_aircraft_stores_payload
+from utils.aircraft_weapons.catalog import build_aircraft_weapons_payload
 
 MODES = {
     'ski_jump': '滑跃起飞',
@@ -144,4 +145,5 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'aircraft_loadout': build_aircraft_loadout_catalog_payload(),
         'aircraft_pylon': build_aircraft_pylon_payload(),
         'rafale_mount': build_rafale_mount_catalog_payload(),
+        'aircraft_weapons': build_aircraft_weapons_payload(),
     }

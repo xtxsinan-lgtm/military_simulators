@@ -80,6 +80,9 @@ def test_build_catalog_payload_modes():
     gripen_pylon = payload['aircraft_pylon']['models']['Gripen-EF']
     assert gripen_pylon['station_count'] == 7
     assert gripen_pylon['physical_station_count'] == 10
+    assert 'aircraft_weapons' in payload
+    gripen_stations = payload['aircraft_weapons']['aircraft']['Gripen-CD']['stations']
+    assert [s['id'] for s in gripen_stations] == ['1', '2', '3', '4', '5', 'G']
 
 
 def test_docs_missile_interception_page_exists_and_links():

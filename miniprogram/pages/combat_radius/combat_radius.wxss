@@ -54,3 +54,11 @@ page {
 .td.target { color: #3ddc84; }
 .td.miss { color: #7b8e92; }
 .tr.scan { font-size: 18rpx; }
+.weapon-station {
+  border: 1px solid #1c2b30; background: #0e161b; padding: 16rpx 20rpx; margin-bottom: 16rpx;
+}
+.weapon-station-head { color: #5fd8e8; font-size: 22rpx; margin-bottom: 12rpx; letter-spacing: 1rpx; }
+.weapon-cat { margin-bottom: 12rpx; }
+.weapon-cat-label { color: #7b8e92; font-size: 20rpx; margin-bottom: 6rpx; }
+.weapon-item { font-size: 22rpx; line-height: 1.55; color: #d7e2e4; padding-left: 12rpx; }
+.weapon-note { color: #ffb020; font-size: 20rpx; }

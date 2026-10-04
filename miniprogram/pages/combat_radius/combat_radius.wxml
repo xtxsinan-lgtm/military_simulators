@@ -14,6 +14,24 @@
         <view class="picker-val">{{presetNames[tgtPresetIndex]}}</view>
       </picker>
     </view>
+    <view wx:if="{{weaponStations.length}}">
+      <view class="section cyan">▸ 外挂挂点 · 可用弹药</view>
+      <view class="note">按瑞典空军及出口客户实际服役与采购情况列出各挂点支持的弹药型号。</view>
+      <block wx:for="{{weaponStations}}" wx:key="id">
+        <view class="weapon-station">
+          <view class="weapon-station-head">{{item.head}}</view>
+          <block wx:for="{{item.categories}}" wx:for-item="cat" wx:key="id">
+            <view class="weapon-cat">
+              <view class="weapon-cat-label">{{cat.label}}</view>
+              <view class="weapon-item" wx:for="{{cat.weapons}}" wx:for-item="w" wx:key="id">
+                <text>{{w.name}}</text>
+                <text wx:if="{{w.notes}}" class="weapon-note">（{{w.notes}}）</text>
+              </view>
+            </view>
+          </block>
+        </view>
+      </block>
+    </view>
     <view class="field">
       <view class="field-label"><text>展弦比 AR</text><text class="unit">计算</text></view>
       <view class="input input-readonly">{{tgt.AR || '—'}}</view>
