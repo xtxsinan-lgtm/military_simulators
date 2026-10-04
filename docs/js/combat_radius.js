@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 83;
+const APP_VERSION = 84;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -130,11 +130,17 @@ function optionHtml(map) {
     .join('');
 }
 
-/** 渲染当前机型外挂挂点与可用弹药（catalog aircraft_weapons）。 */
+/** 渲染当前机型外挂挂点与可用弹药（catalog aircraft_weapons；有交互挂载时隐藏）。 */
 function renderWeaponStations(aircraftId) {
   const panel = $('weaponStationsPanel');
   const box = $('weaponStationsBox');
   if (!panel || !box) return;
+  // 已有按挂点下拉的 loadout_catalog 时，不再显示只读弹药清单
+  if (data?.loadout_catalog?.aircraft?.[aircraftId]) {
+    panel.hidden = true;
+    box.innerHTML = '';
+    return;
+  }
   const ac = data?.aircraft_weapons?.aircraft?.[aircraftId];
   if (!ac || !ac.stations?.length) {
     panel.hidden = true;
@@ -692,6 +698,13 @@ inject_combat_radius_presets(json.loads(_cr_ac), json.loads(_cr_eng))
 import importlib
 for _name in _py_import_order:
     importlib.import_module(_name)
+`);
+  // 完整挂点目录（含碎片机型合并结果）在 import 后注入，避免浏览器缺 CSV/模块
+  pyodide.globals.set('_cr_loadout_catalog', JSON.stringify(data.loadout_catalog || {}));
+  await pyodide.runPythonAsync(`
+import json
+from utils.combat_radius.loadout import inject_loadout_catalog_payload
+inject_loadout_catalog_payload(json.loads(_cr_loadout_catalog))
 `);
 }
 

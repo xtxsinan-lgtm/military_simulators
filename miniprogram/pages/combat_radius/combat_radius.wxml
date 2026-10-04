@@ -14,7 +14,7 @@
         <view class="picker-val">{{presetNames[tgtPresetIndex]}}</view>
       </picker>
     </view>
-    <view wx:if="{{weaponStations.length}}">
+    <view wx:if="{{weaponStations.length && !showLoadout}}">
       <view class="section cyan">▸ 外挂挂点 · 可用弹药</view>
       <view class="note">按瑞典空军及出口客户实际服役与采购情况列出各挂点支持的弹药型号。</view>
       <block wx:for="{{weaponStations}}" wx:key="id">
@@ -31,6 +31,7 @@
           </block>
         </view>
       </block>
+    </view>
     <view class="loadout-image-wrap" wx:if="{{loadoutImageUrl}}">
       <view class="section-label cyan">▸ 外挂挂载示意</view>
       <image class="loadout-image" src="{{loadoutImageUrl}}" mode="widthFix" show-menu-by-longpress="{{true}}"/>
