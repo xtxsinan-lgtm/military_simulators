@@ -11,6 +11,7 @@ from utils.combat_radius.combat_radius_config import build_combat_radius_config_
 from utils.missile_interception.missile_interception_config import build_missile_interception_config_payload
 from utils.missile_range.dataset import build_missile_range_catalog_payload
 from utils.aircraft_loadout.catalog import build_aircraft_loadout_catalog_payload
+from utils.stores import build_combined_aircraft_stores_payload
 
 MODES = {
     'ski_jump': '滑跃起飞',
@@ -138,6 +139,6 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'combat_radius_results': build_combat_radius_results_catalog_payload(),
         'loadout_catalog': build_loadout_catalog_payload(),
         'missile_range': build_missile_range_catalog_payload(),
-        'aircraft_stores': build_store_catalog_payload(),
+        'aircraft_stores': build_combined_aircraft_stores_payload(),
         'aircraft_loadout': build_aircraft_loadout_catalog_payload(),
     }

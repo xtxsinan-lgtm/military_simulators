@@ -333,6 +333,8 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     assert any(p['id'] == 'f135b' for p in payload['combat_radius_engine_presets'])
     assert len(payload['aircraft']) >= 1
     assert len(payload['carriers']) >= 1
+    assert 'MiG-29K' in payload['aircraft_stores']['aircraft']
+    assert payload['aircraft_stores']['aircraft']['MiG-29K']['station_count'] == 9
 
 
 def test_web_simulator_modes_match_frontend_catalog():

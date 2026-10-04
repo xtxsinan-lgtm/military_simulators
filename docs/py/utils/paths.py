@@ -30,4 +30,8 @@ AIRCRAFT_STORE_PRESETS_CSV = DATA_DIR / 'aircraft_store_presets.csv'
 AIRCRAFT_STORE_CATALOG_CSV = DATA_DIR / 'aircraft_store_catalog.csv'
 AIRCRAFT_STATION_CSV = DATA_DIR / 'aircraft_station_database.csv'
 AIRCRAFT_LOADOUT_PRESETS_CSV = DATA_DIR / 'aircraft_loadout_presets.csv'
+# MiG-29 MRCA 外挂挂点
+STORES_DATABASE_CSV = DATA_DIR / 'stores_database.csv'
+AIRCRAFT_STATIONS_CSV = DATA_DIR / 'aircraft_stations.csv'
+AIRCRAFT_STORE_LIMITS_CSV = DATA_DIR / 'aircraft_store_limits.csv'
 SURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'
