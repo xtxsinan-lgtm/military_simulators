@@ -122,12 +122,12 @@ struct MissileRangeView: View {
                                 .foregroundStyle(MissileRangeTheme.green)
                         } else {
                             statRow([
-                                (result.reached_takeover == false ? "弹道滑行 km" : "估算射程 km", result.range_km, 1, false),
+                                (result.reached_takeover == false ? "弹道滑行 km" : "估算射程 km", result.range_km, 0, false),
                                 (vm.missileClass == "ballistic" || vm.missileClass.hasPrefix("hgv") ? "关机马赫" : (result.reached_takeover == false ? "助推马赫" : "巡航马赫"), result.v_burnout_mach, 2, true),
                             ])
                         }
                         if let alt = result.alt_range_text, !alt.isEmpty {
-                            Text("轰6/轰20/歼36  \(alt) km")
+                            Text("轰6/轰20/歼36  \(integerRangeLabel(alt)) km")
                                 .font(.system(size: 13, design: .monospaced))
                                 .foregroundStyle(MissileRangeTheme.amber)
                         }
@@ -150,7 +150,7 @@ struct MissileRangeView: View {
                             if result.fineness != nil || (result.range_gain_km ?? 0) > 0 {
                                 statRow([
                                     ("长细比", result.fineness, 2, false),
-                                    ("几何增程 km", result.range_gain_km, 1, true),
+                                    ("几何增程 km", result.range_gain_km, 0, true),
                                 ])
                             }
                         } else {
@@ -232,9 +232,9 @@ struct MissileRangeView: View {
             cell(row.size_m ?? "", width: 110, dim: false, highlight: on)
             cell(fmt(row.warhead_kg, 0), width: 96, dim: false, highlight: on)
             cell(kind(row), width: 120, dim: false, highlight: on)
-            cell(profileCaption(row.profile_text, high: row.range_high_km, mixed: row.range_mixed_km, sea: row.range_sea_km) ?? fmt(row.range_km, 1), width: 168, dim: false, highlight: on)
+            cell(profileCaption(row.profile_text, high: row.range_high_km, mixed: row.range_mixed_km, sea: row.range_sea_km) ?? fmt(row.range_km, 0), width: 168, dim: false, highlight: on)
             cell(stageCaption(row.n_stages, split: row.stage_split, locked: row.stage_locked), width: 108, dim: false, highlight: on)
-            cell(row.alt_range_text ?? "—", width: 220, dim: false, highlight: on)
+            cell(row.alt_range_text.map(integerRangeLabel) ?? "—", width: 220, dim: false, highlight: on)
         }
         .padding(.vertical, 6)
     }
@@ -270,10 +270,25 @@ struct MissileRangeView: View {
     }
 
     private func profileCaption(_ preset: String?, high: Double?, mixed: Double?, sea: Double?) -> String? {
-        if let preset, !preset.isEmpty { return preset }
+        if let preset, !preset.isEmpty { return integerRangeLabel(preset) }
         guard let high, let sea else { return nil }
-        let mid = mixed.map { fmt($0, 1) } ?? "—"
-        return "\(fmt(high, 1))/\(mid)/\(fmt(sea, 1))"
+        let mid = mixed.map { fmt($0, 0) } ?? "—"
+        return "\(fmt(high, 0))/\(mid)/\(fmt(sea, 0))"
+    }
+
+    private func integerRangeLabel(_ text: String) -> String {
+        guard let regex = try? NSRegularExpression(pattern: #"\d+\.\d+"#) else { return text }
+        let full = NSRange(text.startIndex..., in: text)
+        let matches = regex.matches(in: text, range: full).reversed()
+        var result = text
+        for match in matches {
+            guard let range = Range(match.range, in: result) else { continue }
+            let token = String(result[range])
+            if let value = Double(token) {
+                result.replaceSubrange(range, with: String(Int(value.rounded())))
+            }
+        }
+        return result
     }
 
     private func ispStatItems(_ result: MissileRangeEstimate) -> [(String, Double?, Int, Bool)] {

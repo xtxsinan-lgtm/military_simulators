@@ -92,7 +92,7 @@
       <view class="stat"><view class="k">轰6/轰20/歼36 km</view><view class="v">{{result.alt_range_text}}</view></view>
     </view>
     <view class="stat-row" wx:if="{{result && result.range_sea_km == null}}">
-      <view class="stat"><view class="k">{{result.reached_takeover === false ? '弹道滑行 km' : '估算射程 km'}}</view><view class="v {{result.reached_takeover === false ? 'amber' : ''}}">{{result.range_km}}</view></view>
+      <view class="stat"><view class="k">{{result.reached_takeover === false ? '弹道滑行 km' : '估算射程 km'}}</view><view class="v {{result.reached_takeover === false ? 'amber' : ''}}">{{result.rangeText}}</view></view>
       <view class="stat" wx:if="{{result.n_stages != null}}"><view class="k">助推分级</view><view class="v">{{result.stageText || (result.n_stages === 1 ? '单级' : (result.n_stages === 2 ? '两级 ' + result.stage_split : '三级 ' + result.stage_split))}}</view></view>
       <view class="stat"><view class="k">{{result.reached_takeover === false ? '关机马赫' : '马赫'}}</view><view class="v {{result.reached_takeover === false ? 'red' : 'amber'}}">{{result.v_burnout_mach}}</view></view>
     </view>
@@ -108,7 +108,7 @@
       <view class="stat"><view class="k">弹头 m</view><view class="v">{{result.l_head_m}}</view></view>
       <view class="stat" wx:if="{{result.d_head_m != null}}"><view class="k">滑翔径 m</view><view class="v">{{result.d_head_m}}</view></view>
       <view class="stat" wx:if="{{result.fineness != null}}"><view class="k">长细比</view><view class="v">{{result.fineness}}</view></view>
-      <view class="stat" wx:if="{{result.range_gain_km != null && result.range_gain_km > 0}}"><view class="k">几何增程 km</view><view class="v">{{result.range_gain_km}}</view></view>
+      <view class="stat" wx:if="{{result.range_gain_km != null && result.range_gain_km > 0}}"><view class="k">几何增程 km</view><view class="v">{{result.rangeGainText}}</view></view>
       <view class="stat"><view class="k">助推 m</view><view class="v">{{result.l_booster_m}}</view></view>
       <view class="stat"><view class="k">推进剂 kg</view><view class="v">{{result.m_p_total_kg}}</view></view>
     </view>
@@ -145,7 +145,7 @@
           <text class="td col wide">{{item.size_m}}</text>
           <text class="td col wh">{{item.warhead_kg}}</text>
           <text class="td col">{{item.kind}}<text class="tag-alert" wx:if="{{item.reached_takeover === false}}">未达速</text></text>
-          <text class="td col wide">{{item.profileText || item.range_km}}</text>
+          <text class="td col wide">{{item.profileText || item.rangeText}}</text>
           <text class="td col">{{item.stageText}}</text>
           <text class="td col alt">{{item.altText}}</text>
         </view>

@@ -2495,7 +2495,7 @@ def estimate_by_class(
                 f" 经几何搜索寻优：滑翔体长 {result['l_head_m']:.2f} m、"
                 f"等效直径 {result['d_head_m']:.3f} m（长细比 {result['fineness']:.2f}，"
                 f"升阻比提升至 {result['ld_ratio']:.2f}），"
-                f"总射程相比基线提升 {result['range_gain_km']:.1f} km (+{result['range_gain_pct']:.1f}%)。"
+                f"总射程相比基线提升 {result['range_gain_km']:.0f} km (+{result['range_gain_pct']:.1f}%)。"
             )
         if floored > float(result['range_km']) + 0.05:
             result['range_km'] = round(floored, 1)

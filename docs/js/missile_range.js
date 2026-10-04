@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 63;
+const APP_VERSION = 64;
 
 /** 在 Worker 里调用估算入口，主线程不跑 Python */
 const MISSILE_RANGE_RUN_SNIPPET = `
@@ -75,12 +75,16 @@ function fmt(n, d) {
   });
 }
 
+function integerRangeLabel(text) {
+  return String(text).replace(/\d+\.\d+/g, (token) => String(Math.round(Number(token))));
+}
+
 function profileText(row) {
   if (!row) return null;
-  if (row.profile_text) return row.profile_text;
+  if (row.profile_text) return integerRangeLabel(row.profile_text);
   if (row.range_high_km == null || row.range_sea_km == null) return null;
-  const mixed = row.range_mixed_km == null ? '—' : fmt(row.range_mixed_km, 1);
-  return `${fmt(row.range_high_km, 1)}/${mixed}/${fmt(row.range_sea_km, 1)}`;
+  const mixed = row.range_mixed_km == null ? '—' : fmt(row.range_mixed_km, 0);
+  return `${fmt(row.range_high_km, 0)}/${mixed}/${fmt(row.range_sea_km, 0)}`;
 }
 
 function readForm() {
@@ -202,7 +206,7 @@ function renderResult(result, title) {
         <div class="takeover-desc">
           助推级实际仅加速至 <strong>Ma ${fmt(result.mach_boost ?? result.v_burnout_mach, 2)}</strong>，
           低于冲压发动机设计接力速度 <strong>Ma ${fmt(result.mach_takeover, 2)}</strong>。<br>
-          冲压发动机无法启动，巡航段有效射程为 <strong>0.0 km</strong>，当前射程仅计助推关机后的纯惯性弹道滑行弧。
+          冲压发动机无法启动，巡航段有效射程为 <strong>0 km</strong>，当前射程仅计助推关机后的纯惯性弹道滑行弧。
         </div>
       </div>`
     : '';
@@ -210,16 +214,16 @@ function renderResult(result, title) {
   const profile = profileText(result);
   const lead = profile
     ? `<div class="stat"><div class="k">高空/混合/掠海</div><div class="v">${profile}</div><div class="sub">km</div></div>`
-    : `<div class="stat"><div class="k">${isFailedTakeover ? '弹道滑行射程' : '估算射程'}</div><div class="v ${isFailedTakeover ? 'amber' : ''}">${fmt(result.range_km, 1)}</div><div class="sub">${isFailedTakeover ? 'km (冲压未启动)' : 'km'}</div></div>`;
+    : `<div class="stat"><div class="k">${isFailedTakeover ? '弹道滑行射程' : '估算射程'}</div><div class="v ${isFailedTakeover ? 'amber' : ''}">${fmt(result.range_km, 0)}</div><div class="sub">${isFailedTakeover ? 'km (冲压未启动)' : 'km'}</div></div>`;
   const alt = result.alt_range_text
-    ? `<div class="stat"><div class="k">轰6/轰20/歼36</div><div class="v">${result.alt_range_text}</div><div class="sub">km</div></div>`
+    ? `<div class="stat"><div class="k">轰6/轰20/歼36</div><div class="v">${integerRangeLabel(result.alt_range_text)}</div><div class="sub">km</div></div>`
     : '';
   const wing = result.m_wing_kg != null
     ? `<div class="stat"><div class="k">折叠弹翼</div><div class="v">${fmt(result.m_wing_kg, 0)}</div><div class="sub">kg</div></div>
        <div class="stat"><div class="k">死重</div><div class="v amber">${fmt(result.m_dead_kg, 0)}</div><div class="sub">kg</div></div>`
     : '';
   const gain = (result.range_gain_km != null && result.range_gain_km > 0)
-    ? `<div class="stat"><div class="k">几何增程</div><div class="v cyan">+${fmt(result.range_gain_km, 1)}</div><div class="sub">km</div></div>`
+    ? `<div class="stat"><div class="k">几何增程</div><div class="v cyan">+${fmt(result.range_gain_km, 0)}</div><div class="sub">km</div></div>`
     : '';
   const dHead = result.d_head_m != null
     ? `<div class="stat"><div class="k">滑翔体直径</div><div class="v">${fmt(result.d_head_m, 3)}</div><div class="sub">m</div></div>`
@@ -304,9 +308,9 @@ function renderTable() {
       <td>${kindLabel(row)}${kindBadge}</td>
       <td>${row.launch}</td>
       <td>${fmt(row.m_0_t, 2)}</td>
-      <td>${profileText(row) || `${fmt(row.range_km, 1)}${rangeSub}`}</td>
+      <td>${profileText(row) || `${fmt(row.range_km, 0)}${rangeSub}`}</td>
       <td>${stageText(row) || '—'}</td>
-      <td>${row.alt_range_text || '—'}</td>
+      <td>${row.alt_range_text ? integerRangeLabel(row.alt_range_text) : '—'}</td>
     </tr>
   `;
   }).join('');

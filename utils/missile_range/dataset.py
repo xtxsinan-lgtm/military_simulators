@@ -190,6 +190,11 @@ def format_size_m(length_m: float, diameter_m: float) -> str:
     return f'{length_m:.2f} x {diameter_m:.3f}'
 
 
+def format_range_km(range_km: float) -> str:
+    """射程按公里取整，显示时不带小数点。"""
+    return f'{float(range_km):.0f}'
+
+
 def format_cruise_profile(result: dict[str, Any]) -> str | None:
     """巡航弹的高空、混合、掠海射程，用斜线收成一栏。没有掠海档时返回空。"""
     high = result.get('range_high_km')
@@ -197,8 +202,8 @@ def format_cruise_profile(result: dict[str, Any]) -> str | None:
     if high is None or sea is None:
         return None
     mixed = result.get('range_mixed_km')
-    mixed_text = '—' if mixed is None else f'{float(mixed):.1f}'
-    return f'{float(high):.1f}/{mixed_text}/{float(sea):.1f}'
+    mixed_text = '—' if mixed is None else format_range_km(float(mixed))
+    return f'{format_range_km(float(high))}/{mixed_text}/{format_range_km(float(sea))}'
 
 
 def format_alt_launch_text(parts: list[str]) -> str:
@@ -267,7 +272,7 @@ def alt_launch_ranges(
             **lock,
         )
         profile = format_cruise_profile(result)
-        text = profile if profile is not None else f"{float(result['range_km']):.1f}"
+        text = profile if profile is not None else format_range_km(float(result['range_km']))
         pieces.append(text)
         detail.append({
             'label': label,

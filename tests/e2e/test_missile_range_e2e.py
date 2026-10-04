@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from itertools import groupby
 
 import pytest
@@ -11,6 +12,21 @@ from scripts.frontend_catalog import SIMULATORS, build_catalog_payload
 from utils.database_csv import load_aircraft_csv, load_carriers_csv
 from utils.missile_range.dataset import MISSILE_DATASET, all_missile_cases, evaluate_case
 from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV, ROOT
+
+
+def _assert_displayed_ranges_omit_decimal(cases: list[dict]) -> None:
+    """样本表里的射程文案按整数公里显示，不带小数点。"""
+    for case in cases:
+        for key in ('profile_text', 'alt_range_text'):
+            text = case.get(key)
+            if text:
+                assert '.' not in str(text)
+        for launch in case.get('alt_launches') or []:
+            text = launch.get('text')
+            if text:
+                assert '.' not in str(text)
+        note = str(case.get('note') or '')
+        assert re.search(r'提升 \d+\.\d+\s*km', note) is None
 
 
 def _assert_bays_sorted_by_liftoff_then_warhead(cases: list[dict]) -> None:
@@ -94,6 +110,7 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'type_labels' not in payload['missile_range']
     assert 'hgv_type' not in payload['missile_range']['defaults']
     assert payload['missile_range']['defaults']['ballistic_single_stage'] is False
+    _assert_displayed_ranges_omit_decimal(payload['missile_range']['cases'])
     assert (ROOT / 'data' / 'missile_range_preset_database.csv').is_file()
 
     status, _, body = handle_request('GET', '/api/data', None)
@@ -128,6 +145,11 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'data/missile_range_preset_database.csv' in js
     assert 'py_data_files' in (ROOT / 'ios' / 'CarrierTakeOff' / 'Resources' / 'engine.js').read_text(encoding='utf-8')
     assert '高空/混合/掠海' in js
+    assert 'fmt(result.range_km, 0)' in js
+    assert 'fmt(row.range_km, 0)' in js
+    assert 'fmt(result.range_gain_km, 0)' in js
+    assert 'integerRangeLabel' in js
+    assert '0.0 km' not in js
     assert '末端射程' not in js
     assert '吸气比冲' in html
     assert 'isp_air_s' in js
@@ -145,6 +167,10 @@ def test_e2e_missile_range_catalog_and_pages():
     assert 'MissileRangeView' in hub
     view = (ROOT / 'ios' / 'CarrierTakeOff' / 'MissileRangeView.swift').read_text(encoding='utf-8')
     assert '高空/混合/掠海' in view
+    assert 'result.range_km, 0' in view
+    assert 'result.range_gain_km, 0' in view
+    assert 'fmt(row.range_km, 0)' in view
+    assert 'integerRangeLabel' in view
     assert '载机' in view
     assert '战斗部重量' in view
     assert '弹头重量' not in view
@@ -159,6 +185,10 @@ def test_e2e_missile_range_catalog_and_pages():
     assert '战斗部重量' in mini_wxml
     assert '弹头重量' not in mini_wxml
     assert '高空/混合/掠海' in mini_wxml
+    assert 'formatRangeKm' in mini_js
+    assert 'integerRangeLabel' in mini_js
+    assert 'rangeText' in mini_wxml
+    assert 'rangeGainText' in mini_wxml
     assert '折叠弹翼' in mini_wxml
     assert '末端射程' not in mini_wxml
     assert '末端冲刺' not in view

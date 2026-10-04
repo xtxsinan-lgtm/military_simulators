@@ -1436,14 +1436,23 @@ def test_fighter_bay_hgv_masses_differ_and_lists_bomber_ranges():
     assert j36['range_km'] == pytest.approx(locked['range_km'], abs=0.2)
 
 
+def test_format_range_km_drops_fraction():
+    """射程文案按公里取整，不带小数点。"""
+    from utils.missile_range.dataset import format_range_km
+
+    assert format_range_km(1200.4) == '1200'
+    assert format_range_km(800.6) == '801'
+    assert '.' not in format_range_km(52.2)
+
+
 def test_format_cruise_profile_joins_three_ranges():
-    """巡航三档射程用斜线收成一栏；没有掠海档时不给这栏。"""
+    """巡航三档射程用斜线收成一栏，公里数为整数；没有掠海档时不给这栏。"""
     from utils.missile_range.dataset import format_alt_launch_text, format_cruise_profile
 
     assert format_cruise_profile({
-        'range_high_km': 1200.0, 'range_mixed_km': 800.5, 'range_sea_km': 400.0,
-    }) == '1200.0/800.5/400.0'
-    assert format_cruise_profile({'range_high_km': 10.0, 'range_sea_km': 4.0}) == '10.0/—/4.0'
+        'range_high_km': 1200.4, 'range_mixed_km': 800.6, 'range_sea_km': 400.2,
+    }) == '1200/801/400'
+    assert format_cruise_profile({'range_high_km': 10.2, 'range_sea_km': 4.8}) == '10/—/5'
     assert format_cruise_profile({'range_km': 10.0}) is None
     assert format_alt_launch_text(['1.0', '2.0', '3.0']) == '1.0 · 2.0 · 3.0'
     with pytest.raises(ValueError, match='三档射程'):
