@@ -48,7 +48,7 @@ description: >-
 - [ ] 若改了 utils/simulators/CSV：已运行 python3 scripts/build_all.py
 - [ ] 已运行 python3 -m pytest tests/ -m "not e2e" -q（含前端产物同步检查）
 - [ ] 已确认 HTML / 小程序 / API 三端模式与策略与 catalog 同步
-- [ ] 若改动影响含 RPC 的后端（小程序 API）：按 restart-rpc-services 重启本地服务
+- [ ] 若用户明确要求联调/重启小程序 API：按 restart-rpc-services 重启本地服务（默认不重启）
 ```
 
 **禁止手改**（一律由 build 生成）：
