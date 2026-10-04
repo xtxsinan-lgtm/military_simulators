@@ -122,6 +122,7 @@ PY_IMPORT_ORDER = [
 # 非 Python 数据文件：写入虚拟文件系统，不参与 import
 PY_DATA_FILES = (
     'data/missile_range_preset_database.csv',
+    'data/aircraft_pylon_database.csv',
 )
 
 

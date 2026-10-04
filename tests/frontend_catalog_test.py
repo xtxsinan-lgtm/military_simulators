@@ -69,6 +69,10 @@ def test_build_catalog_payload_modes():
     assert 'slipstream_wake_factor' in tilt_mode
     assert 'A' in payload['takeoff_config']['tiltrotor_strategy_descriptions']
     assert payload['missile_interception_config']['traj_types']['glide']
+    assert 'aircraft_pylon' in payload
+    gripen_pylon = payload['aircraft_pylon']['models']['Gripen-EF']
+    assert gripen_pylon['station_count'] == 7
+    assert gripen_pylon['physical_station_count'] == 10
 
 
 def test_docs_missile_interception_page_exists_and_links():

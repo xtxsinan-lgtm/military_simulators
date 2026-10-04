@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -30278,5 +30278,134 @@ module.exports = {
         "stage_locked": false
       }
     ]
+  },
+  "aircraft_pylon": {
+    "store_types": {
+      "a2a_ir": "红外制导空空导弹",
+      "a2a_radar": "雷达制导空空导弹",
+      "anti_ship": "反舰导弹",
+      "smart_bomb": "精确制导炸弹",
+      "sdb": "小直径炸弹",
+      "sdb_alt": "替代型小直径炸弹",
+      "fuel_tank": "副油箱",
+      "recce_pod": "侦察吊舱",
+      "flir_ldp": "前视红外/激光瞄准吊舱",
+      "ecm_pod": "电子对抗吊舱",
+      "aacmi_pod": "AACMI 空战训练吊舱"
+    },
+    "position_labels": {
+      "wingtip": "翼尖",
+      "outer_wing": "外侧翼下",
+      "inner_wing": "内侧翼下",
+      "intake_right": "进气道右侧",
+      "belly": "机腹",
+      "belly_center": "机腹中心"
+    },
+    "models": {
+      "Gripen-EF": {
+        "aircraft_id": "Gripen-EF",
+        "station_count": 7,
+        "physical_station_count": 10,
+        "stations": [
+          {
+            "station_id": "1",
+            "label": "翼尖挂点",
+            "position": "wingtip",
+            "position_label": "翼尖",
+            "symmetric": true,
+            "allowed_stores": [
+              "a2a_ir",
+              "aacmi_pod"
+            ],
+            "notes": "左右对称"
+          },
+          {
+            "station_id": "2",
+            "label": "外侧翼下挂点",
+            "position": "outer_wing",
+            "position_label": "外侧翼下",
+            "symmetric": true,
+            "allowed_stores": [
+              "a2a_ir",
+              "a2a_radar",
+              "anti_ship",
+              "smart_bomb",
+              "ecm_pod"
+            ],
+            "notes": "左右对称"
+          },
+          {
+            "station_id": "3",
+            "label": "内侧翼下挂点",
+            "position": "inner_wing",
+            "position_label": "内侧翼下",
+            "symmetric": true,
+            "allowed_stores": [
+              "a2a_ir",
+              "a2a_radar",
+              "anti_ship",
+              "smart_bomb",
+              "sdb",
+              "sdb_alt",
+              "fuel_tank"
+            ],
+            "notes": "左右对称"
+          },
+          {
+            "station_id": "4",
+            "label": "进气道右侧挂点",
+            "position": "intake_right",
+            "position_label": "进气道右侧",
+            "symmetric": false,
+            "allowed_stores": [
+              "recce_pod",
+              "flir_ldp",
+              "ecm_pod"
+            ],
+            "notes": "仅右侧"
+          },
+          {
+            "station_id": "5R",
+            "label": "机腹右侧挂点",
+            "position": "belly",
+            "position_label": "机腹",
+            "symmetric": false,
+            "allowed_stores": [
+              "a2a_radar",
+              "anti_ship",
+              "smart_bomb",
+              "sdb"
+            ]
+          },
+          {
+            "station_id": "5C",
+            "label": "机腹中心挂点",
+            "position": "belly_center",
+            "position_label": "机腹中心",
+            "symmetric": false,
+            "allowed_stores": [
+              "a2a_radar",
+              "smart_bomb",
+              "sdb_alt",
+              "recce_pod",
+              "ecm_pod",
+              "fuel_tank"
+            ]
+          },
+          {
+            "station_id": "5L",
+            "label": "机腹左侧挂点",
+            "position": "belly",
+            "position_label": "机腹",
+            "symmetric": false,
+            "allowed_stores": [
+              "a2a_radar",
+              "anti_ship",
+              "sdb"
+            ]
+          }
+        ]
+      }
+    }
   }
 };

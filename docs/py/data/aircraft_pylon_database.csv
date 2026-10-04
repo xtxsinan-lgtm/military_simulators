@@ -1,0 +1,8 @@
+aircraft_id,station_id,label,position,symmetric,allowed_stores,notes
+Gripen-EF,1,翼尖挂点,wingtip,1,a2a_ir|aacmi_pod,左右对称
+Gripen-EF,2,外侧翼下挂点,outer_wing,1,a2a_ir|a2a_radar|anti_ship|smart_bomb|ecm_pod,左右对称
+Gripen-EF,3,内侧翼下挂点,inner_wing,1,a2a_ir|a2a_radar|anti_ship|smart_bomb|sdb|sdb_alt|fuel_tank,左右对称
+Gripen-EF,4,进气道右侧挂点,intake_right,0,recce_pod|flir_ldp|ecm_pod,仅右侧
+Gripen-EF,5R,机腹右侧挂点,belly,0,a2a_radar|anti_ship|smart_bomb|sdb,
+Gripen-EF,5C,机腹中心挂点,belly_center,0,a2a_radar|smart_bomb|sdb_alt|recce_pod|ecm_pod|fuel_tank,
+Gripen-EF,5L,机腹左侧挂点,belly,0,a2a_radar|anti_ship|sdb,
