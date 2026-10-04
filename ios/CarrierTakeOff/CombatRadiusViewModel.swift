@@ -158,6 +158,13 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var wtCarrier = false
     @Published var showF135TsfcToggle = false
     @Published var f135TsfcMode = "published"
+    @Published var flightProfileId = "hi_hi_hi"
+    @Published var flightProfileNote = "进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。"
+    @Published var flightProfileOptions: [CombatRadiusFlightProfileOption] = [
+        CombatRadiusFlightProfileOption(id: "hi_hi_hi", label: "高-高-高", note: nil),
+        CombatRadiusFlightProfileOption(id: "hi_lo_hi", label: "高-低-高", note: nil),
+        CombatRadiusFlightProfileOption(id: "lo_lo_lo", label: "低-低-低", note: nil),
+    ]
     @Published var f135TsfcPublishedLabel = "×1.22 公开军推"
     @Published var f135TsfcLpcLabel = "×1.04 仅低压压气机"
     @Published var f135TsfcNote = "1.22 按公开军推 TSFC 相对 F100 的差距；1.04 只计低压压气机为垂起榨功做的设计妥协（巡航不抽升力风扇）。"
@@ -179,6 +186,7 @@ final class CombatRadiusViewModel: ObservableObject {
     private var f135TsfcAircraftIds: [String] = ["F-35A", "F-35B", "F-35C"]
     private var f135TsfcPublished = 1.22
     private var f135TsfcLpcOnly = 1.04
+    private var defaultFlightProfileId = "hi_hi_hi"
     /// 选机后尚未改其它参数时，切回 1.22 可直接用预计算快照
     private var snapshotEligible = false
     /// 计算进行中又改了参数时，结束后再跑一轮
@@ -219,6 +227,7 @@ final class CombatRadiusViewModel: ObservableObject {
                 dryToMaxRatio = r
             }
             applyF135ToggleConfig(catalog.combat_radius_config?.f135_tsfc_toggle)
+            applyFlightProfileConfig(catalog.combat_radius_config?.flight_profiles)
             let defaultId = ui?.default_target_id
             applying = true
             if let p = (defaultId.flatMap { id in presets.first(where: { $0.id == id }) }) ?? presets.first {
@@ -319,7 +328,7 @@ final class CombatRadiusViewModel: ObservableObject {
     }
 
     func showSnapshot() {
-        snapshotEligible = true
+        snapshotEligible = flightProfileId == defaultFlightProfileId
         if let snap = resultsMap[selectedTgtId], snap.success {
             dashboard = snap
             dashSource = "预计算快照"
@@ -346,6 +355,7 @@ final class CombatRadiusViewModel: ObservableObject {
         refreshDerivedLoads()
         var params: [String: Any] = [
             "name": tgt.name,
+            "flight_profile": flightProfileId,
             "target": tgt.asParams(),
             "empty_kg": Double(wtEmpty) ?? 0,
             "internal_fuel_kg": Double(wtFuel) ?? 0,
@@ -404,10 +414,36 @@ final class CombatRadiusViewModel: ObservableObject {
         return 1.0
     }
 
+    func applyFlightProfileConfig(_ cfg: CombatRadiusFlightProfilesConfig?) {
+        if let d = cfg?.default, !d.isEmpty {
+            defaultFlightProfileId = d
+            flightProfileId = d
+        }
+        if let opts = cfg?.options, !opts.isEmpty {
+            flightProfileOptions = opts
+            if let active = opts.first(where: { $0.id == flightProfileId }) {
+                flightProfileNote = active.note ?? flightProfileNote
+            }
+        }
+    }
+
+    func setFlightProfile(_ id: String) {
+        guard id != flightProfileId else { return }
+        flightProfileId = id
+        if let active = flightProfileOptions.first(where: { $0.id == id }) {
+            flightProfileNote = active.note ?? flightProfileNote
+        }
+        if id == defaultFlightProfileId, snapshotEligible, f135TsfcMode == "published" {
+            showSnapshot()
+            return
+        }
+        Task { await requestLiveDash() }
+    }
+
     func setF135TsfcMode(_ mode: String) {
         guard mode != f135TsfcMode else { return }
         f135TsfcMode = mode
-        if mode == "published", snapshotEligible {
+        if mode == "published", snapshotEligible, flightProfileId == defaultFlightProfileId {
             showSnapshot()
             return
         }

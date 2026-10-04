@@ -35,7 +35,7 @@ def test_load_combat_radius_config_file_exists_and_ui_defaults():
     assert 'default_anchor1_id' not in ui
     assert ui['default_eta_c'] == 0.87
     assert ui['default_eps'] == 0.83
-    assert load_combat_radius_config()['version'] == 8
+    assert load_combat_radius_config()['version'] == 9
 
 
 def test_planform_and_layout_labels():
@@ -83,6 +83,8 @@ def test_build_combat_radius_config_payload():
     assert payload['f135_tsfc_toggle']['aircraft_ids'] == ['F-35A', 'F-35B', 'F-35C']
     assert payload['f135_tsfc_toggle']['published'] == pytest.approx(1.22)
     assert payload['f135_tsfc_toggle']['lpc_only'] == pytest.approx(1.04)
+    assert payload['flight_profiles']['default'] == 'hi_hi_hi'
+    assert len(payload['flight_profiles']['options']) == 3
 
 
 def test_load_combat_radius_config_custom_path(tmp_path):
@@ -118,7 +120,7 @@ def test_inject_combat_radius_config_overrides_disk():
     finally:
         mod._INJECTED = None
         load_combat_radius_config.cache_clear()
-    assert load_combat_radius_config()['version'] == 8
+    assert load_combat_radius_config()['version'] == 9
 
 
 def test_mission_fuel_config_defaults():

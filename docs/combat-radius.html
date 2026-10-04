@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=82">
+<link rel="stylesheet" href="css/combat_radius.css?v=83">
 </head>
 <body>
 <div class="scanline"></div>
@@ -48,6 +48,15 @@
       </div>
       <div class="check-row">
         <label><input type="checkbox" id="wtCarrier"> 舰载弹射 45 min；垂起与陆基 30 min</label>
+      </div>
+      <div id="flightProfileBox">
+        <div class="section-label cyan">▸ 任务剖面</div>
+        <div class="seg" id="flightProfileSeg">
+          <button type="button" class="seg-btn on" data-profile="hi_hi_hi">高-高-高</button>
+          <button type="button" class="seg-btn" data-profile="hi_lo_hi">高-低-高</button>
+          <button type="button" class="seg-btn" data-profile="lo_lo_lo">低-低-低</button>
+        </div>
+        <p class="note" id="flightProfileNote">进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。</p>
       </div>
       <div class="section-label amber">▸ 发动机</div>
       <div class="field">
@@ -130,6 +139,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预计算快照 + Pyodide 按需计算 · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=82"></script>
+<script type="module" src="js/combat_radius.js?v=83"></script>
 </body>
 </html>

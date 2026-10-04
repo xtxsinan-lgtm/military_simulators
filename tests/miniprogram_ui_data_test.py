@@ -87,6 +87,12 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert cr_wxml.count('▶ 计算作战半径') == 1
     assert 'onRunDash' in cr_js
     assert '混合作战半径' in cr_wxml
+    assert '任务剖面' in cr_wxml
+    assert '高-高-高' in cr_wxml
+    assert '高-低-高' in cr_wxml
+    assert '低-低-低' in cr_wxml
+    assert 'onFlightProfile' in cr_js
+    assert 'flight_profile' in cr_js
     assert '速度/马赫' in cr_wxml
     assert '实用最大巡航速度' in cr_wxml
     assert '最大巡航速度' in cr_wxml

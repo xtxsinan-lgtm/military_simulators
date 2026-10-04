@@ -283,6 +283,9 @@ Page({
     f135TsfcPublished: 1.22,
     f135TsfcLpcOnly: 1.04,
     snapshotEligible: false,
+    flightProfileId: 'hi_hi_hi',
+    flightProfileNote: '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。',
+    defaultFlightProfileId: 'hi_hi_hi',
   },
 
   onShow() {
@@ -314,6 +317,10 @@ Page({
         const ratioRaw = Number((cfg.engine || {}).dry_to_max_thrust_ratio);
         const dryToMaxRatio = ratioRaw > 0 && ratioRaw <= 1 ? ratioRaw : 0.7;
         const f135Toggle = f135ToggleFromCfg(cfg);
+        const fpCfg = cfg.flight_profiles || {};
+        const fpDefault = fpCfg.default || 'hi_hi_hi';
+        const fpOptions = fpCfg.options || [];
+        const fpActive = fpOptions.find((o) => o.id === fpDefault) || fpOptions[0] || {};
         const eng = (tgtp && tgtp.engine_id && engines.find((p) => p.id === tgtp.engine_id))
           || engines.find((p) => p.id === ui.default_engine_id)
           || engines[0];
@@ -345,6 +352,10 @@ Page({
           showF135TsfcToggle: isF35TsfcToggleAircraft(tgtp && tgtp.id, f135Toggle.f135TsfcAircraftIds),
           f135TsfcMode: 'published',
           snapshotEligible: true,
+          flightProfileId: fpDefault,
+          defaultFlightProfileId: fpDefault,
+          flightProfileOptions: fpOptions,
+          flightProfileNote: fpActive.note || '',
           statusText: presets.length ? '预设已加载' : '缺少 combat_radius_presets，请运行 build_all.py',
         });
         this.showSnapshot(tgtp && tgtp.id);
@@ -355,7 +366,7 @@ Page({
   },
 
   showSnapshot(id) {
-    this.data.snapshotEligible = true;
+    this.data.snapshotEligible = this.data.flightProfileId === this.data.defaultFlightProfileId;
     const snap = id ? this.data.resultsMap[id] : null;
     if (!snap || !snap.success) {
       this.setData({
@@ -479,11 +490,28 @@ Page({
     this._dashTimer = setTimeout(() => this.runLiveDash(), 600);
   },
 
+  onFlightProfile(e) {
+    const id = e.currentTarget.dataset.profile || this.data.defaultFlightProfileId;
+    if (id === this.data.flightProfileId) return;
+    const opt = (this.data.flightProfileOptions || []).find((o) => o.id === id);
+    this.setData({
+      flightProfileId: id,
+      flightProfileNote: (opt && opt.note) || '',
+    });
+    if (id === this.data.defaultFlightProfileId && this.data.snapshotEligible && this.data.f135TsfcMode === 'published') {
+      const idx = this.data.tgtPresetIndex;
+      const ac = idx > 0 ? this.data.presets[idx - 1] : null;
+      this.showSnapshot(ac && ac.id);
+      return;
+    }
+    this.onRunDash();
+  },
+
   onF135TsfcMode(e) {
     const mode = e.currentTarget.dataset.mode || 'published';
     if (mode === this.data.f135TsfcMode) return;
     this.setData({ f135TsfcMode: mode });
-    if (mode === 'published' && this.data.snapshotEligible) {
+    if (mode === 'published' && this.data.snapshotEligible && this.data.flightProfileId === this.data.defaultFlightProfileId) {
       const idx = this.data.tgtPresetIndex;
       const ac = idx > 0 ? this.data.presets[idx - 1] : null;
       this.showSnapshot(ac && ac.id);
@@ -540,6 +568,7 @@ Page({
   dashboardParams() {
     const params = {
       name: this.data.tgt.name || '',
+      flight_profile: this.data.flightProfileId,
       target: this.toAircraft(),
       empty_kg: num(this.data.wtEmpty, 0),
       internal_fuel_kg: num(this.data.wtFuel, 0),

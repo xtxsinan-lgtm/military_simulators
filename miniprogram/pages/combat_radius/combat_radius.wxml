@@ -137,7 +137,14 @@
     <view class="check-row">
       <label><switch checked="{{wtCarrier}}" bindchange="onCarrierSwitch"/> 舰载弹射 45 min；垂起与陆基 30 min</label>
     </view>
-    <view class="section cyan">▸ 发动机</view>
+    <view class="section cyan">▸ 任务剖面</view>
+    <view class="seg">
+      <view class="seg-btn {{flightProfileId === 'hi_hi_hi' ? 'on' : ''}}" data-profile="hi_hi_hi" bindtap="onFlightProfile">高-高-高</view>
+      <view class="seg-btn {{flightProfileId === 'hi_lo_hi' ? 'on' : ''}}" data-profile="hi_lo_hi" bindtap="onFlightProfile">高-低-高</view>
+      <view class="seg-btn {{flightProfileId === 'lo_lo_lo' ? 'on' : ''}}" data-profile="lo_lo_lo" bindtap="onFlightProfile">低-低-低</view>
+    </view>
+    <view class="note">{{flightProfileNote}}</view>
+    <view class="section amber">▸ 发动机</view>
     <view class="field">
       <view class="field-label"><text>发动机预设</text></view>
       <picker mode="selector" range="{{engineNames}}" value="{{enginePresetIndex}}" bindchange="onEnginePreset">
