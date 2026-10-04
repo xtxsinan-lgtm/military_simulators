@@ -57,6 +57,14 @@ MOUNT_STYLE_AERO: dict[str, dict[str, float]] = {
         'exposed_frac': 1.0,
         'front_frac': 1.0,
     },
+    # 半埋：挂架浸润小，弹体露出约一半（与 lift_drag 半埋一致）
+    'semi_recessed': {
+        'pylon_wetted_m2': 0.08,
+        'pylon_front_m2': 0.003,
+        'interf': 1.25,
+        'exposed_frac': 0.45,
+        'front_frac': 0.55,
+    },
 }
 
 # 同站多枚（三联架/CFT 串挂）额外干扰
@@ -126,7 +134,10 @@ def _opt_float(value: Any, default: float = 0.0) -> float:
 
 
 def load_munitions(path: str | Path | None = None) -> dict[str, dict[str, Any]]:
-    """读取弹药库，返回 id → 记录。"""
+    """读取弹药库，返回 id → 记录。
+
+    默认路径会再合并各碎片挂载目录中的弹药，供交互挂点下拉使用。
+    """
     global _MUNITIONS_CACHE
     src = Path(path) if path is not None else MUNITIONS_CSV
     if path is None and _MUNITIONS_CACHE is not None:
@@ -152,20 +163,44 @@ def load_munitions(path: str | Path | None = None) -> dict[str, dict[str, Any]]:
                 'notes': (row.get('notes') or '').strip(),
             }
     if path is None:
+        out = _maybe_merge_munitions(out)
         _MUNITIONS_CACHE = out
     return out
 
 
 def load_aircraft_stations(path: str | Path | None = None) -> dict[str, Any]:
-    """读取机型挂点库（含 version 与 aircraft 映射）。"""
+    """读取机型挂点库（含 version 与 aircraft 映射）。
+
+    默认路径会合并碎片挂点模型（MiG-29K、F-16、阵风等），不覆盖 JSON 主库机型。
+    Pyodide 若缺碎片模块则保留主库；此时应由前端 inject 完整 catalog。
+    """
     global _STATIONS_CACHE
     src = Path(path) if path is not None else AIRCRAFT_STATIONS_JSON
     if path is None and _STATIONS_CACHE is not None:
         return _STATIONS_CACHE
     data = json.loads(src.read_text(encoding='utf-8'))
     if path is None:
+        data = _maybe_merge_stations(data)
         _STATIONS_CACHE = data
     return data
+
+
+def _maybe_merge_munitions(base: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """合并碎片弹药；环境缺依赖时回退主库。"""
+    try:
+        from utils.combat_radius.loadout_unify import merge_munitions
+        return merge_munitions(base)
+    except (ImportError, ModuleNotFoundError, FileNotFoundError, OSError):
+        return base
+
+
+def _maybe_merge_stations(base: dict[str, Any]) -> dict[str, Any]:
+    """合并碎片挂点；环境缺依赖时回退主库。"""
+    try:
+        from utils.combat_radius.loadout_unify import merge_aircraft_stations
+        return merge_aircraft_stations(base)
+    except (ImportError, ModuleNotFoundError, FileNotFoundError, OSError):
+        return base
 
 
 def inject_loadout_catalog(
@@ -178,6 +213,63 @@ def inject_loadout_catalog(
         _MUNITIONS_CACHE = munitions
     if stations is not None:
         _STATIONS_CACHE = stations
+
+
+def inject_loadout_catalog_payload(catalog: dict[str, Any] | None) -> None:
+    """把前端 loadout_catalog 还原为 munitions/stations 缓存（Pyodide 用）。"""
+    if not catalog:
+        return
+    munitions: dict[str, dict[str, Any]] = {}
+    for row in catalog.get('munitions') or []:
+        mid = str(row.get('id') or '').strip()
+        if not mid:
+            continue
+        munitions[mid] = {
+            'id': mid,
+            'name': str(row.get('name') or mid),
+            'category': str(row.get('category') or ''),
+            'mass_kg': _opt_float(row.get('mass_kg')),
+            'dry_mass_kg': _opt_float(row.get('dry_mass_kg'), _opt_float(row.get('mass_kg'))),
+            'fuel_kg': _opt_float(row.get('fuel_kg')),
+            'length_m': _opt_float(row.get('length_m')),
+            'diameter_m': _opt_float(row.get('diameter_m')),
+            'notes': str(row.get('notes') or ''),
+        }
+    aircraft_out: dict[str, Any] = {}
+    for aid, ac in (catalog.get('aircraft') or {}).items():
+        stations = []
+        for st in ac.get('stations') or []:
+            options = []
+            for opt in st.get('options') or []:
+                mid = str(opt.get('munition_id') or '').strip()
+                if not mid:
+                    continue
+                options.append({
+                    'munition_id': mid,
+                    'qty': _opt_float(opt.get('qty'), 1.0),
+                    **({'label': opt['label']} if opt.get('label') else {}),
+                })
+            stations.append({
+                'id': st['id'],
+                'label': st.get('label') or st['id'],
+                'mount_style': st.get('mount_style') or 'wing_pylon',
+                'options': options,
+            })
+        default_sel: dict[str, Any] = {}
+        for sid, key in (ac.get('default_selection') or {}).items():
+            mid, qty = _parse_selection_value(key)
+            if mid:
+                default_sel[str(sid)] = {'munition_id': mid, 'qty': qty}
+        aircraft_out[str(aid)] = {
+            'id': str(aid),
+            'name': ac.get('name') or aid,
+            'default_selection': default_sel,
+            'stations': stations,
+        }
+    inject_loadout_catalog(
+        munitions=munitions,
+        stations={'version': int(catalog.get('version') or 1), 'aircraft': aircraft_out},
+    )
 
 
 def clear_loadout_caches() -> None:
@@ -336,11 +428,14 @@ def resolve_loadout(
         else:
             summary.weapons_mass_kg += dry
         aero = _aero_for_mount_style(str(st.get('mount_style') or 'wing_pylon'), qty)
+        mount_style = str(st.get('mount_style') or 'wing_pylon')
+        # StoreSpec.mount 只认 internal/semi_recessed/pylon
+        mount_kind = 'semi_recessed' if mount_style == 'semi_recessed' else 'pylon'
         summary.store_specs.append(StoreSpec(
             length_m=float(mun['length_m']),
             diameter_m=float(mun['diameter_m']),
             count=float(qty),
-            mount='pylon',
+            mount=mount_kind,
             pylon_wetted_m2=float(aero['pylon_wetted_m2']),
             pylon_front_m2=float(aero['pylon_front_m2']),
             exposed_frac=float(aero['exposed_frac']),
