@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=82">
+<link rel="stylesheet" href="css/combat_radius.css?v=83">
 </head>
 <body>
 <div class="scanline"></div>
@@ -33,6 +33,11 @@
         <select id="tgtPreset"></select>
       </div>
       <div id="tgtFields"></div>
+      <div id="weaponStationsPanel" hidden>
+        <div class="section-label cyan">▸ 外挂挂点 · 可用弹药</div>
+        <p class="note">按瑞典空军及出口客户（南非、泰国等）实际服役与采购情况列出各挂点支持的弹药型号；固定机炮不计入外挂载重。</p>
+        <div id="weaponStationsBox"></div>
+      </div>
       <div class="section-label cyan">▸ 重量与任务</div>
       <div class="pair">
         <div class="field"><label>空重 <span class="unit">kg</span></label><input type="number" id="wtEmpty" step="10" min="1"></div>
@@ -130,6 +135,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预计算快照 + Pyodide 按需计算 · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=82"></script>
+<script type="module" src="js/combat_radius.js?v=83"></script>
 </body>
 </html>

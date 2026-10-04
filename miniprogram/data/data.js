@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -30278,5 +30278,409 @@ module.exports = {
         "stage_locked": false
       }
     ]
+  },
+  "aircraft_weapons": {
+    "version": 1,
+    "category_labels": {
+      "ir_aam": "红外制导近距空对空导弹",
+      "radar_aam": "雷达制导中远距空对空导弹",
+      "agm": "空对地导弹",
+      "pgbb": "精确制导炸弹",
+      "dumb_bomb": "常规无制导炸弹",
+      "ew": "电子战设备",
+      "recon": "侦察吊舱",
+      "targeting": "激光/红外瞄准吊舱",
+      "standoff": "防区外巡航/防区外武器",
+      "anti_ship": "反舰导弹",
+      "fuel_tank": "副油箱",
+      "training": "空战训练/测量吊舱",
+      "gun": "航炮"
+    },
+    "station_order": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "G"
+    ],
+    "aircraft": {
+      "Gripen-CD": {
+        "id": "Gripen-CD",
+        "stations": [
+          {
+            "id": "1",
+            "name": "翼尖挂架",
+            "categories": [
+              {
+                "id": "ir_aam",
+                "label": "红外制导近距空对空导弹",
+                "weapons": [
+                  {
+                    "id": "aim9lm",
+                    "name": "AIM-9L/M 响尾蛇 (Sidewinder)"
+                  },
+                  {
+                    "id": "iris_t",
+                    "name": "IRIS-T"
+                  },
+                  {
+                    "id": "a_darter",
+                    "name": "A-Darter",
+                    "notes": "南非空军"
+                  }
+                ]
+              },
+              {
+                "id": "training",
+                "label": "空战训练/测量吊舱",
+                "weapons": [
+                  {
+                    "id": "aacmi",
+                    "name": "AACMI 训练吊舱"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "name": "外侧翼下挂架",
+            "categories": [
+              {
+                "id": "agm",
+                "label": "空对地导弹",
+                "weapons": [
+                  {
+                    "id": "agm65",
+                    "name": "AGM-65 幼畜 (Maverick / Rb 75)"
+                  }
+                ]
+              },
+              {
+                "id": "dumb_bomb",
+                "label": "常规无制导炸弹",
+                "weapons": [
+                  {
+                    "id": "mk82",
+                    "name": "Mk 82 通用炸弹"
+                  },
+                  {
+                    "id": "mk83",
+                    "name": "Mk 83 通用炸弹"
+                  },
+                  {
+                    "id": "bk90",
+                    "name": "Bk 90 蜘蛛集束炸弹 (Rb 90)"
+                  }
+                ]
+              },
+              {
+                "id": "ew",
+                "label": "电子战设备",
+                "weapons": [
+                  {
+                    "id": "bo20",
+                    "name": "BO20 自卫电子干扰吊舱"
+                  },
+                  {
+                    "id": "estl",
+                    "name": "ESTL 拖曳诱饵吊舱"
+                  }
+                ]
+              },
+              {
+                "id": "ir_aam",
+                "label": "红外制导近距空对空导弹",
+                "weapons": [
+                  {
+                    "id": "iris_t",
+                    "name": "IRIS-T"
+                  },
+                  {
+                    "id": "aim9lm",
+                    "name": "AIM-9L/M 响尾蛇 (Sidewinder)"
+                  },
+                  {
+                    "id": "a_darter",
+                    "name": "A-Darter"
+                  }
+                ]
+              },
+              {
+                "id": "pgbb",
+                "label": "精确制导炸弹",
+                "weapons": [
+                  {
+                    "id": "gbu12",
+                    "name": "GBU-12 宝石路 II (Paveway II)"
+                  },
+                  {
+                    "id": "gbu49",
+                    "name": "GBU-49 小直径炸弹 (SDB)"
+                  },
+                  {
+                    "id": "gbu39",
+                    "name": "GBU-39 小直径炸弹 (SDB)"
+                  }
+                ]
+              },
+              {
+                "id": "radar_aam",
+                "label": "雷达制导中远距空对空导弹",
+                "weapons": [
+                  {
+                    "id": "aim120",
+                    "name": "AIM-120 AMRAAM (C-5/C-7)"
+                  },
+                  {
+                    "id": "meteor",
+                    "name": "流星 (Meteor)"
+                  },
+                  {
+                    "id": "skyflash",
+                    "name": "天闪 (Skyflash / Rb 71)"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "name": "内侧翼下重载挂架",
+            "categories": [
+              {
+                "id": "agm",
+                "label": "空对地导弹",
+                "weapons": [
+                  {
+                    "id": "agm65",
+                    "name": "AGM-65 幼畜 (Maverick / Rb 75)"
+                  }
+                ]
+              },
+              {
+                "id": "anti_ship",
+                "label": "反舰导弹",
+                "weapons": [
+                  {
+                    "id": "rbs15",
+                    "name": "RBS-15F / RBS-15 Mk3 反舰导弹"
+                  }
+                ]
+              },
+              {
+                "id": "dumb_bomb",
+                "label": "常规无制导炸弹",
+                "weapons": [
+                  {
+                    "id": "mk82",
+                    "name": "Mk 82 通用炸弹"
+                  },
+                  {
+                    "id": "mk83",
+                    "name": "Mk 83 通用炸弹"
+                  },
+                  {
+                    "id": "mk84",
+                    "name": "Mk 84 重型通用炸弹"
+                  }
+                ]
+              },
+              {
+                "id": "fuel_tank",
+                "label": "副油箱",
+                "weapons": [
+                  {
+                    "id": "ft1100",
+                    "name": "1100 升 (290 加仑) 翼下副油箱"
+                  }
+                ]
+              },
+              {
+                "id": "ir_aam",
+                "label": "红外制导近距空对空导弹",
+                "weapons": [
+                  {
+                    "id": "iris_t",
+                    "name": "IRIS-T"
+                  },
+                  {
+                    "id": "aim9lm",
+                    "name": "AIM-9L/M 响尾蛇 (Sidewinder)"
+                  }
+                ]
+              },
+              {
+                "id": "pgbb",
+                "label": "精确制导炸弹",
+                "weapons": [
+                  {
+                    "id": "gbu10",
+                    "name": "GBU-10 宝石路"
+                  },
+                  {
+                    "id": "gbu12",
+                    "name": "GBU-12 宝石路"
+                  },
+                  {
+                    "id": "gbu16",
+                    "name": "GBU-16 宝石路"
+                  },
+                  {
+                    "id": "gbu31",
+                    "name": "GBU-31 JDAM"
+                  },
+                  {
+                    "id": "gbu32",
+                    "name": "GBU-32 JDAM"
+                  }
+                ]
+              },
+              {
+                "id": "radar_aam",
+                "label": "雷达制导中远距空对空导弹",
+                "weapons": [
+                  {
+                    "id": "aim120",
+                    "name": "AIM-120 AMRAAM"
+                  },
+                  {
+                    "id": "meteor",
+                    "name": "流星 (Meteor)"
+                  }
+                ]
+              },
+              {
+                "id": "standoff",
+                "label": "防区外巡航/防区外武器",
+                "weapons": [
+                  {
+                    "id": "taurus350",
+                    "name": "TAURUS KEPD 350 金牛座巡航导弹"
+                  },
+                  {
+                    "id": "bk90",
+                    "name": "Bk 90 (MJ1/MJ2)"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "name": "机腹右侧偏置挂点",
+            "categories": [
+              {
+                "id": "ew",
+                "label": "电子战设备",
+                "weapons": [
+                  {
+                    "id": "erielectron",
+                    "name": "Erielectron / Saab 自卫干扰吊舱"
+                  }
+                ]
+              },
+              {
+                "id": "recon",
+                "label": "侦察吊舱",
+                "weapons": [
+                  {
+                    "id": "vicon",
+                    "name": "Vinten Vicon 航空侦察吊舱"
+                  },
+                  {
+                    "id": "spk39",
+                    "name": "SPK 39 航空侦察吊舱"
+                  }
+                ]
+              },
+              {
+                "id": "targeting",
+                "label": "激光/红外瞄准吊舱",
+                "weapons": [
+                  {
+                    "id": "litening",
+                    "name": "AN/AAQ-28 蓝盾 (Litening III / Litening 4)"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "5",
+            "name": "机腹中心挂架",
+            "categories": [
+              {
+                "id": "dumb_bomb",
+                "label": "常规无制导炸弹",
+                "weapons": [
+                  {
+                    "id": "mk82",
+                    "name": "Mk 82 通用炸弹"
+                  }
+                ]
+              },
+              {
+                "id": "fuel_tank",
+                "label": "副油箱",
+                "weapons": [
+                  {
+                    "id": "ft1100",
+                    "name": "1100 升 (290 加仑) 机腹副油箱"
+                  }
+                ]
+              },
+              {
+                "id": "pgbb",
+                "label": "精确制导炸弹",
+                "weapons": [
+                  {
+                    "id": "gbu12",
+                    "name": "GBU-12 宝石路 II"
+                  },
+                  {
+                    "id": "gbu39",
+                    "name": "GBU-39 SDB",
+                    "notes": "通过多联挂架"
+                  }
+                ]
+              },
+              {
+                "id": "recon",
+                "label": "侦察吊舱",
+                "weapons": [
+                  {
+                    "id": "mrp",
+                    "name": "Modular Reconnaissance Pod (MRP)"
+                  },
+                  {
+                    "id": "spk39",
+                    "name": "SPK 39"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "G",
+            "name": "固定机炮 (G)",
+            "categories": [
+              {
+                "id": "gun",
+                "label": "航炮",
+                "weapons": [
+                  {
+                    "id": "bk27",
+                    "name": "毛瑟 BK-27 型 27 mm 转轮式机炮",
+                    "notes": "配用 27×145 mm 弹药"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
   }
 };

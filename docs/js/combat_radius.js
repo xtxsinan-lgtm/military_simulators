@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 82;
+const APP_VERSION = 83;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -116,6 +116,31 @@ function optionHtml(map) {
   return Object.entries(map || {})
     .map(([id, label]) => `<option value="${id}">${label}</option>`)
     .join('');
+}
+
+/** 渲染当前机型外挂挂点与可用弹药（catalog aircraft_weapons）。 */
+function renderWeaponStations(aircraftId) {
+  const panel = $('weaponStationsPanel');
+  const box = $('weaponStationsBox');
+  if (!panel || !box) return;
+  const ac = data?.aircraft_weapons?.aircraft?.[aircraftId];
+  if (!ac || !ac.stations?.length) {
+    panel.hidden = true;
+    box.innerHTML = '';
+    return;
+  }
+  panel.hidden = false;
+  box.innerHTML = ac.stations.map((station) => {
+    const sid = station.id === 'G' ? 'G' : `挂点 ${station.id}`;
+    const cats = (station.categories || []).map((cat) => {
+      const weapons = (cat.weapons || []).map((w) => {
+        const note = w.notes ? `<span class="weapon-note">（${w.notes}）</span>` : '';
+        return `<li>${w.name}${note}</li>`;
+      }).join('');
+      return `<div class="weapon-cat"><div class="weapon-cat-label">${cat.label}</div><ul>${weapons}</ul></div>`;
+    }).join('');
+    return `<div class="weapon-station"><div class="weapon-station-head">${sid} · ${station.name}</div>${cats}</div>`;
+  }).join('');
 }
 
 function renderAircraftFields() {
@@ -242,6 +267,7 @@ function applyPresetToFields(preset) {
     currentAircraftName = '';
     f135TsfcMode = 'published';
     syncF135TsfcToggle('');
+    renderWeaponStations('');
     return;
   }
   applyingPreset = true;
@@ -284,6 +310,7 @@ function applyPresetToFields(preset) {
   syncDerivedLoads();
   f135TsfcMode = 'published';
   syncF135TsfcToggle(preset.id);
+  renderWeaponStations(preset.id);
   applyingPreset = false;
 }
 

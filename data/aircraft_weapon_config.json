@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "category_labels": {
+    "ir_aam": "红外制导近距空对空导弹",
+    "radar_aam": "雷达制导中远距空对空导弹",
+    "agm": "空对地导弹",
+    "pgbb": "精确制导炸弹",
+    "dumb_bomb": "常规无制导炸弹",
+    "ew": "电子战设备",
+    "recon": "侦察吊舱",
+    "targeting": "激光/红外瞄准吊舱",
+    "standoff": "防区外巡航/防区外武器",
+    "anti_ship": "反舰导弹",
+    "fuel_tank": "副油箱",
+    "training": "空战训练/测量吊舱",
+    "gun": "航炮"
+  },
+  "station_order": ["1", "2", "3", "4", "5", "G"]
+}
