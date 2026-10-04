@@ -1867,6 +1867,385 @@
           ]
         }
       ]
+    },
+    "F-2": {
+      "id": "F-2",
+      "name": "F-2A",
+      "default_selection": {
+        "sta1": {
+          "munition_id": "aam3",
+          "qty": 1
+        },
+        "sta2": {
+          "munition_id": "aam4",
+          "qty": 1
+        },
+        "sta10": {
+          "munition_id": "aam4",
+          "qty": 1
+        },
+        "sta11": {
+          "munition_id": "aam3",
+          "qty": 1
+        }
+      },
+      "stations": [
+        {
+          "id": "sta1",
+          "label": "1 左翼尖（STA-1）",
+          "mount_style": "wing_tip",
+          "options": [
+            {
+              "munition_id": "aam3",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1,
+              "label": "AIM-9L Sidewinder"
+            }
+          ]
+        },
+        {
+          "id": "sta2",
+          "label": "2 左外侧挂点（STA-2）",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aam3",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1,
+              "label": "AIM-9L Sidewinder"
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1,
+              "label": "AIM-7M Sparrow"
+            },
+            {
+              "munition_id": "aam4",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta3",
+          "label": "3 左主挂点（STA-3，in/out）",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aam3",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1,
+              "label": "AIM-9L Sidewinder"
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1,
+              "label": "AIM-7M Sparrow"
+            },
+            {
+              "munition_id": "aam4",
+              "qty": 1
+            },
+            {
+              "munition_id": "asm1",
+              "qty": 1
+            },
+            {
+              "munition_id": "asm2",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta4",
+          "label": "4 左内侧挂点（STA-4）",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "asm1",
+              "qty": 1
+            },
+            {
+              "munition_id": "asm2",
+              "qty": 1
+            },
+            {
+              "munition_id": "drop_tank_600",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82_ter3",
+              "qty": 1
+            },
+            {
+              "munition_id": "jm117",
+              "qty": 1
+            },
+            {
+              "munition_id": "jm117_ter3",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "gcs1",
+              "qty": 1
+            },
+            {
+              "munition_id": "jlau3",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta5",
+          "label": "5 左机身挂点（STA-5，wet）",
+          "mount_style": "side_rail",
+          "options": [
+            {
+              "munition_id": "drop_tank_600",
+              "qty": 1
+            },
+            {
+              "munition_id": "aam4",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1,
+              "label": "AIM-7M Sparrow"
+            },
+            {
+              "munition_id": "aam3",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1,
+              "label": "AIM-9L Sidewinder"
+            }
+          ]
+        },
+        {
+          "id": "sta6",
+          "label": "6 机腹中线（STA-6，wet）",
+          "mount_style": "centerline",
+          "options": [
+            {
+              "munition_id": "drop_tank_300",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "gcs1",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta7",
+          "label": "7 右机身挂点（STA-7，wet）",
+          "mount_style": "side_rail",
+          "options": [
+            {
+              "munition_id": "drop_tank_600",
+              "qty": 1
+            },
+            {
+              "munition_id": "aam4",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1,
+              "label": "AIM-7M Sparrow"
+            },
+            {
+              "munition_id": "aam3",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1,
+              "label": "AIM-9L Sidewinder"
+            }
+          ]
+        },
+        {
+          "id": "sta8",
+          "label": "8 右内侧挂点（STA-8）",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "asm1",
+              "qty": 1
+            },
+            {
+              "munition_id": "asm2",
+              "qty": 1
+            },
+            {
+              "munition_id": "drop_tank_600",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82_ter3",
+              "qty": 1
+            },
+            {
+              "munition_id": "jm117",
+              "qty": 1
+            },
+            {
+              "munition_id": "jm117_ter3",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "gcs1",
+              "qty": 1
+            },
+            {
+              "munition_id": "jlau3",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta9",
+          "label": "9 右主挂点（STA-9，in/out）",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aam3",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1,
+              "label": "AIM-9L Sidewinder"
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1,
+              "label": "AIM-7M Sparrow"
+            },
+            {
+              "munition_id": "aam4",
+              "qty": 1
+            },
+            {
+              "munition_id": "asm1",
+              "qty": 1
+            },
+            {
+              "munition_id": "asm2",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta10",
+          "label": "10 右外侧挂点（STA-10）",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aam3",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1,
+              "label": "AIM-9L Sidewinder"
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1,
+              "label": "AIM-7M Sparrow"
+            },
+            {
+              "munition_id": "aam4",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta11",
+          "label": "11 右翼尖（STA-11）",
+          "mount_style": "wing_tip",
+          "options": [
+            {
+              "munition_id": "aam3",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1,
+              "label": "AIM-9L Sidewinder"
+            }
+          ]
+        }
+      ]
     }
   }
 }
