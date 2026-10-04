@@ -69,6 +69,11 @@ def test_build_catalog_payload_modes():
     assert 'slipstream_wake_factor' in tilt_mode
     assert 'A' in payload['takeoff_config']['tiltrotor_strategy_descriptions']
     assert payload['missile_interception_config']['traj_types']['glide']
+    assert 'weapon_loadout' in payload
+    typhoon = payload['weapon_loadout']['typhoon']
+    assert typhoon['aircraft_id'] == 'Typhoon'
+    assert len(typhoon['stations']) == 10
+    assert typhoon['stations'][0]['name'] == '左翼最外侧挂点'
 
 
 def test_docs_missile_interception_page_exists_and_links():

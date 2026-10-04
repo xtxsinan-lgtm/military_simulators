@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -30278,5 +30278,1147 @@ module.exports = {
         "stage_locked": false
       }
     ]
+  },
+  "weapon_loadout": {
+    "typhoon": {
+      "aircraft_id": "Typhoon",
+      "aircraft_name": "台风",
+      "external_station_count": 13,
+      "semi_recessed_physical_count": 4,
+      "layout_note": "挂点编号按图表从左至右；最左侧为左翼最外侧。4 号与 6 号半埋挂点各含两个物理站位，合计 13 个外挂位加内置航炮。",
+      "category_labels": {
+        "a2a": "空对空导弹",
+        "pgm": "精确制导/巡航/反辐射弹药",
+        "battlefield": "战场/反装甲弹药",
+        "asm": "反舰导弹",
+        "aux": "辅助设备",
+        "fixed": "内置固定武器"
+      },
+      "weapons": [
+        {
+          "id": "amraam",
+          "name": "AMRAAM",
+          "category": "a2a",
+          "mass_kg": 152.0,
+          "length_m": 3.66,
+          "diameter_m": 0.178,
+          "notes": "AIM-120 量级"
+        },
+        {
+          "id": "bvraam",
+          "name": "BVRAAM",
+          "category": "a2a",
+          "mass_kg": 190.0,
+          "length_m": 3.65,
+          "diameter_m": 0.178,
+          "notes": "Meteor 量级"
+        },
+        {
+          "id": "aim9",
+          "name": "AIM-9",
+          "category": "a2a",
+          "mass_kg": 85.0,
+          "length_m": 2.87,
+          "diameter_m": 0.127,
+          "notes": "Sidewinder 量级"
+        },
+        {
+          "id": "asraam",
+          "name": "ASRAAM",
+          "category": "a2a",
+          "mass_kg": 88.0,
+          "length_m": 2.9,
+          "diameter_m": 0.166,
+          "notes": "先进近距空空弹"
+        },
+        {
+          "id": "iris_t",
+          "name": "IRIS-T",
+          "category": "a2a",
+          "mass_kg": 87.0,
+          "length_m": 2.94,
+          "diameter_m": 0.127,
+          "notes": "德国近距空空弹"
+        },
+        {
+          "id": "sky_flash",
+          "name": "SKY FLASH",
+          "category": "a2a",
+          "mass_kg": 193.0,
+          "length_m": 3.68,
+          "diameter_m": 0.203,
+          "notes": "半主动雷达中距弹"
+        },
+        {
+          "id": "aspide",
+          "name": "ASPIDE",
+          "category": "a2a",
+          "mass_kg": 220.0,
+          "length_m": 3.7,
+          "diameter_m": 0.203,
+          "notes": "意制中距弹"
+        },
+        {
+          "id": "lgb",
+          "name": "LGB",
+          "category": "pgm",
+          "mass_kg": 250.0,
+          "length_m": 3.3,
+          "diameter_m": 0.356,
+          "notes": "Paveway II 量级激光制导炸弹"
+        },
+        {
+          "id": "jdam",
+          "name": "JDAM",
+          "category": "pgm",
+          "mass_kg": 450.0,
+          "length_m": 3.0,
+          "diameter_m": 0.37,
+          "notes": "GBU-31 量级"
+        },
+        {
+          "id": "alarm",
+          "name": "ALARM",
+          "category": "pgm",
+          "mass_kg": 268.0,
+          "length_m": 4.24,
+          "diameter_m": 0.23,
+          "notes": "反辐射导弹"
+        },
+        {
+          "id": "harm",
+          "name": "HARM",
+          "category": "pgm",
+          "mass_kg": 360.0,
+          "length_m": 4.17,
+          "diameter_m": 0.254,
+          "notes": "AGM-88 量级"
+        },
+        {
+          "id": "storm_shadow",
+          "name": "STORM SHADOW",
+          "category": "pgm",
+          "mass_kg": 1300.0,
+          "length_m": 5.1,
+          "diameter_m": 0.63,
+          "notes": "巡航导弹"
+        },
+        {
+          "id": "taurus",
+          "name": "TAURUS",
+          "category": "pgm",
+          "mass_kg": 1400.0,
+          "length_m": 5.0,
+          "diameter_m": 0.68,
+          "notes": "德制巡航导弹"
+        },
+        {
+          "id": "brimstone",
+          "name": "BRIMSTONE",
+          "category": "battlefield",
+          "mass_kg": 50.0,
+          "length_m": 1.8,
+          "diameter_m": 0.18,
+          "notes": "反装甲导弹"
+        },
+        {
+          "id": "bl755",
+          "name": "BL-755",
+          "category": "battlefield",
+          "mass_kg": 277.0,
+          "length_m": 2.9,
+          "diameter_m": 0.4,
+          "notes": "集束炸弹"
+        },
+        {
+          "id": "dws39",
+          "name": "DWS-39",
+          "category": "battlefield",
+          "mass_kg": 600.0,
+          "length_m": 3.5,
+          "diameter_m": 0.45,
+          "notes": "MJDM 反跑道/区域弹药"
+        },
+        {
+          "id": "harpoon",
+          "name": "HARPOON",
+          "category": "asm",
+          "mass_kg": 691.0,
+          "length_m": 4.63,
+          "diameter_m": 0.343,
+          "notes": "反舰导弹"
+        },
+        {
+          "id": "penguin",
+          "name": "PENGUIN",
+          "category": "asm",
+          "mass_kg": 370.0,
+          "length_m": 3.0,
+          "diameter_m": 0.28,
+          "notes": "挪威反舰导弹"
+        },
+        {
+          "id": "fuel",
+          "name": "FUEL",
+          "category": "aux",
+          "mass_kg": 1200.0,
+          "length_m": 5.4,
+          "diameter_m": 0.42,
+          "notes": "1000 L 级副油箱"
+        },
+        {
+          "id": "bk27",
+          "name": "BK-27",
+          "category": "fixed",
+          "mass_kg": 87.0,
+          "length_m": 1.8,
+          "diameter_m": 0.17,
+          "notes": "27 mm 内置航炮"
+        }
+      ],
+      "stations": [
+        {
+          "id": 1,
+          "name": "左翼最外侧挂点",
+          "mount": "pylon",
+          "position_index": 1,
+          "stores": [
+            {
+              "weapon_id": "amraam",
+              "name": "AMRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 152.0
+            },
+            {
+              "weapon_id": "bvraam",
+              "name": "BVRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 190.0
+            },
+            {
+              "weapon_id": "aim9",
+              "name": "AIM-9",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 85.0
+            },
+            {
+              "weapon_id": "asraam",
+              "name": "ASRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 88.0
+            },
+            {
+              "weapon_id": "iris_t",
+              "name": "IRIS-T",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 87.0
+            },
+            {
+              "weapon_id": "lgb",
+              "name": "LGB",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 250.0
+            },
+            {
+              "weapon_id": "jdam",
+              "name": "JDAM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 450.0
+            },
+            {
+              "weapon_id": "alarm",
+              "name": "ALARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 268.0
+            },
+            {
+              "weapon_id": "harm",
+              "name": "HARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 360.0
+            },
+            {
+              "weapon_id": "brimstone",
+              "name": "BRIMSTONE",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "bl755",
+              "name": "BL-755",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 277.0
+            },
+            {
+              "weapon_id": "dws39",
+              "name": "DWS-39",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "harpoon",
+              "name": "HARPOON",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 691.0
+            },
+            {
+              "weapon_id": "penguin",
+              "name": "PENGUIN",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 370.0
+            }
+          ],
+          "notes": "图表从左至右第 1 位"
+        },
+        {
+          "id": 2,
+          "name": "左翼次外侧挂点",
+          "mount": "pylon",
+          "position_index": 2,
+          "stores": [
+            {
+              "weapon_id": "amraam",
+              "name": "AMRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 152.0
+            },
+            {
+              "weapon_id": "bvraam",
+              "name": "BVRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 190.0
+            },
+            {
+              "weapon_id": "aim9",
+              "name": "AIM-9",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 85.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "asraam",
+              "name": "ASRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 88.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "iris_t",
+              "name": "IRIS-T",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 87.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "lgb",
+              "name": "LGB",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 250.0
+            },
+            {
+              "weapon_id": "storm_shadow",
+              "name": "STORM SHADOW",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1300.0
+            },
+            {
+              "weapon_id": "taurus",
+              "name": "TAURUS",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1400.0
+            },
+            {
+              "weapon_id": "jdam",
+              "name": "JDAM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 450.0
+            },
+            {
+              "weapon_id": "alarm",
+              "name": "ALARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 268.0
+            },
+            {
+              "weapon_id": "harm",
+              "name": "HARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 360.0
+            },
+            {
+              "weapon_id": "brimstone",
+              "name": "BRIMSTONE",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "bl755",
+              "name": "BL-755",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 277.0
+            },
+            {
+              "weapon_id": "dws39",
+              "name": "DWS-39",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "harpoon",
+              "name": "HARPOON",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 691.0
+            },
+            {
+              "weapon_id": "penguin",
+              "name": "PENGUIN",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 370.0
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "左翼内侧挂点",
+          "mount": "pylon",
+          "position_index": 3,
+          "stores": [
+            {
+              "weapon_id": "aim9",
+              "name": "AIM-9",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 85.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "asraam",
+              "name": "ASRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 88.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "iris_t",
+              "name": "IRIS-T",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 87.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "lgb",
+              "name": "LGB",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 2,
+              "mass_kg": 250.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "storm_shadow",
+              "name": "STORM SHADOW",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1300.0
+            },
+            {
+              "weapon_id": "taurus",
+              "name": "TAURUS",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1400.0
+            },
+            {
+              "weapon_id": "jdam",
+              "name": "JDAM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 2,
+              "mass_kg": 450.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "alarm",
+              "name": "ALARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 268.0
+            },
+            {
+              "weapon_id": "harm",
+              "name": "HARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 360.0
+            },
+            {
+              "weapon_id": "brimstone",
+              "name": "BRIMSTONE",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "bl755",
+              "name": "BL-755",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 2,
+              "mass_kg": 277.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "dws39",
+              "name": "DWS-39",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "harpoon",
+              "name": "HARPOON",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 691.0
+            },
+            {
+              "weapon_id": "penguin",
+              "name": "PENGUIN",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 370.0
+            },
+            {
+              "weapon_id": "fuel",
+              "name": "FUEL",
+              "category": "aux",
+              "category_label": "辅助设备",
+              "max_qty": 1,
+              "mass_kg": 1200.0,
+              "notes": "外挂副油箱"
+            }
+          ],
+          "notes": "可挂副油箱"
+        },
+        {
+          "id": 4,
+          "name": "机腹前左/后左半埋挂点",
+          "mount": "semi_recessed",
+          "position_index": 4,
+          "stores": [
+            {
+              "weapon_id": "amraam",
+              "name": "AMRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 152.0
+            },
+            {
+              "weapon_id": "bvraam",
+              "name": "BVRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 190.0
+            },
+            {
+              "weapon_id": "sky_flash",
+              "name": "SKY FLASH",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 193.0
+            },
+            {
+              "weapon_id": "aspide",
+              "name": "ASPIDE",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 220.0
+            }
+          ],
+          "notes": "半埋中距弹；含前左与后左两个物理站位"
+        },
+        {
+          "id": 5,
+          "name": "机腹中心挂点",
+          "mount": "centerline",
+          "position_index": 5,
+          "stores": [
+            {
+              "weapon_id": "lgb",
+              "name": "LGB",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 250.0
+            },
+            {
+              "weapon_id": "storm_shadow",
+              "name": "STORM SHADOW",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1300.0
+            },
+            {
+              "weapon_id": "taurus",
+              "name": "TAURUS",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1400.0
+            },
+            {
+              "weapon_id": "jdam",
+              "name": "JDAM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 450.0
+            },
+            {
+              "weapon_id": "fuel",
+              "name": "FUEL",
+              "category": "aux",
+              "category_label": "辅助设备",
+              "max_qty": 1,
+              "mass_kg": 1200.0,
+              "notes": "外挂副油箱"
+            }
+          ],
+          "notes": "可挂副油箱"
+        },
+        {
+          "id": 6,
+          "name": "机腹前右/后右半埋挂点",
+          "mount": "semi_recessed",
+          "position_index": 6,
+          "stores": [
+            {
+              "weapon_id": "amraam",
+              "name": "AMRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 152.0
+            },
+            {
+              "weapon_id": "bvraam",
+              "name": "BVRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 190.0
+            },
+            {
+              "weapon_id": "sky_flash",
+              "name": "SKY FLASH",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 193.0
+            },
+            {
+              "weapon_id": "aspide",
+              "name": "ASPIDE",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 220.0
+            }
+          ],
+          "notes": "半埋中距弹；含前右与后右两个物理站位"
+        },
+        {
+          "id": 7,
+          "name": "右翼内侧挂点",
+          "mount": "pylon",
+          "position_index": 7,
+          "stores": [
+            {
+              "weapon_id": "aim9",
+              "name": "AIM-9",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 85.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "asraam",
+              "name": "ASRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 88.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "iris_t",
+              "name": "IRIS-T",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 87.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "lgb",
+              "name": "LGB",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 2,
+              "mass_kg": 250.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "storm_shadow",
+              "name": "STORM SHADOW",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1300.0
+            },
+            {
+              "weapon_id": "taurus",
+              "name": "TAURUS",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1400.0
+            },
+            {
+              "weapon_id": "jdam",
+              "name": "JDAM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 2,
+              "mass_kg": 450.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "alarm",
+              "name": "ALARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 268.0
+            },
+            {
+              "weapon_id": "harm",
+              "name": "HARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 360.0
+            },
+            {
+              "weapon_id": "brimstone",
+              "name": "BRIMSTONE",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "bl755",
+              "name": "BL-755",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 2,
+              "mass_kg": 277.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "dws39",
+              "name": "DWS-39",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "harpoon",
+              "name": "HARPOON",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 691.0
+            },
+            {
+              "weapon_id": "penguin",
+              "name": "PENGUIN",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 370.0
+            },
+            {
+              "weapon_id": "fuel",
+              "name": "FUEL",
+              "category": "aux",
+              "category_label": "辅助设备",
+              "max_qty": 1,
+              "mass_kg": 1200.0,
+              "notes": "外挂副油箱"
+            }
+          ],
+          "notes": "可挂副油箱"
+        },
+        {
+          "id": 8,
+          "name": "右翼次外侧挂点",
+          "mount": "pylon",
+          "position_index": 8,
+          "stores": [
+            {
+              "weapon_id": "amraam",
+              "name": "AMRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 152.0
+            },
+            {
+              "weapon_id": "bvraam",
+              "name": "BVRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 190.0
+            },
+            {
+              "weapon_id": "aim9",
+              "name": "AIM-9",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 85.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "asraam",
+              "name": "ASRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 88.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "iris_t",
+              "name": "IRIS-T",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 2,
+              "mass_kg": 87.0,
+              "notes": "双联装"
+            },
+            {
+              "weapon_id": "lgb",
+              "name": "LGB",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 250.0
+            },
+            {
+              "weapon_id": "storm_shadow",
+              "name": "STORM SHADOW",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1300.0
+            },
+            {
+              "weapon_id": "taurus",
+              "name": "TAURUS",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 1400.0
+            },
+            {
+              "weapon_id": "jdam",
+              "name": "JDAM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 450.0
+            },
+            {
+              "weapon_id": "alarm",
+              "name": "ALARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 268.0
+            },
+            {
+              "weapon_id": "harm",
+              "name": "HARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 360.0
+            },
+            {
+              "weapon_id": "brimstone",
+              "name": "BRIMSTONE",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "bl755",
+              "name": "BL-755",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 277.0
+            },
+            {
+              "weapon_id": "dws39",
+              "name": "DWS-39",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "harpoon",
+              "name": "HARPOON",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 691.0
+            },
+            {
+              "weapon_id": "penguin",
+              "name": "PENGUIN",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 370.0
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "name": "右翼最外侧挂点",
+          "mount": "pylon",
+          "position_index": 9,
+          "stores": [
+            {
+              "weapon_id": "amraam",
+              "name": "AMRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 152.0
+            },
+            {
+              "weapon_id": "bvraam",
+              "name": "BVRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 190.0
+            },
+            {
+              "weapon_id": "aim9",
+              "name": "AIM-9",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 85.0
+            },
+            {
+              "weapon_id": "asraam",
+              "name": "ASRAAM",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 88.0
+            },
+            {
+              "weapon_id": "iris_t",
+              "name": "IRIS-T",
+              "category": "a2a",
+              "category_label": "空对空导弹",
+              "max_qty": 1,
+              "mass_kg": 87.0
+            },
+            {
+              "weapon_id": "lgb",
+              "name": "LGB",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 250.0
+            },
+            {
+              "weapon_id": "jdam",
+              "name": "JDAM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 450.0
+            },
+            {
+              "weapon_id": "alarm",
+              "name": "ALARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 268.0
+            },
+            {
+              "weapon_id": "harm",
+              "name": "HARM",
+              "category": "pgm",
+              "category_label": "精确制导/巡航/反辐射弹药",
+              "max_qty": 1,
+              "mass_kg": 360.0
+            },
+            {
+              "weapon_id": "brimstone",
+              "name": "BRIMSTONE",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "bl755",
+              "name": "BL-755",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 277.0
+            },
+            {
+              "weapon_id": "dws39",
+              "name": "DWS-39",
+              "category": "battlefield",
+              "category_label": "战场/反装甲弹药",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "harpoon",
+              "name": "HARPOON",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 691.0
+            },
+            {
+              "weapon_id": "penguin",
+              "name": "PENGUIN",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 370.0
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "name": "内置固定武器",
+          "mount": "fixed",
+          "position_index": 10,
+          "stores": [
+            {
+              "weapon_id": "bk27",
+              "name": "BK-27",
+              "category": "fixed",
+              "category_label": "内置固定武器",
+              "max_qty": 1,
+              "mass_kg": 87.0,
+              "notes": "27 mm 内置航炮"
+            }
+          ],
+          "notes": "BK-27 航炮"
+        }
+      ]
+    }
   }
 };

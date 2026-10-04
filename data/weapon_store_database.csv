@@ -1,0 +1,21 @@
+id,name,category,mass_kg,length_m,diameter_m,notes
+amraam,AMRAAM,a2a,152,3.66,0.178,AIM-120 量级
+bvraam,BVRAAM,a2a,190,3.65,0.178,Meteor 量级
+aim9,AIM-9,a2a,85,2.87,0.127,Sidewinder 量级
+asraam,ASRAAM,a2a,88,2.90,0.166,先进近距空空弹
+iris_t,IRIS-T,a2a,87,2.94,0.127,德国近距空空弹
+sky_flash,SKY FLASH,a2a,193,3.68,0.203,半主动雷达中距弹
+aspide,ASPIDE,a2a,220,3.70,0.203,意制中距弹
+lgb,LGB,pgm,250,3.30,0.356,Paveway II 量级激光制导炸弹
+jdam,JDAM,pgm,450,3.00,0.370,GBU-31 量级
+alarm,ALARM,pgm,268,4.24,0.230,反辐射导弹
+harm,HARM,pgm,360,4.17,0.254,AGM-88 量级
+storm_shadow,STORM SHADOW,pgm,1300,5.10,0.630,巡航导弹
+taurus,TAURUS,pgm,1400,5.00,0.680,德制巡航导弹
+brimstone,BRIMSTONE,battlefield,50,1.80,0.180,反装甲导弹
+bl755,BL-755,battlefield,277,2.90,0.400,集束炸弹
+dws39,DWS-39,battlefield,600,3.50,0.450,MJDM 反跑道/区域弹药
+harpoon,HARPOON,asm,691,4.63,0.343,反舰导弹
+penguin,PENGUIN,asm,370,3.00,0.280,挪威反舰导弹
+fuel,FUEL,aux,1200,5.40,0.420,1000 L 级副油箱
+bk27,BK-27,fixed,87,1.80,0.170,27 mm 内置航炮
