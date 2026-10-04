@@ -237,6 +237,23 @@ STORE_WAVE_SS_K = 8.0
 
 
 @dataclass
+class StoreSpec:
+    """单站同型外挂几何；有 store_specs 时按件计 CDs，不再假定 AIM-120。"""
+
+    length_m: float
+    diameter_m: float
+    count: float = 1.0
+    mount: StoreMountId = 'pylon'
+    pylon_wetted_m2: float = STORE_PYLON_WETTED_M2
+    pylon_front_m2: float = STORE_PYLON_FRONT_M2
+    exposed_frac: float = -1.0  # <0 表示用 mount 默认
+    interf: float = -1.0
+    front_frac: float = -1.0
+    station_id: str = ''
+    munition_id: str = ''
+
+
+@dataclass
 class Aircraft:
     """升阻比估算用的机翼/布局几何参数。"""
 
@@ -274,6 +291,7 @@ class Aircraft:
     sweep_kink_span_frac: float = 0.0  # 折点半展站位 (0,1)；0 表示由几何反解
     store_mount: StoreMountId = 'internal'  # 中距弹挂装：内埋 / 半埋 / 挂架
     n_stores: float = 0.0  # 计入气动阻力的中距弹枚数；起飞估算保持 0
+    store_specs: tuple[StoreSpec, ...] = ()  # 非空时按各站几何计 CDs
 
 
 def _as_bool(value: Any, default: bool = False) -> bool:
@@ -390,26 +408,104 @@ def store_one_front_m2(mount: str) -> float:
     return front
 
 
-def cd_store_parasite(ac: Aircraft) -> float:
-    """外挂寄生阻力系数（摩擦+型阻）；内埋或未给参考翼面积时为 0。"""
-    n = ac.n_stores
-    s_ref = ac.wing_area_m2
-    if n <= 0 or s_ref <= 0 or ac.store_mount == 'internal':
+def _store_spec_exposed_frac(spec: StoreSpec) -> float:
+    """外挂件外露侧面积比例。"""
+    if spec.exposed_frac >= 0:
+        return spec.exposed_frac
+    return STORE_EXPOSED_FRAC[spec.mount]
+
+
+def _store_spec_interf(spec: StoreSpec) -> float:
+    """外挂件干扰因子。"""
+    if spec.interf >= 0:
+        return spec.interf
+    return STORE_INTERF[spec.mount]
+
+
+def _store_spec_front_frac(spec: StoreSpec) -> float:
+    """外挂件迎风面积比例。"""
+    if spec.front_frac >= 0:
+        return spec.front_frac
+    return STORE_FRONT_FRAC[spec.mount]
+
+
+def store_spec_wetted_m2(spec: StoreSpec) -> float:
+    """一件（可含 count 枚）外挂的总外露浸润面积。"""
+    if spec.mount == 'internal' or spec.count <= 0:
         return 0.0
-    s_wet = n * store_one_wetted_m2(ac.store_mount)
-    s_front = n * store_one_front_m2(ac.store_mount)
+    if spec.length_m <= 0 or spec.diameter_m <= 0:
+        raise ValueError('外挂长径须为正')
+    cyl = math.pi * spec.diameter_m * spec.length_m
+    one = (
+        _store_spec_exposed_frac(spec) * _store_spec_interf(spec) * cyl
+        + max(spec.pylon_wetted_m2, 0.0)
+    )
+    return one * float(spec.count)
+
+
+def store_spec_front_m2(spec: StoreSpec) -> float:
+    """一件（可含 count 枚）外挂的总外露迎风面积。"""
+    if spec.mount == 'internal' or spec.count <= 0:
+        return 0.0
+    if spec.diameter_m <= 0:
+        raise ValueError('外挂直径须为正')
+    body = math.pi * (spec.diameter_m / 2.0) ** 2
+    one = _store_spec_front_frac(spec) * body + max(spec.pylon_front_m2, 0.0)
+    if spec.mount == 'semi_recessed' and spec.pylon_front_m2 < 0:
+        one += STORE_CAVITY_FRONT_M2
+    return one * float(spec.count)
+
+
+def iter_store_specs(ac: Aircraft) -> tuple[StoreSpec, ...]:
+    """有效外挂几何：显式 store_specs 优先，否则回退 n_stores×中距弹。"""
+    if ac.store_specs:
+        return tuple(ac.store_specs)
+    if ac.n_stores <= 0 or ac.store_mount == 'internal':
+        return ()
+    return (
+        StoreSpec(
+            length_m=STORE_LENGTH_M,
+            diameter_m=STORE_DIAMETER_M,
+            count=float(ac.n_stores),
+            mount=ac.store_mount,
+        ),
+    )
+
+
+def store_total_wetted_m2(ac: Aircraft) -> float:
+    """全机外挂浸润面积合计。"""
+    return sum(store_spec_wetted_m2(s) for s in iter_store_specs(ac))
+
+
+def store_total_front_m2(ac: Aircraft) -> float:
+    """全机外挂迎风面积合计。"""
+    return sum(store_spec_front_m2(s) for s in iter_store_specs(ac))
+
+
+def cd_store_parasite(ac: Aircraft) -> float:
+    """外挂寄生阻力系数（摩擦+型阻）；无外挂或未给参考翼面积时为 0。"""
+    s_ref = ac.wing_area_m2
+    if s_ref <= 0:
+        return 0.0
+    specs = iter_store_specs(ac)
+    if not specs:
+        return 0.0
+    s_wet = store_total_wetted_m2(ac)
+    s_front = store_total_front_m2(ac)
     return (STORE_CF * s_wet + STORE_FORM_CD * s_front) / s_ref
 
 
 def cd_store_wave(ac: Aircraft) -> float:
-    """外挂跨声速鼓包与超音速体积波阻；内埋为 0。"""
-    n = ac.n_stores
+    """外挂跨声速鼓包与超音速体积波阻；无外挂为 0。"""
     s_ref = ac.wing_area_m2
-    if n <= 0 or s_ref <= 0 or ac.store_mount == 'internal':
+    if s_ref <= 0:
+        return 0.0
+    specs = iter_store_specs(ac)
+    if not specs:
         return 0.0
     if ac.mach <= 0:
         raise ValueError('马赫数须为正')
-    ratio = n * store_one_front_m2(ac.store_mount) / s_ref
+    ratio = store_total_front_m2(ac) / s_ref
     trans = STORE_WAVE_TRANS_K * ratio * transonic_gaussian(ac.mach)
     ss = 0.0
     if ac.mach > 1.0:
@@ -418,8 +514,38 @@ def cd_store_wave(ac: Aircraft) -> float:
 
 
 def cd_store(ac: Aircraft) -> float:
-    """n_stores 枚中距弹的总外挂阻力系数 CDs。"""
+    """外挂总阻力系数 CDs（显式几何或 n_stores 枚中距弹）。"""
     return cd_store_parasite(ac) + cd_store_wave(ac)
+
+
+def _store_specs_from_dict(value: Any) -> tuple[StoreSpec, ...]:
+    """解析 store_specs 列表；空值视为无显式几何。"""
+    if value is None or value == '' or value == ():
+        return ()
+    if not isinstance(value, (list, tuple)):
+        raise ValueError('store_specs 须为列表')
+    out: list[StoreSpec] = []
+    for item in value:
+        if isinstance(item, StoreSpec):
+            out.append(item)
+            continue
+        if not isinstance(item, dict):
+            raise ValueError('store_specs 项须为对象')
+        mount = parse_store_mount(item.get('mount') or 'pylon')
+        out.append(StoreSpec(
+            length_m=float(item['length_m']),
+            diameter_m=float(item['diameter_m']),
+            count=_n_stores_from_dict(item.get('count') if item.get('count') not in (None, '') else 1.0),
+            mount=mount,
+            pylon_wetted_m2=float(item['pylon_wetted_m2']) if item.get('pylon_wetted_m2') not in (None, '') else STORE_PYLON_WETTED_M2,
+            pylon_front_m2=float(item['pylon_front_m2']) if item.get('pylon_front_m2') not in (None, '') else STORE_PYLON_FRONT_M2,
+            exposed_frac=float(item['exposed_frac']) if item.get('exposed_frac') not in (None, '') else -1.0,
+            interf=float(item['interf']) if item.get('interf') not in (None, '') else -1.0,
+            front_frac=float(item['front_frac']) if item.get('front_frac') not in (None, '') else -1.0,
+            station_id=str(item.get('station_id') or ''),
+            munition_id=str(item.get('munition_id') or ''),
+        ))
+    return tuple(out)
 
 
 def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
@@ -469,6 +595,7 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
         sweep_kink_span_frac=_optional_positive_float(data.get('sweep_kink_span_frac')),
         store_mount=parse_store_mount(data.get('store_mount')),
         n_stores=_n_stores_from_dict(data.get('n_stores')),
+        store_specs=_store_specs_from_dict(data.get('store_specs')),
     )
 
 
