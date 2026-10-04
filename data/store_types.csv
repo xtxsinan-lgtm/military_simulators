@@ -1,0 +1,7 @@
+id,name,mass_kg,length_m,diameter_m,store_mount,drag_weight,notes
+aim-9,AIM-9 Sidewinder,85,2.87,0.127,pylon,0.4,近距红外格斗弹
+aim-7,AIM-7 Sparrow,231,3.66,0.203,pylon,1.0,半主动雷达中距弹
+aim-54,AIM-54 Phoenix,463,3.96,0.380,pylon,2.5,主动雷达远程弹；需 Adapter & Launcher
+stub-pylon,Stub Pylon,45,0.60,0.15,pylon,0.1,固定短翼挂架及适配器
+tank-280,280-Gallon External Fuel Tank,1043,4.50,0.60,pylon,1.8,280 加仑副油箱（无尾翼版）
+tarps,TARPS Pod,820,4.90,0.35,pylon,1.5,战术空中侦察管道系统吊舱

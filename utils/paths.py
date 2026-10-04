@@ -22,3 +22,7 @@ COMBAT_RADIUS_RESULTS_JSON = DATA_DIR / 'combat_radius_results.json'
 MUNITIONS_CSV = DATA_DIR / 'munitions_database.csv'
 AIRCRAFT_STATIONS_JSON = DATA_DIR / 'aircraft_stations_database.json'
 SURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'
+# 飞机外挂/挂点模型
+STORE_TYPES_CSV = DATA_DIR / 'store_types.csv'
+AIRCRAFT_STORE_LAYOUTS_CSV = DATA_DIR / 'aircraft_store_layouts.csv'
+AIRCRAFT_LOADOUT_PRESETS_CSV = DATA_DIR / 'aircraft_loadout_presets.csv'
