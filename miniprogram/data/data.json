@@ -1,5 +1,5 @@
 {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -30825,6 +30825,692 @@
         "burn_time_s": 21.0,
         "extra_gravity_m_s": 0.0,
         "stage_locked": false
+      }
+    ]
+  },
+  "aircraft_loadout": {
+    "stores": [
+      {
+        "id": "AIM-120B",
+        "name": "AIM-120B AMRAAM",
+        "category": "aam",
+        "mass_kg": 151.0,
+        "length_m": 3.66,
+        "diameter_m": 0.178,
+        "store_mount": "pylon",
+        "notes": "中距空空导弹"
+      },
+      {
+        "id": "AIM-120C-5",
+        "name": "AIM-120C-5 AMRAAM",
+        "category": "aam",
+        "mass_kg": 152.0,
+        "length_m": 3.66,
+        "diameter_m": 0.178,
+        "store_mount": "pylon",
+        "notes": "中距空空导弹 Block 50 常用型"
+      },
+      {
+        "id": "AIM-9L",
+        "name": "AIM-9L Sidewinder",
+        "category": "aam",
+        "mass_kg": 86.0,
+        "length_m": 2.87,
+        "diameter_m": 0.127,
+        "store_mount": "pylon",
+        "notes": "近距空空导弹"
+      },
+      {
+        "id": "AIM-9M",
+        "name": "AIM-9M Sidewinder",
+        "category": "aam",
+        "mass_kg": 86.0,
+        "length_m": 2.87,
+        "diameter_m": 0.127,
+        "store_mount": "pylon",
+        "notes": "近距空空导弹"
+      },
+      {
+        "id": "AIM-9X",
+        "name": "AIM-9X Sidewinder",
+        "category": "aam",
+        "mass_kg": 85.0,
+        "length_m": 2.87,
+        "diameter_m": 0.127,
+        "store_mount": "pylon",
+        "notes": "近距空空导弹"
+      },
+      {
+        "id": "AGM-88C",
+        "name": "AGM-88C HARM",
+        "category": "arm",
+        "mass_kg": 361.0,
+        "length_m": 4.17,
+        "diameter_m": 0.254,
+        "store_mount": "pylon",
+        "notes": "反辐射导弹"
+      },
+      {
+        "id": "AGM-65D",
+        "name": "AGM-65D Maverick",
+        "category": "agm",
+        "mass_kg": 220.0,
+        "length_m": 2.49,
+        "diameter_m": 0.305,
+        "store_mount": "pylon",
+        "notes": "电视制导空对地导弹"
+      },
+      {
+        "id": "AGM-65G",
+        "name": "AGM-65G Maverick",
+        "category": "agm",
+        "mass_kg": 210.0,
+        "length_m": 2.49,
+        "diameter_m": 0.305,
+        "store_mount": "pylon",
+        "notes": "红外制导空对地导弹"
+      },
+      {
+        "id": "AGM-65H",
+        "name": "AGM-65H Maverick",
+        "category": "agm",
+        "mass_kg": 210.0,
+        "length_m": 2.49,
+        "diameter_m": 0.305,
+        "store_mount": "pylon",
+        "notes": "红外制导空对地导弹"
+      },
+      {
+        "id": "AGM-65K",
+        "name": "AGM-65K Maverick",
+        "category": "agm",
+        "mass_kg": 220.0,
+        "length_m": 2.49,
+        "diameter_m": 0.305,
+        "store_mount": "pylon",
+        "notes": "电视制导空对地导弹"
+      },
+      {
+        "id": "AGM-154A",
+        "name": "AGM-154A JSOW",
+        "category": "agm",
+        "mass_kg": 483.0,
+        "length_m": 4.1,
+        "diameter_m": 0.33,
+        "store_mount": "pylon",
+        "notes": "联合防区外武器"
+      },
+      {
+        "id": "CBU-103",
+        "name": "CBU-103 WCMD",
+        "category": "cluster",
+        "mass_kg": 431.0,
+        "length_m": 2.34,
+        "diameter_m": 0.406,
+        "store_mount": "pylon",
+        "notes": "风修正弹药散布器"
+      },
+      {
+        "id": "CBU-105",
+        "name": "CBU-105 WCMD",
+        "category": "cluster",
+        "mass_kg": 431.0,
+        "length_m": 2.34,
+        "diameter_m": 0.406,
+        "store_mount": "pylon",
+        "notes": "风修正弹药散布器"
+      },
+      {
+        "id": "CBU-87-2x",
+        "name": "CBU-87 (2×)",
+        "category": "cluster",
+        "mass_kg": 454.0,
+        "length_m": 2.34,
+        "diameter_m": 0.406,
+        "store_mount": "pylon",
+        "notes": "集束炸弹双联挂"
+      },
+      {
+        "id": "CBU-87-3x",
+        "name": "CBU-87 (3×)",
+        "category": "cluster",
+        "mass_kg": 681.0,
+        "length_m": 2.34,
+        "diameter_m": 0.406,
+        "store_mount": "pylon",
+        "notes": "集束炸弹三联挂"
+      },
+      {
+        "id": "CBU-97-2x",
+        "name": "CBU-97 (2×)",
+        "category": "cluster",
+        "mass_kg": 454.0,
+        "length_m": 2.34,
+        "diameter_m": 0.406,
+        "store_mount": "pylon",
+        "notes": "传感器引信武器双联挂"
+      },
+      {
+        "id": "CBU-97-3x",
+        "name": "CBU-97 (3×)",
+        "category": "cluster",
+        "mass_kg": 681.0,
+        "length_m": 2.34,
+        "diameter_m": 0.406,
+        "store_mount": "pylon",
+        "notes": "传感器引信武器三联挂"
+      },
+      {
+        "id": "GBU-10",
+        "name": "GBU-10 Paveway II",
+        "category": "guided_bomb",
+        "mass_kg": 907.0,
+        "length_m": 4.32,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "notes": "激光制导炸弹 2000 lb 级"
+      },
+      {
+        "id": "GBU-12",
+        "name": "GBU-12 Paveway II",
+        "category": "guided_bomb",
+        "mass_kg": 230.0,
+        "length_m": 3.27,
+        "diameter_m": 0.273,
+        "store_mount": "pylon",
+        "notes": "激光制导炸弹 500 lb 级"
+      },
+      {
+        "id": "GBU-24",
+        "name": "GBU-24 Paveway III",
+        "category": "guided_bomb",
+        "mass_kg": 1086.0,
+        "length_m": 4.39,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "notes": "激光制导炸弹 2000 lb 级"
+      },
+      {
+        "id": "GBU-31V1B",
+        "name": "GBU-31(V)1/B JDAM",
+        "category": "jdam",
+        "mass_kg": 925.0,
+        "length_m": 3.89,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "notes": "GPS 制导 2000 lb 级"
+      },
+      {
+        "id": "GBU-31V3B",
+        "name": "GBU-31(V)3/B JDAM",
+        "category": "jdam",
+        "mass_kg": 925.0,
+        "length_m": 3.89,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "notes": "GPS 制导 2000 lb 级 BLU-109 穿透型"
+      },
+      {
+        "id": "GBU-38",
+        "name": "GBU-38 JDAM",
+        "category": "jdam",
+        "mass_kg": 241.0,
+        "length_m": 2.35,
+        "diameter_m": 0.273,
+        "store_mount": "pylon",
+        "notes": "GPS 制导 500 lb 级"
+      },
+      {
+        "id": "Mk-82",
+        "name": "Mk-82 500 lb",
+        "category": "bomb",
+        "mass_kg": 227.0,
+        "length_m": 2.22,
+        "diameter_m": 0.273,
+        "store_mount": "pylon",
+        "notes": "常规无制导炸弹"
+      },
+      {
+        "id": "Mk-82-3x",
+        "name": "Mk-82 (3×)",
+        "category": "bomb",
+        "mass_kg": 681.0,
+        "length_m": 2.22,
+        "diameter_m": 0.273,
+        "store_mount": "pylon",
+        "notes": "常规炸弹三联挂"
+      },
+      {
+        "id": "Mk-82-AIR",
+        "name": "Mk-82 AIR",
+        "category": "bomb",
+        "mass_kg": 227.0,
+        "length_m": 2.22,
+        "diameter_m": 0.273,
+        "store_mount": "pylon",
+        "notes": "减速炸弹"
+      },
+      {
+        "id": "Mk-82-SE",
+        "name": "Mk-82 SE",
+        "category": "bomb",
+        "mass_kg": 227.0,
+        "length_m": 2.22,
+        "diameter_m": 0.273,
+        "store_mount": "pylon",
+        "notes": "蛇眼减速炸弹"
+      },
+      {
+        "id": "Mk-84",
+        "name": "Mk-84 2000 lb",
+        "category": "bomb",
+        "mass_kg": 907.0,
+        "length_m": 3.84,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "notes": "常规无制导炸弹"
+      },
+      {
+        "id": "Mk-84-AIR",
+        "name": "Mk-84 AIR",
+        "category": "bomb",
+        "mass_kg": 907.0,
+        "length_m": 3.84,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "notes": "减速炸弹"
+      },
+      {
+        "id": "LAU-M151",
+        "name": "M151 HE 火箭发射器",
+        "category": "rocket",
+        "mass_kg": 138.0,
+        "length_m": 2.79,
+        "diameter_m": 0.254,
+        "store_mount": "pylon",
+        "notes": "19×70 mm 高爆火箭"
+      },
+      {
+        "id": "LAU-M156",
+        "name": "M156 WP 火箭发射器",
+        "category": "rocket",
+        "mass_kg": 138.0,
+        "length_m": 2.79,
+        "diameter_m": 0.254,
+        "store_mount": "pylon",
+        "notes": "19×70 mm 白磷火箭"
+      },
+      {
+        "id": "LAU-Mk5",
+        "name": "Mk5 HEAT 火箭发射器",
+        "category": "rocket",
+        "mass_kg": 138.0,
+        "length_m": 2.79,
+        "diameter_m": 0.254,
+        "store_mount": "pylon",
+        "notes": "19×70 mm 破甲火箭"
+      },
+      {
+        "id": "ALQ-184",
+        "name": "AN/ALQ-184 电子战吊舱",
+        "category": "ecm",
+        "mass_kg": 290.0,
+        "length_m": 4.57,
+        "diameter_m": 0.356,
+        "store_mount": "pylon",
+        "notes": "电子对抗吊舱"
+      },
+      {
+        "id": "ALQ-184-LONG",
+        "name": "AN/ALQ-184 LONG 电子战吊舱",
+        "category": "ecm",
+        "mass_kg": 299.0,
+        "length_m": 4.88,
+        "diameter_m": 0.356,
+        "store_mount": "pylon",
+        "notes": "加长型电子对抗吊舱"
+      },
+      {
+        "id": "ALQ-131",
+        "name": "AN/ALQ-131 电子战吊舱",
+        "category": "ecm",
+        "mass_kg": 299.0,
+        "length_m": 4.06,
+        "diameter_m": 0.356,
+        "store_mount": "pylon",
+        "notes": "电子对抗吊舱"
+      },
+      {
+        "id": "AN-AAQ-28",
+        "name": "AN/AAQ-28 Litening TGP",
+        "category": "targeting",
+        "mass_kg": 200.0,
+        "length_m": 2.21,
+        "diameter_m": 0.356,
+        "store_mount": "pylon",
+        "notes": "瞄准吊舱"
+      },
+      {
+        "id": "AN-ASQ-213",
+        "name": "AN/ASQ-213 HTS",
+        "category": "targeting",
+        "mass_kg": 190.0,
+        "length_m": 2.13,
+        "diameter_m": 0.356,
+        "store_mount": "pylon",
+        "notes": "HARM 定位吊舱"
+      },
+      {
+        "id": "AN-ASQ-T50",
+        "name": "AN/ASQ-T50 ACMI",
+        "category": "telemetry",
+        "mass_kg": 107.0,
+        "length_m": 1.52,
+        "diameter_m": 0.254,
+        "store_mount": "pylon",
+        "notes": "空战机动仪表遥测吊舱"
+      },
+      {
+        "id": "FUEL-TANK-370",
+        "name": "370 加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1270.0,
+        "length_m": 3.35,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "notes": "翼下/内侧 370 US gal 副油箱（满油）"
+      },
+      {
+        "id": "FUEL-TANK-300",
+        "name": "300 加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1030.0,
+        "length_m": 2.95,
+        "diameter_m": 0.406,
+        "store_mount": "pylon",
+        "notes": "机腹中心 300 US gal 副油箱（满油）"
+      }
+    ],
+    "store_categories": [
+      "aam",
+      "agm",
+      "arm",
+      "bomb",
+      "cluster",
+      "ecm",
+      "fuel_tank",
+      "guided_bomb",
+      "jdam",
+      "rocket",
+      "targeting",
+      "telemetry"
+    ],
+    "aircraft_stations": {
+      "F-16": [
+        {
+          "station_id": "1",
+          "block": "Block 50",
+          "position": "wingtip",
+          "position_label": "翼尖挂点 1",
+          "allowed_stores": [
+            "AIM-120B",
+            "AIM-120C-5",
+            "AIM-9L",
+            "AIM-9M",
+            "AIM-9X"
+          ],
+          "notes": "仅空对空导弹"
+        },
+        {
+          "station_id": "2",
+          "block": "Block 50",
+          "position": "wing_outer",
+          "position_label": "翼下外侧挂点 2",
+          "allowed_stores": [
+            "AIM-120B",
+            "AIM-120C-5",
+            "AIM-9L",
+            "AIM-9M",
+            "AIM-9X"
+          ],
+          "notes": "仅空对空导弹"
+        },
+        {
+          "station_id": "3",
+          "block": "Block 50",
+          "position": "wing_mid",
+          "position_label": "翼下中间挂点 3",
+          "allowed_stores": [
+            "AIM-120B",
+            "AIM-120C-5",
+            "AIM-9L",
+            "AIM-9M",
+            "AIM-9X",
+            "AGM-88C",
+            "AGM-65D",
+            "AGM-65G",
+            "AGM-65H",
+            "AGM-65K",
+            "AGM-154A",
+            "CBU-103",
+            "CBU-105",
+            "CBU-87-2x",
+            "CBU-87-3x",
+            "CBU-97-2x",
+            "CBU-97-3x",
+            "GBU-10",
+            "GBU-12",
+            "GBU-24",
+            "GBU-31V1B",
+            "GBU-31V3B",
+            "GBU-38",
+            "Mk-82",
+            "Mk-82-3x",
+            "Mk-82-AIR",
+            "Mk-82-SE",
+            "Mk-84",
+            "Mk-84-AIR",
+            "LAU-M151",
+            "LAU-M156",
+            "LAU-Mk5",
+            "ALQ-184",
+            "ALQ-184-LONG",
+            "ALQ-131",
+            "AN-ASQ-T50",
+            "FUEL-TANK-370"
+          ],
+          "notes": "支持最广泛的空对空/空对地弹药及副油箱"
+        },
+        {
+          "station_id": "4",
+          "block": "Block 50",
+          "position": "wing_inboard",
+          "position_label": "翼下内侧挂点 4",
+          "allowed_stores": [
+            "CBU-87-3x",
+            "CBU-97-3x",
+            "FUEL-TANK-370"
+          ],
+          "notes": "重型集束炸弹、副油箱"
+        },
+        {
+          "station_id": "5",
+          "block": "Block 50",
+          "position": "fuselage_center",
+          "position_label": "机腹中心挂点 5",
+          "allowed_stores": [
+            "ALQ-184",
+            "ALQ-184-LONG",
+            "ALQ-131",
+            "FUEL-TANK-300"
+          ],
+          "notes": "电子战吊舱或 300 加仑副油箱"
+        },
+        {
+          "station_id": "5L",
+          "block": "Block 50",
+          "position": "intake_left",
+          "position_label": "进气道左侧 5L",
+          "allowed_stores": [
+            "AN-ASQ-213"
+          ],
+          "notes": "HARM 定位吊舱 HTS"
+        },
+        {
+          "station_id": "5R",
+          "block": "Block 50",
+          "position": "intake_right",
+          "position_label": "进气道右侧 5R",
+          "allowed_stores": [
+            "AN-AAQ-28"
+          ],
+          "notes": "Litening 瞄准吊舱"
+        },
+        {
+          "station_id": "6",
+          "block": "Block 50",
+          "position": "wing_inboard",
+          "position_label": "翼下内侧挂点 6",
+          "allowed_stores": [
+            "CBU-87-3x",
+            "CBU-97-3x",
+            "AN-AAQ-28"
+          ],
+          "notes": "重型集束炸弹或 Litening 瞄准吊舱"
+        },
+        {
+          "station_id": "7",
+          "block": "Block 50",
+          "position": "wing_mid",
+          "position_label": "翼下中间挂点 7",
+          "allowed_stores": [
+            "AIM-120B",
+            "AIM-120C-5",
+            "AIM-9L",
+            "AIM-9M",
+            "AIM-9X",
+            "AGM-88C",
+            "AGM-65D",
+            "AGM-65G",
+            "AGM-65H",
+            "AGM-65K",
+            "AGM-154A",
+            "CBU-103",
+            "CBU-105",
+            "CBU-87-2x",
+            "CBU-87-3x",
+            "CBU-97-2x",
+            "CBU-97-3x",
+            "GBU-10",
+            "GBU-12",
+            "GBU-24",
+            "GBU-31V1B",
+            "GBU-31V3B",
+            "GBU-38",
+            "Mk-82",
+            "Mk-82-3x",
+            "Mk-82-AIR",
+            "Mk-82-SE",
+            "Mk-84",
+            "Mk-84-AIR",
+            "LAU-M151",
+            "LAU-M156",
+            "LAU-Mk5",
+            "ALQ-184",
+            "ALQ-184-LONG",
+            "ALQ-131",
+            "AN-ASQ-T50",
+            "FUEL-TANK-370"
+          ],
+          "notes": "与挂点 3 对称"
+        },
+        {
+          "station_id": "8",
+          "block": "Block 50",
+          "position": "wing_outer",
+          "position_label": "翼下外侧挂点 8",
+          "allowed_stores": [
+            "AIM-120B",
+            "AIM-120C-5",
+            "AIM-9L",
+            "AIM-9M",
+            "AIM-9X"
+          ],
+          "notes": "仅空对空导弹"
+        },
+        {
+          "station_id": "9",
+          "block": "Block 50",
+          "position": "wingtip",
+          "position_label": "翼尖挂点 9",
+          "allowed_stores": [
+            "AIM-120B",
+            "AIM-120C-5",
+            "AIM-9L",
+            "AIM-9M",
+            "AIM-9X"
+          ],
+          "notes": "仅空对空导弹"
+        }
+      ]
+    },
+    "presets": [
+      {
+        "aircraft_id": "F-16",
+        "block": "Block 50",
+        "id": "a2a_cap",
+        "name": "空战巡逻（2×120 + 2×9）",
+        "stations": {
+          "1": "AIM-9M",
+          "2": "AIM-120C-5",
+          "8": "AIM-120C-5",
+          "9": "AIM-9M"
+        },
+        "total_mass_kg": 476.0,
+        "drag_store_count": 4.0
+      },
+      {
+        "aircraft_id": "F-16",
+        "block": "Block 50",
+        "id": "a2a_heavy",
+        "name": "空战重挂载（4×120）",
+        "stations": {
+          "1": "AIM-120C-5",
+          "2": "AIM-120C-5",
+          "8": "AIM-120C-5",
+          "9": "AIM-120C-5"
+        },
+        "total_mass_kg": 608.0,
+        "drag_store_count": 4.0
+      },
+      {
+        "aircraft_id": "F-16",
+        "block": "Block 50",
+        "id": "sead",
+        "name": "压制敌防空（2×HARM + HTS + TGP）",
+        "stations": {
+          "3": "AGM-88C",
+          "5L": "AN-ASQ-213",
+          "5R": "AN-AAQ-28",
+          "7": "AGM-88C"
+        },
+        "total_mass_kg": 1112.0,
+        "drag_store_count": 2.0
+      },
+      {
+        "aircraft_id": "F-16",
+        "block": "Block 50",
+        "id": "strike_jdam",
+        "name": "对地打击（2×GBU-31 + 油箱 + TGP）",
+        "stations": {
+          "3": "GBU-31V1B",
+          "4": "FUEL-TANK-370",
+          "5": "FUEL-TANK-300",
+          "5R": "AN-AAQ-28",
+          "7": "GBU-31V1B"
+        },
+        "total_mass_kg": 4350.0,
+        "drag_store_count": 4.0
       }
     ]
   }

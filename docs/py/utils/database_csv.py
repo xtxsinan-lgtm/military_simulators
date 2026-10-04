@@ -606,6 +606,189 @@ def load_combat_radius_engine_csv(path: str | Path | None = None) -> list[dict[s
     return rows
 
 
+AIRCRAFT_STORE_CATALOG_CSV_COLUMNS = (
+    'id', 'name', 'category', 'mass_kg', 'length_m', 'diameter_m', 'store_mount', 'notes',
+)
+
+AIRCRAFT_STATION_CSV_COLUMNS = (
+    'aircraft_id', 'block', 'station_id', 'position', 'position_label', 'allowed_stores', 'notes',
+)
+
+AIRCRAFT_LOADOUT_PRESET_CSV_COLUMNS = (
+    'aircraft_id', 'block', 'preset_id', 'preset_name', 'station_id', 'store_id', 'notes',
+)
+
+AIRCRAFT_STORE_CATEGORIES = (
+    'aam', 'arm', 'agm', 'bomb', 'cluster', 'guided_bomb', 'jdam', 'rocket',
+    'ecm', 'targeting', 'fuel_tank', 'telemetry',
+)
+
+AIRCRAFT_STORE_MOUNT_IDS = ('internal', 'semi_recessed', 'pylon')
+
+
+def _parse_allowed_stores(raw: str) -> list[str]:
+    """解析分号分隔的外挂 id 列表。"""
+    return [part.strip() for part in raw.split(';') if part.strip()]
+
+
+def load_aircraft_store_catalog_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载外挂弹药/设备目录。"""
+    from utils.paths import AIRCRAFT_STORE_CATALOG_CSV
+
+    csv_path = Path(path) if path is not None else AIRCRAFT_STORE_CATALOG_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in AIRCRAFT_STORE_CATALOG_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            store_id = (row.get('id') or '').strip()
+            name = (row.get('name') or '').strip()
+            if not store_id or not name:
+                continue
+            category = (row.get('category') or '').strip()
+            if category not in AIRCRAFT_STORE_CATEGORIES:
+                raise ValueError(
+                    f'{csv_path} 未知 category={category!r}（store={store_id}）'
+                )
+            mount = (row.get('store_mount') or '').strip()
+            if mount not in AIRCRAFT_STORE_MOUNT_IDS:
+                raise ValueError(
+                    f'{csv_path} store_mount 须为 {"|".join(AIRCRAFT_STORE_MOUNT_IDS)} 之一，'
+                    f'得到 {mount!r}（store={store_id}）'
+                )
+            item: dict[str, Any] = {
+                'id': store_id,
+                'name': name,
+                'category': category,
+                'mass_kg': _parse_float(row.get('mass_kg') or '', 'mass_kg'),
+                'length_m': _parse_float(row.get('length_m') or '', 'length_m'),
+                'diameter_m': _parse_float(row.get('diameter_m') or '', 'diameter_m'),
+                'store_mount': mount,
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效外挂记录')
+    return rows
+
+
+def load_aircraft_station_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载机型挂点能力表。"""
+    from utils.paths import AIRCRAFT_STATION_CSV
+
+    csv_path = Path(path) if path is not None else AIRCRAFT_STATION_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in AIRCRAFT_STATION_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        store_ids = {s['id'] for s in load_aircraft_store_catalog_csv(csv_path.parent / 'aircraft_store_catalog.csv')}
+        for row in reader:
+            aircraft_id = (row.get('aircraft_id') or '').strip()
+            station_id = (row.get('station_id') or '').strip()
+            if not aircraft_id or not station_id:
+                continue
+            block = (row.get('block') or '').strip()
+            if not block:
+                raise ValueError(f'{csv_path} {aircraft_id} 挂点 {station_id} 缺少 block')
+            position = (row.get('position') or '').strip()
+            position_label = (row.get('position_label') or '').strip()
+            if not position or not position_label:
+                raise ValueError(
+                    f'{csv_path} {aircraft_id} 挂点 {station_id} 缺少 position/position_label'
+                )
+            allowed = _parse_allowed_stores(row.get('allowed_stores') or '')
+            if not allowed:
+                raise ValueError(f'{csv_path} {aircraft_id} 挂点 {station_id} 无 allowed_stores')
+            unknown = [s for s in allowed if s not in store_ids]
+            if unknown:
+                raise ValueError(
+                    f'{csv_path} {aircraft_id} 挂点 {station_id} 引用未知外挂: {unknown}'
+                )
+            item: dict[str, Any] = {
+                'aircraft_id': aircraft_id,
+                'block': block,
+                'station_id': station_id,
+                'position': position,
+                'position_label': position_label,
+                'allowed_stores': allowed,
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效挂点记录')
+    return rows
+
+
+def load_aircraft_loadout_presets_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载预设挂载方案（每行一个挂点分配）。"""
+    from utils.paths import AIRCRAFT_LOADOUT_PRESETS_CSV
+
+    csv_path = Path(path) if path is not None else AIRCRAFT_LOADOUT_PRESETS_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in AIRCRAFT_LOADOUT_PRESET_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        store_ids = {s['id'] for s in load_aircraft_store_catalog_csv(csv_path.parent / 'aircraft_store_catalog.csv')}
+        station_rows = load_aircraft_station_csv(csv_path.parent / 'aircraft_station_database.csv')
+        station_allowed: dict[tuple[str, str, str], set[str]] = {}
+        for st in station_rows:
+            key = (st['aircraft_id'], st['block'], st['station_id'])
+            station_allowed[key] = set(st['allowed_stores'])
+        for row in reader:
+            aircraft_id = (row.get('aircraft_id') or '').strip()
+            preset_id = (row.get('preset_id') or '').strip()
+            station_id = (row.get('station_id') or '').strip()
+            store_id = (row.get('store_id') or '').strip()
+            if not aircraft_id or not preset_id or not station_id or not store_id:
+                continue
+            block = (row.get('block') or '').strip()
+            preset_name = (row.get('preset_name') or '').strip()
+            if not block or not preset_name:
+                raise ValueError(
+                    f'{csv_path} 预设 {preset_id} 缺少 block 或 preset_name'
+                )
+            if store_id not in store_ids:
+                raise ValueError(f'{csv_path} 预设 {preset_id} 引用未知外挂 {store_id!r}')
+            key = (aircraft_id, block, station_id)
+            if key not in station_allowed:
+                raise ValueError(f'{csv_path} 预设 {preset_id} 引用未知挂点 {station_id!r}')
+            if store_id not in station_allowed[key]:
+                raise ValueError(
+                    f'{csv_path} 预设 {preset_id} 在挂点 {station_id} 挂载 {store_id!r} 不被允许'
+                )
+            item: dict[str, Any] = {
+                'aircraft_id': aircraft_id,
+                'block': block,
+                'preset_id': preset_id,
+                'preset_name': preset_name,
+                'station_id': station_id,
+                'store_id': store_id,
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效挂载预设')
+    return rows
+
+
 def list_model_ids_from_missile_interception_csv(
     missile_path: str | Path | None = None,
     radar_path: str | Path | None = None,

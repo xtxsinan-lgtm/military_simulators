@@ -1,0 +1,4 @@
+aircraft_id,preset_id,name,loadout,notes
+F-14,cap,舰队防空（CAP）,1:aim-9;1b:aim-54;3:aim-7;4:aim-54;5:aim-54;6:aim-7;8:aim-9;8b:aim-54,2×AIM-9 + 4×AIM-54 + 2×AIM-7
+F-14,tarps,侦察（TARPS）,1:aim-9;1b:aim-7;3:aim-7;5:tarps;6:aim-7;8:aim-9;8b:aim-7,2×AIM-9 + 3×AIM-7 + TARPS
+F-14,tank,转场（副油箱）,1:aim-9;2:tank-280;3:aim-7;6:aim-7;7:tank-280;8:aim-9,2×AIM-9 + 2×AIM-7 + 2×280 加仑副油箱

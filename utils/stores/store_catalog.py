@@ -8,8 +8,8 @@ from typing import Any
 
 from utils.combat_radius.lift_drag import parse_store_mount
 from utils.paths import (
-    AIRCRAFT_LOADOUT_PRESETS_CSV,
     AIRCRAFT_STORE_LAYOUTS_CSV,
+    AIRCRAFT_STORE_PRESETS_CSV,
     STORE_TYPES_CSV,
 )
 
@@ -151,7 +151,7 @@ def load_aircraft_store_layouts_csv(path: str | Path | None = None) -> dict[str,
 
 def load_aircraft_loadout_presets_csv(path: str | Path | None = None) -> dict[str, list[LoadoutPreset]]:
     """按 aircraft_id 分组加载命名挂载方案。"""
-    csv_path = Path(path) if path is not None else AIRCRAFT_LOADOUT_PRESETS_CSV
+    csv_path = Path(path) if path is not None else AIRCRAFT_STORE_PRESETS_CSV
     if not csv_path.is_file():
         raise ValueError(f'{csv_path} 不存在')
     grouped: dict[str, list[LoadoutPreset]] = {}
