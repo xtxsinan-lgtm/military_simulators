@@ -419,17 +419,17 @@ Page({
           wtMissile: loadoutPatch.wtMissile != null ? loadoutPatch.wtMissile : wt.wtMissile,
           wtNMissiles: loadoutPatch.wtNMissiles != null ? loadoutPatch.wtNMissiles : wt.wtNMissiles,
         });
-        this.setData({
-          presets,
-          presetNames,
-          tgt: applyDerivedLoads(cloneAc(tgtp), wtMerged, loadoutPatch.loadoutExtFuel),
         const aircraftWeapons = data.aircraft_weapons || null;
+        const showLoadout = !!loadoutPatch.showLoadout;
         this.setData({
           presets,
           presetNames,
           aircraftWeapons,
-          weaponStations: weaponStationsForAircraft(aircraftWeapons, tgtp && tgtp.id),
-          tgt: applyDerivedLoads(cloneAc(tgtp), wt),
+          // 有交互挂载下拉时不再显示只读弹药清单
+          weaponStations: showLoadout
+            ? []
+            : weaponStationsForAircraft(aircraftWeapons, tgtp && tgtp.id),
+          tgt: applyDerivedLoads(cloneAc(tgtp), wtMerged, loadoutPatch.loadoutExtFuel),
           tgtPresetIndex: findIdx(ui.default_target_id),
           enginePresets: engines,
           engineNames,
@@ -573,7 +573,9 @@ Page({
       }
       patch.f135TsfcMode = 'published';
       patch.showF135TsfcToggle = isF35TsfcToggleAircraft(p.id, this.data.f135TsfcAircraftIds);
-      patch.weaponStations = weaponStationsForAircraft(this.data.aircraftWeapons, p.id);
+      patch.weaponStations = loadoutPatch.showLoadout
+        ? []
+        : weaponStationsForAircraft(this.data.aircraftWeapons, p.id);
       patch.loadoutImageUrl = resolveLoadoutImageUrl(p.id, this.data.loadoutImageMap);
       this.setData(patch);
       this.showSnapshot(p.id);

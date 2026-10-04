@@ -87,6 +87,13 @@ import importlib
 for _name in _py_import_order:
     importlib.import_module(_name)
 `);
+  // 与 Web 一致：注入合并后的挂点目录，供作战半径按挂点选弹重算
+  pyodide.globals.set('_cr_loadout_catalog', JSON.stringify(catalog.loadout_catalog || {}));
+  await pyodide.runPythonAsync(`
+import json
+from utils.combat_radius.loadout import inject_loadout_catalog_payload
+inject_loadout_catalog_payload(json.loads(_cr_loadout_catalog))
+`);
 }
 
 async function initEngine() {
