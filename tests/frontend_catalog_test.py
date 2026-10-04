@@ -76,6 +76,10 @@ def test_build_catalog_payload_modes():
     assert len(payload['aircraft_stores']['aircraft_store_layouts']['F-14']) == 10
     assert 'aircraft_loadout' in payload
     assert 'F-16' in payload['aircraft_loadout']['aircraft_stations']
+    assert 'aircraft_pylon' in payload
+    gripen_pylon = payload['aircraft_pylon']['models']['Gripen-EF']
+    assert gripen_pylon['station_count'] == 7
+    assert gripen_pylon['physical_station_count'] == 10
 
 
 def test_docs_missile_interception_page_exists_and_links():

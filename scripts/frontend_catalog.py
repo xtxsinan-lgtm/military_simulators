@@ -116,7 +116,7 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
     from utils.combat_radius.combat_radius_results import build_combat_radius_results_catalog_payload
     from utils.combat_radius.loadout import build_loadout_catalog_payload
     from utils.missile_interception.missile_interception_presets import build_missile_interception_presets_payload
-    from utils.stores.store_catalog import build_store_catalog_payload
+    from utils.aircraft_pylon import build_aircraft_pylon_payload
 
     return {
         'version': DATA_VERSION,
@@ -141,4 +141,5 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'missile_range': build_missile_range_catalog_payload(),
         'aircraft_stores': build_combined_aircraft_stores_payload(),
         'aircraft_loadout': build_aircraft_loadout_catalog_payload(),
+        'aircraft_pylon': build_aircraft_pylon_payload(),
     }
