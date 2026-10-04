@@ -72,6 +72,19 @@
       </view>
     </picker>
     <spec-list items="{{aircraftSpecs}}" emptyText="请选择战斗机" />
+    <view class="hardpoints-block" wx:if="{{aircraftHardpoints}}">
+      <view class="hardpoints-title">外挂挂点</view>
+      <view class="hardpoints-station" wx:for="{{aircraftHardpoints.stations}}" wx:key="title">
+        <view class="hardpoints-station-head">
+          <text class="hardpoints-station-name">{{item.title}}</text>
+          <text class="hardpoints-station-limit">{{item.limit}}</text>
+        </view>
+        <text class="hardpoints-station-stores">{{item.stores}}</text>
+      </view>
+      <view class="hardpoints-fixed" wx:for="{{aircraftHardpoints.fixed}}" wx:key="*this">
+        <text>· {{item}}</text>
+      </view>
+    </view>
   </view>
 
   <!-- 4. 仿真条件 -->

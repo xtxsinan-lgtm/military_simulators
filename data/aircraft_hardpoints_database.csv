@@ -1,0 +1,9 @@
+aircraft_id,station_id,name_zh,position,side,max_mass_kg,allowed_stores,notes
+Tejas,wtip_r,翼尖外侧（右）,outboard,right,310,aspj,ASPJ 自卫干扰吊舱专用挂点
+Tejas,wtip_l,翼尖外侧（左）,outboard,left,310,r73e;asraam;python5,
+Tejas,mid_l,中侧挂点（左）,midboard,left,800,python5;derby;astra;hammer;jdam;ng_lgb;griffin_lgb;saaw;bomb_1000lb;hsld_450;hsld_250;practise;dt_800;dt_725,
+Tejas,mid_r,中侧挂点（右）,midboard,right,800,python5;derby;astra;hammer;jdam;ng_lgb;griffin_lgb;saaw;bomb_1000lb;hsld_450;hsld_250;practise;dt_800;dt_725,
+Tejas,in_l,内侧挂点（左）,inboard,left,1200,derby;astra;hammer;jdam;ng_lgb;griffin_lgb;saaw;bomb_1000lb;hsld_450;hsld_250;practise;dt_1200,
+Tejas,in_r,内侧挂点（右）,inboard,right,1200,derby;astra;hammer;jdam;ng_lgb;griffin_lgb;saaw;bomb_1000lb;hsld_450;hsld_250;practise;dt_1200,
+Tejas,centre,机腹中心线,centreline,center,740,hammer;jdam;ng_lgb;griffin_lgb;saaw;hsld_450;hsld_250;practise;dt_800;dt_725,
+Tejas,belly_ldp,机腹 LDP 专用,centreline,right,200,ldp,机腹右侧专用小挂点

@@ -377,10 +377,58 @@ function updateCarrierInfo() {
   }
 }
 
+function getHardpointsCatalog() {
+  return data?.aircraft_hardpoints || null;
+}
+
+function formatStoreNames(storeIds, storesById) {
+  return storeIds
+    .map((sid) => {
+      const store = storesById[sid];
+      if (!store) return sid;
+      const mass = store.typical_mass_kg != null ? ` · ${Math.round(store.typical_mass_kg)} kg` : '';
+      return `${store.name_zh || store.name_en || sid}${mass}`;
+    })
+    .join('；');
+}
+
+function updateAircraftHardpoints(ac) {
+  if (!els.hardpointsSection || !els.aircraftHardpoints) return;
+  const catalog = getHardpointsCatalog();
+  const hp = catalog?.by_aircraft?.[ac.id];
+  if (!hp) {
+    els.hardpointsSection.classList.add('hidden');
+    els.aircraftHardpoints.innerHTML = '';
+    if (els.aircraftFixedEquipment) els.aircraftFixedEquipment.innerHTML = '';
+    return;
+  }
+  const storesById = hp.stores || {};
+  els.aircraftHardpoints.innerHTML = (hp.stations || [])
+    .map((station) => {
+      const posLabel = catalog.position_labels?.[station.position] || station.position;
+      const side = station.side && station.side !== 'center' ? `（${station.side}）` : '';
+      return `
+        <tr>
+          <td>${station.name_zh || posLabel}${side}</td>
+          <td>${fmtInt(station.max_mass_kg)} kg</td>
+          <td class="store-list">${formatStoreNames(station.allowed_stores || [], storesById)}</td>
+        </tr>
+      `;
+    })
+    .join('');
+  if (els.aircraftFixedEquipment) {
+    els.aircraftFixedEquipment.innerHTML = (hp.fixed_equipment || [])
+      .map((item) => `<li>${item.name_zh}${item.location ? ` · ${item.location}` : ''}${item.notes ? `（${item.notes}）` : ''}</li>`)
+      .join('');
+  }
+  els.hardpointsSection.classList.remove('hidden');
+}
+
 function updateAircraftInfo() {
   const ac = getSelectedAircraft();
   if (!ac) {
     els.aircraftSpecs.innerHTML = '<tr><td colspan="2">请选择战斗机</td></tr>';
+    updateAircraftHardpoints({ id: '' });
     return;
   }
 
@@ -432,6 +480,7 @@ function updateAircraftInfo() {
   if (!els.massInput.dataset.userEdited) {
     els.massInput.value = Math.round(a2aMassKg(ac));
   }
+  updateAircraftHardpoints(ac);
   refreshMassHint();
 }
 
@@ -852,6 +901,9 @@ async function main() {
   els.aircraftSelect = $('aircraftSelect');
   els.carrierSpecs = $('carrierSpecs');
   els.aircraftSpecs = $('aircraftSpecs');
+  els.hardpointsSection = $('hardpointsSection');
+  els.aircraftHardpoints = $('aircraftHardpoints');
+  els.aircraftFixedEquipment = $('aircraftFixedEquipment');
   els.skiJumpSection = $('skiJumpSection');
   els.skiAngle = $('skiAngle');
   els.skiArcLength = $('skiArcLength');

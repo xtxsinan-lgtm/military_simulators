@@ -84,6 +84,9 @@ def test_build_catalog_payload_modes():
     gripen_stations = payload['aircraft_weapons']['aircraft']['Gripen-CD']['stations']
     assert [s['id'] for s in gripen_stations] == ['1', '2', '3', '4', '5', 'G']
     assert 'FC-1' in payload['fc1_stores']['aircraft']
+    assert 'aircraft_hardpoints' in payload
+    tejas_hp = payload['aircraft_hardpoints']['by_aircraft']['Tejas']
+    assert any(s['id'] == 'centre' for s in tejas_hp['stations'])
 
 
 def test_docs_missile_interception_page_exists_and_links():

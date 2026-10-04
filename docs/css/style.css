@@ -285,6 +285,41 @@ input:focus {
   font-size: 12px;
 }
 
+.hardpoints-section {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.hardpoints-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.hardpoints-table thead th {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.hardpoints-table td.store-list {
+  font-family: var(--sans);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.hardpoints-fixed {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
 .ski-edit-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

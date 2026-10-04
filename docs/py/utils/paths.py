@@ -42,4 +42,7 @@ AIRCRAFT_WEAPON_CONFIG_JSON = DATA_DIR / 'aircraft_weapon_config.json'
 # JF-17/FC-1 外挂兼容库（store_id 列，与 F-16 catalog 分列）
 FC1_STORE_CATALOG_CSV = DATA_DIR / 'fc1_store_catalog.csv'
 FC1_STORE_MOUNTS_CSV = DATA_DIR / 'aircraft_store_mounts.csv'
+AIRCRAFT_STORES_CSV = DATA_DIR / 'aircraft_stores_database.csv'
+AIRCRAFT_HARDPOINTS_CSV = DATA_DIR / 'aircraft_hardpoints_database.csv'
+AIRCRAFT_FIXED_EQUIPMENT_CSV = DATA_DIR / 'aircraft_fixed_equipment_database.csv'
 SURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'
