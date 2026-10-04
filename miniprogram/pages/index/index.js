@@ -49,6 +49,7 @@ Page({
     aircraftLabel: '',
     carrierSpecs: [],
     aircraftSpecs: [],
+    aircraftHardpoints: null,
     showSkiJump: false,
     skiAngle: '',
     skiArcLength: '',
@@ -332,12 +333,40 @@ Page({
     });
   },
 
+  buildHardpointsView(ac) {
+    const catalog = this._data && this._data.aircraft_hardpoints;
+    const hp = catalog && catalog.by_aircraft && catalog.by_aircraft[ac.id];
+    if (!hp) return null;
+    const storesById = hp.stores || {};
+    const stations = (hp.stations || []).map((station) => ({
+      title: station.name_zh,
+      limit: `${Math.round(station.max_mass_kg)} kg`,
+      stores: (station.allowed_stores || [])
+        .map((sid) => {
+          const store = storesById[sid];
+          if (!store) return sid;
+          const mass =
+            store.typical_mass_kg != null ? ` · ${Math.round(store.typical_mass_kg)} kg` : '';
+          return `${store.name_zh || store.name_en || sid}${mass}`;
+        })
+        .join('；'),
+    }));
+    const fixed = (hp.fixed_equipment || []).map((item) => {
+      let text = item.name_zh || '';
+      if (item.location) text += ` · ${item.location}`;
+      if (item.notes) text += `（${item.notes}）`;
+      return text;
+    });
+    return { stations, fixed };
+  },
+
   updateAircraftInfo() {
     const ac = this.getSelectedAircraft();
     if (!ac) {
       this.setData({
         aircraftLabel: '（无可用战斗机）',
         aircraftSpecs: [],
+        aircraftHardpoints: null,
       });
       return;
     }
@@ -398,6 +427,7 @@ Page({
     const patch = {
       aircraftLabel: ac.name,
       aircraftSpecs: specs,
+      aircraftHardpoints: this.buildHardpointsView(ac),
     };
     if (!this._massUserEdited) {
       patch.massKg = String(Math.round(a2aMassKg(ac)));

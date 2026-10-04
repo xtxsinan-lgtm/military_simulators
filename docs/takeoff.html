@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>航母舰载机起飞距离仿真</title>
-  <link rel="stylesheet" href="css/style.css?v=46">
+  <link rel="stylesheet" href="css/style.css?v=47">
 </head>
 <body>
   <div class="scanline" aria-hidden="true"></div>
@@ -81,6 +81,20 @@
         <table class="spec-table">
           <tbody id="aircraftSpecs"></tbody>
         </table>
+        <div id="hardpointsSection" class="hardpoints-section hidden">
+          <h3 class="hardpoints-title">外挂挂点</h3>
+          <table class="spec-table hardpoints-table">
+            <thead>
+              <tr>
+                <th>挂点</th>
+                <th>限重</th>
+                <th>可挂载</th>
+              </tr>
+            </thead>
+            <tbody id="aircraftHardpoints"></tbody>
+          </table>
+          <ul id="aircraftFixedEquipment" class="hardpoints-fixed"></ul>
+        </div>
       </section>
     </div>
 
@@ -145,6 +159,6 @@
 
   <button type="button" id="backToTop" class="back-to-top" hidden>↑ 顶部</button>
 
-  <script type="module" src="js/app.js?v=46"></script>
+  <script type="module" src="js/app.js?v=47"></script>
 </body>
 </html>

@@ -1,0 +1,20 @@
+store_id,name_en,name_zh,category,typical_mass_kg,notes
+aspj,ASPJ,ASPJ 自卫干扰吊舱,ecm,90,右侧翼尖专用
+r73e,R-73E,R-73E 近距空空导弹,wvr,105,
+asraam,ASRAAM,ASRAAM 近距空空导弹,wvr,88,
+python5,PYTHON-5,PYTHON-5 近距空空导弹,wvr,105,
+derby,DERBY,DERBY 中距空空导弹,bvr,118,
+astra,ASTRA,ASTRA 中距空空导弹,bvr,154,
+hammer,AASM HAMMER,AASM HAMMER 精确制导炸弹,pgb,330,
+jdam,JDAM,JDAM 联合直接攻击弹药,pgb,450,含 GBU-31/38 等级
+ng_lgb,NG LGB,NG LGB (PB-500 & 1000lb),lgb,340,新一代激光制导炸弹
+griffin_lgb,GRIFFIN LGB,GRIFFIN LGB (PB-500 & 1000lb),lgb,340,格里芬激光制导炸弹
+saaw,SAAW,SAAW 智能反机场武器,pgb,125,小直径炸弹
+bomb_1000lb,1000lb bomb,1000lb 航空炸弹,unguided_bomb,454,
+hsld_450,450kg HSLD,450kg HSLD 高速低阻炸弹,unguided_bomb,450,
+hsld_250,250kg HSLD,250kg HSLD 高速低阻炸弹,unguided_bomb,250,
+practise,PRACTISE,PRACTISE 25lb & 3kg,training,11,训练弹
+dt_800,800lt drop tank,800lt 副油箱,fuel_tank,640,含燃油质量估计
+dt_725,725lt drop tank,725lt 副油箱,fuel_tank,580,含燃油质量估计
+dt_1200,1200lt drop tank,1200lt 副油箱,fuel_tank,960,含燃油质量估计
+ldp,LDP,LDP 激光指示光电吊舱,targeting_pod,200,机腹右侧专用小挂点

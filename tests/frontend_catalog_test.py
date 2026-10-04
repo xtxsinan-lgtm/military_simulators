@@ -69,6 +69,9 @@ def test_build_catalog_payload_modes():
     assert 'slipstream_wake_factor' in tilt_mode
     assert 'A' in payload['takeoff_config']['tiltrotor_strategy_descriptions']
     assert payload['missile_interception_config']['traj_types']['glide']
+    assert 'aircraft_hardpoints' in payload
+    tejas_hp = payload['aircraft_hardpoints']['by_aircraft']['Tejas']
+    assert any(s['id'] == 'centre' for s in tejas_hp['stations'])
 
 
 def test_docs_missile_interception_page_exists_and_links():

@@ -1,5 +1,5 @@
 {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -1223,7 +1223,7 @@
       "prop_diameter_m": null,
       "nacelle_blockage_frac": null,
       "n_pilots": 1,
-      "notes": "陆基；ADA / Wikipedia Tejas Mk1：翼面积 38.4 m²、翼展 8.20 m、空重 6560 kg、内油 2458 kg、MTOW 13500 kg；1×F404-GE-IN20 加力 85 kN；外挂 3500 kg；无尾复合三角翼；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；无尾三角主翼暴露 26.9 m²、单垂尾 5.2 m² 为估计；外挂挂架",
+      "notes": "陆基；ADA / Wikipedia Tejas Mk1：翼面积 38.4 m²、翼展 8.20 m、空重 6560 kg、内油 2458 kg、MTOW 13500 kg；1×F404-GE-IN20 加力 85 kN；外挂 3500 kg；7 武器挂点+翼尖 ASPJ/LDP/CMDS（见 aircraft_hardpoints_database.csv）；无尾复合三角翼；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；无尾三角主翼暴露 26.9 m²、单垂尾 5.2 m² 为估计；外挂挂架",
       "layout": "tailless",
       "canard_htail_area_m2": null
     },
@@ -3973,7 +3973,7 @@
       "missile_mass_kg": 154.0,
       "n_engines": 1,
       "max_payload_kg": 3500.0,
-      "notes": "陆基；ADA / Wikipedia Tejas Mk1：翼面积 38.4 m²、翼展 8.20 m、空重 6560 kg、内油 2458 kg、MTOW 13500 kg；1×F404-GE-IN20 加力 85 kN；外挂 3500 kg；无尾复合三角翼；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；无尾三角主翼暴露 26.9 m²、单垂尾 5.2 m² 为估计；外挂挂架",
+      "notes": "陆基；ADA / Wikipedia Tejas Mk1：翼面积 38.4 m²、翼展 8.20 m、空重 6560 kg、内油 2458 kg、MTOW 13500 kg；1×F404-GE-IN20 加力 85 kN；外挂 3500 kg；7 武器挂点+翼尖 ASPJ/LDP/CMDS（见 aircraft_hardpoints_database.csv）；无尾复合三角翼；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；无尾三角主翼暴露 26.9 m²、单垂尾 5.2 m² 为估计；外挂挂架",
       "wing_area_m2": 38.4,
       "mach_angle_deg": 17.3,
       "length_m": 13.2,
@@ -30274,5 +30274,325 @@
         "stage_locked": false
       }
     ]
+  },
+  "aircraft_hardpoints": {
+    "by_aircraft": {
+      "Tejas": {
+        "stores": {
+          "aspj": {
+            "id": "aspj",
+            "name_en": "ASPJ",
+            "name_zh": "ASPJ 自卫干扰吊舱",
+            "category": "ecm",
+            "typical_mass_kg": 90.0,
+            "notes": "右侧翼尖专用"
+          },
+          "asraam": {
+            "id": "asraam",
+            "name_en": "ASRAAM",
+            "name_zh": "ASRAAM 近距空空导弹",
+            "category": "wvr",
+            "typical_mass_kg": 88.0
+          },
+          "astra": {
+            "id": "astra",
+            "name_en": "ASTRA",
+            "name_zh": "ASTRA 中距空空导弹",
+            "category": "bvr",
+            "typical_mass_kg": 154.0
+          },
+          "bomb_1000lb": {
+            "id": "bomb_1000lb",
+            "name_en": "1000lb bomb",
+            "name_zh": "1000lb 航空炸弹",
+            "category": "unguided_bomb",
+            "typical_mass_kg": 454.0
+          },
+          "derby": {
+            "id": "derby",
+            "name_en": "DERBY",
+            "name_zh": "DERBY 中距空空导弹",
+            "category": "bvr",
+            "typical_mass_kg": 118.0
+          },
+          "dt_1200": {
+            "id": "dt_1200",
+            "name_en": "1200lt drop tank",
+            "name_zh": "1200lt 副油箱",
+            "category": "fuel_tank",
+            "typical_mass_kg": 960.0,
+            "notes": "含燃油质量估计"
+          },
+          "dt_725": {
+            "id": "dt_725",
+            "name_en": "725lt drop tank",
+            "name_zh": "725lt 副油箱",
+            "category": "fuel_tank",
+            "typical_mass_kg": 580.0,
+            "notes": "含燃油质量估计"
+          },
+          "dt_800": {
+            "id": "dt_800",
+            "name_en": "800lt drop tank",
+            "name_zh": "800lt 副油箱",
+            "category": "fuel_tank",
+            "typical_mass_kg": 640.0,
+            "notes": "含燃油质量估计"
+          },
+          "griffin_lgb": {
+            "id": "griffin_lgb",
+            "name_en": "GRIFFIN LGB",
+            "name_zh": "GRIFFIN LGB (PB-500 & 1000lb)",
+            "category": "lgb",
+            "typical_mass_kg": 340.0,
+            "notes": "格里芬激光制导炸弹"
+          },
+          "hammer": {
+            "id": "hammer",
+            "name_en": "AASM HAMMER",
+            "name_zh": "AASM HAMMER 精确制导炸弹",
+            "category": "pgb",
+            "typical_mass_kg": 330.0
+          },
+          "hsld_250": {
+            "id": "hsld_250",
+            "name_en": "250kg HSLD",
+            "name_zh": "250kg HSLD 高速低阻炸弹",
+            "category": "unguided_bomb",
+            "typical_mass_kg": 250.0
+          },
+          "hsld_450": {
+            "id": "hsld_450",
+            "name_en": "450kg HSLD",
+            "name_zh": "450kg HSLD 高速低阻炸弹",
+            "category": "unguided_bomb",
+            "typical_mass_kg": 450.0
+          },
+          "jdam": {
+            "id": "jdam",
+            "name_en": "JDAM",
+            "name_zh": "JDAM 联合直接攻击弹药",
+            "category": "pgb",
+            "typical_mass_kg": 450.0,
+            "notes": "含 GBU-31/38 等级"
+          },
+          "ldp": {
+            "id": "ldp",
+            "name_en": "LDP",
+            "name_zh": "LDP 激光指示光电吊舱",
+            "category": "targeting_pod",
+            "typical_mass_kg": 200.0,
+            "notes": "机腹右侧专用小挂点"
+          },
+          "ng_lgb": {
+            "id": "ng_lgb",
+            "name_en": "NG LGB",
+            "name_zh": "NG LGB (PB-500 & 1000lb)",
+            "category": "lgb",
+            "typical_mass_kg": 340.0,
+            "notes": "新一代激光制导炸弹"
+          },
+          "practise": {
+            "id": "practise",
+            "name_en": "PRACTISE",
+            "name_zh": "PRACTISE 25lb & 3kg",
+            "category": "training",
+            "typical_mass_kg": 11.0,
+            "notes": "训练弹"
+          },
+          "python5": {
+            "id": "python5",
+            "name_en": "PYTHON-5",
+            "name_zh": "PYTHON-5 近距空空导弹",
+            "category": "wvr",
+            "typical_mass_kg": 105.0
+          },
+          "r73e": {
+            "id": "r73e",
+            "name_en": "R-73E",
+            "name_zh": "R-73E 近距空空导弹",
+            "category": "wvr",
+            "typical_mass_kg": 105.0
+          },
+          "saaw": {
+            "id": "saaw",
+            "name_en": "SAAW",
+            "name_zh": "SAAW 智能反机场武器",
+            "category": "pgb",
+            "typical_mass_kg": 125.0,
+            "notes": "小直径炸弹"
+          }
+        },
+        "stations": [
+          {
+            "id": "wtip_r",
+            "name_zh": "翼尖外侧（右）",
+            "position": "outboard",
+            "side": "right",
+            "max_mass_kg": 310.0,
+            "allowed_stores": [
+              "aspj"
+            ],
+            "notes": "ASPJ 自卫干扰吊舱专用挂点"
+          },
+          {
+            "id": "wtip_l",
+            "name_zh": "翼尖外侧（左）",
+            "position": "outboard",
+            "side": "left",
+            "max_mass_kg": 310.0,
+            "allowed_stores": [
+              "r73e",
+              "asraam",
+              "python5"
+            ]
+          },
+          {
+            "id": "mid_l",
+            "name_zh": "中侧挂点（左）",
+            "position": "midboard",
+            "side": "left",
+            "max_mass_kg": 800.0,
+            "allowed_stores": [
+              "python5",
+              "derby",
+              "astra",
+              "hammer",
+              "jdam",
+              "ng_lgb",
+              "griffin_lgb",
+              "saaw",
+              "bomb_1000lb",
+              "hsld_450",
+              "hsld_250",
+              "practise",
+              "dt_800",
+              "dt_725"
+            ]
+          },
+          {
+            "id": "mid_r",
+            "name_zh": "中侧挂点（右）",
+            "position": "midboard",
+            "side": "right",
+            "max_mass_kg": 800.0,
+            "allowed_stores": [
+              "python5",
+              "derby",
+              "astra",
+              "hammer",
+              "jdam",
+              "ng_lgb",
+              "griffin_lgb",
+              "saaw",
+              "bomb_1000lb",
+              "hsld_450",
+              "hsld_250",
+              "practise",
+              "dt_800",
+              "dt_725"
+            ]
+          },
+          {
+            "id": "in_l",
+            "name_zh": "内侧挂点（左）",
+            "position": "inboard",
+            "side": "left",
+            "max_mass_kg": 1200.0,
+            "allowed_stores": [
+              "derby",
+              "astra",
+              "hammer",
+              "jdam",
+              "ng_lgb",
+              "griffin_lgb",
+              "saaw",
+              "bomb_1000lb",
+              "hsld_450",
+              "hsld_250",
+              "practise",
+              "dt_1200"
+            ]
+          },
+          {
+            "id": "in_r",
+            "name_zh": "内侧挂点（右）",
+            "position": "inboard",
+            "side": "right",
+            "max_mass_kg": 1200.0,
+            "allowed_stores": [
+              "derby",
+              "astra",
+              "hammer",
+              "jdam",
+              "ng_lgb",
+              "griffin_lgb",
+              "saaw",
+              "bomb_1000lb",
+              "hsld_450",
+              "hsld_250",
+              "practise",
+              "dt_1200"
+            ]
+          },
+          {
+            "id": "centre",
+            "name_zh": "机腹中心线",
+            "position": "centreline",
+            "side": "center",
+            "max_mass_kg": 740.0,
+            "allowed_stores": [
+              "hammer",
+              "jdam",
+              "ng_lgb",
+              "griffin_lgb",
+              "saaw",
+              "hsld_450",
+              "hsld_250",
+              "practise",
+              "dt_800",
+              "dt_725"
+            ]
+          },
+          {
+            "id": "belly_ldp",
+            "name_zh": "机腹 LDP 专用",
+            "position": "centreline",
+            "side": "right",
+            "max_mass_kg": 200.0,
+            "allowed_stores": [
+              "ldp"
+            ],
+            "notes": "机腹右侧专用小挂点"
+          }
+        ],
+        "fixed_equipment": [
+          {
+            "aircraft_id": "Tejas",
+            "equipment_id": "cmds",
+            "name_zh": "CMDS 干涉丝/红外诱饵弹投放器",
+            "location": "机腹两侧",
+            "notes": "固定设备，非武器挂点"
+          }
+        ]
+      }
+    },
+    "position_labels": {
+      "outboard": "外侧挂点",
+      "midboard": "中侧挂点",
+      "inboard": "内侧挂点",
+      "centreline": "机腹中心线"
+    },
+    "category_labels": {
+      "wvr": "近距空空导弹",
+      "bvr": "中距空空导弹",
+      "pgb": "精确制导炸弹",
+      "lgb": "激光制导炸弹",
+      "unguided_bomb": "航空炸弹",
+      "training": "训练弹",
+      "fuel_tank": "副油箱",
+      "ecm": "电子战吊舱",
+      "targeting_pod": "瞄准吊舱"
+    }
   }
 }
