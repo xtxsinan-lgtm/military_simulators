@@ -17,6 +17,29 @@ struct CombatRadiusView: View {
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
                     presetPicker("机型", selection: $vm.selectedTgtId) { vm.applyAircraft() }
+                    if let url = vm.loadoutImageUrl {
+                        sectionLabel("▸ 外挂挂载示意", color: CombatRadiusTheme.cyan)
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxWidth: .infinity)
+                                    .background(CombatRadiusTheme.panel2)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .stroke(CombatRadiusTheme.line, lineWidth: 1)
+                                    )
+                            case .failure:
+                                Text("挂载图加载失败")
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundStyle(CombatRadiusTheme.textDim)
+                            default:
+                                ProgressView()
+                            }
+                        }
+                    }
                     aircraftEditor(ac: $vm.tgt)
                     field("空重 (kg)", text: $vm.wtEmpty)
                     field("内油 (kg)", text: $vm.wtFuel)

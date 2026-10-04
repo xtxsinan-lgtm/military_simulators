@@ -5360,6 +5360,28 @@ module.exports = {
       "note": "1.22 按公开军推 TSFC 相对 F100 的差距；1.04 只计低压压气机为垂起榨功做的设计妥协（巡航不抽升力风扇）。"
     }
   },
+  "combat_radius_loadout_images": {
+    "version": 1,
+    "aircraft": {
+      "F-15E": "f15e.jpg",
+      "Su-30": "su30.jpg",
+      "FA-18E": "fa18.jpg",
+      "FA-18C": "fa18.jpg",
+      "F-14": "f14.jpg",
+      "F-16": "f16c.jpg",
+      "F-2": "f2.jpg",
+      "MiG-29K": "mig29.jpg",
+      "FC-1": "jf17.jpg",
+      "Mirage-2000": "mirage2000.jpg",
+      "Typhoon": "typhoon.jpg",
+      "Gripen-CD": "gripen.jpg",
+      "Gripen-EF": "gripen.jpg",
+      "Tejas": "lca.jpg",
+      "FA-50": "fa50.jpg",
+      "Rafale": "rafale.jpg",
+      "Rafale-M": "rafale_detail.jpg"
+    }
+  },
   "combat_radius_results": {
     "version": 1,
     "aircraft": {

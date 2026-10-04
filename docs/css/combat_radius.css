@@ -137,3 +137,9 @@ tr.miss td{ color:var(--text-dim); }
 .bar-fill{ height:100%; background:var(--cyan); }
 .bar-fill.i{ background:var(--amber); }
 .bar-fill.w{ background:var(--red); }
+
+.loadout-image-wrap{ margin:4px 0 12px; }
+.loadout-image{
+  display:block; width:100%; max-height:420px; object-fit:contain;
+  background:var(--panel2); border:1px solid var(--line); border-radius:2px;
+}

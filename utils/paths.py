@@ -18,5 +18,7 @@ MISSILE_INTERCEPTION_CONFIG_JSON = DATA_DIR / 'missile_interception_config.json'
 COMBAT_RADIUS_AIRCRAFT_CSV = AIRCRAFT_CSV
 COMBAT_RADIUS_ENGINE_CSV = DATA_DIR / 'aircraft_engine_database.csv'
 COMBAT_RADIUS_CONFIG_JSON = DATA_DIR / 'combat_radius_config.json'
+COMBAT_RADIUS_LOADOUT_DIR = DATA_DIR / 'combat_radius_loadout'
+COMBAT_RADIUS_LOADOUT_IMAGES_JSON = DATA_DIR / 'combat_radius_loadout_images.json'
 COMBAT_RADIUS_RESULTS_JSON = DATA_DIR / 'combat_radius_results.json'
 SURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'

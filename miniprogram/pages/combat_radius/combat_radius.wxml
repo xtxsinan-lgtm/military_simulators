@@ -14,6 +14,10 @@
         <view class="picker-val">{{presetNames[tgtPresetIndex]}}</view>
       </picker>
     </view>
+    <view class="loadout-image-wrap" wx:if="{{loadoutImageUrl}}">
+      <view class="section-label cyan">▸ 外挂挂载示意</view>
+      <image class="loadout-image" src="{{loadoutImageUrl}}" mode="widthFix" show-menu-by-longpress="{{true}}"/>
+    </view>
     <view class="field">
       <view class="field-label"><text>展弦比 AR</text><text class="unit">计算</text></view>
       <view class="input input-readonly">{{tgt.AR || '—'}}</view>

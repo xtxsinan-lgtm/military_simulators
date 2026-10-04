@@ -15,19 +15,24 @@ def main() -> None:
     from scripts.generate_frontend_physics import write_physics_files
     from scripts import build_combat_radius_results, build_docs, build_miniprogram, build_ios
 
-    print('=== 1/5 生成前端 physics（JS + iOS Swift，常量来自 Python）===')
+    print('=== 1/6 生成前端 physics（JS + iOS Swift，常量来自 Python）===')
     write_physics_files()
 
-    print('=== 2/5 预计算作战半径仪表盘 ===')
+    print('=== 2/6 预计算作战半径仪表盘 ===')
     build_combat_radius_results.main()
 
-    print('=== 3/5 构建 Web（docs/data.json + docs/py）===')
+    from scripts import build_combat_radius_loadout_assets
+
+    print('=== 3/6 同步作战半径挂载图 ===')
+    build_combat_radius_loadout_assets.main()
+
+    print('=== 4/6 构建 Web（docs/data.json + docs/py）===')
     build_docs.main()
 
-    print('=== 4/5 构建小程序（miniprogram/data/data.json）===')
+    print('=== 5/6 构建小程序（miniprogram/data/data.json）===')
     build_miniprogram.main()
 
-    print('=== 5/5 构建 iOS（ios/CarrierTakeOff/Resources/data.json）===')
+    print('=== 6/6 构建 iOS（ios/CarrierTakeOff/Resources/data.json）===')
     build_ios.main()
 
     from scripts.generate_ios_xcodeproj import main as generate_xcodeproj

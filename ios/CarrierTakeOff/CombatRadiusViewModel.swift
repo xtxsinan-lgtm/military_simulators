@@ -156,6 +156,7 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var wtNMissiles = "4"
     @Published var wtEngines = "1"
     @Published var wtCarrier = false
+    @Published var loadoutImageUrl: URL?
     @Published var showF135TsfcToggle = false
     @Published var f135TsfcMode = "published"
     @Published var f135TsfcPublishedLabel = "×1.22 公开军推"
@@ -179,6 +180,7 @@ final class CombatRadiusViewModel: ObservableObject {
     private var f135TsfcAircraftIds: [String] = ["F-35A", "F-35B", "F-35C"]
     private var f135TsfcPublished = 1.22
     private var f135TsfcLpcOnly = 1.04
+    private var loadoutImageMap: [String: String] = [:]
     /// 选机后尚未改其它参数时，切回 1.22 可直接用预计算快照
     private var snapshotEligible = false
     /// 计算进行中又改了参数时，结束后再跑一轮
@@ -197,6 +199,7 @@ final class CombatRadiusViewModel: ObservableObject {
             )
             enginePresets = catalog.combat_radius_engine_presets ?? []
             resultsMap = catalog.combat_radius_results?.aircraft ?? [:]
+            loadoutImageMap = catalog.combat_radius_loadout_images?.aircraft ?? [:]
             if let labels = catalog.combat_radius_config?.planform_labels, !labels.isEmpty {
                 let order = ["trapezoidal", "swept", "delta", "double_delta", "diamond", "lambda", "unswept"]
                 planformOptions = orderedPairs(labels, preferred: order)
@@ -231,6 +234,7 @@ final class CombatRadiusViewModel: ObservableObject {
                     applyEngine()
                 }
                 resetF135TsfcToggle(for: p.id)
+                syncLoadoutImage(for: p.id)
                 showSnapshot()
             }
             DispatchQueue.main.async { [weak self] in
@@ -256,6 +260,21 @@ final class CombatRadiusViewModel: ObservableObject {
         return head + tail
     }
 
+    /// 按机型 id 更新挂载示意图 URL；Bundle 内路径 combat_radius/loadout/。
+    private func syncLoadoutImage(for aircraftId: String) {
+        guard let file = loadoutImageMap[aircraftId], !file.isEmpty else {
+            loadoutImageUrl = nil
+            return
+        }
+        let base = (file as NSString).deletingPathExtension
+        let ext = (file as NSString).pathExtension.isEmpty ? "jpg" : (file as NSString).pathExtension
+        loadoutImageUrl = Bundle.main.url(
+            forResource: base,
+            withExtension: ext,
+            subdirectory: "combat_radius/loadout"
+        )
+    }
+
     /// 选择战机后填充参数并加载预计算
     func applyAircraft() {
         guard let p = presets.first(where: { $0.id == selectedTgtId }) else { return }
@@ -268,6 +287,7 @@ final class CombatRadiusViewModel: ObservableObject {
             applyEngine()
         }
         resetF135TsfcToggle(for: p.id)
+        syncLoadoutImage(for: p.id)
         showSnapshot()
         DispatchQueue.main.async { [weak self] in
             self?.applying = false

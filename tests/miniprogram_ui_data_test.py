@@ -134,6 +134,9 @@ def test_miniprogram_missile_interception_page_and_tabbar():
     assert 'sortPresetsByNationThenName(data.combat_radius_presets' in cr_js
     assert '内段前缘后掠' in cr_wxml
     assert '外段前缘后掠' in cr_wxml
+    assert 'resolveLoadoutImageUrl' in cr_js
+    assert 'loadoutImageUrl' in cr_wxml
+    assert '外挂挂载示意' in cr_wxml
     assert 'onInletPreset' in cr_js
     assert 'onStoreMountPreset' in cr_js
     assert 'onF135TsfcMode' in cr_js

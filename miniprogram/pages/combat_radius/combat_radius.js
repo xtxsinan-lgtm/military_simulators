@@ -150,6 +150,16 @@ function isF35TsfcToggleAircraft(id, ids) {
   return (ids || []).indexOf(id) >= 0;
 }
 
+/** 小程序端挂载图绝对路径前缀。 */
+const LOADOUT_IMAGE_BASE = '/assets/combat_radius/loadout/';
+
+function resolveLoadoutImageUrl(aircraftId, mapping) {
+  const aid = (aircraftId || '').trim();
+  if (!aid) return '';
+  const file = (mapping || {})[aid];
+  return file ? `${LOADOUT_IMAGE_BASE}${file}` : '';
+}
+
 function resolvePageTsfcInstallMult(page) {
   const d = page.data;
   const idx = d.tgtPresetIndex;
@@ -283,6 +293,8 @@ Page({
     f135TsfcPublished: 1.22,
     f135TsfcLpcOnly: 1.04,
     snapshotEligible: false,
+    loadoutImageMap: {},
+    loadoutImageUrl: '',
   },
 
   onShow() {
@@ -314,6 +326,7 @@ Page({
         const ratioRaw = Number((cfg.engine || {}).dry_to_max_thrust_ratio);
         const dryToMaxRatio = ratioRaw > 0 && ratioRaw <= 1 ? ratioRaw : 0.7;
         const f135Toggle = f135ToggleFromCfg(cfg);
+        const loadoutImageMap = (data.combat_radius_loadout_images && data.combat_radius_loadout_images.aircraft) || {};
         const eng = (tgtp && tgtp.engine_id && engines.find((p) => p.id === tgtp.engine_id))
           || engines.find((p) => p.id === ui.default_engine_id)
           || engines[0];
@@ -345,6 +358,8 @@ Page({
           showF135TsfcToggle: isF35TsfcToggleAircraft(tgtp && tgtp.id, f135Toggle.f135TsfcAircraftIds),
           f135TsfcMode: 'published',
           snapshotEligible: true,
+          loadoutImageMap,
+          loadoutImageUrl: resolveLoadoutImageUrl(tgtp && tgtp.id, loadoutImageMap),
           statusText: presets.length ? '预设已加载' : '缺少 combat_radius_presets，请运行 build_all.py',
         });
         this.showSnapshot(tgtp && tgtp.id);
@@ -456,11 +471,13 @@ Page({
       }
       patch.f135TsfcMode = 'published';
       patch.showF135TsfcToggle = isF35TsfcToggleAircraft(p.id, this.data.f135TsfcAircraftIds);
+      patch.loadoutImageUrl = resolveLoadoutImageUrl(p.id, this.data.loadoutImageMap);
       this.setData(patch);
       this.showSnapshot(p.id);
     } else {
       patch.f135TsfcMode = 'published';
       patch.showF135TsfcToggle = false;
+      patch.loadoutImageUrl = '';
       this.setData(patch);
     }
   },
