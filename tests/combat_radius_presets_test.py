@@ -28,7 +28,7 @@ EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
     'J-15', 'J-15T', 'MiG-29K', 'Rafale-M', 'Rafale', 'Mirage-2000',
     'FA-18E', 'FA-18C', 'F-14',
     'NG6C', 'NG6B', 'NG6A',
-    'F-15', 'F-15E', 'F-16', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
+    'F-15', 'F-15E', 'F-16', 'F-2', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
     'F-CK-1', 'FC-1', 'L-15B', 'Tejas',
     'Su-57', 'KF-21', 'FA-50', 'KAAN', 'Su-75',
     'XGB-1', 'XGB-2', 'XGB-3',
@@ -169,6 +169,41 @@ def test_j10c_preset_canard_delta_ws10b():
     assert j10c['canard_htail_area_m2'] == pytest.approx(4.9)
     ac = preset_to_aircraft(j10c)
     assert ac.mach_angle_deg == pytest.approx(16.2)
+
+
+def test_f2_preset_f16_derived():
+    """日本 F-2：F-16 放大改型，F110-IHI-129，分段浸润齐全。"""
+    from utils.combat_radius.cruise_load import wing_loading_t_m2
+
+    presets = load_presets()
+    f2 = get_preset_by_id(presets, 'F-2')
+    f16 = get_preset_by_id(presets, 'F-16')
+    assert f2 is not None
+    assert f16 is not None
+    assert f2['name'] == 'F-2A 战斗机'
+    assert f2['nation'] == '日本'
+    assert f2['carrier'] is False
+    assert f2['planform'] == 'swept'
+    assert f2['layout'] == 'conventional'
+    assert f2['inlet'] == 'caret'
+    assert f2['store_mount'] == 'pylon'
+    assert f2['engine_id'] == 'f110ihi129'
+    assert f2['n_engines'] == 1
+    assert f2['sweep_deg'] == pytest.approx(f16['sweep_deg'])
+    assert f2['wing_area_m2'] == pytest.approx(34.84)
+    assert f2['wingspan_m'] == pytest.approx(11.125)
+    assert f2['length_m'] == pytest.approx(15.52)
+    assert f2['empty_kg'] == pytest.approx(9527)
+    assert f2['internal_fuel_kg'] == pytest.approx(3710)
+    assert f2['max_payload_kg'] == pytest.approx(8085)
+    assert f2['AR'] == pytest.approx(11.125 ** 2 / 34.84, abs=0.005)
+    assert f2['wing_loading'] == pytest.approx(wing_loading_t_m2(
+        9527, 3710, 34.84, 1, 163,
+    ), abs=1e-6)
+    assert f2['main_wing_area_m2'] == pytest.approx(25.1)
+    assert f2['canard_htail_area_m2'] == pytest.approx(7.37)
+    assert f2['vtail_area_m2'] == pytest.approx(5.0)
+    assert get_preset_by_id(load_engine_presets(), 'f110ihi129') is not None
 
 
 def test_typhoon_rafale_su57_kf21_kaan_su75_presets():

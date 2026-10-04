@@ -59,6 +59,7 @@ def test_load_aircraft_csv_count():
     assert 'F-35A' in aircraft
     assert 'F-15' in aircraft
     assert 'F-16' in aircraft
+    assert 'F-2' in aircraft
     assert 'Typhoon' in aircraft
     assert 'Rafale' in aircraft
     assert 'Rafale-M' in aircraft
@@ -321,7 +322,7 @@ def test_load_combat_radius_aircraft_csv():
         'J-15', 'J-15T', 'MiG-29K', 'Rafale-M', 'Rafale', 'Mirage-2000',
         'FA-18E', 'FA-18C', 'F-14',
         'NG6C', 'NG6B', 'NG6A',
-        'F-15', 'F-15E', 'F-16', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
+        'F-15', 'F-15E', 'F-16', 'F-2', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
         'F-CK-1', 'FC-1', 'L-15B', 'Tejas',
         'Su-57', 'KF-21', 'FA-50', 'KAAN', 'Su-75',
         'XGB-1', 'XGB-2', 'XGB-3',
