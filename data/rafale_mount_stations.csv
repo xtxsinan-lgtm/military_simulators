@@ -1,0 +1,17 @@
+aircraft_id,station_id,station_label,label_zh,side,position,store_mount,notes
+Rafale,WING_TIP_R,WING TIP R,翼尖挂点 R,right,wing_tip,pylon,左右对称
+Rafale,WING_TIP_L,WING TIP L,翼尖挂点 L,left,wing_tip,pylon,左右对称
+Rafale,WING_3_R,WING #3 R,外侧翼下挂点 R,right,wing_outer,pylon,左右对称
+Rafale,WING_3_L,WING #3 L,外侧翼下挂点 L,left,wing_outer,pylon,左右对称
+Rafale,WING_2_R,WING #2 R,中间翼下挂点 R,right,wing_mid,pylon,左右对称
+Rafale,WING_2_L,WING #2 L,中间翼下挂点 L,left,wing_mid,pylon,左右对称
+Rafale,WING_1_R,WING #1 R,内侧翼下挂点 R,right,wing_inner,pylon,左右对称
+Rafale,WING_1_L,WING #1 L,内侧翼下挂点 L,left,wing_inner,pylon,左右对称
+Rafale,AFT_LAT_R,AFT LAT R,机腹后侧挂点 R,right,fuselage_aft,semi_recessed,左右对称
+Rafale,AFT_LAT_L,AFT LAT L,机腹后侧挂点 L,left,fuselage_aft,semi_recessed,左右对称
+Rafale,FWD_LAT_R,FWD LAT R,机腹前侧挂点 R,right,fuselage_fwd,semi_recessed,左右对称
+Rafale,FWD_LAT_L,FWD LAT L,机腹前侧挂点 L,left,fuselage_fwd,semi_recessed,左右对称
+Rafale,FUS_CENT,FUS CENT,机腹中线挂点,center,fuselage_center,mixed,核武器/大弹/吊舱/副油箱
+Rafale,TGP_STN,TGP,机腹右侧吊舱专用挂点,right,fuselage_tgp,pod,FWD LAT R 下方；激光/瞄准吊舱专用
+Rafale,TOP_LAT_R,TOP LAT R,保形挂点 R,right,conformal,conformal,CFT 保形油箱
+Rafale,TOP_LAT_L,TOP LAT L,保形挂点 L,left,conformal,conformal,CFT 保形油箱

@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 36,
+  "version": 37,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -30278,5 +30278,801 @@ module.exports = {
         "stage_locked": false
       }
     ]
+  },
+  "rafale_mount": {
+    "aircraft_ids": [
+      "Rafale",
+      "Rafale-M"
+    ],
+    "categories": {
+      "air_to_air": {
+        "label_en": "AIR TO AIR",
+        "label_zh": "空空导弹"
+      },
+      "air_to_ground": {
+        "label_en": "AIR TO GROUND",
+        "label_zh": "空地导弹"
+      },
+      "air_to_sea": {
+        "label_en": "AIR TO SEA",
+        "label_zh": "反舰导弹"
+      },
+      "bombs_guided": {
+        "label_en": "BOMBS - GUIDED",
+        "label_zh": "精确制导炸弹"
+      },
+      "bombs_conventional": {
+        "label_en": "BOMBS - CONVENTIONAL",
+        "label_zh": "常规炸弹"
+      },
+      "electronic_warfare": {
+        "label_en": "ELECTRONIC WARFARE",
+        "label_zh": "电子战/干扰设备"
+      },
+      "pods_fuel": {
+        "label_en": "PODS / FUEL",
+        "label_zh": "吊舱与副油箱"
+      },
+      "laser_designation": {
+        "label_en": "LASER DESIGNATION PODS",
+        "label_zh": "激光制导/瞄准吊舱"
+      },
+      "nuclear": {
+        "label_en": "NUCLEAR",
+        "label_zh": "核武器"
+      },
+      "fuel": {
+        "label_en": "FUEL",
+        "label_zh": "副油箱"
+      }
+    },
+    "stations": [
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "WING_TIP_R",
+        "station_label": "WING TIP R",
+        "label_zh": "翼尖挂点 R",
+        "side": "right",
+        "position": "wing_tip",
+        "store_mount": "pylon",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "WING_TIP_L",
+        "station_label": "WING TIP L",
+        "label_zh": "翼尖挂点 L",
+        "side": "left",
+        "position": "wing_tip",
+        "store_mount": "pylon",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "WING_3_R",
+        "station_label": "WING #3 R",
+        "label_zh": "外侧翼下挂点 R",
+        "side": "right",
+        "position": "wing_outer",
+        "store_mount": "pylon",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "WING_3_L",
+        "station_label": "WING #3 L",
+        "label_zh": "外侧翼下挂点 L",
+        "side": "left",
+        "position": "wing_outer",
+        "store_mount": "pylon",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "WING_2_R",
+        "station_label": "WING #2 R",
+        "label_zh": "中间翼下挂点 R",
+        "side": "right",
+        "position": "wing_mid",
+        "store_mount": "pylon",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "WING_2_L",
+        "station_label": "WING #2 L",
+        "label_zh": "中间翼下挂点 L",
+        "side": "left",
+        "position": "wing_mid",
+        "store_mount": "pylon",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "WING_1_R",
+        "station_label": "WING #1 R",
+        "label_zh": "内侧翼下挂点 R",
+        "side": "right",
+        "position": "wing_inner",
+        "store_mount": "pylon",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "WING_1_L",
+        "station_label": "WING #1 L",
+        "label_zh": "内侧翼下挂点 L",
+        "side": "left",
+        "position": "wing_inner",
+        "store_mount": "pylon",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "AFT_LAT_R",
+        "station_label": "AFT LAT R",
+        "label_zh": "机腹后侧挂点 R",
+        "side": "right",
+        "position": "fuselage_aft",
+        "store_mount": "semi_recessed",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "AFT_LAT_L",
+        "station_label": "AFT LAT L",
+        "label_zh": "机腹后侧挂点 L",
+        "side": "left",
+        "position": "fuselage_aft",
+        "store_mount": "semi_recessed",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "FWD_LAT_R",
+        "station_label": "FWD LAT R",
+        "label_zh": "机腹前侧挂点 R",
+        "side": "right",
+        "position": "fuselage_fwd",
+        "store_mount": "semi_recessed",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "FWD_LAT_L",
+        "station_label": "FWD LAT L",
+        "label_zh": "机腹前侧挂点 L",
+        "side": "left",
+        "position": "fuselage_fwd",
+        "store_mount": "semi_recessed",
+        "notes": "左右对称"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "FUS_CENT",
+        "station_label": "FUS CENT",
+        "label_zh": "机腹中线挂点",
+        "side": "center",
+        "position": "fuselage_center",
+        "store_mount": "mixed",
+        "notes": "核武器/大弹/吊舱/副油箱"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "TGP_STN",
+        "station_label": "TGP",
+        "label_zh": "机腹右侧吊舱专用挂点",
+        "side": "right",
+        "position": "fuselage_tgp",
+        "store_mount": "pod",
+        "notes": "FWD LAT R 下方；激光/瞄准吊舱专用"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "TOP_LAT_R",
+        "station_label": "TOP LAT R",
+        "label_zh": "保形挂点 R",
+        "side": "right",
+        "position": "conformal",
+        "store_mount": "conformal",
+        "notes": "CFT 保形油箱"
+      },
+      {
+        "aircraft_id": "Rafale",
+        "station_id": "TOP_LAT_L",
+        "station_label": "TOP LAT L",
+        "label_zh": "保形挂点 L",
+        "side": "left",
+        "position": "conformal",
+        "store_mount": "conformal",
+        "notes": "CFT 保形油箱"
+      }
+    ],
+    "stores_by_station": {
+      "WING_TIP_R": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        }
+      ],
+      "WING_TIP_L": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        }
+      ],
+      "WING_3_R": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "lr68",
+          "name": "LR68",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "x_guard_towed_decoy",
+          "name": "X-GUARD Towed Decoy",
+          "category": "electronic_warfare"
+        }
+      ],
+      "WING_3_L": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "lr68",
+          "name": "LR68",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "x_guard_towed_decoy",
+          "name": "X-GUARD Towed Decoy",
+          "category": "electronic_warfare"
+        }
+      ],
+      "WING_2_R": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "meteor",
+          "name": "METEOR",
+          "category": "air_to_air"
+        },
+        {
+          "id": "sbu_58_54_64_hammer",
+          "name": "SBU-58 / 54 / 64 HAMMER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "sbu_21_56_66_hammer",
+          "name": "SBU-21 / 56 / 66 HAMMER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "sbu_hammer_xlr",
+          "name": "SBU-xx / xx / xx HAMMER XLR",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "al_tariq_s",
+          "name": "AL-TARIQ S",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "al_tariq_er",
+          "name": "AL-TARIQ ER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "scalp_eg",
+          "name": "SCALP-EG",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "tp_15",
+          "name": "TP-15",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "rj10_anti_radar",
+          "name": "RJ-10 Anti-Radar",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "smart_cruiser",
+          "name": "SMART CRUISER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "am39_exocet",
+          "name": "AM-39 EXOCET",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "rj10_anti_ship",
+          "name": "RJ-10 Anti-Ship",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "gbu_12_22_49",
+          "name": "GBU-12 / 22 / 49",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gbu_16",
+          "name": "GBU-16",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gbu_10_24",
+          "name": "GBU-10 / 24",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "thunder_p32",
+          "name": "THUNDER P-32",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "mk_82",
+          "name": "MK-82",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk_83",
+          "name": "MK-83",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk_84",
+          "name": "MK-84",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "esj",
+          "name": "ESJ",
+          "category": "pods_fuel"
+        },
+        {
+          "id": "rpl_701_1250l",
+          "name": "RPL-701 1250L 副油箱",
+          "category": "pods_fuel"
+        }
+      ],
+      "WING_2_L": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "meteor",
+          "name": "METEOR",
+          "category": "air_to_air"
+        },
+        {
+          "id": "sbu_58_54_64_hammer",
+          "name": "SBU-58 / 54 / 64 HAMMER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "sbu_21_56_66_hammer",
+          "name": "SBU-21 / 56 / 66 HAMMER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "sbu_hammer_xlr",
+          "name": "SBU-xx / xx / xx HAMMER XLR",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "al_tariq_s",
+          "name": "AL-TARIQ S",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "al_tariq_er",
+          "name": "AL-TARIQ ER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "scalp_eg",
+          "name": "SCALP-EG",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "tp_15",
+          "name": "TP-15",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "rj10_anti_radar",
+          "name": "RJ-10 Anti-Radar",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "smart_cruiser",
+          "name": "SMART CRUISER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "am39_exocet",
+          "name": "AM-39 EXOCET",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "rj10_anti_ship",
+          "name": "RJ-10 Anti-Ship",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "gbu_12_22_49",
+          "name": "GBU-12 / 22 / 49",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gbu_16",
+          "name": "GBU-16",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gbu_10_24",
+          "name": "GBU-10 / 24",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "thunder_p32",
+          "name": "THUNDER P-32",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "mk_82",
+          "name": "MK-82",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk_83",
+          "name": "MK-83",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk_84",
+          "name": "MK-84",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "esj",
+          "name": "ESJ",
+          "category": "pods_fuel"
+        },
+        {
+          "id": "rpl_701_1250l",
+          "name": "RPL-701 1250L 副油箱",
+          "category": "pods_fuel"
+        }
+      ],
+      "WING_1_R": [
+        {
+          "id": "scalp_eg",
+          "name": "SCALP-EG",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "tp_15",
+          "name": "TP-15",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "rj10_anti_radar",
+          "name": "RJ-10 Anti-Radar",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "am39_exocet",
+          "name": "AM-39 EXOCET",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "rj10_anti_ship",
+          "name": "RJ-10 Anti-Ship",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "rpl_701_1250l",
+          "name": "RPL-701 1250L 副油箱",
+          "category": "fuel"
+        },
+        {
+          "id": "rpl_741_2000l",
+          "name": "RPL-741 2000L 副油箱",
+          "category": "fuel"
+        }
+      ],
+      "WING_1_L": [
+        {
+          "id": "scalp_eg",
+          "name": "SCALP-EG",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "tp_15",
+          "name": "TP-15",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "rj10_anti_radar",
+          "name": "RJ-10 Anti-Radar",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "am39_exocet",
+          "name": "AM-39 EXOCET",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "rj10_anti_ship",
+          "name": "RJ-10 Anti-Ship",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "rpl_701_1250l",
+          "name": "RPL-701 1250L 副油箱",
+          "category": "fuel"
+        },
+        {
+          "id": "rpl_741_2000l",
+          "name": "RPL-741 2000L 副油箱",
+          "category": "fuel"
+        }
+      ],
+      "AFT_LAT_R": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "meteor",
+          "name": "METEOR",
+          "category": "air_to_air"
+        }
+      ],
+      "AFT_LAT_L": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "meteor",
+          "name": "METEOR",
+          "category": "air_to_air"
+        }
+      ],
+      "FWD_LAT_R": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        }
+      ],
+      "FWD_LAT_L": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        }
+      ],
+      "FUS_CENT": [
+        {
+          "id": "mica_ir_ng",
+          "name": "MICA IR (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_em_ng",
+          "name": "MICA EM (NG)",
+          "category": "air_to_air"
+        },
+        {
+          "id": "sbu_21_56_66_hammer",
+          "name": "SBU-21 / 56 / 66 HAMMER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "al_tariq_s",
+          "name": "AL-TARIQ S",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "al_tariq_er",
+          "name": "AL-TARIQ ER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "scalp_eg",
+          "name": "SCALP-EG",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "tp_15",
+          "name": "TP-15",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "rj10_anti_radar",
+          "name": "RJ-10 Anti-Radar",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "smart_cruiser",
+          "name": "SMART CRUISER",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "am39_exocet",
+          "name": "AM-39 EXOCET",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "rj10_anti_ship",
+          "name": "RJ-10 Anti-Ship",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "asmp_a",
+          "name": "ASMP-A",
+          "category": "nuclear"
+        },
+        {
+          "id": "asn4g",
+          "name": "ASN4G",
+          "category": "nuclear"
+        },
+        {
+          "id": "gbu_16",
+          "name": "GBU-16",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gbu_10_24",
+          "name": "GBU-10 / 24",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "mk_83",
+          "name": "MK-83",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk_84",
+          "name": "MK-84",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "areos",
+          "name": "AREOS 侦察吊舱",
+          "category": "pods_fuel"
+        },
+        {
+          "id": "esj",
+          "name": "ESJ 电子战吊舱",
+          "category": "pods_fuel"
+        },
+        {
+          "id": "rpl_701_1250l",
+          "name": "RPL-701 1250L 副油箱",
+          "category": "pods_fuel"
+        },
+        {
+          "id": "rpl_741_2000l",
+          "name": "RPL-741 2000L 副油箱",
+          "category": "pods_fuel"
+        },
+        {
+          "id": "narang_buddy",
+          "name": "NARANG 伙伴加油吊舱",
+          "category": "pods_fuel"
+        }
+      ],
+      "TGP_STN": [
+        {
+          "id": "pod_tr",
+          "name": "POD TR",
+          "category": "laser_designation"
+        },
+        {
+          "id": "damocles_mp",
+          "name": "DAMOCLES MP",
+          "category": "laser_designation"
+        },
+        {
+          "id": "talios",
+          "name": "TALIOS",
+          "category": "laser_designation"
+        },
+        {
+          "id": "sniper",
+          "name": "SNIPER",
+          "category": "laser_designation"
+        }
+      ],
+      "TOP_LAT_R": [
+        {
+          "id": "cft_1150l",
+          "name": "CFT 1150L 保形油箱",
+          "category": "fuel"
+        }
+      ],
+      "TOP_LAT_L": [
+        {
+          "id": "cft_1150l",
+          "name": "CFT 1150L 保形油箱",
+          "category": "fuel"
+        }
+      ]
+    },
+    "stations_csv": "data/rafale_mount_stations.csv",
+    "stores_csv": "data/rafale_mount_stores.csv"
   }
 };

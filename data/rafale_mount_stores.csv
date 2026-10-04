@@ -1,0 +1,111 @@
+aircraft_id,station_id,category,category_zh,store_id,store_name
+Rafale,WING_TIP_R,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,WING_TIP_R,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,WING_TIP_L,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,WING_TIP_L,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,WING_3_R,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,WING_3_R,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,WING_3_R,air_to_ground,空地导弹,lr68,LR68
+Rafale,WING_3_R,electronic_warfare,电子战/干扰设备,x_guard_towed_decoy,X-GUARD Towed Decoy
+Rafale,WING_3_L,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,WING_3_L,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,WING_3_L,air_to_ground,空地导弹,lr68,LR68
+Rafale,WING_3_L,electronic_warfare,电子战/干扰设备,x_guard_towed_decoy,X-GUARD Towed Decoy
+Rafale,WING_2_R,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,WING_2_R,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,WING_2_R,air_to_air,空空导弹,meteor,METEOR
+Rafale,WING_2_R,air_to_ground,空地导弹,sbu_58_54_64_hammer,SBU-58 / 54 / 64 HAMMER
+Rafale,WING_2_R,air_to_ground,空地导弹,sbu_21_56_66_hammer,SBU-21 / 56 / 66 HAMMER
+Rafale,WING_2_R,air_to_ground,空地导弹,sbu_hammer_xlr,SBU-xx / xx / xx HAMMER XLR
+Rafale,WING_2_R,air_to_ground,空地导弹,al_tariq_s,AL-TARIQ S
+Rafale,WING_2_R,air_to_ground,空地导弹,al_tariq_er,AL-TARIQ ER
+Rafale,WING_2_R,air_to_ground,空地导弹,scalp_eg,SCALP-EG
+Rafale,WING_2_R,air_to_ground,空地导弹,tp_15,TP-15
+Rafale,WING_2_R,air_to_ground,空地导弹,rj10_anti_radar,RJ-10 Anti-Radar
+Rafale,WING_2_R,air_to_ground,空地导弹,smart_cruiser,SMART CRUISER
+Rafale,WING_2_R,air_to_sea,反舰导弹,am39_exocet,AM-39 EXOCET
+Rafale,WING_2_R,air_to_sea,反舰导弹,rj10_anti_ship,RJ-10 Anti-Ship
+Rafale,WING_2_R,bombs_guided,精确制导炸弹,gbu_12_22_49,GBU-12 / 22 / 49
+Rafale,WING_2_R,bombs_guided,精确制导炸弹,gbu_16,GBU-16
+Rafale,WING_2_R,bombs_guided,精确制导炸弹,gbu_10_24,GBU-10 / 24
+Rafale,WING_2_R,bombs_guided,精确制导炸弹,thunder_p32,THUNDER P-32
+Rafale,WING_2_R,bombs_conventional,常规炸弹,mk_82,MK-82
+Rafale,WING_2_R,bombs_conventional,常规炸弹,mk_83,MK-83
+Rafale,WING_2_R,bombs_conventional,常规炸弹,mk_84,MK-84
+Rafale,WING_2_R,pods_fuel,电子战/副油箱,esj,ESJ
+Rafale,WING_2_R,pods_fuel,电子战/副油箱,rpl_701_1250l,RPL-701 1250L 副油箱
+Rafale,WING_2_L,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,WING_2_L,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,WING_2_L,air_to_air,空空导弹,meteor,METEOR
+Rafale,WING_2_L,air_to_ground,空地导弹,sbu_58_54_64_hammer,SBU-58 / 54 / 64 HAMMER
+Rafale,WING_2_L,air_to_ground,空地导弹,sbu_21_56_66_hammer,SBU-21 / 56 / 66 HAMMER
+Rafale,WING_2_L,air_to_ground,空地导弹,sbu_hammer_xlr,SBU-xx / xx / xx HAMMER XLR
+Rafale,WING_2_L,air_to_ground,空地导弹,al_tariq_s,AL-TARIQ S
+Rafale,WING_2_L,air_to_ground,空地导弹,al_tariq_er,AL-TARIQ ER
+Rafale,WING_2_L,air_to_ground,空地导弹,scalp_eg,SCALP-EG
+Rafale,WING_2_L,air_to_ground,空地导弹,tp_15,TP-15
+Rafale,WING_2_L,air_to_ground,空地导弹,rj10_anti_radar,RJ-10 Anti-Radar
+Rafale,WING_2_L,air_to_ground,空地导弹,smart_cruiser,SMART CRUISER
+Rafale,WING_2_L,air_to_sea,反舰导弹,am39_exocet,AM-39 EXOCET
+Rafale,WING_2_L,air_to_sea,反舰导弹,rj10_anti_ship,RJ-10 Anti-Ship
+Rafale,WING_2_L,bombs_guided,精确制导炸弹,gbu_12_22_49,GBU-12 / 22 / 49
+Rafale,WING_2_L,bombs_guided,精确制导炸弹,gbu_16,GBU-16
+Rafale,WING_2_L,bombs_guided,精确制导炸弹,gbu_10_24,GBU-10 / 24
+Rafale,WING_2_L,bombs_guided,精确制导炸弹,thunder_p32,THUNDER P-32
+Rafale,WING_2_L,bombs_conventional,常规炸弹,mk_82,MK-82
+Rafale,WING_2_L,bombs_conventional,常规炸弹,mk_83,MK-83
+Rafale,WING_2_L,bombs_conventional,常规炸弹,mk_84,MK-84
+Rafale,WING_2_L,pods_fuel,电子战/副油箱,esj,ESJ
+Rafale,WING_2_L,pods_fuel,电子战/副油箱,rpl_701_1250l,RPL-701 1250L 副油箱
+Rafale,WING_1_R,air_to_ground,空地导弹,scalp_eg,SCALP-EG
+Rafale,WING_1_R,air_to_ground,空地导弹,tp_15,TP-15
+Rafale,WING_1_R,air_to_ground,空地导弹,rj10_anti_radar,RJ-10 Anti-Radar
+Rafale,WING_1_R,air_to_sea,反舰导弹,am39_exocet,AM-39 EXOCET
+Rafale,WING_1_R,air_to_sea,反舰导弹,rj10_anti_ship,RJ-10 Anti-Ship
+Rafale,WING_1_R,fuel,副油箱,rpl_701_1250l,RPL-701 1250L 副油箱
+Rafale,WING_1_R,fuel,副油箱,rpl_741_2000l,RPL-741 2000L 副油箱
+Rafale,WING_1_L,air_to_ground,空地导弹,scalp_eg,SCALP-EG
+Rafale,WING_1_L,air_to_ground,空地导弹,tp_15,TP-15
+Rafale,WING_1_L,air_to_ground,空地导弹,rj10_anti_radar,RJ-10 Anti-Radar
+Rafale,WING_1_L,air_to_sea,反舰导弹,am39_exocet,AM-39 EXOCET
+Rafale,WING_1_L,air_to_sea,反舰导弹,rj10_anti_ship,RJ-10 Anti-Ship
+Rafale,WING_1_L,fuel,副油箱,rpl_701_1250l,RPL-701 1250L 副油箱
+Rafale,WING_1_L,fuel,副油箱,rpl_741_2000l,RPL-741 2000L 副油箱
+Rafale,AFT_LAT_R,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,AFT_LAT_R,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,AFT_LAT_R,air_to_air,空空导弹,meteor,METEOR
+Rafale,AFT_LAT_L,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,AFT_LAT_L,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,AFT_LAT_L,air_to_air,空空导弹,meteor,METEOR
+Rafale,FWD_LAT_R,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,FWD_LAT_R,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,FWD_LAT_L,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,FWD_LAT_L,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,FUS_CENT,air_to_air,空空导弹,mica_ir_ng,MICA IR (NG)
+Rafale,FUS_CENT,air_to_air,空空导弹,mica_em_ng,MICA EM (NG)
+Rafale,FUS_CENT,air_to_ground,空地导弹,sbu_21_56_66_hammer,SBU-21 / 56 / 66 HAMMER
+Rafale,FUS_CENT,air_to_ground,空地导弹,al_tariq_s,AL-TARIQ S
+Rafale,FUS_CENT,air_to_ground,空地导弹,al_tariq_er,AL-TARIQ ER
+Rafale,FUS_CENT,air_to_ground,空地导弹,scalp_eg,SCALP-EG
+Rafale,FUS_CENT,air_to_ground,空地导弹,tp_15,TP-15
+Rafale,FUS_CENT,air_to_ground,空地导弹,rj10_anti_radar,RJ-10 Anti-Radar
+Rafale,FUS_CENT,air_to_ground,空地导弹,smart_cruiser,SMART CRUISER
+Rafale,FUS_CENT,air_to_sea,反舰导弹,am39_exocet,AM-39 EXOCET
+Rafale,FUS_CENT,air_to_sea,反舰导弹,rj10_anti_ship,RJ-10 Anti-Ship
+Rafale,FUS_CENT,nuclear,核武器,asmp_a,ASMP-A
+Rafale,FUS_CENT,nuclear,核武器,asn4g,ASN4G
+Rafale,FUS_CENT,bombs_guided,精确制导炸弹,gbu_16,GBU-16
+Rafale,FUS_CENT,bombs_guided,精确制导炸弹,gbu_10_24,GBU-10 / 24
+Rafale,FUS_CENT,bombs_conventional,常规炸弹,mk_83,MK-83
+Rafale,FUS_CENT,bombs_conventional,常规炸弹,mk_84,MK-84
+Rafale,FUS_CENT,pods_fuel,吊舱与副油箱,areos,AREOS 侦察吊舱
+Rafale,FUS_CENT,pods_fuel,吊舱与副油箱,esj,ESJ 电子战吊舱
+Rafale,FUS_CENT,pods_fuel,吊舱与副油箱,rpl_701_1250l,RPL-701 1250L 副油箱
+Rafale,FUS_CENT,pods_fuel,吊舱与副油箱,rpl_741_2000l,RPL-741 2000L 副油箱
+Rafale,FUS_CENT,pods_fuel,吊舱与副油箱,narang_buddy,NARANG 伙伴加油吊舱
+Rafale,TGP_STN,laser_designation,激光制导/瞄准吊舱,pod_tr,POD TR
+Rafale,TGP_STN,laser_designation,激光制导/瞄准吊舱,damocles_mp,DAMOCLES MP
+Rafale,TGP_STN,laser_designation,激光制导/瞄准吊舱,talios,TALIOS
+Rafale,TGP_STN,laser_designation,激光制导/瞄准吊舱,sniper,SNIPER
+Rafale,TOP_LAT_R,fuel,副油箱,cft_1150l,CFT 1150L 保形油箱
+Rafale,TOP_LAT_L,fuel,副油箱,cft_1150l,CFT 1150L 保形油箱
