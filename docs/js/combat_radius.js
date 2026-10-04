@@ -18,6 +18,7 @@ const COMBAT_RADIUS_PY_FILES = [
   'utils/combat_radius/cruise_load.py',
   'utils/combat_radius/loadout.py',
   'utils/combat_radius/breguet.py',
+  'utils/combat_radius/flight_profile.py',
   'utils/combat_radius/cruise_search.py',
   'utils/combat_radius/max_speed_search.py',
   'utils/combat_radius/combat_radius_presets.py',
@@ -40,6 +41,7 @@ const COMBAT_RADIUS_IMPORTS = [
   'utils.combat_radius.cruise_load',
   'utils.combat_radius.loadout',
   'utils.combat_radius.breguet',
+  'utils.combat_radius.flight_profile',
   'utils.combat_radius.cruise_search',
   'utils.combat_radius.max_speed_search',
   'utils.combat_radius.combat_radius_presets',
@@ -58,6 +60,8 @@ let applyingPreset = false;
 let currentAircraftName = '';
 /** F-35 油耗惩罚档：published=1.22，lpc_only=1.04。 */
 let f135TsfcMode = 'published';
+/** 任务剖面：hi_hi_hi / hi_lo_hi / lo_lo_lo。 */
+let flightProfileMode = 'hi_hi_hi';
 /** 选机后尚未改其它参数时，切回 1.22 可直接用预计算快照。 */
 let snapshotEligible = false;
 /** 当前机型挂点选择：station_id → option key。 */
@@ -509,9 +513,39 @@ function readAircraft() {
   };
 }
 
+function flightProfileCfg() {
+  return data?.combat_radius_config?.flight_profiles || {};
+}
+
+function defaultFlightProfileId() {
+  return flightProfileCfg().default || 'hi_hi_hi';
+}
+
+function syncFlightProfileToggle() {
+  const box = $('flightProfileBox');
+  if (!box) return;
+  const cfg = flightProfileCfg();
+  const options = cfg.options || [
+    { id: 'hi_hi_hi', label: '高-高-高' },
+    { id: 'hi_lo_hi', label: '高-低-高' },
+    { id: 'lo_lo_lo', label: '低-低-低' },
+  ];
+  const active = options.find((o) => o.id === flightProfileMode) || options[0];
+  if ($('flightProfileNote') && active?.note) {
+    $('flightProfileNote').textContent = active.note;
+  }
+  document.querySelectorAll('#flightProfileSeg .seg-btn').forEach((btn) => {
+    const id = btn.getAttribute('data-profile');
+    btn.classList.toggle('on', id === flightProfileMode);
+    const opt = options.find((o) => o.id === id);
+    if (opt?.label) btn.textContent = opt.label;
+  });
+}
+
 function readDashboardParams() {
   const params = {
     name: selectedAircraftName(''),
+    flight_profile: flightProfileMode,
     target: readAircraft(),
     empty_kg: Number($('wtEmpty').value),
     internal_fuel_kg: Number($('wtFuel').value),
@@ -778,12 +812,17 @@ function renderDash(r, sourceLabel) {
     </div>
     <p class="note">${sourceLabel} 状态「军推」表示该速度下军推可行（92% 裕度），「加力」表示军推不够、改用加力最佳高度。最佳 L/D 指该马赫下使升阻比×总效率最大的高度。低马赫爬高会因负载过大降低总效率，大迎角也会压低升阻比；Ma 1.5 以前最佳高度随速度升高。表尾「实用最大巡航速度」在 Ma 1.2 以上取最佳巡航高度达到最大值时的速度；「最大巡航速度」允许掉到 11 km。若与 Ma 1.2 以上作战半径最大的马赫不同，再插一行「最大半径超音速巡航速度」。最大 L/D 为可飞高度（军推优先，不足则加力）中升阻比最大的点；加力可飞按全部加力（不留巡航裕度），高度可到海平面。极速按阻力等于全部加力，各马赫取最大升阻比后再取真速最大点；超过超巡带后附加体积波阻，避免光滑隐身机靠降高把极速估高。混合作战半径仅超音速：去程该马赫、返程 Ma 0.8。加力升限按阻力不超过 92% 加力推力的最大飞行高度（与极速同一包线，可到海平面）。阻力不超过军推时不开加力，油耗按军推节流；超过军推才按加力燃油（全加力 TSFC 约为军推最大点的 2.2 倍）。负载是阻力占推力的比例。</p>
   `;
-  $('dashStatus').textContent = 'READY';
+  const profLabel = r.flight_profile_label || '';
+  if (profLabel) {
+    $('dashStatus').textContent = `READY · ${profLabel}`;
+  } else {
+    $('dashStatus').textContent = 'READY';
+  }
 }
 
 function showSnapshot() {
   dirty = false;
-  snapshotEligible = true;
+  snapshotEligible = flightProfileMode === defaultFlightProfileId();
   const id = $('tgtPreset').value;
   const snap = id ? snapshotFor(id) : null;
   if (!snap) {
@@ -978,11 +1017,13 @@ function bindLiveInputs() {
   root.addEventListener('input', (e) => {
     if (e.target && (e.target.id === 'tgtPreset' || e.target.id === 'engPreset')) return;
     if (e.target && e.target.closest && e.target.closest('#f135TsfcBox')) return;
+    if (e.target && e.target.closest && e.target.closest('#flightProfileBox')) return;
     if (e.target && e.target.closest && e.target.closest('.panel')) scheduleLiveDash();
   });
   root.addEventListener('change', (e) => {
     if (e.target && (e.target.id === 'tgtPreset' || e.target.id === 'engPreset')) return;
     if (e.target && e.target.closest && e.target.closest('#f135TsfcBox')) return;
+    if (e.target && e.target.closest && e.target.closest('#flightProfileBox')) return;
     if (e.target && e.target.closest && e.target.closest('.panel')) scheduleLiveDash();
   });
 }
@@ -995,6 +1036,8 @@ function applyUiDefaults() {
   $('effEps').value = ui.default_eps ?? 0.83;
   $('effEtan').value = ui.default_etan ?? 0.95;
   $('effAcc').value = ui.default_acc_frac ?? 0.16;
+  flightProfileMode = defaultFlightProfileId();
+  syncFlightProfileToggle();
   if (tgt) {
     $('tgtPreset').value = tgt.id;
     applyPresetToFields(tgt);
@@ -1028,7 +1071,21 @@ async function main() {
         if (f135TsfcMode === mode) return;
         f135TsfcMode = mode;
         syncF135TsfcToggle($('tgtPreset').value);
-        if (mode === 'published' && snapshotEligible) {
+        if (mode === 'published' && snapshotEligible && flightProfileMode === defaultFlightProfileId()) {
+          showSnapshot();
+          return;
+        }
+        clearTimeout(dashTimer);
+        runLiveDash();
+      });
+    });
+    document.querySelectorAll('#flightProfileSeg .seg-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-profile') || defaultFlightProfileId();
+        if (flightProfileMode === id) return;
+        flightProfileMode = id;
+        syncFlightProfileToggle();
+        if (id === defaultFlightProfileId() && snapshotEligible && f135TsfcMode === 'published') {
           showSnapshot();
           return;
         }

@@ -41,6 +41,16 @@ struct CombatRadiusView: View {
                         .foregroundStyle(CombatRadiusTheme.text)
                         .tint(CombatRadiusTheme.green)
                         .onChange(of: vm.wtCarrier) { _, _ in vm.scheduleLiveDash() }
+                    sectionLabel("▸ 任务剖面", color: CombatRadiusTheme.cyan)
+                    HStack(spacing: 8) {
+                        ForEach(vm.flightProfileOptions) { opt in
+                            Button(opt.label) { vm.setFlightProfile(opt.id) }
+                                .buttonStyle(CombatRadiusSegButton(on: vm.flightProfileId == opt.id))
+                        }
+                    }
+                    Text(vm.flightProfileNote)
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(CombatRadiusTheme.textDim)
                     sectionLabel("▸ 发动机", color: CombatRadiusTheme.amber)
                     enginePresetPicker("发动机预设", selection: $vm.selectedEngineId) {
                         vm.applyEngine()

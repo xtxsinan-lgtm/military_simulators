@@ -105,6 +105,13 @@ from utils.combat_radius.max_speed_search import (
     MAX_SPEED_THRUST_MARGIN,
     search_global_max_speed,
 )
+from utils.combat_radius.flight_profile import (
+    HI_LO_HI_LOW_MACH,
+    profile_combat_radius_m,
+    profile_mission_fuel_km,
+    resolve_flight_profile,
+    search_low_altitude_point,
+)
 from utils.combat_radius.military_thrust import (
     ETA_C_DEFAULT,
     estimate_military_thrust,
@@ -167,14 +174,30 @@ def radius_m_from_scored(
     scored: CruiseScored,
     mass_initial_kg: float,
     mass_final_kg: float,
+    *,
+    flight_profile: dict[str, Any] | None = None,
+    ctx: CruiseContext | None = None,
+    low_scored: CruiseScored | None = None,
 ) -> float | None:
     """由巡航评分点算布雷盖作战半径（米）；缺 TSFC 或油量不够则 None。"""
+    if scored is None:
+        return None
     if scored.tsfc_kg_n_s is None or scored.v0 <= 0 or scored.ld <= 0:
         return None
     try:
-        return combat_radius_m(
-            scored.v0, scored.tsfc_kg_n_s, scored.ld,
-            mass_initial_kg, mass_final_kg,
+        if flight_profile is None or ctx is None:
+            return combat_radius_m(
+                scored.v0, scored.tsfc_kg_n_s, scored.ld,
+                mass_initial_kg, mass_final_kg,
+            )
+        return profile_combat_radius_m(
+            flight_profile,
+            scored,
+            ctx=ctx,
+            mach=float(scored.mach),
+            mass_initial_kg=mass_initial_kg,
+            mass_final_kg=mass_final_kg,
+            low_scored=low_scored,
         )
     except ValueError:
         return None
@@ -185,6 +208,10 @@ def max_radius_mach_from_profile(
     mass_initial_kg: float,
     mass_final_kg: float,
     mach_lo: float = PRACTICAL_MAX_CRUISE_MACH_LO,
+    *,
+    flight_profile: dict[str, Any] | None = None,
+    ctx: CruiseContext | None = None,
+    hi_lo_low_ref: CruiseScored | None = None,
 ) -> tuple[float | None, float | None]:
     """在剖面上取 Ma≥mach_lo 且布雷盖半径最大的 (马赫, 半径km)。"""
     best_mach: float | None = None
@@ -192,7 +219,21 @@ def max_radius_mach_from_profile(
     for point in profile:
         if point.mach + 1e-9 < mach_lo:
             continue
-        radius_m = radius_m_from_scored(point, mass_initial_kg, mass_final_kg)
+        low_ref = hi_lo_low_ref
+        if (
+            flight_profile is not None
+            and str(flight_profile.get('mode')) == 'mixed_high_low'
+            and point.mach > 1.0 + 1e-9
+        ):
+            low_ref = hi_lo_low_ref
+        radius_m = radius_m_from_scored(
+            point,
+            mass_initial_kg,
+            mass_final_kg,
+            flight_profile=flight_profile,
+            ctx=ctx,
+            low_scored=low_ref,
+        )
         if radius_m is None:
             continue
         if best_radius_m is None or radius_m > best_radius_m:
@@ -453,9 +494,18 @@ def _subsonic_scored_for_burn(
     return None
 
 
-def _mission_fuel_note(kind: str, reserve_min: float, mf: dict[str, Any]) -> str:
+def _mission_fuel_note(
+    kind: str,
+    reserve_min: float,
+    mf: dict[str, Any],
+    flight_profile: dict[str, Any] | None = None,
+) -> str:
     """作战半径说明：先算出发/返回瞬时油耗，再按修正质量做布雷盖。"""
-    return (
+    prof = flight_profile or resolve_flight_profile(None)
+    prof_label = str(prof.get('label') or '高-高-高')
+    prof_note = str(prof.get('note') or '').strip()
+    base = (
+        f'任务剖面 {prof_label}：'
         f'先按出发/返回重量算瞬时油耗（已含{kind}降落冗余 {reserve_min:g} min'
         f'，{float(mf["reserve_cruise_kph"]):g} km/h 平飞）；'
         f'爬升额外按出发瞬时 × {float(mf["climb_extra_km"]):g} km，'
@@ -463,6 +513,7 @@ def _mission_fuel_note(kind: str, reserve_min: float, mf: dict[str, Any]) -> str
         '布雷盖终点 = 空重 +（冗余 − 降落节省），可用油 = 内油 − 该值 − 爬升额外；'
         '超音速点仍按亚音速油耗入账。'
     )
+    return f'{base} {prof_note}' if prof_note else base
 
 
 def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any]:
@@ -634,6 +685,10 @@ def _radius_fail_reason(warning: str) -> str:
         return '无法得到亚音速油耗'
     if warning == 'tsfc_unavailable':
         return '该点无法得到 TSFC'
+    if warning == 'low_altitude_unavailable':
+        return '低空带无可行巡航高度'
+    if warning == 'profile_radius_infeasible':
+        return '该剖面下无法闭合布雷盖半径'
     return '无满足 92% 推力裕度的高度'
 
 
@@ -683,12 +738,18 @@ def _enrich_radius_point(
     mass_initial_kg: float,
     mass_final_kg: float,
     fuel_kg: float,
+    *,
+    flight_profile: dict[str, Any] | None = None,
+    ctx: CruiseContext | None = None,
+    mach: float | None = None,
+    high_scored: Any | None = None,
+    low_scored: Any | None = None,
 ) -> dict[str, Any]:
     """把评分点补上布雷盖作战半径与平均油耗。"""
     row = scored_to_dict(scored)
     row['id'] = point_id
     row['label'] = label
-    if scored.tsfc_kg_n_s is None or scored.v0 <= 0 or scored.eta_o <= 0:
+    if scored is None or scored.tsfc_kg_n_s is None or scored.v0 <= 0 or scored.eta_o <= 0:
         row['feasible'] = False
         row['warning'] = row.get('warning') or 'tsfc_unavailable'
         row['fail_reason'] = _radius_fail_reason(row['warning'])
@@ -696,13 +757,36 @@ def _enrich_radius_point(
         row['radius_km'] = None
         row['fuel_kg_per_km'] = None
         return row
+    prof = flight_profile or resolve_flight_profile(None)
+    mode = str(prof.get('mode') or 'symmetric_high')
+    radius_source = high_scored if high_scored is not None else scored
+    low_ref = low_scored
+    if mode == 'mixed_high_low' and mach is not None and float(mach) > 1.0:
+        low_ref = low_scored
     try:
-        radius = combat_radius_m(
-            scored.v0, scored.tsfc_kg_n_s, scored.ld, mass_initial_kg, mass_final_kg,
-        )
-    except ValueError:
+        if ctx is None:
+            radius = combat_radius_m(
+                scored.v0, scored.tsfc_kg_n_s, scored.ld, mass_initial_kg, mass_final_kg,
+            )
+        else:
+            radius = profile_combat_radius_m(
+                prof,
+                radius_source,
+                ctx=ctx,
+                mach=float(mach if mach is not None else scored.mach),
+                mass_initial_kg=mass_initial_kg,
+                mass_final_kg=mass_final_kg,
+                low_scored=low_ref,
+            )
+    except ValueError as exc:
+        msg = str(exc)
         row['feasible'] = False
-        row['warning'] = 'insufficient_mission_fuel'
+        if '低空' in msg:
+            row['warning'] = 'low_altitude_unavailable'
+        elif '起飞质量' in msg or '终了质量' in msg:
+            row['warning'] = 'insufficient_mission_fuel'
+        else:
+            row['warning'] = 'profile_radius_infeasible'
         row['fail_reason'] = _radius_fail_reason(row['warning'])
         row['radius_m'] = None
         row['radius_km'] = None
@@ -849,8 +933,13 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     carrier = _parse_carrier(params)
     type_label = _parse_type_label(params)
     mf = mission_fuel_config()
+    flight_prof = resolve_flight_profile(params.get('flight_profile'))
+    climb_extra_km, descent_save_km = profile_mission_fuel_km(flight_prof['id'])
     reserve_min = reserve_min_for_mission(carrier, type_label)
     subsonic = _subsonic_scored_for_burn(ctx, alt_min, alt_max, coarse_m, refine_m)
+    hi_lo_low_ref = None
+    if str(flight_prof.get('mode')) == 'mixed_high_low':
+        hi_lo_low_ref = search_low_altitude_point(ctx, HI_LO_HI_LOW_MACH)
     fuel_adj: dict[str, Any] | None = None
     if (
         subsonic is not None
@@ -864,8 +953,8 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
             dry_mass_kg=dry_mass['total_kg'],
             reserve_min=reserve_min,
             cruise_kph=float(mf['reserve_cruise_kph']),
-            climb_extra_km=float(mf['climb_extra_km']),
-            descent_save_km=float(mf['descent_save_km']),
+            climb_extra_km=climb_extra_km,
+            descent_save_km=descent_save_km,
             v_mps=subsonic.v0,
             tsfc_kg_n_s=subsonic.tsfc_kg_n_s,
             ld=subsonic.ld,
@@ -874,31 +963,52 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
 
     def pack_point(point_id: str, label: str, mach: float) -> dict[str, Any]:
         try:
-            scored = search_best_altitude(
+            high_scored = search_best_altitude(
                 ctx, mach, alt_min, alt_max, coarse_m, refine_m,
             )
         except ValueError:
             row = _infeasible_point(point_id, label, mach)
         else:
-            if scored is None:
+            profile_mode = str(flight_prof.get('mode') or 'symmetric_high')
+            low_scored = None
+            display_scored = high_scored
+            if profile_mode == 'symmetric_low':
+                try:
+                    low_scored = search_low_altitude_point(ctx, mach)
+                except ValueError:
+                    low_scored = None
+                display_scored = low_scored or high_scored
+            if display_scored is None:
                 row = _infeasible_point(point_id, label, mach)
             elif fuel_adj is None:
                 row = _failed_radius_point(
-                    point_id, label, scored, 'subsonic_burn_unavailable',
+                    point_id, label, display_scored, 'subsonic_burn_unavailable',
                 )
             elif (
                 float(fuel_adj['usable_fuel_kg']) <= 0
                 or float(fuel_adj['mass_final_kg']) <= 0
             ):
                 row = _failed_radius_point(
-                    point_id, label, scored, 'insufficient_mission_fuel',
+                    point_id, label, display_scored, 'insufficient_mission_fuel',
                 )
             else:
+                low_ref = low_scored
+                if profile_mode == 'mixed_high_low':
+                    low_ref = (
+                        low_scored
+                        if mach <= 1.0 + 1e-9
+                        else hi_lo_low_ref
+                    )
                 row = _enrich_radius_point(
-                    point_id, label, scored,
+                    point_id, label, display_scored,
                     float(fuel_adj['mass_initial_kg']),
                     float(fuel_adj['mass_final_kg']),
                     float(fuel_adj['usable_fuel_kg']),
+                    flight_profile=flight_prof,
+                    ctx=ctx,
+                    mach=mach,
+                    high_scored=high_scored,
+                    low_scored=low_ref,
                 )
         return _attach_max_ld_to_point(
             row, ctx, mach, ab_ctx, alt_min, alt_max, coarse_m, refine_m,
@@ -938,6 +1048,9 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
                 float(fuel_adj['mass_initial_kg']),
                 float(fuel_adj['mass_final_kg']),
                 prac_lo,
+                flight_profile=flight_prof,
+                ctx=ctx,
+                hi_lo_low_ref=hi_lo_low_ref,
             )
     possible_mach = search_max_possible_cruise_mach(
         ctx, mach_lo, mach_hi, mach_iters, alt_min, alt_max, coarse_m,
@@ -1010,7 +1123,18 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         'max_radius_km': max_radius_km,
         'points': points,
         'mission_fuel': fuel_adj,
-        'note': _mission_fuel_note(reserve_kind_label(carrier, type_label), reserve_min, mf),
+        'flight_profile': flight_prof['id'],
+        'flight_profile_label': flight_prof['label'],
+        'note': _mission_fuel_note(
+            reserve_kind_label(carrier, type_label),
+            reserve_min,
+            {
+                **mf,
+                'climb_extra_km': climb_extra_km,
+                'descent_save_km': descent_save_km,
+            },
+            flight_prof,
+        ),
     }
 
 

@@ -129,6 +129,11 @@ def resolve_ui_tsfc_install_mult(
 
 def build_combat_radius_config_payload() -> dict[str, Any]:
     """构建前端/小程序/iOS 共用的作战半径配置片段。"""
+    from utils.combat_radius.flight_profile import (
+        default_flight_profile_id,
+        flight_profile_options,
+    )
+
     cfg = load_combat_radius_config()
     return {
         'version': cfg.get('version', 1),
@@ -140,6 +145,10 @@ def build_combat_radius_config_payload() -> dict[str, Any]:
         'mission_fuel': dict(cfg.get('mission_fuel', {})),
         'engine': dict(cfg.get('engine', {})),
         'f135_tsfc_toggle': f135_tsfc_toggle_config(),
+        'flight_profiles': {
+            'default': default_flight_profile_id(),
+            'options': flight_profile_options(),
+        },
     }
 
 

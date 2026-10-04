@@ -131,6 +131,19 @@ struct CombatRadiusConfigPayload: Codable {
     var store_mount_labels: [String: String]?
     var engine: CombatRadiusEngineConfig?
     var f135_tsfc_toggle: CombatRadiusF135TsfcToggle?
+    var flight_profiles: CombatRadiusFlightProfilesConfig?
+}
+
+/// 作战半径任务剖面配置
+struct CombatRadiusFlightProfilesConfig: Codable {
+    var `default`: String?
+    var options: [CombatRadiusFlightProfileOption]?
+}
+
+struct CombatRadiusFlightProfileOption: Codable, Identifiable, Hashable {
+    var id: String
+    var label: String
+    var note: String?
 }
 
 /// F-35A/B/C 油耗惩罚切换：公开军推 1.22 与仅低压压气机 1.04
@@ -314,6 +327,8 @@ struct CombatRadiusResult: Codable {
     var fuel_usable_kg: Double?
     var carrier: Bool?
     var mission_fuel: CombatRadiusMissionFuel?
+    var flight_profile: String?
+    var flight_profile_label: String?
     var note: String?
     var feasible: Bool?
     var fail_reason: String?

@@ -189,6 +189,51 @@ def test_e2e_combat_radius_f22_breguet_radius():
 
 
 @pytest.mark.e2e
+def test_e2e_combat_radius_flight_profiles_change_radius_and_fuel():
+    """三种任务剖面应改变任务油量开销与 Ma 0.8 作战半径，且高-高-高半径最大。"""
+    base = {**_radius_params(), 'max_tsl_kN': 156.0}
+    hi = run_combat_radius_json({
+        'action': 'estimate_radius',
+        'params': {**base, 'flight_profile': 'hi_hi_hi'},
+    })
+    mix = run_combat_radius_json({
+        'action': 'estimate_radius',
+        'params': {**base, 'flight_profile': 'hi_lo_hi'},
+    })
+    lo = run_combat_radius_json({
+        'action': 'estimate_radius',
+        'params': {**base, 'flight_profile': 'lo_lo_lo'},
+    })
+    for r, pid, label in (
+        (hi, 'hi_hi_hi', '高-高-高'),
+        (mix, 'hi_lo_hi', '高-低-高'),
+        (lo, 'lo_lo_lo', '低-低-低'),
+    ):
+        assert r['success'] is True
+        assert r['flight_profile'] == pid
+        assert r['flight_profile_label'] == label
+        assert label in r['note']
+    m08_hi = next(p for p in hi['points'] if p['id'] == 'mach_0_8')
+    m08_mix = next(p for p in mix['points'] if p['id'] == 'mach_0_8')
+    m08_lo = next(p for p in lo['points'] if p['id'] == 'mach_0_8')
+    assert m08_hi['feasible'] and m08_mix['feasible'] and m08_lo['feasible']
+    assert lo['fuel_usable_kg'] > hi['fuel_usable_kg']
+    assert hi['fuel_usable_kg'] > mix['fuel_usable_kg']
+    assert m08_hi['radius_km'] > m08_mix['radius_km']
+    assert m08_mix['radius_km'] > m08_lo['radius_km']
+    assert hi['mission_fuel']['climb_extra_kg'] == pytest.approx(
+        hi['mission_fuel']['takeoff_kg_per_km'] * 120,
+    )
+    assert mix['mission_fuel']['climb_extra_kg'] == pytest.approx(
+        mix['mission_fuel']['takeoff_kg_per_km'] * 180,
+    )
+    assert lo['mission_fuel']['climb_extra_kg'] == pytest.approx(
+        lo['mission_fuel']['takeoff_kg_per_km'] * 30,
+    )
+    assert m08_lo['alt_m'] < 4000.0
+
+
+@pytest.mark.e2e
 def test_e2e_combat_radius_j20_supercruise_and_radius_order():
     """歼-20 实用最大巡航低于 F-22；Ma 0.8 半径约 1350 km。"""
     presets = load_presets()
