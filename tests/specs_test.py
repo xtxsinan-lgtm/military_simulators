@@ -117,6 +117,7 @@ def test_max_payload_kg_wikipedia_sourced_types():
     assert aircraft['F-35A'].max_payload_kg == 8160
     assert aircraft['F-15'].max_payload_kg == 7300
     assert aircraft['F-16'].max_payload_kg == 7800
+    assert aircraft['F-2'].max_payload_kg == 8085
     assert aircraft['Typhoon'].max_payload_kg == 9000
     assert aircraft['Rafale'].max_payload_kg == 9500
     assert aircraft['Su-57'].max_payload_kg == 6500
