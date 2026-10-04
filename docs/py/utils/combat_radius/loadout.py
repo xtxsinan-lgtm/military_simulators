@@ -50,6 +50,13 @@ MOUNT_STYLE_AERO: dict[str, dict[str, float]] = {
         'exposed_frac': 1.0,
         'front_frac': 1.0,
     },
+    'wing_tip': {
+        'pylon_wetted_m2': 0.02,
+        'pylon_front_m2': 0.001,
+        'interf': 1.05,
+        'exposed_frac': 1.0,
+        'front_frac': 1.0,
+    },
 }
 
 # 同站多枚（三联架/CFT 串挂）额外干扰

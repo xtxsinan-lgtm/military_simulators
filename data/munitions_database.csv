@@ -37,3 +37,10 @@ zsw1,ZSW-1 数据链吊舱,pod,200,200,0,2.50,0.400,武器数据链
 ais_pod,AIS 训练吊舱,pod,50,50,0,2.00,0.200,空战机动仪表吊舱
 travel_pod,Travel Pod,pod,50,50,0,2.00,0.400,旅行吊舱
 suu20_bdu33x6,SUU-20+BDU-33×6,training,150,150,0,3.00,0.400,练习弹挂架含 6 枚 BDU-33
+mk83,MK-83 (1000lb),unguided_bomb,454,454,0,2.99,0.356,低阻通用炸弹
+gbu16,GBU-16 (1000lb),laser_bomb,454,454,0,3.78,0.356,Paveway II / Mk-83
+agm84,AGM-84 Harpoon,asm,520,520,0,3.84,0.343,空舰导弹
+agm88,AGM-88 HARM,arm,360,360,0,4.17,0.254,反辐射导弹
+slam_er,AGM-84H SLAM-ER,asm,725,725,0,4.36,0.343,防区外对地/反舰巡航导弹
+drop_tank_330,330加仑副油箱,fuel_tank,1130,120,1010,4.50,0.66,F/A-18C/D 常用 330 US gal 外挂油箱
+drop_tank_480,480加仑副油箱,fuel_tank,1606,150,1456,5.20,0.76,F/A-18E/F 常用 480 US gal 外挂油箱

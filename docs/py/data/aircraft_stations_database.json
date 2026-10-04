@@ -1,14 +1,26 @@
 {
-  "version": 1,
+  "version": 2,
   "aircraft": {
     "F-15E": {
       "id": "F-15E",
       "name": "F-15E",
       "default_selection": {
-        "sta2a": {"munition_id": "aim120", "qty": 1},
-        "sta2b": {"munition_id": "aim120", "qty": 1},
-        "sta8a": {"munition_id": "aim120", "qty": 1},
-        "sta8b": {"munition_id": "aim120", "qty": 1}
+        "sta2a": {
+          "munition_id": "aim120",
+          "qty": 1
+        },
+        "sta2b": {
+          "munition_id": "aim120",
+          "qty": 1
+        },
+        "sta8a": {
+          "munition_id": "aim120",
+          "qty": 1
+        },
+        "sta8b": {
+          "munition_id": "aim120",
+          "qty": 1
+        }
       },
       "stations": [
         {
@@ -16,23 +28,75 @@
           "label": "2 左翼下挂点",
           "mount_style": "wing_pylon",
           "options": [
-            {"munition_id": "drop_tank_610", "qty": 1},
-            {"munition_id": "mk82", "qty": 1},
-            {"munition_id": "mk84", "qty": 1},
-            {"munition_id": "gbu12", "qty": 1},
-            {"munition_id": "gbu10", "qty": 1},
-            {"munition_id": "gbu24", "qty": 1},
-            {"munition_id": "gbu27", "qty": 1},
-            {"munition_id": "gbu28", "qty": 1},
-            {"munition_id": "gbu31", "qty": 1},
-            {"munition_id": "gbu38", "qty": 1},
-            {"munition_id": "gbu54", "qty": 1},
-            {"munition_id": "agm65", "qty": 1},
-            {"munition_id": "agm65", "qty": 3, "label": "AGM-65 ×3 (LAU-88)"},
-            {"munition_id": "agm130", "qty": 1},
-            {"munition_id": "gbu15", "qty": 1},
-            {"munition_id": "agm154", "qty": 1},
-            {"munition_id": "bdu38", "qty": 1}
+            {
+              "munition_id": "drop_tank_610",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk84",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu27",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu28",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu54",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 3,
+              "label": "AGM-65 ×3 (LAU-88)"
+            },
+            {
+              "munition_id": "agm130",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu15",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "bdu38",
+              "qty": 1
+            }
           ]
         },
         {
@@ -40,23 +104,76 @@
           "label": "5 机腹中线挂点",
           "mount_style": "centerline",
           "options": [
-            {"munition_id": "drop_tank_610", "qty": 1},
-            {"munition_id": "mk82", "qty": 1},
-            {"munition_id": "mk84", "qty": 1},
-            {"munition_id": "gbu12", "qty": 1},
-            {"munition_id": "gbu10", "qty": 1},
-            {"munition_id": "gbu24", "qty": 1},
-            {"munition_id": "gbu27", "qty": 1},
-            {"munition_id": "gbu28", "qty": 1},
-            {"munition_id": "gbu31", "qty": 1},
-            {"munition_id": "gbu38", "qty": 1},
-            {"munition_id": "gbu39", "qty": 4, "label": "GBU-39 SDB ×4 (BRU)"},
-            {"munition_id": "gbu54", "qty": 1},
-            {"munition_id": "agm154", "qty": 1},
-            {"munition_id": "axq14", "qty": 1},
-            {"munition_id": "zsw1", "qty": 1},
-            {"munition_id": "suu20_bdu33x6", "qty": 1, "label": "BDU-33×6 (SUU-20)"},
-            {"munition_id": "bdu38", "qty": 1}
+            {
+              "munition_id": "drop_tank_610",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk84",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu27",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu28",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu39",
+              "qty": 4,
+              "label": "GBU-39 SDB ×4 (BRU)"
+            },
+            {
+              "munition_id": "gbu54",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "axq14",
+              "qty": 1
+            },
+            {
+              "munition_id": "zsw1",
+              "qty": 1
+            },
+            {
+              "munition_id": "suu20_bdu33x6",
+              "qty": 1,
+              "label": "BDU-33×6 (SUU-20)"
+            },
+            {
+              "munition_id": "bdu38",
+              "qty": 1
+            }
           ]
         },
         {
@@ -64,23 +181,75 @@
           "label": "8 右翼下挂点",
           "mount_style": "wing_pylon",
           "options": [
-            {"munition_id": "drop_tank_610", "qty": 1},
-            {"munition_id": "mk82", "qty": 1},
-            {"munition_id": "mk84", "qty": 1},
-            {"munition_id": "gbu12", "qty": 1},
-            {"munition_id": "gbu10", "qty": 1},
-            {"munition_id": "gbu24", "qty": 1},
-            {"munition_id": "gbu27", "qty": 1},
-            {"munition_id": "gbu28", "qty": 1},
-            {"munition_id": "gbu31", "qty": 1},
-            {"munition_id": "gbu38", "qty": 1},
-            {"munition_id": "gbu54", "qty": 1},
-            {"munition_id": "agm65", "qty": 1},
-            {"munition_id": "agm65", "qty": 3, "label": "AGM-65 ×3 (LAU-88)"},
-            {"munition_id": "agm130", "qty": 1},
-            {"munition_id": "gbu15", "qty": 1},
-            {"munition_id": "agm154", "qty": 1},
-            {"munition_id": "bdu38", "qty": 1}
+            {
+              "munition_id": "drop_tank_610",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk84",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu27",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu28",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu54",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 3,
+              "label": "AGM-65 ×3 (LAU-88)"
+            },
+            {
+              "munition_id": "agm130",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu15",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "bdu38",
+              "qty": 1
+            }
           ]
         },
         {
@@ -88,12 +257,31 @@
           "label": "2A 左翼挂架外侧轨",
           "mount_style": "side_rail",
           "options": [
-            {"munition_id": "aim120", "qty": 1},
-            {"munition_id": "aim7", "qty": 1},
-            {"munition_id": "aim9", "qty": 1},
-            {"munition_id": "catm9", "qty": 1},
-            {"munition_id": "suu20_bdu33x6", "qty": 1, "label": "BDU-33×6 (SUU-20)"},
-            {"munition_id": "ais_pod", "qty": 1}
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "catm9",
+              "qty": 1
+            },
+            {
+              "munition_id": "suu20_bdu33x6",
+              "qty": 1,
+              "label": "BDU-33×6 (SUU-20)"
+            },
+            {
+              "munition_id": "ais_pod",
+              "qty": 1
+            }
           ]
         },
         {
@@ -101,11 +289,26 @@
           "label": "2B 左翼挂架内侧轨",
           "mount_style": "side_rail",
           "options": [
-            {"munition_id": "aim120", "qty": 1},
-            {"munition_id": "aim7", "qty": 1},
-            {"munition_id": "aim9", "qty": 1},
-            {"munition_id": "catm9", "qty": 1},
-            {"munition_id": "ais_pod", "qty": 1}
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "catm9",
+              "qty": 1
+            },
+            {
+              "munition_id": "ais_pod",
+              "qty": 1
+            }
           ]
         },
         {
@@ -113,11 +316,26 @@
           "label": "8A 右翼挂架内侧轨",
           "mount_style": "side_rail",
           "options": [
-            {"munition_id": "aim120", "qty": 1},
-            {"munition_id": "aim7", "qty": 1},
-            {"munition_id": "aim9", "qty": 1},
-            {"munition_id": "catm9", "qty": 1},
-            {"munition_id": "ais_pod", "qty": 1}
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "catm9",
+              "qty": 1
+            },
+            {
+              "munition_id": "ais_pod",
+              "qty": 1
+            }
           ]
         },
         {
@@ -125,12 +343,31 @@
           "label": "8B 右翼挂架外侧轨",
           "mount_style": "side_rail",
           "options": [
-            {"munition_id": "aim120", "qty": 1},
-            {"munition_id": "aim7", "qty": 1},
-            {"munition_id": "aim9", "qty": 1},
-            {"munition_id": "catm9", "qty": 1},
-            {"munition_id": "suu20_bdu33x6", "qty": 1, "label": "BDU-33×6 (SUU-20)"},
-            {"munition_id": "ais_pod", "qty": 1}
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "catm9",
+              "qty": 1
+            },
+            {
+              "munition_id": "suu20_bdu33x6",
+              "qty": 1,
+              "label": "BDU-33×6 (SUU-20)"
+            },
+            {
+              "munition_id": "ais_pod",
+              "qty": 1
+            }
           ]
         },
         {
@@ -138,54 +375,199 @@
           "label": "L CFT 内侧",
           "mount_style": "cft",
           "options": [
-            {"munition_id": "aim120", "qty": 1},
-            {"munition_id": "aim120", "qty": 2},
-            {"munition_id": "aim7", "qty": 1},
-            {"munition_id": "aim7", "qty": 2},
-            {"munition_id": "mk82", "qty": 1},
-            {"munition_id": "mk82", "qty": 2},
-            {"munition_id": "mk82", "qty": 3},
-            {"munition_id": "mk84", "qty": 1},
-            {"munition_id": "mk84", "qty": 2},
-            {"munition_id": "gbu12", "qty": 1},
-            {"munition_id": "gbu12", "qty": 2},
-            {"munition_id": "gbu10", "qty": 1},
-            {"munition_id": "gbu24", "qty": 1},
-            {"munition_id": "gbu27", "qty": 1},
-            {"munition_id": "gbu31", "qty": 1},
-            {"munition_id": "gbu31", "qty": 2},
-            {"munition_id": "gbu38", "qty": 1},
-            {"munition_id": "gbu38", "qty": 2},
-            {"munition_id": "gbu38", "qty": 3},
-            {"munition_id": "gbu39", "qty": 8, "label": "GBU-39 SDB ×8 (2×BRU)"},
-            {"munition_id": "gbu54", "qty": 1},
-            {"munition_id": "gbu54", "qty": 2},
-            {"munition_id": "gbu54", "qty": 3},
-            {"munition_id": "agm154", "qty": 1},
-            {"munition_id": "cbu87", "qty": 1},
-            {"munition_id": "cbu87", "qty": 2},
-            {"munition_id": "cbu87", "qty": 3},
-            {"munition_id": "cbu97", "qty": 1},
-            {"munition_id": "cbu97", "qty": 2},
-            {"munition_id": "cbu97", "qty": 3},
-            {"munition_id": "cbu103", "qty": 1},
-            {"munition_id": "cbu103", "qty": 2},
-            {"munition_id": "cbu103", "qty": 3},
-            {"munition_id": "cbu105", "qty": 1},
-            {"munition_id": "cbu105", "qty": 2},
-            {"munition_id": "cbu105", "qty": 3},
-            {"munition_id": "mk20", "qty": 1},
-            {"munition_id": "mk20", "qty": 2},
-            {"munition_id": "mk20", "qty": 3},
-            {"munition_id": "blu107", "qty": 1},
-            {"munition_id": "blu107", "qty": 2},
-            {"munition_id": "blu107", "qty": 3},
-            {"munition_id": "travel_pod", "qty": 1},
-            {"munition_id": "travel_pod", "qty": 2},
-            {"munition_id": "bdu50", "qty": 1},
-            {"munition_id": "bdu50", "qty": 2},
-            {"munition_id": "bdu50", "qty": 3},
-            {"munition_id": "bdu38", "qty": 1}
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim120",
+              "qty": 2
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 3
+            },
+            {
+              "munition_id": "mk84",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk84",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu27",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 3
+            },
+            {
+              "munition_id": "gbu39",
+              "qty": 8,
+              "label": "GBU-39 SDB ×8 (2×BRU)"
+            },
+            {
+              "munition_id": "gbu54",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu54",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu54",
+              "qty": 3
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 3
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 3
+            },
+            {
+              "munition_id": "cbu103",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu103",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu103",
+              "qty": 3
+            },
+            {
+              "munition_id": "cbu105",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu105",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu105",
+              "qty": 3
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 3
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 1
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 2
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 3
+            },
+            {
+              "munition_id": "travel_pod",
+              "qty": 1
+            },
+            {
+              "munition_id": "travel_pod",
+              "qty": 2
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 1
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 2
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 3
+            },
+            {
+              "munition_id": "bdu38",
+              "qty": 1
+            }
           ]
         },
         {
@@ -193,26 +575,86 @@
           "label": "L CFT 外侧",
           "mount_style": "cft",
           "options": [
-            {"munition_id": "mk82", "qty": 1},
-            {"munition_id": "mk82", "qty": 2},
-            {"munition_id": "mk82", "qty": 3},
-            {"munition_id": "gbu12", "qty": 1},
-            {"munition_id": "gbu12", "qty": 2},
-            {"munition_id": "cbu87", "qty": 1},
-            {"munition_id": "cbu87", "qty": 2},
-            {"munition_id": "cbu87", "qty": 3},
-            {"munition_id": "cbu97", "qty": 1},
-            {"munition_id": "cbu97", "qty": 2},
-            {"munition_id": "cbu97", "qty": 3},
-            {"munition_id": "mk20", "qty": 1},
-            {"munition_id": "mk20", "qty": 2},
-            {"munition_id": "mk20", "qty": 3},
-            {"munition_id": "blu107", "qty": 1},
-            {"munition_id": "blu107", "qty": 2},
-            {"munition_id": "blu107", "qty": 3},
-            {"munition_id": "bdu50", "qty": 1},
-            {"munition_id": "bdu50", "qty": 2},
-            {"munition_id": "bdu50", "qty": 3}
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 3
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 3
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 3
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 3
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 1
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 2
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 3
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 1
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 2
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 3
+            }
           ]
         },
         {
@@ -220,55 +662,203 @@
           "label": "R CFT 内侧",
           "mount_style": "cft",
           "options": [
-            {"munition_id": "aim120", "qty": 1},
-            {"munition_id": "aim120", "qty": 2},
-            {"munition_id": "aim7", "qty": 1},
-            {"munition_id": "aim7", "qty": 2},
-            {"munition_id": "mk82", "qty": 1},
-            {"munition_id": "mk82", "qty": 2},
-            {"munition_id": "mk82", "qty": 3},
-            {"munition_id": "mk84", "qty": 1},
-            {"munition_id": "mk84", "qty": 2},
-            {"munition_id": "gbu12", "qty": 1},
-            {"munition_id": "gbu12", "qty": 2},
-            {"munition_id": "gbu10", "qty": 1},
-            {"munition_id": "gbu24", "qty": 1},
-            {"munition_id": "gbu27", "qty": 1},
-            {"munition_id": "gbu27", "qty": 2},
-            {"munition_id": "gbu31", "qty": 1},
-            {"munition_id": "gbu31", "qty": 2},
-            {"munition_id": "gbu38", "qty": 1},
-            {"munition_id": "gbu38", "qty": 2},
-            {"munition_id": "gbu38", "qty": 3},
-            {"munition_id": "gbu39", "qty": 8, "label": "GBU-39 SDB ×8 (2×BRU)"},
-            {"munition_id": "gbu54", "qty": 1},
-            {"munition_id": "gbu54", "qty": 2},
-            {"munition_id": "gbu54", "qty": 3},
-            {"munition_id": "agm154", "qty": 1},
-            {"munition_id": "cbu87", "qty": 1},
-            {"munition_id": "cbu87", "qty": 2},
-            {"munition_id": "cbu87", "qty": 3},
-            {"munition_id": "cbu97", "qty": 1},
-            {"munition_id": "cbu97", "qty": 2},
-            {"munition_id": "cbu97", "qty": 3},
-            {"munition_id": "cbu103", "qty": 1},
-            {"munition_id": "cbu103", "qty": 2},
-            {"munition_id": "cbu103", "qty": 3},
-            {"munition_id": "cbu105", "qty": 1},
-            {"munition_id": "cbu105", "qty": 2},
-            {"munition_id": "cbu105", "qty": 3},
-            {"munition_id": "mk20", "qty": 1},
-            {"munition_id": "mk20", "qty": 2},
-            {"munition_id": "mk20", "qty": 3},
-            {"munition_id": "blu107", "qty": 1},
-            {"munition_id": "blu107", "qty": 2},
-            {"munition_id": "blu107", "qty": 3},
-            {"munition_id": "travel_pod", "qty": 1},
-            {"munition_id": "travel_pod", "qty": 2},
-            {"munition_id": "bdu50", "qty": 1},
-            {"munition_id": "bdu50", "qty": 2},
-            {"munition_id": "bdu50", "qty": 3},
-            {"munition_id": "bdu38", "qty": 1}
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim120",
+              "qty": 2
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 3
+            },
+            {
+              "munition_id": "mk84",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk84",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu27",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu27",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 3
+            },
+            {
+              "munition_id": "gbu39",
+              "qty": 8,
+              "label": "GBU-39 SDB ×8 (2×BRU)"
+            },
+            {
+              "munition_id": "gbu54",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu54",
+              "qty": 2
+            },
+            {
+              "munition_id": "gbu54",
+              "qty": 3
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 3
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 3
+            },
+            {
+              "munition_id": "cbu103",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu103",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu103",
+              "qty": 3
+            },
+            {
+              "munition_id": "cbu105",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu105",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu105",
+              "qty": 3
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 3
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 1
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 2
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 3
+            },
+            {
+              "munition_id": "travel_pod",
+              "qty": 1
+            },
+            {
+              "munition_id": "travel_pod",
+              "qty": 2
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 1
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 2
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 3
+            },
+            {
+              "munition_id": "bdu38",
+              "qty": 1
+            }
           ]
         },
         {
@@ -276,26 +866,86 @@
           "label": "R CFT 外侧",
           "mount_style": "cft",
           "options": [
-            {"munition_id": "mk82", "qty": 1},
-            {"munition_id": "mk82", "qty": 2},
-            {"munition_id": "mk82", "qty": 3},
-            {"munition_id": "gbu12", "qty": 1},
-            {"munition_id": "gbu12", "qty": 2},
-            {"munition_id": "cbu87", "qty": 1},
-            {"munition_id": "cbu87", "qty": 2},
-            {"munition_id": "cbu87", "qty": 3},
-            {"munition_id": "cbu97", "qty": 1},
-            {"munition_id": "cbu97", "qty": 2},
-            {"munition_id": "cbu97", "qty": 3},
-            {"munition_id": "mk20", "qty": 1},
-            {"munition_id": "mk20", "qty": 2},
-            {"munition_id": "mk20", "qty": 3},
-            {"munition_id": "blu107", "qty": 1},
-            {"munition_id": "blu107", "qty": 2},
-            {"munition_id": "blu107", "qty": 3},
-            {"munition_id": "bdu50", "qty": 1},
-            {"munition_id": "bdu50", "qty": 2},
-            {"munition_id": "bdu50", "qty": 3}
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 3
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu87",
+              "qty": 3
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 1
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 2
+            },
+            {
+              "munition_id": "cbu97",
+              "qty": 3
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 2
+            },
+            {
+              "munition_id": "mk20",
+              "qty": 3
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 1
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 2
+            },
+            {
+              "munition_id": "blu107",
+              "qty": 3
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 1
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 2
+            },
+            {
+              "munition_id": "bdu50",
+              "qty": 3
+            }
           ]
         },
         {
@@ -303,9 +953,18 @@
           "label": "LTP 左侧瞄准吊舱",
           "mount_style": "chin_pod",
           "options": [
-            {"munition_id": "litening", "qty": 1},
-            {"munition_id": "lantirn_tgt", "qty": 1},
-            {"munition_id": "sniper", "qty": 1}
+            {
+              "munition_id": "litening",
+              "qty": 1
+            },
+            {
+              "munition_id": "lantirn_tgt",
+              "qty": 1
+            },
+            {
+              "munition_id": "sniper",
+              "qty": 1
+            }
           ]
         },
         {
@@ -313,7 +972,898 @@
           "label": "LNP 导航吊舱",
           "mount_style": "chin_pod",
           "options": [
-            {"munition_id": "lantirn_nav", "qty": 1}
+            {
+              "munition_id": "lantirn_nav",
+              "qty": 1
+            }
+          ]
+        }
+      ]
+    },
+    "FA-18C": {
+      "id": "FA-18C",
+      "name": "F/A-18C/D Hornet",
+      "default_selection": {
+        "sta1": {
+          "munition_id": "aim9",
+          "qty": 1
+        },
+        "sta4": {
+          "munition_id": "aim120",
+          "qty": 1
+        },
+        "sta6": {
+          "munition_id": "aim120",
+          "qty": 1
+        },
+        "sta9": {
+          "munition_id": "aim9",
+          "qty": 1
+        }
+      },
+      "stations": [
+        {
+          "id": "sta1",
+          "label": "1 左翼尖",
+          "mount_style": "wing_tip",
+          "options": [
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta2",
+          "label": "2 左外侧挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "slam_er",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta3",
+          "label": "3 左内侧挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "drop_tank_330",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta4",
+          "label": "4 左进气道侧挂点",
+          "mount_style": "side_rail",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta5",
+          "label": "5 机腹中线挂点",
+          "mount_style": "centerline",
+          "options": [
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "drop_tank_330",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta6",
+          "label": "6 右进气道侧挂点",
+          "mount_style": "side_rail",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta7",
+          "label": "7 右内侧挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "drop_tank_330",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta8",
+          "label": "8 右外侧挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "slam_er",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta9",
+          "label": "9 右翼尖",
+          "mount_style": "wing_tip",
+          "options": [
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            }
+          ]
+        }
+      ]
+    },
+    "FA-18E": {
+      "id": "FA-18E",
+      "name": "F/A-18E Super Hornet",
+      "default_selection": {
+        "sta1": {
+          "munition_id": "aim9",
+          "qty": 1
+        },
+        "sta5": {
+          "munition_id": "aim120",
+          "qty": 1
+        },
+        "sta7": {
+          "munition_id": "aim120",
+          "qty": 1
+        },
+        "sta11": {
+          "munition_id": "aim9",
+          "qty": 1
+        }
+      },
+      "stations": [
+        {
+          "id": "sta1",
+          "label": "1 左翼尖",
+          "mount_style": "wing_tip",
+          "options": [
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta2",
+          "label": "2 左外侧挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta3",
+          "label": "3 左中外挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "slam_er",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "drop_tank_480",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta4",
+          "label": "4 左中内挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "slam_er",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "drop_tank_480",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta5",
+          "label": "5 左进气道侧挂点",
+          "mount_style": "side_rail",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta6",
+          "label": "6 机腹中线挂点",
+          "mount_style": "centerline",
+          "options": [
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            },
+            {
+              "munition_id": "drop_tank_480",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta7",
+          "label": "7 右进气道侧挂点",
+          "mount_style": "side_rail",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta8",
+          "label": "8 右中内挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "slam_er",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            },
+            {
+              "munition_id": "drop_tank_480",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta9",
+          "label": "9 右中外挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "slam_er",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu24",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu31",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu38",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta10",
+          "label": "10 右外侧挂点",
+          "mount_style": "wing_pylon",
+          "options": [
+            {
+              "munition_id": "aim120",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim7",
+              "qty": 1
+            },
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm65",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm88",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk82",
+              "qty": 1
+            },
+            {
+              "munition_id": "mk83",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu12",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu10",
+              "qty": 1
+            },
+            {
+              "munition_id": "gbu16",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "sta11",
+          "label": "11 右翼尖",
+          "mount_style": "wing_tip",
+          "options": [
+            {
+              "munition_id": "aim9",
+              "qty": 1
+            }
           ]
         }
       ]
