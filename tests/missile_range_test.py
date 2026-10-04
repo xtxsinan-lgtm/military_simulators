@@ -1077,8 +1077,8 @@ def test_six_classes_ranges_and_profiles():
     assert wave['range_km'] != legacy['range_km']
     with pytest.raises(ValueError):
         estimate_subsonic_class('ramjet', 6, 0.5, 100, 0.7, 1)
-    # 冲压、亚音速与弹道。歼-36 弹仓、单独的轰-6 发射隐轰组和轰-6 机腹组已去掉。
-    assert len(PROPULSION_DATASET) == 74
+    # 冲压、亚音速与弹道。歼-36 弹仓、中型六代机弹仓、单独的轰-6 发射隐轰组和轰-6 机腹组已去掉。
+    assert len(PROPULSION_DATASET) == 65
     labels = {row['missile_class'] for row in PROPULSION_DATASET}
     assert labels == {
         'scramjet', 'ramjet', 'turbofan_stealth',
@@ -1141,9 +1141,9 @@ def test_presets_follow_bay_list_for_each_speed_class():
 
     grouped = grouped_preset_bays()
     cases = build_preset_cases()
-    # 去掉歼-36 弹仓、单独的轰-6 发射隐轰组，以及单独的轰-6 机腹组。
-    # 隐身超音速弹仓改为 13 m x 1 m 的弹种专属行。合计 96。
-    assert [case['id'] for case in cases] == list(range(1, 97))
+    # 去掉歼-36 弹仓、中型六代机弹仓、单独的轰-6 发射隐轰组，以及单独的轰-6 机腹组。
+    # 隐身超音速弹仓改为 13 m x 1 m 的弹种专属行。合计 85。
+    assert [case['id'] for case in cases] == list(range(1, 86))
 
     # 共用的弹仓行。533 mm 弹道的专属行不计入共用行。
     super_generic = [
@@ -1158,8 +1158,8 @@ def test_presets_follow_bay_list_for_each_speed_class():
         if bay.get('missile_class') is None
         for length, diameter, warhead in bay['rounds']
     ]
-    assert len(super_generic) == 7
-    assert len(sub_generic) == 8
+    assert len(super_generic) == 6
+    assert len(sub_generic) == 6
     assert any(item[0] == '1280垂发' for item in super_generic)
     assert any(item[0] == '533mm鱼雷' and item[3] == 600 for item in sub_generic)
     assert 'ballistic' in SUPERSONIC_CLASSES
@@ -1172,23 +1172,23 @@ def test_presets_follow_bay_list_for_each_speed_class():
             (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
             for case in cases if case['missile_class'] == missile_class
         ]
-        assert got[2:9] == super_generic
+        assert got[2:8] == super_generic
         assert got[0][0] == '隐身超音速轰炸机弹仓'
         assert got[0][1] == pytest.approx(13.0)
         if missile_class == 'ramjet':
-            assert len(got) == 12
-        elif missile_class == 'ballistic':
-            assert len(got) == 21
-        elif missile_class in ('hgv_biconic', 'hgv_waverider', 'scramjet'):
             assert len(got) == 11
+        elif missile_class == 'ballistic':
+            assert len(got) == 20
+        elif missile_class in ('hgv_biconic', 'hgv_waverider', 'scramjet'):
+            assert len(got) == 10
     for missile_class in SUBSONIC_CLASSES:
         got = [
             (case['bay'], case['length'], case['diameter'], case['warhead'], case['v_mach'], case['h_km'])
             for case in cases if case['missile_class'] == missile_class
         ]
         # 共用行含鱼雷管 160/300/600 kg，其后还有机腹和翼下两条歼-15 专属样例
-        assert len(got) == 10
-        assert got[:8] == sub_generic
+        assert len(got) == 8
+        assert got[:6] == sub_generic
 
     assert not any(case['bay'] in ('歼-36弹仓', '歼-36弹仓·歼-15发射') for case in cases)
     assert not any(case['bay'] == '超音速隐身轰炸机·轰6发射' for case in cases)
@@ -1244,15 +1244,15 @@ def test_tube_and_ground_launcher_presets():
 
 
 def test_carrier_launch_envelope():
-    """歼-36、中型六代机、歼-15、轰-6 与隐身超音速轰炸机按给定极速和升限发射。"""
+    """歼-15 与隐身超音速轰炸机按给定极速和升限发射。中型六代机弹仓不再单列。"""
     from utils.missile_range.dataset import build_preset_cases
 
     expected = {
-        '中型六代机弹仓': (1.75, 18.0),
         '歼-15机腹': (1.5, 14.0),
         '歼-15翼下': (1.5, 14.0),
         '隐身超音速轰炸机弹仓': (1.75, 18.0),
     }
+    assert '中型六代机弹仓' not in {case['bay'] for case in build_preset_cases()}
     seen = {bay: 0 for bay in expected}
     for case in build_preset_cases():
         bay = case['bay']
@@ -1373,7 +1373,7 @@ def test_j15_alt_launches_keep_structure_on_panel():
 
 
 def test_fighter_bay_uses_unified_sizes():
-    """普通战斗机弹仓：亚音速 4.25 x 0.505、战斗部 300 kg；广义超音速 4.25 x 0.415、战斗部 120 kg。"""
+    """普通战斗机弹仓：亚音速 4.25 x 0.550、战斗部 300 kg；广义超音速 4.25 x 0.400、战斗部 90 kg。"""
     from utils.missile_range.dataset import SUBSONIC_CLASSES, SUPERSONIC_CLASSES, build_preset_cases
 
     cases = [case for case in build_preset_cases() if case['bay'] == '普通战斗机弹仓']
@@ -1382,18 +1382,22 @@ def test_fighter_bay_uses_unified_sizes():
     assert {case['missile_class'] for case in super_cases} == set(SUPERSONIC_CLASSES)
     assert {case['missile_class'] for case in sub_cases} == set(SUBSONIC_CLASSES)
     for case in super_cases:
-        assert (case['length'], case['diameter'], case['warhead']) == pytest.approx((4.25, 0.415, 120))
+        assert (case['length'], case['diameter'], case['warhead']) == pytest.approx((4.25, 0.400, 90))
         assert (case['v_mach'], case['h_km']) == pytest.approx((1.50, 14.0))
     for case in sub_cases:
-        assert (case['length'], case['diameter'], case['warhead']) == pytest.approx((4.25, 0.505, 300))
+        assert (case['length'], case['diameter'], case['warhead']) == pytest.approx((4.25, 0.550, 300))
         assert (case['v_mach'], case['h_km']) == pytest.approx((1.50, 14.0))
 
 
 def test_fighter_bay_hgv_masses_differ_and_lists_bomber_ranges():
     """战斗机弹仓里乘波体弹头更长、总重更轻；轰-20 / 歼-36 用优化后的同一构型另算射程。"""
     from utils.missile_range.classes import estimate_by_class
-    from utils.missile_range.dataset import FIGHTER_ALT_LAUNCHES, evaluate_dataset
-    from utils.missile_range.estimate import parse_stage_fractions
+    from utils.missile_range.dataset import (
+        FIGHTER_ALT_LAUNCHES,
+        evaluate_dataset,
+        fit_locked_head,
+        structure_lock_kwargs,
+    )
 
     rows = [row for row in evaluate_dataset() if row['bay'] == '普通战斗机弹仓']
     assert rows
@@ -1419,12 +1423,15 @@ def test_fighter_bay_hgv_masses_differ_and_lists_bomber_ranges():
     assert h20['h_km'] == pytest.approx(18.0)
     assert j36['v_mach'] == pytest.approx(2.15)
     assert j36['h_km'] == pytest.approx(20.0)
+    # 厘米圆整可能略短于容积底线；面板重算会先拉回装填长度，再冻结助推分级。
+    lock = fit_locked_head(
+        structure_lock_kwargs(wave),
+        wave['length_m'], wave['diameter_m'], wave['warhead_kg'], wave['missile_class'],
+    )
     locked = estimate_by_class(
         'hgv_waverider', wave['length_m'], wave['diameter_m'], wave['warhead_kg'],
         j36['v_mach'], j36['h_km'],
-        l_head_m=wave['l_head_m'],
-        d_head_m=wave['d_head_m'],
-        stage_fractions=parse_stage_fractions(wave['stage_split']),
+        **lock,
     )
     assert j36['range_km'] == pytest.approx(locked['range_km'], abs=0.2)
 

@@ -49,7 +49,7 @@ def _assert_bays_sorted_by_liftoff_then_warhead(cases: list[dict]) -> None:
 @pytest.mark.e2e
 def test_e2e_missile_range_api_matches_dataset():
     """小程序 API 估算结果须与预设样本逐条一致。"""
-    case = next(item for item in MISSILE_DATASET if item['bay'] == '中型六代机弹仓')
+    case = next(item for item in MISSILE_DATASET if item['bay'] == '普通战斗机弹仓')
     payload = {
         'action': 'estimate',
         'params': {
@@ -718,6 +718,7 @@ def test_e2e_tube_ground_launchers_and_j36_warheads():
 
     assert rows_of('歼-36弹仓') == []
     assert rows_of('歼-36弹仓·歼-15发射') == []
+    assert rows_of('中型六代机弹仓') == []
     for missile_class in ('turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket'):
         tube = rows_of('533mm鱼雷', missile_class)
         assert {int(case['warhead_kg']) for case in tube} == {160, 300, 600}
@@ -750,9 +751,18 @@ def test_e2e_fighter_bay_launch_and_hgv_mass():
     cases = json.loads(body.decode())['cases']
     fighters = [case for case in cases if case['bay'] == '普通战斗机弹仓']
     assert fighters
+    supersonic = {'hgv_biconic', 'hgv_waverider', 'scramjet', 'ramjet', 'ballistic'}
+    subsonic = {'turbofan_stealth', 'turbojet_subsonic', 'turbofan_rocket'}
     for case in fighters:
         assert case['v_mach'] == pytest.approx(1.50)
         assert case['h_km'] == pytest.approx(14.0)
+        assert case['length_m'] == pytest.approx(4.25)
+        if case['missile_class'] in supersonic:
+            assert case['diameter_m'] == pytest.approx(0.400)
+            assert case['warhead_kg'] == pytest.approx(90)
+        if case['missile_class'] in subsonic:
+            assert case['diameter_m'] == pytest.approx(0.550)
+            assert case['warhead_kg'] == pytest.approx(300)
         labels = [item['label'] for item in case['alt_launches']]
         assert labels == ['轰-6', '轰-20', '歼-36']
         h20 = case['alt_launches'][1]

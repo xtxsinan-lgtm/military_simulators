@@ -201,6 +201,7 @@ def test_load_missile_range_preset_csv():
     assert '隐身超音速轰炸机弹仓' in bays
     assert '超音速隐身轰炸机·轰6发射' not in bays
     assert '歼-36弹仓' not in bays
+    assert '中型六代机弹仓' not in bays
     assert '轰-6机腹' not in bays
     assert '1280垂发' in bays
     assert '533mm鱼雷' in bays
