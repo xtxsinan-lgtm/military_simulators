@@ -1,0 +1,18 @@
+aircraft_id,block,preset_id,preset_name,station_id,store_id,notes
+F-16,Block 50,a2a_cap,空战巡逻（2×120 + 2×9）,1,AIM-9M,翼尖 Sidewinder
+F-16,Block 50,a2a_cap,空战巡逻（2×120 + 2×9）,2,AIM-120C-5,翼下外侧 AMRAAM
+F-16,Block 50,a2a_cap,空战巡逻（2×120 + 2×9）,8,AIM-120C-5,翼下外侧 AMRAAM
+F-16,Block 50,a2a_cap,空战巡逻（2×120 + 2×9）,9,AIM-9M,翼尖 Sidewinder
+F-16,Block 50,a2a_heavy,空战重挂载（4×120）,1,AIM-120C-5,翼尖 AMRAAM
+F-16,Block 50,a2a_heavy,空战重挂载（4×120）,2,AIM-120C-5,翼下外侧 AMRAAM
+F-16,Block 50,a2a_heavy,空战重挂载（4×120）,8,AIM-120C-5,翼下外侧 AMRAAM
+F-16,Block 50,a2a_heavy,空战重挂载（4×120）,9,AIM-120C-5,翼尖 AMRAAM
+F-16,Block 50,sead,压制敌防空（2×HARM + HTS + TGP）,3,AGM-88C,翼下 HARM
+F-16,Block 50,sead,压制敌防空（2×HARM + HTS + TGP）,5L,AN-ASQ-213,HTS 定位吊舱
+F-16,Block 50,sead,压制敌防空（2×HARM + HTS + TGP）,5R,AN-AAQ-28,Litening 瞄准吊舱
+F-16,Block 50,sead,压制敌防空（2×HARM + HTS + TGP）,7,AGM-88C,翼下 HARM
+F-16,Block 50,strike_jdam,对地打击（2×GBU-31 + 油箱 + TGP）,3,GBU-31V1B,翼下 JDAM
+F-16,Block 50,strike_jdam,对地打击（2×GBU-31 + 油箱 + TGP）,4,FUEL-TANK-370,内侧 370 加仑副油箱
+F-16,Block 50,strike_jdam,对地打击（2×GBU-31 + 油箱 + TGP）,5,FUEL-TANK-300,机腹 300 加仑副油箱
+F-16,Block 50,strike_jdam,对地打击（2×GBU-31 + 油箱 + TGP）,5R,AN-AAQ-28,Litening 瞄准吊舱
+F-16,Block 50,strike_jdam,对地打击（2×GBU-31 + 油箱 + TGP）,7,GBU-31V1B,翼下 JDAM

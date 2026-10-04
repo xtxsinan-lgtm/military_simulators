@@ -19,4 +19,7 @@ COMBAT_RADIUS_AIRCRAFT_CSV = AIRCRAFT_CSV
 COMBAT_RADIUS_ENGINE_CSV = DATA_DIR / 'aircraft_engine_database.csv'
 COMBAT_RADIUS_CONFIG_JSON = DATA_DIR / 'combat_radius_config.json'
 COMBAT_RADIUS_RESULTS_JSON = DATA_DIR / 'combat_radius_results.json'
+AIRCRAFT_STORE_CATALOG_CSV = DATA_DIR / 'aircraft_store_catalog.csv'
+AIRCRAFT_STATION_CSV = DATA_DIR / 'aircraft_station_database.csv'
+AIRCRAFT_LOADOUT_PRESETS_CSV = DATA_DIR / 'aircraft_loadout_presets.csv'
 SURVEY_RESULTS_TXT = OUTPUT_DIR / 'carrier_takeoff_survey_results.txt'

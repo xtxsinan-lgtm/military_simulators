@@ -1,0 +1,12 @@
+aircraft_id,block,station_id,position,position_label,allowed_stores,notes
+F-16,Block 50,1,wingtip,翼尖挂点 1,AIM-120B;AIM-120C-5;AIM-9L;AIM-9M;AIM-9X,仅空对空导弹
+F-16,Block 50,2,wing_outer,翼下外侧挂点 2,AIM-120B;AIM-120C-5;AIM-9L;AIM-9M;AIM-9X,仅空对空导弹
+F-16,Block 50,3,wing_mid,翼下中间挂点 3,AIM-120B;AIM-120C-5;AIM-9L;AIM-9M;AIM-9X;AGM-88C;AGM-65D;AGM-65G;AGM-65H;AGM-65K;AGM-154A;CBU-103;CBU-105;CBU-87-2x;CBU-87-3x;CBU-97-2x;CBU-97-3x;GBU-10;GBU-12;GBU-24;GBU-31V1B;GBU-31V3B;GBU-38;Mk-82;Mk-82-3x;Mk-82-AIR;Mk-82-SE;Mk-84;Mk-84-AIR;LAU-M151;LAU-M156;LAU-Mk5;ALQ-184;ALQ-184-LONG;ALQ-131;AN-ASQ-T50;FUEL-TANK-370,支持最广泛的空对空/空对地弹药及副油箱
+F-16,Block 50,4,wing_inboard,翼下内侧挂点 4,CBU-87-3x;CBU-97-3x;FUEL-TANK-370,重型集束炸弹、副油箱
+F-16,Block 50,5,fuselage_center,机腹中心挂点 5,ALQ-184;ALQ-184-LONG;ALQ-131;FUEL-TANK-300,电子战吊舱或 300 加仑副油箱
+F-16,Block 50,5R,intake_right,进气道右侧 5R,AN-AAQ-28,Litening 瞄准吊舱
+F-16,Block 50,5L,intake_left,进气道左侧 5L,AN-ASQ-213,HARM 定位吊舱 HTS
+F-16,Block 50,6,wing_inboard,翼下内侧挂点 6,CBU-87-3x;CBU-97-3x;AN-AAQ-28,重型集束炸弹或 Litening 瞄准吊舱
+F-16,Block 50,7,wing_mid,翼下中间挂点 7,AIM-120B;AIM-120C-5;AIM-9L;AIM-9M;AIM-9X;AGM-88C;AGM-65D;AGM-65G;AGM-65H;AGM-65K;AGM-154A;CBU-103;CBU-105;CBU-87-2x;CBU-87-3x;CBU-97-2x;CBU-97-3x;GBU-10;GBU-12;GBU-24;GBU-31V1B;GBU-31V3B;GBU-38;Mk-82;Mk-82-3x;Mk-82-AIR;Mk-82-SE;Mk-84;Mk-84-AIR;LAU-M151;LAU-M156;LAU-Mk5;ALQ-184;ALQ-184-LONG;ALQ-131;AN-ASQ-T50;FUEL-TANK-370,与挂点 3 对称
+F-16,Block 50,8,wing_outer,翼下外侧挂点 8,AIM-120B;AIM-120C-5;AIM-9L;AIM-9M;AIM-9X,仅空对空导弹
+F-16,Block 50,9,wingtip,翼尖挂点 9,AIM-120B;AIM-120C-5;AIM-9L;AIM-9M;AIM-9X,仅空对空导弹

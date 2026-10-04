@@ -1,0 +1,41 @@
+id,name,category,mass_kg,length_m,diameter_m,store_mount,notes
+AIM-120B,AIM-120B AMRAAM,aam,151,3.66,0.178,pylon,中距空空导弹
+AIM-120C-5,AIM-120C-5 AMRAAM,aam,152,3.66,0.178,pylon,中距空空导弹 Block 50 常用型
+AIM-9L,AIM-9L Sidewinder,aam,86,2.87,0.127,pylon,近距空空导弹
+AIM-9M,AIM-9M Sidewinder,aam,86,2.87,0.127,pylon,近距空空导弹
+AIM-9X,AIM-9X Sidewinder,aam,85,2.87,0.127,pylon,近距空空导弹
+AGM-88C,AGM-88C HARM,arm,361,4.17,0.254,pylon,反辐射导弹
+AGM-65D,AGM-65D Maverick,agm,220,2.49,0.305,pylon,电视制导空对地导弹
+AGM-65G,AGM-65G Maverick,agm,210,2.49,0.305,pylon,红外制导空对地导弹
+AGM-65H,AGM-65H Maverick,agm,210,2.49,0.305,pylon,红外制导空对地导弹
+AGM-65K,AGM-65K Maverick,agm,220,2.49,0.305,pylon,电视制导空对地导弹
+AGM-154A,AGM-154A JSOW,agm,483,4.10,0.330,pylon,联合防区外武器
+CBU-103,CBU-103 WCMD,cluster,431,2.34,0.406,pylon,风修正弹药散布器
+CBU-105,CBU-105 WCMD,cluster,431,2.34,0.406,pylon,风修正弹药散布器
+CBU-87-2x,CBU-87 (2×),cluster,454,2.34,0.406,pylon,集束炸弹双联挂
+CBU-87-3x,CBU-87 (3×),cluster,681,2.34,0.406,pylon,集束炸弹三联挂
+CBU-97-2x,CBU-97 (2×),cluster,454,2.34,0.406,pylon,传感器引信武器双联挂
+CBU-97-3x,CBU-97 (3×),cluster,681,2.34,0.406,pylon,传感器引信武器三联挂
+GBU-10,GBU-10 Paveway II,guided_bomb,907,4.32,0.457,pylon,激光制导炸弹 2000 lb 级
+GBU-12,GBU-12 Paveway II,guided_bomb,230,3.27,0.273,pylon,激光制导炸弹 500 lb 级
+GBU-24,GBU-24 Paveway III,guided_bomb,1086,4.39,0.457,pylon,激光制导炸弹 2000 lb 级
+GBU-31V1B,GBU-31(V)1/B JDAM,jdam,925,3.89,0.457,pylon,GPS 制导 2000 lb 级
+GBU-31V3B,GBU-31(V)3/B JDAM,jdam,925,3.89,0.457,pylon,GPS 制导 2000 lb 级 BLU-109 穿透型
+GBU-38,GBU-38 JDAM,jdam,241,2.35,0.273,pylon,GPS 制导 500 lb 级
+Mk-82,Mk-82 500 lb,bomb,227,2.22,0.273,pylon,常规无制导炸弹
+Mk-82-3x,Mk-82 (3×),bomb,681,2.22,0.273,pylon,常规炸弹三联挂
+Mk-82-AIR,Mk-82 AIR,bomb,227,2.22,0.273,pylon,减速炸弹
+Mk-82-SE,Mk-82 SE,bomb,227,2.22,0.273,pylon,蛇眼减速炸弹
+Mk-84,Mk-84 2000 lb,bomb,907,3.84,0.457,pylon,常规无制导炸弹
+Mk-84-AIR,Mk-84 AIR,bomb,907,3.84,0.457,pylon,减速炸弹
+LAU-M151,M151 HE 火箭发射器,rocket,138,2.79,0.254,pylon,19×70 mm 高爆火箭
+LAU-M156,M156 WP 火箭发射器,rocket,138,2.79,0.254,pylon,19×70 mm 白磷火箭
+LAU-Mk5,Mk5 HEAT 火箭发射器,rocket,138,2.79,0.254,pylon,19×70 mm 破甲火箭
+ALQ-184,AN/ALQ-184 电子战吊舱,ecm,290,4.57,0.356,pylon,电子对抗吊舱
+ALQ-184-LONG,AN/ALQ-184 LONG 电子战吊舱,ecm,299,4.88,0.356,pylon,加长型电子对抗吊舱
+ALQ-131,AN/ALQ-131 电子战吊舱,ecm,299,4.06,0.356,pylon,电子对抗吊舱
+AN-AAQ-28,AN/AAQ-28 Litening TGP,targeting,200,2.21,0.356,pylon,瞄准吊舱
+AN-ASQ-213,AN/ASQ-213 HTS,targeting,190,2.13,0.356,pylon,HARM 定位吊舱
+AN-ASQ-T50,AN/ASQ-T50 ACMI,telemetry,107,1.52,0.254,pylon,空战机动仪表遥测吊舱
+FUEL-TANK-370,370 加仑副油箱,fuel_tank,1270,3.35,0.457,pylon,翼下/内侧 370 US gal 副油箱（满油）
+FUEL-TANK-300,300 加仑副油箱,fuel_tank,1030,2.95,0.406,pylon,机腹中心 300 US gal 副油箱（满油）
