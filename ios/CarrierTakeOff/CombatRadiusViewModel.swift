@@ -192,7 +192,10 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var showF135TsfcToggle = false
     @Published var f135TsfcMode = "published"
     @Published var flightProfileId = "hi_hi_hi"
-    @Published var flightProfileNote = "进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。"
+    @Published var flightProfileNote = "进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。"
+    /// 目标区空战消耗开关：默认关（打完弹就走），打开扣 combatToggleMin 分钟全加力
+    @Published var combatAllowanceOn = false
+    @Published var combatToggleMin = 1.0
     @Published var flightProfileOptions: [CombatRadiusFlightProfileOption] = [
         CombatRadiusFlightProfileOption(id: "hi_hi_hi", label: "高-高-高", note: nil),
         CombatRadiusFlightProfileOption(id: "hi_lo_hi", label: "高-低-高", note: nil),
@@ -264,6 +267,9 @@ final class CombatRadiusViewModel: ObservableObject {
             }
             applyF135ToggleConfig(catalog.combat_radius_config?.f135_tsfc_toggle)
             applyFlightProfileConfig(catalog.combat_radius_config?.flight_profiles)
+            if let m = catalog.combat_radius_config?.mission_fuel?.combat_toggle_min, m > 0 {
+                combatToggleMin = m
+            }
             let defaultId = ui?.default_target_id
             applying = true
             if let p = (defaultId.flatMap { id in presets.first(where: { $0.id == id }) }) ?? presets.first {
@@ -491,8 +497,18 @@ final class CombatRadiusViewModel: ObservableObject {
         return state
     }
 
+    /// 预计算快照只对应：默认剖面、F-35 公开 1.22 档、不计空战
+    private var snapshotSettingsMatch: Bool {
+        flightProfileId == defaultFlightProfileId && f135TsfcMode == "published" && !combatAllowanceOn
+    }
+
     func showSnapshot() {
-        snapshotEligible = flightProfileId == defaultFlightProfileId
+        snapshotEligible = true
+        if !snapshotSettingsMatch {
+            // 快照只按默认剖面、不计空战预算；其它设置下换机型直接现场重算
+            Task { await requestLiveDash() }
+            return
+        }
         if let snap = resultsMap[selectedTgtId], snap.success {
             dashboard = snap
             dashSource = "预计算快照"
@@ -522,6 +538,7 @@ final class CombatRadiusViewModel: ObservableObject {
         var params: [String: Any] = [
             "name": tgt.name,
             "flight_profile": flightProfileId,
+            "combat_allowance_min": combatAllowanceOn ? combatToggleMin : 0,
             "target": tgt.asParams(),
             "empty_kg": Double(wtEmpty) ?? 0,
             "internal_fuel_kg": Double(wtFuel) ?? 0,
@@ -611,7 +628,16 @@ final class CombatRadiusViewModel: ObservableObject {
         if let active = flightProfileOptions.first(where: { $0.id == id }) {
             flightProfileNote = active.note ?? flightProfileNote
         }
-        if id == defaultFlightProfileId, snapshotEligible, f135TsfcMode == "published" {
+        if snapshotEligible, snapshotSettingsMatch {
+            showSnapshot()
+            return
+        }
+        Task { await requestLiveDash() }
+    }
+
+    func setCombatAllowance(_ on: Bool) {
+        combatAllowanceOn = on
+        if snapshotEligible, snapshotSettingsMatch {
             showSnapshot()
             return
         }
@@ -621,7 +647,7 @@ final class CombatRadiusViewModel: ObservableObject {
     func setF135TsfcMode(_ mode: String) {
         guard mode != f135TsfcMode else { return }
         f135TsfcMode = mode
-        if mode == "published", snapshotEligible, flightProfileId == defaultFlightProfileId {
+        if snapshotEligible, snapshotSettingsMatch {
             showSnapshot()
             return
         }

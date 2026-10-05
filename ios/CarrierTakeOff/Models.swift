@@ -139,6 +139,12 @@ struct CombatRadiusConfigPayload: Codable {
     var engine: CombatRadiusEngineConfig?
     var f135_tsfc_toggle: CombatRadiusF135TsfcToggle?
     var flight_profiles: CombatRadiusFlightProfilesConfig?
+    var mission_fuel: CombatRadiusMissionFuelConfig?
+}
+
+/// 任务油量配置中前端用到的部分：空战消耗开关打开时扣的分钟数
+struct CombatRadiusMissionFuelConfig: Codable {
+    var combat_toggle_min: Double?
 }
 
 /// 作战半径任务剖面配置

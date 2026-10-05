@@ -168,6 +168,9 @@
       <view class="seg-btn {{flightProfileId === 'lo_lo_lo' ? 'on' : ''}}" data-profile="lo_lo_lo" bindtap="onFlightProfile">低-低-低</view>
     </view>
     <view class="note">{{flightProfileNote}}</view>
+    <view class="check-row">
+      <label><switch checked="{{combatAllowanceOn}}" bindchange="onCombatAllowanceSwitch"/> 扣除目标区空战 {{combatToggleMin}} min 全加力油耗</label>
+    </view>
     <view class="section amber">▸ 发动机</view>
     <view class="field">
       <view class="field-label"><text>发动机预设</text></view>

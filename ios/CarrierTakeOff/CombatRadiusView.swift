@@ -64,6 +64,13 @@ struct CombatRadiusView: View {
                     Text(vm.flightProfileNote)
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
+                    Toggle(
+                        "扣除目标区空战 \(vm.combatToggleMin.formatted()) min 全加力油耗",
+                        isOn: Binding(get: { vm.combatAllowanceOn }, set: { vm.setCombatAllowance($0) })
+                    )
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundStyle(CombatRadiusTheme.text)
+                        .tint(CombatRadiusTheme.green)
                     sectionLabel("▸ 发动机", color: CombatRadiusTheme.amber)
                     enginePresetPicker("发动机预设", selection: $vm.selectedEngineId) {
                         vm.applyEngine()

@@ -37,7 +37,7 @@ _BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         'mode': 'symmetric_high',
         'climb_extra_km': 120.0,
         'descent_save_km': 87.5,
-        'note': '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。',
+        'note': '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。',
     },
     'hi_lo_hi': {
         'label': '高-低-高',
@@ -45,14 +45,14 @@ _BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         'climb_extra_km': 180.0,
         'descent_save_km': 50.0,
         'low_leg_km': HI_LO_HI_LOW_LEG_KM,
-        'note': '高空进出，目标区前后各 150 km 低空突防/撤出；额外爬升/下降按 180 / 50 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。',
+        'note': '高空进出，目标区前后各 150 km 低空突防/撤出；额外爬升/下降按 180 / 50 km 等价油耗入账。',
     },
     'lo_lo_lo': {
         'label': '低-低-低',
         'mode': 'symmetric_low',
         'climb_extra_km': 30.0,
         'descent_save_km': 25.0,
-        'note': '全程低空贴地/掠海；爬升/降落开销按 30 / 25 km 等价油耗入账，另扣目标区空战 1 min 全加力油耗；半径在 0.3–3 km 带搜索最佳巡航。',
+        'note': '全程低空贴地/掠海；爬升/降落开销按 30 / 25 km 等价油耗入账；半径在 0.3–3 km 带搜索最佳巡航。',
     },
 }
 

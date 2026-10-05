@@ -62,6 +62,8 @@ let currentAircraftName = '';
 let f135TsfcMode = 'published';
 /** 任务剖面：hi_hi_hi / hi_lo_hi / lo_lo_lo。 */
 let flightProfileMode = 'hi_hi_hi';
+/** 目标区空战消耗开关：默认关（打完弹就走），打开扣 combat_toggle_min 分钟全加力。 */
+let combatAllowanceOn = false;
 /** 选机后尚未改其它参数时，切回 1.22 可直接用预计算快照。 */
 let snapshotEligible = false;
 /** 当前机型挂点选择：station_id → option key。 */
@@ -681,10 +683,30 @@ function syncFlightProfileToggle() {
   });
 }
 
+function combatToggleMin() {
+  const raw = Number(data?.combat_radius_config?.mission_fuel?.combat_toggle_min);
+  return Number.isFinite(raw) && raw > 0 ? raw : 1;
+}
+
+function syncCombatAllowanceToggle() {
+  if ($('combatAllowance')) $('combatAllowance').checked = combatAllowanceOn;
+  if ($('combatAllowanceLabel')) {
+    $('combatAllowanceLabel').textContent = `扣除目标区空战 ${combatToggleMin()} min 全加力油耗`;
+  }
+}
+
+/** 预计算快照只对应：默认剖面、F-35 公开 1.22 档、不计空战。 */
+function snapshotSettingsMatch() {
+  return flightProfileMode === defaultFlightProfileId()
+    && f135TsfcMode === 'published'
+    && !combatAllowanceOn;
+}
+
 function readDashboardParams() {
   const params = {
     name: selectedAircraftName(''),
     flight_profile: flightProfileMode,
+    combat_allowance_min: combatAllowanceOn ? combatToggleMin() : 0,
     target: readAircraft(),
     empty_kg: Number($('wtEmpty').value),
     internal_fuel_kg: Number($('wtFuel').value),
@@ -970,7 +992,13 @@ function renderDash(r, sourceLabel, loadoutState = null, loadoutNote = '') {
 
 function showSnapshot() {
   dirty = false;
-  snapshotEligible = flightProfileMode === defaultFlightProfileId();
+  snapshotEligible = true;
+  if (!snapshotSettingsMatch()) {
+    // 快照只按默认剖面、不计空战预算；其它设置下换机型直接现场重算
+    clearTimeout(dashTimer);
+    runLiveDash();
+    return;
+  }
   const id = $('tgtPreset').value;
   const snap = id ? snapshotFor(id) : null;
   if (!snap) {
@@ -1194,6 +1222,8 @@ function applyUiDefaults() {
   $('effAcc').value = ui.default_acc_frac ?? 0.16;
   flightProfileMode = defaultFlightProfileId();
   syncFlightProfileToggle();
+  combatAllowanceOn = false;
+  syncCombatAllowanceToggle();
   if (tgt) {
     $('tgtPreset').value = tgt.id;
     applyPresetToFields(tgt);
@@ -1227,7 +1257,7 @@ async function main() {
         if (f135TsfcMode === mode) return;
         f135TsfcMode = mode;
         syncF135TsfcToggle($('tgtPreset').value);
-        if (mode === 'published' && snapshotEligible && flightProfileMode === defaultFlightProfileId()) {
+        if (snapshotEligible && snapshotSettingsMatch()) {
           showSnapshot();
           return;
         }
@@ -1241,7 +1271,7 @@ async function main() {
         if (flightProfileMode === id) return;
         flightProfileMode = id;
         syncFlightProfileToggle();
-        if (id === defaultFlightProfileId() && snapshotEligible && f135TsfcMode === 'published') {
+        if (snapshotEligible && snapshotSettingsMatch()) {
           showSnapshot();
           return;
         }
@@ -1249,6 +1279,17 @@ async function main() {
         runLiveDash();
       });
     });
+    if ($('combatAllowance')) {
+      $('combatAllowance').addEventListener('change', () => {
+        combatAllowanceOn = $('combatAllowance').checked;
+        if (snapshotEligible && snapshotSettingsMatch()) {
+          showSnapshot();
+          return;
+        }
+        clearTimeout(dashTimer);
+        runLiveDash();
+      });
+    }
     applyUiDefaults();
     bindLiveInputs();
     document.querySelectorAll('[data-run-dash]').forEach((btn) => {

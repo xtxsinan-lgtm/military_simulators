@@ -515,7 +515,8 @@ def test_enrich_radius_point_and_missing_tsfc():
 
 
 def test_run_estimate_radius_from_params_f22():
-    r = run_estimate_radius_from_params(_radius_params())
+    # 显式打开目标区空战消耗（界面开关默认关）
+    r = run_estimate_radius_from_params({**_radius_params(), 'combat_allowance_min': 1})
     assert r['success'] is True
     ids = [p['id'] for p in r['points']]
     assert ids == [
@@ -888,6 +889,7 @@ def test_ma08_combat_radius_calibration_targets():
             't4_K': eng['t4_K'],
             'tsl_kN': eng['tsl_kN'],
             'tsfc_install_mult': eng.get('tsfc_install_mult', 1.0),
+            'combat_allowance_min': 1,
         })
         m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
         assert m08['feasible'] is True, ac_id
@@ -928,6 +930,7 @@ def test_f35_lpc_only_tsfc_mult_widens_ma08_radius():
             't4_K': eng['t4_K'],
             'tsl_kN': eng['tsl_kN'],
             'tsfc_install_mult': lpc,
+            'combat_allowance_min': 1,
         })
         m08 = next(p for p in r['points'] if p['id'] == 'mach_0_8')
         assert m08['feasible'] is True, ac_id

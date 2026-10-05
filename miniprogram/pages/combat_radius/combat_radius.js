@@ -445,8 +445,10 @@ Page({
     loadoutPayload: '',
     loadoutExtFuel: '',
     flightProfileId: 'hi_hi_hi',
-    flightProfileNote: '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。',
+    flightProfileNote: '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。',
     defaultFlightProfileId: 'hi_hi_hi',
+    combatAllowanceOn: false,
+    combatToggleMin: 1,
     aircraftWeapons: null,
     weaponStations: [],
     loadoutImageMap: {},
@@ -486,6 +488,7 @@ Page({
         const fpDefault = fpCfg.default || 'hi_hi_hi';
         const fpOptions = fpCfg.options || [];
         const fpActive = fpOptions.find((o) => o.id === fpDefault) || fpOptions[0] || {};
+        const combatMinRaw = Number((cfg.mission_fuel || {}).combat_toggle_min);
         const loadoutImageMap = (data.combat_radius_loadout_images && data.combat_radius_loadout_images.aircraft) || {};
         const eng = (tgtp && tgtp.engine_id && engines.find((p) => p.id === tgtp.engine_id))
           || engines.find((p) => p.id === ui.default_engine_id)
@@ -537,6 +540,8 @@ Page({
           defaultFlightProfileId: fpDefault,
           flightProfileOptions: fpOptions,
           flightProfileNote: fpActive.note || '',
+          combatAllowanceOn: false,
+          combatToggleMin: combatMinRaw > 0 ? combatMinRaw : 1,
           loadoutImageMap,
           loadoutImageUrl: resolveLoadoutImageUrl(tgtp && tgtp.id, loadoutImageMap),
           statusText: presets.length ? '预设已加载' : '缺少 combat_radius_presets，请运行 build_all.py',
@@ -548,8 +553,21 @@ Page({
       });
   },
 
+  /** 预计算快照只对应：默认剖面、F-35 公开 1.22 档、不计空战。 */
+  snapshotSettingsMatch() {
+    const d = this.data;
+    return d.flightProfileId === d.defaultFlightProfileId
+      && d.f135TsfcMode === 'published'
+      && !d.combatAllowanceOn;
+  },
+
   showSnapshot(id) {
-    this.data.snapshotEligible = this.data.flightProfileId === this.data.defaultFlightProfileId;
+    this.data.snapshotEligible = true;
+    if (!this.snapshotSettingsMatch()) {
+      // 快照只按默认剖面、不计空战预算；其它设置下换机型直接现场重算
+      this.onRunDash();
+      return;
+    }
     const snap = id ? this.data.resultsMap[id] : null;
     if (!snap || !snap.success) {
       this.setData(Object.assign({
@@ -733,7 +751,18 @@ Page({
       flightProfileId: id,
       flightProfileNote: (opt && opt.note) || '',
     });
-    if (id === this.data.defaultFlightProfileId && this.data.snapshotEligible && this.data.f135TsfcMode === 'published') {
+    if (this.data.snapshotEligible && this.snapshotSettingsMatch()) {
+      const idx = this.data.tgtPresetIndex;
+      const ac = idx > 0 ? this.data.presets[idx - 1] : null;
+      this.showSnapshot(ac && ac.id);
+      return;
+    }
+    this.onRunDash();
+  },
+
+  onCombatAllowanceSwitch(e) {
+    this.setData({ combatAllowanceOn: !!e.detail.value });
+    if (this.data.snapshotEligible && this.snapshotSettingsMatch()) {
       const idx = this.data.tgtPresetIndex;
       const ac = idx > 0 ? this.data.presets[idx - 1] : null;
       this.showSnapshot(ac && ac.id);
@@ -746,7 +775,7 @@ Page({
     const mode = e.currentTarget.dataset.mode || 'published';
     if (mode === this.data.f135TsfcMode) return;
     this.setData({ f135TsfcMode: mode });
-    if (mode === 'published' && this.data.snapshotEligible && this.data.flightProfileId === this.data.defaultFlightProfileId) {
+    if (this.data.snapshotEligible && this.snapshotSettingsMatch()) {
       const idx = this.data.tgtPresetIndex;
       const ac = idx > 0 ? this.data.presets[idx - 1] : null;
       this.showSnapshot(ac && ac.id);
@@ -804,6 +833,7 @@ Page({
     const params = {
       name: this.data.tgt.name || '',
       flight_profile: this.data.flightProfileId,
+      combat_allowance_min: this.data.combatAllowanceOn ? this.data.combatToggleMin : 0,
       target: this.toAircraft(),
       empty_kg: num(this.data.wtEmpty, 0),
       internal_fuel_kg: num(this.data.wtFuel, 0),
