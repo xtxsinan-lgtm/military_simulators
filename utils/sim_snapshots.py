@@ -11,6 +11,7 @@ import simulators.takeoff.short_ski_jump_take_off as ski_stovl
 import simulators.takeoff.short_take_off as flat
 import simulators.takeoff.ski_jump_take_off as ski_conv
 from utils.paths import BASELINE_JSON
+from utils.takeoff.takeoff_physics import calc_cl_alpha
 
 BASELINE_PATH = BASELINE_JSON
 
@@ -59,7 +60,7 @@ def snap_flat() -> dict[str, Any]:
         'rho': flat.RHO,
         'thrust_factor': flat.THRUST_TEMP_FACTOR,
         'oswald': flat.calc_oswald_e(flat.ASPECT_RATIO, flat.SWEEP_LE_DEG),
-        'cl_alpha': flat.calc_cl_alpha(flat.ASPECT_RATIO, flat.OSWALD_E, flat.SWEEP_LE_DEG),
+        'cl_alpha': calc_cl_alpha(flat.ASPECT_RATIO, flat.OSWALD_E, flat.SWEEP_LE_DEG),
         'phi': flat.calc_ground_effect_phi(flat.WING_HEIGHT_M, flat.WINGSPAN_M),
         'exhaust_30': flat.calc_exhaust_safe_distance_m(30.0, flat.V_WIND_MPS),
         'exhaust_theta': flat.calc_exhaust_theta_deg_for_safe_distance_m(50.0, flat.V_WIND_MPS),

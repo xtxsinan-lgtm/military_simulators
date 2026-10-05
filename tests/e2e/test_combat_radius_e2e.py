@@ -8,6 +8,7 @@ import pytest
 from apps.combat_radius_web import run_combat_radius_json
 from apps.miniprogram_api import handle_request
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+from utils.combat_radius.cruise_search import FIXED_MACHS
 from utils.combat_radius.lift_drag import (
     F22_MAX_SPEED_MACH,
     F35_MAX_SPEED_MACH,
@@ -115,7 +116,8 @@ def test_e2e_combat_radius_f22_breguet_radius():
         'params': {**_radius_params(), 'max_tsl_kN': 156.0},
     })
     assert r['success'] is True
-    assert len(r['points']) == 10
+    # 固定马赫点 + 实用最大巡航 / 最大半径超音速巡航 / 最大巡航
+    assert len(r['points']) == len(FIXED_MACHS) + 3
     labels = {p['id']: p['label'] for p in r['points']}
     assert labels['max_cruise'] == '实用最大巡航速度'
     assert labels['max_radius_cruise'] == '最大半径超音速巡航速度'
@@ -501,7 +503,7 @@ def test_e2e_combat_radius_three_channels_exist():
     assert 'run_combat_radius_json' in js_text
     assert 'aircraft_dashboard' in js_text
     assert 'combat_radius.js' in html_text
-    assert 'Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0 / 2.15' in html_text
+    assert 'Ma 0.8 / 1.0 / 1.2 / 1.35 / 1.5 / 1.75 / 2.0 / 2.15 / 2.3' in html_text
     wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
     assert '飞机作战半径估算终端' in wxml
     assert '搜索最佳升阻比和巡航高度' in wxml
@@ -912,7 +914,7 @@ def test_e2e_combat_radius_results_cover_fleet_and_match_f22():
     assert set(stored.get('aircraft', {})) == fleet_ids
     f22 = stored['aircraft']['F-22']
     assert f22['success'] is True
-    assert len(f22['points']) == 10
+    assert len(f22['points']) == len(FIXED_MACHS) + 3
     assert f22['points'][-2]['label'] == '最大半径超音速巡航速度'
     assert f22['points'][-1]['label'] == '最大巡航速度'
     assert f22.get('max_radius_mach') is not None
@@ -1027,6 +1029,9 @@ def test_e2e_afterburner_ceiling_in_dashboard():
     assert result['success'] is True
     ab_rows = result.get('afterburner_best_altitude', [])
     assert ab_rows, '加力剖面不能为空'
+    # 超出包线的马赫（如 F-22 的 Ma 2.3）不可飞，没有升限
+    ab_rows = [row for row in ab_rows if row.get('feasible')]
+    assert ab_rows, '加力可飞马赫不能为空'
     for row in ab_rows:
         mach = row.get('mach')
         assert row.get('ab_ceiling_m') is not None, f'Ma {mach} 缺少 ab_ceiling_m'
