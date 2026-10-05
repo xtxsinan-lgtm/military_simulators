@@ -133,6 +133,10 @@ PY_DATA_FILES = (
     'data/rafale_mount_stores.csv',
     'data/mirage2000_mount_stations.csv',
     'data/mirage2000_mount_stores.csv',
+    'data/j10c_mount_stations.csv',
+    'data/j10c_mount_stores.csv',
+    'data/j15_mount_stations.csv',
+    'data/j15_mount_stores.csv',
 )
 
 

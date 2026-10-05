@@ -61,7 +61,7 @@ def test_build_loadout_catalog_includes_fragment_aircraft():
     assert {'F-15E', 'FA-18C', 'F-2', 'FA-18E'} <= ids
     assert {
         'F-14', 'F-16', 'FA-50', 'FC-1', 'Gripen-CD', 'Gripen-EF',
-        'MiG-29K', 'Mirage-2000', 'Rafale', 'Rafale-M', 'Su-30', 'Tejas', 'Typhoon',
+        'J-10C', 'MiG-29K', 'Mirage-2000', 'Rafale', 'Rafale-M', 'Su-30', 'Tejas', 'Typhoon',
     } <= ids
     for aid in ids:
         ac = cat['aircraft'][aid]

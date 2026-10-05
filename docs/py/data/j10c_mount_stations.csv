@@ -1,0 +1,12 @@
+aircraft_id,station_id,station_label,label_zh,side,position,store_mount,notes
+J-10C,1,PYLON 1,1号右翼尖挂点,right,wing_tip,pylon,红外格斗导弹
+J-10C,2,PYLON 2,2号右翼中挂点,right,wing_mid,pylon,雷达空空/空地/反舰/制导炸弹；可复合挂架挂 2 枚空空弹
+J-10C,3,PYLON 3,3号右翼根挂点,right,wing_root,pylon,副油箱/制导炸弹/1枚雷达空空导弹
+J-10C,4,PYLON 4,4号右进气道前挂点,right,intake_front,pylon,吊舱/小型制导炸弹
+J-10C,5,PYLON 5,5号右进气道后挂点,right,intake_rear,pylon,小型制导炸弹
+J-10C,6,PYLON 6,6号机腹中线挂点,center,fuselage_center,pylon,1000升副油箱或复合挂架 2 枚雷达空空导弹
+J-10C,7,PYLON 7,7号左进气道后挂点,left,intake_rear,pylon,小型制导炸弹
+J-10C,8,PYLON 8,8号左进气道前挂点,left,intake_front,pylon,吊舱/小型制导炸弹
+J-10C,9,PYLON 9,9号左翼根挂点,left,wing_root,pylon,副油箱/制导炸弹/1枚雷达空空导弹
+J-10C,10,PYLON 10,10号左翼中挂点,left,wing_mid,pylon,雷达空空/空地/反舰/制导炸弹；可复合挂架挂 2 枚空空弹
+J-10C,11,PYLON 11,11号左翼尖挂点,left,wing_tip,pylon,红外格斗导弹

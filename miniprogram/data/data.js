@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 40,
+  "version": 42,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -5577,6 +5577,9 @@ module.exports = {
       "MiG-29K": "mig29.jpg",
       "FC-1": "jf17.jpg",
       "Mirage-2000": "mirage2000.jpg",
+      "J-10C": "j10c.jpg",
+      "J-15": "su30.jpg",
+      "J-15T": "su30.jpg",
       "Typhoon": "typhoon.jpg",
       "Gripen-CD": "gripen.jpg",
       "Gripen-EF": "gripen.jpg",
@@ -27852,6 +27855,446 @@ module.exports = {
         "notes": ""
       },
       {
+        "id": "pl10",
+        "name": "PL-10",
+        "category": "aam",
+        "mass_kg": 89.0,
+        "dry_mass_kg": 89.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.0,
+        "diameter_m": 0.16,
+        "notes": ""
+      },
+      {
+        "id": "pl8",
+        "name": "PL-8",
+        "category": "aam",
+        "mass_kg": 115.0,
+        "dry_mass_kg": 115.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.9,
+        "diameter_m": 0.16,
+        "notes": ""
+      },
+      {
+        "id": "r73e",
+        "name": "R-73E",
+        "category": "aam",
+        "mass_kg": 105.0,
+        "dry_mass_kg": 105.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.93,
+        "diameter_m": 0.17,
+        "notes": "近距红外格斗弹"
+      },
+      {
+        "id": "pl15",
+        "name": "PL-15",
+        "category": "aam",
+        "mass_kg": 210.0,
+        "dry_mass_kg": 210.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.0,
+        "diameter_m": 0.2,
+        "notes": ""
+      },
+      {
+        "id": "pl12",
+        "name": "PL-12",
+        "category": "aam",
+        "mass_kg": 199.0,
+        "dry_mass_kg": 199.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.86,
+        "diameter_m": 0.203,
+        "notes": "MRAAM"
+      },
+      {
+        "id": "r77",
+        "name": "R-77",
+        "category": "aam",
+        "mass_kg": 175.0,
+        "dry_mass_kg": 175.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.6,
+        "diameter_m": 0.2,
+        "notes": ""
+      },
+      {
+        "id": "pl15_x2",
+        "name": "PL-15 ×2（复合挂架）",
+        "category": "aam",
+        "mass_kg": 450.0,
+        "dry_mass_kg": 450.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.0,
+        "diameter_m": 0.45,
+        "notes": ""
+      },
+      {
+        "id": "pl12_x2",
+        "name": "PL-12 ×2（复合挂架）",
+        "category": "aam",
+        "mass_kg": 428.0,
+        "dry_mass_kg": 428.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.86,
+        "diameter_m": 0.45,
+        "notes": ""
+      },
+      {
+        "id": "r77_x2",
+        "name": "R-77 ×2（复合挂架）",
+        "category": "aam",
+        "mass_kg": 380.0,
+        "dry_mass_kg": 380.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.6,
+        "diameter_m": 0.45,
+        "notes": ""
+      },
+      {
+        "id": "kd88",
+        "name": "KD-88",
+        "category": "agm",
+        "mass_kg": 700.0,
+        "dry_mass_kg": 700.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.77,
+        "diameter_m": 0.4,
+        "notes": ""
+      },
+      {
+        "id": "yj83",
+        "name": "YJ-83",
+        "category": "asm",
+        "mass_kg": 715.0,
+        "dry_mass_kg": 715.0,
+        "fuel_kg": 0.0,
+        "length_m": 5.3,
+        "diameter_m": 0.36,
+        "notes": ""
+      },
+      {
+        "id": "cm400akg",
+        "name": "CM-400AKG",
+        "category": "asm",
+        "mass_kg": 910.0,
+        "dry_mass_kg": 910.0,
+        "fuel_kg": 0.0,
+        "length_m": 6.0,
+        "diameter_m": 0.4,
+        "notes": "准弹道反舰/反辐射弹"
+      },
+      {
+        "id": "yj91",
+        "name": "鹰击-91",
+        "category": "arm",
+        "mass_kg": 600.0,
+        "dry_mass_kg": 600.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.7,
+        "diameter_m": 0.36,
+        "notes": ""
+      },
+      {
+        "id": "cm102",
+        "name": "CM-102",
+        "category": "arm",
+        "mass_kg": 480.0,
+        "dry_mass_kg": 480.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.6,
+        "diameter_m": 0.3,
+        "notes": ""
+      },
+      {
+        "id": "c705kd",
+        "name": "C705KD",
+        "category": "agm",
+        "mass_kg": 320.0,
+        "dry_mass_kg": 320.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.5,
+        "diameter_m": 0.32,
+        "notes": ""
+      },
+      {
+        "id": "c704",
+        "name": "C704",
+        "category": "asm",
+        "mass_kg": 320.0,
+        "dry_mass_kg": 320.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.5,
+        "diameter_m": 0.28,
+        "notes": ""
+      },
+      {
+        "id": "ft1_500",
+        "name": "FT-1 (500kg)",
+        "category": "guided_bomb",
+        "mass_kg": 500.0,
+        "dry_mass_kg": 500.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.2,
+        "diameter_m": 0.38,
+        "notes": ""
+      },
+      {
+        "id": "gb1_500",
+        "name": "GB1 (500kg)",
+        "category": "laser_bomb",
+        "mass_kg": 500.0,
+        "dry_mass_kg": 500.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.2,
+        "diameter_m": 0.38,
+        "notes": ""
+      },
+      {
+        "id": "gb2a_500",
+        "name": "GB2A (500kg)",
+        "category": "guided_bomb",
+        "mass_kg": 500.0,
+        "dry_mass_kg": 500.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.2,
+        "diameter_m": 0.38,
+        "notes": ""
+      },
+      {
+        "id": "gb6_500",
+        "name": "GB6 (500kg)",
+        "category": "cluster",
+        "mass_kg": 500.0,
+        "dry_mass_kg": 500.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.2,
+        "diameter_m": 0.38,
+        "notes": ""
+      },
+      {
+        "id": "gb6a_500",
+        "name": "GB6A (500kg)",
+        "category": "cluster",
+        "mass_kg": 520.0,
+        "dry_mass_kg": 520.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.4,
+        "diameter_m": 0.38,
+        "notes": ""
+      },
+      {
+        "id": "gb3_250",
+        "name": "GB3 (250kg)",
+        "category": "laser_bomb",
+        "mass_kg": 250.0,
+        "dry_mass_kg": 250.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.7,
+        "diameter_m": 0.28,
+        "notes": ""
+      },
+      {
+        "id": "gb3a_250",
+        "name": "GB3A (250kg)",
+        "category": "laser_bomb",
+        "mass_kg": 260.0,
+        "dry_mass_kg": 260.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.9,
+        "diameter_m": 0.28,
+        "notes": ""
+      },
+      {
+        "id": "gb_1000",
+        "name": "1000kg 制导炸弹",
+        "category": "guided_bomb",
+        "mass_kg": 1000.0,
+        "dry_mass_kg": 1000.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.8,
+        "diameter_m": 0.45,
+        "notes": ""
+      },
+      {
+        "id": "gb_250",
+        "name": "250kg 制导炸弹",
+        "category": "guided_bomb",
+        "mass_kg": 250.0,
+        "dry_mass_kg": 250.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.7,
+        "diameter_m": 0.28,
+        "notes": ""
+      },
+      {
+        "id": "gb_150",
+        "name": "150kg 制导炸弹",
+        "category": "guided_bomb",
+        "mass_kg": 150.0,
+        "dry_mass_kg": 150.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.4,
+        "diameter_m": 0.25,
+        "notes": ""
+      },
+      {
+        "id": "gb_100",
+        "name": "100kg 制导炸弹",
+        "category": "guided_bomb",
+        "mass_kg": 100.0,
+        "dry_mass_kg": 100.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.0,
+        "diameter_m": 0.22,
+        "notes": ""
+      },
+      {
+        "id": "tank_1500l",
+        "name": "1500L 副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1330.0,
+        "dry_mass_kg": 130.0,
+        "fuel_kg": 1200.0,
+        "length_m": 5.0,
+        "diameter_m": 0.65,
+        "notes": "最内侧挂点；含燃油约 1150 kg；全机最多 2 个"
+      },
+      {
+        "id": "tank_1000l",
+        "name": "1000L 机腹副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 900.0,
+        "dry_mass_kg": 100.0,
+        "fuel_kg": 800.0,
+        "length_m": 4.2,
+        "diameter_m": 0.58,
+        "notes": ""
+      },
+      {
+        "id": "kg600",
+        "name": "KG600 自卫干扰吊舱",
+        "category": "ecm",
+        "mass_kg": 190.0,
+        "dry_mass_kg": 190.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.3,
+        "notes": ""
+      },
+      {
+        "id": "kg800",
+        "name": "KG800 自卫干扰吊舱",
+        "category": "ecm",
+        "mass_kg": 250.0,
+        "dry_mass_kg": 250.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.8,
+        "diameter_m": 0.32,
+        "notes": ""
+      },
+      {
+        "id": "kz900",
+        "name": "KZ900 侦察吊舱",
+        "category": "pod",
+        "mass_kg": 350.0,
+        "dry_mass_kg": 350.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.0,
+        "diameter_m": 0.4,
+        "notes": ""
+      },
+      {
+        "id": "oc5",
+        "name": "OC5 激光照射吊舱",
+        "category": "pod",
+        "mass_kg": 190.0,
+        "dry_mass_kg": 190.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.3,
+        "notes": ""
+      },
+      {
+        "id": "yingsun3",
+        "name": "鹰隼3 昼夜瞄准吊舱",
+        "category": "pod",
+        "mass_kg": 200.0,
+        "dry_mass_kg": 200.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.3,
+        "notes": ""
+      },
+      {
+        "id": "yj83k",
+        "name": "鹰击-83K",
+        "category": "asm",
+        "mass_kg": 715.0,
+        "dry_mass_kg": 715.0,
+        "fuel_kg": 0.0,
+        "length_m": 5.3,
+        "diameter_m": 0.36,
+        "notes": ""
+      },
+      {
+        "id": "yj15",
+        "name": "鹰击-15",
+        "category": "asm",
+        "mass_kg": 600.0,
+        "dry_mass_kg": 600.0,
+        "fuel_kg": 0.0,
+        "length_m": 5.0,
+        "diameter_m": 0.4,
+        "notes": ""
+      },
+      {
+        "id": "yj62",
+        "name": "鹰击-62",
+        "category": "asm",
+        "mass_kg": 1500.0,
+        "dry_mass_kg": 1500.0,
+        "fuel_kg": 0.0,
+        "length_m": 6.4,
+        "diameter_m": 0.54,
+        "notes": ""
+      },
+      {
+        "id": "gb_500",
+        "name": "500kg 制导炸弹",
+        "category": "guided_bomb",
+        "mass_kg": 500.0,
+        "dry_mass_kg": 500.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.2,
+        "diameter_m": 0.38,
+        "notes": ""
+      },
+      {
+        "id": "gb_1500",
+        "name": "1500kg 制导炸弹",
+        "category": "guided_bomb",
+        "mass_kg": 1500.0,
+        "dry_mass_kg": 1500.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.5,
+        "diameter_m": 0.6,
+        "notes": ""
+      },
+      {
+        "id": "kd88_pod",
+        "name": "KD-88 捕获指令吊舱",
+        "category": "pod",
+        "mass_kg": 240.0,
+        "dry_mass_kg": 240.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.0,
+        "diameter_m": 0.3,
+        "notes": ""
+      },
+      {
         "id": "tank_2150l",
         "name": "2,150 L 副油箱",
         "category": "tank",
@@ -27861,17 +28304,6 @@ module.exports = {
         "length_m": 5.6,
         "diameter_m": 0.62,
         "notes": "机腹中央挂点 PTB-2150；含燃油约 1650 kg"
-      },
-      {
-        "id": "tank_1500l",
-        "name": "1,500 L 副油箱",
-        "category": "tank",
-        "mass_kg": 1220.0,
-        "dry_mass_kg": 70.0,
-        "fuel_kg": 1150.0,
-        "length_m": 4.5,
-        "diameter_m": 0.55,
-        "notes": "最内侧挂点；含燃油约 1150 kg；全机最多 2 个"
       },
       {
         "id": "optronic_pod",
@@ -27894,17 +28326,6 @@ module.exports = {
         "length_m": 3.6,
         "diameter_m": 0.2,
         "notes": "中距主动雷达弹"
-      },
-      {
-        "id": "r73e",
-        "name": "R-73E",
-        "category": "aam_wvr",
-        "mass_kg": 105.0,
-        "dry_mass_kg": 105.0,
-        "fuel_kg": 0.0,
-        "length_m": 2.93,
-        "diameter_m": 0.17,
-        "notes": "近距红外格斗弹"
       },
       {
         "id": "r27r1",
@@ -28787,17 +29208,6 @@ module.exports = {
         "notes": "SRAAM"
       },
       {
-        "id": "pl12",
-        "name": "PL-12 中距空空弹",
-        "category": "aam",
-        "mass_kg": 199.0,
-        "dry_mass_kg": 199.0,
-        "fuel_kg": 0.0,
-        "length_m": 3.85,
-        "diameter_m": 0.203,
-        "notes": "MRAAM"
-      },
-      {
         "id": "pl15e",
         "name": "PL-15E 远程空空弹",
         "category": "aam",
@@ -28829,17 +29239,6 @@ module.exports = {
         "length_m": 6.392,
         "diameter_m": 0.36,
         "notes": "AShM"
-      },
-      {
-        "id": "cm400akg",
-        "name": "CM-400AKG 高超音速空地/反舰导弹",
-        "category": "asm",
-        "mass_kg": 910.0,
-        "dry_mass_kg": 910.0,
-        "fuel_kg": 0.0,
-        "length_m": 6.0,
-        "diameter_m": 0.4,
-        "notes": "准弹道反舰/反辐射弹"
       },
       {
         "id": "ls6_500",
@@ -34597,10 +34996,10 @@ module.exports = {
                 "key": "tank_1500l@1",
                 "munition_id": "tank_1500l",
                 "qty": 1.0,
-                "label": "1,500 L 副油箱",
-                "mass_kg": 1220.0,
-                "dry_mass_kg": 70.0,
-                "fuel_kg": 1150.0
+                "label": "1500L 副油箱",
+                "mass_kg": 1330.0,
+                "dry_mass_kg": 130.0,
+                "fuel_kg": 1200.0
               }
             ]
           },
@@ -34772,10 +35171,10 @@ module.exports = {
                 "key": "tank_1500l@1",
                 "munition_id": "tank_1500l",
                 "qty": 1.0,
-                "label": "1,500 L 副油箱",
-                "mass_kg": 1220.0,
-                "dry_mass_kg": 70.0,
-                "fuel_kg": 1150.0
+                "label": "1500L 副油箱",
+                "mass_kg": 1330.0,
+                "dry_mass_kg": 130.0,
+                "fuel_kg": 1200.0
               }
             ]
           },
@@ -37904,7 +38303,7 @@ module.exports = {
                 "key": "pl12@1",
                 "munition_id": "pl12",
                 "qty": 1.0,
-                "label": "PL-12 中距空空弹",
+                "label": "PL-12",
                 "mass_kg": 199.0,
                 "dry_mass_kg": 199.0,
                 "fuel_kg": 0.0
@@ -37913,7 +38312,7 @@ module.exports = {
                 "key": "pl12@2",
                 "munition_id": "pl12",
                 "qty": 2.0,
-                "label": "PL-12 中距空空弹 ×2",
+                "label": "PL-12 ×2",
                 "mass_kg": 398.0,
                 "dry_mass_kg": 398.0,
                 "fuel_kg": 0.0
@@ -38043,7 +38442,7 @@ module.exports = {
                 "key": "cm400akg@1",
                 "munition_id": "cm400akg",
                 "qty": 1.0,
-                "label": "CM-400AKG 高超音速空地/反舰导弹",
+                "label": "CM-400AKG",
                 "mass_kg": 910.0,
                 "dry_mass_kg": 910.0,
                 "fuel_kg": 0.0
@@ -38276,7 +38675,7 @@ module.exports = {
                 "key": "cm400akg@1",
                 "munition_id": "cm400akg",
                 "qty": 1.0,
-                "label": "CM-400AKG 高超音速空地/反舰导弹",
+                "label": "CM-400AKG",
                 "mass_kg": 910.0,
                 "dry_mass_kg": 910.0,
                 "fuel_kg": 0.0
@@ -38424,7 +38823,7 @@ module.exports = {
                 "key": "pl12@1",
                 "munition_id": "pl12",
                 "qty": 1.0,
-                "label": "PL-12 中距空空弹",
+                "label": "PL-12",
                 "mass_kg": 199.0,
                 "dry_mass_kg": 199.0,
                 "fuel_kg": 0.0
@@ -38433,7 +38832,7 @@ module.exports = {
                 "key": "pl12@2",
                 "munition_id": "pl12",
                 "qty": 2.0,
-                "label": "PL-12 中距空空弹 ×2",
+                "label": "PL-12 ×2",
                 "mass_kg": 398.0,
                 "dry_mass_kg": 398.0,
                 "fuel_kg": 0.0
@@ -44752,6 +45151,2397 @@ module.exports = {
           "9": "magic_ii@1",
           "3": "mica_em@1",
           "7": "mica_em@1"
+        }
+      },
+      "J-10C": {
+        "id": "J-10C",
+        "name": "歼-10C",
+        "stations": [
+          {
+            "id": "1",
+            "label": "1号右翼尖挂点",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl10@1",
+                "munition_id": "pl10",
+                "qty": 1.0,
+                "label": "PL-10",
+                "mass_kg": 89.0,
+                "dry_mass_kg": 89.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r73e@1",
+                "munition_id": "r73e",
+                "qty": 1.0,
+                "label": "R-73E",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "label": "2号右翼中挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl15_x2@1",
+                "munition_id": "pl15_x2",
+                "qty": 1.0,
+                "label": "PL-15 ×2（复合挂架）",
+                "mass_kg": 450.0,
+                "dry_mass_kg": 450.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12_x2@1",
+                "munition_id": "pl12_x2",
+                "qty": 1.0,
+                "label": "PL-12 ×2（复合挂架）",
+                "mass_kg": 428.0,
+                "dry_mass_kg": 428.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r77@1",
+                "munition_id": "r77",
+                "qty": 1.0,
+                "label": "R-77",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r77_x2@1",
+                "munition_id": "r77_x2",
+                "qty": 1.0,
+                "label": "R-77 ×2（复合挂架）",
+                "mass_kg": 380.0,
+                "dry_mass_kg": 380.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83@1",
+                "munition_id": "yj83",
+                "qty": 1.0,
+                "label": "YJ-83",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cm400akg@1",
+                "munition_id": "cm400akg",
+                "qty": 1.0,
+                "label": "CM-400AKG",
+                "mass_kg": 910.0,
+                "dry_mass_kg": 910.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cm102@1",
+                "munition_id": "cm102",
+                "qty": 1.0,
+                "label": "CM-102",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "c705kd@1",
+                "munition_id": "c705kd",
+                "qty": 1.0,
+                "label": "C705KD",
+                "mass_kg": 320.0,
+                "dry_mass_kg": 320.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "c704@1",
+                "munition_id": "c704",
+                "qty": 1.0,
+                "label": "C704",
+                "mass_kg": 320.0,
+                "dry_mass_kg": 320.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ft1_500@1",
+                "munition_id": "ft1_500",
+                "qty": 1.0,
+                "label": "FT-1 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb1_500@1",
+                "munition_id": "gb1_500",
+                "qty": 1.0,
+                "label": "GB1 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb2a_500@1",
+                "munition_id": "gb2a_500",
+                "qty": 1.0,
+                "label": "GB2A (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb6_500@1",
+                "munition_id": "gb6_500",
+                "qty": 1.0,
+                "label": "GB6 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb6a_500@1",
+                "munition_id": "gb6a_500",
+                "qty": 1.0,
+                "label": "GB6A (500kg)",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb3_250@1",
+                "munition_id": "gb3_250",
+                "qty": 1.0,
+                "label": "GB3 (250kg)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb3a_250@1",
+                "munition_id": "gb3a_250",
+                "qty": 1.0,
+                "label": "GB3A (250kg)",
+                "mass_kg": 260.0,
+                "dry_mass_kg": 260.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "label": "3号右翼根挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "tank_1500l@1",
+                "munition_id": "tank_1500l",
+                "qty": 1.0,
+                "label": "1500L 副油箱",
+                "mass_kg": 1330.0,
+                "dry_mass_kg": 130.0,
+                "fuel_kg": 1200.0
+              },
+              {
+                "key": "gb_1000@1",
+                "munition_id": "gb_1000",
+                "qty": 1.0,
+                "label": "1000kg 制导炸弹",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ft1_500@1",
+                "munition_id": "ft1_500",
+                "qty": 1.0,
+                "label": "FT-1 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb1_500@1",
+                "munition_id": "gb1_500",
+                "qty": 1.0,
+                "label": "GB1 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb2a_500@1",
+                "munition_id": "gb2a_500",
+                "qty": 1.0,
+                "label": "GB2A (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb6_500@1",
+                "munition_id": "gb6_500",
+                "qty": 1.0,
+                "label": "GB6 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb6a_500@1",
+                "munition_id": "gb6a_500",
+                "qty": 1.0,
+                "label": "GB6A (500kg)",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb3_250@1",
+                "munition_id": "gb3_250",
+                "qty": 1.0,
+                "label": "GB3 (250kg)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb3a_250@1",
+                "munition_id": "gb3a_250",
+                "qty": 1.0,
+                "label": "GB3A (250kg)",
+                "mass_kg": 260.0,
+                "dry_mass_kg": 260.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r77@1",
+                "munition_id": "r77",
+                "qty": 1.0,
+                "label": "R-77",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "label": "4号右进气道前挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "kg600@1",
+                "munition_id": "kg600",
+                "qty": 1.0,
+                "label": "KG600 自卫干扰吊舱",
+                "mass_kg": 190.0,
+                "dry_mass_kg": 190.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kz900@1",
+                "munition_id": "kz900",
+                "qty": 1.0,
+                "label": "KZ900 侦察吊舱",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "oc5@1",
+                "munition_id": "oc5",
+                "qty": 1.0,
+                "label": "OC5 激光照射吊舱",
+                "mass_kg": 190.0,
+                "dry_mass_kg": 190.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yingsun3@1",
+                "munition_id": "yingsun3",
+                "qty": 1.0,
+                "label": "鹰隼3 昼夜瞄准吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kg800@1",
+                "munition_id": "kg800",
+                "qty": 1.0,
+                "label": "KG800 自卫干扰吊舱",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@1",
+                "munition_id": "gb_250",
+                "qty": 1.0,
+                "label": "250kg 制导炸弹",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@1",
+                "munition_id": "gb_100",
+                "qty": 1.0,
+                "label": "100kg 制导炸弹",
+                "mass_kg": 100.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_150@1",
+                "munition_id": "gb_150",
+                "qty": 1.0,
+                "label": "150kg 制导炸弹",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "5",
+            "label": "5号右进气道后挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "gb_250@1",
+                "munition_id": "gb_250",
+                "qty": 1.0,
+                "label": "250kg 制导炸弹",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@1",
+                "munition_id": "gb_100",
+                "qty": 1.0,
+                "label": "100kg 制导炸弹",
+                "mass_kg": 100.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_150@1",
+                "munition_id": "gb_150",
+                "qty": 1.0,
+                "label": "150kg 制导炸弹",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "6",
+            "label": "6号机腹中线挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "tank_1000l@1",
+                "munition_id": "tank_1000l",
+                "qty": 1.0,
+                "label": "1000L 机腹副油箱",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 800.0
+              },
+              {
+                "key": "pl15_x2@1",
+                "munition_id": "pl15_x2",
+                "qty": 1.0,
+                "label": "PL-15 ×2（复合挂架）",
+                "mass_kg": 450.0,
+                "dry_mass_kg": 450.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12_x2@1",
+                "munition_id": "pl12_x2",
+                "qty": 1.0,
+                "label": "PL-12 ×2（复合挂架）",
+                "mass_kg": 428.0,
+                "dry_mass_kg": 428.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r77_x2@1",
+                "munition_id": "r77_x2",
+                "qty": 1.0,
+                "label": "R-77 ×2（复合挂架）",
+                "mass_kg": 380.0,
+                "dry_mass_kg": 380.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "7",
+            "label": "7号左进气道后挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "gb_250@1",
+                "munition_id": "gb_250",
+                "qty": 1.0,
+                "label": "250kg 制导炸弹",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@1",
+                "munition_id": "gb_100",
+                "qty": 1.0,
+                "label": "100kg 制导炸弹",
+                "mass_kg": 100.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_150@1",
+                "munition_id": "gb_150",
+                "qty": 1.0,
+                "label": "150kg 制导炸弹",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "8",
+            "label": "8号左进气道前挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "kg600@1",
+                "munition_id": "kg600",
+                "qty": 1.0,
+                "label": "KG600 自卫干扰吊舱",
+                "mass_kg": 190.0,
+                "dry_mass_kg": 190.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kz900@1",
+                "munition_id": "kz900",
+                "qty": 1.0,
+                "label": "KZ900 侦察吊舱",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "oc5@1",
+                "munition_id": "oc5",
+                "qty": 1.0,
+                "label": "OC5 激光照射吊舱",
+                "mass_kg": 190.0,
+                "dry_mass_kg": 190.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yingsun3@1",
+                "munition_id": "yingsun3",
+                "qty": 1.0,
+                "label": "鹰隼3 昼夜瞄准吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kg800@1",
+                "munition_id": "kg800",
+                "qty": 1.0,
+                "label": "KG800 自卫干扰吊舱",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@1",
+                "munition_id": "gb_250",
+                "qty": 1.0,
+                "label": "250kg 制导炸弹",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@1",
+                "munition_id": "gb_100",
+                "qty": 1.0,
+                "label": "100kg 制导炸弹",
+                "mass_kg": 100.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_150@1",
+                "munition_id": "gb_150",
+                "qty": 1.0,
+                "label": "150kg 制导炸弹",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "9",
+            "label": "9号左翼根挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "tank_1500l@1",
+                "munition_id": "tank_1500l",
+                "qty": 1.0,
+                "label": "1500L 副油箱",
+                "mass_kg": 1330.0,
+                "dry_mass_kg": 130.0,
+                "fuel_kg": 1200.0
+              },
+              {
+                "key": "gb_1000@1",
+                "munition_id": "gb_1000",
+                "qty": 1.0,
+                "label": "1000kg 制导炸弹",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ft1_500@1",
+                "munition_id": "ft1_500",
+                "qty": 1.0,
+                "label": "FT-1 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb1_500@1",
+                "munition_id": "gb1_500",
+                "qty": 1.0,
+                "label": "GB1 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb2a_500@1",
+                "munition_id": "gb2a_500",
+                "qty": 1.0,
+                "label": "GB2A (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb6_500@1",
+                "munition_id": "gb6_500",
+                "qty": 1.0,
+                "label": "GB6 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb6a_500@1",
+                "munition_id": "gb6a_500",
+                "qty": 1.0,
+                "label": "GB6A (500kg)",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb3_250@1",
+                "munition_id": "gb3_250",
+                "qty": 1.0,
+                "label": "GB3 (250kg)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb3a_250@1",
+                "munition_id": "gb3a_250",
+                "qty": 1.0,
+                "label": "GB3A (250kg)",
+                "mass_kg": 260.0,
+                "dry_mass_kg": 260.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r77@1",
+                "munition_id": "r77",
+                "qty": 1.0,
+                "label": "R-77",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "10",
+            "label": "10号左翼中挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl15_x2@1",
+                "munition_id": "pl15_x2",
+                "qty": 1.0,
+                "label": "PL-15 ×2（复合挂架）",
+                "mass_kg": 450.0,
+                "dry_mass_kg": 450.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12_x2@1",
+                "munition_id": "pl12_x2",
+                "qty": 1.0,
+                "label": "PL-12 ×2（复合挂架）",
+                "mass_kg": 428.0,
+                "dry_mass_kg": 428.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r77@1",
+                "munition_id": "r77",
+                "qty": 1.0,
+                "label": "R-77",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r77_x2@1",
+                "munition_id": "r77_x2",
+                "qty": 1.0,
+                "label": "R-77 ×2（复合挂架）",
+                "mass_kg": 380.0,
+                "dry_mass_kg": 380.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83@1",
+                "munition_id": "yj83",
+                "qty": 1.0,
+                "label": "YJ-83",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cm400akg@1",
+                "munition_id": "cm400akg",
+                "qty": 1.0,
+                "label": "CM-400AKG",
+                "mass_kg": 910.0,
+                "dry_mass_kg": 910.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cm102@1",
+                "munition_id": "cm102",
+                "qty": 1.0,
+                "label": "CM-102",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "c705kd@1",
+                "munition_id": "c705kd",
+                "qty": 1.0,
+                "label": "C705KD",
+                "mass_kg": 320.0,
+                "dry_mass_kg": 320.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "c704@1",
+                "munition_id": "c704",
+                "qty": 1.0,
+                "label": "C704",
+                "mass_kg": 320.0,
+                "dry_mass_kg": 320.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ft1_500@1",
+                "munition_id": "ft1_500",
+                "qty": 1.0,
+                "label": "FT-1 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb1_500@1",
+                "munition_id": "gb1_500",
+                "qty": 1.0,
+                "label": "GB1 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb2a_500@1",
+                "munition_id": "gb2a_500",
+                "qty": 1.0,
+                "label": "GB2A (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb6_500@1",
+                "munition_id": "gb6_500",
+                "qty": 1.0,
+                "label": "GB6 (500kg)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb6a_500@1",
+                "munition_id": "gb6a_500",
+                "qty": 1.0,
+                "label": "GB6A (500kg)",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb3_250@1",
+                "munition_id": "gb3_250",
+                "qty": 1.0,
+                "label": "GB3 (250kg)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb3a_250@1",
+                "munition_id": "gb3a_250",
+                "qty": 1.0,
+                "label": "GB3A (250kg)",
+                "mass_kg": 260.0,
+                "dry_mass_kg": 260.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "11",
+            "label": "11号左翼尖挂点",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl10@1",
+                "munition_id": "pl10",
+                "qty": 1.0,
+                "label": "PL-10",
+                "mass_kg": 89.0,
+                "dry_mass_kg": 89.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r73e@1",
+                "munition_id": "r73e",
+                "qty": 1.0,
+                "label": "R-73E",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          }
+        ],
+        "default_selection": {
+          "1": "pl10@1",
+          "11": "pl10@1",
+          "2": "pl15@1",
+          "10": "pl15@1",
+          "3": "pl12@1",
+          "9": "pl12@1"
+        }
+      },
+      "J-15": {
+        "id": "J-15",
+        "name": "歼-15",
+        "stations": [
+          {
+            "id": "1",
+            "label": "1号右翼尖挂点",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "label": "2号右翼外挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "label": "3号右翼中挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@2",
+                "munition_id": "gb_500",
+                "qty": 2.0,
+                "label": "500kg 制导炸弹 ×2",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@4",
+                "munition_id": "gb_250",
+                "qty": 4.0,
+                "label": "250kg 制导炸弹 ×4",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@6",
+                "munition_id": "gb_100",
+                "qty": 6.0,
+                "label": "100kg 制导炸弹 ×6",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "label": "4号右翼根挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj62@1",
+                "munition_id": "yj62",
+                "qty": 1.0,
+                "label": "鹰击-62",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_1500@1",
+                "munition_id": "gb_1500",
+                "qty": 1.0,
+                "label": "1500kg 制导炸弹",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@1",
+                "munition_id": "gb_500",
+                "qty": 1.0,
+                "label": "500kg 制导炸弹",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "5",
+            "label": "5号右进气道下方挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@1",
+                "munition_id": "gb_500",
+                "qty": 1.0,
+                "label": "500kg 制导炸弹",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@5",
+                "munition_id": "gb_250",
+                "qty": 5.0,
+                "label": "250kg 制导炸弹 ×5",
+                "mass_kg": 1250.0,
+                "dry_mass_kg": 1250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@5",
+                "munition_id": "gb_100",
+                "qty": 5.0,
+                "label": "100kg 制导炸弹 ×5",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88_pod@1",
+                "munition_id": "kd88_pod",
+                "qty": 1.0,
+                "label": "KD-88 捕获指令吊舱",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "6",
+            "label": "6号机腹前方挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "7",
+            "label": "7号机腹后方挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "8",
+            "label": "8号左进气道下方挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@1",
+                "munition_id": "gb_500",
+                "qty": 1.0,
+                "label": "500kg 制导炸弹",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@5",
+                "munition_id": "gb_250",
+                "qty": 5.0,
+                "label": "250kg 制导炸弹 ×5",
+                "mass_kg": 1250.0,
+                "dry_mass_kg": 1250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@5",
+                "munition_id": "gb_100",
+                "qty": 5.0,
+                "label": "100kg 制导炸弹 ×5",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88_pod@1",
+                "munition_id": "kd88_pod",
+                "qty": 1.0,
+                "label": "KD-88 捕获指令吊舱",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "9",
+            "label": "9号左翼根挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj62@1",
+                "munition_id": "yj62",
+                "qty": 1.0,
+                "label": "鹰击-62",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_1500@1",
+                "munition_id": "gb_1500",
+                "qty": 1.0,
+                "label": "1500kg 制导炸弹",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@1",
+                "munition_id": "gb_500",
+                "qty": 1.0,
+                "label": "500kg 制导炸弹",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "10",
+            "label": "10号左翼中挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@2",
+                "munition_id": "gb_500",
+                "qty": 2.0,
+                "label": "500kg 制导炸弹 ×2",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@4",
+                "munition_id": "gb_250",
+                "qty": 4.0,
+                "label": "250kg 制导炸弹 ×4",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@6",
+                "munition_id": "gb_100",
+                "qty": 6.0,
+                "label": "100kg 制导炸弹 ×6",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "11",
+            "label": "11号左翼外挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "12",
+            "label": "12号左翼尖挂点",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          }
+        ],
+        "default_selection": {
+          "1": "pl8@1",
+          "2": "pl8@1",
+          "11": "pl8@1",
+          "12": "pl8@1",
+          "3": "pl12@1",
+          "4": "pl12@1",
+          "9": "pl12@1",
+          "10": "pl12@1"
+        }
+      },
+      "J-15T": {
+        "id": "J-15T",
+        "name": "歼-15T",
+        "stations": [
+          {
+            "id": "1",
+            "label": "1号右翼尖挂点",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl10@1",
+                "munition_id": "pl10",
+                "qty": 1.0,
+                "label": "PL-10",
+                "mass_kg": 89.0,
+                "dry_mass_kg": 89.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "label": "2号右翼外挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl10@1",
+                "munition_id": "pl10",
+                "qty": 1.0,
+                "label": "PL-10",
+                "mass_kg": 89.0,
+                "dry_mass_kg": 89.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "label": "3号右翼中挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@2",
+                "munition_id": "gb_500",
+                "qty": 2.0,
+                "label": "500kg 制导炸弹 ×2",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@4",
+                "munition_id": "gb_250",
+                "qty": 4.0,
+                "label": "250kg 制导炸弹 ×4",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@6",
+                "munition_id": "gb_100",
+                "qty": 6.0,
+                "label": "100kg 制导炸弹 ×6",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "label": "4号右翼根挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj15@1",
+                "munition_id": "yj15",
+                "qty": 1.0,
+                "label": "鹰击-15",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj62@1",
+                "munition_id": "yj62",
+                "qty": 1.0,
+                "label": "鹰击-62",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_1500@1",
+                "munition_id": "gb_1500",
+                "qty": 1.0,
+                "label": "1500kg 制导炸弹",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@1",
+                "munition_id": "gb_500",
+                "qty": 1.0,
+                "label": "500kg 制导炸弹",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "5",
+            "label": "5号右进气道下方挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@1",
+                "munition_id": "gb_500",
+                "qty": 1.0,
+                "label": "500kg 制导炸弹",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@5",
+                "munition_id": "gb_250",
+                "qty": 5.0,
+                "label": "250kg 制导炸弹 ×5",
+                "mass_kg": 1250.0,
+                "dry_mass_kg": 1250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@5",
+                "munition_id": "gb_100",
+                "qty": 5.0,
+                "label": "100kg 制导炸弹 ×5",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88_pod@1",
+                "munition_id": "kd88_pod",
+                "qty": 1.0,
+                "label": "KD-88 捕获指令吊舱",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "6",
+            "label": "6号机腹前方挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "7",
+            "label": "7号机腹后方挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "8",
+            "label": "8号左进气道下方挂点",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@1",
+                "munition_id": "gb_500",
+                "qty": 1.0,
+                "label": "500kg 制导炸弹",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@5",
+                "munition_id": "gb_250",
+                "qty": 5.0,
+                "label": "250kg 制导炸弹 ×5",
+                "mass_kg": 1250.0,
+                "dry_mass_kg": 1250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@5",
+                "munition_id": "gb_100",
+                "qty": 5.0,
+                "label": "100kg 制导炸弹 ×5",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88_pod@1",
+                "munition_id": "kd88_pod",
+                "qty": 1.0,
+                "label": "KD-88 捕获指令吊舱",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "9",
+            "label": "9号左翼根挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj15@1",
+                "munition_id": "yj15",
+                "qty": 1.0,
+                "label": "鹰击-15",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj62@1",
+                "munition_id": "yj62",
+                "qty": 1.0,
+                "label": "鹰击-62",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_1500@1",
+                "munition_id": "gb_1500",
+                "qty": 1.0,
+                "label": "1500kg 制导炸弹",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@1",
+                "munition_id": "gb_500",
+                "qty": 1.0,
+                "label": "500kg 制导炸弹",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "10",
+            "label": "10号左翼中挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl15@1",
+                "munition_id": "pl15",
+                "qty": 1.0,
+                "label": "PL-15",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl12@1",
+                "munition_id": "pl12",
+                "qty": 1.0,
+                "label": "PL-12",
+                "mass_kg": 199.0,
+                "dry_mass_kg": 199.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj83k@1",
+                "munition_id": "yj83k",
+                "qty": 1.0,
+                "label": "鹰击-83K",
+                "mass_kg": 715.0,
+                "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "yj91@1",
+                "munition_id": "yj91",
+                "qty": 1.0,
+                "label": "鹰击-91",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kd88@1",
+                "munition_id": "kd88",
+                "qty": 1.0,
+                "label": "KD-88",
+                "mass_kg": 700.0,
+                "dry_mass_kg": 700.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_500@2",
+                "munition_id": "gb_500",
+                "qty": 2.0,
+                "label": "500kg 制导炸弹 ×2",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_250@4",
+                "munition_id": "gb_250",
+                "qty": 4.0,
+                "label": "250kg 制导炸弹 ×4",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gb_100@6",
+                "munition_id": "gb_100",
+                "qty": 6.0,
+                "label": "100kg 制导炸弹 ×6",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "11",
+            "label": "11号左翼外挂点",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl10@1",
+                "munition_id": "pl10",
+                "qty": 1.0,
+                "label": "PL-10",
+                "mass_kg": 89.0,
+                "dry_mass_kg": 89.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "12",
+            "label": "12号左翼尖挂点",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "pl10@1",
+                "munition_id": "pl10",
+                "qty": 1.0,
+                "label": "PL-10",
+                "mass_kg": 89.0,
+                "dry_mass_kg": 89.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl8@1",
+                "munition_id": "pl8",
+                "qty": 1.0,
+                "label": "PL-8",
+                "mass_kg": 115.0,
+                "dry_mass_kg": 115.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          }
+        ],
+        "default_selection": {
+          "1": "pl10@1",
+          "2": "pl10@1",
+          "11": "pl10@1",
+          "12": "pl10@1",
+          "3": "pl15@1",
+          "4": "pl15@1",
+          "9": "pl15@1",
+          "10": "pl15@1"
         }
       },
       "Gripen-CD": {
@@ -53978,6 +56768,1593 @@ module.exports = {
     },
     "stations_csv": "data/mirage2000_mount_stations.csv",
     "stores_csv": "data/mirage2000_mount_stores.csv"
+  },
+  "j10c_mount": {
+    "aircraft_ids": [
+      "J-10C"
+    ],
+    "categories": {
+      "air_to_air": {
+        "label_en": "AIR TO AIR",
+        "label_zh": "空空导弹"
+      },
+      "air_to_ground": {
+        "label_en": "AIR TO GROUND",
+        "label_zh": "空地导弹"
+      },
+      "air_to_sea": {
+        "label_en": "AIR TO SEA",
+        "label_zh": "反舰导弹"
+      },
+      "bombs_guided": {
+        "label_en": "BOMBS - GUIDED",
+        "label_zh": "精确制导炸弹"
+      },
+      "bombs_conventional": {
+        "label_en": "BOMBS - CONVENTIONAL",
+        "label_zh": "常规炸弹"
+      },
+      "electronic_warfare": {
+        "label_en": "ELECTRONIC WARFARE",
+        "label_zh": "电子战/干扰设备"
+      },
+      "pods_fuel": {
+        "label_en": "PODS / FUEL",
+        "label_zh": "吊舱与副油箱"
+      },
+      "laser_designation": {
+        "label_en": "LASER DESIGNATION PODS",
+        "label_zh": "激光制导/瞄准吊舱"
+      },
+      "nuclear": {
+        "label_en": "NUCLEAR",
+        "label_zh": "核武器"
+      },
+      "fuel": {
+        "label_en": "FUEL",
+        "label_zh": "副油箱"
+      }
+    },
+    "stations": [
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "1",
+        "station_label": "PYLON 1",
+        "label_zh": "1号右翼尖挂点",
+        "side": "right",
+        "position": "wing_tip",
+        "store_mount": "pylon",
+        "notes": "红外格斗导弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "2",
+        "station_label": "PYLON 2",
+        "label_zh": "2号右翼中挂点",
+        "side": "right",
+        "position": "wing_mid",
+        "store_mount": "pylon",
+        "notes": "雷达空空/空地/反舰/制导炸弹；可复合挂架挂 2 枚空空弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "3",
+        "station_label": "PYLON 3",
+        "label_zh": "3号右翼根挂点",
+        "side": "right",
+        "position": "wing_root",
+        "store_mount": "pylon",
+        "notes": "副油箱/制导炸弹/1枚雷达空空导弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "4",
+        "station_label": "PYLON 4",
+        "label_zh": "4号右进气道前挂点",
+        "side": "right",
+        "position": "intake_front",
+        "store_mount": "pylon",
+        "notes": "吊舱/小型制导炸弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "5",
+        "station_label": "PYLON 5",
+        "label_zh": "5号右进气道后挂点",
+        "side": "right",
+        "position": "intake_rear",
+        "store_mount": "pylon",
+        "notes": "小型制导炸弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "6",
+        "station_label": "PYLON 6",
+        "label_zh": "6号机腹中线挂点",
+        "side": "center",
+        "position": "fuselage_center",
+        "store_mount": "pylon",
+        "notes": "1000升副油箱或复合挂架 2 枚雷达空空导弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "7",
+        "station_label": "PYLON 7",
+        "label_zh": "7号左进气道后挂点",
+        "side": "left",
+        "position": "intake_rear",
+        "store_mount": "pylon",
+        "notes": "小型制导炸弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "8",
+        "station_label": "PYLON 8",
+        "label_zh": "8号左进气道前挂点",
+        "side": "left",
+        "position": "intake_front",
+        "store_mount": "pylon",
+        "notes": "吊舱/小型制导炸弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "9",
+        "station_label": "PYLON 9",
+        "label_zh": "9号左翼根挂点",
+        "side": "left",
+        "position": "wing_root",
+        "store_mount": "pylon",
+        "notes": "副油箱/制导炸弹/1枚雷达空空导弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "10",
+        "station_label": "PYLON 10",
+        "label_zh": "10号左翼中挂点",
+        "side": "left",
+        "position": "wing_mid",
+        "store_mount": "pylon",
+        "notes": "雷达空空/空地/反舰/制导炸弹；可复合挂架挂 2 枚空空弹"
+      },
+      {
+        "aircraft_id": "J-10C",
+        "station_id": "11",
+        "station_label": "PYLON 11",
+        "label_zh": "11号左翼尖挂点",
+        "side": "left",
+        "position": "wing_tip",
+        "store_mount": "pylon",
+        "notes": "红外格斗导弹"
+      }
+    ],
+    "stores_by_station": {
+      "1": [
+        {
+          "id": "pl10",
+          "name": "PL-10 红外格斗弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl8",
+          "name": "PL-8 红外格斗弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "r73e",
+          "name": "R-73E",
+          "category": "air_to_air"
+        }
+      ],
+      "2": [
+        {
+          "id": "pl15",
+          "name": "PL-15 雷达空空导弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl15_x2",
+          "name": "PL-15 ×2（复合挂架）",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl12",
+          "name": "PL-12 雷达空空导弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl12_x2",
+          "name": "PL-12 ×2（复合挂架）",
+          "category": "air_to_air"
+        },
+        {
+          "id": "r77",
+          "name": "R-77",
+          "category": "air_to_air"
+        },
+        {
+          "id": "r77_x2",
+          "name": "R-77 ×2（复合挂架）",
+          "category": "air_to_air"
+        },
+        {
+          "id": "kd88",
+          "name": "KD-88 空地导弹",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "yj83",
+          "name": "YJ-83 反舰导弹",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "cm400akg",
+          "name": "CM-400AKG 超音速反辐射/反舰导弹",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "yj91",
+          "name": "鹰击-91 反辐射/反舰导弹",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "cm102",
+          "name": "CM-102 反辐射导弹",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "c705kd",
+          "name": "C705KD 空地导弹",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "c704",
+          "name": "C704 反舰导弹",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "ft1_500",
+          "name": "500kg FT-1 精确制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb1_500",
+          "name": "500kg GB1 激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb2a_500",
+          "name": "500kg GB2A 滑翔增程卫星制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb6_500",
+          "name": "500kg GB6 机载布撒武器",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "gb6a_500",
+          "name": "500kg GB6A 动力增程布撒武器",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "gb3_250",
+          "name": "250kg GB3 激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb3a_250",
+          "name": "250kg GB3A 滑翔增程激光制导炸弹",
+          "category": "bombs_guided"
+        }
+      ],
+      "3": [
+        {
+          "id": "tank_1500l",
+          "name": "1500升副油箱",
+          "category": "fuel"
+        },
+        {
+          "id": "gb_1000",
+          "name": "1000kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "ft1_500",
+          "name": "500kg FT-1 精确制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb1_500",
+          "name": "500kg GB1 激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb2a_500",
+          "name": "500kg GB2A 滑翔增程卫星制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb6_500",
+          "name": "500kg GB6 机载布撒武器",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "gb6a_500",
+          "name": "500kg GB6A 动力增程布撒武器",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "gb3_250",
+          "name": "250kg GB3 激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb3a_250",
+          "name": "250kg GB3A 滑翔增程激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "pl15",
+          "name": "PL-15 雷达空空导弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl12",
+          "name": "PL-12 雷达空空导弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "r77",
+          "name": "R-77",
+          "category": "air_to_air"
+        }
+      ],
+      "4": [
+        {
+          "id": "kg600",
+          "name": "KG600 机载自卫干扰吊舱",
+          "category": "electronic_warfare"
+        },
+        {
+          "id": "kz900",
+          "name": "KZ900 机载侦察吊舱",
+          "category": "pods_fuel"
+        },
+        {
+          "id": "oc5",
+          "name": "OC5 激光照射吊舱",
+          "category": "laser_designation"
+        },
+        {
+          "id": "yingsun3",
+          "name": "鹰隼3 昼夜瞄准吊舱",
+          "category": "laser_designation"
+        },
+        {
+          "id": "kg800",
+          "name": "KG800 机载自卫干扰吊舱",
+          "category": "electronic_warfare"
+        },
+        {
+          "id": "gb_250",
+          "name": "250kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb_100",
+          "name": "100kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb_150",
+          "name": "150kg 制导炸弹",
+          "category": "bombs_guided"
+        }
+      ],
+      "5": [
+        {
+          "id": "gb_250",
+          "name": "250kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb_100",
+          "name": "100kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb_150",
+          "name": "150kg 制导炸弹",
+          "category": "bombs_guided"
+        }
+      ],
+      "6": [
+        {
+          "id": "tank_1000l",
+          "name": "1000升副油箱",
+          "category": "fuel"
+        },
+        {
+          "id": "pl15_x2",
+          "name": "PL-15 ×2（复合挂架）",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl12_x2",
+          "name": "PL-12 ×2（复合挂架）",
+          "category": "air_to_air"
+        },
+        {
+          "id": "r77_x2",
+          "name": "R-77 ×2（复合挂架）",
+          "category": "air_to_air"
+        }
+      ],
+      "7": [
+        {
+          "id": "gb_250",
+          "name": "250kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb_100",
+          "name": "100kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb_150",
+          "name": "150kg 制导炸弹",
+          "category": "bombs_guided"
+        }
+      ],
+      "8": [
+        {
+          "id": "kg600",
+          "name": "KG600 机载自卫干扰吊舱",
+          "category": "electronic_warfare"
+        },
+        {
+          "id": "kz900",
+          "name": "KZ900 机载侦察吊舱",
+          "category": "pods_fuel"
+        },
+        {
+          "id": "oc5",
+          "name": "OC5 激光照射吊舱",
+          "category": "laser_designation"
+        },
+        {
+          "id": "yingsun3",
+          "name": "鹰隼3 昼夜瞄准吊舱",
+          "category": "laser_designation"
+        },
+        {
+          "id": "kg800",
+          "name": "KG800 机载自卫干扰吊舱",
+          "category": "electronic_warfare"
+        },
+        {
+          "id": "gb_250",
+          "name": "250kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb_100",
+          "name": "100kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb_150",
+          "name": "150kg 制导炸弹",
+          "category": "bombs_guided"
+        }
+      ],
+      "9": [
+        {
+          "id": "tank_1500l",
+          "name": "1500升副油箱",
+          "category": "fuel"
+        },
+        {
+          "id": "gb_1000",
+          "name": "1000kg 制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "ft1_500",
+          "name": "500kg FT-1 精确制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb1_500",
+          "name": "500kg GB1 激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb2a_500",
+          "name": "500kg GB2A 滑翔增程卫星制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb6_500",
+          "name": "500kg GB6 机载布撒武器",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "gb6a_500",
+          "name": "500kg GB6A 动力增程布撒武器",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "gb3_250",
+          "name": "250kg GB3 激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb3a_250",
+          "name": "250kg GB3A 滑翔增程激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "pl15",
+          "name": "PL-15 雷达空空导弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl12",
+          "name": "PL-12 雷达空空导弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "r77",
+          "name": "R-77",
+          "category": "air_to_air"
+        }
+      ],
+      "10": [
+        {
+          "id": "pl15",
+          "name": "PL-15 雷达空空导弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl15_x2",
+          "name": "PL-15 ×2（复合挂架）",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl12",
+          "name": "PL-12 雷达空空导弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl12_x2",
+          "name": "PL-12 ×2（复合挂架）",
+          "category": "air_to_air"
+        },
+        {
+          "id": "r77",
+          "name": "R-77",
+          "category": "air_to_air"
+        },
+        {
+          "id": "r77_x2",
+          "name": "R-77 ×2（复合挂架）",
+          "category": "air_to_air"
+        },
+        {
+          "id": "kd88",
+          "name": "KD-88 空地导弹",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "yj83",
+          "name": "YJ-83 反舰导弹",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "cm400akg",
+          "name": "CM-400AKG 超音速反辐射/反舰导弹",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "yj91",
+          "name": "鹰击-91 反辐射/反舰导弹",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "cm102",
+          "name": "CM-102 反辐射导弹",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "c705kd",
+          "name": "C705KD 空地导弹",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "c704",
+          "name": "C704 反舰导弹",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "ft1_500",
+          "name": "500kg FT-1 精确制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb1_500",
+          "name": "500kg GB1 激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb2a_500",
+          "name": "500kg GB2A 滑翔增程卫星制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb6_500",
+          "name": "500kg GB6 机载布撒武器",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "gb6a_500",
+          "name": "500kg GB6A 动力增程布撒武器",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "gb3_250",
+          "name": "250kg GB3 激光制导炸弹",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gb3a_250",
+          "name": "250kg GB3A 滑翔增程激光制导炸弹",
+          "category": "bombs_guided"
+        }
+      ],
+      "11": [
+        {
+          "id": "pl10",
+          "name": "PL-10 红外格斗弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "pl8",
+          "name": "PL-8 红外格斗弹",
+          "category": "air_to_air"
+        },
+        {
+          "id": "r73e",
+          "name": "R-73E",
+          "category": "air_to_air"
+        }
+      ]
+    },
+    "stations_csv": "data/j10c_mount_stations.csv",
+    "stores_csv": "data/j10c_mount_stores.csv"
+  },
+  "j15_mount": {
+    "aircraft_ids": [
+      "J-15",
+      "J-15T"
+    ],
+    "categories": {
+      "air_to_air": {
+        "label_en": "AIR TO AIR",
+        "label_zh": "空空导弹"
+      },
+      "air_to_ground": {
+        "label_en": "AIR TO GROUND",
+        "label_zh": "空地导弹"
+      },
+      "air_to_sea": {
+        "label_en": "AIR TO SEA",
+        "label_zh": "反舰导弹"
+      },
+      "bombs_guided": {
+        "label_en": "BOMBS - GUIDED",
+        "label_zh": "精确制导炸弹"
+      },
+      "bombs_conventional": {
+        "label_en": "BOMBS - CONVENTIONAL",
+        "label_zh": "常规炸弹"
+      },
+      "electronic_warfare": {
+        "label_en": "ELECTRONIC WARFARE",
+        "label_zh": "电子战/干扰设备"
+      },
+      "pods_fuel": {
+        "label_en": "PODS / FUEL",
+        "label_zh": "吊舱与副油箱"
+      },
+      "laser_designation": {
+        "label_en": "LASER DESIGNATION PODS",
+        "label_zh": "激光制导/瞄准吊舱"
+      },
+      "nuclear": {
+        "label_en": "NUCLEAR",
+        "label_zh": "核武器"
+      },
+      "fuel": {
+        "label_en": "FUEL",
+        "label_zh": "副油箱"
+      }
+    },
+    "models": {
+      "J-15": {
+        "stations": [
+          {
+            "aircraft_id": "J-15",
+            "station_id": "1",
+            "station_label": "PYLON 1",
+            "label_zh": "1号右翼尖挂点",
+            "side": "right",
+            "position": "wing_tip",
+            "store_mount": "pylon",
+            "notes": "红外格斗导弹"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "2",
+            "station_label": "PYLON 2",
+            "label_zh": "2号右翼外挂点",
+            "side": "right",
+            "position": "wing_outer",
+            "store_mount": "pylon",
+            "notes": "红外格斗导弹"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "3",
+            "station_label": "PYLON 3",
+            "label_zh": "3号右翼中挂点",
+            "side": "right",
+            "position": "wing_mid",
+            "store_mount": "pylon",
+            "notes": "雷达空空/空地/反舰/多联挂架制导炸弹"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "4",
+            "station_label": "PYLON 4",
+            "label_zh": "4号右翼根挂点",
+            "side": "right",
+            "position": "wing_root",
+            "store_mount": "pylon",
+            "notes": "雷达空空/反舰/空地/大型制导炸弹"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "5",
+            "station_label": "PYLON 5",
+            "label_zh": "5号右进气道下方挂点",
+            "side": "right",
+            "position": "intake_lower",
+            "store_mount": "pylon",
+            "notes": "雷达空空/反舰/空地/多联制导炸弹/KD-88 捕获指令吊舱"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "6",
+            "station_label": "PYLON 6",
+            "label_zh": "6号机腹前方挂点",
+            "side": "center",
+            "position": "fuselage_center_fwd",
+            "store_mount": "pylon",
+            "notes": "雷达空空导弹"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "7",
+            "station_label": "PYLON 7",
+            "label_zh": "7号机腹后方挂点",
+            "side": "center",
+            "position": "fuselage_center_aft",
+            "store_mount": "pylon",
+            "notes": "雷达空空导弹"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "8",
+            "station_label": "PYLON 8",
+            "label_zh": "8号左进气道下方挂点",
+            "side": "left",
+            "position": "intake_lower",
+            "store_mount": "pylon",
+            "notes": "雷达空空/反舰/空地/多联制导炸弹/KD-88 捕获指令吊舱"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "9",
+            "station_label": "PYLON 9",
+            "label_zh": "9号左翼根挂点",
+            "side": "left",
+            "position": "wing_root",
+            "store_mount": "pylon",
+            "notes": "雷达空空/反舰/空地/大型制导炸弹"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "10",
+            "station_label": "PYLON 10",
+            "label_zh": "10号左翼中挂点",
+            "side": "left",
+            "position": "wing_mid",
+            "store_mount": "pylon",
+            "notes": "雷达空空/空地/反舰/多联挂架制导炸弹"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "11",
+            "station_label": "PYLON 11",
+            "label_zh": "11号左翼外挂点",
+            "side": "left",
+            "position": "wing_outer",
+            "store_mount": "pylon",
+            "notes": "红外格斗导弹"
+          },
+          {
+            "aircraft_id": "J-15",
+            "station_id": "12",
+            "station_label": "PYLON 12",
+            "label_zh": "12号左翼尖挂点",
+            "side": "left",
+            "position": "wing_tip",
+            "store_mount": "pylon",
+            "notes": "红外格斗导弹"
+          }
+        ],
+        "stores_by_station": {
+          "1": [
+            {
+              "id": "pl8",
+              "name": "PL-8 红外格斗弹",
+              "category": "air_to_air"
+            }
+          ],
+          "2": [
+            {
+              "id": "pl8",
+              "name": "PL-8 红外格斗弹",
+              "category": "air_to_air"
+            }
+          ],
+          "3": [
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_500_x2",
+              "name": "2×500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_250_x4",
+              "name": "4×250kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_100_x6",
+              "name": "6×100kg 制导炸弹",
+              "category": "bombs_guided"
+            }
+          ],
+          "4": [
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj62",
+              "name": "鹰击-62 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_1500",
+              "name": "1×1500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_500",
+              "name": "1×500kg 制导炸弹",
+              "category": "bombs_guided"
+            }
+          ],
+          "5": [
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_500",
+              "name": "1×500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_250_x5",
+              "name": "5×250kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_100_x5",
+              "name": "5×100kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "kd88_pod",
+              "name": "KD-88 捕获指令吊舱（240kg）",
+              "category": "pods_fuel"
+            }
+          ],
+          "6": [
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            }
+          ],
+          "7": [
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            }
+          ],
+          "8": [
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_500",
+              "name": "1×500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_250_x5",
+              "name": "5×250kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_100_x5",
+              "name": "5×100kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "kd88_pod",
+              "name": "KD-88 捕获指令吊舱（240kg）",
+              "category": "pods_fuel"
+            }
+          ],
+          "9": [
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj62",
+              "name": "鹰击-62 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_1500",
+              "name": "1×1500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_500",
+              "name": "1×500kg 制导炸弹",
+              "category": "bombs_guided"
+            }
+          ],
+          "10": [
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_500_x2",
+              "name": "2×500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_250_x4",
+              "name": "4×250kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_100_x6",
+              "name": "6×100kg 制导炸弹",
+              "category": "bombs_guided"
+            }
+          ],
+          "11": [
+            {
+              "id": "pl8",
+              "name": "PL-8 红外格斗弹",
+              "category": "air_to_air"
+            }
+          ],
+          "12": [
+            {
+              "id": "pl8",
+              "name": "PL-8 红外格斗弹",
+              "category": "air_to_air"
+            }
+          ]
+        }
+      },
+      "J-15T": {
+        "stations": [
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "1",
+            "station_label": "PYLON 1",
+            "label_zh": "1号右翼尖挂点",
+            "side": "right",
+            "position": "wing_tip",
+            "store_mount": "pylon",
+            "notes": "红外格斗导弹"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "2",
+            "station_label": "PYLON 2",
+            "label_zh": "2号右翼外挂点",
+            "side": "right",
+            "position": "wing_outer",
+            "store_mount": "pylon",
+            "notes": "红外格斗导弹"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "3",
+            "station_label": "PYLON 3",
+            "label_zh": "3号右翼中挂点",
+            "side": "right",
+            "position": "wing_mid",
+            "store_mount": "pylon",
+            "notes": "雷达空空/空地/反舰/多联挂架制导炸弹"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "4",
+            "station_label": "PYLON 4",
+            "label_zh": "4号右翼根挂点",
+            "side": "right",
+            "position": "wing_root",
+            "store_mount": "pylon",
+            "notes": "雷达空空/反舰/空地/大型制导炸弹"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "5",
+            "station_label": "PYLON 5",
+            "label_zh": "5号右进气道下方挂点",
+            "side": "right",
+            "position": "intake_lower",
+            "store_mount": "pylon",
+            "notes": "雷达空空/反舰/空地/多联制导炸弹/KD-88 捕获指令吊舱"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "6",
+            "station_label": "PYLON 6",
+            "label_zh": "6号机腹前方挂点",
+            "side": "center",
+            "position": "fuselage_center_fwd",
+            "store_mount": "pylon",
+            "notes": "雷达空空导弹"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "7",
+            "station_label": "PYLON 7",
+            "label_zh": "7号机腹后方挂点",
+            "side": "center",
+            "position": "fuselage_center_aft",
+            "store_mount": "pylon",
+            "notes": "雷达空空导弹"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "8",
+            "station_label": "PYLON 8",
+            "label_zh": "8号左进气道下方挂点",
+            "side": "left",
+            "position": "intake_lower",
+            "store_mount": "pylon",
+            "notes": "雷达空空/反舰/空地/多联制导炸弹/KD-88 捕获指令吊舱"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "9",
+            "station_label": "PYLON 9",
+            "label_zh": "9号左翼根挂点",
+            "side": "left",
+            "position": "wing_root",
+            "store_mount": "pylon",
+            "notes": "雷达空空/反舰/空地/大型制导炸弹"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "10",
+            "station_label": "PYLON 10",
+            "label_zh": "10号左翼中挂点",
+            "side": "left",
+            "position": "wing_mid",
+            "store_mount": "pylon",
+            "notes": "雷达空空/空地/反舰/多联挂架制导炸弹"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "11",
+            "station_label": "PYLON 11",
+            "label_zh": "11号左翼外挂点",
+            "side": "left",
+            "position": "wing_outer",
+            "store_mount": "pylon",
+            "notes": "红外格斗导弹"
+          },
+          {
+            "aircraft_id": "J-15T",
+            "station_id": "12",
+            "station_label": "PYLON 12",
+            "label_zh": "12号左翼尖挂点",
+            "side": "left",
+            "position": "wing_tip",
+            "store_mount": "pylon",
+            "notes": "红外格斗导弹"
+          }
+        ],
+        "stores_by_station": {
+          "1": [
+            {
+              "id": "pl10",
+              "name": "PL-10 红外格斗弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl8",
+              "name": "PL-8 红外格斗弹",
+              "category": "air_to_air"
+            }
+          ],
+          "2": [
+            {
+              "id": "pl10",
+              "name": "PL-10 红外格斗弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl8",
+              "name": "PL-8 红外格斗弹",
+              "category": "air_to_air"
+            }
+          ],
+          "3": [
+            {
+              "id": "pl15",
+              "name": "PL-15 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_500_x2",
+              "name": "2×500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_250_x4",
+              "name": "4×250kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_100_x6",
+              "name": "6×100kg 制导炸弹",
+              "category": "bombs_guided"
+            }
+          ],
+          "4": [
+            {
+              "id": "pl15",
+              "name": "PL-15 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj15",
+              "name": "鹰击-15 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj62",
+              "name": "鹰击-62 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_1500",
+              "name": "1×1500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_500",
+              "name": "1×500kg 制导炸弹",
+              "category": "bombs_guided"
+            }
+          ],
+          "5": [
+            {
+              "id": "pl15",
+              "name": "PL-15 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_500",
+              "name": "1×500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_250_x5",
+              "name": "5×250kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_100_x5",
+              "name": "5×100kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "kd88_pod",
+              "name": "KD-88 捕获指令吊舱（240kg）",
+              "category": "pods_fuel"
+            }
+          ],
+          "6": [
+            {
+              "id": "pl15",
+              "name": "PL-15 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            }
+          ],
+          "7": [
+            {
+              "id": "pl15",
+              "name": "PL-15 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            }
+          ],
+          "8": [
+            {
+              "id": "pl15",
+              "name": "PL-15 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_500",
+              "name": "1×500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_250_x5",
+              "name": "5×250kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_100_x5",
+              "name": "5×100kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "kd88_pod",
+              "name": "KD-88 捕获指令吊舱（240kg）",
+              "category": "pods_fuel"
+            }
+          ],
+          "9": [
+            {
+              "id": "pl15",
+              "name": "PL-15 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj15",
+              "name": "鹰击-15 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj62",
+              "name": "鹰击-62 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_1500",
+              "name": "1×1500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_500",
+              "name": "1×500kg 制导炸弹",
+              "category": "bombs_guided"
+            }
+          ],
+          "10": [
+            {
+              "id": "pl15",
+              "name": "PL-15 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl12",
+              "name": "PL-12 雷达空空导弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "yj83k",
+              "name": "鹰击-83K 反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "yj91",
+              "name": "鹰击-91 反辐射/反舰导弹",
+              "category": "air_to_sea"
+            },
+            {
+              "id": "kd88",
+              "name": "KD-88 空地导弹",
+              "category": "air_to_ground"
+            },
+            {
+              "id": "gb_500_x2",
+              "name": "2×500kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_250_x4",
+              "name": "4×250kg 制导炸弹",
+              "category": "bombs_guided"
+            },
+            {
+              "id": "gb_100_x6",
+              "name": "6×100kg 制导炸弹",
+              "category": "bombs_guided"
+            }
+          ],
+          "11": [
+            {
+              "id": "pl10",
+              "name": "PL-10 红外格斗弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl8",
+              "name": "PL-8 红外格斗弹",
+              "category": "air_to_air"
+            }
+          ],
+          "12": [
+            {
+              "id": "pl10",
+              "name": "PL-10 红外格斗弹",
+              "category": "air_to_air"
+            },
+            {
+              "id": "pl8",
+              "name": "PL-8 红外格斗弹",
+              "category": "air_to_air"
+            }
+          ]
+        }
+      }
+    },
+    "stations_csv": "data/j15_mount_stations.csv",
+    "stores_csv": "data/j15_mount_stores.csv"
   },
   "aircraft_weapons": {
     "version": 1,

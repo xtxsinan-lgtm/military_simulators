@@ -37,7 +37,7 @@ TILTROTOR_STRATEGIES = {
 }
 
 # data.json 结构版本；字段变更时递增
-DATA_VERSION = 40
+DATA_VERSION = 42
 
 # 启动页可选模拟器（HTML / 小程序 / iOS 同源）
 SIMULATORS = [
@@ -122,6 +122,8 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
     from utils.combat_radius.loadout import build_loadout_catalog_payload
     from utils.missile_interception.missile_interception_presets import build_missile_interception_presets_payload
     from utils.aircraft_pylon import build_aircraft_pylon_payload
+    from utils.aircraft_mount.j10c_mount import build_j10c_mount_catalog_payload
+    from utils.aircraft_mount.j15_mount import build_j15_mount_catalog_payload
     from utils.aircraft_mount.mirage2000_mount import build_mirage2000_mount_catalog_payload
     from utils.aircraft_mount.rafale_mount import build_rafale_mount_catalog_payload
     from utils.stores.hardpoints import build_stores_catalog_payload
@@ -153,6 +155,8 @@ def build_catalog_payload(aircraft: dict, carriers: list) -> dict:
         'aircraft_pylon': build_aircraft_pylon_payload(),
         'rafale_mount': build_rafale_mount_catalog_payload(),
         'mirage2000_mount': build_mirage2000_mount_catalog_payload(),
+        'j10c_mount': build_j10c_mount_catalog_payload(),
+        'j15_mount': build_j15_mount_catalog_payload(),
         'aircraft_weapons': build_aircraft_weapons_payload(),
         'fc1_stores': build_fc1_stores_payload(),
         'aircraft_hardpoints': build_aircraft_hardpoints_catalog_payload(),

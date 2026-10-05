@@ -1,0 +1,25 @@
+aircraft_id,station_id,station_label,label_zh,side,position,store_mount,notes
+J-15,1,PYLON 1,1号右翼尖挂点,right,wing_tip,pylon,红外格斗导弹
+J-15,2,PYLON 2,2号右翼外挂点,right,wing_outer,pylon,红外格斗导弹
+J-15,3,PYLON 3,3号右翼中挂点,right,wing_mid,pylon,雷达空空/空地/反舰/多联挂架制导炸弹
+J-15,4,PYLON 4,4号右翼根挂点,right,wing_root,pylon,雷达空空/反舰/空地/大型制导炸弹
+J-15,5,PYLON 5,5号右进气道下方挂点,right,intake_lower,pylon,雷达空空/反舰/空地/多联制导炸弹/KD-88 捕获指令吊舱
+J-15,6,PYLON 6,6号机腹前方挂点,center,fuselage_center_fwd,pylon,雷达空空导弹
+J-15,7,PYLON 7,7号机腹后方挂点,center,fuselage_center_aft,pylon,雷达空空导弹
+J-15,8,PYLON 8,8号左进气道下方挂点,left,intake_lower,pylon,雷达空空/反舰/空地/多联制导炸弹/KD-88 捕获指令吊舱
+J-15,9,PYLON 9,9号左翼根挂点,left,wing_root,pylon,雷达空空/反舰/空地/大型制导炸弹
+J-15,10,PYLON 10,10号左翼中挂点,left,wing_mid,pylon,雷达空空/空地/反舰/多联挂架制导炸弹
+J-15,11,PYLON 11,11号左翼外挂点,left,wing_outer,pylon,红外格斗导弹
+J-15,12,PYLON 12,12号左翼尖挂点,left,wing_tip,pylon,红外格斗导弹
+J-15T,1,PYLON 1,1号右翼尖挂点,right,wing_tip,pylon,红外格斗导弹
+J-15T,2,PYLON 2,2号右翼外挂点,right,wing_outer,pylon,红外格斗导弹
+J-15T,3,PYLON 3,3号右翼中挂点,right,wing_mid,pylon,雷达空空/空地/反舰/多联挂架制导炸弹
+J-15T,4,PYLON 4,4号右翼根挂点,right,wing_root,pylon,雷达空空/反舰/空地/大型制导炸弹
+J-15T,5,PYLON 5,5号右进气道下方挂点,right,intake_lower,pylon,雷达空空/反舰/空地/多联制导炸弹/KD-88 捕获指令吊舱
+J-15T,6,PYLON 6,6号机腹前方挂点,center,fuselage_center_fwd,pylon,雷达空空导弹
+J-15T,7,PYLON 7,7号机腹后方挂点,center,fuselage_center_aft,pylon,雷达空空导弹
+J-15T,8,PYLON 8,8号左进气道下方挂点,left,intake_lower,pylon,雷达空空/反舰/空地/多联制导炸弹/KD-88 捕获指令吊舱
+J-15T,9,PYLON 9,9号左翼根挂点,left,wing_root,pylon,雷达空空/反舰/空地/大型制导炸弹
+J-15T,10,PYLON 10,10号左翼中挂点,left,wing_mid,pylon,雷达空空/空地/反舰/多联挂架制导炸弹
+J-15T,11,PYLON 11,11号左翼外挂点,left,wing_outer,pylon,红外格斗导弹
+J-15T,12,PYLON 12,12号左翼尖挂点,left,wing_tip,pylon,红外格斗导弹

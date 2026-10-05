@@ -1,0 +1,97 @@
+aircraft_id,station_id,category,category_zh,store_id,store_name
+J-10C,1,air_to_air,空空导弹,pl10,PL-10 红外格斗弹
+J-10C,1,air_to_air,空空导弹,pl8,PL-8 红外格斗弹
+J-10C,1,air_to_air,空空导弹,r73e,R-73E
+J-10C,2,air_to_air,空空导弹,pl15,PL-15 雷达空空导弹
+J-10C,2,air_to_air,空空导弹,pl15_x2,PL-15 ×2（复合挂架）
+J-10C,2,air_to_air,空空导弹,pl12,PL-12 雷达空空导弹
+J-10C,2,air_to_air,空空导弹,pl12_x2,PL-12 ×2（复合挂架）
+J-10C,2,air_to_air,空空导弹,r77,R-77
+J-10C,2,air_to_air,空空导弹,r77_x2,R-77 ×2（复合挂架）
+J-10C,2,air_to_ground,空地导弹,kd88,KD-88 空地导弹
+J-10C,2,air_to_sea,反舰导弹,yj83,YJ-83 反舰导弹
+J-10C,2,air_to_sea,反舰导弹,cm400akg,CM-400AKG 超音速反辐射/反舰导弹
+J-10C,2,air_to_sea,反舰导弹,yj91,鹰击-91 反辐射/反舰导弹
+J-10C,2,air_to_ground,空地导弹,cm102,CM-102 反辐射导弹
+J-10C,2,air_to_ground,空地导弹,c705kd,C705KD 空地导弹
+J-10C,2,air_to_sea,反舰导弹,c704,C704 反舰导弹
+J-10C,2,bombs_guided,精确制导炸弹,ft1_500,500kg FT-1 精确制导炸弹
+J-10C,2,bombs_guided,精确制导炸弹,gb1_500,500kg GB1 激光制导炸弹
+J-10C,2,bombs_guided,精确制导炸弹,gb2a_500,500kg GB2A 滑翔增程卫星制导炸弹
+J-10C,2,bombs_conventional,常规/布撒炸弹,gb6_500,500kg GB6 机载布撒武器
+J-10C,2,bombs_conventional,常规/布撒炸弹,gb6a_500,500kg GB6A 动力增程布撒武器
+J-10C,2,bombs_guided,精确制导炸弹,gb3_250,250kg GB3 激光制导炸弹
+J-10C,2,bombs_guided,精确制导炸弹,gb3a_250,250kg GB3A 滑翔增程激光制导炸弹
+J-10C,3,fuel,副油箱,tank_1500l,1500升副油箱
+J-10C,3,bombs_guided,精确制导炸弹,gb_1000,1000kg 制导炸弹
+J-10C,3,bombs_guided,精确制导炸弹,ft1_500,500kg FT-1 精确制导炸弹
+J-10C,3,bombs_guided,精确制导炸弹,gb1_500,500kg GB1 激光制导炸弹
+J-10C,3,bombs_guided,精确制导炸弹,gb2a_500,500kg GB2A 滑翔增程卫星制导炸弹
+J-10C,3,bombs_conventional,常规/布撒炸弹,gb6_500,500kg GB6 机载布撒武器
+J-10C,3,bombs_conventional,常规/布撒炸弹,gb6a_500,500kg GB6A 动力增程布撒武器
+J-10C,3,bombs_guided,精确制导炸弹,gb3_250,250kg GB3 激光制导炸弹
+J-10C,3,bombs_guided,精确制导炸弹,gb3a_250,250kg GB3A 滑翔增程激光制导炸弹
+J-10C,3,air_to_air,空空导弹,pl15,PL-15 雷达空空导弹
+J-10C,3,air_to_air,空空导弹,pl12,PL-12 雷达空空导弹
+J-10C,3,air_to_air,空空导弹,r77,R-77
+J-10C,4,electronic_warfare,电子战/干扰吊舱,kg600,KG600 机载自卫干扰吊舱
+J-10C,4,pods_fuel,侦察/瞄准吊舱,kz900,KZ900 机载侦察吊舱
+J-10C,4,laser_designation,激光/光电瞄准吊舱,oc5,OC5 激光照射吊舱
+J-10C,4,laser_designation,激光/光电瞄准吊舱,yingsun3,鹰隼3 昼夜瞄准吊舱
+J-10C,4,electronic_warfare,电子战/干扰吊舱,kg800,KG800 机载自卫干扰吊舱
+J-10C,4,bombs_guided,精确制导炸弹,gb_250,250kg 制导炸弹
+J-10C,4,bombs_guided,精确制导炸弹,gb_100,100kg 制导炸弹
+J-10C,4,bombs_guided,精确制导炸弹,gb_150,150kg 制导炸弹
+J-10C,5,bombs_guided,精确制导炸弹,gb_250,250kg 制导炸弹
+J-10C,5,bombs_guided,精确制导炸弹,gb_100,100kg 制导炸弹
+J-10C,5,bombs_guided,精确制导炸弹,gb_150,150kg 制导炸弹
+J-10C,6,fuel,副油箱,tank_1000l,1000升副油箱
+J-10C,6,air_to_air,空空导弹,pl15_x2,PL-15 ×2（复合挂架）
+J-10C,6,air_to_air,空空导弹,pl12_x2,PL-12 ×2（复合挂架）
+J-10C,6,air_to_air,空空导弹,r77_x2,R-77 ×2（复合挂架）
+J-10C,7,bombs_guided,精确制导炸弹,gb_250,250kg 制导炸弹
+J-10C,7,bombs_guided,精确制导炸弹,gb_100,100kg 制导炸弹
+J-10C,7,bombs_guided,精确制导炸弹,gb_150,150kg 制导炸弹
+J-10C,8,electronic_warfare,电子战/干扰吊舱,kg600,KG600 机载自卫干扰吊舱
+J-10C,8,pods_fuel,侦察/瞄准吊舱,kz900,KZ900 机载侦察吊舱
+J-10C,8,laser_designation,激光/光电瞄准吊舱,oc5,OC5 激光照射吊舱
+J-10C,8,laser_designation,激光/光电瞄准吊舱,yingsun3,鹰隼3 昼夜瞄准吊舱
+J-10C,8,electronic_warfare,电子战/干扰吊舱,kg800,KG800 机载自卫干扰吊舱
+J-10C,8,bombs_guided,精确制导炸弹,gb_250,250kg 制导炸弹
+J-10C,8,bombs_guided,精确制导炸弹,gb_100,100kg 制导炸弹
+J-10C,8,bombs_guided,精确制导炸弹,gb_150,150kg 制导炸弹
+J-10C,9,fuel,副油箱,tank_1500l,1500升副油箱
+J-10C,9,bombs_guided,精确制导炸弹,gb_1000,1000kg 制导炸弹
+J-10C,9,bombs_guided,精确制导炸弹,ft1_500,500kg FT-1 精确制导炸弹
+J-10C,9,bombs_guided,精确制导炸弹,gb1_500,500kg GB1 激光制导炸弹
+J-10C,9,bombs_guided,精确制导炸弹,gb2a_500,500kg GB2A 滑翔增程卫星制导炸弹
+J-10C,9,bombs_conventional,常规/布撒炸弹,gb6_500,500kg GB6 机载布撒武器
+J-10C,9,bombs_conventional,常规/布撒炸弹,gb6a_500,500kg GB6A 动力增程布撒武器
+J-10C,9,bombs_guided,精确制导炸弹,gb3_250,250kg GB3 激光制导炸弹
+J-10C,9,bombs_guided,精确制导炸弹,gb3a_250,250kg GB3A 滑翔增程激光制导炸弹
+J-10C,9,air_to_air,空空导弹,pl15,PL-15 雷达空空导弹
+J-10C,9,air_to_air,空空导弹,pl12,PL-12 雷达空空导弹
+J-10C,9,air_to_air,空空导弹,r77,R-77
+J-10C,10,air_to_air,空空导弹,pl15,PL-15 雷达空空导弹
+J-10C,10,air_to_air,空空导弹,pl15_x2,PL-15 ×2（复合挂架）
+J-10C,10,air_to_air,空空导弹,pl12,PL-12 雷达空空导弹
+J-10C,10,air_to_air,空空导弹,pl12_x2,PL-12 ×2（复合挂架）
+J-10C,10,air_to_air,空空导弹,r77,R-77
+J-10C,10,air_to_air,空空导弹,r77_x2,R-77 ×2（复合挂架）
+J-10C,10,air_to_ground,空地导弹,kd88,KD-88 空地导弹
+J-10C,10,air_to_sea,反舰导弹,yj83,YJ-83 反舰导弹
+J-10C,10,air_to_sea,反舰导弹,cm400akg,CM-400AKG 超音速反辐射/反舰导弹
+J-10C,10,air_to_sea,反舰导弹,yj91,鹰击-91 反辐射/反舰导弹
+J-10C,10,air_to_ground,空地导弹,cm102,CM-102 反辐射导弹
+J-10C,10,air_to_ground,空地导弹,c705kd,C705KD 空地导弹
+J-10C,10,air_to_sea,反舰导弹,c704,C704 反舰导弹
+J-10C,10,bombs_guided,精确制导炸弹,ft1_500,500kg FT-1 精确制导炸弹
+J-10C,10,bombs_guided,精确制导炸弹,gb1_500,500kg GB1 激光制导炸弹
+J-10C,10,bombs_guided,精确制导炸弹,gb2a_500,500kg GB2A 滑翔增程卫星制导炸弹
+J-10C,10,bombs_conventional,常规/布撒炸弹,gb6_500,500kg GB6 机载布撒武器
+J-10C,10,bombs_conventional,常规/布撒炸弹,gb6a_500,500kg GB6A 动力增程布撒武器
+J-10C,10,bombs_guided,精确制导炸弹,gb3_250,250kg GB3 激光制导炸弹
+J-10C,10,bombs_guided,精确制导炸弹,gb3a_250,250kg GB3A 滑翔增程激光制导炸弹
+J-10C,11,air_to_air,空空导弹,pl10,PL-10 红外格斗弹
+J-10C,11,air_to_air,空空导弹,pl8,PL-8 红外格斗弹
+J-10C,11,air_to_air,空空导弹,r73e,R-73E

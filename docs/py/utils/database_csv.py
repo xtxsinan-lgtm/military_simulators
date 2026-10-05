@@ -1212,6 +1212,42 @@ def load_mirage2000_mount_stores_csv(path: str | Path | None = None) -> list[dic
     return rows
 
 
+def load_j10c_mount_stations_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从 CSV 加载歼-10C 挂点定义（与幻影 2000 同列结构）。"""
+    from utils.paths import J10C_MOUNT_STATIONS_CSV
+
+    return load_mirage2000_mount_stations_csv(
+        Path(path) if path is not None else J10C_MOUNT_STATIONS_CSV
+    )
+
+
+def load_j10c_mount_stores_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从 CSV 加载歼-10C 挂点-武器兼容表（与幻影 2000 同列结构）。"""
+    from utils.paths import J10C_MOUNT_STORES_CSV
+
+    return load_mirage2000_mount_stores_csv(
+        Path(path) if path is not None else J10C_MOUNT_STORES_CSV
+    )
+
+
+def load_j15_mount_stations_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从 CSV 加载歼-15 / 歼-15T 挂点定义（与幻影 2000 同列结构，按 aircraft_id 区分）。"""
+    from utils.paths import J15_MOUNT_STATIONS_CSV
+
+    return load_mirage2000_mount_stations_csv(
+        Path(path) if path is not None else J15_MOUNT_STATIONS_CSV
+    )
+
+
+def load_j15_mount_stores_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从 CSV 加载歼-15 / 歼-15T 挂点-武器兼容表（与幻影 2000 同列结构）。"""
+    from utils.paths import J15_MOUNT_STORES_CSV
+
+    return load_mirage2000_mount_stores_csv(
+        Path(path) if path is not None else J15_MOUNT_STORES_CSV
+    )
+
+
 def load_aircraft_weapon_stations_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
     """从战斗机外挂挂点 CSV 加载每行弹药记录。"""
     from utils.paths import AIRCRAFT_WEAPON_STATIONS_CSV

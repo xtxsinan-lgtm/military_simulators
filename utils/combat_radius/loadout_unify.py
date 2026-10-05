@@ -1,6 +1,6 @@
 """把各碎片挂载目录合并进作战半径统一挂点/弹药模型。
 
-各 PR 曾分别新增 MiG-29K、F-14、F-16、阵风、幻影 2000、台风、苏-30、FC-1、FA-50、
+各 PR 曾分别新增 MiG-29K、F-14、F-16、阵风、幻影 2000、歼-10C、台风、苏-30、FC-1、FA-50、
 光辉、鹰狮等挂点 CSV，但作战半径交互 UI 只读 `aircraft_stations_database.json`
 与 `munitions_database.csv`。本模块在构建 catalog / 解析挂载时把碎片源
 规范成同一结构，避免只显示示意图却无法按挂点选弹并重算半径。
@@ -173,6 +173,62 @@ _MIRAGE2000_STORE_SPECS: dict[str, dict[str, Any]] = {
         'mass_kg': 1760, 'dry_mass_kg': 160, 'fuel_kg': 1600,
         'length_m': 5.5, 'diameter_m': 0.65,
     },
+}
+
+# 歼-10C 弹药规格（公开资料估算；PL-12/R-73E 等与既有库同 id 时保留先入记录）
+_J10C_STORE_SPECS: dict[str, dict[str, Any]] = {
+    'pl10': {'name': 'PL-10', 'category': 'aam', 'mass_kg': 89, 'length_m': 3.0, 'diameter_m': 0.16},
+    'pl8': {'name': 'PL-8', 'category': 'aam', 'mass_kg': 115, 'length_m': 2.9, 'diameter_m': 0.16},
+    'r73e': {'name': 'R-73E', 'category': 'aam', 'mass_kg': 105, 'length_m': 2.93, 'diameter_m': 0.17},
+    'pl15': {'name': 'PL-15', 'category': 'aam', 'mass_kg': 210, 'length_m': 4.0, 'diameter_m': 0.20},
+    'pl12': {'name': 'PL-12', 'category': 'aam', 'mass_kg': 199, 'length_m': 3.86, 'diameter_m': 0.203},
+    'r77': {'name': 'R-77', 'category': 'aam', 'mass_kg': 175, 'length_m': 3.6, 'diameter_m': 0.20},
+    'pl15_x2': {'name': 'PL-15 ×2（复合挂架）', 'category': 'aam', 'mass_kg': 450, 'length_m': 4.0, 'diameter_m': 0.45},
+    'pl12_x2': {'name': 'PL-12 ×2（复合挂架）', 'category': 'aam', 'mass_kg': 428, 'length_m': 3.86, 'diameter_m': 0.45},
+    'r77_x2': {'name': 'R-77 ×2（复合挂架）', 'category': 'aam', 'mass_kg': 380, 'length_m': 3.6, 'diameter_m': 0.45},
+    'kd88': {'name': 'KD-88', 'category': 'agm', 'mass_kg': 700, 'length_m': 4.77, 'diameter_m': 0.40},
+    'yj83': {'name': 'YJ-83', 'category': 'asm', 'mass_kg': 715, 'length_m': 5.3, 'diameter_m': 0.36},
+    'cm400akg': {'name': 'CM-400AKG', 'category': 'asm', 'mass_kg': 910, 'length_m': 6.0, 'diameter_m': 0.40},
+    'yj91': {'name': '鹰击-91', 'category': 'arm', 'mass_kg': 600, 'length_m': 4.7, 'diameter_m': 0.36},
+    'cm102': {'name': 'CM-102', 'category': 'arm', 'mass_kg': 480, 'length_m': 4.6, 'diameter_m': 0.30},
+    'c705kd': {'name': 'C705KD', 'category': 'agm', 'mass_kg': 320, 'length_m': 3.5, 'diameter_m': 0.32},
+    'c704': {'name': 'C704', 'category': 'asm', 'mass_kg': 320, 'length_m': 3.5, 'diameter_m': 0.28},
+    'ft1_500': {'name': 'FT-1 (500kg)', 'category': 'guided_bomb', 'mass_kg': 500, 'length_m': 3.2, 'diameter_m': 0.38},
+    'gb1_500': {'name': 'GB1 (500kg)', 'category': 'laser_bomb', 'mass_kg': 500, 'length_m': 3.2, 'diameter_m': 0.38},
+    'gb2a_500': {'name': 'GB2A (500kg)', 'category': 'guided_bomb', 'mass_kg': 500, 'length_m': 3.2, 'diameter_m': 0.38},
+    'gb6_500': {'name': 'GB6 (500kg)', 'category': 'cluster', 'mass_kg': 500, 'length_m': 3.2, 'diameter_m': 0.38},
+    'gb6a_500': {'name': 'GB6A (500kg)', 'category': 'cluster', 'mass_kg': 520, 'length_m': 3.4, 'diameter_m': 0.38},
+    'gb3_250': {'name': 'GB3 (250kg)', 'category': 'laser_bomb', 'mass_kg': 250, 'length_m': 2.7, 'diameter_m': 0.28},
+    'gb3a_250': {'name': 'GB3A (250kg)', 'category': 'laser_bomb', 'mass_kg': 260, 'length_m': 2.9, 'diameter_m': 0.28},
+    'gb_1000': {'name': '1000kg 制导炸弹', 'category': 'guided_bomb', 'mass_kg': 1000, 'length_m': 3.8, 'diameter_m': 0.45},
+    'gb_250': {'name': '250kg 制导炸弹', 'category': 'guided_bomb', 'mass_kg': 250, 'length_m': 2.7, 'diameter_m': 0.28},
+    'gb_150': {'name': '150kg 制导炸弹', 'category': 'guided_bomb', 'mass_kg': 150, 'length_m': 2.4, 'diameter_m': 0.25},
+    'gb_100': {'name': '100kg 制导炸弹', 'category': 'guided_bomb', 'mass_kg': 100, 'length_m': 2.0, 'diameter_m': 0.22},
+    'tank_1500l': {
+        'name': '1500L 副油箱', 'category': 'fuel_tank',
+        'mass_kg': 1330, 'dry_mass_kg': 130, 'fuel_kg': 1200,
+        'length_m': 5.0, 'diameter_m': 0.65,
+    },
+    'tank_1000l': {
+        'name': '1000L 机腹副油箱', 'category': 'fuel_tank',
+        'mass_kg': 900, 'dry_mass_kg': 100, 'fuel_kg': 800,
+        'length_m': 4.2, 'diameter_m': 0.58,
+    },
+    'kg600': {'name': 'KG600 自卫干扰吊舱', 'category': 'ecm', 'mass_kg': 190, 'length_m': 2.5, 'diameter_m': 0.30},
+    'kg800': {'name': 'KG800 自卫干扰吊舱', 'category': 'ecm', 'mass_kg': 250, 'length_m': 2.8, 'diameter_m': 0.32},
+    'kz900': {'name': 'KZ900 侦察吊舱', 'category': 'pod', 'mass_kg': 350, 'length_m': 3.0, 'diameter_m': 0.40},
+    'oc5': {'name': 'OC5 激光照射吊舱', 'category': 'pod', 'mass_kg': 190, 'length_m': 2.5, 'diameter_m': 0.30},
+    'yingsun3': {'name': '鹰隼3 昼夜瞄准吊舱', 'category': 'pod', 'mass_kg': 200, 'length_m': 2.5, 'diameter_m': 0.30},
+}
+
+# 歼-15 / 歼-15T 新增弹药规格（公开资料估算；其余沿用歼-10C 规格同 id）
+_J15_STORE_SPECS: dict[str, dict[str, Any]] = {
+    'yj83k': {'name': '鹰击-83K', 'category': 'asm', 'mass_kg': 715, 'length_m': 5.3, 'diameter_m': 0.36},
+    'yj15': {'name': '鹰击-15', 'category': 'asm', 'mass_kg': 600, 'length_m': 5.0, 'diameter_m': 0.40},
+    'yj62': {'name': '鹰击-62', 'category': 'asm', 'mass_kg': 1500, 'length_m': 6.4, 'diameter_m': 0.54},
+    'gb_500': {'name': '500kg 制导炸弹', 'category': 'guided_bomb', 'mass_kg': 500, 'length_m': 3.2, 'diameter_m': 0.38},
+    'gb_1500': {'name': '1500kg 制导炸弹', 'category': 'guided_bomb', 'mass_kg': 1500, 'length_m': 4.5, 'diameter_m': 0.60},
+    'kd88_pod': {'name': 'KD-88 捕获指令吊舱', 'category': 'pod', 'mass_kg': 240, 'length_m': 3.0, 'diameter_m': 0.30},
 }
 
 # 鹰狮 C/D 左右成对的挂点（翼尖 / 外侧翼下 / 内侧翼下），拆成 L/R；4、5 为单点
@@ -862,6 +918,105 @@ def _collect_mirage2000(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[
     return {'Mirage-2000': entry}
 
 
+def _collect_j10c(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """歼-10C：1–11 号挂点挂载模型。"""
+    from utils.aircraft_mount.j10c_mount import build_j10c_mount_model
+
+    for sid, spec in _J10C_STORE_SPECS.items():
+        _merge_munition(munitions, normalize_munition_record(
+            sid,
+            name=str(spec['name']),
+            category=str(spec.get('category') or ''),
+            mass_kg=_f(spec.get('mass_kg')),
+            length_m=_f(spec.get('length_m')) or None,
+            diameter_m=_f(spec.get('diameter_m')) or None,
+            dry_mass_kg=spec.get('dry_mass_kg'),
+            fuel_kg=spec.get('fuel_kg'),
+        ))
+    model = build_j10c_mount_model()
+    st_list = []
+    for st in model.get('stations') or []:
+        sid = str(st['station_id'])
+        style = mount_style_from_hints(
+            position=str(st.get('position') or ''),
+            mount=str(st.get('store_mount') or ''),
+            station_id=sid,
+            side=str(st.get('side') or ''),
+        )
+        option_ids = [str(x['id']) for x in (model['stores_by_station'].get(sid) or [])]
+        st_list.append(_station(
+            sid,
+            str(st.get('label_zh') or st.get('station_label') or sid),
+            style,
+            option_ids,
+        ))
+    # 默认空战：翼尖 PL-10 ×2 + 翼中 PL-15 ×2 + 翼根 PL-12 ×2
+    defaults = {
+        '1': {'munition_id': 'pl10', 'qty': 1},
+        '11': {'munition_id': 'pl10', 'qty': 1},
+        '2': {'munition_id': 'pl15', 'qty': 1},
+        '10': {'munition_id': 'pl15', 'qty': 1},
+        '3': {'munition_id': 'pl12', 'qty': 1},
+        '9': {'munition_id': 'pl12', 'qty': 1},
+    }
+    return {'J-10C': _aircraft_entry('J-10C', '歼-10C', st_list, defaults)}
+
+
+def _collect_j15(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """歼-15 / 歼-15T：1–12 号挂点；store_id 后缀 _xN 表示该挂点一次挂 N 枚。"""
+    from utils.aircraft_mount.j15_mount import (
+        J15_MOUNT_AIRCRAFT_IDS,
+        build_j15_mount_model,
+    )
+
+    for sid, spec in {**_J10C_STORE_SPECS, **_J15_STORE_SPECS}.items():
+        _merge_munition(munitions, normalize_munition_record(
+            sid,
+            name=str(spec['name']),
+            category=str(spec.get('category') or ''),
+            mass_kg=_f(spec.get('mass_kg')),
+            length_m=_f(spec.get('length_m')) or None,
+            diameter_m=_f(spec.get('diameter_m')) or None,
+            dry_mass_kg=spec.get('dry_mass_kg'),
+            fuel_kg=spec.get('fuel_kg'),
+        ))
+    names = {'J-15': '歼-15', 'J-15T': '歼-15T'}
+    out: dict[str, dict[str, Any]] = {}
+    for aid in J15_MOUNT_AIRCRAFT_IDS:
+        model = build_j15_mount_model(aid)
+        st_list = []
+        for st in model['stations']:
+            sid = str(st['station_id'])
+            style = mount_style_from_hints(
+                position=str(st.get('position') or ''),
+                mount=str(st.get('store_mount') or ''),
+                station_id=sid,
+                side=str(st.get('side') or ''),
+            )
+            option_ids: list[str] = []
+            qty_by_id: dict[str, float] = {}
+            for item in model['stores_by_station'][sid]:
+                base, qty = str(item['id']), 1.0
+                m = re.fullmatch(r'(.+)_x(\d+)', base)
+                if m and m.group(1) in munitions:
+                    base, qty = m.group(1), float(m.group(2))
+                option_ids.append(base)
+                qty_by_id[base] = qty
+            st_list.append(_station(
+                sid,
+                str(st.get('label_zh') or st.get('station_label') or sid),
+                style,
+                option_ids,
+                qty_by_id=qty_by_id,
+            ))
+        # 默认空战：翼尖/翼外红外弹，翼中/翼根雷达弹（歼-15 为 PL-8 / PL-12）
+        ir, rdr = ('pl10', 'pl15') if aid == 'J-15T' else ('pl8', 'pl12')
+        defaults = {s: {'munition_id': ir, 'qty': 1} for s in ('1', '2', '11', '12')}
+        defaults.update({s: {'munition_id': rdr, 'qty': 1} for s in ('3', '4', '9', '10')})
+        out[aid] = _aircraft_entry(aid, names[aid], st_list, defaults)
+    return out
+
+
 def _collect_gripen_cd(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
     """鹰狮 C/D。"""
     from utils.aircraft_weapons.catalog import build_aircraft_weapons_payload
@@ -1000,6 +1155,8 @@ def collect_fragment_munitions() -> dict[str, dict[str, Any]]:
         **_GRIPEN_CD_EXTRA,
         **_RAFALE_STORE_SPECS,
         **_MIRAGE2000_STORE_SPECS,
+        **_J10C_STORE_SPECS,
+        **_J15_STORE_SPECS,
     }.items():
         _merge_munition(munitions, normalize_munition_record(
             sid,
@@ -1022,6 +1179,8 @@ def collect_fragment_munitions() -> dict[str, dict[str, Any]]:
         _collect_su30,
         _collect_rafale,
         _collect_mirage2000,
+        _collect_j10c,
+        _collect_j15,
         _collect_gripen_cd,
         _collect_gripen_ef,
     )
@@ -1037,6 +1196,8 @@ def collect_fragment_aircraft() -> dict[str, dict[str, Any]]:
         **_GRIPEN_CD_EXTRA,
         **_RAFALE_STORE_SPECS,
         **_MIRAGE2000_STORE_SPECS,
+        **_J10C_STORE_SPECS,
+        **_J15_STORE_SPECS,
     }.items():
         _merge_munition(munitions, normalize_munition_record(
             sid,
@@ -1060,6 +1221,8 @@ def collect_fragment_aircraft() -> dict[str, dict[str, Any]]:
         _collect_su30,
         _collect_rafale,
         _collect_mirage2000,
+        _collect_j10c,
+        _collect_j15,
         _collect_gripen_cd,
         _collect_gripen_ef,
     ):
