@@ -92,6 +92,36 @@ def test_dashboard_params_from_preset_f35c_install():
     assert p['type_label'] == 'conventional'
 
 
+def test_dashboard_params_from_preset_airframe_tsfc_mult():
+    """机体侧 airframe_tsfc_mult 与发动机乘数相乘；未填的机型不受影响。"""
+    ac = get_preset_by_id(load_presets(), 'F-16')
+    eng = get_preset_by_id(load_engine_presets(), 'f110ge129')
+    p = dashboard_params_from_preset(ac, eng)
+    assert ac['airframe_tsfc_mult'] > 1.0
+    assert p['tsfc_install_mult'] == pytest.approx(
+        float(eng.get('tsfc_install_mult', 1.0)) * ac['airframe_tsfc_mult']
+    )
+    kaan = get_preset_by_id(load_presets(), 'KAAN')
+    assert 'airframe_tsfc_mult' not in kaan
+    assert dashboard_params_from_preset(kaan, eng)['tsfc_install_mult'] == pytest.approx(1.0)
+
+
+@pytest.mark.parametrize('aircraft_id, ref_km', [
+    ('F-16', 817), ('Mirage-2000', 758), ('FA-50', 584), ('Rafale', 987), ('F-15E', 885),
+])
+def test_calibrated_hihihi_internal_fuel_radius(aircraft_id, ref_km):
+    """按 4 中距弹、内油、hi-hi-hi、不计空战消耗的参考半径标定，Ma 0.8 半径落在 ±2% 内。"""
+    from simulators.combat_radius.combat_radius import run_aircraft_dashboard_from_params
+
+    ac = get_preset_by_id(load_presets(), aircraft_id)
+    eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
+    params = dashboard_params_from_preset(ac, eng)
+    params['combat_allowance_min'] = 0
+    point = run_aircraft_dashboard_from_params(params)['points'][0]
+    assert point['id'] == 'mach_0_8'
+    assert point['radius_km'] == pytest.approx(ref_km, rel=0.02)
+
+
 def test_sanitize_helpers_round_and_drop_blackbox():
     point = sanitize_cruise_point({
         'id': 'mach_1_5', 'label': 'Ma 1.5', 'mach': 1.50001, 'feasible': True,

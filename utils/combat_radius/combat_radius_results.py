@@ -57,7 +57,10 @@ def dashboard_params_from_preset(
         't4_K': engine['t4_K'],
         'tsl_kN': resolve_tsl_kN(engine),
         'max_tsl_kN': engine.get('max_tsl_kN'),
-        'tsfc_install_mult': engine.get('tsfc_install_mult', 1.0),
+        'tsfc_install_mult': (
+            float(engine.get('tsfc_install_mult', 1.0))
+            * float(aircraft.get('airframe_tsfc_mult', 1.0))
+        ),
     }
     return params
 

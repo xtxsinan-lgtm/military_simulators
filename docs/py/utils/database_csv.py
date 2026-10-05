@@ -24,6 +24,7 @@ AIRCRAFT_CSV_COLUMNS = (
     't_max_sl_n', 't_main_stovl_sl_n', 't_liftfan_sl_n', 't_rollposts_sl_n',
     'exhaust_mdot_kg_s', 'exhaust_d0_m', 'exhaust_height_m',
     'shaft_power_sl_w', 'prop_diameter_m', 'nacelle_blockage_frac',
+    'airframe_tsfc_mult',
 )
 
 # 兼容旧名：作战半径从统一库抽取这些字段
@@ -324,6 +325,11 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
     ld_known = _parse_optional_float(row.get('ld_known') or '')
     if ld_known is not None:
         item['ld_known'] = ld_known
+    airframe_mult = _parse_optional_float(row.get('airframe_tsfc_mult') or '')
+    if airframe_mult is not None:
+        if airframe_mult <= 0:
+            raise ValueError(f'{csv_path} 记录 {item_id} airframe_tsfc_mult 须为正')
+        item['airframe_tsfc_mult'] = airframe_mult
     notes = (row.get('notes') or '').strip()
     if notes:
         item['notes'] = notes

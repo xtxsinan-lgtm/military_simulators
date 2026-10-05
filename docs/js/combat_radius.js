@@ -592,7 +592,10 @@ function currentTsfcInstallMult() {
       ? Number(cfg.lpc_only || 1.04)
       : Number(cfg.published || 1.22);
   }
-  return currentEngineTsfcMult();
+  const presets = data.combat_radius_presets || [];
+  const ac = presets.find((x) => x.id === id);
+  const airframe = Number(ac?.airframe_tsfc_mult);
+  return currentEngineTsfcMult() * (Number.isFinite(airframe) && airframe > 0 ? airframe : 1.0);
 }
 
 function syncF135TsfcToggle(aircraftId) {

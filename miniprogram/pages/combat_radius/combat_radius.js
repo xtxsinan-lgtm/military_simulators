@@ -308,7 +308,9 @@ function resolvePageTsfcInstallMult(page) {
   const ei = d.enginePresetIndex;
   const eng = ei > 0 ? d.enginePresets[ei - 1] : null;
   const raw = Number(eng && eng.tsfc_install_mult);
-  return Number.isFinite(raw) && raw > 0 ? raw : 1.0;
+  const engineMult = Number.isFinite(raw) && raw > 0 ? raw : 1.0;
+  const airframe = Number(ac && ac.airframe_tsfc_mult);
+  return engineMult * (Number.isFinite(airframe) && airframe > 0 ? airframe : 1.0);
 }
 
 /** 给定速度搜索：各高度升阻比、推力、负载与效率行。 */

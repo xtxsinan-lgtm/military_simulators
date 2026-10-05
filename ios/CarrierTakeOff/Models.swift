@@ -220,6 +220,8 @@ struct CombatRadiusPresetItem: Codable, Identifiable, Hashable {
     var store_mount: String?
     var rough: Bool
     var ld_known: Double?
+    /// 机体侧 TSFC 修正，与发动机 tsfc_install_mult 相乘
+    var airframe_tsfc_mult: Double?
     var notes: String?
     var empty_kg: Double?
     var internal_fuel_kg: Double?

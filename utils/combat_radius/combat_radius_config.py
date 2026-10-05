@@ -115,13 +115,14 @@ def resolve_ui_tsfc_install_mult(
     aircraft_id: str | None,
     mode: str | None = None,
     engine_mult: float | None = None,
+    airframe_mult: float | None = None,
 ) -> float:
-    """界面选定的 TSFC 乘数：F-35 三型用切换档，其余用发动机预设。"""
+    """界面选定的 TSFC 乘数：F-35 三型用切换档，其余用发动机预设 × 机体修正。"""
     if shows_f135_tsfc_toggle(aircraft_id):
         return f135_tsfc_install_mult_for_mode(mode)
-    if engine_mult is None:
-        return 1.0
-    val = float(engine_mult)
+    val = 1.0 if engine_mult is None else float(engine_mult)
+    if airframe_mult is not None:
+        val *= float(airframe_mult)
     if val <= 0:
         raise ValueError('TSFC 乘数须为正')
     return val

@@ -580,11 +580,16 @@ final class CombatRadiusViewModel: ObservableObject {
         if showsF135TsfcToggle(for: selectedTgtId) {
             return f135TsfcMode == "lpc_only" ? f135TsfcLpcOnly : f135TsfcPublished
         }
+        var mult = 1.0
         if let eng = enginePresets.first(where: { $0.id == selectedEngineId }),
            let raw = eng.tsfc_install_mult, raw > 0 {
-            return raw
+            mult = raw
         }
-        return 1.0
+        if let ac = presets.first(where: { $0.id == selectedTgtId }),
+           let airframe = ac.airframe_tsfc_mult, airframe > 0 {
+            mult *= airframe
+        }
+        return mult
     }
 
     func applyFlightProfileConfig(_ cfg: CombatRadiusFlightProfilesConfig?) {

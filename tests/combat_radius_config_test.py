@@ -190,6 +190,8 @@ def test_f135_tsfc_toggle_config_and_resolve():
     assert resolve_ui_tsfc_install_mult('F-35C', 'published') == pytest.approx(1.22)
     assert resolve_ui_tsfc_install_mult('F-22', 'lpc_only', 1.0) == pytest.approx(1.0)
     assert resolve_ui_tsfc_install_mult('J-20', None, None) == pytest.approx(1.0)
+    assert resolve_ui_tsfc_install_mult('F-16', None, 1.0, 1.139) == pytest.approx(1.139)
+    assert resolve_ui_tsfc_install_mult('F-35A', 'lpc_only', 1.22, 1.5) == pytest.approx(1.04)
     with pytest.raises(ValueError, match='TSFC 乘数须为正'):
         resolve_ui_tsfc_install_mult('F-22', None, 0.0)
 
