@@ -99,6 +99,11 @@ def test_build_catalog_payload_modes():
     assert typhoon['aircraft_id'] == 'Typhoon'
     assert len(typhoon['stations']) == 10
     assert typhoon['stations'][0]['name'] == '左翼最外侧挂点'
+    su30 = payload['weapon_loadout']['su30']
+    assert su30['aircraft_id'] == 'Su-30'
+    assert len(su30['stations']) == 12
+    assert su30['stations'][0]['id'] == 1
+    assert su30['stations'][-1]['id'] == 12
 
 
 def test_docs_missile_interception_page_exists_and_links():

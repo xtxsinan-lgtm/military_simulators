@@ -18,7 +18,10 @@ def test_loadout_images_json_exists_and_maps_known_aircraft():
     assert COMBAT_RADIUS_LOADOUT_IMAGES_JSON.is_file()
     payload = build_combat_radius_loadout_images_payload()
     aircraft = payload['aircraft']
-    for aid in ('F-15E', 'FA-18E', 'FA-18C', 'F-14', 'F-16', 'Mirage-2000', 'Typhoon', 'Tejas', 'FA-50', 'Rafale'):
+    for aid in (
+        'F-15E', 'FA-18E', 'FA-18C', 'F-14', 'F-16', 'Mirage-2000',
+        'Typhoon', 'Tejas', 'FA-50', 'Rafale', 'Su-30',
+    ):
         assert aid in aircraft
         assert aircraft[aid].endswith('.jpg')
 

@@ -1,0 +1,13 @@
+station_id,name,mount,position_index,side,notes
+1,1 号翼尖挂点（左）,pylon,1,left,翼尖
+2,2 号翼外侧挂点（左）,pylon,2,left,翼外侧
+3,3 号翼中侧挂点（左）,pylon,3,left,翼中侧；可挂复合/多联挂架
+4,4 号翼内侧挂点（左）,pylon,4,left,翼内侧
+5,5 号进气道下挂点（左）,pylon,5,left,左进气道下方
+6,6 号机身中心线前挂点,centerline,6,center,机身中心线前
+7,7 号机身中心线后挂点,centerline,7,center,机身中心线后
+8,8 号进气道下挂点（右）,pylon,8,right,右进气道下方
+9,9 号翼内侧挂点（右）,pylon,9,right,翼内侧
+10,10 号翼中侧挂点（右）,pylon,10,right,翼中侧；可挂复合/多联挂架
+11,11 号翼外侧挂点（右）,pylon,11,right,翼外侧
+12,12 号翼尖挂点（右）,pylon,12,right,翼尖
