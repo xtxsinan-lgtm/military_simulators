@@ -169,3 +169,14 @@ def test_apply_loadout_noop_without_loadout():
     """无 loadout 字段时原样返回。"""
     params = {'n_missiles': 4, 'missile_mass_kg': 152}
     assert apply_loadout_to_params(params) is params or apply_loadout_to_params(params) == params
+
+
+def test_f15e_wing_stations_harpoon_and_slam_er():
+    """F-15E 翼下 2/8 号站可挂鱼叉与 SLAM-ER（F-15K/SA/QA 出口型能力），中线站不挂。"""
+    summary = resolve_loadout('F-15E', {
+        'sta2': 'agm84@1', 'sta8': 'slam_er@1', 'sta5': 'drop_tank_610@1',
+    })
+    assert summary.weapons_mass_kg == pytest.approx(520 + 725)
+    assert summary.external_fuel_kg > 0
+    with pytest.raises(ValueError):
+        resolve_loadout('F-15E', {'sta5': 'agm84@1'})

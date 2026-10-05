@@ -94,6 +94,14 @@
               "qty": 1
             },
             {
+              "munition_id": "slam_er",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
+              "qty": 1
+            },
+            {
               "munition_id": "agm158",
               "qty": 1
             },
@@ -252,6 +260,14 @@
             },
             {
               "munition_id": "agm154",
+              "qty": 1
+            },
+            {
+              "munition_id": "slam_er",
+              "qty": 1
+            },
+            {
+              "munition_id": "agm84",
               "qty": 1
             },
             {

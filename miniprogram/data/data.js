@@ -29631,6 +29631,24 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "slam_er@1",
+                "munition_id": "slam_er",
+                "qty": 1.0,
+                "label": "AGM-84H SLAM-ER",
+                "mass_kg": 725.0,
+                "dry_mass_kg": 725.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "agm158@1",
                 "munition_id": "agm158",
                 "qty": 1.0,
@@ -29978,6 +29996,24 @@ module.exports = {
                 "label": "AGM-154 JSOW",
                 "mass_kg": 483.0,
                 "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "slam_er@1",
+                "munition_id": "slam_er",
+                "qty": 1.0,
+                "label": "AGM-84H SLAM-ER",
+                "mass_kg": 725.0,
+                "dry_mass_kg": 725.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm84@1",
+                "munition_id": "agm84",
+                "qty": 1.0,
+                "label": "AGM-84 Harpoon",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
                 "fuel_kg": 0.0
               },
               {
