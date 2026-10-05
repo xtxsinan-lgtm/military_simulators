@@ -44149,8 +44149,8 @@ module.exports = {
         "name": "Gripen-CD",
         "stations": [
           {
-            "id": "1",
-            "label": "1 · 翼尖挂架",
+            "id": "1L",
+            "label": "1 · 翼尖挂架（左）",
             "mount_style": "wing_tip",
             "options": [
               {
@@ -44198,8 +44198,57 @@ module.exports = {
             ]
           },
           {
-            "id": "2",
-            "label": "2 · 外侧翼下挂架",
+            "id": "1R",
+            "label": "1 · 翼尖挂架（右）",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "aim9lm@1",
+                "munition_id": "aim9lm",
+                "qty": 1.0,
+                "label": "AIM-9L/M",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "iris_t@1",
+                "munition_id": "iris_t",
+                "qty": 1.0,
+                "label": "IRIS-T",
+                "mass_kg": 87.0,
+                "dry_mass_kg": 87.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "a_darter@1",
+                "munition_id": "a_darter",
+                "qty": 1.0,
+                "label": "A-Darter",
+                "mass_kg": 90.0,
+                "dry_mass_kg": 90.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aacmi@1",
+                "munition_id": "aacmi",
+                "qty": 1.0,
+                "label": "AACMI 训练吊舱",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "2L",
+            "label": "2 · 外侧翼下挂架（左）",
             "mount_style": "wing_pylon",
             "options": [
               {
@@ -44346,8 +44395,322 @@ module.exports = {
             ]
           },
           {
-            "id": "3",
-            "label": "3 · 内侧翼下重载挂架",
+            "id": "2R",
+            "label": "2 · 外侧翼下挂架（右）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bk90@1",
+                "munition_id": "bk90",
+                "qty": 1.0,
+                "label": "Bk 90",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bo20@1",
+                "munition_id": "bo20",
+                "qty": 1.0,
+                "label": "BO20 干扰吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "estl@1",
+                "munition_id": "estl",
+                "qty": 1.0,
+                "label": "ESTL 拖曳诱饵",
+                "mass_kg": 40.0,
+                "dry_mass_kg": 40.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "iris_t@1",
+                "munition_id": "iris_t",
+                "qty": 1.0,
+                "label": "IRIS-T",
+                "mass_kg": 87.0,
+                "dry_mass_kg": 87.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9lm@1",
+                "munition_id": "aim9lm",
+                "qty": 1.0,
+                "label": "AIM-9L/M",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "a_darter@1",
+                "munition_id": "a_darter",
+                "qty": 1.0,
+                "label": "A-Darter",
+                "mass_kg": 90.0,
+                "dry_mass_kg": 90.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu49@1",
+                "munition_id": "gbu49",
+                "qty": 1.0,
+                "label": "GBU-49",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu39@1",
+                "munition_id": "gbu39",
+                "qty": 1.0,
+                "label": "GBU-39 SDB",
+                "mass_kg": 129.0,
+                "dry_mass_kg": 129.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "meteor@1",
+                "munition_id": "meteor",
+                "qty": 1.0,
+                "label": "METEOR",
+                "mass_kg": 190.0,
+                "dry_mass_kg": 190.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "skyflash@1",
+                "munition_id": "skyflash",
+                "qty": 1.0,
+                "label": "Skyflash",
+                "mass_kg": 193.0,
+                "dry_mass_kg": 193.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "3L",
+            "label": "3 · 内侧翼下重载挂架（左）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "agm65@1",
+                "munition_id": "agm65",
+                "qty": 1.0,
+                "label": "AGM-65 Maverick",
+                "mass_kg": 300.0,
+                "dry_mass_kg": 300.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "rbs15@1",
+                "munition_id": "rbs15",
+                "qty": 1.0,
+                "label": "RBS-15",
+                "mass_kg": 650.0,
+                "dry_mass_kg": 650.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk83@1",
+                "munition_id": "mk83",
+                "qty": 1.0,
+                "label": "MK-83 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk84@1",
+                "munition_id": "mk84",
+                "qty": 1.0,
+                "label": "MK-84 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ft1100@1",
+                "munition_id": "ft1100",
+                "qty": 1.0,
+                "label": "1100 L 副油箱",
+                "mass_kg": 900.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 800.0
+              },
+              {
+                "key": "iris_t@1",
+                "munition_id": "iris_t",
+                "qty": 1.0,
+                "label": "IRIS-T",
+                "mass_kg": 87.0,
+                "dry_mass_kg": 87.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9lm@1",
+                "munition_id": "aim9lm",
+                "qty": 1.0,
+                "label": "AIM-9L/M",
+                "mass_kg": 86.0,
+                "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu16@1",
+                "munition_id": "gbu16",
+                "qty": 1.0,
+                "label": "GBU-16 (1000lb)",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu31@1",
+                "munition_id": "gbu31",
+                "qty": 1.0,
+                "label": "GBU-31 (2000lb)",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu32@1",
+                "munition_id": "gbu32",
+                "qty": 1.0,
+                "label": "GBU-32 JDAM",
+                "mass_kg": 460.0,
+                "dry_mass_kg": 460.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "meteor@1",
+                "munition_id": "meteor",
+                "qty": 1.0,
+                "label": "METEOR",
+                "mass_kg": 190.0,
+                "dry_mass_kg": 190.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "taurus350@1",
+                "munition_id": "taurus350",
+                "qty": 1.0,
+                "label": "TAURUS KEPD 350",
+                "mass_kg": 1400.0,
+                "dry_mass_kg": 1400.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "bk90@1",
+                "munition_id": "bk90",
+                "qty": 1.0,
+                "label": "Bk 90",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "3R",
+            "label": "3 · 内侧翼下重载挂架（右）",
             "mount_style": "wing_pylon",
             "options": [
               {
@@ -44629,9 +44992,12 @@ module.exports = {
           }
         ],
         "default_selection": {
-          "1": "iris_t@1",
-          "2": "aim120@1",
-          "3": "aim120@1"
+          "1L": "iris_t@1",
+          "1R": "iris_t@1",
+          "2L": "aim120@1",
+          "2R": "aim120@1",
+          "3L": "aim120@1",
+          "3R": "aim120@1"
         }
       },
       "Gripen-EF": {

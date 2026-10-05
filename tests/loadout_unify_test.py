@@ -97,6 +97,23 @@ def test_mirage2000_default_selection_and_pylon6_pod():
     assert summary.weapons_mass_kg == pytest.approx(402.0)
 
 
+def test_gripen_cd_symmetric_stations_split_left_right():
+    """鹰狮 C/D 翼尖/外侧/内侧挂点拆成左右，机腹 4、5 号仍为单点。"""
+    cat = build_loadout_catalog_payload()
+    ac = cat['aircraft']['Gripen-CD']
+    ids = [s['id'] for s in ac['stations']]
+    assert ids == ['1L', '1R', '2L', '2R', '3L', '3R', '4', '5']
+    assert ac['default_selection'] == {
+        '1L': 'iris_t@1', '1R': 'iris_t@1',
+        '2L': 'aim120@1', '2R': 'aim120@1',
+        '3L': 'aim120@1', '3R': 'aim120@1',
+    }
+    one = resolve_loadout('Gripen-CD', {'3L': 'rbs15@1'})
+    pair = resolve_loadout('Gripen-CD', {'3L': 'rbs15@1', '3R': 'rbs15@1'})
+    assert pair.weapons_mass_kg == pytest.approx(2 * one.weapons_mass_kg)
+    assert pair.n_store_units == 2
+
+
 def test_inject_loadout_catalog_payload_roundtrip():
     """前端 catalog 注入后可 resolve。"""
     cat = build_loadout_catalog_payload()

@@ -175,6 +175,9 @@ _MIRAGE2000_STORE_SPECS: dict[str, dict[str, Any]] = {
     },
 }
 
+# 鹰狮 C/D 左右成对的挂点（翼尖 / 外侧翼下 / 内侧翼下），拆成 L/R；4、5 为单点
+_GRIPEN_CD_SYMMETRIC_STATIONS = frozenset({'1', '2', '3'})
+
 # 鹰狮 C/D 碎片弹药：与统一库同 id 的直接复用；其余补规格
 _GRIPEN_CD_EXTRA: dict[str, dict[str, Any]] = {
     'aim9lm': {'name': 'AIM-9L/M', 'category': 'aam', 'mass_kg': 86, 'length_m': 2.87, 'diameter_m': 0.127},
@@ -893,21 +896,27 @@ def _collect_gripen_cd(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[s
                             notes=str(w.get('notes') or ''),
                         ))
                     option_ids.append(wid)
+            base_id = str(st['id'])
             style = mount_style_from_hints(
-                station_id=str(st.get('id') or ''),
+                station_id=base_id,
                 position=str(st.get('name') or ''),
             )
-            st_list.append(_station(
-                str(st['id']),
-                f"{st.get('id')} · {st.get('name')}",
-                style,
-                option_ids,
-            ))
+            label = f"{base_id} · {st.get('name')}"
+            if base_id in _GRIPEN_CD_SYMMETRIC_STATIONS:
+                for side, suffix in (('左', 'L'), ('右', 'R')):
+                    st_list.append(_station(
+                        f'{base_id}{suffix}',
+                        f'{label}（{side}）',
+                        style,
+                        option_ids,
+                    ))
+            else:
+                st_list.append(_station(base_id, label, style, option_ids))
         defaults = {}
-        for sid in ('1',):
+        for sid in ('1L', '1R'):
             if any(s['id'] == sid for s in st_list):
                 defaults[sid] = {'munition_id': 'iris_t', 'qty': 1}
-        for sid in ('2', '3'):
+        for sid in ('2L', '2R', '3L', '3R'):
             if any(s['id'] == sid for s in st_list):
                 defaults[sid] = {'munition_id': 'aim120', 'qty': 1}
         out[aid] = _aircraft_entry(aid, aid, st_list, defaults)
