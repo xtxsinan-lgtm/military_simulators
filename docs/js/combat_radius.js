@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 84;
+const APP_VERSION = 85;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -278,6 +278,88 @@ function summarizeLoadoutSelection(acLoadout, selection) {
     extFuel += Number(opt.fuel_kg) || 0;
   });
   return { payload_mass_kg: payload, external_fuel_kg: extFuel };
+}
+
+/** 选项名去掉末尾「×N」，按弹药合并计数用。 */
+function stripQtySuffix(label) {
+  return String(label || '').replace(/\s*×\s*\d+(\.\d+)?$/, '');
+}
+
+/** 挂点配置 → 仪表盘挂载状态（按弹药合并件数）。 */
+function loadoutStateFromSelection(acLoadout, selection) {
+  const groups = new Map();
+  let dry = 0;
+  let fuel = 0;
+  (acLoadout?.stations || []).forEach((st) => {
+    const key = selection[st.id] || '';
+    if (!key) return;
+    const opt = (st.options || []).find((o) => o.key === key);
+    if (!opt) return;
+    dry += Number(opt.dry_mass_kg) || 0;
+    fuel += Number(opt.fuel_kg) || 0;
+    const mid = opt.munition_id || key;
+    const g = groups.get(mid) || { name: stripQtySuffix(opt.label), count: 0 };
+    g.count += Number(opt.qty) || 1;
+    groups.set(mid, g);
+  });
+  return { items: [...groups.values()], dry_kg: dry, fuel_kg: fuel };
+}
+
+/** 无挂点表（或预计算快照）：按「单件质量 × 件数」描述挂载。 */
+function simpleLoadoutState(preset, unitKg, count) {
+  const bomber = (preset?.aircraft_role || 'fighter') === 'bomber';
+  const name = bomber ? '内埋载弹' : (preset?.bvr_missile || '中距弹');
+  const n = Number(count) || 0;
+  const unit = Number(unitKg) || 0;
+  return {
+    items: n > 0 ? [{ name, count: n, unit_kg: unit }] : [],
+    dry_kg: unit * n,
+    fuel_kg: 0,
+  };
+}
+
+function currentPreset() {
+  const id = $('tgtPreset') ? $('tgtPreset').value : '';
+  return (data?.combat_radius_presets || []).find((p) => p.id === id) || null;
+}
+
+/** 当前输入对应的挂载状态（现场重算用）。 */
+function currentLoadoutState() {
+  const ac = currentLoadoutAircraft();
+  if (ac) return loadoutStateFromSelection(ac, loadoutSelection);
+  return simpleLoadoutState(currentPreset(), $('wtMissile').value, $('wtNMissiles').value);
+}
+
+/** 预计算快照的挂载：与 combat_radius_results 一致，战斗机 4 枚中距弹、轰炸机满载一件。 */
+function snapshotLoadoutState(preset) {
+  if ((preset?.aircraft_role || 'fighter') === 'bomber' && preset?.max_payload_kg != null) {
+    return simpleLoadoutState(preset, preset.max_payload_kg, 1);
+  }
+  return simpleLoadoutState(preset, preset?.missile_mass_kg, 4);
+}
+
+function renderDashLoadout(state, note) {
+  const box = $('dashLoadout');
+  if (!box) return;
+  if (!state) {
+    box.innerHTML = '';
+    return;
+  }
+  const total = state.dry_kg + state.fuel_kg;
+  const items = state.items.length
+    ? state.items.map((it) => {
+      const unit = it.unit_kg != null ? `（单件 ${fmt(it.unit_kg, 0)} kg）` : '';
+      return `${it.name} ×${fmt(it.count, 0)}${unit}`;
+    }).join(' · ')
+    : '空挂（无外挂）';
+  const split = state.fuel_kg > 0
+    ? `挂载干重 ${fmt(state.dry_kg, 0)} kg + 外挂燃油 ${fmt(state.fuel_kg, 0)} kg`
+    : `挂载干重 ${fmt(state.dry_kg, 0)} kg · 无外挂燃油`;
+  box.innerHTML = `
+    <div class="dl-head"><span>当前挂载 · 总挂载重量</span><span class="dl-total">${fmt(total, 0)} kg</span></div>
+    <div class="dl-split">${split}</div>
+    <div class="dl-items">${items}</div>
+    ${note ? `<p class="note">${note}</p>` : ''}`;
 }
 
 function syncLoadoutSummaryFields() {
@@ -778,8 +860,9 @@ function cruiseSpeedLabel(p) {
   return p.mach != null ? fmt(p.mach, 3) : name;
 }
 
-function renderDash(r, sourceLabel) {
+function renderDash(r, sourceLabel, loadoutState = null, loadoutNote = '') {
   if (!r || !r.success) {
+    renderDashLoadout(null);
     $('dashBox').innerHTML = `<p class="placeholder">${(r && r.error) || '无法计算该机型仪表盘（例如缺少海平面军推）。填写参数后点「计算作战半径」。'}</p>`;
     $('dashStatus').textContent = 'UNAVAILABLE';
     return;
@@ -855,6 +938,7 @@ function renderDash(r, sourceLabel) {
     </tr>`;
   }).join('');
 
+  renderDashLoadout(loadoutState, loadoutNote);
   $('dashBox').innerHTML = `
     <div class="stat-row">
       <div class="stat"><div class="k">实用最大巡航速度</div><div class="v amber">${r.max_cruise_mach != null ? `Ma ${fmt(r.max_cruise_mach, 3)}` : '—'}</div></div>
@@ -887,11 +971,15 @@ function showSnapshot() {
   const id = $('tgtPreset').value;
   const snap = id ? snapshotFor(id) : null;
   if (!snap) {
+    renderDashLoadout(null);
     $('dashBox').innerHTML = '<p class="placeholder">无预计算快照。填写海平面军推后点「计算作战半径」。</p>';
     $('dashStatus').textContent = 'NO SNAPSHOT';
     return;
   }
-  renderDash(snap, '预计算快照 ·');
+  const note = currentLoadoutAircraft()
+    ? '预计算快照统一按 4 枚中距弹估算，未计入上方挂载配置；改动挂载或点「计算作战半径」后按所选挂载现场重算。'
+    : '';
+  renderDash(snap, '预计算快照 ·', snapshotLoadoutState(currentPreset()), note);
 }
 
 /** 同步「计算作战半径」按钮的禁用与文案。 */
@@ -938,11 +1026,13 @@ async function runLiveDash() {
   $('dashStatus').textContent = 'RUNNING';
   setDashButtonsRunning(true);
   try {
+    const loadoutState = currentLoadoutState();
     await initPyodide();
     const result = await callPythonAsync('aircraft_dashboard', readDashboardParams());
     if (!result.success) throw new Error(result.error || '仪表盘失败');
-    renderDash(result, '现场重算 ·');
+    renderDash(result, '现场重算 ·', loadoutState);
   } catch (e) {
+    renderDashLoadout(null);
     $('dashBox').innerHTML = `<p class="placeholder">${String(e.message || e)}</p>`;
     $('dashStatus').textContent = 'ERROR';
   } finally {
@@ -1077,12 +1167,14 @@ function bindLiveInputs() {
   const root = document.querySelector('.grid');
   root.addEventListener('input', (e) => {
     if (e.target && (e.target.id === 'tgtPreset' || e.target.id === 'engPreset')) return;
+    if (e.target && e.target.closest && e.target.closest('[data-no-live]')) return;
     if (e.target && e.target.closest && e.target.closest('#f135TsfcBox')) return;
     if (e.target && e.target.closest && e.target.closest('#flightProfileBox')) return;
     if (e.target && e.target.closest && e.target.closest('.panel')) scheduleLiveDash();
   });
   root.addEventListener('change', (e) => {
     if (e.target && (e.target.id === 'tgtPreset' || e.target.id === 'engPreset')) return;
+    if (e.target && e.target.closest && e.target.closest('[data-no-live]')) return;
     if (e.target && e.target.closest && e.target.closest('#f135TsfcBox')) return;
     if (e.target && e.target.closest && e.target.closest('#flightProfileBox')) return;
     if (e.target && e.target.closest && e.target.closest('.panel')) scheduleLiveDash();

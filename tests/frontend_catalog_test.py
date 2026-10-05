@@ -442,3 +442,33 @@ def test_load_constants_positive():
     c = _load_constants()
     assert c['SKI_JUMP_REF_RADIUS_M'] > 0
     assert c['A2A_MISSILE_COUNT'] >= 1
+
+
+def test_combat_radius_layout_loadout_above_dashboard_queries_below():
+    """三端：挂载配置在包线与作战半径上方，搜索/定点查询在其下方，仪表盘显示当前挂载与总挂载重量。"""
+    from utils.paths import ROOT
+
+    html = (ROOT / 'docs' / 'combat-radius.html').read_text(encoding='utf-8')
+    js = (ROOT / 'docs' / 'js' / 'combat_radius.js').read_text(encoding='utf-8')
+    order = [html.index(k) for k in (
+        'id="loadoutBox"', '包线与作战半径', '给定速度 · 搜索最佳升阻比', '给定速度与高度</span>', '发动机效率</span>',
+    )]
+    assert order == sorted(order)
+    # 挂载配置与仪表盘、两个查询面板同在右栏（.grid 内），发动机效率面板在 .grid 外
+    grid_end = html.index('<div class="stack" style="margin-top:14px;">')
+    assert order[3] < grid_end < order[4]
+    assert html.count('data-no-live') == 2
+    assert 'id="dashLoadout"' in html
+    assert 'function renderDashLoadout' in js
+    assert '总挂载重量' in js
+    assert "closest('[data-no-live]')" in js
+
+    wxml = (ROOT / 'miniprogram' / 'pages' / 'combat_radius' / 'combat_radius.wxml').read_text(encoding='utf-8')
+    order = [wxml.index(k) for k in ('选择战机 · INPUT', '挂载配置 · LOADOUT', '包线与作战半径', '搜索最佳升阻比', '给定速度与高度</view>')]
+    assert order == sorted(order)
+    assert 'dashLoadoutTotal' in wxml and '总挂载重量' in wxml
+
+    view = (ROOT / 'ios' / 'CarrierTakeOff' / 'CombatRadiusView.swift').read_text(encoding='utf-8')
+    order = [view.index(k) for k in ('tag: "INPUT"', 'tag: "LOADOUT"', 'tag: "DASHBOARD"', 'tag: "SEARCH"', 'tag: "POINT"')]
+    assert order == sorted(order)
+    assert 'dashLoadoutView' in view and '总挂载重量' in view

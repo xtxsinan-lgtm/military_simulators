@@ -158,24 +158,6 @@
         <input class="input" type="number" value="{{wtNMissiles}}" data-key="wtNMissiles" bindinput="onField"/>
       </view>
     </block>
-    <block wx:if="{{showLoadout}}">
-      <view class="section cyan">▸ 挂载配置</view>
-      <view class="note">按挂点选择副油箱/弹药；质量与阻力按公开尺寸估算。</view>
-      <view class="field" wx:for="{{loadoutRows}}" wx:key="id">
-        <view class="field-label"><text>{{item.label}}</text></view>
-        <picker mode="selector" range="{{item.optionLabels}}" value="{{item.index}}" data-station="{{item.id}}" bindchange="onLoadoutStation">
-          <view class="picker-val">{{item.optionLabels[item.index]}}</view>
-        </picker>
-      </view>
-      <view class="field">
-        <view class="field-label"><text>挂载干重</text><text class="unit">kg · 计算</text></view>
-        <view class="input input-readonly">{{loadoutPayload || '—'}}</view>
-      </view>
-      <view class="field">
-        <view class="field-label"><text>外挂燃油</text><text class="unit">kg · 计算</text></view>
-        <view class="input input-readonly">{{loadoutExtFuel || '—'}}</view>
-      </view>
-    </block>
     <view class="check-row">
       <label><switch checked="{{wtCarrier}}" bindchange="onCarrierSwitch"/> 舰载弹射 45 min；垂起与陆基 30 min</label>
     </view>
@@ -224,9 +206,34 @@
     <view class="btn" bindtap="onRunDash">▶ 计算作战半径</view>
   </view>
 
+  <view class="panel" wx:if="{{showLoadout}}">
+    <view class="panel-head">挂载配置 · LOADOUT</view>
+    <view class="note">按挂点选择副油箱/弹药；质量与阻力按公开尺寸估算，副油箱燃油并入任务总油。改动后自动按当前挂载重算下方作战半径。</view>
+    <view class="field" wx:for="{{loadoutRows}}" wx:key="id">
+      <view class="field-label"><text>{{item.label}}</text></view>
+      <picker mode="selector" range="{{item.optionLabels}}" value="{{item.index}}" data-station="{{item.id}}" bindchange="onLoadoutStation">
+        <view class="picker-val">{{item.optionLabels[item.index]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>挂载干重</text><text class="unit">kg · 计算</text></view>
+      <view class="input input-readonly">{{loadoutPayload || '—'}}</view>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>外挂燃油</text><text class="unit">kg · 计算</text></view>
+      <view class="input input-readonly">{{loadoutExtFuel || '—'}}</view>
+    </view>
+  </view>
+
   <view class="panel">
     <view class="panel-head">包线与作战半径 · DASHBOARD</view>
     <view class="note">{{dashStatusText}}</view>
+    <view class="dash-loadout" wx:if="{{dashLoadoutShow}}">
+      <view class="dl-head"><text>当前挂载 · 总挂载重量</text><text class="dl-total">{{dashLoadoutTotal}} kg</text></view>
+      <view class="dl-split">{{dashLoadoutSplit}}</view>
+      <view class="dl-items">{{dashLoadoutItems}}</view>
+      <view class="note" wx:if="{{dashLoadoutNote}}">{{dashLoadoutNote}}</view>
+    </view>
     <block wx:if="{{dashOk}}">
       <view class="stat-row">
         <view class="stat"><view class="k">实用最大巡航速度</view><view class="v amber">{{dashMaxCruise}}</view></view>

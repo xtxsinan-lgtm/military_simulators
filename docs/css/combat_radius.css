@@ -159,3 +159,21 @@ tr.miss td{ color:var(--text-dim); }
   display:block; width:100%; max-height:420px; object-fit:contain;
   background:var(--panel2); border:1px solid var(--line); border-radius:2px;
 }
+
+/* 挂载配置面板：宽屏下挂点下拉多列排布 */
+.loadout-grid{ display:grid; grid-template-columns: 1fr; gap:0 10px; }
+@media(min-width:640px){ .loadout-grid{ grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
+
+/* 包线与作战半径：当前挂载状态 */
+.dash-loadout{
+  background:var(--panel2); border:1px solid var(--line); border-radius:2px;
+  padding:10px 12px; margin:10px 0 14px; font-size:11.5px;
+}
+.dash-loadout:empty{ display:none; }
+.dash-loadout .dl-head{
+  display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;
+  font-size:10px; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase;
+}
+.dash-loadout .dl-total{ font-size:18px; color:var(--amber); letter-spacing:0; text-transform:none; }
+.dash-loadout .dl-split{ color:var(--text-dim); margin-top:2px; }
+.dash-loadout .dl-items{ color:var(--cyan); margin-top:6px; line-height:1.7; }

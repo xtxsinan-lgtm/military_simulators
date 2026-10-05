@@ -166,6 +166,77 @@ function summarizeLoadout(rows, selection) {
   return { payload, extFuel };
 }
 
+/** 选项名去掉末尾「×N」，按弹药合并计数用。 */
+function stripQtySuffix(label) {
+  return String(label || '').replace(/\s*×\s*\d+(\.\d+)?$/, '');
+}
+
+/** 挂点配置 → 仪表盘挂载状态（按弹药合并件数）。 */
+function loadoutStateFromRows(rows, selection) {
+  const order = [];
+  const groups = {};
+  let dry = 0;
+  let fuel = 0;
+  (rows || []).forEach((row) => {
+    const key = selection[row.id] || '';
+    if (!key) return;
+    const opt = (row.options || []).find((o) => o.key === key);
+    if (!opt) return;
+    dry += Number(opt.dry_mass_kg) || 0;
+    fuel += Number(opt.fuel_kg) || 0;
+    const mid = opt.munition_id || key;
+    if (!groups[mid]) {
+      groups[mid] = { name: stripQtySuffix(opt.label), count: 0 };
+      order.push(mid);
+    }
+    groups[mid].count += Number(opt.qty) || 1;
+  });
+  return { items: order.map((k) => groups[k]), dry_kg: dry, fuel_kg: fuel };
+}
+
+/** 无挂点表（或预计算快照）：按「单件质量 × 件数」描述挂载。 */
+function simpleLoadoutState(preset, unitKg, count) {
+  const bomber = ((preset && preset.aircraft_role) || 'fighter') === 'bomber';
+  const name = bomber ? '内埋载弹' : ((preset && preset.bvr_missile) || '中距弹');
+  const n = Number(count) || 0;
+  const unit = Number(unitKg) || 0;
+  return {
+    items: n > 0 ? [{ name, count: n, unit_kg: unit }] : [],
+    dry_kg: unit * n,
+    fuel_kg: 0,
+  };
+}
+
+/** 预计算快照的挂载：与 combat_radius_results 一致，战斗机 4 枚中距弹、轰炸机满载一件。 */
+function snapshotLoadoutState(preset) {
+  if (preset && preset.aircraft_role === 'bomber' && preset.max_payload_kg != null) {
+    return simpleLoadoutState(preset, preset.max_payload_kg, 1);
+  }
+  return simpleLoadoutState(preset, preset && preset.missile_mass_kg, 4);
+}
+
+/** 挂载状态 → 仪表盘 setData 字段。 */
+function dashLoadoutPatch(state, note) {
+  if (!state) {
+    return { dashLoadoutShow: false, dashLoadoutTotal: '', dashLoadoutSplit: '', dashLoadoutItems: '', dashLoadoutNote: '' };
+  }
+  const items = state.items.length
+    ? state.items.map((it) => {
+      const unit = it.unit_kg != null ? `（单件 ${fmt(it.unit_kg, 0)} kg）` : '';
+      return `${it.name} ×${fmt(it.count, 0)}${unit}`;
+    }).join(' · ')
+    : '空挂（无外挂）';
+  return {
+    dashLoadoutShow: true,
+    dashLoadoutTotal: fmt(state.dry_kg + state.fuel_kg, 0),
+    dashLoadoutSplit: state.fuel_kg > 0
+      ? `挂载干重 ${fmt(state.dry_kg, 0)} kg + 外挂燃油 ${fmt(state.fuel_kg, 0)} kg`
+      : `挂载干重 ${fmt(state.dry_kg, 0)} kg · 无外挂燃油`,
+    dashLoadoutItems: items,
+    dashLoadoutNote: note || '',
+  };
+}
+
 function fmtDerived(n, digits) {
   if (n == null || !Number.isFinite(n)) return '';
   return String(Number(n.toFixed(digits)));
@@ -332,6 +403,11 @@ Page({
     dashVmax: '—',
     dashRows: [],
     dashAbRows: [],
+    dashLoadoutShow: false,
+    dashLoadoutTotal: '',
+    dashLoadoutSplit: '',
+    dashLoadoutItems: '',
+    dashLoadoutNote: '',
     resultsMap: {},
     q1Mach: '0.9',
     q1Text: '',
@@ -474,15 +550,19 @@ Page({
     this.data.snapshotEligible = this.data.flightProfileId === this.data.defaultFlightProfileId;
     const snap = id ? this.data.resultsMap[id] : null;
     if (!snap || !snap.success) {
-      this.setData({
+      this.setData(Object.assign({
         dashOk: false,
         dashStatusText: (snap && snap.error) || '无预计算快照。填写军推后点「计算作战半径」。',
         dashRows: [],
-      });
+      }, dashLoadoutPatch(null)));
       return;
     }
     const ms = snap.max_speed || {};
+    const note = this.data.showLoadout
+      ? '预计算快照统一按 4 枚中距弹估算，未计入上方挂载配置；改动挂载或点「计算作战半径」后按所选挂载现场重算。'
+      : '';
     this.setData({
+      ...dashLoadoutPatch(snapshotLoadoutState(this.currentPreset()), note),
       dashOk: true,
       dashStatusText: '预计算快照',
       dashMaxCruise: snap.max_cruise_mach != null ? fmt(snap.max_cruise_mach, 3) : '—',
@@ -491,6 +571,19 @@ Page({
       dashRows: dashRowsFrom(snap),
       dashAbRows: abBestRowsFrom(snap),
     });
+  },
+
+  currentPreset() {
+    const idx = this.data.tgtPresetIndex;
+    return idx > 0 ? this.data.presets[idx - 1] : null;
+  },
+
+  /** 当前输入对应的挂载状态（现场重算用）。 */
+  currentLoadoutState() {
+    if (this.data.showLoadout) {
+      return loadoutStateFromRows(this.data.loadoutRows, this.data.loadoutSelection);
+    }
+    return simpleLoadoutState(this.currentPreset(), this.data.wtMissile, this.data.wtNMissiles);
   },
 
   applyEngine(p) {
@@ -586,6 +679,7 @@ Page({
       patch.loadoutRows = [];
       patch.weaponStations = [];
       patch.loadoutImageUrl = '';
+      Object.assign(patch, dashLoadoutPatch(null));
       this.setData(patch);
     }
   },
@@ -749,11 +843,13 @@ Page({
     }
     this._dashPending = false;
     this.setData({ running: true, dashStatusText: '重算中…' });
+    const loadoutState = this.currentLoadoutState();
     api.runCombatRadiusSimulation({ action: 'aircraft_dashboard', params: this.dashboardParams() })
       .then((r) => {
         if (!r.success) throw new Error(r.error || '仪表盘失败');
         const ms = r.max_speed || {};
         this.setData({
+          ...dashLoadoutPatch(loadoutState),
           dashOk: true,
           dashStatusText: '现场重算',
           dashMaxCruise: r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—',
@@ -767,6 +863,7 @@ Page({
       })
       .catch((e) => {
         this.setData({
+          ...dashLoadoutPatch(null),
           dashOk: false,
           dashStatusText: String(e.message || e),
           running: false,

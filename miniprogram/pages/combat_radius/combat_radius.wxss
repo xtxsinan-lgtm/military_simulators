@@ -68,3 +68,10 @@ page {
 .loadout-image {
   display: block; width: 100%; background: #0e161b; border: 1px solid #1c2b30;
 }
+.dash-loadout {
+  background: #0e161b; border: 1px solid #1c2b30; padding: 16rpx 20rpx; margin: 12rpx 0 20rpx; font-size: 22rpx;
+}
+.dl-head { display: flex; justify-content: space-between; align-items: baseline; color: #7b8e92; font-size: 20rpx; }
+.dl-total { color: #ffb020; font-size: 34rpx; }
+.dl-split { color: #7b8e92; margin-top: 6rpx; }
+.dl-items { color: #5fd8e8; margin-top: 10rpx; line-height: 1.6; }

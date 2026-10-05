@@ -170,6 +170,24 @@ final class CombatRadiusViewModel: ObservableObject {
         var options: [LoadoutOptionItem]
         var selectedKey: String
     }
+
+    /// 仪表盘显示的挂载状态（按弹药合并件数）
+    struct DashLoadoutItem: Identifiable {
+        var id: String
+        var name: String
+        var count: Double
+        var unitKg: Double?
+    }
+
+    struct DashLoadoutState {
+        var items: [DashLoadoutItem]
+        var dryKg: Double
+        var fuelKg: Double
+        var note: String = ""
+        var totalKg: Double { dryKg + fuelKg }
+    }
+
+    @Published var dashLoadout: DashLoadoutState?
     @Published var loadoutImageUrl: URL?
     @Published var showF135TsfcToggle = false
     @Published var f135TsfcMode = "published"
@@ -417,12 +435,70 @@ final class CombatRadiusViewModel: ObservableObject {
         engMaxTsl = p.max_tsl_kN.map { String($0) } ?? ""
     }
 
+    private var currentPreset: CombatRadiusPresetItem? {
+        presets.first(where: { $0.id == selectedTgtId })
+    }
+
+    /// 选项名去掉末尾「×N」，按弹药合并计数用。
+    private static func stripQtySuffix(_ label: String) -> String {
+        label.replacingOccurrences(of: #"\s*×\s*\d+(\.\d+)?$"#, with: "", options: .regularExpression)
+    }
+
+    /// 无挂点表（或预计算快照）：按「单件质量 × 件数」描述挂载。
+    private func simpleLoadoutState(_ preset: CombatRadiusPresetItem?, unitKg: Double, count: Double) -> DashLoadoutState {
+        let bomber = (preset?.aircraft_role ?? "fighter") == "bomber"
+        let name = bomber ? "内埋载弹" : (preset?.bvr_missile ?? "中距弹")
+        let items = count > 0 ? [DashLoadoutItem(id: name, name: name, count: count, unitKg: unitKg)] : []
+        return DashLoadoutState(items: items, dryKg: unitKg * count, fuelKg: 0)
+    }
+
+    /// 当前输入对应的挂载状态（现场重算用）。
+    func currentLoadoutState() -> DashLoadoutState {
+        guard showLoadout else {
+            return simpleLoadoutState(currentPreset, unitKg: Double(wtMissile) ?? 0, count: Double(wtNMissiles) ?? 0)
+        }
+        var order: [String] = []
+        var groups: [String: DashLoadoutItem] = [:]
+        var dry = 0.0
+        var fuel = 0.0
+        for row in loadoutRows {
+            let key = loadoutSelection[row.id] ?? ""
+            guard !key.isEmpty, let opt = row.options.first(where: { $0.key == key }) else { continue }
+            dry += opt.dry_mass_kg ?? 0
+            fuel += opt.fuel_kg ?? 0
+            let mid = opt.munition_id ?? key
+            if groups[mid] == nil {
+                groups[mid] = DashLoadoutItem(id: mid, name: Self.stripQtySuffix(opt.label ?? mid), count: 0, unitKg: nil)
+                order.append(mid)
+            }
+            groups[mid]?.count += opt.qty ?? 1
+        }
+        return DashLoadoutState(items: order.compactMap { groups[$0] }, dryKg: dry, fuelKg: fuel)
+    }
+
+    /// 预计算快照的挂载：与 combat_radius_results 一致，战斗机 4 枚中距弹、轰炸机满载一件。
+    func snapshotLoadoutState() -> DashLoadoutState {
+        let p = currentPreset
+        var state: DashLoadoutState
+        if p?.aircraft_role == "bomber", let payload = p?.max_payload_kg {
+            state = simpleLoadoutState(p, unitKg: payload, count: 1)
+        } else {
+            state = simpleLoadoutState(p, unitKg: p?.missile_mass_kg ?? 0, count: 4)
+        }
+        if showLoadout {
+            state.note = "预计算快照统一按 4 枚中距弹估算，未计入上方挂载配置；改动挂载或点「计算作战半径」后按所选挂载现场重算。"
+        }
+        return state
+    }
+
     func showSnapshot() {
         snapshotEligible = flightProfileId == defaultFlightProfileId
         if let snap = resultsMap[selectedTgtId], snap.success {
             dashboard = snap
             dashSource = "预计算快照"
+            dashLoadout = snapshotLoadoutState()
         } else {
+            dashLoadout = nil
             dashboard = resultsMap[selectedTgtId]
             dashSource = resultsMap[selectedTgtId]?.error ?? "无预计算快照。填写军推后点「计算作战半径」。"
         }
@@ -569,6 +645,7 @@ final class CombatRadiusViewModel: ObservableObject {
             }
         }
         do {
+            let loadoutState = currentLoadoutState()
             let r = try await LocalSimulatorEngine.shared.runCombatRadius(payload: [
                 "action": "aircraft_dashboard",
                 "params": dashboardParams(),
@@ -577,10 +654,12 @@ final class CombatRadiusViewModel: ObservableObject {
                 throw NSError(domain: "CombatRadius", code: 1, userInfo: [NSLocalizedDescriptionKey: r.error ?? "仪表盘失败"])
             }
             dashboard = r
+            dashLoadout = loadoutState
             dashSource = "现场重算"
             statusText = "READY"
         } catch {
             dashboard = nil
+            dashLoadout = nil
             dashSource = error.localizedDescription
             statusText = error.localizedDescription
         }

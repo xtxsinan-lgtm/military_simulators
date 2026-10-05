@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飞机作战半径估算</title>
-<link rel="stylesheet" href="css/combat_radius.css?v=84">
+<link rel="stylesheet" href="css/combat_radius.css?v=85">
 </head>
 <body>
 <div class="scanline"></div>
@@ -57,15 +57,6 @@
           <div class="field"><label>挂弹数</label><input type="number" id="wtNMissiles" step="1" min="0" value="4"></div>
         </div>
       </div>
-      <div id="loadoutBox" hidden>
-        <div class="section-label cyan">▸ 挂载配置</div>
-        <p class="note">按挂点选择副油箱/弹药；质量与阻力按公开尺寸估算，副油箱燃油并入任务总油。点「计算作战半径」后按当前挂载重算。</p>
-        <div id="loadoutStations"></div>
-        <div class="pair">
-          <div class="field"><label>挂载干重 <span class="unit">kg · 计算</span></label><input id="loadoutPayload" type="number" readonly tabindex="-1"></div>
-          <div class="field"><label>外挂燃油 <span class="unit">kg · 计算</span></label><input id="loadoutExtFuel" type="number" readonly tabindex="-1"></div>
-        </div>
-      </div>
       <div class="check-row">
         <label><input type="checkbox" id="wtCarrier"> 舰载弹射 45 min；垂起与陆基 30 min</label>
       </div>
@@ -116,36 +107,45 @@
   </div>
 
   <div class="stack">
+    <div class="panel" id="loadoutBox" hidden>
+      <div class="panel-head"><span>挂载配置</span><span class="tag">LOADOUT</span></div>
+      <p class="note">按挂点选择副油箱/弹药；质量与阻力按公开尺寸估算，副油箱燃油并入任务总油。改动后自动按当前挂载重算下方作战半径。</p>
+      <div id="loadoutStations" class="loadout-grid"></div>
+      <div class="pair">
+        <div class="field"><label>挂载干重 <span class="unit">kg · 计算</span></label><input id="loadoutPayload" type="number" readonly tabindex="-1"></div>
+        <div class="field"><label>外挂燃油 <span class="unit">kg · 计算</span></label><input id="loadoutExtFuel" type="number" readonly tabindex="-1"></div>
+      </div>
+    </div>
     <div class="panel">
       <div class="panel-head"><span>包线与作战半径</span><span class="tag">DASHBOARD</span></div>
       <div id="dashStatus" class="clock">STANDBY</div>
+      <div id="dashLoadout" class="dash-loadout"></div>
       <div id="dashBox" class="placeholder">选择战机后自动加载预计算结果…</div>
+    </div>
+    <div class="panel" data-no-live>
+      <div class="panel-head"><span>给定速度 · 搜索最佳升阻比与巡航高度</span><span class="tag">SEARCH</span></div>
+      <p class="note">临时按当前机型/发动机参数，在 11–20 km 内搜索使升阻比×总效率最大、且阻力不超过军推 92% 的高度。上方给出最佳点（含总效率）；下方列出该速度下各搜索高度的升阻比、可用推力、负载与热/推进/总效率。不能巡航时仍计算可飞高度上的最大升阻比（加力按全部推力，高度可到海平面）。</p>
+      <div class="pair">
+        <div class="field"><label>马赫数</label><input type="number" id="q1Mach" step="0.05" min="0.1" value="0.9"></div>
+      </div>
+      <button class="run" id="q1Btn">▶ 搜索最佳升阻比和巡航高度</button>
+      <div id="q1Box" class="placeholder">等待搜索…</div>
+    </div>
+
+    <div class="panel" data-no-live>
+      <div class="panel-head"><span>给定速度与高度</span><span class="tag">POINT</span></div>
+      <p class="note">不搜索高度，直接计算该点升阻比、最大可用推力、负载与热/推进/总效率。</p>
+      <div class="pair">
+        <div class="field"><label>马赫数</label><input type="number" id="q2Mach" step="0.05" min="0.1" value="0.8"></div>
+        <div class="field"><label>高度 <span class="unit">m</span></label><input type="number" id="q2Alt" step="100" min="0" value="12000"></div>
+      </div>
+      <button class="run" id="q2Btn">▶ 计算该点升阻比与效率</button>
+      <div id="q2Box" class="placeholder">等待计算…</div>
     </div>
   </div>
 </div>
 
 <div class="stack" style="margin-top:14px;">
-  <div class="panel">
-    <div class="panel-head"><span>给定速度 · 搜索最佳升阻比与巡航高度</span><span class="tag">SEARCH</span></div>
-    <p class="note">临时按当前机型/发动机参数，在 11–20 km 内搜索使升阻比×总效率最大、且阻力不超过军推 92% 的高度。上方给出最佳点（含总效率）；下方列出该速度下各搜索高度的升阻比、可用推力、负载与热/推进/总效率。不能巡航时仍计算可飞高度上的最大升阻比（加力按全部推力，高度可到海平面）。</p>
-    <div class="pair">
-      <div class="field"><label>马赫数</label><input type="number" id="q1Mach" step="0.05" min="0.1" value="0.9"></div>
-    </div>
-    <button class="run" id="q1Btn">▶ 搜索最佳升阻比和巡航高度</button>
-    <div id="q1Box" class="placeholder">等待搜索…</div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-head"><span>给定速度与高度</span><span class="tag">POINT</span></div>
-    <p class="note">不搜索高度，直接计算该点升阻比、最大可用推力、负载与热/推进/总效率。</p>
-    <div class="pair">
-      <div class="field"><label>马赫数</label><input type="number" id="q2Mach" step="0.05" min="0.1" value="0.8"></div>
-      <div class="field"><label>高度 <span class="unit">m</span></label><input type="number" id="q2Alt" step="100" min="0" value="12000"></div>
-    </div>
-    <button class="run" id="q2Btn">▶ 计算该点升阻比与效率</button>
-    <div id="q2Box" class="placeholder">等待计算…</div>
-  </div>
-
   <div class="panel">
     <div class="panel-head"><span>给定速度、高度、负载 · 发动机效率</span><span class="tag">ENGINE</span></div>
     <p class="note">只跑发动机循环，不依赖升阻比与阻力。负载为 0–1（也可填 0–100 的百分数）。</p>
@@ -159,6 +159,6 @@
   </div>
 </div>
 <div class="footer">Python 仿真核心 · 预计算快照 + Pyodide 按需计算 · 与 catalog / 小程序 / iOS 同源</div>
-<script type="module" src="js/combat_radius.js?v=84"></script>
+<script type="module" src="js/combat_radius.js?v=85"></script>
 </body>
 </html>

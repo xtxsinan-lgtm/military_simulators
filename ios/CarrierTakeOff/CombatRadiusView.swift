@@ -45,17 +45,7 @@ struct CombatRadiusView: View {
                     field("内油 (kg)", text: $vm.wtFuel)
                     field("飞行员数", text: $vm.wtPilots)
                     field("发动机台数", text: $vm.wtEngines)
-                    if vm.showLoadout {
-                        sectionLabel("▸ 挂载配置", color: CombatRadiusTheme.cyan)
-                        Text("按挂点选择副油箱/弹药；质量与阻力按公开尺寸估算。")
-                            .font(.system(size: 10, design: .monospaced))
-                            .foregroundStyle(CombatRadiusTheme.textDim)
-                        ForEach(vm.loadoutRows) { row in
-                            loadoutPicker(row)
-                        }
-                        field("挂载干重 (kg)", text: .constant(vm.loadoutPayload.isEmpty ? "—" : vm.loadoutPayload), readonly: true, live: false)
-                        field("外挂燃油 (kg)", text: .constant(vm.loadoutExtFuel.isEmpty ? "—" : vm.loadoutExtFuel), readonly: true, live: false)
-                    } else {
+                    if !vm.showLoadout {
                         field("单枚中距弹 (kg)", text: $vm.wtMissile)
                         field("挂弹数", text: $vm.wtNMissiles)
                     }
@@ -103,10 +93,26 @@ struct CombatRadiusView: View {
                     .disabled(vm.running)
                 }
 
+                if vm.showLoadout {
+                    panel(title: "挂载配置", tag: "LOADOUT") {
+                        Text("按挂点选择副油箱/弹药；质量与阻力按公开尺寸估算，副油箱燃油并入任务总油。改动后自动按当前挂载重算下方作战半径。")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(CombatRadiusTheme.textDim)
+                        ForEach(vm.loadoutRows) { row in
+                            loadoutPicker(row)
+                        }
+                        field("挂载干重 (kg)", text: .constant(vm.loadoutPayload.isEmpty ? "—" : vm.loadoutPayload), readonly: true, live: false)
+                        field("外挂燃油 (kg)", text: .constant(vm.loadoutExtFuel.isEmpty ? "—" : vm.loadoutExtFuel), readonly: true, live: false)
+                    }
+                }
+
                 panel(title: "包线与作战半径", tag: "DASHBOARD") {
                     Text(vm.dashSource)
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(CombatRadiusTheme.textDim)
+                    if let lo = vm.dashLoadout {
+                        dashLoadoutView(lo)
+                    }
                     if let r = vm.dashboard, r.success {
                         dashPanel(r)
                     } else if let r = vm.dashboard, let err = r.error {
@@ -250,6 +256,48 @@ struct CombatRadiusView: View {
             .font(.system(size: 12, design: .monospaced))
             .foregroundStyle(CombatRadiusTheme.text)
             .tint(CombatRadiusTheme.amber)
+    }
+
+    /// 包线与作战半径：当前挂载与总挂载重量
+    private func dashLoadoutView(_ lo: CombatRadiusViewModel.DashLoadoutState) -> some View {
+        let items = lo.items.isEmpty
+            ? "空挂（无外挂）"
+            : lo.items.map { it in
+                let unit = it.unitKg.map { String(format: "（单件 %.0f kg）", $0) } ?? ""
+                return String(format: "%@ ×%.0f%@", it.name, it.count, unit)
+            }.joined(separator: " · ")
+        let split = lo.fuelKg > 0
+            ? String(format: "挂载干重 %.0f kg + 外挂燃油 %.0f kg", lo.dryKg, lo.fuelKg)
+            : String(format: "挂载干重 %.0f kg · 无外挂燃油", lo.dryKg)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("当前挂载 · 总挂载重量")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.textDim)
+                Spacer()
+                Text(String(format: "%.0f kg", lo.totalKg))
+                    .font(.system(size: 18, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.amber)
+            }
+            Text(split)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(CombatRadiusTheme.textDim)
+            Text(items)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(CombatRadiusTheme.cyan)
+            if !lo.note.isEmpty {
+                Text(lo.note)
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(CombatRadiusTheme.textDim)
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(CombatRadiusTheme.panel2)
+        .overlay(
+            RoundedRectangle(cornerRadius: 2)
+                .stroke(CombatRadiusTheme.line, lineWidth: 1)
+        )
     }
 
     private func dashPanel(_ r: CombatRadiusResult) -> some View {
