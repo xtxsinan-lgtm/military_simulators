@@ -40,7 +40,7 @@ def test_j15_catalog_payload_and_image():
     payload = build_j15_mount_catalog_payload()
     assert payload['aircraft_ids'] == ['J-15', 'J-15T']
     assert len(payload['models']['J-15T']['stations']) == 12
-    assert loadout_image_filename('J-15T') == 'su30.jpg'
+    assert loadout_image_filename('J-15T') == 'j15.jpg'
 
 
 def test_j15_in_unified_loadout_catalog():
