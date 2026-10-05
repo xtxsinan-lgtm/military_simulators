@@ -8,7 +8,8 @@
     "carrier_reserve_min": 45,
     "land_reserve_min": 30,
     "climb_extra_km": 120,
-    "descent_save_km": 87.5
+    "descent_save_km": 87.5,
+    "combat_allowance_min": 1
   },
   "flight_profiles": {
     "default": "hi_hi_hi",
@@ -18,21 +19,22 @@
         "mode": "symmetric_high",
         "climb_extra_km": 120,
         "descent_save_km": 87.5,
-        "note": "进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。"
+        "note": "进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。"
       },
       "hi_lo_hi": {
         "label": "高-低-高",
         "mode": "mixed_high_low",
         "climb_extra_km": 180,
         "descent_save_km": 50,
-        "note": "高空进出、目标区低空渗透；额外爬升/下降按 180 / 50 km 等价油耗入账；半径按高空去程 + 低空回程闭合。"
+        "low_leg_km": 150,
+        "note": "高空进出，目标区前后各 150 km 低空突防/撤出；额外爬升/下降按 180 / 50 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。"
       },
       "lo_lo_lo": {
         "label": "低-低-低",
         "mode": "symmetric_low",
         "climb_extra_km": 30,
         "descent_save_km": 25,
-        "note": "全程低空贴地/掠海；爬升/降落开销按 30 / 25 km 等价油耗入账；半径在 0.3–3 km 带搜索最佳巡航。"
+        "note": "全程低空贴地/掠海；爬升/降落开销按 30 / 25 km 等价油耗入账，另扣目标区空战 1 min 全加力油耗；半径在 0.3–3 km 带搜索最佳巡航。"
       }
     }
   },

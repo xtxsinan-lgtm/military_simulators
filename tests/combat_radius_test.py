@@ -542,9 +542,12 @@ def test_run_estimate_radius_from_params_f22():
     assert cruise_machs_differ(r['max_cruise_mach'], r['max_radius_mach'])
     assert 'split_cruise_note' not in r
     assert r['mass_initial_kg'] > r['mass_cruise_kg'] > r['mass_final_kg']
+    # 空战消耗一半按出发即耗计入起点
     assert r['mass_initial_kg'] == pytest.approx(
-        r['mass_takeoff_kg'] - r['mission_fuel']['climb_extra_kg'],
+        r['mass_takeoff_kg'] - r['mission_fuel']['climb_extra_kg']
+        - 0.5 * r['mission_fuel']['combat_fuel_kg'],
     )
+    assert r['mission_fuel']['combat_fuel_kg'] > 0
     assert r['mass_final_kg'] == pytest.approx(
         r['mass_dry_kg'] + r['mission_fuel']['held_fuel_kg'],
     )
@@ -857,17 +860,17 @@ def test_insufficient_mission_fuel_marks_points_infeasible():
 
 
 def test_ma08_combat_radius_calibration_targets():
-    """Ma 0.8：F-35A/C 须对齐（公开 1239/1241）；B 贴近 935；歼-20=1350、F-22≈1061。"""
+    """Ma 0.8（含目标区空战 1 min 全加力）：F-35A/C 贴近公开 1239/1241；B 约 824（公开 935）；歼-20、F-22 为模型回归值。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 
     presets = load_presets()
     engines = load_engine_presets()
     cases = [
-        ('F-35A', 'f135', 1361, 40),
-        ('F-35B', 'f135b', 973, 40),
-        ('F-35C', 'f135', 1384, 40),
-        ('F-22', 'f119', 1061, 50),
-        ('J-20', 'ws15', 1350, 50),
+        ('F-35A', 'f135', 1199, 40),
+        ('F-35B', 'f135b', 824, 40),
+        ('F-35C', 'f135', 1226, 40),
+        ('F-22', 'f119', 832, 50),
+        ('J-20', 'ws15', 1157, 50),
     ]
     got: dict[str, float] = {}
     for ac_id, eng_id, target_km, tol_km in cases:
@@ -904,9 +907,9 @@ def test_f35_lpc_only_tsfc_mult_widens_ma08_radius():
     engines = load_engine_presets()
     lpc = f135_tsfc_install_mult_for_mode('lpc_only')
     cases = [
-        ('F-35A', 'f135', 1638),
-        ('F-35B', 'f135b', 1184),
-        ('F-35C', 'f135', 1686),
+        ('F-35A', 'f135', 1476),
+        ('F-35B', 'f135b', 1034),
+        ('F-35C', 'f135', 1527),
     ]
     for ac_id, eng_id, target_km in cases:
         tgt = get_preset_by_id(presets, ac_id)
@@ -1311,3 +1314,19 @@ def test_run_combat_radius_new_actions():
     })
     assert cycle['eta_o'] > 0
 
+
+
+def test_combat_allowance_fuel_kg_scales_with_thrust_and_minutes():
+    """空战消耗 = 分钟 × 全台加力推力 × 2.2 × 巡航 TSFC；轰炸机与显式 0 分钟不计。"""
+    from simulators.combat_radius.combat_radius import combat_allowance_fuel_kg
+
+    params = {'target': {'aircraft_role': 'fighter'}, 'max_tsl_kN': 100.0, 'combat_allowance_min': 1}
+    minutes, fuel = combat_allowance_fuel_kg(params, 2, 3.0e-5)
+    assert minutes == 1
+    assert fuel == pytest.approx(60.0 * 2 * 100_000.0 * 2.2 * 3.0e-5)
+    assert combat_allowance_fuel_kg({**params, 'combat_allowance_min': 0}, 2, 3.0e-5)[1] == 0.0
+    bomber = {**params, 'target': {'aircraft_role': 'bomber'}}
+    assert combat_allowance_fuel_kg(bomber, 2, 3.0e-5) == (0.0, 0.0)
+    # 缺加力推力时按军推 / dry_to_max 比例反推
+    dry_only = {'target': {}, 'tsl_kN': 70.0, 'combat_allowance_min': 1}
+    assert combat_allowance_fuel_kg(dry_only, 1, 3.0e-5)[1] == pytest.approx(60.0 * 100_000.0 * 2.2 * 3.0e-5)

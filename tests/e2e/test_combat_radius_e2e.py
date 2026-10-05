@@ -176,11 +176,14 @@ def test_e2e_combat_radius_f22_breguet_radius():
     assert mf['climb_extra_kg'] > 0
     assert mf['descent_save_kg'] > 0
     assert r['fuel_usable_kg'] < r['fuel_kg']
+    # 空战消耗一半按出发即耗计入起点
     assert r['mass_initial_kg'] == pytest.approx(
-        r['mass_takeoff_kg'] - mf['climb_extra_kg'],
+        r['mass_takeoff_kg'] - mf['climb_extra_kg'] - 0.5 * mf['combat_fuel_kg'],
     )
     assert r['mass_final_kg'] == pytest.approx(r['mass_dry_kg'] + mf['held_fuel_kg'])
-    assert mf['held_fuel_kg'] == pytest.approx(mf['reserve_fuel_kg'] - mf['descent_save_kg'])
+    assert mf['held_fuel_kg'] == pytest.approx(
+        mf['reserve_fuel_kg'] - mf['descent_save_kg'] + 0.5 * mf['combat_fuel_kg'],
+    )
     assert mf['takeoff_kg_per_km'] > mf['landing_kg_per_km']
     assert '亚音速油耗' in r['note']
     from utils.combat_radius.breguet import combat_radius_m
@@ -265,7 +268,7 @@ def test_e2e_combat_radius_j20_supercruise_and_radius_order():
     assert m15['feasible'] is True
     assert m175['feasible'] is True
     assert m20['feasible'] is False
-    assert m08['radius_km'] == pytest.approx(1350, abs=50)
+    assert m08['radius_km'] == pytest.approx(1150, abs=50)
     m10 = next(p for p in r['points'] if p['id'] == 'mach_1_0')
     assert m10['feasible'] is True
     assert m10['radius_km'] < m08['radius_km']
@@ -818,18 +821,18 @@ def test_e2e_combat_radius_f35c_engine_install_applied():
     m08 = next(p for p in f35c['points'] if p['id'] == 'mach_0_8')
     m08_22 = next(p for p in f22['points'] if p['id'] == 'mach_0_8')
     assert m08['feasible'] is True
-    assert m08['radius_km'] == pytest.approx(1384, abs=40)
-    assert m08_22['radius_km'] == pytest.approx(1061, abs=50)
+    assert m08['radius_km'] == pytest.approx(1220, abs=40)
+    assert m08_22['radius_km'] == pytest.approx(832, abs=50)
     f35a = run_preset_dashboard('F-35A')
     m08_a = next(p for p in f35a['points'] if p['id'] == 'mach_0_8')
     assert m08_a['feasible'] is True
     assert m08_a['radius_km'] >= 1150
-    assert m08_a['radius_km'] == pytest.approx(1361, abs=40)
+    assert m08_a['radius_km'] == pytest.approx(1190, abs=40)
     assert m08_a['radius_km'] == pytest.approx(m08['radius_km'], abs=40)
     f35b = run_preset_dashboard('F-35B')
     m08_b = next(p for p in f35b['points'] if p['id'] == 'mach_0_8')
     assert m08_b['feasible'] is True
-    assert m08_b['radius_km'] == pytest.approx(973, abs=40)
+    assert m08_b['radius_km'] == pytest.approx(815, abs=40)
 
 
 @pytest.mark.e2e
@@ -851,7 +854,7 @@ def test_e2e_f35_tsfc_toggle_lpc_only_widens_radius():
     m08_lpc = next(p for p in r_lpc['points'] if p['id'] == 'mach_0_8')
     assert m08_pub['feasible'] is True and m08_lpc['feasible'] is True
     assert m08_lpc['radius_km'] > m08_pub['radius_km'] + 150
-    assert m08_lpc['radius_km'] == pytest.approx(1638, abs=30)
+    assert m08_lpc['radius_km'] == pytest.approx(1470, abs=30)
     status, _, body = handle_request(
         'POST', '/api/combat_radius/simulate',
         json.dumps({'action': 'aircraft_dashboard', 'params': lpc}).encode(),

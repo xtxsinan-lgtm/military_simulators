@@ -443,7 +443,7 @@ Page({
     loadoutPayload: '',
     loadoutExtFuel: '',
     flightProfileId: 'hi_hi_hi',
-    flightProfileNote: '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。',
+    flightProfileNote: '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。',
     defaultFlightProfileId: 'hi_hi_hi',
     aircraftWeapons: null,
     weaponStations: [],

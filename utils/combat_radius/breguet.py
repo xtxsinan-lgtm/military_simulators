@@ -97,6 +97,39 @@ def mixed_combat_radius_m(
     return k_out * math.log(mass_initial_kg / mass_mid)
 
 
+def hi_lo_hi_combat_radius_m(
+    v_high_mps: float,
+    tsfc_high_kg_n_s: float,
+    ld_high: float,
+    v_low_mps: float,
+    tsfc_low_kg_n_s: float,
+    ld_low: float,
+    mass_initial_kg: float,
+    mass_final_kg: float,
+    low_leg_m: float,
+    g0: float = G0,
+) -> float:
+    """高-低-高作战半径（米）：高空去程 → 低空突防 L → 低空撤出 L → 高空回程。
+
+    布雷盖各段对数可加：ln(m0/mf) = 2(R−L)/k_high + 2L/k_low，
+    故 R = L + (k_high/2)·(ln(m0/mf) − 2L/k_low)。
+    燃油连低空往返 2L 都不够时，按全程低空闭合（R < L）。
+    """
+    if low_leg_m < 0:
+        raise ValueError('低空段距离不能为负')
+    if mass_final_kg <= 0:
+        raise ValueError('终了质量须为正')
+    if mass_initial_kg <= mass_final_kg:
+        raise ValueError('起飞质量须大于终了质量（须有可消耗内油）')
+    k_high = breguet_range_factor(v_high_mps, tsfc_high_kg_n_s, ld_high, g0)
+    k_low = breguet_range_factor(v_low_mps, tsfc_low_kg_n_s, ld_low, g0)
+    log_ratio = math.log(mass_initial_kg / mass_final_kg)
+    low_log = 2.0 * low_leg_m / k_low
+    if log_ratio <= low_log:
+        return k_low * log_ratio / 2.0
+    return low_leg_m + k_high * (log_ratio - low_log) / 2.0
+
+
 def average_fuel_kg_per_km(fuel_kg: float, radius_m: float) -> float:
     """按往返航程（2×作战半径）均摊的平均油耗，kg/km。"""
     if fuel_kg < 0:
@@ -176,6 +209,7 @@ def mission_fuel_budget(
     tsfc_kg_n_s: float,
     ld: float,
     carrier: bool = False,
+    combat_fuel_kg: float = 0.0,
     g0: float = G0,
 ) -> dict[str, float | bool]:
     """按出发/返回瞬时油耗结算冗余、爬升额外与降落节省，再给出布雷盖质量。
@@ -185,6 +219,8 @@ def mission_fuel_budget(
     布雷盖终点 = 空重 +（冗余 − 降落节省）；
     可用油 = 内油 −（冗余 − 降落节省）− 爬升额外；
     布雷盖起点 = 终点 + 可用油 = 起飞质量 − 爬升额外。
+    空战消耗在目标区烧掉：一半按全程携带并入终点，一半按出发即耗计入，
+    取「带到底」与「起飞就烧」两种极端的折中。
     """
     if internal_fuel_kg < 0:
         raise ValueError('内油不能为负')
@@ -194,6 +230,8 @@ def mission_fuel_budget(
         raise ValueError('爬升等价距离不能为负')
     if descent_save_km < 0:
         raise ValueError('降落等价距离不能为负')
+    if combat_fuel_kg < 0:
+        raise ValueError('空战消耗油量不能为负')
     loiter_km = reserve_loiter_km(reserve_min, cruise_kph)
     reserve_kg = landing_reserve_fuel_kg(
         dry_mass_kg, loiter_km, v_mps, tsfc_kg_n_s, ld, g0,
@@ -207,9 +245,9 @@ def mission_fuel_budget(
     )
     climb_extra_kg = takeoff_kg_per_km * climb_extra_km
     descent_save_kg = landing_kg_per_km * descent_save_km
-    held_fuel_kg = reserve_kg - descent_save_kg
+    held_fuel_kg = reserve_kg - descent_save_kg + 0.5 * combat_fuel_kg
     mass_final_kg = dry_mass_kg + held_fuel_kg
-    usable_fuel_kg = internal_fuel_kg - held_fuel_kg - climb_extra_kg
+    usable_fuel_kg = internal_fuel_kg - held_fuel_kg - climb_extra_kg - 0.5 * combat_fuel_kg
     mass_initial_kg = mass_final_kg + usable_fuel_kg
     return {
         'carrier': bool(carrier),
@@ -221,6 +259,7 @@ def mission_fuel_budget(
         'climb_extra_kg': climb_extra_kg,
         'descent_save_km': float(descent_save_km),
         'descent_save_kg': descent_save_kg,
+        'combat_fuel_kg': float(combat_fuel_kg),
         'held_fuel_kg': held_fuel_kg,
         'return_mass_kg': land_mass_kg,
         'usable_fuel_kg': usable_fuel_kg,

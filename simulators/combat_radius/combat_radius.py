@@ -46,6 +46,7 @@ from utils.combat_radius.cruise_load import (
     engine_load_ratio,
 )
 from utils.combat_radius.cruise_search import (
+    AB_TSFC_OVER_MIL,
     ALT_COARSE_M,
     ALT_MAX_M,
     ALT_MIN_M,
@@ -399,6 +400,33 @@ def parse_max_sea_level_thrust_n(params: dict[str, Any]) -> float:
     raise ValueError('缺少海平面加力最大推力 max_tsl_N 或 max_tsl_kN')
 
 
+def combat_allowance_fuel_kg(
+    params: dict[str, Any],
+    n_engines: int,
+    tsfc_cruise_kg_n_s: float,
+) -> tuple[float, float]:
+    """目标区空战消耗：(分钟, 油量 kg)。
+
+    按全台海平面加力最大推力持续若干分钟，加力 TSFC = AB_TSFC_OVER_MIL × 巡航 TSFC；
+    请求里的 combat_allowance_min 可覆盖配置（转场/航程对比传 0）；轰炸机不计。
+    """
+    target = params.get('target') if isinstance(params.get('target'), dict) else {}
+    if str(target.get('aircraft_role') or 'fighter') == 'bomber':
+        return 0.0, 0.0
+    raw = params.get('combat_allowance_min')
+    if raw in (None, ''):
+        raw = mission_fuel_config().get('combat_allowance_min', 0.0)
+    minutes = float(raw or 0.0)
+    if minutes <= 0 or tsfc_cruise_kg_n_s <= 0:
+        return max(minutes, 0.0), 0.0
+    try:
+        thrust_n = parse_max_sea_level_thrust_n(params)
+    except ValueError:
+        thrust_n = parse_sea_level_thrust_n(params) / dry_to_max_thrust_ratio()
+    fuel = minutes * 60.0 * n_engines * thrust_n * AB_TSFC_OVER_MIL * tsfc_cruise_kg_n_s
+    return minutes, fuel
+
+
 def run_estimate_thrust_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """从 JSON 参数估算可用军推。"""
     result = estimate_military_thrust(
@@ -513,6 +541,12 @@ def _mission_fuel_note(
         '布雷盖终点 = 空重 +（冗余 − 降落节省），可用油 = 内油 − 该值 − 爬升额外；'
         '超音速点仍按亚音速油耗入账。'
     )
+    combat_min = float(mf.get('combat_allowance_min') or 0.0)
+    if combat_min > 0:
+        base += (
+            f'目标区空战消耗按全台加力 {combat_min:g} min 计'
+            '（一半随机带到底、一半按出发即耗入账）。'
+        )
     return f'{base} {prof_note}' if prof_note else base
 
 
@@ -947,6 +981,7 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         and subsonic.v0 > 0
         and subsonic.ld > 0
     ):
+        combat_min, combat_fuel = combat_allowance_fuel_kg(params, n_engines, subsonic.tsfc_kg_n_s)
         fuel_adj = mission_fuel_budget(
             internal_fuel_kg=fuel_kg,
             takeoff_mass_kg=takeoff_mass['total_kg'],
@@ -959,7 +994,9 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
             tsfc_kg_n_s=subsonic.tsfc_kg_n_s,
             ld=subsonic.ld,
             carrier=carrier,
+            combat_fuel_kg=combat_fuel,
         )
+        fuel_adj['combat_allowance_min'] = combat_min
 
     def pack_point(point_id: str, label: str, mach: float) -> dict[str, Any]:
         try:
@@ -1132,6 +1169,9 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
                 **mf,
                 'climb_extra_km': climb_extra_km,
                 'descent_save_km': descent_save_km,
+                'combat_allowance_min': (fuel_adj or {}).get(
+                    'combat_allowance_min', mf.get('combat_allowance_min', 0),
+                ),
             },
             flight_prof,
         ),

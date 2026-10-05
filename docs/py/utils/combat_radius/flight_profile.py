@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from utils.combat_radius.breguet import combat_radius_m, mixed_combat_radius_m
+from utils.combat_radius.breguet import combat_radius_m, hi_lo_hi_combat_radius_m
 from utils.combat_radius.combat_radius_config import load_combat_radius_config
 from utils.combat_radius.cruise_search import (
     ALT_COARSE_M,
@@ -25,6 +25,8 @@ LOW_ALT_REFINE_M = 100.0
 
 # 高-低-高 低空段默认用 Ma 0.8（超音速低空通常不可飞）
 HI_LO_HI_LOW_MACH = 0.8
+# 高-低-高 目标区低空突防段单程距离（km）；进、出各一段
+HI_LO_HI_LOW_LEG_KM = 150.0
 
 DEFAULT_PROFILE_ID = 'hi_hi_hi'
 PROFILE_IDS = ('hi_hi_hi', 'hi_lo_hi', 'lo_lo_lo')
@@ -35,21 +37,22 @@ _BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         'mode': 'symmetric_high',
         'climb_extra_km': 120.0,
         'descent_save_km': 87.5,
-        'note': '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。',
+        'note': '进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。',
     },
     'hi_lo_hi': {
         'label': '高-低-高',
         'mode': 'mixed_high_low',
         'climb_extra_km': 180.0,
         'descent_save_km': 50.0,
-        'note': '高空进出、目标区低空渗透；额外爬升/下降按 180 / 50 km 等价油耗入账；半径按高空去程 + 低空回程闭合。',
+        'low_leg_km': HI_LO_HI_LOW_LEG_KM,
+        'note': '高空进出，目标区前后各 150 km 低空突防/撤出；额外爬升/下降按 180 / 50 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。',
     },
     'lo_lo_lo': {
         'label': '低-低-低',
         'mode': 'symmetric_low',
         'climb_extra_km': 30.0,
         'descent_save_km': 25.0,
-        'note': '全程低空贴地/掠海；爬升/降落开销按 30 / 25 km 等价油耗入账；半径在 0.3–3 km 带搜索最佳巡航。',
+        'note': '全程低空贴地/掠海；爬升/降落开销按 30 / 25 km 等价油耗入账，另扣目标区空战 1 min 全加力油耗；半径在 0.3–3 km 带搜索最佳巡航。',
     },
 }
 
@@ -171,14 +174,14 @@ def profile_combat_radius_m(
         )
     if mode == 'mixed_high_low':
         if not _scored_usable(high_scored):
-            raise ValueError('高空去程点不可用')
+            raise ValueError('高空巡航点不可用')
         low = low_scored
         if low is None:
             low_mach = mach if mach <= 1.0 else HI_LO_HI_LOW_MACH
             low = search_low_altitude_point(ctx, low_mach)
         if not _scored_usable(low):
-            raise ValueError('低空回程点不可用')
-        return mixed_combat_radius_m(
+            raise ValueError('低空突防点不可用')
+        return hi_lo_hi_combat_radius_m(
             high_scored.v0,
             high_scored.tsfc_kg_n_s,
             high_scored.ld,
@@ -187,5 +190,6 @@ def profile_combat_radius_m(
             low.ld,
             mass_initial_kg,
             mass_final_kg,
+            float(profile.get('low_leg_km', HI_LO_HI_LOW_LEG_KM)) * 1000.0,
         )
     raise ValueError(f'未知剖面模式: {mode}')

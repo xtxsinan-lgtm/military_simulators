@@ -14,6 +14,7 @@ from utils.combat_radius.breguet import (
     instantaneous_fuel_kg_per_km,
     landing_reserve_fuel_kg,
     mission_fuel_budget,
+    hi_lo_hi_combat_radius_m,
     mixed_combat_radius_m,
     reserve_loiter_km,
 )
@@ -219,3 +220,39 @@ def test_mixed_combat_radius_rejects_bad_mass():
         mixed_combat_radius_m(240, 2.5e-5, 8, 240, 2.5e-5, 8, 1000, 1000)
     with pytest.raises(ValueError, match='终了质量'):
         mixed_combat_radius_m(240, 2.5e-5, 8, 240, 2.5e-5, 8, 2000, 0)
+
+
+def test_hi_lo_hi_radius_closed_form_and_limits():
+    """高-低-高：低空段为 0 时等于高空对称半径；燃油不够低空往返时退化为全低空半径。"""
+    hi = (240.0, 2.6e-5, 9.0)
+    lo = (270.0, 3.6e-5, 6.0)
+    wi, wf = 20000.0, 14000.0
+    r_hi = combat_radius_m(*hi, wi, wf)
+    r_lo = combat_radius_m(*lo, wi, wf)
+    assert hi_lo_hi_combat_radius_m(*hi, *lo, wi, wf, 0.0) == pytest.approx(r_hi)
+    assert hi_lo_hi_combat_radius_m(*hi, *lo, wi, wf, 10 * r_lo) == pytest.approx(r_lo)
+    # 质量闭合：两段高空 + 两段低空恰好用完 ln(wi/wf)
+    leg = 150_000.0
+    r = hi_lo_hi_combat_radius_m(*hi, *lo, wi, wf, leg)
+    k_hi = hi[0] / (9.80665 * hi[1]) * hi[2]
+    k_lo = lo[0] / (9.80665 * lo[1]) * lo[2]
+    assert 2 * (r - leg) / k_hi + 2 * leg / k_lo == pytest.approx(math.log(wi / wf))
+    with pytest.raises(ValueError):
+        hi_lo_hi_combat_radius_m(*hi, *lo, wi, wf, -1.0)
+
+
+def test_mission_fuel_budget_combat_fuel_split_half_held_half_burned():
+    """空战消耗：一半并入布雷盖终点、一半在起点扣除，可用油减少全部空战油量。"""
+    kw = dict(
+        internal_fuel_kg=4000.0, takeoff_mass_kg=15000.0, dry_mass_kg=11000.0,
+        reserve_min=30.0, cruise_kph=850.0, climb_extra_km=120.0, descent_save_km=87.5,
+        v_mps=240.0, tsfc_kg_n_s=2.6e-5, ld=9.0,
+    )
+    base = mission_fuel_budget(**kw)
+    fight = mission_fuel_budget(**kw, combat_fuel_kg=600.0)
+    assert fight['combat_fuel_kg'] == pytest.approx(600.0)
+    assert fight['usable_fuel_kg'] == pytest.approx(base['usable_fuel_kg'] - 600.0)
+    assert fight['mass_final_kg'] == pytest.approx(base['mass_final_kg'] + 300.0)
+    assert fight['mass_initial_kg'] == pytest.approx(base['mass_initial_kg'] - 300.0)
+    with pytest.raises(ValueError):
+        mission_fuel_budget(**kw, combat_fuel_kg=-1.0)

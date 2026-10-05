@@ -192,7 +192,7 @@ final class CombatRadiusViewModel: ObservableObject {
     @Published var showF135TsfcToggle = false
     @Published var f135TsfcMode = "published"
     @Published var flightProfileId = "hi_hi_hi"
-    @Published var flightProfileNote = "进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账。"
+    @Published var flightProfileNote = "进出与巡航均在高空；爬升/降落开销按标准 120 / 87.5 km 等价油耗入账；另扣目标区空战 1 min 全加力油耗。"
     @Published var flightProfileOptions: [CombatRadiusFlightProfileOption] = [
         CombatRadiusFlightProfileOption(id: "hi_hi_hi", label: "高-高-高", note: nil),
         CombatRadiusFlightProfileOption(id: "hi_lo_hi", label: "高-低-高", note: nil),

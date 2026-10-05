@@ -87,30 +87,36 @@ def test_profile_combat_radius_symmetric_high():
     assert radius == pytest.approx(expected)
 
 
-def test_profile_combat_radius_mixed_high_low_between_legs():
-    """高-低-高混合半径应介于两段对称半径之间。"""
-    high = _Scored(500.0, 5.0e-5, 5.0, mach=1.5)
-    low = _Scored(220.0, 2.5e-5, 6.0, mach=HI_LO_HI_LOW_MACH)
+def test_profile_combat_radius_hi_lo_hi_low_leg_only_near_target():
+    """高-低-高：只有目标区前后 low_leg_km 在低空，半径介于全低空与全高空之间，且随低空段加长而缩短。"""
+    high = _Scored(240.0, 2.6e-5, 9.0, mach=0.8)
+    low = _Scored(270.0, 3.6e-5, 6.0, mach=HI_LO_HI_LOW_MACH)
     prof = resolve_flight_profile('hi_lo_hi')
-    wi, wf = 28000.0, 20000.0
+    assert prof['low_leg_km'] == pytest.approx(150.0)
+    wi, wf = 20000.0, 14000.0
 
     class _Ctx:
         pass
 
-    mixed = profile_combat_radius_m(
-        prof, high, ctx=_Ctx(), mach=1.5,
+    radius = profile_combat_radius_m(
+        prof, high, ctx=_Ctx(), mach=0.8,
         mass_initial_kg=wi, mass_final_kg=wf, low_scored=low,
     )
-    from utils.combat_radius.breguet import combat_radius_m, mixed_combat_radius_m
+    from utils.combat_radius.breguet import combat_radius_m, hi_lo_hi_combat_radius_m
 
-    r_hi = combat_radius_m(500.0, 5.0e-5, 5.0, wi, wf)
-    r_lo = combat_radius_m(220.0, 2.5e-5, 6.0, wi, wf)
-    expected = mixed_combat_radius_m(
-        500.0, 5.0e-5, 5.0, 220.0, 2.5e-5, 6.0, wi, wf,
+    r_hi = combat_radius_m(240.0, 2.6e-5, 9.0, wi, wf)
+    r_lo = combat_radius_m(270.0, 3.6e-5, 6.0, wi, wf)
+    expected = hi_lo_hi_combat_radius_m(
+        240.0, 2.6e-5, 9.0, 270.0, 3.6e-5, 6.0, wi, wf, 150_000.0,
     )
-    assert mixed == pytest.approx(expected)
-    lo_bound, hi_bound = sorted((r_hi, r_lo))
-    assert lo_bound < mixed < hi_bound
+    assert radius == pytest.approx(expected)
+    assert r_lo < radius < r_hi
+    longer = dict(prof, low_leg_km=400.0)
+    r_long = profile_combat_radius_m(
+        longer, high, ctx=_Ctx(), mach=0.8,
+        mass_initial_kg=wi, mass_final_kg=wf, low_scored=low,
+    )
+    assert r_lo < r_long < radius
 
 
 def test_default_flight_profile_id_from_config():
