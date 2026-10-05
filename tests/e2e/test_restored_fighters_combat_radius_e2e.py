@@ -14,7 +14,7 @@ from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV
 _RESTORED_IDS = (
     'F-14', 'FA-18E', 'FA-18C', 'F-16', 'F-15', 'F-15E',
     'Gripen-CD', 'Gripen-EF', 'FC-1', 'MiG-29K', 'J-15', 'J-15T',
-    'Mirage-2000', 'F-CK-1', 'FA-50', 'L-15B', 'Tejas',
+    'Mirage-2000', 'F-CK-1', 'FA-50', 'L-15B', 'Tejas', 'Su-30',
 )
 
 
@@ -32,7 +32,7 @@ def test_e2e_restored_fighters_in_combat_radius():
         'F-15': 'f100', 'F-15E': 'f100229', 'Gripen-CD': 'rm12', 'Gripen-EF': 'f414',
         'FC-1': 'rd93', 'MiG-29K': 'rd33mk', 'J-15': 'ws10h', 'J-15T': 'ws10h',
         'Mirage-2000': 'm53p2', 'F-CK-1': 'f125', 'FA-50': 'f404ge102',
-        'L-15B': 'ai222k25f', 'Tejas': 'f404in20',
+        'L-15B': 'ai222k25f', 'Tejas': 'f404in20', 'Su-30': 'al31fp',
     }
     for aid in _RESTORED_IDS:
         tgt = get_preset_by_id(presets, aid)

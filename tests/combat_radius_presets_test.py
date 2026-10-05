@@ -31,7 +31,7 @@ EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
     'NG6C', 'NG6B', 'NG6A',
     'F-15', 'F-15E', 'F-16', 'F-2', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
     'F-CK-1', 'FC-1', 'L-15B', 'Tejas',
-    'Su-57', 'KF-21', 'FA-50', 'KAAN', 'Su-75',
+    'Su-30', 'Su-57', 'KF-21', 'FA-50', 'KAAN', 'Su-75',
     'XGB-1', 'XGB-2', 'XGB-3',
 ]
 
@@ -121,6 +121,17 @@ def test_load_presets_contains_anchors_and_j20():
     assert j15 is not None
     assert j15['store_mount'] == 'pylon'
     assert j15['layout'] == 'conventional'
+    su30 = get_preset_by_id(presets, 'Su-30')
+    assert su30 is not None
+    assert su30['nation'] == '俄罗斯'
+    assert su30['engine_id'] == 'al31fp'
+    assert su30['n_pilots'] == 2
+    assert su30['n_engines'] == 2
+    assert su30['store_mount'] == 'pylon'
+    assert su30['empty_kg'] == pytest.approx(17700)
+    assert su30['internal_fuel_kg'] == pytest.approx(9400)
+    assert su30['wing_area_m2'] == pytest.approx(j15['wing_area_m2'])
+    assert su30['fuse_width_m'] == pytest.approx(j15['fuse_width_m'])
     f22 = get_preset_by_id(presets, 'F-22')
     assert f22['carrier'] is False
     assert f22['inlet'] == 'caret'

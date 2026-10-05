@@ -348,7 +348,7 @@ def test_load_combat_radius_aircraft_csv():
         'NG6C', 'NG6B', 'NG6A',
         'F-15', 'F-15E', 'F-16', 'F-2', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
         'F-CK-1', 'FC-1', 'L-15B', 'Tejas',
-        'Su-57', 'KF-21', 'FA-50', 'KAAN', 'Su-75',
+        'Su-30', 'Su-57', 'KF-21', 'FA-50', 'KAAN', 'Su-75',
         'XGB-1', 'XGB-2', 'XGB-3',
     ]
     for aid in ('NG6C', 'NG6B', 'NG6A'):
@@ -588,6 +588,8 @@ def test_load_combat_radius_engine_csv():
     assert by_id['f404in20']['max_tsl_kN'] == pytest.approx(85.0)
     assert by_id['al41f1']['tsl_kN'] == pytest.approx(88.3)
     assert by_id['al41f1']['max_tsl_kN'] == pytest.approx(142.2)
+    assert by_id['al31fp']['tsl_kN'] == pytest.approx(74.5)
+    assert by_id['al31fp']['max_tsl_kN'] == pytest.approx(122.6)
     assert by_id['al51f1']['tsl_kN'] == pytest.approx(107.9)
     assert by_id['al51f1']['max_tsl_kN'] == pytest.approx(161.9)
 

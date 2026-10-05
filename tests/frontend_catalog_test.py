@@ -63,6 +63,7 @@ def test_build_catalog_payload_modes():
     assert any(p['id'] == '53636' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'Typhoon' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'Rafale' for p in payload['combat_radius_presets'])
+    assert any(p['id'] == 'Su-30' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'Su-57' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'KF-21' for p in payload['combat_radius_presets'])
     assert any(p['id'] == 'KAAN' for p in payload['combat_radius_presets'])
@@ -70,6 +71,7 @@ def test_build_catalog_payload_modes():
     assert any(p['id'] == 'f119' for p in payload['combat_radius_engine_presets'])
     assert any(p['id'] == 'f135' for p in payload['combat_radius_engine_presets'])
     assert any(p['id'] == 'f135b' for p in payload['combat_radius_engine_presets'])
+    assert any(p['id'] == 'al31fp' for p in payload['combat_radius_engine_presets'])
     assert payload['takeoff_config']['shared']['mu'] == 0.025
     assert 'A' in payload['takeoff_config']['stovl_strategy_descriptions']
     assert set(payload['takeoff_config']['modes']) == set(payload['modes'])

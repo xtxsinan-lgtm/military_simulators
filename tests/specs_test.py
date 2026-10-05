@@ -120,6 +120,10 @@ def test_max_payload_kg_wikipedia_sourced_types():
     assert aircraft['F-2'].max_payload_kg == 8085
     assert aircraft['Typhoon'].max_payload_kg == 9000
     assert aircraft['Rafale'].max_payload_kg == 9500
+    assert aircraft['Su-30'].max_payload_kg == 8000
+    assert aircraft['Su-30'].empty_kg == pytest.approx(17700)
+    assert aircraft['Su-30'].internal_fuel_kg == pytest.approx(9400)
+    assert aircraft['Su-30'].mtow_kg == pytest.approx(34500)
     assert aircraft['Su-57'].max_payload_kg == 6500
     assert aircraft['KF-21'].max_payload_kg == 7700
     assert aircraft['KAAN'].max_payload_kg == 8000
