@@ -101,6 +101,7 @@ struct MissileInterceptionUiDefaults: Codable {
     var ship_area: Double?
     var ship_type: String?
     var sam_range: Double?
+    var sam_max_alt: Double?
     var vi: Double?
     var interceptor_dia: Double?
     var seeker_type: String?

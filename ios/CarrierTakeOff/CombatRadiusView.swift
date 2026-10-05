@@ -108,8 +108,8 @@ struct CombatRadiusView: View {
                         ForEach(vm.loadoutRows) { row in
                             loadoutPicker(row)
                         }
-                        field("挂载干重 (kg)", text: .constant(vm.loadoutPayload.isEmpty ? "—" : vm.loadoutPayload), readonly: true, live: false)
-                        field("外挂燃油 (kg)", text: .constant(vm.loadoutExtFuel.isEmpty ? "—" : vm.loadoutExtFuel), readonly: true, live: false)
+                        field("挂载干重 (kg)", text: .constant(vm.loadoutPayload.isEmpty ? "—" : vm.loadoutPayload), live: false, readonly: true)
+                        field("外挂燃油 (kg)", text: .constant(vm.loadoutExtFuel.isEmpty ? "—" : vm.loadoutExtFuel), live: false, readonly: true)
                     }
                 }
 
