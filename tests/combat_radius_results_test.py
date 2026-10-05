@@ -108,6 +108,7 @@ def test_dashboard_params_from_preset_airframe_tsfc_mult():
 
 @pytest.mark.parametrize('aircraft_id, ref_km', [
     ('F-16', 817), ('Mirage-2000', 758), ('FA-50', 584), ('Rafale', 987), ('F-15E', 885),
+    ('F-2', 812), ('J-10C', 932), ('J-15', 1270), ('FA-18C', 985), ('Gripen-CD', 812),
 ])
 def test_calibrated_hihihi_internal_fuel_radius(aircraft_id, ref_km):
     """按 4 中距弹、内油、hi-hi-hi、不计空战消耗的参考半径标定，Ma 0.8 半径落在 ±2% 内。"""
