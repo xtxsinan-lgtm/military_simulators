@@ -42,6 +42,8 @@ AIRCRAFT_STORE_LIMITS_CSV = DATA_DIR / 'aircraft_store_limits.csv'
 AIRCRAFT_PYLON_CSV = DATA_DIR / 'aircraft_pylon_database.csv'
 RAFALE_MOUNT_STATIONS_CSV = DATA_DIR / 'rafale_mount_stations.csv'
 RAFALE_MOUNT_STORES_CSV = DATA_DIR / 'rafale_mount_stores.csv'
+MIRAGE2000_MOUNT_STATIONS_CSV = DATA_DIR / 'mirage2000_mount_stations.csv'
+MIRAGE2000_MOUNT_STORES_CSV = DATA_DIR / 'mirage2000_mount_stores.csv'
 AIRCRAFT_WEAPON_STATIONS_CSV = DATA_DIR / 'aircraft_weapon_stations.csv'
 AIRCRAFT_WEAPON_CONFIG_JSON = DATA_DIR / 'aircraft_weapon_config.json'
 # JF-17/FC-1 外挂兼容库（store_id 列，与 F-16 catalog 分列）

@@ -36,7 +36,7 @@ def test_catalog_covers_image_aircraft_with_models():
     cat = build_loadout_catalog_payload()
     expected = {
         'F-14', 'F-15E', 'F-16', 'F-2', 'FA-18C', 'FA-18E', 'FA-50',
-        'FC-1', 'Gripen-CD', 'Gripen-EF', 'MiG-29K', 'Rafale', 'Rafale-M',
-        'Tejas', 'Typhoon',
+        'FC-1', 'Gripen-CD', 'Gripen-EF', 'MiG-29K', 'Mirage-2000',
+        'Rafale', 'Rafale-M', 'Tejas', 'Typhoon',
     }
     assert expected <= set(cat['aircraft'])

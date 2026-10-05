@@ -1,0 +1,56 @@
+aircraft_id,station_id,category,category_zh,store_id,store_name
+Mirage-2000,1,air_to_air,空空导弹,magic_ii,Magic II 魔术二型
+Mirage-2000,9,air_to_air,空空导弹,magic_ii,Magic II 魔术二型
+Mirage-2000,2,air_to_air,空空导弹,super_530d,Super 530D
+Mirage-2000,2,air_to_sea,反舰导弹,am39_exocet,AM39 Exocet 飞鱼
+Mirage-2000,2,air_to_ground,空地导弹,as30l,AS-30L
+Mirage-2000,2,air_to_ground,空地导弹,brimstone,Brimstone 硫磺石
+Mirage-2000,2,bombs_guided,精确制导炸弹,gbu12,GBU-12
+Mirage-2000,2,bombs_guided,精确制导炸弹,gbu24,GBU-24
+Mirage-2000,2,bombs_conventional,常规炸弹,blg66,BLG 66 集束炸弹
+Mirage-2000,2,bombs_conventional,常规炸弹,mk82,Mk 82 500磅航弹
+Mirage-2000,2,bombs_conventional,常规炸弹,mk82_4x,Mk 82 ×4（复合挂架）
+Mirage-2000,2,fuel,副油箱,ft_1700l,1700L 机翼副油箱
+Mirage-2000,2,fuel,副油箱,ft_2000l,2000L 机翼副油箱
+Mirage-2000,8,air_to_air,空空导弹,super_530d,Super 530D
+Mirage-2000,8,air_to_sea,反舰导弹,am39_exocet,AM39 Exocet 飞鱼
+Mirage-2000,8,air_to_ground,空地导弹,as30l,AS-30L
+Mirage-2000,8,air_to_ground,空地导弹,brimstone,Brimstone 硫磺石
+Mirage-2000,8,bombs_guided,精确制导炸弹,gbu12,GBU-12
+Mirage-2000,8,bombs_guided,精确制导炸弹,gbu24,GBU-24
+Mirage-2000,8,bombs_conventional,常规炸弹,blg66,BLG 66 集束炸弹
+Mirage-2000,8,bombs_conventional,常规炸弹,mk82,Mk 82 500磅航弹
+Mirage-2000,8,bombs_conventional,常规炸弹,mk82_4x,Mk 82 ×4（复合挂架）
+Mirage-2000,8,fuel,副油箱,ft_1700l,1700L 机翼副油箱
+Mirage-2000,8,fuel,副油箱,ft_2000l,2000L 机翼副油箱
+Mirage-2000,3,air_to_air,空空导弹,mica_em,MICA EM
+Mirage-2000,3,air_to_air,空空导弹,mica_ir,MICA IR
+Mirage-2000,3,air_to_ground,空地导弹,brimstone,Brimstone 硫磺石
+Mirage-2000,3,bombs_conventional,常规炸弹,blg66,BLG 66 集束炸弹
+Mirage-2000,3,bombs_conventional,常规炸弹,mk82,Mk 82 500磅航弹
+Mirage-2000,7,air_to_air,空空导弹,mica_em,MICA EM
+Mirage-2000,7,air_to_air,空空导弹,mica_ir,MICA IR
+Mirage-2000,7,air_to_ground,空地导弹,brimstone,Brimstone 硫磺石
+Mirage-2000,7,bombs_conventional,常规炸弹,blg66,BLG 66 集束炸弹
+Mirage-2000,7,bombs_conventional,常规炸弹,mk82,Mk 82 500磅航弹
+Mirage-2000,4,air_to_air,空空导弹,mica_em,MICA EM
+Mirage-2000,4,air_to_air,空空导弹,mica_ir,MICA IR
+Mirage-2000,4,bombs_conventional,常规炸弹,blg66,BLG 66 集束炸弹
+Mirage-2000,4,bombs_conventional,常规炸弹,mk82,Mk 82 500磅航弹
+Mirage-2000,6,air_to_air,空空导弹,mica_em,MICA EM
+Mirage-2000,6,air_to_air,空空导弹,mica_ir,MICA IR
+Mirage-2000,6,bombs_conventional,常规炸弹,blg66,BLG 66 集束炸弹
+Mirage-2000,6,bombs_conventional,常规炸弹,mk82,Mk 82 500磅航弹
+Mirage-2000,6,laser_designation,激光制导/瞄准吊舱,atlis_ii,ATLIS II
+Mirage-2000,6,laser_designation,激光制导/瞄准吊舱,pdlct,PDLCT
+Mirage-2000,6,laser_designation,激光制导/瞄准吊舱,damocles,Damocles
+Mirage-2000,5,air_to_sea,反舰导弹,am39_exocet,AM39 Exocet 飞鱼
+Mirage-2000,5,air_to_ground,空地导弹,apache,MBDA Apache 防区外布撒器
+Mirage-2000,5,nuclear,核武器,asmp,ASMP 战术核导弹
+Mirage-2000,5,bombs_guided,精确制导炸弹,gbu24,GBU-24
+Mirage-2000,5,bombs_guided,精确制导炸弹,gbu10,GBU-10
+Mirage-2000,5,bombs_conventional,常规炸弹,blg66,BLG 66 集束炸弹
+Mirage-2000,5,bombs_conventional,常规炸弹,mk82,Mk 82 500磅航弹
+Mirage-2000,5,bombs_conventional,常规炸弹,mk82_4x,Mk 82 ×4（复合挂架）
+Mirage-2000,5,fuel,副油箱,ft_1300l,1300L 机腹副油箱
+Mirage-2000,5,fuel,副油箱,ft_2000l_belly,2000L 机腹副油箱

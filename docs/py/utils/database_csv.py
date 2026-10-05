@@ -135,6 +135,11 @@ RAFALE_MOUNT_STORES_CSV_COLUMNS = (
 )
 RAFALE_MOUNT_STORE_MOUNTS = ('pylon', 'semi_recessed', 'mixed', 'pod', 'conformal')
 RAFALE_MOUNT_SIDES = ('left', 'right', 'center')
+# 幻影 2000 挂载 CSV 与阵风同列结构
+MIRAGE2000_MOUNT_STATIONS_CSV_COLUMNS = RAFALE_MOUNT_STATIONS_CSV_COLUMNS
+MIRAGE2000_MOUNT_STORES_CSV_COLUMNS = RAFALE_MOUNT_STORES_CSV_COLUMNS
+MIRAGE2000_MOUNT_STORE_MOUNTS = RAFALE_MOUNT_STORE_MOUNTS
+MIRAGE2000_MOUNT_SIDES = RAFALE_MOUNT_SIDES
 
 def _cell_str(value: Any) -> str:
     if value is None:
@@ -1074,6 +1079,102 @@ def load_rafale_mount_stores_csv(path: str | Path | None = None) -> list[dict[st
                     f'{csv_path} 挂点 {station_id} 未知 category={category!r}'
                 )
             label_zh = category_zh or RAFALE_MOUNT_CATEGORIES[category]['label_zh']
+            rows.append({
+                'aircraft_id': aircraft_id,
+                'station_id': station_id,
+                'category': category,
+                'category_zh': label_zh,
+                'store_id': store_id,
+                'store_name': store_name,
+            })
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效兼容记录')
+    return rows
+
+
+def load_mirage2000_mount_stations_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从 CSV 加载幻影 2000 挂点定义。"""
+    from utils.paths import MIRAGE2000_MOUNT_STATIONS_CSV
+
+    csv_path = Path(path) if path is not None else MIRAGE2000_MOUNT_STATIONS_CSV
+    if not csv_path.is_file():
+        raise ValueError(f'{csv_path} 不存在')
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [
+            c for c in MIRAGE2000_MOUNT_STATIONS_CSV_COLUMNS if c not in reader.fieldnames
+        ]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            aircraft_id = (row.get('aircraft_id') or '').strip()
+            station_id = (row.get('station_id') or '').strip()
+            station_label = (row.get('station_label') or '').strip()
+            label_zh = (row.get('label_zh') or '').strip()
+            side = (row.get('side') or '').strip().lower()
+            position = (row.get('position') or '').strip()
+            store_mount = (row.get('store_mount') or '').strip().lower()
+            if not aircraft_id or not station_id or not station_label:
+                continue
+            if side not in MIRAGE2000_MOUNT_SIDES:
+                raise ValueError(f'{csv_path} 挂点 {station_id} 未知 side={side!r}')
+            if store_mount not in MIRAGE2000_MOUNT_STORE_MOUNTS:
+                raise ValueError(
+                    f'{csv_path} 挂点 {station_id} 未知 store_mount={store_mount!r}'
+                )
+            item: dict[str, Any] = {
+                'aircraft_id': aircraft_id,
+                'station_id': station_id,
+                'station_label': station_label,
+                'label_zh': label_zh,
+                'side': side,
+                'position': position,
+                'store_mount': store_mount,
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效挂点记录')
+    return rows
+
+
+def load_mirage2000_mount_stores_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """从 CSV 加载幻影 2000 挂点-武器兼容表。"""
+    from utils.aircraft_mount.categories import MIRAGE2000_MOUNT_CATEGORIES
+    from utils.paths import MIRAGE2000_MOUNT_STORES_CSV
+
+    csv_path = Path(path) if path is not None else MIRAGE2000_MOUNT_STORES_CSV
+    if not csv_path.is_file():
+        raise ValueError(f'{csv_path} 不存在')
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [
+            c for c in MIRAGE2000_MOUNT_STORES_CSV_COLUMNS if c not in reader.fieldnames
+        ]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            aircraft_id = (row.get('aircraft_id') or '').strip()
+            station_id = (row.get('station_id') or '').strip()
+            category = (row.get('category') or '').strip()
+            category_zh = (row.get('category_zh') or '').strip()
+            store_id = (row.get('store_id') or '').strip()
+            store_name = (row.get('store_name') or '').strip()
+            if not aircraft_id or not station_id or not store_id or not store_name:
+                continue
+            if category not in MIRAGE2000_MOUNT_CATEGORIES:
+                raise ValueError(
+                    f'{csv_path} 挂点 {station_id} 未知 category={category!r}'
+                )
+            label_zh = category_zh or MIRAGE2000_MOUNT_CATEGORIES[category]['label_zh']
             rows.append({
                 'aircraft_id': aircraft_id,
                 'station_id': station_id,

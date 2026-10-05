@@ -1,0 +1,10 @@
+aircraft_id,station_id,station_label,label_zh,side,position,store_mount,notes
+Mirage-2000,1,PYLON 1,右翼尖挂点 (Pylon 1),right,wing_tip,pylon,Magic II 近距红外格斗
+Mirage-2000,2,PYLON 2,机翼外侧挂点 R (Pylon 2),right,wing_outer,pylon,超视距/对地/副油箱；可复合挂架
+Mirage-2000,3,PYLON 3,机翼内侧挂点 R (Pylon 3),right,wing_inner,pylon,MICA / 面打击武器
+Mirage-2000,4,PYLON 4,进气道下方侧边挂点 R (Pylon 4),right,intake,pylon,空空/常规航弹；无光电吊舱
+Mirage-2000,5,PYLON 5,机腹中心线挂点 (Pylon 5),center,fuselage_center,mixed,反舰/布撒器/战术核/重弹/主副油箱
+Mirage-2000,6,PYLON 6,进气道右下侧挂点 (Pylon 6),left,intake,pylon,空空/航弹；ATLIS II / PDLCT / Damocles 仅此点
+Mirage-2000,7,PYLON 7,机翼内侧挂点 L (Pylon 7),left,wing_inner,pylon,MICA / 面打击武器
+Mirage-2000,8,PYLON 8,机翼外侧挂点 L (Pylon 8),left,wing_outer,pylon,超视距/对地/副油箱；可复合挂架
+Mirage-2000,9,PYLON 9,左翼尖挂点 (Pylon 9),left,wing_tip,pylon,Magic II 近距红外格斗

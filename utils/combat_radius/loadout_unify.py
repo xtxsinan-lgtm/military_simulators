@@ -1,7 +1,7 @@
 """把各碎片挂载目录合并进作战半径统一挂点/弹药模型。
 
-各 PR 曾分别新增 MiG-29K、F-14、F-16、阵风、台风、FC-1、FA-50、光辉、
-鹰狮等挂点 CSV，但作战半径交互 UI 只读 `aircraft_stations_database.json`
+各 PR 曾分别新增 MiG-29K、F-14、F-16、阵风、幻影 2000、台风、FC-1、FA-50、
+光辉、鹰狮等挂点 CSV，但作战半径交互 UI 只读 `aircraft_stations_database.json`
 与 `munitions_database.csv`。本模块在构建 catalog / 解析挂载时把碎片源
 规范成同一结构，避免只显示示意图却无法按挂点选弹并重算半径。
 """
@@ -131,6 +131,48 @@ _RAFALE_STORE_SPECS: dict[str, dict[str, Any]] = {
     'tp_15': {'name': 'TP-15', 'category': 'agm', 'mass_kg': 300, 'length_m': 3.0, 'diameter_m': 0.30},
     'asmp_a': {'name': 'ASMP-A', 'category': 'nuclear', 'mass_kg': 860, 'length_m': 5.38, 'diameter_m': 0.38},
     'asn4g': {'name': 'ASN4G', 'category': 'nuclear', 'mass_kg': 800, 'length_m': 5.0, 'diameter_m': 0.40},
+}
+
+# 幻影 2000 弹药规格（部分与阵风共用 id，其余为本机专属）
+_MIRAGE2000_STORE_SPECS: dict[str, dict[str, Any]] = {
+    'magic_ii': {'name': 'Magic II', 'category': 'aam', 'mass_kg': 89, 'length_m': 2.75, 'diameter_m': 0.157},
+    'super_530d': {'name': 'Super 530D', 'category': 'aam', 'mass_kg': 275, 'length_m': 3.80, 'diameter_m': 0.263},
+    'mica_em': {'name': 'MICA EM', 'category': 'aam', 'mass_kg': 112, 'length_m': 3.1, 'diameter_m': 0.16},
+    'mica_ir': {'name': 'MICA IR', 'category': 'aam', 'mass_kg': 112, 'length_m': 3.1, 'diameter_m': 0.16},
+    'am39_exocet': {'name': 'AM-39 Exocet', 'category': 'asm', 'mass_kg': 670, 'length_m': 4.7, 'diameter_m': 0.35},
+    'as30l': {'name': 'AS-30L', 'category': 'agm', 'mass_kg': 520, 'length_m': 3.65, 'diameter_m': 0.342},
+    'brimstone': {'name': 'Brimstone', 'category': 'agm', 'mass_kg': 50, 'length_m': 1.8, 'diameter_m': 0.18},
+    'gbu12': {'name': 'GBU-12', 'category': 'laser_bomb', 'mass_kg': 230, 'length_m': 3.27, 'diameter_m': 0.273},
+    'gbu24': {'name': 'GBU-24', 'category': 'laser_bomb', 'mass_kg': 1086, 'length_m': 4.39, 'diameter_m': 0.457},
+    'gbu10': {'name': 'GBU-10', 'category': 'laser_bomb', 'mass_kg': 907, 'length_m': 4.32, 'diameter_m': 0.457},
+    'blg66': {'name': 'BLG 66 Belouga', 'category': 'cluster', 'mass_kg': 305, 'length_m': 3.3, 'diameter_m': 0.36},
+    'mk82': {'name': 'Mk 82', 'category': 'unguided_bomb', 'mass_kg': 241, 'length_m': 2.21, 'diameter_m': 0.273},
+    'mk82_4x': {'name': 'Mk 82 ×4', 'category': 'unguided_bomb', 'mass_kg': 964, 'length_m': 2.21, 'diameter_m': 0.55},
+    'apache': {'name': 'MBDA Apache', 'category': 'standoff', 'mass_kg': 1230, 'length_m': 5.1, 'diameter_m': 0.63},
+    'asmp': {'name': 'ASMP', 'category': 'nuclear', 'mass_kg': 860, 'length_m': 5.38, 'diameter_m': 0.38},
+    'atlis_ii': {'name': 'ATLIS II', 'category': 'pod', 'mass_kg': 170, 'length_m': 2.5, 'diameter_m': 0.35},
+    'pdlct': {'name': 'PDLCT', 'category': 'pod', 'mass_kg': 200, 'length_m': 2.5, 'diameter_m': 0.35},
+    'damocles': {'name': 'Damocles', 'category': 'pod', 'mass_kg': 250, 'length_m': 2.5, 'diameter_m': 0.35},
+    'ft_1700l': {
+        'name': '1700L 机翼副油箱', 'category': 'fuel_tank',
+        'mass_kg': 1500, 'dry_mass_kg': 140, 'fuel_kg': 1360,
+        'length_m': 5.0, 'diameter_m': 0.60,
+    },
+    'ft_2000l': {
+        'name': '2000L 机翼副油箱', 'category': 'fuel_tank',
+        'mass_kg': 1760, 'dry_mass_kg': 160, 'fuel_kg': 1600,
+        'length_m': 5.5, 'diameter_m': 0.65,
+    },
+    'ft_1300l': {
+        'name': '1300L 机腹副油箱', 'category': 'fuel_tank',
+        'mass_kg': 1160, 'dry_mass_kg': 120, 'fuel_kg': 1040,
+        'length_m': 4.6, 'diameter_m': 0.55,
+    },
+    'ft_2000l_belly': {
+        'name': '2000L 机腹副油箱', 'category': 'fuel_tank',
+        'mass_kg': 1760, 'dry_mass_kg': 160, 'fuel_kg': 1600,
+        'length_m': 5.5, 'diameter_m': 0.65,
+    },
 }
 
 # 鹰狮 C/D 碎片弹药：与统一库同 id 的直接复用；其余补规格
@@ -722,6 +764,49 @@ def _collect_rafale(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str,
     return {'Rafale': entry, 'Rafale-M': entry_m}
 
 
+def _collect_mirage2000(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """幻影 2000：Pylon 1–9 挂载模型。"""
+    from utils.aircraft_mount.mirage2000_mount import build_mirage2000_mount_model
+
+    for sid, spec in _MIRAGE2000_STORE_SPECS.items():
+        _merge_munition(munitions, normalize_munition_record(
+            sid,
+            name=str(spec['name']),
+            category=str(spec.get('category') or ''),
+            mass_kg=_f(spec.get('mass_kg')),
+            length_m=_f(spec.get('length_m')) or None,
+            diameter_m=_f(spec.get('diameter_m')) or None,
+            dry_mass_kg=spec.get('dry_mass_kg'),
+            fuel_kg=spec.get('fuel_kg'),
+        ))
+    model = build_mirage2000_mount_model()
+    st_list = []
+    for st in model.get('stations') or []:
+        sid = str(st['station_id'])
+        style = mount_style_from_hints(
+            position=str(st.get('position') or ''),
+            mount=str(st.get('store_mount') or ''),
+            station_id=sid,
+            side=str(st.get('side') or ''),
+        )
+        option_ids = [str(x['id']) for x in (model['stores_by_station'].get(sid) or [])]
+        st_list.append(_station(
+            sid,
+            str(st.get('label_zh') or st.get('station_label') or sid),
+            style,
+            option_ids,
+        ))
+    # 默认：翼尖 Magic II ×2 + 内侧 MICA EM ×2（幻影 2000-5 常见空战配置）
+    defaults = {
+        '1': {'munition_id': 'magic_ii', 'qty': 1},
+        '9': {'munition_id': 'magic_ii', 'qty': 1},
+        '3': {'munition_id': 'mica_em', 'qty': 1},
+        '7': {'munition_id': 'mica_em', 'qty': 1},
+    }
+    entry = _aircraft_entry('Mirage-2000', '幻影 2000', st_list, defaults)
+    return {'Mirage-2000': entry}
+
+
 def _collect_gripen_cd(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
     """鹰狮 C/D。"""
     from utils.aircraft_weapons.catalog import build_aircraft_weapons_payload
@@ -854,8 +939,12 @@ def _collect_gripen_ef(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[s
 def collect_fragment_munitions() -> dict[str, dict[str, Any]]:
     """收集碎片源产生的弹药（不含 JSON 主库）。"""
     munitions: dict[str, dict[str, Any]] = {}
-    # 预置鹰狮/阵风规格，供后续引用
-    for sid, spec in {**_GRIPEN_CD_EXTRA, **_RAFALE_STORE_SPECS}.items():
+    # 预置鹰狮/阵风/幻影规格，供后续引用
+    for sid, spec in {
+        **_GRIPEN_CD_EXTRA,
+        **_RAFALE_STORE_SPECS,
+        **_MIRAGE2000_STORE_SPECS,
+    }.items():
         _merge_munition(munitions, normalize_munition_record(
             sid,
             name=str(spec['name']),
@@ -875,6 +964,7 @@ def collect_fragment_munitions() -> dict[str, dict[str, Any]]:
         _collect_tejas,
         _collect_typhoon,
         _collect_rafale,
+        _collect_mirage2000,
         _collect_gripen_cd,
         _collect_gripen_ef,
     )
@@ -886,7 +976,11 @@ def collect_fragment_munitions() -> dict[str, dict[str, Any]]:
 def collect_fragment_aircraft() -> dict[str, dict[str, Any]]:
     """收集碎片机型挂点定义（不含 JSON 主库已有机型）。"""
     munitions: dict[str, dict[str, Any]] = {}
-    for sid, spec in {**_GRIPEN_CD_EXTRA, **_RAFALE_STORE_SPECS}.items():
+    for sid, spec in {
+        **_GRIPEN_CD_EXTRA,
+        **_RAFALE_STORE_SPECS,
+        **_MIRAGE2000_STORE_SPECS,
+    }.items():
         _merge_munition(munitions, normalize_munition_record(
             sid,
             name=str(spec['name']),
@@ -907,6 +1001,7 @@ def collect_fragment_aircraft() -> dict[str, dict[str, Any]]:
         _collect_tejas,
         _collect_typhoon,
         _collect_rafale,
+        _collect_mirage2000,
         _collect_gripen_cd,
         _collect_gripen_ef,
     ):

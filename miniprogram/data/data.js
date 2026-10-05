@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 37,
+  "version": 38,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -27067,6 +27067,193 @@ module.exports = {
         "notes": ""
       },
       {
+        "id": "magic_ii",
+        "name": "Magic II",
+        "category": "aam",
+        "mass_kg": 89.0,
+        "dry_mass_kg": 89.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.75,
+        "diameter_m": 0.157,
+        "notes": ""
+      },
+      {
+        "id": "super_530d",
+        "name": "Super 530D",
+        "category": "aam",
+        "mass_kg": 275.0,
+        "dry_mass_kg": 275.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.8,
+        "diameter_m": 0.263,
+        "notes": ""
+      },
+      {
+        "id": "mica_em",
+        "name": "MICA EM",
+        "category": "aam",
+        "mass_kg": 112.0,
+        "dry_mass_kg": 112.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.1,
+        "diameter_m": 0.16,
+        "notes": ""
+      },
+      {
+        "id": "mica_ir",
+        "name": "MICA IR",
+        "category": "aam",
+        "mass_kg": 112.0,
+        "dry_mass_kg": 112.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.1,
+        "diameter_m": 0.16,
+        "notes": ""
+      },
+      {
+        "id": "as30l",
+        "name": "AS-30L",
+        "category": "agm",
+        "mass_kg": 520.0,
+        "dry_mass_kg": 520.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.65,
+        "diameter_m": 0.342,
+        "notes": ""
+      },
+      {
+        "id": "brimstone",
+        "name": "Brimstone",
+        "category": "agm",
+        "mass_kg": 50.0,
+        "dry_mass_kg": 50.0,
+        "fuel_kg": 0.0,
+        "length_m": 1.8,
+        "diameter_m": 0.18,
+        "notes": "反装甲导弹"
+      },
+      {
+        "id": "blg66",
+        "name": "BLG 66 Belouga",
+        "category": "cluster",
+        "mass_kg": 305.0,
+        "dry_mass_kg": 305.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.3,
+        "diameter_m": 0.36,
+        "notes": ""
+      },
+      {
+        "id": "mk82_4x",
+        "name": "Mk 82 ×4",
+        "category": "unguided_bomb",
+        "mass_kg": 964.0,
+        "dry_mass_kg": 964.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.21,
+        "diameter_m": 0.55,
+        "notes": ""
+      },
+      {
+        "id": "apache",
+        "name": "MBDA Apache",
+        "category": "standoff",
+        "mass_kg": 1230.0,
+        "dry_mass_kg": 1230.0,
+        "fuel_kg": 0.0,
+        "length_m": 5.1,
+        "diameter_m": 0.63,
+        "notes": ""
+      },
+      {
+        "id": "asmp",
+        "name": "ASMP",
+        "category": "nuclear",
+        "mass_kg": 860.0,
+        "dry_mass_kg": 860.0,
+        "fuel_kg": 0.0,
+        "length_m": 5.38,
+        "diameter_m": 0.38,
+        "notes": ""
+      },
+      {
+        "id": "atlis_ii",
+        "name": "ATLIS II",
+        "category": "pod",
+        "mass_kg": 170.0,
+        "dry_mass_kg": 170.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.35,
+        "notes": ""
+      },
+      {
+        "id": "pdlct",
+        "name": "PDLCT",
+        "category": "pod",
+        "mass_kg": 200.0,
+        "dry_mass_kg": 200.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.35,
+        "notes": ""
+      },
+      {
+        "id": "damocles",
+        "name": "Damocles",
+        "category": "pod",
+        "mass_kg": 250.0,
+        "dry_mass_kg": 250.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.35,
+        "notes": ""
+      },
+      {
+        "id": "ft_1700l",
+        "name": "1700L 机翼副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1500.0,
+        "dry_mass_kg": 140.0,
+        "fuel_kg": 1360.0,
+        "length_m": 5.0,
+        "diameter_m": 0.6,
+        "notes": ""
+      },
+      {
+        "id": "ft_2000l",
+        "name": "2000L 机翼副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1760.0,
+        "dry_mass_kg": 160.0,
+        "fuel_kg": 1600.0,
+        "length_m": 5.5,
+        "diameter_m": 0.65,
+        "notes": ""
+      },
+      {
+        "id": "ft_1300l",
+        "name": "1300L 机腹副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1160.0,
+        "dry_mass_kg": 120.0,
+        "fuel_kg": 1040.0,
+        "length_m": 4.6,
+        "diameter_m": 0.55,
+        "notes": ""
+      },
+      {
+        "id": "ft_2000l_belly",
+        "name": "2000L 机腹副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 1760.0,
+        "dry_mass_kg": 160.0,
+        "fuel_kg": 1600.0,
+        "length_m": 5.5,
+        "diameter_m": 0.65,
+        "notes": ""
+      },
+      {
         "id": "tank_1900l",
         "name": "1,900 L 副油箱",
         "category": "tank",
@@ -28319,17 +28506,6 @@ module.exports = {
         "length_m": 5.0,
         "diameter_m": 0.68,
         "notes": "德制巡航导弹"
-      },
-      {
-        "id": "brimstone",
-        "name": "BRIMSTONE",
-        "category": "battlefield",
-        "mass_kg": 50.0,
-        "dry_mass_kg": 50.0,
-        "fuel_kg": 0.0,
-        "length_m": 1.8,
-        "diameter_m": 0.18,
-        "notes": "反装甲导弹"
       },
       {
         "id": "bl755",
@@ -37356,7 +37532,7 @@ module.exports = {
                 "key": "brimstone@1",
                 "munition_id": "brimstone",
                 "qty": 1.0,
-                "label": "BRIMSTONE",
+                "label": "Brimstone",
                 "mass_kg": 50.0,
                 "dry_mass_kg": 50.0,
                 "fuel_kg": 0.0
@@ -37540,7 +37716,7 @@ module.exports = {
                 "key": "brimstone@1",
                 "munition_id": "brimstone",
                 "qty": 1.0,
-                "label": "BRIMSTONE",
+                "label": "Brimstone",
                 "mass_kg": 50.0,
                 "dry_mass_kg": 50.0,
                 "fuel_kg": 0.0
@@ -37724,7 +37900,7 @@ module.exports = {
                 "key": "brimstone@1",
                 "munition_id": "brimstone",
                 "qty": 1.0,
-                "label": "BRIMSTONE",
+                "label": "Brimstone",
                 "mass_kg": 50.0,
                 "dry_mass_kg": 50.0,
                 "fuel_kg": 0.0
@@ -38118,7 +38294,7 @@ module.exports = {
                 "key": "brimstone@1",
                 "munition_id": "brimstone",
                 "qty": 1.0,
-                "label": "BRIMSTONE",
+                "label": "Brimstone",
                 "mass_kg": 50.0,
                 "dry_mass_kg": 50.0,
                 "fuel_kg": 0.0
@@ -38320,7 +38496,7 @@ module.exports = {
                 "key": "brimstone@1",
                 "munition_id": "brimstone",
                 "qty": 1.0,
-                "label": "BRIMSTONE",
+                "label": "Brimstone",
                 "mass_kg": 50.0,
                 "dry_mass_kg": 50.0,
                 "fuel_kg": 0.0
@@ -38459,7 +38635,7 @@ module.exports = {
                 "key": "brimstone@1",
                 "munition_id": "brimstone",
                 "qty": 1.0,
-                "label": "BRIMSTONE",
+                "label": "Brimstone",
                 "mass_kg": 50.0,
                 "dry_mass_kg": 50.0,
                 "fuel_kg": 0.0
@@ -40932,6 +41108,630 @@ module.exports = {
           "FWD_LAT_R": "mica_em_ng@1",
           "AFT_LAT_L": "mica_em_ng@1",
           "AFT_LAT_R": "mica_em_ng@1"
+        }
+      },
+      "Mirage-2000": {
+        "id": "Mirage-2000",
+        "name": "幻影 2000",
+        "stations": [
+          {
+            "id": "1",
+            "label": "右翼尖挂点 (Pylon 1)",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "magic_ii@1",
+                "munition_id": "magic_ii",
+                "qty": 1.0,
+                "label": "Magic II",
+                "mass_kg": 89.0,
+                "dry_mass_kg": 89.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "label": "机翼外侧挂点 R (Pylon 2)",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "super_530d@1",
+                "munition_id": "super_530d",
+                "qty": 1.0,
+                "label": "Super 530D",
+                "mass_kg": 275.0,
+                "dry_mass_kg": 275.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "am39_exocet@1",
+                "munition_id": "am39_exocet",
+                "qty": 1.0,
+                "label": "AM-39 Exocet",
+                "mass_kg": 670.0,
+                "dry_mass_kg": 670.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "as30l@1",
+                "munition_id": "as30l",
+                "qty": 1.0,
+                "label": "AS-30L",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "brimstone@1",
+                "munition_id": "brimstone",
+                "qty": 1.0,
+                "label": "Brimstone",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blg66@1",
+                "munition_id": "blg66",
+                "qty": 1.0,
+                "label": "BLG 66 Belouga",
+                "mass_kg": 305.0,
+                "dry_mass_kg": 305.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82_4x@1",
+                "munition_id": "mk82_4x",
+                "qty": 1.0,
+                "label": "Mk 82 ×4",
+                "mass_kg": 964.0,
+                "dry_mass_kg": 964.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ft_1700l@1",
+                "munition_id": "ft_1700l",
+                "qty": 1.0,
+                "label": "1700L 机翼副油箱",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 140.0,
+                "fuel_kg": 1360.0
+              },
+              {
+                "key": "ft_2000l@1",
+                "munition_id": "ft_2000l",
+                "qty": 1.0,
+                "label": "2000L 机翼副油箱",
+                "mass_kg": 1760.0,
+                "dry_mass_kg": 160.0,
+                "fuel_kg": 1600.0
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "label": "机翼内侧挂点 R (Pylon 3)",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "mica_em@1",
+                "munition_id": "mica_em",
+                "qty": 1.0,
+                "label": "MICA EM",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mica_ir@1",
+                "munition_id": "mica_ir",
+                "qty": 1.0,
+                "label": "MICA IR",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "brimstone@1",
+                "munition_id": "brimstone",
+                "qty": 1.0,
+                "label": "Brimstone",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blg66@1",
+                "munition_id": "blg66",
+                "qty": 1.0,
+                "label": "BLG 66 Belouga",
+                "mass_kg": 305.0,
+                "dry_mass_kg": 305.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "label": "进气道下方侧边挂点 R (Pylon 4)",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "mica_em@1",
+                "munition_id": "mica_em",
+                "qty": 1.0,
+                "label": "MICA EM",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mica_ir@1",
+                "munition_id": "mica_ir",
+                "qty": 1.0,
+                "label": "MICA IR",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blg66@1",
+                "munition_id": "blg66",
+                "qty": 1.0,
+                "label": "BLG 66 Belouga",
+                "mass_kg": 305.0,
+                "dry_mass_kg": 305.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "5",
+            "label": "机腹中心线挂点 (Pylon 5)",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "am39_exocet@1",
+                "munition_id": "am39_exocet",
+                "qty": 1.0,
+                "label": "AM-39 Exocet",
+                "mass_kg": 670.0,
+                "dry_mass_kg": 670.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "apache@1",
+                "munition_id": "apache",
+                "qty": 1.0,
+                "label": "MBDA Apache",
+                "mass_kg": 1230.0,
+                "dry_mass_kg": 1230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asmp@1",
+                "munition_id": "asmp",
+                "qty": 1.0,
+                "label": "ASMP",
+                "mass_kg": 860.0,
+                "dry_mass_kg": 860.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu10@1",
+                "munition_id": "gbu10",
+                "qty": 1.0,
+                "label": "GBU-10 (2000lb)",
+                "mass_kg": 960.0,
+                "dry_mass_kg": 960.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blg66@1",
+                "munition_id": "blg66",
+                "qty": 1.0,
+                "label": "BLG 66 Belouga",
+                "mass_kg": 305.0,
+                "dry_mass_kg": 305.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82_4x@1",
+                "munition_id": "mk82_4x",
+                "qty": 1.0,
+                "label": "Mk 82 ×4",
+                "mass_kg": 964.0,
+                "dry_mass_kg": 964.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ft_1300l@1",
+                "munition_id": "ft_1300l",
+                "qty": 1.0,
+                "label": "1300L 机腹副油箱",
+                "mass_kg": 1160.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 1040.0
+              },
+              {
+                "key": "ft_2000l_belly@1",
+                "munition_id": "ft_2000l_belly",
+                "qty": 1.0,
+                "label": "2000L 机腹副油箱",
+                "mass_kg": 1760.0,
+                "dry_mass_kg": 160.0,
+                "fuel_kg": 1600.0
+              }
+            ]
+          },
+          {
+            "id": "6",
+            "label": "进气道右下侧挂点 (Pylon 6)",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "mica_em@1",
+                "munition_id": "mica_em",
+                "qty": 1.0,
+                "label": "MICA EM",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mica_ir@1",
+                "munition_id": "mica_ir",
+                "qty": 1.0,
+                "label": "MICA IR",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blg66@1",
+                "munition_id": "blg66",
+                "qty": 1.0,
+                "label": "BLG 66 Belouga",
+                "mass_kg": 305.0,
+                "dry_mass_kg": 305.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "atlis_ii@1",
+                "munition_id": "atlis_ii",
+                "qty": 1.0,
+                "label": "ATLIS II",
+                "mass_kg": 170.0,
+                "dry_mass_kg": 170.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pdlct@1",
+                "munition_id": "pdlct",
+                "qty": 1.0,
+                "label": "PDLCT",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "damocles@1",
+                "munition_id": "damocles",
+                "qty": 1.0,
+                "label": "Damocles",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "7",
+            "label": "机翼内侧挂点 L (Pylon 7)",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "mica_em@1",
+                "munition_id": "mica_em",
+                "qty": 1.0,
+                "label": "MICA EM",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mica_ir@1",
+                "munition_id": "mica_ir",
+                "qty": 1.0,
+                "label": "MICA IR",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "brimstone@1",
+                "munition_id": "brimstone",
+                "qty": 1.0,
+                "label": "Brimstone",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blg66@1",
+                "munition_id": "blg66",
+                "qty": 1.0,
+                "label": "BLG 66 Belouga",
+                "mass_kg": 305.0,
+                "dry_mass_kg": 305.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "8",
+            "label": "机翼外侧挂点 L (Pylon 8)",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "super_530d@1",
+                "munition_id": "super_530d",
+                "qty": 1.0,
+                "label": "Super 530D",
+                "mass_kg": 275.0,
+                "dry_mass_kg": 275.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "am39_exocet@1",
+                "munition_id": "am39_exocet",
+                "qty": 1.0,
+                "label": "AM-39 Exocet",
+                "mass_kg": 670.0,
+                "dry_mass_kg": 670.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "as30l@1",
+                "munition_id": "as30l",
+                "qty": 1.0,
+                "label": "AS-30L",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "brimstone@1",
+                "munition_id": "brimstone",
+                "qty": 1.0,
+                "label": "Brimstone",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu24@1",
+                "munition_id": "gbu24",
+                "qty": 1.0,
+                "label": "GBU-24 (2000lb)",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "blg66@1",
+                "munition_id": "blg66",
+                "qty": 1.0,
+                "label": "BLG 66 Belouga",
+                "mass_kg": 305.0,
+                "dry_mass_kg": 305.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82@1",
+                "munition_id": "mk82",
+                "qty": 1.0,
+                "label": "MK-82 (500lb)",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk82_4x@1",
+                "munition_id": "mk82_4x",
+                "qty": 1.0,
+                "label": "Mk 82 ×4",
+                "mass_kg": 964.0,
+                "dry_mass_kg": 964.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ft_1700l@1",
+                "munition_id": "ft_1700l",
+                "qty": 1.0,
+                "label": "1700L 机翼副油箱",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 140.0,
+                "fuel_kg": 1360.0
+              },
+              {
+                "key": "ft_2000l@1",
+                "munition_id": "ft_2000l",
+                "qty": 1.0,
+                "label": "2000L 机翼副油箱",
+                "mass_kg": 1760.0,
+                "dry_mass_kg": 160.0,
+                "fuel_kg": 1600.0
+              }
+            ]
+          },
+          {
+            "id": "9",
+            "label": "左翼尖挂点 (Pylon 9)",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "magic_ii@1",
+                "munition_id": "magic_ii",
+                "qty": 1.0,
+                "label": "Magic II",
+                "mass_kg": 89.0,
+                "dry_mass_kg": 89.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          }
+        ],
+        "default_selection": {
+          "1": "magic_ii@1",
+          "9": "magic_ii@1",
+          "3": "mica_em@1",
+          "7": "mica_em@1"
         }
       },
       "Gripen-CD": {
@@ -49337,6 +50137,442 @@ module.exports = {
     },
     "stations_csv": "data/rafale_mount_stations.csv",
     "stores_csv": "data/rafale_mount_stores.csv"
+  },
+  "mirage2000_mount": {
+    "aircraft_ids": [
+      "Mirage-2000"
+    ],
+    "categories": {
+      "air_to_air": {
+        "label_en": "AIR TO AIR",
+        "label_zh": "空空导弹"
+      },
+      "air_to_ground": {
+        "label_en": "AIR TO GROUND",
+        "label_zh": "空地导弹"
+      },
+      "air_to_sea": {
+        "label_en": "AIR TO SEA",
+        "label_zh": "反舰导弹"
+      },
+      "bombs_guided": {
+        "label_en": "BOMBS - GUIDED",
+        "label_zh": "精确制导炸弹"
+      },
+      "bombs_conventional": {
+        "label_en": "BOMBS - CONVENTIONAL",
+        "label_zh": "常规炸弹"
+      },
+      "electronic_warfare": {
+        "label_en": "ELECTRONIC WARFARE",
+        "label_zh": "电子战/干扰设备"
+      },
+      "pods_fuel": {
+        "label_en": "PODS / FUEL",
+        "label_zh": "吊舱与副油箱"
+      },
+      "laser_designation": {
+        "label_en": "LASER DESIGNATION PODS",
+        "label_zh": "激光制导/瞄准吊舱"
+      },
+      "nuclear": {
+        "label_en": "NUCLEAR",
+        "label_zh": "核武器"
+      },
+      "fuel": {
+        "label_en": "FUEL",
+        "label_zh": "副油箱"
+      }
+    },
+    "stations": [
+      {
+        "aircraft_id": "Mirage-2000",
+        "station_id": "1",
+        "station_label": "PYLON 1",
+        "label_zh": "右翼尖挂点 (Pylon 1)",
+        "side": "right",
+        "position": "wing_tip",
+        "store_mount": "pylon",
+        "notes": "Magic II 近距红外格斗"
+      },
+      {
+        "aircraft_id": "Mirage-2000",
+        "station_id": "2",
+        "station_label": "PYLON 2",
+        "label_zh": "机翼外侧挂点 R (Pylon 2)",
+        "side": "right",
+        "position": "wing_outer",
+        "store_mount": "pylon",
+        "notes": "超视距/对地/副油箱；可复合挂架"
+      },
+      {
+        "aircraft_id": "Mirage-2000",
+        "station_id": "3",
+        "station_label": "PYLON 3",
+        "label_zh": "机翼内侧挂点 R (Pylon 3)",
+        "side": "right",
+        "position": "wing_inner",
+        "store_mount": "pylon",
+        "notes": "MICA / 面打击武器"
+      },
+      {
+        "aircraft_id": "Mirage-2000",
+        "station_id": "4",
+        "station_label": "PYLON 4",
+        "label_zh": "进气道下方侧边挂点 R (Pylon 4)",
+        "side": "right",
+        "position": "intake",
+        "store_mount": "pylon",
+        "notes": "空空/常规航弹；无光电吊舱"
+      },
+      {
+        "aircraft_id": "Mirage-2000",
+        "station_id": "5",
+        "station_label": "PYLON 5",
+        "label_zh": "机腹中心线挂点 (Pylon 5)",
+        "side": "center",
+        "position": "fuselage_center",
+        "store_mount": "mixed",
+        "notes": "反舰/布撒器/战术核/重弹/主副油箱"
+      },
+      {
+        "aircraft_id": "Mirage-2000",
+        "station_id": "6",
+        "station_label": "PYLON 6",
+        "label_zh": "进气道右下侧挂点 (Pylon 6)",
+        "side": "left",
+        "position": "intake",
+        "store_mount": "pylon",
+        "notes": "空空/航弹；ATLIS II / PDLCT / Damocles 仅此点"
+      },
+      {
+        "aircraft_id": "Mirage-2000",
+        "station_id": "7",
+        "station_label": "PYLON 7",
+        "label_zh": "机翼内侧挂点 L (Pylon 7)",
+        "side": "left",
+        "position": "wing_inner",
+        "store_mount": "pylon",
+        "notes": "MICA / 面打击武器"
+      },
+      {
+        "aircraft_id": "Mirage-2000",
+        "station_id": "8",
+        "station_label": "PYLON 8",
+        "label_zh": "机翼外侧挂点 L (Pylon 8)",
+        "side": "left",
+        "position": "wing_outer",
+        "store_mount": "pylon",
+        "notes": "超视距/对地/副油箱；可复合挂架"
+      },
+      {
+        "aircraft_id": "Mirage-2000",
+        "station_id": "9",
+        "station_label": "PYLON 9",
+        "label_zh": "左翼尖挂点 (Pylon 9)",
+        "side": "left",
+        "position": "wing_tip",
+        "store_mount": "pylon",
+        "notes": "Magic II 近距红外格斗"
+      }
+    ],
+    "stores_by_station": {
+      "1": [
+        {
+          "id": "magic_ii",
+          "name": "Magic II 魔术二型",
+          "category": "air_to_air"
+        }
+      ],
+      "2": [
+        {
+          "id": "super_530d",
+          "name": "Super 530D",
+          "category": "air_to_air"
+        },
+        {
+          "id": "am39_exocet",
+          "name": "AM39 Exocet 飞鱼",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "as30l",
+          "name": "AS-30L",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "brimstone",
+          "name": "Brimstone 硫磺石",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "gbu12",
+          "name": "GBU-12",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gbu24",
+          "name": "GBU-24",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "blg66",
+          "name": "BLG 66 集束炸弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82",
+          "name": "Mk 82 500磅航弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82_4x",
+          "name": "Mk 82 ×4（复合挂架）",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "ft_1700l",
+          "name": "1700L 机翼副油箱",
+          "category": "fuel"
+        },
+        {
+          "id": "ft_2000l",
+          "name": "2000L 机翼副油箱",
+          "category": "fuel"
+        }
+      ],
+      "3": [
+        {
+          "id": "mica_em",
+          "name": "MICA EM",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_ir",
+          "name": "MICA IR",
+          "category": "air_to_air"
+        },
+        {
+          "id": "brimstone",
+          "name": "Brimstone 硫磺石",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "blg66",
+          "name": "BLG 66 集束炸弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82",
+          "name": "Mk 82 500磅航弹",
+          "category": "bombs_conventional"
+        }
+      ],
+      "4": [
+        {
+          "id": "mica_em",
+          "name": "MICA EM",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_ir",
+          "name": "MICA IR",
+          "category": "air_to_air"
+        },
+        {
+          "id": "blg66",
+          "name": "BLG 66 集束炸弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82",
+          "name": "Mk 82 500磅航弹",
+          "category": "bombs_conventional"
+        }
+      ],
+      "5": [
+        {
+          "id": "am39_exocet",
+          "name": "AM39 Exocet 飞鱼",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "apache",
+          "name": "MBDA Apache 防区外布撒器",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "asmp",
+          "name": "ASMP 战术核导弹",
+          "category": "nuclear"
+        },
+        {
+          "id": "gbu24",
+          "name": "GBU-24",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gbu10",
+          "name": "GBU-10",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "blg66",
+          "name": "BLG 66 集束炸弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82",
+          "name": "Mk 82 500磅航弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82_4x",
+          "name": "Mk 82 ×4（复合挂架）",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "ft_1300l",
+          "name": "1300L 机腹副油箱",
+          "category": "fuel"
+        },
+        {
+          "id": "ft_2000l_belly",
+          "name": "2000L 机腹副油箱",
+          "category": "fuel"
+        }
+      ],
+      "6": [
+        {
+          "id": "mica_em",
+          "name": "MICA EM",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_ir",
+          "name": "MICA IR",
+          "category": "air_to_air"
+        },
+        {
+          "id": "blg66",
+          "name": "BLG 66 集束炸弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82",
+          "name": "Mk 82 500磅航弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "atlis_ii",
+          "name": "ATLIS II",
+          "category": "laser_designation"
+        },
+        {
+          "id": "pdlct",
+          "name": "PDLCT",
+          "category": "laser_designation"
+        },
+        {
+          "id": "damocles",
+          "name": "Damocles",
+          "category": "laser_designation"
+        }
+      ],
+      "7": [
+        {
+          "id": "mica_em",
+          "name": "MICA EM",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_ir",
+          "name": "MICA IR",
+          "category": "air_to_air"
+        },
+        {
+          "id": "brimstone",
+          "name": "Brimstone 硫磺石",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "blg66",
+          "name": "BLG 66 集束炸弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82",
+          "name": "Mk 82 500磅航弹",
+          "category": "bombs_conventional"
+        }
+      ],
+      "8": [
+        {
+          "id": "super_530d",
+          "name": "Super 530D",
+          "category": "air_to_air"
+        },
+        {
+          "id": "am39_exocet",
+          "name": "AM39 Exocet 飞鱼",
+          "category": "air_to_sea"
+        },
+        {
+          "id": "as30l",
+          "name": "AS-30L",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "brimstone",
+          "name": "Brimstone 硫磺石",
+          "category": "air_to_ground"
+        },
+        {
+          "id": "gbu12",
+          "name": "GBU-12",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "gbu24",
+          "name": "GBU-24",
+          "category": "bombs_guided"
+        },
+        {
+          "id": "blg66",
+          "name": "BLG 66 集束炸弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82",
+          "name": "Mk 82 500磅航弹",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "mk82_4x",
+          "name": "Mk 82 ×4（复合挂架）",
+          "category": "bombs_conventional"
+        },
+        {
+          "id": "ft_1700l",
+          "name": "1700L 机翼副油箱",
+          "category": "fuel"
+        },
+        {
+          "id": "ft_2000l",
+          "name": "2000L 机翼副油箱",
+          "category": "fuel"
+        }
+      ],
+      "9": [
+        {
+          "id": "magic_ii",
+          "name": "Magic II 魔术二型",
+          "category": "air_to_air"
+        }
+      ]
+    },
+    "stations_csv": "data/mirage2000_mount_stations.csv",
+    "stores_csv": "data/mirage2000_mount_stores.csv"
   },
   "aircraft_weapons": {
     "version": 1,

@@ -131,6 +131,8 @@ PY_DATA_FILES = (
     'data/aircraft_pylon_database.csv',
     'data/rafale_mount_stations.csv',
     'data/rafale_mount_stores.csv',
+    'data/mirage2000_mount_stations.csv',
+    'data/mirage2000_mount_stores.csv',
 )
 
 

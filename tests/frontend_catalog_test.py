@@ -315,6 +315,8 @@ def test_pyodide_bundles_missile_range_preset_csv():
     assert 'data/missile_range_preset_database.csv' in sources
     assert 'data/rafale_mount_stations.csv' in sources
     assert 'data/rafale_mount_stores.csv' in sources
+    assert 'data/mirage2000_mount_stations.csv' in sources
+    assert 'data/mirage2000_mount_stores.csv' in sources
     assert 'utils/missile_range/dataset.py' in sources
 
 
@@ -368,6 +370,11 @@ def test_build_catalog_payload_includes_simulators_and_csv_presets():
     assert mount['aircraft_ids'] == ['Rafale', 'Rafale-M']
     assert len(mount['stations']) == 16
     assert 'meteor' in {s['id'] for s in mount['stores_by_station']['AFT_LAT_R']}
+    m2k = payload['mirage2000_mount']
+    assert m2k['aircraft_ids'] == ['Mirage-2000']
+    assert len(m2k['stations']) == 9
+    assert 'magic_ii' in {s['id'] for s in m2k['stores_by_station']['1']}
+    assert 'atlis_ii' in {s['id'] for s in m2k['stores_by_station']['6']}
 
 
 def test_web_simulator_modes_match_frontend_catalog():

@@ -12,3 +12,6 @@ RAFALE_MOUNT_CATEGORIES: dict[str, dict[str, str]] = {
     'nuclear': {'label_en': 'NUCLEAR', 'label_zh': '核武器'},
     'fuel': {'label_en': 'FUEL', 'label_zh': '副油箱'},
 }
+
+# 幻影 2000 与阵风共用同一套 Dassault 挂载类别标签
+MIRAGE2000_MOUNT_CATEGORIES = RAFALE_MOUNT_CATEGORIES
