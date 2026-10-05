@@ -15,7 +15,8 @@ taurus,TAURUS,pgm,1400,5.00,0.680,德制巡航导弹
 brimstone,BRIMSTONE,battlefield,50,1.80,0.180,反装甲导弹
 bl755,BL-755,battlefield,277,2.90,0.400,集束炸弹
 dws39,DWS-39,battlefield,600,3.50,0.450,MJDM 反跑道/区域弹药
-harpoon,HARPOON,asm,691,4.63,0.343,反舰导弹
+harpoon,HARPOON,asm,520,3.84,0.343,空射型 AGM-84 反舰导弹（舰射型带助推器约 690 kg）
 penguin,PENGUIN,asm,370,3.00,0.280,挪威反舰导弹
+marte_er,MARTE ER,asm,310,4.80,0.316,MBDA 亚音速掠海反舰导弹；科威特/意大利台风集成
 fuel,FUEL,aux,1200,5.40,0.420,1000 L 级副油箱
 bk27,BK-27,fixed,87,1.80,0.170,27 mm 内置航炮

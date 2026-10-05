@@ -2,10 +2,10 @@ aircraft_id,station_id,label,zone,allowed_store_ids,notes
 F-14,1,Station 1 左翼下侧挂架,wing,aim-9;stub-pylon,AIM-7/AIM-54 见 1b
 F-14,1b,Station 1b 左翼内侧,wing,aim-7;aim-54;stub-pylon,AIM-54 需 Adapter & Launcher
 F-14,2,Station 2 左进气道下,intake,tank-280,280 加仑副油箱
-F-14,3,Station 3 机腹通道左,belly,aim-7;aim-54,配合 Weapon Rail/Launcher
-F-14,4,Station 4 机腹通道,belly,aim-7;aim-54,配合 Weapon Rail/Launcher
-F-14,5,Station 5 机腹通道中,belly,aim-7;aim-54;tarps,TARPS 仅 Station 5
-F-14,6,Station 6 机腹通道右,belly,aim-7;aim-54,配合 Weapon Rail/Launcher
+F-14,3,Station 3 机腹通道左,belly,aim-7;aim-54;mk-82;mk-83;mk-84;gbu-12;gbu-16;gbu-10;gbu-24;gbu-31,配合 Weapon Rail/Launcher；BRU-32 可挂炸弹（Bombcat）
+F-14,4,Station 4 机腹通道,belly,aim-7;aim-54;mk-82;mk-83;mk-84;gbu-12;gbu-16;gbu-10;gbu-24;gbu-31,配合 Weapon Rail/Launcher；BRU-32 可挂炸弹（Bombcat）
+F-14,5,Station 5 机腹通道中,belly,aim-7;aim-54;tarps;mk-82;mk-83;mk-84;gbu-12;gbu-16;gbu-10;gbu-24;gbu-31,TARPS 仅 Station 5；BRU-32 可挂炸弹（Bombcat）
+F-14,6,Station 6 机腹通道右,belly,aim-7;aim-54;mk-82;mk-83;mk-84;gbu-12;gbu-16;gbu-10;gbu-24;gbu-31,配合 Weapon Rail/Launcher；BRU-32 可挂炸弹（Bombcat）
 F-14,7,Station 7 右进气道下,intake,tank-280,280 加仑副油箱
 F-14,8,Station 8 右翼下侧挂架,wing,aim-9;stub-pylon,AIM-7/AIM-54 见 8b
-F-14,8b,Station 8b 右翼内侧,wing,aim-7;aim-54;stub-pylon,AIM-54 需 Adapter & Launcher
+F-14,8b,Station 8b 右翼内侧,wing,aim-7;aim-54;stub-pylon;lantirn,AIM-54 需 Adapter & Launcher；LANTIRN 瞄准吊舱

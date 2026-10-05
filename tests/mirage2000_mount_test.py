@@ -27,19 +27,18 @@ def test_load_mirage2000_mount_stations_csv_count():
     tip1 = next(s for s in stations if s['station_id'] == '1')
     assert tip9['side'] == 'left'
     assert tip1['side'] == 'right'
-    assert tip9['position'] == 'wing_tip'
+    assert tip9['position'] == 'wing_outer'  # 幻影 2000 无翼尖挂点，1/9 为外翼
     center = next(s for s in stations if s['station_id'] == '5')
     assert center['position'] == 'fuselage_center'
 
 
-def test_load_mirage2000_mount_stores_wingtip_magic_only():
-    """翼尖挂点仅允许 Magic II。"""
+def test_load_mirage2000_mount_stores_outer_wing_ir_aam_only():
+    """外翼 1/9 号挂点只挂近距红外弹：Magic II 或 MICA IR。"""
     stores = load_mirage2000_mount_stores_csv()
     for sid in ('1', '9'):
-        tip = [row for row in stores if row['station_id'] == sid]
-        assert len(tip) == 1
-        assert tip[0]['store_id'] == 'magic_ii'
-        assert tip[0]['category'] == 'air_to_air'
+        rows = [row for row in stores if row['station_id'] == sid]
+        assert {row['store_id'] for row in rows} == {'magic_ii', 'mica_ir'}
+        assert {row['category'] for row in rows} == {'air_to_air'}
 
 
 def test_load_mirage2000_mount_stations_wrapper():

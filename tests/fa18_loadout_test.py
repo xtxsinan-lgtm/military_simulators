@@ -95,24 +95,38 @@ def test_fa18e_inner_has_480_gal_tank():
         assert 'drop_tank_480@1' in keys, sid
 
 
-def test_fa18e_sta9_no_fuel_tank():
-    """E 型 sta9 右中外挂点无副油箱。"""
+def test_fa18e_480_tank_stations_3_4_6_8_9():
+    """E 型 480 加仑副油箱可挂 3/4/6/8/9（五油箱加油机构型），左右对称。"""
     ac = get_aircraft_station_def('FA-18E')
     mun = load_munitions()
-    st = next(s for s in ac['stations'] if s['id'] == 'sta9')
-    keys = {o['key'] for o in expand_station_options(st, mun) if o['key']}
-    assert 'drop_tank_480@1' not in keys
-    assert 'slam_er@1' in keys
+    tank_stations = []
+    for st in ac['stations']:
+        keys = {o['key'] for o in expand_station_options(st, mun) if o['key']}
+        if 'drop_tank_480@1' in keys:
+            tank_stations.append(st['id'])
+    assert tank_stations == ['sta3', 'sta4', 'sta6', 'sta8', 'sta9']
 
 
-def test_fa18e_intake_sta5_bombs():
-    """E 型左进气道侧可挂炸弹（相对 C 型扩展）。"""
+def test_fa18e_nacelle_stations_aam_and_atflir_only():
+    """E 型机身短舱 5/7 号站只挂 AIM-120/AIM-7，7 号站另可挂 ATFLIR；不挂炸弹。"""
     ac = get_aircraft_station_def('FA-18E')
     mun = load_munitions()
-    st = next(s for s in ac['stations'] if s['id'] == 'sta5')
-    keys = {o['key'] for o in expand_station_options(st, mun) if o['key']}
-    assert 'mk82@1' in keys
-    assert 'gbu16@1' in keys
+    by_id = {st['id']: st for st in ac['stations']}
+    keys5 = {o['key'] for o in expand_station_options(by_id['sta5'], mun) if o['key']}
+    keys7 = {o['key'] for o in expand_station_options(by_id['sta7'], mun) if o['key']}
+    assert keys5 == {'aim120@1', 'aim7@1'}
+    assert keys7 == {'aim120@1', 'aim7@1', 'atflir@1'}
+
+
+def test_fa18e_lrasm_on_four_wing_stations():
+    """E 型 LRASM 最多 4 枚：3/4/8/9 号站。"""
+    ac = get_aircraft_station_def('FA-18E')
+    mun = load_munitions()
+    lrasm = [
+        st['id'] for st in ac['stations']
+        if 'agm158c@1' in {o['key'] for o in expand_station_options(st, mun)}
+    ]
+    assert lrasm == ['sta3', 'sta4', 'sta8', 'sta9']
 
 
 def test_resolve_fa18c_default_cap():

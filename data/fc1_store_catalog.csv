@@ -1,8 +1,10 @@
 store_id,name,category,mass_kg,length_m,diameter_m,notes
 pl5e2,PL-5E-II 近距格斗弹,aam,83,2.893,0.127,SRAAM
 pl12,PL-12 中距空空弹,aam,199,3.850,0.203,MRAAM
+pl15e,PL-15E 远程空空弹,aam,210,4.000,0.203,Block III 已挂 4 枚
 mar1,MAR-1 反辐射导弹,arm,510,4.200,0.360,ARM
 c802a,C-802A 反舰导弹,asm,715,6.392,0.360,AShM
+cm400akg,CM-400AKG 高超音速空地/反舰导弹,asm,910,6.000,0.400,准弹道反舰/反辐射弹
 ls6_500,LS-6 500kg 精确制导弹,bomb_pgm,540,3.660,0.380,PGM
 bomb_1000,1000kg 航空炸弹,bomb,1000,2.500,0.450,重型航空炸弹
 bomb_500,500kg 航空炸弹,bomb,500,2.000,0.356,航空炸弹

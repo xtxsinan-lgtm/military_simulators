@@ -71,7 +71,7 @@ _CATEGORY_GEOMETRY: dict[str, tuple[float, float]] = {
 _GRIPEN_EF_TYPE_OPTIONS: dict[str, list[str]] = {
     'a2a_ir': ['iris_t', 'aim9'],
     'a2a_radar': ['meteor', 'aim120'],
-    'anti_ship': ['rbs15', 'harpoon'],
+    'anti_ship': ['rbs15'],
     'smart_bomb': ['gbu12', 'gbu31'],
     'sdb': ['gbu39'],
     'sdb_alt': ['gbu39'],
@@ -198,7 +198,7 @@ _GRIPEN_CD_EXTRA: dict[str, dict[str, Any]] = {
         'mass_kg': 900, 'dry_mass_kg': 100, 'fuel_kg': 800,
         'length_m': 4.6, 'diameter_m': 0.52,
     },
-    'erielectron': {'name': 'Erieye/自卫干扰吊舱', 'category': 'ecm', 'mass_kg': 220, 'length_m': 2.3, 'diameter_m': 0.32},
+    'erielectron': {'name': 'Saab 自卫电子战吊舱', 'category': 'ecm', 'mass_kg': 220, 'length_m': 2.3, 'diameter_m': 0.32},
     'vicon': {'name': 'Vinten Vicon 侦察吊舱', 'category': 'recon', 'mass_kg': 250, 'length_m': 2.5, 'diameter_m': 0.40},
     'spk39': {'name': 'SPK 39 侦察吊舱', 'category': 'recon', 'mass_kg': 280, 'length_m': 2.6, 'diameter_m': 0.40},
     'mrp': {'name': 'Modular Reconnaissance Pod', 'category': 'recon', 'mass_kg': 300, 'length_m': 2.8, 'diameter_m': 0.42},
@@ -657,17 +657,23 @@ def _collect_tejas(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str, 
             ))
         st_list = []
         for st in entry.get('stations') or []:
+            # 站号 wtip_* 只是历史命名，光辉无翼尖挂点，按 position 判断挂架类型
             style = mount_style_from_hints(
                 position=str(st.get('position') or ''),
                 side=str(st.get('side') or ''),
-                station_id=str(st.get('id') or ''),
             )
-            st_list.append(_station(
+            station = _station(
                 str(st['id']),
                 str(st.get('name_zh') or st['id']),
                 style,
                 list(st.get('allowed_stores') or []),
-            ))
+            )
+            # Mk1A 外侧挂点 ASRAAM 双联挂架（2026 年验证）
+            if str(st.get('position') or '') == 'outboard' and any(
+                o['munition_id'] == 'asraam' for o in station['options']
+            ):
+                station['options'].append({'munition_id': 'asraam', 'qty': 2.0})
+            st_list.append(station)
         defaults = {}
         for st in st_list:
             opts = {o['munition_id'] for o in st['options']}
@@ -942,11 +948,6 @@ def _collect_gripen_ef(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[s
                 diameter_m=_f(spec.get('diameter_m')) or None,
                 dry_mass_kg=spec.get('dry_mass_kg'),
                 fuel_kg=spec.get('fuel_kg'),
-            ))
-        elif mid == 'harpoon':
-            _merge_munition(munitions, normalize_munition_record(
-                'harpoon', name='Harpoon', category='asm',
-                mass_kg=691, length_m=4.63, diameter_m=0.343,
             ))
     models = load_pylon_models()
     out: dict[str, dict[str, Any]] = {}

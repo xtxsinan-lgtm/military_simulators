@@ -32,7 +32,7 @@ def test_load_aircraft_hardpoints_csv_tejas_station_limits():
     rows = {r['station_id']: r for r in load_aircraft_hardpoints_csv(TEJAS_HARDPOINTS_CSV)
             if r['aircraft_id'] == 'Tejas'}
     assert rows['wtip_r']['max_mass_kg'] == pytest.approx(310)
-    assert rows['wtip_r']['allowed_stores'] == ['aspj']
+    assert rows['wtip_r']['allowed_stores'] == ['r73e', 'asraam', 'python5', 'aspj']
     assert rows['mid_l']['max_mass_kg'] == pytest.approx(800)
     assert rows['in_l']['max_mass_kg'] == pytest.approx(1200)
     assert rows['centre']['max_mass_kg'] == pytest.approx(740)

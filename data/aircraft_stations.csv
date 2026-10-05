@@ -1,5 +1,5 @@
 aircraft_id,station_id,name,side,position_rank,allowed_stores,notes
-MiG-29K,centerline,机腹中央挂点 Station 5,center,0,tank_1900l;optronic_pod,副油箱或光电吊舱二选一
+MiG-29K,centerline,机腹中央挂点 Station 5,center,0,tank_2150l;optronic_pod,副油箱或光电吊舱二选一
 MiG-29K,wing_inner_l,左翼最内侧挂点 Station 1,left,1,rvv_ae;r73e;r27r1;r27t1;r27er1;r27et1;kh29t;kh29l;kh31a;kh31p;kh35;kab500kr;kab500od;kab500l;bomb_50_500;s24b;s8_b8m1;tank_1500l,全谱空对空/空对地/制导炸弹/无制导武器/火箭/副油箱
 MiG-29K,wing_inner_r,右翼最内侧挂点 Station 1,right,1,rvv_ae;r73e;r27r1;r27t1;r27er1;r27et1;kh29t;kh29l;kh31a;kh31p;kh35;kab500kr;kab500od;kab500l;bomb_50_500;s24b;s8_b8m1;tank_1500l,同左翼最内侧
 MiG-29K,wing_mid_inner_l,左翼次内侧挂点 Station 2,left,2,rvv_ae;r73e;r27r1;r27t1;kh29t;kh29l;kh31a;kh31p;kh35;kab500kr;kab500od;kab500l;bomb_50_500;s24b;s8_b8m1,不含 R-27ER/ET 与 1,500 L 副油箱

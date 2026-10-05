@@ -40,7 +40,7 @@ def test_f2_wingtip_aam3_or_aim9():
     for sid in ('sta1', 'sta11'):
         st = next(s for s in ac['stations'] if s['id'] == sid)
         keys = {o['key'] for o in expand_station_options(st, mun) if o['key']}
-        assert keys == {'aam3@1', 'aim9@1'}
+        assert keys == {'aam3@1', 'aam5@1', 'aim9@1'}
 
 
 def test_f2_outer_has_bvr_and_wvr():
@@ -49,7 +49,7 @@ def test_f2_outer_has_bvr_and_wvr():
     mun = load_munitions()
     st = next(s for s in ac['stations'] if s['id'] == 'sta2')
     keys = {o['key'] for o in expand_station_options(st, mun) if o['key']}
-    assert keys == {'aam3@1', 'aim9@1', 'aim7@1', 'aam4@1'}
+    assert keys == {'aam3@1', 'aam5@1', 'aim9@1', 'aim7@1', 'aam4@1'}
 
 
 def test_f2_mid_has_asm():
@@ -118,5 +118,5 @@ def test_resolve_f2_asm_strike():
         'sta1': 'aam3@1',
         'sta11': 'aam3@1',
     })
-    assert summary.weapons_mass_kg == pytest.approx(754 * 4 + 91 * 2)
+    assert summary.weapons_mass_kg == pytest.approx(530 * 4 + 91 * 2)
     assert summary.n_store_units == pytest.approx(6)

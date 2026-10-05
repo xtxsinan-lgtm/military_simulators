@@ -39,13 +39,12 @@ def test_fa50_has_seven_hardpoints():
 
 
 def test_fa50_wingtip_only_aim9():
-    """翼尖挂点仅允许 AIM-9 × 1。"""
+    """翼尖挂点仅允许 AIM-9（含 Block 20 的 AIM-9X）× 1。"""
     allowed = load_aircraft_hardpoint_stores_csv()['FA-50']
     for sid in ('tip_l', 'tip_r'):
         items = allowed[sid]
-        assert len(items) == 1
-        assert items[0]['store_id'] == 'aim9'
-        assert items[0]['max_count'] == 1
+        assert {i['store_id'] for i in items} == {'aim9', 'aim9x'}
+        assert all(i['max_count'] == 1 for i in items)
 
 
 def test_fa50_inner_station_mk82_triple():
@@ -60,7 +59,7 @@ def test_fa50_center_no_maverick():
     allowed = load_aircraft_hardpoint_stores_csv()['FA-50']['center']
     store_ids = {x['store_id'] for x in allowed}
     assert 'maverick' not in store_ids
-    assert store_ids == {'tank150', 'mk82', 'mk20'}
+    assert store_ids == {'tank150', 'mk82', 'mk20', 'sniper'}
 
 
 def test_fa50_load_factor_g():
@@ -130,8 +129,7 @@ def test_build_stores_catalog_payload_fa50():
     assert len(fa50['stations']) == 7
     assert len(fa50['loadout_presets']) >= 3
     tip = next(s for s in fa50['stations'] if s['station_id'] == 'tip_l')
-    assert len(tip['allowed_stores']) == 1
-    assert tip['allowed_stores'][0]['store_id'] == 'aim9'
+    assert [a['store_id'] for a in tip['allowed_stores']] == ['aim9', 'aim9x']
 
 
 def test_csv_files_exist():

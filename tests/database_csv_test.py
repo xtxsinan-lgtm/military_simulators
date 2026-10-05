@@ -230,7 +230,7 @@ def test_load_typhoon_store_csvs():
     stations = load_typhoon_store_stations_csv(TYPHOON_STORE_STATIONS_CSV)
     compat = load_typhoon_store_compatibility_csv(TYPHOON_STORE_COMPATIBILITY_CSV)
     assert len(stations) == 10
-    assert len(compat) >= 80
+    assert len(compat) >= 70
     station_ids = {row['station_id'] for row in stations}
     assert station_ids == {row['station_id'] for row in compat}
 

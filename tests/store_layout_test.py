@@ -41,8 +41,9 @@ def test_f14_station_allowed_stores():
     assert set(by_id['1'].allowed_store_ids) == {'aim-9', 'stub-pylon'}
     assert set(by_id['1b'].allowed_store_ids) == {'aim-7', 'aim-54', 'stub-pylon'}
     assert by_id['2'].allowed_store_ids == ('tank-280',)
-    assert set(by_id['5'].allowed_store_ids) == {'aim-7', 'aim-54', 'tarps'}
-    assert set(by_id['8b'].allowed_store_ids) == {'aim-7', 'aim-54', 'stub-pylon'}
+    bombs = {'mk-82', 'mk-83', 'mk-84', 'gbu-12', 'gbu-16', 'gbu-10', 'gbu-24', 'gbu-31'}
+    assert set(by_id['5'].allowed_store_ids) == {'aim-7', 'aim-54', 'tarps'} | bombs
+    assert set(by_id['8b'].allowed_store_ids) == {'aim-7', 'aim-54', 'stub-pylon', 'lantirn'}
 
 
 def test_f14_cap_preset_validates():

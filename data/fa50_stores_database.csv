@@ -7,3 +7,8 @@ mk20,MK-20 石眼集束炸弹,dispenser,222,Rockeye 集束炸弹
 lau3,LAU-3 火箭发射器,rocket,135,19 管 70 mm 火箭巢（空重）
 tank150,150 加仑副油箱,fuel_tank,605,约 570 kg 燃油 + 油箱结构
 agts36,AGTS-36 拖曳靶,target,150,拖曳靶
+aim9x,AIM-9X 响尾蛇,aam,85,Block 20 / FA-50PL 近距格斗弹
+aim120,AIM-120 AMRAAM,aam,152,Block 20 / FA-50PL 中距弹
+gbu12,GBU-12 激光制导炸弹,bomb,230,500 lb 激光制导炸弹（Block 10/20）
+gbu38,GBU-38 JDAM,bomb,253,500 lb GPS 制导炸弹（Block 10/20）
+sniper,Sniper 瞄准吊舱,pod,200,AN/AAQ-33 瞄准吊舱（Block 20 / FA-50PL）

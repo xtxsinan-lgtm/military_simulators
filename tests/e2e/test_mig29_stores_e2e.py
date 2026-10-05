@@ -30,7 +30,7 @@ def test_catalog_includes_mig29_stores_model():
 
     # 对地挂载：最内侧 Kh-29 + 中央副油箱
     strike = {
-        'centerline': 'tank_1900l',
+        'centerline': 'tank_2150l',
         'wing_inner_l': 'kh29t',
         'wing_inner_r': 'kh29t',
     }

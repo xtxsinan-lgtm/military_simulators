@@ -26953,12 +26953,12 @@ module.exports = {
         "id": "asm2",
         "name": "ASM-2（93式）",
         "category": "asm",
-        "mass_kg": 754.0,
-        "dry_mass_kg": 754.0,
+        "mass_kg": 530.0,
+        "dry_mass_kg": 530.0,
         "fuel_kg": 0.0,
         "length_m": 4.0,
-        "diameter_m": 0.356,
-        "notes": "空舰导弹 Type 93"
+        "diameter_m": 0.35,
+        "notes": "空舰导弹 Type 93（约 530 kg）"
       },
       {
         "id": "gcs1",
@@ -27036,6 +27036,61 @@ module.exports = {
         "length_m": 2.75,
         "diameter_m": 0.35,
         "notes": "19管 70 mm 火箭"
+      },
+      {
+        "id": "agm158",
+        "name": "AGM-158 JASSM",
+        "category": "standoff",
+        "mass_kg": 1020.0,
+        "dry_mass_kg": 1020.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.27,
+        "diameter_m": 0.55,
+        "notes": "隐身防区外对地巡航导弹；F-15E 已集成"
+      },
+      {
+        "id": "agm158c",
+        "name": "AGM-158C LRASM",
+        "category": "asm",
+        "mass_kg": 1100.0,
+        "dry_mass_kg": 1100.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.27,
+        "diameter_m": 0.55,
+        "notes": "远程反舰导弹；F/A-18E/F 2019 年早期作战能力，最多 4 枚"
+      },
+      {
+        "id": "atflir",
+        "name": "AN/ASQ-228 ATFLIR 瞄准吊舱",
+        "category": "pod",
+        "mass_kg": 191.0,
+        "dry_mass_kg": 191.0,
+        "fuel_kg": 0.0,
+        "length_m": 1.83,
+        "diameter_m": 0.33,
+        "notes": "F/A-18 机身侧挂点瞄准吊舱"
+      },
+      {
+        "id": "aam5",
+        "name": "AAM-5（04式）",
+        "category": "aam",
+        "mass_kg": 95.0,
+        "dry_mass_kg": 95.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.1,
+        "diameter_m": 0.127,
+        "notes": "近距红外格斗弹"
+      },
+      {
+        "id": "asm3",
+        "name": "ASM-3（ASM-3A）",
+        "category": "asm",
+        "mass_kg": 940.0,
+        "dry_mass_kg": 940.0,
+        "fuel_kg": 0.0,
+        "length_m": 6.0,
+        "diameter_m": 0.35,
+        "notes": "超音速反舰导弹；2021 年起部署 ASM-3A"
       },
       {
         "id": "aim9lm",
@@ -27193,7 +27248,7 @@ module.exports = {
       },
       {
         "id": "erielectron",
-        "name": "Erieye/自卫干扰吊舱",
+        "name": "Saab 自卫电子战吊舱",
         "category": "ecm",
         "mass_kg": 220.0,
         "dry_mass_kg": 220.0,
@@ -27786,15 +27841,15 @@ module.exports = {
         "notes": ""
       },
       {
-        "id": "tank_1900l",
-        "name": "1,900 L 副油箱",
+        "id": "tank_2150l",
+        "name": "2,150 L 副油箱",
         "category": "tank",
-        "mass_kg": 1520.0,
-        "dry_mass_kg": 70.0,
-        "fuel_kg": 1450.0,
-        "length_m": 5.4,
-        "diameter_m": 0.6,
-        "notes": "机腹中央挂点；含燃油约 1450 kg"
+        "mass_kg": 1740.0,
+        "dry_mass_kg": 90.0,
+        "fuel_kg": 1650.0,
+        "length_m": 5.6,
+        "diameter_m": 0.62,
+        "notes": "机腹中央挂点 PTB-2150；含燃油约 1650 kg"
       },
       {
         "id": "tank_1500l",
@@ -28081,6 +28136,105 @@ module.exports = {
         "length_m": 4.9,
         "diameter_m": 0.35,
         "notes": "战术空中侦察管道系统吊舱"
+      },
+      {
+        "id": "mk-82",
+        "name": "Mk-82 500 lb",
+        "category": "store",
+        "mass_kg": 241.0,
+        "dry_mass_kg": 241.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.21,
+        "diameter_m": 0.273,
+        "notes": "无制导通用炸弹；机腹通道 BRU-32"
+      },
+      {
+        "id": "mk-83",
+        "name": "Mk-83 1000 lb",
+        "category": "store",
+        "mass_kg": 454.0,
+        "dry_mass_kg": 454.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.0,
+        "diameter_m": 0.356,
+        "notes": "无制导通用炸弹；机腹通道 BRU-32"
+      },
+      {
+        "id": "mk-84",
+        "name": "Mk-84 2000 lb",
+        "category": "store",
+        "mass_kg": 925.0,
+        "dry_mass_kg": 925.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.84,
+        "diameter_m": 0.457,
+        "notes": "无制导通用炸弹；机腹通道 BRU-32"
+      },
+      {
+        "id": "gbu-12",
+        "name": "GBU-12 Paveway II",
+        "category": "store",
+        "mass_kg": 230.0,
+        "dry_mass_kg": 230.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.27,
+        "diameter_m": 0.273,
+        "notes": "500 磅激光制导炸弹"
+      },
+      {
+        "id": "gbu-16",
+        "name": "GBU-16 Paveway II",
+        "category": "store",
+        "mass_kg": 454.0,
+        "dry_mass_kg": 454.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.7,
+        "diameter_m": 0.356,
+        "notes": "1000 磅激光制导炸弹"
+      },
+      {
+        "id": "gbu-10",
+        "name": "GBU-10 Paveway II",
+        "category": "store",
+        "mass_kg": 940.0,
+        "dry_mass_kg": 940.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.32,
+        "diameter_m": 0.457,
+        "notes": "2000 磅激光制导炸弹"
+      },
+      {
+        "id": "gbu-24",
+        "name": "GBU-24 Paveway III",
+        "category": "store",
+        "mass_kg": 1050.0,
+        "dry_mass_kg": 1050.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.39,
+        "diameter_m": 0.457,
+        "notes": "2000 磅激光制导炸弹；所有 F-14 型均获准机腹挂 2 枚"
+      },
+      {
+        "id": "gbu-31",
+        "name": "GBU-31 JDAM",
+        "category": "store",
+        "mass_kg": 925.0,
+        "dry_mass_kg": 925.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.88,
+        "diameter_m": 0.457,
+        "notes": "2000 磅 GPS 制导炸弹；F-14D 获准挂载"
+      },
+      {
+        "id": "lantirn",
+        "name": "LANTIRN 瞄准吊舱",
+        "category": "store",
+        "mass_kg": 236.0,
+        "dry_mass_kg": 236.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.38,
+        "notes": "AN/AAQ-14 瞄准吊舱；挂 Station 8b"
       },
       {
         "id": "AIM-120B",
@@ -28523,6 +28677,28 @@ module.exports = {
         "notes": "机腹中心 300 US gal 副油箱（满油）"
       },
       {
+        "id": "AGM-84D",
+        "name": "AGM-84D Harpoon",
+        "category": "asm",
+        "mass_kg": 519.0,
+        "dry_mass_kg": 519.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.84,
+        "diameter_m": 0.343,
+        "notes": "空射亚音速掠海反舰导弹（台湾/土耳其/韩国/埃及/新加坡等 F-16 用户已集成）"
+      },
+      {
+        "id": "FUEL-TANK-600",
+        "name": "600 加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 2020.0,
+        "dry_mass_kg": 203.0,
+        "fuel_kg": 1817.0,
+        "length_m": 4.6,
+        "diameter_m": 0.6,
+        "notes": "翼下内侧 600 US gal 副油箱（满油，含燃油 1817 kg）"
+      },
+      {
         "id": "maverick",
         "name": "AGM-65 小牛",
         "category": "agm",
@@ -28578,6 +28754,17 @@ module.exports = {
         "notes": "拖曳靶"
       },
       {
+        "id": "aim9x",
+        "name": "AIM-9X 响尾蛇",
+        "category": "aam",
+        "mass_kg": 85.0,
+        "dry_mass_kg": 85.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.65,
+        "diameter_m": 0.178,
+        "notes": "Block 20 / FA-50PL 近距格斗弹"
+      },
+      {
         "id": "pl5e2",
         "name": "PL-5E-II 近距格斗弹",
         "category": "aam",
@@ -28600,6 +28787,17 @@ module.exports = {
         "notes": "MRAAM"
       },
       {
+        "id": "pl15e",
+        "name": "PL-15E 远程空空弹",
+        "category": "aam",
+        "mass_kg": 210.0,
+        "dry_mass_kg": 210.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.0,
+        "diameter_m": 0.203,
+        "notes": "Block III 已挂 4 枚"
+      },
+      {
         "id": "mar1",
         "name": "MAR-1 反辐射导弹",
         "category": "arm",
@@ -28620,6 +28818,17 @@ module.exports = {
         "length_m": 6.392,
         "diameter_m": 0.36,
         "notes": "AShM"
+      },
+      {
+        "id": "cm400akg",
+        "name": "CM-400AKG 高超音速空地/反舰导弹",
+        "category": "asm",
+        "mass_kg": 910.0,
+        "dry_mass_kg": 910.0,
+        "fuel_kg": 0.0,
+        "length_m": 6.0,
+        "diameter_m": 0.4,
+        "notes": "准弹道反舰/反辐射弹"
       },
       {
         "id": "ls6_500",
@@ -29065,12 +29274,12 @@ module.exports = {
         "id": "harpoon",
         "name": "HARPOON",
         "category": "asm",
-        "mass_kg": 691.0,
-        "dry_mass_kg": 691.0,
+        "mass_kg": 520.0,
+        "dry_mass_kg": 520.0,
         "fuel_kg": 0.0,
-        "length_m": 4.63,
+        "length_m": 3.84,
         "diameter_m": 0.343,
-        "notes": "反舰导弹"
+        "notes": "空射型 AGM-84 反舰导弹（舰射型带助推器约 690 kg）"
       },
       {
         "id": "penguin",
@@ -29082,6 +29291,17 @@ module.exports = {
         "length_m": 3.0,
         "diameter_m": 0.28,
         "notes": "挪威反舰导弹"
+      },
+      {
+        "id": "marte_er",
+        "name": "MARTE ER",
+        "category": "asm",
+        "mass_kg": 310.0,
+        "dry_mass_kg": 310.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.8,
+        "diameter_m": 0.316,
+        "notes": "MBDA 亚音速掠海反舰导弹；科威特/意大利台风集成"
       },
       {
         "id": "fuel",
@@ -29410,6 +29630,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "agm158@1",
+                "munition_id": "agm158",
+                "qty": 1.0,
+                "label": "AGM-158 JASSM",
+                "mass_kg": 1020.0,
+                "dry_mass_kg": 1020.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "bdu38@1",
                 "munition_id": "bdu38",
                 "qty": 1.0,
@@ -29546,6 +29775,15 @@ module.exports = {
                 "label": "AGM-154 JSOW",
                 "mass_kg": 483.0,
                 "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm158@1",
+                "munition_id": "agm158",
+                "qty": 1.0,
+                "label": "AGM-158 JASSM",
+                "mass_kg": 1020.0,
+                "dry_mass_kg": 1020.0,
                 "fuel_kg": 0.0
               },
               {
@@ -29739,6 +29977,15 @@ module.exports = {
                 "label": "AGM-154 JSOW",
                 "mass_kg": 483.0,
                 "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm158@1",
+                "munition_id": "agm158",
+                "qty": 1.0,
+                "label": "AGM-158 JASSM",
+                "mass_kg": 1020.0,
+                "dry_mass_kg": 1020.0,
                 "fuel_kg": 0.0
               },
               {
@@ -31716,6 +31963,24 @@ module.exports = {
                 "mass_kg": 230.0,
                 "dry_mass_kg": 230.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "atflir@1",
+                "munition_id": "atflir",
+                "qty": 1.0,
+                "label": "AN/ASQ-228 ATFLIR 瞄准吊舱",
+                "mass_kg": 191.0,
+                "dry_mass_kg": 191.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "litening@1",
+                "munition_id": "litening",
+                "qty": 1.0,
+                "label": "LITENING 瞄准吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -32302,6 +32567,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "agm158c@1",
+                "munition_id": "agm158c",
+                "qty": 1.0,
+                "label": "AGM-158C LRASM",
+                "mass_kg": 1100.0,
+                "dry_mass_kg": 1100.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "agm65@1",
                 "munition_id": "agm65",
                 "qty": 1.0,
@@ -32468,6 +32742,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "agm158c@1",
+                "munition_id": "agm158c",
+                "qty": 1.0,
+                "label": "AGM-158C LRASM",
+                "mass_kg": 1100.0,
+                "dry_mass_kg": 1100.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "agm65@1",
                 "munition_id": "agm65",
                 "qty": 1.0,
@@ -32614,51 +32897,6 @@ module.exports = {
                 "mass_kg": 230.0,
                 "dry_mass_kg": 230.0,
                 "fuel_kg": 0.0
-              },
-              {
-                "key": "mk82@1",
-                "munition_id": "mk82",
-                "qty": 1.0,
-                "label": "MK-82 (500lb)",
-                "mass_kg": 241.0,
-                "dry_mass_kg": 241.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "mk83@1",
-                "munition_id": "mk83",
-                "qty": 1.0,
-                "label": "MK-83 (1000lb)",
-                "mass_kg": 454.0,
-                "dry_mass_kg": 454.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "gbu12@1",
-                "munition_id": "gbu12",
-                "qty": 1.0,
-                "label": "GBU-12 (500lb)",
-                "mass_kg": 230.0,
-                "dry_mass_kg": 230.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "gbu10@1",
-                "munition_id": "gbu10",
-                "qty": 1.0,
-                "label": "GBU-10 (2000lb)",
-                "mass_kg": 960.0,
-                "dry_mass_kg": 960.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "gbu16@1",
-                "munition_id": "gbu16",
-                "qty": 1.0,
-                "label": "GBU-16 (1000lb)",
-                "mass_kg": 454.0,
-                "dry_mass_kg": 454.0,
-                "fuel_kg": 0.0
               }
             ]
           },
@@ -32757,6 +32995,15 @@ module.exports = {
                 "mass_kg": 230.0,
                 "dry_mass_kg": 230.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "atflir@1",
+                "munition_id": "atflir",
+                "qty": 1.0,
+                "label": "AN/ASQ-228 ATFLIR 瞄准吊舱",
+                "mass_kg": 191.0,
+                "dry_mass_kg": 191.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -32805,6 +33052,15 @@ module.exports = {
                 "label": "AGM-84 Harpoon",
                 "mass_kg": 520.0,
                 "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "agm158c@1",
+                "munition_id": "agm158c",
+                "qty": 1.0,
+                "label": "AGM-158C LRASM",
+                "mass_kg": 1100.0,
+                "dry_mass_kg": 1100.0,
                 "fuel_kg": 0.0
               },
               {
@@ -32974,6 +33230,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "agm158c@1",
+                "munition_id": "agm158c",
+                "qty": 1.0,
+                "label": "AGM-158C LRASM",
+                "mass_kg": 1100.0,
+                "dry_mass_kg": 1100.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "agm65@1",
                 "munition_id": "agm65",
                 "qty": 1.0,
@@ -33080,6 +33345,15 @@ module.exports = {
                 "mass_kg": 253.0,
                 "dry_mass_kg": 253.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "drop_tank_480@1",
+                "munition_id": "drop_tank_480",
+                "qty": 1.0,
+                "label": "480加仑副油箱",
+                "mass_kg": 1606.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 1456.0
               }
             ]
           },
@@ -33241,6 +33515,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "aam5@1",
+                "munition_id": "aam5",
+                "qty": 1.0,
+                "label": "AAM-5（04式）",
+                "mass_kg": 95.0,
+                "dry_mass_kg": 95.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "aim9@1",
                 "munition_id": "aim9",
                 "qty": 1.0,
@@ -33269,6 +33552,15 @@ module.exports = {
                 "label": "AAM-3（90式）",
                 "mass_kg": 91.0,
                 "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aam5@1",
+                "munition_id": "aam5",
+                "qty": 1.0,
+                "label": "AAM-5（04式）",
+                "mass_kg": 95.0,
+                "dry_mass_kg": 95.0,
                 "fuel_kg": 0.0
               },
               {
@@ -33321,6 +33613,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "aam5@1",
+                "munition_id": "aam5",
+                "qty": 1.0,
+                "label": "AAM-5（04式）",
+                "mass_kg": 95.0,
+                "dry_mass_kg": 95.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "aim9@1",
                 "munition_id": "aim9",
                 "qty": 1.0,
@@ -33361,8 +33662,17 @@ module.exports = {
                 "munition_id": "asm2",
                 "qty": 1.0,
                 "label": "ASM-2（93式）",
-                "mass_kg": 754.0,
-                "dry_mass_kg": 754.0,
+                "mass_kg": 530.0,
+                "dry_mass_kg": 530.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm3@1",
+                "munition_id": "asm3",
+                "qty": 1.0,
+                "label": "ASM-3（ASM-3A）",
+                "mass_kg": 940.0,
+                "dry_mass_kg": 940.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -33392,8 +33702,17 @@ module.exports = {
                 "munition_id": "asm2",
                 "qty": 1.0,
                 "label": "ASM-2（93式）",
-                "mass_kg": 754.0,
-                "dry_mass_kg": 754.0,
+                "mass_kg": 530.0,
+                "dry_mass_kg": 530.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm3@1",
+                "munition_id": "asm3",
+                "qty": 1.0,
+                "label": "ASM-3（ASM-3A）",
+                "mass_kg": 940.0,
+                "dry_mass_kg": 940.0,
                 "fuel_kg": 0.0
               },
               {
@@ -33545,6 +33864,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "aam5@1",
+                "munition_id": "aam5",
+                "qty": 1.0,
+                "label": "AAM-5（04式）",
+                "mass_kg": 95.0,
+                "dry_mass_kg": 95.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "aim9@1",
                 "munition_id": "aim9",
                 "qty": 1.0,
@@ -33670,6 +33998,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "aam5@1",
+                "munition_id": "aam5",
+                "qty": 1.0,
+                "label": "AAM-5（04式）",
+                "mass_kg": 95.0,
+                "dry_mass_kg": 95.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "aim9@1",
                 "munition_id": "aim9",
                 "qty": 1.0,
@@ -33705,8 +34042,17 @@ module.exports = {
                 "munition_id": "asm2",
                 "qty": 1.0,
                 "label": "ASM-2（93式）",
-                "mass_kg": 754.0,
-                "dry_mass_kg": 754.0,
+                "mass_kg": 530.0,
+                "dry_mass_kg": 530.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm3@1",
+                "munition_id": "asm3",
+                "qty": 1.0,
+                "label": "ASM-3（ASM-3A）",
+                "mass_kg": 940.0,
+                "dry_mass_kg": 940.0,
                 "fuel_kg": 0.0
               },
               {
@@ -33831,6 +34177,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "aam5@1",
+                "munition_id": "aam5",
+                "qty": 1.0,
+                "label": "AAM-5（04式）",
+                "mass_kg": 95.0,
+                "dry_mass_kg": 95.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "aim9@1",
                 "munition_id": "aim9",
                 "qty": 1.0,
@@ -33871,8 +34226,17 @@ module.exports = {
                 "munition_id": "asm2",
                 "qty": 1.0,
                 "label": "ASM-2（93式）",
-                "mass_kg": 754.0,
-                "dry_mass_kg": 754.0,
+                "mass_kg": 530.0,
+                "dry_mass_kg": 530.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asm3@1",
+                "munition_id": "asm3",
+                "qty": 1.0,
+                "label": "ASM-3（ASM-3A）",
+                "mass_kg": 940.0,
+                "dry_mass_kg": 940.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -33895,6 +34259,15 @@ module.exports = {
                 "label": "AAM-3（90式）",
                 "mass_kg": 91.0,
                 "dry_mass_kg": 91.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aam5@1",
+                "munition_id": "aam5",
+                "qty": 1.0,
+                "label": "AAM-5（04式）",
+                "mass_kg": 95.0,
+                "dry_mass_kg": 95.0,
                 "fuel_kg": 0.0
               },
               {
@@ -33947,6 +34320,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "aam5@1",
+                "munition_id": "aam5",
+                "qty": 1.0,
+                "label": "AAM-5（04式）",
+                "mass_kg": 95.0,
+                "dry_mass_kg": 95.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "aim9@1",
                 "munition_id": "aim9",
                 "qty": 1.0,
@@ -33981,13 +34363,13 @@ module.exports = {
                 "label": "空挂"
               },
               {
-                "key": "tank_1900l@1",
-                "munition_id": "tank_1900l",
+                "key": "tank_2150l@1",
+                "munition_id": "tank_2150l",
                 "qty": 1.0,
-                "label": "1,900 L 副油箱",
-                "mass_kg": 1520.0,
-                "dry_mass_kg": 70.0,
-                "fuel_kg": 1450.0
+                "label": "2,150 L 副油箱",
+                "mass_kg": 1740.0,
+                "dry_mass_kg": 90.0,
+                "fuel_kg": 1650.0
               },
               {
                 "key": "optronic_pod@1",
@@ -34961,6 +35343,78 @@ module.exports = {
                 "mass_kg": 463.0,
                 "dry_mass_kg": 463.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-82@1",
+                "munition_id": "mk-82",
+                "qty": 1.0,
+                "label": "Mk-82 500 lb",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-83@1",
+                "munition_id": "mk-83",
+                "qty": 1.0,
+                "label": "Mk-83 1000 lb",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-84@1",
+                "munition_id": "mk-84",
+                "qty": 1.0,
+                "label": "Mk-84 2000 lb",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-12@1",
+                "munition_id": "gbu-12",
+                "qty": 1.0,
+                "label": "GBU-12 Paveway II",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-16@1",
+                "munition_id": "gbu-16",
+                "qty": 1.0,
+                "label": "GBU-16 Paveway II",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-10@1",
+                "munition_id": "gbu-10",
+                "qty": 1.0,
+                "label": "GBU-10 Paveway II",
+                "mass_kg": 940.0,
+                "dry_mass_kg": 940.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-24@1",
+                "munition_id": "gbu-24",
+                "qty": 1.0,
+                "label": "GBU-24 Paveway III",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-31@1",
+                "munition_id": "gbu-31",
+                "qty": 1.0,
+                "label": "GBU-31 JDAM",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -34991,6 +35445,78 @@ module.exports = {
                 "label": "AIM-54 Phoenix",
                 "mass_kg": 463.0,
                 "dry_mass_kg": 463.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-82@1",
+                "munition_id": "mk-82",
+                "qty": 1.0,
+                "label": "Mk-82 500 lb",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-83@1",
+                "munition_id": "mk-83",
+                "qty": 1.0,
+                "label": "Mk-83 1000 lb",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-84@1",
+                "munition_id": "mk-84",
+                "qty": 1.0,
+                "label": "Mk-84 2000 lb",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-12@1",
+                "munition_id": "gbu-12",
+                "qty": 1.0,
+                "label": "GBU-12 Paveway II",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-16@1",
+                "munition_id": "gbu-16",
+                "qty": 1.0,
+                "label": "GBU-16 Paveway II",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-10@1",
+                "munition_id": "gbu-10",
+                "qty": 1.0,
+                "label": "GBU-10 Paveway II",
+                "mass_kg": 940.0,
+                "dry_mass_kg": 940.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-24@1",
+                "munition_id": "gbu-24",
+                "qty": 1.0,
+                "label": "GBU-24 Paveway III",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-31@1",
+                "munition_id": "gbu-31",
+                "qty": 1.0,
+                "label": "GBU-31 JDAM",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -35032,6 +35558,78 @@ module.exports = {
                 "mass_kg": 820.0,
                 "dry_mass_kg": 820.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-82@1",
+                "munition_id": "mk-82",
+                "qty": 1.0,
+                "label": "Mk-82 500 lb",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-83@1",
+                "munition_id": "mk-83",
+                "qty": 1.0,
+                "label": "Mk-83 1000 lb",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-84@1",
+                "munition_id": "mk-84",
+                "qty": 1.0,
+                "label": "Mk-84 2000 lb",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-12@1",
+                "munition_id": "gbu-12",
+                "qty": 1.0,
+                "label": "GBU-12 Paveway II",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-16@1",
+                "munition_id": "gbu-16",
+                "qty": 1.0,
+                "label": "GBU-16 Paveway II",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-10@1",
+                "munition_id": "gbu-10",
+                "qty": 1.0,
+                "label": "GBU-10 Paveway II",
+                "mass_kg": 940.0,
+                "dry_mass_kg": 940.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-24@1",
+                "munition_id": "gbu-24",
+                "qty": 1.0,
+                "label": "GBU-24 Paveway III",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-31@1",
+                "munition_id": "gbu-31",
+                "qty": 1.0,
+                "label": "GBU-31 JDAM",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -35062,6 +35660,78 @@ module.exports = {
                 "label": "AIM-54 Phoenix",
                 "mass_kg": 463.0,
                 "dry_mass_kg": 463.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-82@1",
+                "munition_id": "mk-82",
+                "qty": 1.0,
+                "label": "Mk-82 500 lb",
+                "mass_kg": 241.0,
+                "dry_mass_kg": 241.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-83@1",
+                "munition_id": "mk-83",
+                "qty": 1.0,
+                "label": "Mk-83 1000 lb",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mk-84@1",
+                "munition_id": "mk-84",
+                "qty": 1.0,
+                "label": "Mk-84 2000 lb",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-12@1",
+                "munition_id": "gbu-12",
+                "qty": 1.0,
+                "label": "GBU-12 Paveway II",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-16@1",
+                "munition_id": "gbu-16",
+                "qty": 1.0,
+                "label": "GBU-16 Paveway II",
+                "mass_kg": 454.0,
+                "dry_mass_kg": 454.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-10@1",
+                "munition_id": "gbu-10",
+                "qty": 1.0,
+                "label": "GBU-10 Paveway II",
+                "mass_kg": 940.0,
+                "dry_mass_kg": 940.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-24@1",
+                "munition_id": "gbu-24",
+                "qty": 1.0,
+                "label": "GBU-24 Paveway III",
+                "mass_kg": 1050.0,
+                "dry_mass_kg": 1050.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu-31@1",
+                "munition_id": "gbu-31",
+                "qty": 1.0,
+                "label": "GBU-31 JDAM",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -35155,6 +35825,15 @@ module.exports = {
                 "label": "Stub Pylon",
                 "mass_kg": 45.0,
                 "dry_mass_kg": 45.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "lantirn@1",
+                "munition_id": "lantirn",
+                "qty": 1.0,
+                "label": "LANTIRN 瞄准吊舱",
+                "mass_kg": 236.0,
+                "dry_mass_kg": 236.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -35402,6 +36081,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "AGM-84D@1",
+                "munition_id": "AGM-84D",
+                "qty": 1.0,
+                "label": "AGM-84D Harpoon",
+                "mass_kg": 519.0,
+                "dry_mass_kg": 519.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "CBU-103@1",
                 "munition_id": "CBU-103",
                 "qty": 1.0,
@@ -35625,15 +36313,6 @@ module.exports = {
                 "mass_kg": 107.0,
                 "dry_mass_kg": 107.0,
                 "fuel_kg": 0.0
-              },
-              {
-                "key": "FUEL-TANK-370@1",
-                "munition_id": "FUEL-TANK-370",
-                "qty": 1.0,
-                "label": "370 加仑副油箱",
-                "mass_kg": 1270.0,
-                "dry_mass_kg": 152.4,
-                "fuel_kg": 1117.6
               }
             ]
           },
@@ -35667,6 +36346,96 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "CBU-103@1",
+                "munition_id": "CBU-103",
+                "qty": 1.0,
+                "label": "CBU-103 WCMD",
+                "mass_kg": 431.0,
+                "dry_mass_kg": 431.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "CBU-105@1",
+                "munition_id": "CBU-105",
+                "qty": 1.0,
+                "label": "CBU-105 WCMD",
+                "mass_kg": 431.0,
+                "dry_mass_kg": 431.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "Mk-82-3x@1",
+                "munition_id": "Mk-82-3x",
+                "qty": 1.0,
+                "label": "Mk-82 (3×)",
+                "mass_kg": 681.0,
+                "dry_mass_kg": 681.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "Mk-84@1",
+                "munition_id": "Mk-84",
+                "qty": 1.0,
+                "label": "Mk-84 2000 lb",
+                "mass_kg": 907.0,
+                "dry_mass_kg": 907.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "Mk-84-AIR@1",
+                "munition_id": "Mk-84-AIR",
+                "qty": 1.0,
+                "label": "Mk-84 AIR",
+                "mass_kg": 907.0,
+                "dry_mass_kg": 907.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "GBU-10@1",
+                "munition_id": "GBU-10",
+                "qty": 1.0,
+                "label": "GBU-10 Paveway II",
+                "mass_kg": 907.0,
+                "dry_mass_kg": 907.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "GBU-24@1",
+                "munition_id": "GBU-24",
+                "qty": 1.0,
+                "label": "GBU-24 Paveway III",
+                "mass_kg": 1086.0,
+                "dry_mass_kg": 1086.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "GBU-31V1B@1",
+                "munition_id": "GBU-31V1B",
+                "qty": 1.0,
+                "label": "GBU-31(V)1/B JDAM",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "GBU-31V3B@1",
+                "munition_id": "GBU-31V3B",
+                "qty": 1.0,
+                "label": "GBU-31(V)3/B JDAM",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "AGM-84D@1",
+                "munition_id": "AGM-84D",
+                "qty": 1.0,
+                "label": "AGM-84D Harpoon",
+                "mass_kg": 519.0,
+                "dry_mass_kg": 519.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "FUEL-TANK-370@1",
                 "munition_id": "FUEL-TANK-370",
                 "qty": 1.0,
@@ -35674,6 +36443,15 @@ module.exports = {
                 "mass_kg": 1270.0,
                 "dry_mass_kg": 152.4,
                 "fuel_kg": 1117.6
+              },
+              {
+                "key": "FUEL-TANK-600@1",
+                "munition_id": "FUEL-TANK-600",
+                "qty": 1.0,
+                "label": "600 加仑副油箱",
+                "mass_kg": 2020.0,
+                "dry_mass_kg": 203.0,
+                "fuel_kg": 1817.0
               }
             ]
           },
@@ -35800,13 +36578,112 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "AN-AAQ-28@1",
-                "munition_id": "AN-AAQ-28",
+                "key": "CBU-103@1",
+                "munition_id": "CBU-103",
                 "qty": 1.0,
-                "label": "AN/AAQ-28 Litening TGP",
-                "mass_kg": 200.0,
-                "dry_mass_kg": 200.0,
+                "label": "CBU-103 WCMD",
+                "mass_kg": 431.0,
+                "dry_mass_kg": 431.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "CBU-105@1",
+                "munition_id": "CBU-105",
+                "qty": 1.0,
+                "label": "CBU-105 WCMD",
+                "mass_kg": 431.0,
+                "dry_mass_kg": 431.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "Mk-82-3x@1",
+                "munition_id": "Mk-82-3x",
+                "qty": 1.0,
+                "label": "Mk-82 (3×)",
+                "mass_kg": 681.0,
+                "dry_mass_kg": 681.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "Mk-84@1",
+                "munition_id": "Mk-84",
+                "qty": 1.0,
+                "label": "Mk-84 2000 lb",
+                "mass_kg": 907.0,
+                "dry_mass_kg": 907.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "Mk-84-AIR@1",
+                "munition_id": "Mk-84-AIR",
+                "qty": 1.0,
+                "label": "Mk-84 AIR",
+                "mass_kg": 907.0,
+                "dry_mass_kg": 907.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "GBU-10@1",
+                "munition_id": "GBU-10",
+                "qty": 1.0,
+                "label": "GBU-10 Paveway II",
+                "mass_kg": 907.0,
+                "dry_mass_kg": 907.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "GBU-24@1",
+                "munition_id": "GBU-24",
+                "qty": 1.0,
+                "label": "GBU-24 Paveway III",
+                "mass_kg": 1086.0,
+                "dry_mass_kg": 1086.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "GBU-31V1B@1",
+                "munition_id": "GBU-31V1B",
+                "qty": 1.0,
+                "label": "GBU-31(V)1/B JDAM",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "GBU-31V3B@1",
+                "munition_id": "GBU-31V3B",
+                "qty": 1.0,
+                "label": "GBU-31(V)3/B JDAM",
+                "mass_kg": 925.0,
+                "dry_mass_kg": 925.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "AGM-84D@1",
+                "munition_id": "AGM-84D",
+                "qty": 1.0,
+                "label": "AGM-84D Harpoon",
+                "mass_kg": 519.0,
+                "dry_mass_kg": 519.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "FUEL-TANK-370@1",
+                "munition_id": "FUEL-TANK-370",
+                "qty": 1.0,
+                "label": "370 加仑副油箱",
+                "mass_kg": 1270.0,
+                "dry_mass_kg": 152.4,
+                "fuel_kg": 1117.6
+              },
+              {
+                "key": "FUEL-TANK-600@1",
+                "munition_id": "FUEL-TANK-600",
+                "qty": 1.0,
+                "label": "600 加仑副油箱",
+                "mass_kg": 2020.0,
+                "dry_mass_kg": 203.0,
+                "fuel_kg": 1817.0
               }
             ]
           },
@@ -35918,6 +36795,15 @@ module.exports = {
                 "label": "AGM-154A JSOW",
                 "mass_kg": 483.0,
                 "dry_mass_kg": 483.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "AGM-84D@1",
+                "munition_id": "AGM-84D",
+                "qty": 1.0,
+                "label": "AGM-84D Harpoon",
+                "mass_kg": 519.0,
+                "dry_mass_kg": 519.0,
                 "fuel_kg": 0.0
               },
               {
@@ -36144,15 +37030,6 @@ module.exports = {
                 "mass_kg": 107.0,
                 "dry_mass_kg": 107.0,
                 "fuel_kg": 0.0
-              },
-              {
-                "key": "FUEL-TANK-370@1",
-                "munition_id": "FUEL-TANK-370",
-                "qty": 1.0,
-                "label": "370 加仑副油箱",
-                "mass_kg": 1270.0,
-                "dry_mass_kg": 152.4,
-                "fuel_kg": 1117.6
               }
             ]
           },
@@ -36303,6 +37180,15 @@ module.exports = {
                 "mass_kg": 86.0,
                 "dry_mass_kg": 86.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9x@1",
+                "munition_id": "aim9x",
+                "qty": 1.0,
+                "label": "AIM-9X 响尾蛇",
+                "mass_kg": 85.0,
+                "dry_mass_kg": 85.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -36360,6 +37246,42 @@ module.exports = {
                 "label": "LAU-3 火箭发射器",
                 "mass_kg": 135.0,
                 "dry_mass_kg": 135.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9x@1",
+                "munition_id": "aim9x",
+                "qty": 1.0,
+                "label": "AIM-9X 响尾蛇",
+                "mass_kg": 85.0,
+                "dry_mass_kg": 85.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -36491,6 +37413,42 @@ module.exports = {
                 "mass_kg": 270.0,
                 "dry_mass_kg": 270.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9x@1",
+                "munition_id": "aim9x",
+                "qty": 1.0,
+                "label": "AIM-9X 响尾蛇",
+                "mass_kg": 85.0,
+                "dry_mass_kg": 85.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -36530,6 +37488,15 @@ module.exports = {
                 "label": "MK-20 Rockeye",
                 "mass_kg": 222.0,
                 "dry_mass_kg": 222.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "sniper@1",
+                "munition_id": "sniper",
+                "qty": 1.0,
+                "label": "SNIPER 瞄准吊舱",
+                "mass_kg": 200.0,
+                "dry_mass_kg": 200.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -36661,6 +37628,42 @@ module.exports = {
                 "mass_kg": 270.0,
                 "dry_mass_kg": 270.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9x@1",
+                "munition_id": "aim9x",
+                "qty": 1.0,
+                "label": "AIM-9X 响尾蛇",
+                "mass_kg": 85.0,
+                "dry_mass_kg": 85.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -36719,6 +37722,42 @@ module.exports = {
                 "mass_kg": 135.0,
                 "dry_mass_kg": 135.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "aim120@1",
+                "munition_id": "aim120",
+                "qty": 1.0,
+                "label": "AIM-120 AMRAAM",
+                "mass_kg": 152.0,
+                "dry_mass_kg": 152.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9x@1",
+                "munition_id": "aim9x",
+                "qty": 1.0,
+                "label": "AIM-9X 响尾蛇",
+                "mass_kg": 85.0,
+                "dry_mass_kg": 85.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu12@1",
+                "munition_id": "gbu12",
+                "qty": 1.0,
+                "label": "GBU-12 (500lb)",
+                "mass_kg": 230.0,
+                "dry_mass_kg": 230.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "gbu38@1",
+                "munition_id": "gbu38",
+                "qty": 1.0,
+                "label": "GBU-38 (500lb)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -36740,6 +37779,15 @@ module.exports = {
                 "label": "AIM-9 Sidewinder",
                 "mass_kg": 86.0,
                 "dry_mass_kg": 86.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aim9x@1",
+                "munition_id": "aim9x",
+                "qty": 1.0,
+                "label": "AIM-9X 响尾蛇",
+                "mass_kg": 85.0,
+                "dry_mass_kg": 85.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -36821,6 +37869,15 @@ module.exports = {
                 "label": "PL-12 中距空空弹 ×2",
                 "mass_kg": 398.0,
                 "dry_mass_kg": 398.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl15e@1",
+                "munition_id": "pl15e",
+                "qty": 1.0,
+                "label": "PL-15E 远程空空弹",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
                 "fuel_kg": 0.0
               },
               {
@@ -36924,6 +37981,24 @@ module.exports = {
                 "label": "C-802A 反舰导弹",
                 "mass_kg": 715.0,
                 "dry_mass_kg": 715.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "pl15e@1",
+                "munition_id": "pl15e",
+                "qty": 1.0,
+                "label": "PL-15E 远程空空弹",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cm400akg@1",
+                "munition_id": "cm400akg",
+                "qty": 1.0,
+                "label": "CM-400AKG 高超音速空地/反舰导弹",
+                "mass_kg": 910.0,
+                "dry_mass_kg": 910.0,
                 "fuel_kg": 0.0
               },
               {
@@ -37142,6 +38217,24 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "pl15e@1",
+                "munition_id": "pl15e",
+                "qty": 1.0,
+                "label": "PL-15E 远程空空弹",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "cm400akg@1",
+                "munition_id": "cm400akg",
+                "qty": 1.0,
+                "label": "CM-400AKG 高超音速空地/反舰导弹",
+                "mass_kg": 910.0,
+                "dry_mass_kg": 910.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "ls6_500@1",
                 "munition_id": "ls6_500",
                 "qty": 1.0,
@@ -37299,6 +38392,15 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
+                "key": "pl15e@1",
+                "munition_id": "pl15e",
+                "qty": 1.0,
+                "label": "PL-15E 远程空空弹",
+                "mass_kg": 210.0,
+                "dry_mass_kg": 210.0,
+                "fuel_kg": 0.0
+              },
+              {
                 "key": "mar1@1",
                 "munition_id": "mar1",
                 "qty": 1.0,
@@ -37406,30 +38508,8 @@ module.exports = {
         "stations": [
           {
             "id": "wtip_r",
-            "label": "翼尖外侧（右）",
-            "mount_style": "wing_tip",
-            "options": [
-              {
-                "key": "",
-                "munition_id": "",
-                "qty": 0,
-                "label": "空挂"
-              },
-              {
-                "key": "aspj@1",
-                "munition_id": "aspj",
-                "qty": 1.0,
-                "label": "ASPJ 自卫干扰吊舱",
-                "mass_kg": 90.0,
-                "dry_mass_kg": 90.0,
-                "fuel_kg": 0.0
-              }
-            ]
-          },
-          {
-            "id": "wtip_l",
-            "label": "翼尖外侧（左）",
-            "mount_style": "wing_tip",
+            "label": "外侧挂点（右）",
+            "mount_style": "wing_pylon",
             "options": [
               {
                 "key": "",
@@ -37462,6 +38542,73 @@ module.exports = {
                 "label": "PYTHON-5 近距空空导弹",
                 "mass_kg": 105.0,
                 "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "aspj@1",
+                "munition_id": "aspj",
+                "qty": 1.0,
+                "label": "ASPJ 自卫干扰吊舱",
+                "mass_kg": 90.0,
+                "dry_mass_kg": 90.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asraam@2",
+                "munition_id": "asraam",
+                "qty": 2.0,
+                "label": "ASRAAM 近距空空导弹 ×2",
+                "mass_kg": 176.0,
+                "dry_mass_kg": 176.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "wtip_l",
+            "label": "外侧挂点（左）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "r73e@1",
+                "munition_id": "r73e",
+                "qty": 1.0,
+                "label": "R-73E",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asraam@1",
+                "munition_id": "asraam",
+                "qty": 1.0,
+                "label": "ASRAAM 近距空空导弹",
+                "mass_kg": 88.0,
+                "dry_mass_kg": 88.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "python5@1",
+                "munition_id": "python5",
+                "qty": 1.0,
+                "label": "PYTHON-5 近距空空导弹",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "asraam@2",
+                "munition_id": "asraam",
+                "qty": 2.0,
+                "label": "ASRAAM 近距空空导弹 ×2",
+                "mass_kg": 176.0,
+                "dry_mass_kg": 176.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -38113,6 +39260,7 @@ module.exports = {
           }
         ],
         "default_selection": {
+          "wtip_r": "r73e@1",
           "wtip_l": "r73e@1",
           "mid_l": "derby@1",
           "mid_r": "derby@1"
@@ -38132,24 +39280,6 @@ module.exports = {
                 "munition_id": "",
                 "qty": 0,
                 "label": "空挂"
-              },
-              {
-                "key": "amraam@1",
-                "munition_id": "amraam",
-                "qty": 1.0,
-                "label": "AMRAAM",
-                "mass_kg": 152.0,
-                "dry_mass_kg": 152.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "bvraam@1",
-                "munition_id": "bvraam",
-                "qty": 1.0,
-                "label": "BVRAAM",
-                "mass_kg": 190.0,
-                "dry_mass_kg": 190.0,
-                "fuel_kg": 0.0
               },
               {
                 "key": "aim9@1",
@@ -38176,87 +39306,6 @@ module.exports = {
                 "label": "IRIS-T",
                 "mass_kg": 87.0,
                 "dry_mass_kg": 87.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "lgb@1",
-                "munition_id": "lgb",
-                "qty": 1.0,
-                "label": "LGB",
-                "mass_kg": 250.0,
-                "dry_mass_kg": 250.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "jdam@1",
-                "munition_id": "jdam",
-                "qty": 1.0,
-                "label": "JDAM 联合直接攻击弹药",
-                "mass_kg": 450.0,
-                "dry_mass_kg": 450.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "alarm@1",
-                "munition_id": "alarm",
-                "qty": 1.0,
-                "label": "ALARM",
-                "mass_kg": 268.0,
-                "dry_mass_kg": 268.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harm@1",
-                "munition_id": "harm",
-                "qty": 1.0,
-                "label": "HARM",
-                "mass_kg": 360.0,
-                "dry_mass_kg": 360.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "brimstone@1",
-                "munition_id": "brimstone",
-                "qty": 1.0,
-                "label": "Brimstone",
-                "mass_kg": 50.0,
-                "dry_mass_kg": 50.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "bl755@1",
-                "munition_id": "bl755",
-                "qty": 1.0,
-                "label": "BL-755",
-                "mass_kg": 277.0,
-                "dry_mass_kg": 277.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "dws39@1",
-                "munition_id": "dws39",
-                "qty": 1.0,
-                "label": "DWS-39",
-                "mass_kg": 600.0,
-                "dry_mass_kg": 600.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "penguin@1",
-                "munition_id": "penguin",
-                "qty": 1.0,
-                "label": "PENGUIN",
-                "mass_kg": 370.0,
-                "dry_mass_kg": 370.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -38417,30 +39466,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "dws39@1",
-                "munition_id": "dws39",
+                "key": "marte_er@1",
+                "munition_id": "marte_er",
                 "qty": 1.0,
-                "label": "DWS-39",
-                "mass_kg": 600.0,
-                "dry_mass_kg": 600.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "penguin@1",
-                "munition_id": "penguin",
-                "qty": 1.0,
-                "label": "PENGUIN",
-                "mass_kg": 370.0,
-                "dry_mass_kg": 370.0,
+                "label": "MARTE ER",
+                "mass_kg": 310.0,
+                "dry_mass_kg": 310.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -38610,33 +39641,6 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "dws39@1",
-                "munition_id": "dws39",
-                "qty": 1.0,
-                "label": "DWS-39",
-                "mass_kg": 600.0,
-                "dry_mass_kg": 600.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "penguin@1",
-                "munition_id": "penguin",
-                "qty": 1.0,
-                "label": "PENGUIN",
-                "mass_kg": 370.0,
-                "dry_mass_kg": 370.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "fuel@1",
                 "munition_id": "fuel",
                 "qty": 1.0,
@@ -38644,6 +39648,15 @@ module.exports = {
                 "mass_kg": 1200.0,
                 "dry_mass_kg": 144.0,
                 "fuel_kg": 1056.0
+              },
+              {
+                "key": "marte_er@1",
+                "munition_id": "marte_er",
+                "qty": 1.0,
+                "label": "MARTE ER",
+                "mass_kg": 310.0,
+                "dry_mass_kg": 310.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -39004,33 +40017,6 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "dws39@1",
-                "munition_id": "dws39",
-                "qty": 1.0,
-                "label": "DWS-39",
-                "mass_kg": 600.0,
-                "dry_mass_kg": 600.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "penguin@1",
-                "munition_id": "penguin",
-                "qty": 1.0,
-                "label": "PENGUIN",
-                "mass_kg": 370.0,
-                "dry_mass_kg": 370.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "fuel@1",
                 "munition_id": "fuel",
                 "qty": 1.0,
@@ -39038,6 +40024,15 @@ module.exports = {
                 "mass_kg": 1200.0,
                 "dry_mass_kg": 144.0,
                 "fuel_kg": 1056.0
+              },
+              {
+                "key": "marte_er@1",
+                "munition_id": "marte_er",
+                "qty": 1.0,
+                "label": "MARTE ER",
+                "mass_kg": 310.0,
+                "dry_mass_kg": 310.0,
+                "fuel_kg": 0.0
               }
             ]
           },
@@ -39197,30 +40192,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "dws39@1",
-                "munition_id": "dws39",
+                "key": "marte_er@1",
+                "munition_id": "marte_er",
                 "qty": 1.0,
-                "label": "DWS-39",
-                "mass_kg": 600.0,
-                "dry_mass_kg": 600.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "penguin@1",
-                "munition_id": "penguin",
-                "qty": 1.0,
-                "label": "PENGUIN",
-                "mass_kg": 370.0,
-                "dry_mass_kg": 370.0,
+                "label": "MARTE ER",
+                "mass_kg": 310.0,
+                "dry_mass_kg": 310.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -39235,24 +40212,6 @@ module.exports = {
                 "munition_id": "",
                 "qty": 0,
                 "label": "空挂"
-              },
-              {
-                "key": "amraam@1",
-                "munition_id": "amraam",
-                "qty": 1.0,
-                "label": "AMRAAM",
-                "mass_kg": 152.0,
-                "dry_mass_kg": 152.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "bvraam@1",
-                "munition_id": "bvraam",
-                "qty": 1.0,
-                "label": "BVRAAM",
-                "mass_kg": 190.0,
-                "dry_mass_kg": 190.0,
-                "fuel_kg": 0.0
               },
               {
                 "key": "aim9@1",
@@ -39279,87 +40238,6 @@ module.exports = {
                 "label": "IRIS-T",
                 "mass_kg": 87.0,
                 "dry_mass_kg": 87.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "lgb@1",
-                "munition_id": "lgb",
-                "qty": 1.0,
-                "label": "LGB",
-                "mass_kg": 250.0,
-                "dry_mass_kg": 250.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "jdam@1",
-                "munition_id": "jdam",
-                "qty": 1.0,
-                "label": "JDAM 联合直接攻击弹药",
-                "mass_kg": 450.0,
-                "dry_mass_kg": 450.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "alarm@1",
-                "munition_id": "alarm",
-                "qty": 1.0,
-                "label": "ALARM",
-                "mass_kg": 268.0,
-                "dry_mass_kg": 268.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harm@1",
-                "munition_id": "harm",
-                "qty": 1.0,
-                "label": "HARM",
-                "mass_kg": 360.0,
-                "dry_mass_kg": 360.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "brimstone@1",
-                "munition_id": "brimstone",
-                "qty": 1.0,
-                "label": "Brimstone",
-                "mass_kg": 50.0,
-                "dry_mass_kg": 50.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "bl755@1",
-                "munition_id": "bl755",
-                "qty": 1.0,
-                "label": "BL-755",
-                "mass_kg": 277.0,
-                "dry_mass_kg": 277.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "dws39@1",
-                "munition_id": "dws39",
-                "qty": 1.0,
-                "label": "DWS-39",
-                "mass_kg": 600.0,
-                "dry_mass_kg": 600.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "penguin@1",
-                "munition_id": "penguin",
-                "qty": 1.0,
-                "label": "PENGUIN",
-                "mass_kg": 370.0,
-                "dry_mass_kg": 370.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -41353,48 +42231,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "smart_cruiser@1",
-                "munition_id": "smart_cruiser",
-                "qty": 1.0,
-                "label": "SMART CRUISER",
-                "mass_kg": 900.0,
-                "dry_mass_kg": 900.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -41422,15 +42264,6 @@ module.exports = {
                 "label": "GBU-10 / 24",
                 "mass_kg": 1000.0,
                 "dry_mass_kg": 1000.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "thunder_p32@1",
-                "munition_id": "thunder_p32",
-                "qty": 1.0,
-                "label": "THUNDER P-32",
-                "mass_kg": 450.0,
-                "dry_mass_kg": 450.0,
                 "fuel_kg": 0.0
               },
               {
@@ -41573,48 +42406,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "smart_cruiser@1",
-                "munition_id": "smart_cruiser",
-                "qty": 1.0,
-                "label": "SMART CRUISER",
-                "mass_kg": 900.0,
-                "dry_mass_kg": 900.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -41642,15 +42439,6 @@ module.exports = {
                 "label": "GBU-10 / 24",
                 "mass_kg": 1000.0,
                 "dry_mass_kg": 1000.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "thunder_p32@1",
-                "munition_id": "thunder_p32",
-                "qty": 1.0,
-                "label": "THUNDER P-32",
-                "mass_kg": 450.0,
-                "dry_mass_kg": 450.0,
                 "fuel_kg": 0.0
               },
               {
@@ -41721,39 +42509,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -41797,39 +42558,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -42060,48 +42794,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "smart_cruiser@1",
-                "munition_id": "smart_cruiser",
-                "qty": 1.0,
-                "label": "SMART CRUISER",
-                "mass_kg": 900.0,
-                "dry_mass_kg": 900.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -42565,48 +43263,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "smart_cruiser@1",
-                "munition_id": "smart_cruiser",
-                "qty": 1.0,
-                "label": "SMART CRUISER",
-                "mass_kg": 900.0,
-                "dry_mass_kg": 900.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -42634,15 +43296,6 @@ module.exports = {
                 "label": "GBU-10 / 24",
                 "mass_kg": 1000.0,
                 "dry_mass_kg": 1000.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "thunder_p32@1",
-                "munition_id": "thunder_p32",
-                "qty": 1.0,
-                "label": "THUNDER P-32",
-                "mass_kg": 450.0,
-                "dry_mass_kg": 450.0,
                 "fuel_kg": 0.0
               },
               {
@@ -42785,48 +43438,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "smart_cruiser@1",
-                "munition_id": "smart_cruiser",
-                "qty": 1.0,
-                "label": "SMART CRUISER",
-                "mass_kg": 900.0,
-                "dry_mass_kg": 900.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -42854,15 +43471,6 @@ module.exports = {
                 "label": "GBU-10 / 24",
                 "mass_kg": 1000.0,
                 "dry_mass_kg": 1000.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "thunder_p32@1",
-                "munition_id": "thunder_p32",
-                "qty": 1.0,
-                "label": "THUNDER P-32",
-                "mass_kg": 450.0,
-                "dry_mass_kg": 450.0,
                 "fuel_kg": 0.0
               },
               {
@@ -42933,39 +43541,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -43009,39 +43590,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -43272,48 +43826,12 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "tp_15@1",
-                "munition_id": "tp_15",
-                "qty": 1.0,
-                "label": "TP-15",
-                "mass_kg": 300.0,
-                "dry_mass_kg": 300.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_radar@1",
-                "munition_id": "rj10_anti_radar",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Radar",
-                "mass_kg": 500.0,
-                "dry_mass_kg": 500.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "smart_cruiser@1",
-                "munition_id": "smart_cruiser",
-                "qty": 1.0,
-                "label": "SMART CRUISER",
-                "mass_kg": 900.0,
-                "dry_mass_kg": 900.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "am39_exocet@1",
                 "munition_id": "am39_exocet",
                 "qty": 1.0,
                 "label": "AM-39 Exocet",
                 "mass_kg": 670.0,
                 "dry_mass_kg": 670.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "rj10_anti_ship@1",
-                "munition_id": "rj10_anti_ship",
-                "qty": 1.0,
-                "label": "RJ-10 Anti-Ship",
-                "mass_kg": 550.0,
-                "dry_mass_kg": 550.0,
                 "fuel_kg": 0.0
               },
               {
@@ -43526,8 +44044,8 @@ module.exports = {
         "stations": [
           {
             "id": "1",
-            "label": "右翼尖挂点 (Pylon 1)",
-            "mount_style": "wing_tip",
+            "label": "外翼挂点 R (Pylon 1)",
+            "mount_style": "wing_pylon",
             "options": [
               {
                 "key": "",
@@ -43543,12 +44061,21 @@ module.exports = {
                 "mass_kg": 89.0,
                 "dry_mass_kg": 89.0,
                 "fuel_kg": 0.0
+              },
+              {
+                "key": "mica_ir@1",
+                "munition_id": "mica_ir",
+                "qty": 1.0,
+                "label": "MICA IR",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
+                "fuel_kg": 0.0
               }
             ]
           },
           {
             "id": "2",
-            "label": "机翼外侧挂点 R (Pylon 2)",
+            "label": "内翼挂点 R (Pylon 2)",
             "mount_style": "wing_pylon",
             "options": [
               {
@@ -43655,13 +44182,22 @@ module.exports = {
                 "mass_kg": 1760.0,
                 "dry_mass_kg": 160.0,
                 "fuel_kg": 1600.0
+              },
+              {
+                "key": "scalp_eg@1",
+                "munition_id": "scalp_eg",
+                "qty": 1.0,
+                "label": "SCALP-EG",
+                "mass_kg": 1300.0,
+                "dry_mass_kg": 1300.0,
+                "fuel_kg": 0.0
               }
             ]
           },
           {
             "id": "3",
-            "label": "机翼内侧挂点 R (Pylon 3)",
-            "mount_style": "wing_pylon",
+            "label": "机身前侧挂点 R (Pylon 3)",
+            "mount_style": "side_rail",
             "options": [
               {
                 "key": "",
@@ -43718,7 +44254,7 @@ module.exports = {
           },
           {
             "id": "4",
-            "label": "进气道下方侧边挂点 R (Pylon 4)",
+            "label": "机身后侧挂点 R (Pylon 4)",
             "mount_style": "side_rail",
             "options": [
               {
@@ -43865,12 +44401,21 @@ module.exports = {
                 "mass_kg": 1760.0,
                 "dry_mass_kg": 160.0,
                 "fuel_kg": 1600.0
+              },
+              {
+                "key": "scalp_eg@1",
+                "munition_id": "scalp_eg",
+                "qty": 1.0,
+                "label": "SCALP-EG",
+                "mass_kg": 1300.0,
+                "dry_mass_kg": 1300.0,
+                "fuel_kg": 0.0
               }
             ]
           },
           {
             "id": "6",
-            "label": "进气道右下侧挂点 (Pylon 6)",
+            "label": "机身后侧挂点 L (Pylon 6)",
             "mount_style": "side_rail",
             "options": [
               {
@@ -43946,8 +44491,8 @@ module.exports = {
           },
           {
             "id": "7",
-            "label": "机翼内侧挂点 L (Pylon 7)",
-            "mount_style": "wing_pylon",
+            "label": "机身前侧挂点 L (Pylon 7)",
+            "mount_style": "side_rail",
             "options": [
               {
                 "key": "",
@@ -44004,7 +44549,7 @@ module.exports = {
           },
           {
             "id": "8",
-            "label": "机翼外侧挂点 L (Pylon 8)",
+            "label": "内翼挂点 L (Pylon 8)",
             "mount_style": "wing_pylon",
             "options": [
               {
@@ -44111,13 +44656,22 @@ module.exports = {
                 "mass_kg": 1760.0,
                 "dry_mass_kg": 160.0,
                 "fuel_kg": 1600.0
+              },
+              {
+                "key": "scalp_eg@1",
+                "munition_id": "scalp_eg",
+                "qty": 1.0,
+                "label": "SCALP-EG",
+                "mass_kg": 1300.0,
+                "dry_mass_kg": 1300.0,
+                "fuel_kg": 0.0
               }
             ]
           },
           {
             "id": "9",
-            "label": "左翼尖挂点 (Pylon 9)",
-            "mount_style": "wing_tip",
+            "label": "外翼挂点 L (Pylon 9)",
+            "mount_style": "wing_pylon",
             "options": [
               {
                 "key": "",
@@ -44132,6 +44686,15 @@ module.exports = {
                 "label": "Magic II",
                 "mass_kg": 89.0,
                 "dry_mass_kg": 89.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "mica_ir@1",
+                "munition_id": "mica_ir",
+                "qty": 1.0,
+                "label": "MICA IR",
+                "mass_kg": 112.0,
+                "dry_mass_kg": 112.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -44382,15 +44945,6 @@ module.exports = {
                 "mass_kg": 190.0,
                 "dry_mass_kg": 190.0,
                 "fuel_kg": 0.0
-              },
-              {
-                "key": "skyflash@1",
-                "munition_id": "skyflash",
-                "qty": 1.0,
-                "label": "Skyflash",
-                "mass_kg": 193.0,
-                "dry_mass_kg": 193.0,
-                "fuel_kg": 0.0
               }
             ]
           },
@@ -44529,15 +45083,6 @@ module.exports = {
                 "label": "METEOR",
                 "mass_kg": 190.0,
                 "dry_mass_kg": 190.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "skyflash@1",
-                "munition_id": "skyflash",
-                "qty": 1.0,
-                "label": "Skyflash",
-                "mass_kg": 193.0,
-                "dry_mass_kg": 193.0,
                 "fuel_kg": 0.0
               }
             ]
@@ -44889,7 +45434,7 @@ module.exports = {
                 "key": "erielectron@1",
                 "munition_id": "erielectron",
                 "qty": 1.0,
-                "label": "Erieye/自卫干扰吊舱",
+                "label": "Saab 自卫电子战吊舱",
                 "mass_kg": 220.0,
                 "dry_mass_kg": 220.0,
                 "fuel_kg": 0.0
@@ -45123,15 +45668,6 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "gbu12@1",
                 "munition_id": "gbu12",
                 "qty": 1.0,
@@ -45217,15 +45753,6 @@ module.exports = {
                 "fuel_kg": 0.0
               },
               {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
-                "fuel_kg": 0.0
-              },
-              {
                 "key": "gbu12@1",
                 "munition_id": "gbu12",
                 "qty": 1.0,
@@ -45308,15 +45835,6 @@ module.exports = {
                 "label": "RBS-15",
                 "mass_kg": 650.0,
                 "dry_mass_kg": 650.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
                 "fuel_kg": 0.0
               },
               {
@@ -45411,15 +45929,6 @@ module.exports = {
                 "label": "RBS-15",
                 "mass_kg": 650.0,
                 "dry_mass_kg": 650.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
                 "fuel_kg": 0.0
               },
               {
@@ -45536,15 +46045,6 @@ module.exports = {
                 "label": "RBS-15",
                 "mass_kg": 650.0,
                 "dry_mass_kg": 650.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
                 "fuel_kg": 0.0
               },
               {
@@ -45697,15 +46197,6 @@ module.exports = {
                 "label": "RBS-15",
                 "mass_kg": 650.0,
                 "dry_mass_kg": 650.0,
-                "fuel_kg": 0.0
-              },
-              {
-                "key": "harpoon@1",
-                "munition_id": "harpoon",
-                "qty": 1.0,
-                "label": "HARPOON",
-                "mass_kg": 691.0,
-                "dry_mass_kg": 691.0,
                 "fuel_kg": 0.0
               },
               {
@@ -50758,6 +51249,96 @@ module.exports = {
         "store_mount": "pylon",
         "drag_weight": 1.5,
         "notes": "战术空中侦察管道系统吊舱"
+      },
+      {
+        "id": "mk-82",
+        "name": "Mk-82 500 lb",
+        "mass_kg": 241.0,
+        "length_m": 2.21,
+        "diameter_m": 0.273,
+        "store_mount": "pylon",
+        "drag_weight": 0.8,
+        "notes": "无制导通用炸弹；机腹通道 BRU-32"
+      },
+      {
+        "id": "mk-83",
+        "name": "Mk-83 1000 lb",
+        "mass_kg": 454.0,
+        "length_m": 3.0,
+        "diameter_m": 0.356,
+        "store_mount": "pylon",
+        "drag_weight": 1.0,
+        "notes": "无制导通用炸弹；机腹通道 BRU-32"
+      },
+      {
+        "id": "mk-84",
+        "name": "Mk-84 2000 lb",
+        "mass_kg": 925.0,
+        "length_m": 3.84,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "drag_weight": 1.4,
+        "notes": "无制导通用炸弹；机腹通道 BRU-32"
+      },
+      {
+        "id": "gbu-12",
+        "name": "GBU-12 Paveway II",
+        "mass_kg": 230.0,
+        "length_m": 3.27,
+        "diameter_m": 0.273,
+        "store_mount": "pylon",
+        "drag_weight": 0.9,
+        "notes": "500 磅激光制导炸弹"
+      },
+      {
+        "id": "gbu-16",
+        "name": "GBU-16 Paveway II",
+        "mass_kg": 454.0,
+        "length_m": 3.7,
+        "diameter_m": 0.356,
+        "store_mount": "pylon",
+        "drag_weight": 1.1,
+        "notes": "1000 磅激光制导炸弹"
+      },
+      {
+        "id": "gbu-10",
+        "name": "GBU-10 Paveway II",
+        "mass_kg": 940.0,
+        "length_m": 4.32,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "drag_weight": 1.5,
+        "notes": "2000 磅激光制导炸弹"
+      },
+      {
+        "id": "gbu-24",
+        "name": "GBU-24 Paveway III",
+        "mass_kg": 1050.0,
+        "length_m": 4.39,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "drag_weight": 1.6,
+        "notes": "2000 磅激光制导炸弹；所有 F-14 型均获准机腹挂 2 枚"
+      },
+      {
+        "id": "gbu-31",
+        "name": "GBU-31 JDAM",
+        "mass_kg": 925.0,
+        "length_m": 3.88,
+        "diameter_m": 0.457,
+        "store_mount": "pylon",
+        "drag_weight": 1.4,
+        "notes": "2000 磅 GPS 制导炸弹；F-14D 获准挂载"
+      },
+      {
+        "id": "lantirn",
+        "name": "LANTIRN 瞄准吊舱",
+        "mass_kg": 236.0,
+        "length_m": 2.5,
+        "diameter_m": 0.38,
+        "store_mount": "pylon",
+        "drag_weight": 0.6,
+        "notes": "AN/AAQ-14 瞄准吊舱；挂 Station 8b"
       }
     ],
     "aircraft_store_layouts": {
@@ -50798,9 +51379,17 @@ module.exports = {
           "zone": "belly",
           "allowed_store_ids": [
             "aim-7",
-            "aim-54"
+            "aim-54",
+            "mk-82",
+            "mk-83",
+            "mk-84",
+            "gbu-12",
+            "gbu-16",
+            "gbu-10",
+            "gbu-24",
+            "gbu-31"
           ],
-          "notes": "配合 Weapon Rail/Launcher"
+          "notes": "配合 Weapon Rail/Launcher；BRU-32 可挂炸弹（Bombcat）"
         },
         {
           "station_id": "4",
@@ -50808,9 +51397,17 @@ module.exports = {
           "zone": "belly",
           "allowed_store_ids": [
             "aim-7",
-            "aim-54"
+            "aim-54",
+            "mk-82",
+            "mk-83",
+            "mk-84",
+            "gbu-12",
+            "gbu-16",
+            "gbu-10",
+            "gbu-24",
+            "gbu-31"
           ],
-          "notes": "配合 Weapon Rail/Launcher"
+          "notes": "配合 Weapon Rail/Launcher；BRU-32 可挂炸弹（Bombcat）"
         },
         {
           "station_id": "5",
@@ -50819,9 +51416,17 @@ module.exports = {
           "allowed_store_ids": [
             "aim-7",
             "aim-54",
-            "tarps"
+            "tarps",
+            "mk-82",
+            "mk-83",
+            "mk-84",
+            "gbu-12",
+            "gbu-16",
+            "gbu-10",
+            "gbu-24",
+            "gbu-31"
           ],
-          "notes": "TARPS 仅 Station 5"
+          "notes": "TARPS 仅 Station 5；BRU-32 可挂炸弹（Bombcat）"
         },
         {
           "station_id": "6",
@@ -50829,9 +51434,17 @@ module.exports = {
           "zone": "belly",
           "allowed_store_ids": [
             "aim-7",
-            "aim-54"
+            "aim-54",
+            "mk-82",
+            "mk-83",
+            "mk-84",
+            "gbu-12",
+            "gbu-16",
+            "gbu-10",
+            "gbu-24",
+            "gbu-31"
           ],
-          "notes": "配合 Weapon Rail/Launcher"
+          "notes": "配合 Weapon Rail/Launcher；BRU-32 可挂炸弹（Bombcat）"
         },
         {
           "station_id": "7",
@@ -50859,9 +51472,10 @@ module.exports = {
           "allowed_store_ids": [
             "aim-7",
             "aim-54",
-            "stub-pylon"
+            "stub-pylon",
+            "lantirn"
           ],
-          "notes": "AIM-54 需 Adapter & Launcher"
+          "notes": "AIM-54 需 Adapter & Launcher；LANTIRN 瞄准吊舱"
         }
       ]
     },
@@ -51069,13 +51683,13 @@ module.exports = {
         "notes": "最内侧挂点；含燃油约 1150 kg；全机最多 2 个"
       },
       {
-        "id": "tank_1900l",
-        "name": "1,900 L 副油箱",
+        "id": "tank_2150l",
+        "name": "2,150 L 副油箱",
         "category": "tank",
-        "mass_kg": 1520.0,
-        "length_m": 5.4,
-        "diameter_m": 0.6,
-        "notes": "机腹中央挂点；含燃油约 1450 kg"
+        "mass_kg": 1740.0,
+        "length_m": 5.6,
+        "diameter_m": 0.62,
+        "notes": "机腹中央挂点 PTB-2150；含燃油约 1650 kg"
       }
     ],
     "aircraft": {
@@ -51090,7 +51704,7 @@ module.exports = {
             "side": "center",
             "position_rank": 0,
             "allowed_stores": [
-              "tank_1900l",
+              "tank_2150l",
               "optronic_pod"
             ],
             "notes": "副油箱或光电吊舱二选一"
@@ -51250,7 +51864,7 @@ module.exports = {
         ],
         "limits": [
           {
-            "store_id": "tank_1900l",
+            "store_id": "tank_2150l",
             "max_count": 1,
             "scope": "aircraft",
             "notes": "机腹中央副油箱最多 1 个"
@@ -51704,12 +52318,33 @@ module.exports = {
         "diameter_m": 0.406,
         "store_mount": "pylon",
         "notes": "机腹中心 300 US gal 副油箱（满油）"
+      },
+      {
+        "id": "AGM-84D",
+        "name": "AGM-84D Harpoon",
+        "category": "asm",
+        "mass_kg": 519.0,
+        "length_m": 3.84,
+        "diameter_m": 0.343,
+        "store_mount": "pylon",
+        "notes": "空射亚音速掠海反舰导弹（台湾/土耳其/韩国/埃及/新加坡等 F-16 用户已集成）"
+      },
+      {
+        "id": "FUEL-TANK-600",
+        "name": "600 加仑副油箱",
+        "category": "fuel_tank",
+        "mass_kg": 2020.0,
+        "length_m": 4.6,
+        "diameter_m": 0.6,
+        "store_mount": "pylon",
+        "notes": "翼下内侧 600 US gal 副油箱（满油，含燃油 1817 kg）"
       }
     ],
     "store_categories": [
       "aam",
       "agm",
       "arm",
+      "asm",
       "bomb",
       "cluster",
       "ecm",
@@ -51767,6 +52402,7 @@ module.exports = {
             "AGM-65H",
             "AGM-65K",
             "AGM-154A",
+            "AGM-84D",
             "CBU-103",
             "CBU-105",
             "CBU-87-2x",
@@ -51791,10 +52427,9 @@ module.exports = {
             "ALQ-184",
             "ALQ-184-LONG",
             "ALQ-131",
-            "AN-ASQ-T50",
-            "FUEL-TANK-370"
+            "AN-ASQ-T50"
           ],
-          "notes": "支持最广泛的空对空/空对地弹药及副油箱"
+          "notes": "支持最广泛的空对空/空对地弹药（含 AGM-84 鱼叉）"
         },
         {
           "station_id": "4",
@@ -51804,9 +52439,20 @@ module.exports = {
           "allowed_stores": [
             "CBU-87-3x",
             "CBU-97-3x",
-            "FUEL-TANK-370"
+            "CBU-103",
+            "CBU-105",
+            "Mk-82-3x",
+            "Mk-84",
+            "Mk-84-AIR",
+            "GBU-10",
+            "GBU-24",
+            "GBU-31V1B",
+            "GBU-31V3B",
+            "AGM-84D",
+            "FUEL-TANK-370",
+            "FUEL-TANK-600"
           ],
-          "notes": "重型集束炸弹、副油箱"
+          "notes": "重载挂点：370/600 加仑副油箱、2000 磅级弹药、AGM-84 鱼叉"
         },
         {
           "station_id": "5",
@@ -51849,9 +52495,20 @@ module.exports = {
           "allowed_stores": [
             "CBU-87-3x",
             "CBU-97-3x",
-            "AN-AAQ-28"
+            "CBU-103",
+            "CBU-105",
+            "Mk-82-3x",
+            "Mk-84",
+            "Mk-84-AIR",
+            "GBU-10",
+            "GBU-24",
+            "GBU-31V1B",
+            "GBU-31V3B",
+            "AGM-84D",
+            "FUEL-TANK-370",
+            "FUEL-TANK-600"
           ],
-          "notes": "重型集束炸弹或 Litening 瞄准吊舱"
+          "notes": "与挂点 4 对称"
         },
         {
           "station_id": "7",
@@ -51870,6 +52527,7 @@ module.exports = {
             "AGM-65H",
             "AGM-65K",
             "AGM-154A",
+            "AGM-84D",
             "CBU-103",
             "CBU-105",
             "CBU-87-2x",
@@ -51894,8 +52552,7 @@ module.exports = {
             "ALQ-184",
             "ALQ-184-LONG",
             "ALQ-131",
-            "AN-ASQ-T50",
-            "FUEL-TANK-370"
+            "AN-ASQ-T50"
           ],
           "notes": "与挂点 3 对称"
         },
@@ -52443,28 +53100,8 @@ module.exports = {
           "category": "air_to_ground"
         },
         {
-          "id": "tp_15",
-          "name": "TP-15",
-          "category": "air_to_ground"
-        },
-        {
-          "id": "rj10_anti_radar",
-          "name": "RJ-10 Anti-Radar",
-          "category": "air_to_ground"
-        },
-        {
-          "id": "smart_cruiser",
-          "name": "SMART CRUISER",
-          "category": "air_to_ground"
-        },
-        {
           "id": "am39_exocet",
           "name": "AM-39 EXOCET",
-          "category": "air_to_sea"
-        },
-        {
-          "id": "rj10_anti_ship",
-          "name": "RJ-10 Anti-Ship",
           "category": "air_to_sea"
         },
         {
@@ -52480,11 +53117,6 @@ module.exports = {
         {
           "id": "gbu_10_24",
           "name": "GBU-10 / 24",
-          "category": "bombs_guided"
-        },
-        {
-          "id": "thunder_p32",
-          "name": "THUNDER P-32",
           "category": "bombs_guided"
         },
         {
@@ -52560,28 +53192,8 @@ module.exports = {
           "category": "air_to_ground"
         },
         {
-          "id": "tp_15",
-          "name": "TP-15",
-          "category": "air_to_ground"
-        },
-        {
-          "id": "rj10_anti_radar",
-          "name": "RJ-10 Anti-Radar",
-          "category": "air_to_ground"
-        },
-        {
-          "id": "smart_cruiser",
-          "name": "SMART CRUISER",
-          "category": "air_to_ground"
-        },
-        {
           "id": "am39_exocet",
           "name": "AM-39 EXOCET",
-          "category": "air_to_sea"
-        },
-        {
-          "id": "rj10_anti_ship",
-          "name": "RJ-10 Anti-Ship",
           "category": "air_to_sea"
         },
         {
@@ -52597,11 +53209,6 @@ module.exports = {
         {
           "id": "gbu_10_24",
           "name": "GBU-10 / 24",
-          "category": "bombs_guided"
-        },
-        {
-          "id": "thunder_p32",
-          "name": "THUNDER P-32",
           "category": "bombs_guided"
         },
         {
@@ -52637,23 +53244,8 @@ module.exports = {
           "category": "air_to_ground"
         },
         {
-          "id": "tp_15",
-          "name": "TP-15",
-          "category": "air_to_ground"
-        },
-        {
-          "id": "rj10_anti_radar",
-          "name": "RJ-10 Anti-Radar",
-          "category": "air_to_ground"
-        },
-        {
           "id": "am39_exocet",
           "name": "AM-39 EXOCET",
-          "category": "air_to_sea"
-        },
-        {
-          "id": "rj10_anti_ship",
-          "name": "RJ-10 Anti-Ship",
           "category": "air_to_sea"
         },
         {
@@ -52674,23 +53266,8 @@ module.exports = {
           "category": "air_to_ground"
         },
         {
-          "id": "tp_15",
-          "name": "TP-15",
-          "category": "air_to_ground"
-        },
-        {
-          "id": "rj10_anti_radar",
-          "name": "RJ-10 Anti-Radar",
-          "category": "air_to_ground"
-        },
-        {
           "id": "am39_exocet",
           "name": "AM-39 EXOCET",
-          "category": "air_to_sea"
-        },
-        {
-          "id": "rj10_anti_ship",
-          "name": "RJ-10 Anti-Ship",
           "category": "air_to_sea"
         },
         {
@@ -52794,28 +53371,8 @@ module.exports = {
           "category": "air_to_ground"
         },
         {
-          "id": "tp_15",
-          "name": "TP-15",
-          "category": "air_to_ground"
-        },
-        {
-          "id": "rj10_anti_radar",
-          "name": "RJ-10 Anti-Radar",
-          "category": "air_to_ground"
-        },
-        {
-          "id": "smart_cruiser",
-          "name": "SMART CRUISER",
-          "category": "air_to_ground"
-        },
-        {
           "id": "am39_exocet",
           "name": "AM-39 EXOCET",
-          "category": "air_to_sea"
-        },
-        {
-          "id": "rj10_anti_ship",
-          "name": "RJ-10 Anti-Ship",
           "category": "air_to_sea"
         },
         {
@@ -52965,41 +53522,41 @@ module.exports = {
         "aircraft_id": "Mirage-2000",
         "station_id": "1",
         "station_label": "PYLON 1",
-        "label_zh": "右翼尖挂点 (Pylon 1)",
+        "label_zh": "外翼挂点 R (Pylon 1)",
         "side": "right",
-        "position": "wing_tip",
+        "position": "wing_outer",
         "store_mount": "pylon",
-        "notes": "Magic II 近距红外格斗"
+        "notes": "外翼空空导弹专用：Magic II / MICA IR"
       },
       {
         "aircraft_id": "Mirage-2000",
         "station_id": "2",
         "station_label": "PYLON 2",
-        "label_zh": "机翼外侧挂点 R (Pylon 2)",
+        "label_zh": "内翼挂点 R (Pylon 2)",
         "side": "right",
-        "position": "wing_outer",
+        "position": "wing_inner",
         "store_mount": "pylon",
-        "notes": "超视距/对地/副油箱；可复合挂架"
+        "notes": "湿挂点：超视距/对地/反舰/副油箱；可复合挂架"
       },
       {
         "aircraft_id": "Mirage-2000",
         "station_id": "3",
         "station_label": "PYLON 3",
-        "label_zh": "机翼内侧挂点 R (Pylon 3)",
+        "label_zh": "机身前侧挂点 R (Pylon 3)",
         "side": "right",
-        "position": "wing_inner",
+        "position": "fuselage_side",
         "store_mount": "pylon",
-        "notes": "MICA / 面打击武器"
+        "notes": "机身挂点：MICA / 面打击武器"
       },
       {
         "aircraft_id": "Mirage-2000",
         "station_id": "4",
         "station_label": "PYLON 4",
-        "label_zh": "进气道下方侧边挂点 R (Pylon 4)",
+        "label_zh": "机身后侧挂点 R (Pylon 4)",
         "side": "right",
-        "position": "intake",
+        "position": "fuselage_side_intake",
         "store_mount": "pylon",
-        "notes": "空空/常规航弹；无光电吊舱"
+        "notes": "机身挂点：空空/常规航弹；无光电吊舱"
       },
       {
         "aircraft_id": "Mirage-2000",
@@ -53015,41 +53572,41 @@ module.exports = {
         "aircraft_id": "Mirage-2000",
         "station_id": "6",
         "station_label": "PYLON 6",
-        "label_zh": "进气道右下侧挂点 (Pylon 6)",
+        "label_zh": "机身后侧挂点 L (Pylon 6)",
         "side": "left",
-        "position": "intake",
+        "position": "fuselage_side_intake",
         "store_mount": "pylon",
-        "notes": "空空/航弹；ATLIS II / PDLCT / Damocles 仅此点"
+        "notes": "机身挂点：空空/航弹；ATLIS II / PDLCT / Damocles 仅此点"
       },
       {
         "aircraft_id": "Mirage-2000",
         "station_id": "7",
         "station_label": "PYLON 7",
-        "label_zh": "机翼内侧挂点 L (Pylon 7)",
+        "label_zh": "机身前侧挂点 L (Pylon 7)",
         "side": "left",
-        "position": "wing_inner",
+        "position": "fuselage_side",
         "store_mount": "pylon",
-        "notes": "MICA / 面打击武器"
+        "notes": "机身挂点：MICA / 面打击武器"
       },
       {
         "aircraft_id": "Mirage-2000",
         "station_id": "8",
         "station_label": "PYLON 8",
-        "label_zh": "机翼外侧挂点 L (Pylon 8)",
+        "label_zh": "内翼挂点 L (Pylon 8)",
         "side": "left",
-        "position": "wing_outer",
+        "position": "wing_inner",
         "store_mount": "pylon",
-        "notes": "超视距/对地/副油箱；可复合挂架"
+        "notes": "湿挂点：超视距/对地/反舰/副油箱；可复合挂架"
       },
       {
         "aircraft_id": "Mirage-2000",
         "station_id": "9",
         "station_label": "PYLON 9",
-        "label_zh": "左翼尖挂点 (Pylon 9)",
+        "label_zh": "外翼挂点 L (Pylon 9)",
         "side": "left",
-        "position": "wing_tip",
+        "position": "wing_outer",
         "store_mount": "pylon",
-        "notes": "Magic II 近距红外格斗"
+        "notes": "外翼空空导弹专用：Magic II / MICA IR"
       }
     ],
     "stores_by_station": {
@@ -53057,6 +53614,11 @@ module.exports = {
         {
           "id": "magic_ii",
           "name": "Magic II 魔术二型",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_ir",
+          "name": "MICA IR",
           "category": "air_to_air"
         }
       ],
@@ -53115,6 +53677,11 @@ module.exports = {
           "id": "ft_2000l",
           "name": "2000L 机翼副油箱",
           "category": "fuel"
+        },
+        {
+          "id": "scalp_eg",
+          "name": "SCALP-EG",
+          "category": "air_to_ground"
         }
       ],
       "3": [
@@ -53216,6 +53783,11 @@ module.exports = {
           "id": "ft_2000l_belly",
           "name": "2000L 机腹副油箱",
           "category": "fuel"
+        },
+        {
+          "id": "scalp_eg",
+          "name": "SCALP-EG",
+          "category": "air_to_ground"
         }
       ],
       "6": [
@@ -53337,12 +53909,22 @@ module.exports = {
           "id": "ft_2000l",
           "name": "2000L 机翼副油箱",
           "category": "fuel"
+        },
+        {
+          "id": "scalp_eg",
+          "name": "SCALP-EG",
+          "category": "air_to_ground"
         }
       ],
       "9": [
         {
           "id": "magic_ii",
           "name": "Magic II 魔术二型",
+          "category": "air_to_air"
+        },
+        {
+          "id": "mica_ir",
+          "name": "MICA IR",
           "category": "air_to_air"
         }
       ]
@@ -53507,10 +54089,6 @@ module.exports = {
                   {
                     "id": "meteor",
                     "name": "流星 (Meteor)"
-                  },
-                  {
-                    "id": "skyflash",
-                    "name": "天闪 (Skyflash / Rb 71)"
                   }
                 ]
               }
@@ -53648,7 +54226,7 @@ module.exports = {
                 "weapons": [
                   {
                     "id": "erielectron",
-                    "name": "Erielectron / Saab 自卫干扰吊舱"
+                    "name": "Saab 自卫电子战吊舱"
                   }
                 ]
               },
@@ -53774,6 +54352,15 @@ module.exports = {
         "diameter_m": 0.203,
         "notes": "MRAAM"
       },
+      "pl15e": {
+        "id": "pl15e",
+        "name": "PL-15E 远程空空弹",
+        "category": "aam",
+        "mass_kg": 210.0,
+        "length_m": 4.0,
+        "diameter_m": 0.203,
+        "notes": "Block III 已挂 4 枚"
+      },
       "mar1": {
         "id": "mar1",
         "name": "MAR-1 反辐射导弹",
@@ -53791,6 +54378,15 @@ module.exports = {
         "length_m": 6.392,
         "diameter_m": 0.36,
         "notes": "AShM"
+      },
+      "cm400akg": {
+        "id": "cm400akg",
+        "name": "CM-400AKG 高超音速空地/反舰导弹",
+        "category": "asm",
+        "mass_kg": 910.0,
+        "length_m": 6.0,
+        "diameter_m": 0.4,
+        "notes": "准弹道反舰/反辐射弹"
       },
       "ls6_500": {
         "id": "ls6_500",
@@ -53928,6 +54524,11 @@ module.exports = {
               "notes": "挂架可挂 2 枚"
             },
             {
+              "store_id": "pl15e",
+              "max_qty": 1,
+              "notes": "Block III"
+            },
+            {
               "store_id": "mar1",
               "max_qty": 1,
               "notes": ""
@@ -53974,6 +54575,16 @@ module.exports = {
             },
             {
               "store_id": "c802a",
+              "max_qty": 1,
+              "notes": ""
+            },
+            {
+              "store_id": "pl15e",
+              "max_qty": 1,
+              "notes": "Block III"
+            },
+            {
+              "store_id": "cm400akg",
               "max_qty": 1,
               "notes": ""
             },
@@ -54227,18 +54838,21 @@ module.exports = {
         "stations": [
           {
             "id": "wtip_r",
-            "name_zh": "翼尖外侧（右）",
+            "name_zh": "外侧挂点（右）",
             "position": "outboard",
             "side": "right",
             "max_mass_kg": 310.0,
             "allowed_stores": [
+              "r73e",
+              "asraam",
+              "python5",
               "aspj"
             ],
-            "notes": "ASPJ 自卫干扰吊舱专用挂点"
+            "notes": "近距弹（ASRAAM 可双联）或 ASPJ 自卫干扰吊舱"
           },
           {
             "id": "wtip_l",
-            "name_zh": "翼尖外侧（左）",
+            "name_zh": "外侧挂点（左）",
             "position": "outboard",
             "side": "left",
             "max_mass_kg": 310.0,
@@ -54246,7 +54860,8 @@ module.exports = {
               "r73e",
               "asraam",
               "python5"
-            ]
+            ],
+            "notes": "近距弹（ASRAAM 可双联）"
           },
           {
             "id": "mid_l",
@@ -54453,6 +55068,41 @@ module.exports = {
         "category": "target",
         "mass_kg": 150.0,
         "notes": "拖曳靶"
+      },
+      {
+        "id": "aim9x",
+        "name": "AIM-9X 响尾蛇",
+        "category": "aam",
+        "mass_kg": 85.0,
+        "notes": "Block 20 / FA-50PL 近距格斗弹"
+      },
+      {
+        "id": "aim120",
+        "name": "AIM-120 AMRAAM",
+        "category": "aam",
+        "mass_kg": 152.0,
+        "notes": "Block 20 / FA-50PL 中距弹"
+      },
+      {
+        "id": "gbu12",
+        "name": "GBU-12 激光制导炸弹",
+        "category": "bomb",
+        "mass_kg": 230.0,
+        "notes": "500 lb 激光制导炸弹（Block 10/20）"
+      },
+      {
+        "id": "gbu38",
+        "name": "GBU-38 JDAM",
+        "category": "bomb",
+        "mass_kg": 253.0,
+        "notes": "500 lb GPS 制导炸弹（Block 10/20）"
+      },
+      {
+        "id": "sniper",
+        "name": "Sniper 瞄准吊舱",
+        "category": "pod",
+        "mass_kg": 200.0,
+        "notes": "AN/AAQ-33 瞄准吊舱（Block 20 / FA-50PL）"
       }
     ],
     "aircraft": [
@@ -54473,6 +55123,13 @@ module.exports = {
                 "store_id": "aim9",
                 "max_count": 1,
                 "name": "AIM-9 响尾蛇",
+                "category": "aam",
+                "mass_kg": 85.0
+              },
+              {
+                "store_id": "aim9x",
+                "max_count": 1,
+                "name": "AIM-9X 响尾蛇",
                 "category": "aam",
                 "mass_kg": 85.0
               }
@@ -54522,6 +55179,34 @@ module.exports = {
                 "name": "LAU-3 火箭发射器",
                 "category": "rocket",
                 "mass_kg": 135.0
+              },
+              {
+                "store_id": "aim120",
+                "max_count": 1,
+                "name": "AIM-120 AMRAAM",
+                "category": "aam",
+                "mass_kg": 152.0
+              },
+              {
+                "store_id": "aim9x",
+                "max_count": 1,
+                "name": "AIM-9X 响尾蛇",
+                "category": "aam",
+                "mass_kg": 85.0
+              },
+              {
+                "store_id": "gbu12",
+                "max_count": 1,
+                "name": "GBU-12 激光制导炸弹",
+                "category": "bomb",
+                "mass_kg": 230.0
+              },
+              {
+                "store_id": "gbu38",
+                "max_count": 1,
+                "name": "GBU-38 JDAM",
+                "category": "bomb",
+                "mass_kg": 253.0
               }
             ]
           },
@@ -54583,6 +55268,34 @@ module.exports = {
                 "name": "LAU-3 火箭发射器",
                 "category": "rocket",
                 "mass_kg": 135.0
+              },
+              {
+                "store_id": "aim120",
+                "max_count": 1,
+                "name": "AIM-120 AMRAAM",
+                "category": "aam",
+                "mass_kg": 152.0
+              },
+              {
+                "store_id": "aim9x",
+                "max_count": 1,
+                "name": "AIM-9X 响尾蛇",
+                "category": "aam",
+                "mass_kg": 85.0
+              },
+              {
+                "store_id": "gbu12",
+                "max_count": 1,
+                "name": "GBU-12 激光制导炸弹",
+                "category": "bomb",
+                "mass_kg": 230.0
+              },
+              {
+                "store_id": "gbu38",
+                "max_count": 1,
+                "name": "GBU-38 JDAM",
+                "category": "bomb",
+                "mass_kg": 253.0
               }
             ]
           },
@@ -54616,6 +55329,13 @@ module.exports = {
                 "name": "MK-20 石眼集束炸弹",
                 "category": "dispenser",
                 "mass_kg": 222.0
+              },
+              {
+                "store_id": "sniper",
+                "max_count": 1,
+                "name": "Sniper 瞄准吊舱",
+                "category": "pod",
+                "mass_kg": 200.0
               }
             ]
           },
@@ -54677,6 +55397,34 @@ module.exports = {
                 "name": "LAU-3 火箭发射器",
                 "category": "rocket",
                 "mass_kg": 135.0
+              },
+              {
+                "store_id": "aim120",
+                "max_count": 1,
+                "name": "AIM-120 AMRAAM",
+                "category": "aam",
+                "mass_kg": 152.0
+              },
+              {
+                "store_id": "aim9x",
+                "max_count": 1,
+                "name": "AIM-9X 响尾蛇",
+                "category": "aam",
+                "mass_kg": 85.0
+              },
+              {
+                "store_id": "gbu12",
+                "max_count": 1,
+                "name": "GBU-12 激光制导炸弹",
+                "category": "bomb",
+                "mass_kg": 230.0
+              },
+              {
+                "store_id": "gbu38",
+                "max_count": 1,
+                "name": "GBU-38 JDAM",
+                "category": "bomb",
+                "mass_kg": 253.0
               }
             ]
           },
@@ -54724,6 +55472,34 @@ module.exports = {
                 "name": "LAU-3 火箭发射器",
                 "category": "rocket",
                 "mass_kg": 135.0
+              },
+              {
+                "store_id": "aim120",
+                "max_count": 1,
+                "name": "AIM-120 AMRAAM",
+                "category": "aam",
+                "mass_kg": 152.0
+              },
+              {
+                "store_id": "aim9x",
+                "max_count": 1,
+                "name": "AIM-9X 响尾蛇",
+                "category": "aam",
+                "mass_kg": 85.0
+              },
+              {
+                "store_id": "gbu12",
+                "max_count": 1,
+                "name": "GBU-12 激光制导炸弹",
+                "category": "bomb",
+                "mass_kg": 230.0
+              },
+              {
+                "store_id": "gbu38",
+                "max_count": 1,
+                "name": "GBU-38 JDAM",
+                "category": "bomb",
+                "mass_kg": 253.0
               }
             ]
           },
@@ -54741,6 +55517,13 @@ module.exports = {
                 "store_id": "aim9",
                 "max_count": 1,
                 "name": "AIM-9 响尾蛇",
+                "category": "aam",
+                "mass_kg": 85.0
+              },
+              {
+                "store_id": "aim9x",
+                "max_count": 1,
+                "name": "AIM-9X 响尾蛇",
                 "category": "aam",
                 "mass_kg": 85.0
               }
@@ -54998,10 +55781,10 @@ module.exports = {
           "id": "harpoon",
           "name": "HARPOON",
           "category": "asm",
-          "mass_kg": 691.0,
-          "length_m": 4.63,
+          "mass_kg": 520.0,
+          "length_m": 3.84,
           "diameter_m": 0.343,
-          "notes": "反舰导弹"
+          "notes": "空射型 AGM-84 反舰导弹（舰射型带助推器约 690 kg）"
         },
         {
           "id": "penguin",
@@ -55011,6 +55794,15 @@ module.exports = {
           "length_m": 3.0,
           "diameter_m": 0.28,
           "notes": "挪威反舰导弹"
+        },
+        {
+          "id": "marte_er",
+          "name": "MARTE ER",
+          "category": "asm",
+          "mass_kg": 310.0,
+          "length_m": 4.8,
+          "diameter_m": 0.316,
+          "notes": "MBDA 亚音速掠海反舰导弹；科威特/意大利台风集成"
         },
         {
           "id": "fuel",
@@ -55039,22 +55831,6 @@ module.exports = {
           "position_index": 1,
           "stores": [
             {
-              "weapon_id": "amraam",
-              "name": "AMRAAM",
-              "category": "a2a",
-              "category_label": "空对空导弹",
-              "max_qty": 1,
-              "mass_kg": 152.0
-            },
-            {
-              "weapon_id": "bvraam",
-              "name": "BVRAAM",
-              "category": "a2a",
-              "category_label": "空对空导弹",
-              "max_qty": 1,
-              "mass_kg": 190.0
-            },
-            {
               "weapon_id": "aim9",
               "name": "AIM-9",
               "category": "a2a",
@@ -55077,78 +55853,6 @@ module.exports = {
               "category_label": "空对空导弹",
               "max_qty": 1,
               "mass_kg": 87.0
-            },
-            {
-              "weapon_id": "lgb",
-              "name": "LGB",
-              "category": "pgm",
-              "category_label": "精确制导/巡航/反辐射弹药",
-              "max_qty": 1,
-              "mass_kg": 250.0
-            },
-            {
-              "weapon_id": "jdam",
-              "name": "JDAM",
-              "category": "pgm",
-              "category_label": "精确制导/巡航/反辐射弹药",
-              "max_qty": 1,
-              "mass_kg": 450.0
-            },
-            {
-              "weapon_id": "alarm",
-              "name": "ALARM",
-              "category": "pgm",
-              "category_label": "精确制导/巡航/反辐射弹药",
-              "max_qty": 1,
-              "mass_kg": 268.0
-            },
-            {
-              "weapon_id": "harm",
-              "name": "HARM",
-              "category": "pgm",
-              "category_label": "精确制导/巡航/反辐射弹药",
-              "max_qty": 1,
-              "mass_kg": 360.0
-            },
-            {
-              "weapon_id": "brimstone",
-              "name": "BRIMSTONE",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 50.0
-            },
-            {
-              "weapon_id": "bl755",
-              "name": "BL-755",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 277.0
-            },
-            {
-              "weapon_id": "dws39",
-              "name": "DWS-39",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 600.0
-            },
-            {
-              "weapon_id": "harpoon",
-              "name": "HARPOON",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 691.0
-            },
-            {
-              "weapon_id": "penguin",
-              "name": "PENGUIN",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 370.0
             }
           ],
           "notes": "图表从左至右第 1 位"
@@ -55267,28 +55971,13 @@ module.exports = {
               "mass_kg": 277.0
             },
             {
-              "weapon_id": "dws39",
-              "name": "DWS-39",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 600.0
-            },
-            {
-              "weapon_id": "harpoon",
-              "name": "HARPOON",
+              "weapon_id": "marte_er",
+              "name": "MARTE ER",
               "category": "asm",
               "category_label": "反舰导弹",
               "max_qty": 1,
-              "mass_kg": 691.0
-            },
-            {
-              "weapon_id": "penguin",
-              "name": "PENGUIN",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 370.0
+              "mass_kg": 310.0,
+              "notes": "科威特/意大利集成的反舰导弹"
             }
           ]
         },
@@ -55393,30 +56082,6 @@ module.exports = {
               "notes": "双联装"
             },
             {
-              "weapon_id": "dws39",
-              "name": "DWS-39",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 600.0
-            },
-            {
-              "weapon_id": "harpoon",
-              "name": "HARPOON",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 691.0
-            },
-            {
-              "weapon_id": "penguin",
-              "name": "PENGUIN",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 370.0
-            },
-            {
               "weapon_id": "fuel",
               "name": "FUEL",
               "category": "aux",
@@ -55424,6 +56089,15 @@ module.exports = {
               "max_qty": 1,
               "mass_kg": 1200.0,
               "notes": "外挂副油箱"
+            },
+            {
+              "weapon_id": "marte_er",
+              "name": "MARTE ER",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 310.0,
+              "notes": "科威特/意大利集成的反舰导弹"
             }
           ],
           "notes": "可挂副油箱"
@@ -55661,30 +56335,6 @@ module.exports = {
               "notes": "双联装"
             },
             {
-              "weapon_id": "dws39",
-              "name": "DWS-39",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 600.0
-            },
-            {
-              "weapon_id": "harpoon",
-              "name": "HARPOON",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 691.0
-            },
-            {
-              "weapon_id": "penguin",
-              "name": "PENGUIN",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 370.0
-            },
-            {
               "weapon_id": "fuel",
               "name": "FUEL",
               "category": "aux",
@@ -55692,6 +56342,15 @@ module.exports = {
               "max_qty": 1,
               "mass_kg": 1200.0,
               "notes": "外挂副油箱"
+            },
+            {
+              "weapon_id": "marte_er",
+              "name": "MARTE ER",
+              "category": "asm",
+              "category_label": "反舰导弹",
+              "max_qty": 1,
+              "mass_kg": 310.0,
+              "notes": "科威特/意大利集成的反舰导弹"
             }
           ],
           "notes": "可挂副油箱"
@@ -55810,28 +56469,13 @@ module.exports = {
               "mass_kg": 277.0
             },
             {
-              "weapon_id": "dws39",
-              "name": "DWS-39",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 600.0
-            },
-            {
-              "weapon_id": "harpoon",
-              "name": "HARPOON",
+              "weapon_id": "marte_er",
+              "name": "MARTE ER",
               "category": "asm",
               "category_label": "反舰导弹",
               "max_qty": 1,
-              "mass_kg": 691.0
-            },
-            {
-              "weapon_id": "penguin",
-              "name": "PENGUIN",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 370.0
+              "mass_kg": 310.0,
+              "notes": "科威特/意大利集成的反舰导弹"
             }
           ]
         },
@@ -55841,22 +56485,6 @@ module.exports = {
           "mount": "pylon",
           "position_index": 9,
           "stores": [
-            {
-              "weapon_id": "amraam",
-              "name": "AMRAAM",
-              "category": "a2a",
-              "category_label": "空对空导弹",
-              "max_qty": 1,
-              "mass_kg": 152.0
-            },
-            {
-              "weapon_id": "bvraam",
-              "name": "BVRAAM",
-              "category": "a2a",
-              "category_label": "空对空导弹",
-              "max_qty": 1,
-              "mass_kg": 190.0
-            },
             {
               "weapon_id": "aim9",
               "name": "AIM-9",
@@ -55880,78 +56508,6 @@ module.exports = {
               "category_label": "空对空导弹",
               "max_qty": 1,
               "mass_kg": 87.0
-            },
-            {
-              "weapon_id": "lgb",
-              "name": "LGB",
-              "category": "pgm",
-              "category_label": "精确制导/巡航/反辐射弹药",
-              "max_qty": 1,
-              "mass_kg": 250.0
-            },
-            {
-              "weapon_id": "jdam",
-              "name": "JDAM",
-              "category": "pgm",
-              "category_label": "精确制导/巡航/反辐射弹药",
-              "max_qty": 1,
-              "mass_kg": 450.0
-            },
-            {
-              "weapon_id": "alarm",
-              "name": "ALARM",
-              "category": "pgm",
-              "category_label": "精确制导/巡航/反辐射弹药",
-              "max_qty": 1,
-              "mass_kg": 268.0
-            },
-            {
-              "weapon_id": "harm",
-              "name": "HARM",
-              "category": "pgm",
-              "category_label": "精确制导/巡航/反辐射弹药",
-              "max_qty": 1,
-              "mass_kg": 360.0
-            },
-            {
-              "weapon_id": "brimstone",
-              "name": "BRIMSTONE",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 50.0
-            },
-            {
-              "weapon_id": "bl755",
-              "name": "BL-755",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 277.0
-            },
-            {
-              "weapon_id": "dws39",
-              "name": "DWS-39",
-              "category": "battlefield",
-              "category_label": "战场/反装甲弹药",
-              "max_qty": 1,
-              "mass_kg": 600.0
-            },
-            {
-              "weapon_id": "harpoon",
-              "name": "HARPOON",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 691.0
-            },
-            {
-              "weapon_id": "penguin",
-              "name": "PENGUIN",
-              "category": "asm",
-              "category_label": "反舰导弹",
-              "max_qty": 1,
-              "mass_kg": 370.0
             }
           ]
         },

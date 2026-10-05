@@ -25,7 +25,7 @@ def test_load_stores_database_mig29_weapons():
     assert 'r73e' in stores
     assert 'r27er1' in stores
     assert 'kh29t' in stores
-    assert 'tank_1900l' in stores
+    assert 'tank_2150l' in stores
     assert stores['rvv_ae']['mass_kg'] == pytest.approx(175.0)
     assert stores['built_in_gun']['category'] == 'gun'
 
@@ -116,7 +116,7 @@ def test_load_aircraft_store_limits_mig29k():
     limits = load_aircraft_store_limits(AIRCRAFT_STORE_LIMITS_CSV)
     mig = limits['MiG-29K']
     by_store = {x['store_id']: x['max_count'] for x in mig}
-    assert by_store['tank_1900l'] == 1
+    assert by_store['tank_2150l'] == 1
     assert by_store['active_jammer'] == 2
 
 

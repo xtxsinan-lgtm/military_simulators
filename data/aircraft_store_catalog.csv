@@ -39,3 +39,5 @@ AN-ASQ-213,AN/ASQ-213 HTS,targeting,190,2.13,0.356,pylon,HARM 定位吊舱
 AN-ASQ-T50,AN/ASQ-T50 ACMI,telemetry,107,1.52,0.254,pylon,空战机动仪表遥测吊舱
 FUEL-TANK-370,370 加仑副油箱,fuel_tank,1270,3.35,0.457,pylon,翼下/内侧 370 US gal 副油箱（满油）
 FUEL-TANK-300,300 加仑副油箱,fuel_tank,1030,2.95,0.406,pylon,机腹中心 300 US gal 副油箱（满油）
+AGM-84D,AGM-84D Harpoon,asm,519,3.84,0.343,pylon,空射亚音速掠海反舰导弹（台湾/土耳其/韩国/埃及/新加坡等 F-16 用户已集成）
+FUEL-TANK-600,600 加仑副油箱,fuel_tank,2020,4.6,0.6,pylon,翼下内侧 600 US gal 副油箱（满油，含燃油 1817 kg）

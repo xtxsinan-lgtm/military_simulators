@@ -27,7 +27,7 @@ def _clear_caches():
 def test_normalize_munition_splits_fuel_from_notes():
     """副油箱 notes 含燃油质量时拆出 dry/fuel。"""
     row = normalize_munition_record(
-        'tank_1900l',
+        'tank_2150l',
         name='1900L',
         category='tank',
         mass_kg=1520,

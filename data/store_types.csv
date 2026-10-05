@@ -5,3 +5,12 @@ aim-54,AIM-54 Phoenix,463,3.96,0.380,pylon,2.5,主动雷达远程弹；需 Adapt
 stub-pylon,Stub Pylon,45,0.60,0.15,pylon,0.1,固定短翼挂架及适配器
 tank-280,280-Gallon External Fuel Tank,1043,4.50,0.60,pylon,1.8,280 加仑副油箱（无尾翼版）
 tarps,TARPS Pod,820,4.90,0.35,pylon,1.5,战术空中侦察管道系统吊舱
+mk-82,Mk-82 500 lb,241,2.21,0.273,pylon,0.8,无制导通用炸弹；机腹通道 BRU-32
+mk-83,Mk-83 1000 lb,454,3.00,0.356,pylon,1.0,无制导通用炸弹；机腹通道 BRU-32
+mk-84,Mk-84 2000 lb,925,3.84,0.457,pylon,1.4,无制导通用炸弹；机腹通道 BRU-32
+gbu-12,GBU-12 Paveway II,230,3.27,0.273,pylon,0.9,500 磅激光制导炸弹
+gbu-16,GBU-16 Paveway II,454,3.70,0.356,pylon,1.1,1000 磅激光制导炸弹
+gbu-10,GBU-10 Paveway II,940,4.32,0.457,pylon,1.5,2000 磅激光制导炸弹
+gbu-24,GBU-24 Paveway III,1050,4.39,0.457,pylon,1.6,2000 磅激光制导炸弹；所有 F-14 型均获准机腹挂 2 枚
+gbu-31,GBU-31 JDAM,925,3.88,0.457,pylon,1.4,2000 磅 GPS 制导炸弹；F-14D 获准挂载
+lantirn,LANTIRN 瞄准吊舱,236,2.50,0.38,pylon,0.6,AN/AAQ-14 瞄准吊舱；挂 Station 8b

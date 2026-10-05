@@ -54,12 +54,18 @@ def test_f16_wingtip_only_aam():
     assert 'AGM-88C' not in allowed
 
 
-def test_f16_station_6_litening_or_cluster():
-    """挂点 6 支持 Litening 或三联集束弹。"""
-    rows = load_aircraft_station_csv()
-    st6 = next(r for r in rows if r['aircraft_id'] == 'F-16' and r['station_id'] == '6')
-    assert 'AN-AAQ-28' in st6['allowed_stores']
-    assert 'CBU-87-3x' in st6['allowed_stores']
+def test_f16_inboard_stations_4_6_symmetric_heavy_and_tanks():
+    """挂点 4/6 对称：重载弹药与 370/600 加仑副油箱；Litening 只挂进气道 5R；3/7 不挂副油箱。"""
+    rows = {r['station_id']: r for r in load_aircraft_station_csv() if r['aircraft_id'] == 'F-16'}
+    assert rows['4']['allowed_stores'] == rows['6']['allowed_stores']
+    for sid in ('4', '6'):
+        allowed = set(rows[sid]['allowed_stores'])
+        assert {'FUEL-TANK-370', 'FUEL-TANK-600', 'Mk-84', 'GBU-31V1B', 'AGM-84D', 'CBU-87-3x'} <= allowed
+        assert 'AN-AAQ-28' not in allowed
+    for sid in ('3', '7'):
+        assert 'FUEL-TANK-370' not in rows[sid]['allowed_stores']
+        assert 'AGM-84D' in rows[sid]['allowed_stores']
+    assert rows['5R']['allowed_stores'] == ['AN-AAQ-28']
 
 
 def test_validate_loadout_accepts_a2a_cap():

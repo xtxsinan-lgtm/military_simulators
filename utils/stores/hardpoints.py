@@ -22,7 +22,7 @@ LOADOUT_PRESETS_CSV_COLUMNS = (
     'aircraft_id', 'preset_id', 'name', 'station_id', 'store_id', 'count', 'notes',
 )
 
-STORE_CATEGORIES = ('aam', 'agm', 'bomb', 'dispenser', 'rocket', 'fuel_tank', 'target')
+STORE_CATEGORIES = ('aam', 'agm', 'bomb', 'dispenser', 'rocket', 'fuel_tank', 'target', 'pod')
 
 
 def lb_to_kg(lb: float) -> float:

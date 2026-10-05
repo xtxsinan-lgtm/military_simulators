@@ -23,7 +23,7 @@ def test_built_data_json_includes_tejas_hardpoints():
     hp = data['aircraft_hardpoints']['by_aircraft']['Tejas']
     stations = {s['id']: s for s in hp['stations']}
     assert stations['wtip_r']['max_mass_kg'] == 310
-    assert stations['wtip_r']['allowed_stores'] == ['aspj']
+    assert stations['wtip_r']['allowed_stores'] == ['r73e', 'asraam', 'python5', 'aspj']
     assert stations['centre']['max_mass_kg'] == 740
     assert 'derby' not in stations['centre']['allowed_stores']
     assert hp['fixed_equipment'][0]['equipment_id'] == 'cmds'

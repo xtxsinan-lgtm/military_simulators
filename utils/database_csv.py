@@ -782,7 +782,7 @@ AIRCRAFT_LOADOUT_PRESET_CSV_COLUMNS = (
 )
 
 AIRCRAFT_STORE_CATEGORIES = (
-    'aam', 'arm', 'agm', 'bomb', 'cluster', 'guided_bomb', 'jdam', 'rocket',
+    'aam', 'arm', 'agm', 'asm', 'bomb', 'cluster', 'guided_bomb', 'jdam', 'rocket',
     'ecm', 'targeting', 'fuel_tank', 'telemetry',
 )
 

@@ -42,22 +42,25 @@ def test_typhoon_stations_left_to_right_numbering():
     assert stations[-1]['mount'] == 'fixed'
 
 
-def test_station1_outer_wing_single_rack_a2a_and_strike():
-    """1 号挂点：各弹种单枚。"""
+def test_station1_outer_wing_sraam_only():
+    """1 号最外侧挂点只挂近距格斗弹（各单枚），不挂中距弹与对地/反舰弹药。"""
     payload = build_typhoon_stores_payload()
     station = next(s for s in payload['stations'] if s['id'] == 1)
     by_weapon = {item['weapon_id']: item for item in station['stores']}
-    for weapon_id in ('amraam', 'bvraam', 'aim9', 'asraam', 'iris_t'):
-        assert by_weapon[weapon_id]['max_qty'] == 1
-        assert by_weapon[weapon_id]['category'] == 'a2a'
-    for weapon_id in ('lgb', 'jdam', 'alarm', 'harm'):
-        assert by_weapon[weapon_id]['max_qty'] == 1
-        assert by_weapon[weapon_id]['category'] == 'pgm'
-    for weapon_id in ('brimstone', 'bl755', 'dws39'):
-        assert by_weapon[weapon_id]['max_qty'] == 1
-    for weapon_id in ('harpoon', 'penguin'):
-        assert by_weapon[weapon_id]['max_qty'] == 1
-        assert by_weapon[weapon_id]['category'] == 'asm'
+    assert set(by_weapon) == {'aim9', 'asraam', 'iris_t'}
+    for item in by_weapon.values():
+        assert item['max_qty'] == 1
+        assert item['category'] == 'a2a'
+
+
+def test_typhoon_anti_ship_is_marte_er_only():
+    """台风反舰弹只保留已集成的 Marte ER；鱼叉/企鹅/DWS-39 不在任何挂点。"""
+    payload = build_typhoon_stores_payload()
+    for station in payload['stations']:
+        ids = {item['weapon_id'] for item in station['stores']}
+        assert not ids & {'harpoon', 'penguin', 'dws39'}, station['id']
+    marte = [s['id'] for s in payload['stations'] if any(i['weapon_id'] == 'marte_er' for i in s['stores'])]
+    assert marte == [2, 3, 7, 8]
 
 
 def test_station2_dual_rack_wvr_and_cruise():

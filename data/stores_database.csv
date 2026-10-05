@@ -1,6 +1,6 @@
 id,name,category,mass_kg,length_m,diameter_m,notes
 built_in_gun,内置航炮 GSh-301,gun,0,,,MiG-29 内置 30 mm 航炮；不计外挂质量
-tank_1900l,"1,900 L 副油箱",tank,1520,5.4,0.6,机腹中央挂点；含燃油约 1450 kg
+tank_2150l,"2,150 L 副油箱",tank,1740,5.6,0.62,机腹中央挂点 PTB-2150；含燃油约 1650 kg
 tank_1500l,"1,500 L 副油箱",tank,1220,4.5,0.55,最内侧挂点；含燃油约 1150 kg；全机最多 2 个
 optronic_pod,光电吊舱 Optronic pod,pod_optronic,200,2.5,0.35,机腹中央；全机最多 1 个
 rvv_ae,RVV-AE (R-77),aam_bvr,175,3.60,0.20,中距主动雷达弹
