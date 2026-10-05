@@ -95,6 +95,9 @@ def build_typhoon_stores_payload(
 
 def build_weapon_loadout_catalog_payload() -> dict[str, Any]:
     """前端 weapon_loadout 目录根节点。"""
+    from utils.weapon_loadout.su30_stores import build_su30_stores_payload
+
     return {
         'typhoon': build_typhoon_stores_payload(),
+        'su30': build_su30_stores_payload(),
     }

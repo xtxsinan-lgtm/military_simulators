@@ -3,7 +3,7 @@
  * 请勿手改；修改 CSV 后运行 python3 scripts/build_all.py。
  */
 module.exports = {
-  "version": 38,
+  "version": 39,
   "pilot_load_kg": 100.0,
   "a2a_missile_count": 4,
   "pitch_max_deg": 20.0,
@@ -28561,6 +28561,160 @@ module.exports = {
         "length_m": 5.4,
         "diameter_m": 0.42,
         "notes": "1000 L 级副油箱"
+      },
+      {
+        "id": "r27p1",
+        "name": "R-27P1",
+        "category": "a2a",
+        "mass_kg": 253.0,
+        "dry_mass_kg": 253.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.08,
+        "diameter_m": 0.23,
+        "notes": "被动雷达中距弹；仅翼内侧"
+      },
+      {
+        "id": "r27ep1",
+        "name": "R-27EP1",
+        "category": "a2a",
+        "mass_kg": 350.0,
+        "dry_mass_kg": 350.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.7,
+        "diameter_m": 0.23,
+        "notes": "增程被动雷达中距弹；仅翼内侧"
+      },
+      {
+        "id": "kh59me",
+        "name": "Kh-59ME",
+        "category": "agm",
+        "mass_kg": 930.0,
+        "dry_mass_kg": 930.0,
+        "fuel_kg": 0.0,
+        "length_m": 5.7,
+        "diameter_m": 0.38,
+        "notes": "电视制导巡航导弹；需 APK-9E 数据链吊舱"
+      },
+      {
+        "id": "kh59mk",
+        "name": "Kh-59MK",
+        "category": "agm",
+        "mass_kg": 930.0,
+        "dry_mass_kg": 930.0,
+        "fuel_kg": 0.0,
+        "length_m": 5.7,
+        "diameter_m": 0.42,
+        "notes": "主动雷达反舰/对地巡航导弹"
+      },
+      {
+        "id": "kh35e",
+        "name": "Kh-35E",
+        "category": "agm",
+        "mass_kg": 520.0,
+        "dry_mass_kg": 520.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.85,
+        "diameter_m": 0.42,
+        "notes": "反舰导弹"
+      },
+      {
+        "id": "kh29te",
+        "name": "Kh-29TE",
+        "category": "agm",
+        "mass_kg": 690.0,
+        "dry_mass_kg": 690.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.9,
+        "diameter_m": 0.38,
+        "notes": "电视制导空地导弹（出口增程型）"
+      },
+      {
+        "id": "kab1500kr",
+        "name": "KAB-1500KR",
+        "category": "pgm",
+        "mass_kg": 1525.0,
+        "dry_mass_kg": 1525.0,
+        "fuel_kg": 0.0,
+        "length_m": 4.6,
+        "diameter_m": 0.58,
+        "notes": "重型电视制导炸弹；全机最多 3 枚"
+      },
+      {
+        "id": "apk9e",
+        "name": "APK-9E",
+        "category": "pod",
+        "mass_kg": 215.0,
+        "dry_mass_kg": 215.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.35,
+        "notes": "Kh-59ME 数据链引导吊舱；5 或 8 号挂点二选一"
+      },
+      {
+        "id": "fab500",
+        "name": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+        "category": "bomb",
+        "mass_kg": 500.0,
+        "dry_mass_kg": 500.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.4,
+        "notes": "500 kg 级无制导/特种炸弹族；翼中侧可双联"
+      },
+      {
+        "id": "fab250",
+        "name": "FAB-250 (OFAB-250-270)",
+        "category": "bomb",
+        "mass_kg": 250.0,
+        "dry_mass_kg": 250.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.0,
+        "diameter_m": 0.3,
+        "notes": "250 kg 级无制导炸弹；可多联挂架"
+      },
+      {
+        "id": "ofab100",
+        "name": "OFAB-100-120",
+        "category": "bomb",
+        "mass_kg": 120.0,
+        "dry_mass_kg": 120.0,
+        "fuel_kg": 0.0,
+        "length_m": 1.5,
+        "diameter_m": 0.25,
+        "notes": "100 kg 级无制导炸弹；可多联挂架"
+      },
+      {
+        "id": "s13_b13l",
+        "name": "S-13 / B-13L",
+        "category": "rocket",
+        "mass_kg": 520.0,
+        "dry_mass_kg": 520.0,
+        "fuel_kg": 0.0,
+        "length_m": 2.5,
+        "diameter_m": 0.42,
+        "notes": "122 mm 火箭巢；每巢 5 发；全机最多 4 巢（20 发）"
+      },
+      {
+        "id": "s25",
+        "name": "S-25",
+        "category": "rocket",
+        "mass_kg": 480.0,
+        "dry_mass_kg": 480.0,
+        "fuel_kg": 0.0,
+        "length_m": 3.7,
+        "diameter_m": 0.34,
+        "notes": "大口径单发航空火箭弹"
+      },
+      {
+        "id": "p50t",
+        "name": "P-50T",
+        "category": "training",
+        "mass_kg": 50.0,
+        "dry_mass_kg": 50.0,
+        "fuel_kg": 0.0,
+        "length_m": 1.2,
+        "diameter_m": 0.2,
+        "notes": "训练炸弹"
       }
     ],
     "aircraft": {
@@ -38684,6 +38838,1730 @@ module.exports = {
           "9": "aim9@1",
           "4": "amraam@1",
           "6": "amraam@1"
+        }
+      },
+      "Su-30": {
+        "id": "Su-30",
+        "name": "苏-30",
+        "stations": [
+          {
+            "id": "1",
+            "label": "1 号翼尖挂点（左）",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "r73e@1",
+                "munition_id": "r73e",
+                "qty": 1.0,
+                "label": "R-73E",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "label": "2 号翼外侧挂点（左）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "r73e@1",
+                "munition_id": "r73e",
+                "qty": 1.0,
+                "label": "R-73E",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "label": "3 号翼中侧挂点（左）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "fab250@1",
+                "munition_id": "fab250",
+                "qty": 1.0,
+                "label": "FAB-250 (OFAB-250-270)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@2",
+                "munition_id": "fab250",
+                "qty": 2.0,
+                "label": "FAB-250 (OFAB-250-270) ×2",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@3",
+                "munition_id": "fab250",
+                "qty": 3.0,
+                "label": "FAB-250 (OFAB-250-270) ×3",
+                "mass_kg": 750.0,
+                "dry_mass_kg": 750.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@4",
+                "munition_id": "fab250",
+                "qty": 4.0,
+                "label": "FAB-250 (OFAB-250-270) ×4",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@5",
+                "munition_id": "fab250",
+                "qty": 5.0,
+                "label": "FAB-250 (OFAB-250-270) ×5",
+                "mass_kg": 1250.0,
+                "dry_mass_kg": 1250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@6",
+                "munition_id": "fab250",
+                "qty": 6.0,
+                "label": "FAB-250 (OFAB-250-270) ×6",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab500@1",
+                "munition_id": "fab500",
+                "qty": 1.0,
+                "label": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab500@2",
+                "munition_id": "fab500",
+                "qty": 2.0,
+                "label": "FAB-500 (ZB-500/RBK-500/BetAB-500) ×2",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab500kr@1",
+                "munition_id": "kab500kr",
+                "qty": 1.0,
+                "label": "KAB-500KR",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29l@1",
+                "munition_id": "kh29l",
+                "qty": 1.0,
+                "label": "Kh-29L",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29t@1",
+                "munition_id": "kh29t",
+                "qty": 1.0,
+                "label": "Kh-29T",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29te@1",
+                "munition_id": "kh29te",
+                "qty": 1.0,
+                "label": "Kh-29TE",
+                "mass_kg": 690.0,
+                "dry_mass_kg": 690.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31a@1",
+                "munition_id": "kh31a",
+                "qty": 1.0,
+                "label": "Kh-31A",
+                "mass_kg": 610.0,
+                "dry_mass_kg": 610.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31p@1",
+                "munition_id": "kh31p",
+                "qty": 1.0,
+                "label": "Kh-31P",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh35e@1",
+                "munition_id": "kh35e",
+                "qty": 1.0,
+                "label": "Kh-35E",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh59me@1",
+                "munition_id": "kh59me",
+                "qty": 1.0,
+                "label": "Kh-59ME",
+                "mass_kg": 930.0,
+                "dry_mass_kg": 930.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh59mk@1",
+                "munition_id": "kh59mk",
+                "qty": 1.0,
+                "label": "Kh-59MK",
+                "mass_kg": 930.0,
+                "dry_mass_kg": 930.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@1",
+                "munition_id": "ofab100",
+                "qty": 1.0,
+                "label": "OFAB-100-120",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@2",
+                "munition_id": "ofab100",
+                "qty": 2.0,
+                "label": "OFAB-100-120 ×2",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@3",
+                "munition_id": "ofab100",
+                "qty": 3.0,
+                "label": "OFAB-100-120 ×3",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@4",
+                "munition_id": "ofab100",
+                "qty": 4.0,
+                "label": "OFAB-100-120 ×4",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@5",
+                "munition_id": "ofab100",
+                "qty": 5.0,
+                "label": "OFAB-100-120 ×5",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@6",
+                "munition_id": "ofab100",
+                "qty": 6.0,
+                "label": "OFAB-100-120 ×6",
+                "mass_kg": 720.0,
+                "dry_mass_kg": 720.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "p50t@1",
+                "munition_id": "p50t",
+                "qty": 1.0,
+                "label": "P-50T",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "p50t@2",
+                "munition_id": "p50t",
+                "qty": 2.0,
+                "label": "P-50T ×2",
+                "mass_kg": 100.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r73e@1",
+                "munition_id": "r73e",
+                "qty": 1.0,
+                "label": "R-73E",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s13_b13l@1",
+                "munition_id": "s13_b13l",
+                "qty": 1.0,
+                "label": "S-13 / B-13L",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s25@1",
+                "munition_id": "s25",
+                "qty": 1.0,
+                "label": "S-25",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s8_b8m1@1",
+                "munition_id": "s8_b8m1",
+                "qty": 1.0,
+                "label": "S-8 火箭巢 B-8M1",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "label": "4 号翼内侧挂点（左）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "fab250@1",
+                "munition_id": "fab250",
+                "qty": 1.0,
+                "label": "FAB-250 (OFAB-250-270)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@2",
+                "munition_id": "fab250",
+                "qty": 2.0,
+                "label": "FAB-250 (OFAB-250-270) ×2",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab500@1",
+                "munition_id": "fab500",
+                "qty": 1.0,
+                "label": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab1500kr@1",
+                "munition_id": "kab1500kr",
+                "qty": 1.0,
+                "label": "KAB-1500KR",
+                "mass_kg": 1525.0,
+                "dry_mass_kg": 1525.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab500kr@1",
+                "munition_id": "kab500kr",
+                "qty": 1.0,
+                "label": "KAB-500KR",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29l@1",
+                "munition_id": "kh29l",
+                "qty": 1.0,
+                "label": "Kh-29L",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29t@1",
+                "munition_id": "kh29t",
+                "qty": 1.0,
+                "label": "Kh-29T",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29te@1",
+                "munition_id": "kh29te",
+                "qty": 1.0,
+                "label": "Kh-29TE",
+                "mass_kg": 690.0,
+                "dry_mass_kg": 690.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31a@1",
+                "munition_id": "kh31a",
+                "qty": 1.0,
+                "label": "Kh-31A",
+                "mass_kg": 610.0,
+                "dry_mass_kg": 610.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31p@1",
+                "munition_id": "kh31p",
+                "qty": 1.0,
+                "label": "Kh-31P",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh35e@1",
+                "munition_id": "kh35e",
+                "qty": 1.0,
+                "label": "Kh-35E",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh59mk@1",
+                "munition_id": "kh59mk",
+                "qty": 1.0,
+                "label": "Kh-59MK",
+                "mass_kg": 930.0,
+                "dry_mass_kg": 930.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@1",
+                "munition_id": "ofab100",
+                "qty": 1.0,
+                "label": "OFAB-100-120",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@2",
+                "munition_id": "ofab100",
+                "qty": 2.0,
+                "label": "OFAB-100-120 ×2",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "p50t@1",
+                "munition_id": "p50t",
+                "qty": 1.0,
+                "label": "P-50T",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27ep1@1",
+                "munition_id": "r27ep1",
+                "qty": 1.0,
+                "label": "R-27EP1",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27er1@1",
+                "munition_id": "r27er1",
+                "qty": 1.0,
+                "label": "R-27ER1 (R-27ER)",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27et1@1",
+                "munition_id": "r27et1",
+                "qty": 1.0,
+                "label": "R-27ET1 (R-27ET)",
+                "mass_kg": 345.0,
+                "dry_mass_kg": 345.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27p1@1",
+                "munition_id": "r27p1",
+                "qty": 1.0,
+                "label": "R-27P1",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27r1@1",
+                "munition_id": "r27r1",
+                "qty": 1.0,
+                "label": "R-27R1 (R-27R)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27t1@1",
+                "munition_id": "r27t1",
+                "qty": 1.0,
+                "label": "R-27T1 (R-27T)",
+                "mass_kg": 248.0,
+                "dry_mass_kg": 248.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "rvv_ae@1",
+                "munition_id": "rvv_ae",
+                "qty": 1.0,
+                "label": "RVV-AE (R-77)",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s13_b13l@1",
+                "munition_id": "s13_b13l",
+                "qty": 1.0,
+                "label": "S-13 / B-13L",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s25@1",
+                "munition_id": "s25",
+                "qty": 1.0,
+                "label": "S-25",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s8_b8m1@1",
+                "munition_id": "s8_b8m1",
+                "qty": 1.0,
+                "label": "S-8 火箭巢 B-8M1",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "5",
+            "label": "5 号进气道下挂点（左）",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "apk9e@1",
+                "munition_id": "apk9e",
+                "qty": 1.0,
+                "label": "APK-9E",
+                "mass_kg": 215.0,
+                "dry_mass_kg": 215.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@1",
+                "munition_id": "fab250",
+                "qty": 1.0,
+                "label": "FAB-250 (OFAB-250-270)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@2",
+                "munition_id": "fab250",
+                "qty": 2.0,
+                "label": "FAB-250 (OFAB-250-270) ×2",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab500kr@1",
+                "munition_id": "kab500kr",
+                "qty": 1.0,
+                "label": "KAB-500KR",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29l@1",
+                "munition_id": "kh29l",
+                "qty": 1.0,
+                "label": "Kh-29L",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29t@1",
+                "munition_id": "kh29t",
+                "qty": 1.0,
+                "label": "Kh-29T",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29te@1",
+                "munition_id": "kh29te",
+                "qty": 1.0,
+                "label": "Kh-29TE",
+                "mass_kg": 690.0,
+                "dry_mass_kg": 690.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31a@1",
+                "munition_id": "kh31a",
+                "qty": 1.0,
+                "label": "Kh-31A",
+                "mass_kg": 610.0,
+                "dry_mass_kg": 610.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31p@1",
+                "munition_id": "kh31p",
+                "qty": 1.0,
+                "label": "Kh-31P",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@1",
+                "munition_id": "ofab100",
+                "qty": 1.0,
+                "label": "OFAB-100-120",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@2",
+                "munition_id": "ofab100",
+                "qty": 2.0,
+                "label": "OFAB-100-120 ×2",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27er1@1",
+                "munition_id": "r27er1",
+                "qty": 1.0,
+                "label": "R-27ER1 (R-27ER)",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27r1@1",
+                "munition_id": "r27r1",
+                "qty": 1.0,
+                "label": "R-27R1 (R-27R)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "rvv_ae@1",
+                "munition_id": "rvv_ae",
+                "qty": 1.0,
+                "label": "RVV-AE (R-77)",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "6",
+            "label": "6 号机身中心线前挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "fab250@1",
+                "munition_id": "fab250",
+                "qty": 1.0,
+                "label": "FAB-250 (OFAB-250-270)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@2",
+                "munition_id": "fab250",
+                "qty": 2.0,
+                "label": "FAB-250 (OFAB-250-270) ×2",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@3",
+                "munition_id": "fab250",
+                "qty": 3.0,
+                "label": "FAB-250 (OFAB-250-270) ×3",
+                "mass_kg": 750.0,
+                "dry_mass_kg": 750.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@4",
+                "munition_id": "fab250",
+                "qty": 4.0,
+                "label": "FAB-250 (OFAB-250-270) ×4",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab500@1",
+                "munition_id": "fab500",
+                "qty": 1.0,
+                "label": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab1500kr@1",
+                "munition_id": "kab1500kr",
+                "qty": 1.0,
+                "label": "KAB-1500KR",
+                "mass_kg": 1525.0,
+                "dry_mass_kg": 1525.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@1",
+                "munition_id": "ofab100",
+                "qty": 1.0,
+                "label": "OFAB-100-120",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@2",
+                "munition_id": "ofab100",
+                "qty": 2.0,
+                "label": "OFAB-100-120 ×2",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@3",
+                "munition_id": "ofab100",
+                "qty": 3.0,
+                "label": "OFAB-100-120 ×3",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@4",
+                "munition_id": "ofab100",
+                "qty": 4.0,
+                "label": "OFAB-100-120 ×4",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@5",
+                "munition_id": "ofab100",
+                "qty": 5.0,
+                "label": "OFAB-100-120 ×5",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@6",
+                "munition_id": "ofab100",
+                "qty": 6.0,
+                "label": "OFAB-100-120 ×6",
+                "mass_kg": 720.0,
+                "dry_mass_kg": 720.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "p50t@1",
+                "munition_id": "p50t",
+                "qty": 1.0,
+                "label": "P-50T",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27er1@1",
+                "munition_id": "r27er1",
+                "qty": 1.0,
+                "label": "R-27ER1 (R-27ER)",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27r1@1",
+                "munition_id": "r27r1",
+                "qty": 1.0,
+                "label": "R-27R1 (R-27R)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "rvv_ae@1",
+                "munition_id": "rvv_ae",
+                "qty": 1.0,
+                "label": "RVV-AE (R-77)",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "7",
+            "label": "7 号机身中心线后挂点",
+            "mount_style": "centerline",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "fab250@1",
+                "munition_id": "fab250",
+                "qty": 1.0,
+                "label": "FAB-250 (OFAB-250-270)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@2",
+                "munition_id": "fab250",
+                "qty": 2.0,
+                "label": "FAB-250 (OFAB-250-270) ×2",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@3",
+                "munition_id": "fab250",
+                "qty": 3.0,
+                "label": "FAB-250 (OFAB-250-270) ×3",
+                "mass_kg": 750.0,
+                "dry_mass_kg": 750.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@4",
+                "munition_id": "fab250",
+                "qty": 4.0,
+                "label": "FAB-250 (OFAB-250-270) ×4",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab500@1",
+                "munition_id": "fab500",
+                "qty": 1.0,
+                "label": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab1500kr@1",
+                "munition_id": "kab1500kr",
+                "qty": 1.0,
+                "label": "KAB-1500KR",
+                "mass_kg": 1525.0,
+                "dry_mass_kg": 1525.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@1",
+                "munition_id": "ofab100",
+                "qty": 1.0,
+                "label": "OFAB-100-120",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@2",
+                "munition_id": "ofab100",
+                "qty": 2.0,
+                "label": "OFAB-100-120 ×2",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@3",
+                "munition_id": "ofab100",
+                "qty": 3.0,
+                "label": "OFAB-100-120 ×3",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@4",
+                "munition_id": "ofab100",
+                "qty": 4.0,
+                "label": "OFAB-100-120 ×4",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@5",
+                "munition_id": "ofab100",
+                "qty": 5.0,
+                "label": "OFAB-100-120 ×5",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@6",
+                "munition_id": "ofab100",
+                "qty": 6.0,
+                "label": "OFAB-100-120 ×6",
+                "mass_kg": 720.0,
+                "dry_mass_kg": 720.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "p50t@1",
+                "munition_id": "p50t",
+                "qty": 1.0,
+                "label": "P-50T",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27er1@1",
+                "munition_id": "r27er1",
+                "qty": 1.0,
+                "label": "R-27ER1 (R-27ER)",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27r1@1",
+                "munition_id": "r27r1",
+                "qty": 1.0,
+                "label": "R-27R1 (R-27R)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "rvv_ae@1",
+                "munition_id": "rvv_ae",
+                "qty": 1.0,
+                "label": "RVV-AE (R-77)",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "8",
+            "label": "8 号进气道下挂点（右）",
+            "mount_style": "side_rail",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "apk9e@1",
+                "munition_id": "apk9e",
+                "qty": 1.0,
+                "label": "APK-9E",
+                "mass_kg": 215.0,
+                "dry_mass_kg": 215.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@1",
+                "munition_id": "fab250",
+                "qty": 1.0,
+                "label": "FAB-250 (OFAB-250-270)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@2",
+                "munition_id": "fab250",
+                "qty": 2.0,
+                "label": "FAB-250 (OFAB-250-270) ×2",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab500kr@1",
+                "munition_id": "kab500kr",
+                "qty": 1.0,
+                "label": "KAB-500KR",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29l@1",
+                "munition_id": "kh29l",
+                "qty": 1.0,
+                "label": "Kh-29L",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29t@1",
+                "munition_id": "kh29t",
+                "qty": 1.0,
+                "label": "Kh-29T",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29te@1",
+                "munition_id": "kh29te",
+                "qty": 1.0,
+                "label": "Kh-29TE",
+                "mass_kg": 690.0,
+                "dry_mass_kg": 690.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31a@1",
+                "munition_id": "kh31a",
+                "qty": 1.0,
+                "label": "Kh-31A",
+                "mass_kg": 610.0,
+                "dry_mass_kg": 610.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31p@1",
+                "munition_id": "kh31p",
+                "qty": 1.0,
+                "label": "Kh-31P",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@1",
+                "munition_id": "ofab100",
+                "qty": 1.0,
+                "label": "OFAB-100-120",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@2",
+                "munition_id": "ofab100",
+                "qty": 2.0,
+                "label": "OFAB-100-120 ×2",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27er1@1",
+                "munition_id": "r27er1",
+                "qty": 1.0,
+                "label": "R-27ER1 (R-27ER)",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27r1@1",
+                "munition_id": "r27r1",
+                "qty": 1.0,
+                "label": "R-27R1 (R-27R)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "rvv_ae@1",
+                "munition_id": "rvv_ae",
+                "qty": 1.0,
+                "label": "RVV-AE (R-77)",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "9",
+            "label": "9 号翼内侧挂点（右）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "fab250@1",
+                "munition_id": "fab250",
+                "qty": 1.0,
+                "label": "FAB-250 (OFAB-250-270)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@2",
+                "munition_id": "fab250",
+                "qty": 2.0,
+                "label": "FAB-250 (OFAB-250-270) ×2",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab500@1",
+                "munition_id": "fab500",
+                "qty": 1.0,
+                "label": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab1500kr@1",
+                "munition_id": "kab1500kr",
+                "qty": 1.0,
+                "label": "KAB-1500KR",
+                "mass_kg": 1525.0,
+                "dry_mass_kg": 1525.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab500kr@1",
+                "munition_id": "kab500kr",
+                "qty": 1.0,
+                "label": "KAB-500KR",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29l@1",
+                "munition_id": "kh29l",
+                "qty": 1.0,
+                "label": "Kh-29L",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29t@1",
+                "munition_id": "kh29t",
+                "qty": 1.0,
+                "label": "Kh-29T",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29te@1",
+                "munition_id": "kh29te",
+                "qty": 1.0,
+                "label": "Kh-29TE",
+                "mass_kg": 690.0,
+                "dry_mass_kg": 690.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31a@1",
+                "munition_id": "kh31a",
+                "qty": 1.0,
+                "label": "Kh-31A",
+                "mass_kg": 610.0,
+                "dry_mass_kg": 610.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31p@1",
+                "munition_id": "kh31p",
+                "qty": 1.0,
+                "label": "Kh-31P",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh35e@1",
+                "munition_id": "kh35e",
+                "qty": 1.0,
+                "label": "Kh-35E",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh59mk@1",
+                "munition_id": "kh59mk",
+                "qty": 1.0,
+                "label": "Kh-59MK",
+                "mass_kg": 930.0,
+                "dry_mass_kg": 930.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@1",
+                "munition_id": "ofab100",
+                "qty": 1.0,
+                "label": "OFAB-100-120",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@2",
+                "munition_id": "ofab100",
+                "qty": 2.0,
+                "label": "OFAB-100-120 ×2",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "p50t@1",
+                "munition_id": "p50t",
+                "qty": 1.0,
+                "label": "P-50T",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27ep1@1",
+                "munition_id": "r27ep1",
+                "qty": 1.0,
+                "label": "R-27EP1",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27er1@1",
+                "munition_id": "r27er1",
+                "qty": 1.0,
+                "label": "R-27ER1 (R-27ER)",
+                "mass_kg": 350.0,
+                "dry_mass_kg": 350.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27et1@1",
+                "munition_id": "r27et1",
+                "qty": 1.0,
+                "label": "R-27ET1 (R-27ET)",
+                "mass_kg": 345.0,
+                "dry_mass_kg": 345.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27p1@1",
+                "munition_id": "r27p1",
+                "qty": 1.0,
+                "label": "R-27P1",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27r1@1",
+                "munition_id": "r27r1",
+                "qty": 1.0,
+                "label": "R-27R1 (R-27R)",
+                "mass_kg": 253.0,
+                "dry_mass_kg": 253.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r27t1@1",
+                "munition_id": "r27t1",
+                "qty": 1.0,
+                "label": "R-27T1 (R-27T)",
+                "mass_kg": 248.0,
+                "dry_mass_kg": 248.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "rvv_ae@1",
+                "munition_id": "rvv_ae",
+                "qty": 1.0,
+                "label": "RVV-AE (R-77)",
+                "mass_kg": 175.0,
+                "dry_mass_kg": 175.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s13_b13l@1",
+                "munition_id": "s13_b13l",
+                "qty": 1.0,
+                "label": "S-13 / B-13L",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s25@1",
+                "munition_id": "s25",
+                "qty": 1.0,
+                "label": "S-25",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s8_b8m1@1",
+                "munition_id": "s8_b8m1",
+                "qty": 1.0,
+                "label": "S-8 火箭巢 B-8M1",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "10",
+            "label": "10 号翼中侧挂点（右）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "fab250@1",
+                "munition_id": "fab250",
+                "qty": 1.0,
+                "label": "FAB-250 (OFAB-250-270)",
+                "mass_kg": 250.0,
+                "dry_mass_kg": 250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@2",
+                "munition_id": "fab250",
+                "qty": 2.0,
+                "label": "FAB-250 (OFAB-250-270) ×2",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@3",
+                "munition_id": "fab250",
+                "qty": 3.0,
+                "label": "FAB-250 (OFAB-250-270) ×3",
+                "mass_kg": 750.0,
+                "dry_mass_kg": 750.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@4",
+                "munition_id": "fab250",
+                "qty": 4.0,
+                "label": "FAB-250 (OFAB-250-270) ×4",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@5",
+                "munition_id": "fab250",
+                "qty": 5.0,
+                "label": "FAB-250 (OFAB-250-270) ×5",
+                "mass_kg": 1250.0,
+                "dry_mass_kg": 1250.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab250@6",
+                "munition_id": "fab250",
+                "qty": 6.0,
+                "label": "FAB-250 (OFAB-250-270) ×6",
+                "mass_kg": 1500.0,
+                "dry_mass_kg": 1500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab500@1",
+                "munition_id": "fab500",
+                "qty": 1.0,
+                "label": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "fab500@2",
+                "munition_id": "fab500",
+                "qty": 2.0,
+                "label": "FAB-500 (ZB-500/RBK-500/BetAB-500) ×2",
+                "mass_kg": 1000.0,
+                "dry_mass_kg": 1000.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kab500kr@1",
+                "munition_id": "kab500kr",
+                "qty": 1.0,
+                "label": "KAB-500KR",
+                "mass_kg": 500.0,
+                "dry_mass_kg": 500.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29l@1",
+                "munition_id": "kh29l",
+                "qty": 1.0,
+                "label": "Kh-29L",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29t@1",
+                "munition_id": "kh29t",
+                "qty": 1.0,
+                "label": "Kh-29T",
+                "mass_kg": 660.0,
+                "dry_mass_kg": 660.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh29te@1",
+                "munition_id": "kh29te",
+                "qty": 1.0,
+                "label": "Kh-29TE",
+                "mass_kg": 690.0,
+                "dry_mass_kg": 690.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31a@1",
+                "munition_id": "kh31a",
+                "qty": 1.0,
+                "label": "Kh-31A",
+                "mass_kg": 610.0,
+                "dry_mass_kg": 610.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh31p@1",
+                "munition_id": "kh31p",
+                "qty": 1.0,
+                "label": "Kh-31P",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh35e@1",
+                "munition_id": "kh35e",
+                "qty": 1.0,
+                "label": "Kh-35E",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh59me@1",
+                "munition_id": "kh59me",
+                "qty": 1.0,
+                "label": "Kh-59ME",
+                "mass_kg": 930.0,
+                "dry_mass_kg": 930.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "kh59mk@1",
+                "munition_id": "kh59mk",
+                "qty": 1.0,
+                "label": "Kh-59MK",
+                "mass_kg": 930.0,
+                "dry_mass_kg": 930.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@1",
+                "munition_id": "ofab100",
+                "qty": 1.0,
+                "label": "OFAB-100-120",
+                "mass_kg": 120.0,
+                "dry_mass_kg": 120.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@2",
+                "munition_id": "ofab100",
+                "qty": 2.0,
+                "label": "OFAB-100-120 ×2",
+                "mass_kg": 240.0,
+                "dry_mass_kg": 240.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@3",
+                "munition_id": "ofab100",
+                "qty": 3.0,
+                "label": "OFAB-100-120 ×3",
+                "mass_kg": 360.0,
+                "dry_mass_kg": 360.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@4",
+                "munition_id": "ofab100",
+                "qty": 4.0,
+                "label": "OFAB-100-120 ×4",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@5",
+                "munition_id": "ofab100",
+                "qty": 5.0,
+                "label": "OFAB-100-120 ×5",
+                "mass_kg": 600.0,
+                "dry_mass_kg": 600.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "ofab100@6",
+                "munition_id": "ofab100",
+                "qty": 6.0,
+                "label": "OFAB-100-120 ×6",
+                "mass_kg": 720.0,
+                "dry_mass_kg": 720.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "p50t@1",
+                "munition_id": "p50t",
+                "qty": 1.0,
+                "label": "P-50T",
+                "mass_kg": 50.0,
+                "dry_mass_kg": 50.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "p50t@2",
+                "munition_id": "p50t",
+                "qty": 2.0,
+                "label": "P-50T ×2",
+                "mass_kg": 100.0,
+                "dry_mass_kg": 100.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "r73e@1",
+                "munition_id": "r73e",
+                "qty": 1.0,
+                "label": "R-73E",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s13_b13l@1",
+                "munition_id": "s13_b13l",
+                "qty": 1.0,
+                "label": "S-13 / B-13L",
+                "mass_kg": 520.0,
+                "dry_mass_kg": 520.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s25@1",
+                "munition_id": "s25",
+                "qty": 1.0,
+                "label": "S-25",
+                "mass_kg": 480.0,
+                "dry_mass_kg": 480.0,
+                "fuel_kg": 0.0
+              },
+              {
+                "key": "s8_b8m1@1",
+                "munition_id": "s8_b8m1",
+                "qty": 1.0,
+                "label": "S-8 火箭巢 B-8M1",
+                "mass_kg": 150.0,
+                "dry_mass_kg": 150.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "11",
+            "label": "11 号翼外侧挂点（右）",
+            "mount_style": "wing_pylon",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "r73e@1",
+                "munition_id": "r73e",
+                "qty": 1.0,
+                "label": "R-73E",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          },
+          {
+            "id": "12",
+            "label": "12 号翼尖挂点（右）",
+            "mount_style": "wing_tip",
+            "options": [
+              {
+                "key": "",
+                "munition_id": "",
+                "qty": 0,
+                "label": "空挂"
+              },
+              {
+                "key": "r73e@1",
+                "munition_id": "r73e",
+                "qty": 1.0,
+                "label": "R-73E",
+                "mass_kg": 105.0,
+                "dry_mass_kg": 105.0,
+                "fuel_kg": 0.0
+              }
+            ]
+          }
+        ],
+        "default_selection": {
+          "1": "r73e@1",
+          "2": "r73e@1",
+          "3": "r73e@1",
+          "10": "r73e@1",
+          "11": "r73e@1",
+          "12": "r73e@1",
+          "4": "rvv_ae@1",
+          "5": "rvv_ae@1",
+          "6": "rvv_ae@1",
+          "7": "rvv_ae@1",
+          "8": "rvv_ae@1",
+          "9": "rvv_ae@1"
         }
       },
       "Rafale": {
@@ -53196,6 +55074,1551 @@ module.exports = {
             }
           ],
           "notes": "BK-27 航炮"
+        }
+      ]
+    },
+    "su30": {
+      "aircraft_id": "Su-30",
+      "aircraft_name": "苏-30",
+      "external_station_count": 12,
+      "layout_note": "挂点编号按图表从左至右 1–12：1/12 翼尖，2/11 翼外侧，3/10 翼中侧，4/9 翼内侧，5/8 进气道下方，6/7 机身中心线前后。",
+      "category_labels": {
+        "a2a": "空对空制导武器",
+        "agm": "空对面制导武器",
+        "pgm": "精确制导炸弹",
+        "bomb": "空对面非制导炸弹",
+        "rocket": "航空火箭弹/发射巢",
+        "pod": "吊舱/设备",
+        "training": "训练弹药"
+      },
+      "weapons": [
+        {
+          "id": "r27r1",
+          "name": "R-27R1",
+          "category": "a2a",
+          "mass_kg": 253.0,
+          "length_m": 4.08,
+          "diameter_m": 0.23,
+          "notes": "半主动雷达中距弹；与 ER1 同挂点谱系"
+        },
+        {
+          "id": "r27er1",
+          "name": "R-27ER1",
+          "category": "a2a",
+          "mass_kg": 350.0,
+          "length_m": 4.78,
+          "diameter_m": 0.23,
+          "notes": "增程半主动雷达中距弹"
+        },
+        {
+          "id": "r27t1",
+          "name": "R-27T1",
+          "category": "a2a",
+          "mass_kg": 248.0,
+          "length_m": 3.77,
+          "diameter_m": 0.23,
+          "notes": "红外制导中距弹；仅翼内侧"
+        },
+        {
+          "id": "r27et1",
+          "name": "R-27ET1",
+          "category": "a2a",
+          "mass_kg": 345.0,
+          "length_m": 4.5,
+          "diameter_m": 0.23,
+          "notes": "增程红外制导中距弹；仅翼内侧"
+        },
+        {
+          "id": "r27p1",
+          "name": "R-27P1",
+          "category": "a2a",
+          "mass_kg": 253.0,
+          "length_m": 4.08,
+          "diameter_m": 0.23,
+          "notes": "被动雷达中距弹；仅翼内侧"
+        },
+        {
+          "id": "r27ep1",
+          "name": "R-27EP1",
+          "category": "a2a",
+          "mass_kg": 350.0,
+          "length_m": 4.7,
+          "diameter_m": 0.23,
+          "notes": "增程被动雷达中距弹；仅翼内侧"
+        },
+        {
+          "id": "rvv_ae",
+          "name": "RVV-AE",
+          "category": "a2a",
+          "mass_kg": 175.0,
+          "length_m": 3.6,
+          "diameter_m": 0.2,
+          "notes": "主动雷达中距弹（R-77 出口型）"
+        },
+        {
+          "id": "r73e",
+          "name": "R-73E",
+          "category": "a2a",
+          "mass_kg": 105.0,
+          "length_m": 2.93,
+          "diameter_m": 0.17,
+          "notes": "近距红外格斗弹；翼尖/翼外/翼中"
+        },
+        {
+          "id": "kh59me",
+          "name": "Kh-59ME",
+          "category": "agm",
+          "mass_kg": 930.0,
+          "length_m": 5.7,
+          "diameter_m": 0.38,
+          "notes": "电视制导巡航导弹；需 APK-9E 数据链吊舱"
+        },
+        {
+          "id": "kh59mk",
+          "name": "Kh-59MK",
+          "category": "agm",
+          "mass_kg": 930.0,
+          "length_m": 5.7,
+          "diameter_m": 0.42,
+          "notes": "主动雷达反舰/对地巡航导弹"
+        },
+        {
+          "id": "kh35e",
+          "name": "Kh-35E",
+          "category": "agm",
+          "mass_kg": 520.0,
+          "length_m": 3.85,
+          "diameter_m": 0.42,
+          "notes": "反舰导弹"
+        },
+        {
+          "id": "kh31a",
+          "name": "Kh-31A",
+          "category": "agm",
+          "mass_kg": 610.0,
+          "length_m": 4.7,
+          "diameter_m": 0.36,
+          "notes": "超声速反舰导弹"
+        },
+        {
+          "id": "kh31p",
+          "name": "Kh-31P",
+          "category": "agm",
+          "mass_kg": 600.0,
+          "length_m": 4.7,
+          "diameter_m": 0.36,
+          "notes": "反辐射导弹"
+        },
+        {
+          "id": "kh29t",
+          "name": "Kh-29T",
+          "category": "agm",
+          "mass_kg": 680.0,
+          "length_m": 3.9,
+          "diameter_m": 0.38,
+          "notes": "电视制导空地导弹"
+        },
+        {
+          "id": "kh29te",
+          "name": "Kh-29TE",
+          "category": "agm",
+          "mass_kg": 690.0,
+          "length_m": 3.9,
+          "diameter_m": 0.38,
+          "notes": "电视制导空地导弹（出口增程型）"
+        },
+        {
+          "id": "kh29l",
+          "name": "Kh-29L",
+          "category": "agm",
+          "mass_kg": 660.0,
+          "length_m": 3.9,
+          "diameter_m": 0.38,
+          "notes": "激光制导空地导弹"
+        },
+        {
+          "id": "kab500kr",
+          "name": "KAB-500KR",
+          "category": "pgm",
+          "mass_kg": 560.0,
+          "length_m": 3.05,
+          "diameter_m": 0.4,
+          "notes": "电视制导炸弹"
+        },
+        {
+          "id": "kab1500kr",
+          "name": "KAB-1500KR",
+          "category": "pgm",
+          "mass_kg": 1525.0,
+          "length_m": 4.6,
+          "diameter_m": 0.58,
+          "notes": "重型电视制导炸弹；全机最多 3 枚"
+        },
+        {
+          "id": "apk9e",
+          "name": "APK-9E",
+          "category": "pod",
+          "mass_kg": 215.0,
+          "length_m": 2.5,
+          "diameter_m": 0.35,
+          "notes": "Kh-59ME 数据链引导吊舱；5 或 8 号挂点二选一"
+        },
+        {
+          "id": "fab500",
+          "name": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+          "category": "bomb",
+          "mass_kg": 500.0,
+          "length_m": 2.5,
+          "diameter_m": 0.4,
+          "notes": "500 kg 级无制导/特种炸弹族；翼中侧可双联"
+        },
+        {
+          "id": "fab250",
+          "name": "FAB-250 (OFAB-250-270)",
+          "category": "bomb",
+          "mass_kg": 250.0,
+          "length_m": 2.0,
+          "diameter_m": 0.3,
+          "notes": "250 kg 级无制导炸弹；可多联挂架"
+        },
+        {
+          "id": "ofab100",
+          "name": "OFAB-100-120",
+          "category": "bomb",
+          "mass_kg": 120.0,
+          "length_m": 1.5,
+          "diameter_m": 0.25,
+          "notes": "100 kg 级无制导炸弹；可多联挂架"
+        },
+        {
+          "id": "s8_b8m1",
+          "name": "S-8 / B-8M1",
+          "category": "rocket",
+          "mass_kg": 370.0,
+          "length_m": 1.7,
+          "diameter_m": 0.52,
+          "notes": "80 mm 火箭巢；每巢 20 发；全机最多 4 巢（80 发）"
+        },
+        {
+          "id": "s13_b13l",
+          "name": "S-13 / B-13L",
+          "category": "rocket",
+          "mass_kg": 520.0,
+          "length_m": 2.5,
+          "diameter_m": 0.42,
+          "notes": "122 mm 火箭巢；每巢 5 发；全机最多 4 巢（20 发）"
+        },
+        {
+          "id": "s25",
+          "name": "S-25",
+          "category": "rocket",
+          "mass_kg": 480.0,
+          "length_m": 3.7,
+          "diameter_m": 0.34,
+          "notes": "大口径单发航空火箭弹"
+        },
+        {
+          "id": "p50t",
+          "name": "P-50T",
+          "category": "training",
+          "mass_kg": 50.0,
+          "length_m": 1.2,
+          "diameter_m": 0.2,
+          "notes": "训练炸弹"
+        }
+      ],
+      "stations": [
+        {
+          "id": 1,
+          "name": "1 号翼尖挂点（左）",
+          "mount": "pylon",
+          "position_index": 1,
+          "side": "left",
+          "stores": [
+            {
+              "weapon_id": "r73e",
+              "name": "R-73E",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 105.0,
+              "notes": "翼尖各 1 枚"
+            }
+          ],
+          "notes": "翼尖"
+        },
+        {
+          "id": 2,
+          "name": "2 号翼外侧挂点（左）",
+          "mount": "pylon",
+          "position_index": 2,
+          "side": "left",
+          "stores": [
+            {
+              "weapon_id": "r73e",
+              "name": "R-73E",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 105.0,
+              "notes": "翼外侧各 1 枚"
+            }
+          ],
+          "notes": "翼外侧"
+        },
+        {
+          "id": 3,
+          "name": "3 号翼中侧挂点（左）",
+          "mount": "pylon",
+          "position_index": 3,
+          "side": "left",
+          "stores": [
+            {
+              "weapon_id": "fab250",
+              "name": "FAB-250 (OFAB-250-270)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 6,
+              "mass_kg": 250.0,
+              "notes": "多悬挂架；各 6 枚"
+            },
+            {
+              "weapon_id": "fab500",
+              "name": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 500.0,
+              "notes": "串联/并联复合挂架；各 2 枚"
+            },
+            {
+              "weapon_id": "kab500kr",
+              "name": "KAB-500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 560.0
+            },
+            {
+              "weapon_id": "kh29l",
+              "name": "Kh-29L",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 660.0
+            },
+            {
+              "weapon_id": "kh29t",
+              "name": "Kh-29T",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 680.0
+            },
+            {
+              "weapon_id": "kh29te",
+              "name": "Kh-29TE",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 690.0
+            },
+            {
+              "weapon_id": "kh31a",
+              "name": "Kh-31A",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 610.0
+            },
+            {
+              "weapon_id": "kh31p",
+              "name": "Kh-31P",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "kh35e",
+              "name": "Kh-35E",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 520.0
+            },
+            {
+              "weapon_id": "kh59me",
+              "name": "Kh-59ME",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 930.0,
+              "notes": "翼中侧各 1 枚导弹"
+            },
+            {
+              "weapon_id": "kh59mk",
+              "name": "Kh-59MK",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 930.0
+            },
+            {
+              "weapon_id": "ofab100",
+              "name": "OFAB-100-120",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 6,
+              "mass_kg": 120.0,
+              "notes": "多悬挂架；各 6 枚"
+            },
+            {
+              "weapon_id": "p50t",
+              "name": "P-50T",
+              "category": "training",
+              "category_label": "训练弹药",
+              "max_qty": 2,
+              "mass_kg": 50.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "r73e",
+              "name": "R-73E",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 105.0,
+              "notes": "翼中侧各 1 枚"
+            },
+            {
+              "weapon_id": "s13_b13l",
+              "name": "S-13 / B-13L",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 520.0,
+              "notes": "B-13L 发射巢；每巢 5 发"
+            },
+            {
+              "weapon_id": "s25",
+              "name": "S-25",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 480.0
+            },
+            {
+              "weapon_id": "s8_b8m1",
+              "name": "S-8 / B-8M1",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 370.0,
+              "notes": "B-8M1 发射巢；每巢 20 发"
+            }
+          ],
+          "notes": "翼中侧；可挂复合/多联挂架"
+        },
+        {
+          "id": 4,
+          "name": "4 号翼内侧挂点（左）",
+          "mount": "pylon",
+          "position_index": 4,
+          "side": "left",
+          "stores": [
+            {
+              "weapon_id": "fab250",
+              "name": "FAB-250 (OFAB-250-270)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 250.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "fab500",
+              "name": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 500.0
+            },
+            {
+              "weapon_id": "kab1500kr",
+              "name": "KAB-1500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 1525.0
+            },
+            {
+              "weapon_id": "kab500kr",
+              "name": "KAB-500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 560.0
+            },
+            {
+              "weapon_id": "kh29l",
+              "name": "Kh-29L",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 660.0
+            },
+            {
+              "weapon_id": "kh29t",
+              "name": "Kh-29T",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 680.0
+            },
+            {
+              "weapon_id": "kh29te",
+              "name": "Kh-29TE",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 690.0
+            },
+            {
+              "weapon_id": "kh31a",
+              "name": "Kh-31A",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 610.0
+            },
+            {
+              "weapon_id": "kh31p",
+              "name": "Kh-31P",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "kh35e",
+              "name": "Kh-35E",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 520.0
+            },
+            {
+              "weapon_id": "kh59mk",
+              "name": "Kh-59MK",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 930.0
+            },
+            {
+              "weapon_id": "ofab100",
+              "name": "OFAB-100-120",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 120.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "p50t",
+              "name": "P-50T",
+              "category": "training",
+              "category_label": "训练弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "r27ep1",
+              "name": "R-27EP1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 350.0,
+              "notes": "仅翼内侧"
+            },
+            {
+              "weapon_id": "r27er1",
+              "name": "R-27ER1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 350.0
+            },
+            {
+              "weapon_id": "r27et1",
+              "name": "R-27ET1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 345.0,
+              "notes": "仅翼内侧"
+            },
+            {
+              "weapon_id": "r27p1",
+              "name": "R-27P1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 253.0,
+              "notes": "仅翼内侧"
+            },
+            {
+              "weapon_id": "r27r1",
+              "name": "R-27R1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 253.0
+            },
+            {
+              "weapon_id": "r27t1",
+              "name": "R-27T1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 248.0,
+              "notes": "仅翼内侧"
+            },
+            {
+              "weapon_id": "rvv_ae",
+              "name": "RVV-AE",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 175.0
+            },
+            {
+              "weapon_id": "s13_b13l",
+              "name": "S-13 / B-13L",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 520.0,
+              "notes": "B-13L 发射巢；每巢 5 发"
+            },
+            {
+              "weapon_id": "s25",
+              "name": "S-25",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 480.0
+            },
+            {
+              "weapon_id": "s8_b8m1",
+              "name": "S-8 / B-8M1",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 370.0,
+              "notes": "B-8M1 发射巢；每巢 20 发"
+            }
+          ],
+          "notes": "翼内侧"
+        },
+        {
+          "id": 5,
+          "name": "5 号进气道下挂点（左）",
+          "mount": "pylon",
+          "position_index": 5,
+          "side": "left",
+          "stores": [
+            {
+              "weapon_id": "apk9e",
+              "name": "APK-9E",
+              "category": "pod",
+              "category_label": "吊舱/设备",
+              "max_qty": 1,
+              "mass_kg": 215.0,
+              "notes": "Kh-59ME 数据链吊舱；5 或 8 二选一"
+            },
+            {
+              "weapon_id": "fab250",
+              "name": "FAB-250 (OFAB-250-270)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 250.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "kab500kr",
+              "name": "KAB-500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 560.0
+            },
+            {
+              "weapon_id": "kh29l",
+              "name": "Kh-29L",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 660.0
+            },
+            {
+              "weapon_id": "kh29t",
+              "name": "Kh-29T",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 680.0
+            },
+            {
+              "weapon_id": "kh29te",
+              "name": "Kh-29TE",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 690.0
+            },
+            {
+              "weapon_id": "kh31a",
+              "name": "Kh-31A",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 610.0
+            },
+            {
+              "weapon_id": "kh31p",
+              "name": "Kh-31P",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "ofab100",
+              "name": "OFAB-100-120",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 120.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "r27er1",
+              "name": "R-27ER1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 350.0
+            },
+            {
+              "weapon_id": "r27r1",
+              "name": "R-27R1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 253.0
+            },
+            {
+              "weapon_id": "rvv_ae",
+              "name": "RVV-AE",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 175.0
+            }
+          ],
+          "notes": "左进气道下方"
+        },
+        {
+          "id": 6,
+          "name": "6 号机身中心线前挂点",
+          "mount": "centerline",
+          "position_index": 6,
+          "side": "center",
+          "stores": [
+            {
+              "weapon_id": "fab250",
+              "name": "FAB-250 (OFAB-250-270)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 4,
+              "mass_kg": 250.0,
+              "notes": "复合挂架；各 4 枚"
+            },
+            {
+              "weapon_id": "fab500",
+              "name": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 500.0
+            },
+            {
+              "weapon_id": "kab1500kr",
+              "name": "KAB-1500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 1525.0,
+              "notes": "机身中心线 6 或 7 二选一"
+            },
+            {
+              "weapon_id": "ofab100",
+              "name": "OFAB-100-120",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 6,
+              "mass_kg": 120.0,
+              "notes": "前后组合共 12 枚；本站最多 6"
+            },
+            {
+              "weapon_id": "p50t",
+              "name": "P-50T",
+              "category": "training",
+              "category_label": "训练弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "r27er1",
+              "name": "R-27ER1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 350.0
+            },
+            {
+              "weapon_id": "r27r1",
+              "name": "R-27R1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 253.0
+            },
+            {
+              "weapon_id": "rvv_ae",
+              "name": "RVV-AE",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 175.0
+            }
+          ],
+          "notes": "机身中心线前"
+        },
+        {
+          "id": 7,
+          "name": "7 号机身中心线后挂点",
+          "mount": "centerline",
+          "position_index": 7,
+          "side": "center",
+          "stores": [
+            {
+              "weapon_id": "fab250",
+              "name": "FAB-250 (OFAB-250-270)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 4,
+              "mass_kg": 250.0,
+              "notes": "复合挂架；各 4 枚"
+            },
+            {
+              "weapon_id": "fab500",
+              "name": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 500.0
+            },
+            {
+              "weapon_id": "kab1500kr",
+              "name": "KAB-1500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 1525.0,
+              "notes": "机身中心线 6 或 7 二选一"
+            },
+            {
+              "weapon_id": "ofab100",
+              "name": "OFAB-100-120",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 6,
+              "mass_kg": 120.0,
+              "notes": "前后组合共 12 枚；本站最多 6"
+            },
+            {
+              "weapon_id": "p50t",
+              "name": "P-50T",
+              "category": "training",
+              "category_label": "训练弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "r27er1",
+              "name": "R-27ER1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 350.0
+            },
+            {
+              "weapon_id": "r27r1",
+              "name": "R-27R1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 253.0
+            },
+            {
+              "weapon_id": "rvv_ae",
+              "name": "RVV-AE",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 175.0
+            }
+          ],
+          "notes": "机身中心线后"
+        },
+        {
+          "id": 8,
+          "name": "8 号进气道下挂点（右）",
+          "mount": "pylon",
+          "position_index": 8,
+          "side": "right",
+          "stores": [
+            {
+              "weapon_id": "apk9e",
+              "name": "APK-9E",
+              "category": "pod",
+              "category_label": "吊舱/设备",
+              "max_qty": 1,
+              "mass_kg": 215.0,
+              "notes": "Kh-59ME 数据链吊舱；5 或 8 二选一"
+            },
+            {
+              "weapon_id": "fab250",
+              "name": "FAB-250 (OFAB-250-270)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 250.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "kab500kr",
+              "name": "KAB-500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 560.0
+            },
+            {
+              "weapon_id": "kh29l",
+              "name": "Kh-29L",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 660.0
+            },
+            {
+              "weapon_id": "kh29t",
+              "name": "Kh-29T",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 680.0
+            },
+            {
+              "weapon_id": "kh29te",
+              "name": "Kh-29TE",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 690.0
+            },
+            {
+              "weapon_id": "kh31a",
+              "name": "Kh-31A",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 610.0
+            },
+            {
+              "weapon_id": "kh31p",
+              "name": "Kh-31P",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "ofab100",
+              "name": "OFAB-100-120",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 120.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "r27er1",
+              "name": "R-27ER1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 350.0
+            },
+            {
+              "weapon_id": "r27r1",
+              "name": "R-27R1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 253.0
+            },
+            {
+              "weapon_id": "rvv_ae",
+              "name": "RVV-AE",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 175.0
+            }
+          ],
+          "notes": "右进气道下方"
+        },
+        {
+          "id": 9,
+          "name": "9 号翼内侧挂点（右）",
+          "mount": "pylon",
+          "position_index": 9,
+          "side": "right",
+          "stores": [
+            {
+              "weapon_id": "fab250",
+              "name": "FAB-250 (OFAB-250-270)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 250.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "fab500",
+              "name": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 500.0
+            },
+            {
+              "weapon_id": "kab1500kr",
+              "name": "KAB-1500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 1525.0
+            },
+            {
+              "weapon_id": "kab500kr",
+              "name": "KAB-500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 560.0
+            },
+            {
+              "weapon_id": "kh29l",
+              "name": "Kh-29L",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 660.0
+            },
+            {
+              "weapon_id": "kh29t",
+              "name": "Kh-29T",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 680.0
+            },
+            {
+              "weapon_id": "kh29te",
+              "name": "Kh-29TE",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 690.0
+            },
+            {
+              "weapon_id": "kh31a",
+              "name": "Kh-31A",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 610.0
+            },
+            {
+              "weapon_id": "kh31p",
+              "name": "Kh-31P",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "kh35e",
+              "name": "Kh-35E",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 520.0
+            },
+            {
+              "weapon_id": "kh59mk",
+              "name": "Kh-59MK",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 930.0
+            },
+            {
+              "weapon_id": "ofab100",
+              "name": "OFAB-100-120",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 120.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "p50t",
+              "name": "P-50T",
+              "category": "training",
+              "category_label": "训练弹药",
+              "max_qty": 1,
+              "mass_kg": 50.0
+            },
+            {
+              "weapon_id": "r27ep1",
+              "name": "R-27EP1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 350.0,
+              "notes": "仅翼内侧"
+            },
+            {
+              "weapon_id": "r27er1",
+              "name": "R-27ER1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 350.0
+            },
+            {
+              "weapon_id": "r27et1",
+              "name": "R-27ET1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 345.0,
+              "notes": "仅翼内侧"
+            },
+            {
+              "weapon_id": "r27p1",
+              "name": "R-27P1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 253.0,
+              "notes": "仅翼内侧"
+            },
+            {
+              "weapon_id": "r27r1",
+              "name": "R-27R1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 253.0
+            },
+            {
+              "weapon_id": "r27t1",
+              "name": "R-27T1",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 248.0,
+              "notes": "仅翼内侧"
+            },
+            {
+              "weapon_id": "rvv_ae",
+              "name": "RVV-AE",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 175.0
+            },
+            {
+              "weapon_id": "s13_b13l",
+              "name": "S-13 / B-13L",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 520.0,
+              "notes": "B-13L 发射巢；每巢 5 发"
+            },
+            {
+              "weapon_id": "s25",
+              "name": "S-25",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 480.0
+            },
+            {
+              "weapon_id": "s8_b8m1",
+              "name": "S-8 / B-8M1",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 370.0,
+              "notes": "B-8M1 发射巢；每巢 20 发"
+            }
+          ],
+          "notes": "翼内侧"
+        },
+        {
+          "id": 10,
+          "name": "10 号翼中侧挂点（右）",
+          "mount": "pylon",
+          "position_index": 10,
+          "side": "right",
+          "stores": [
+            {
+              "weapon_id": "fab250",
+              "name": "FAB-250 (OFAB-250-270)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 6,
+              "mass_kg": 250.0,
+              "notes": "多悬挂架；各 6 枚"
+            },
+            {
+              "weapon_id": "fab500",
+              "name": "FAB-500 (ZB-500/RBK-500/BetAB-500)",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 2,
+              "mass_kg": 500.0,
+              "notes": "串联/并联复合挂架；各 2 枚"
+            },
+            {
+              "weapon_id": "kab500kr",
+              "name": "KAB-500KR",
+              "category": "pgm",
+              "category_label": "精确制导炸弹",
+              "max_qty": 1,
+              "mass_kg": 560.0
+            },
+            {
+              "weapon_id": "kh29l",
+              "name": "Kh-29L",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 660.0
+            },
+            {
+              "weapon_id": "kh29t",
+              "name": "Kh-29T",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 680.0
+            },
+            {
+              "weapon_id": "kh29te",
+              "name": "Kh-29TE",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 690.0
+            },
+            {
+              "weapon_id": "kh31a",
+              "name": "Kh-31A",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 610.0
+            },
+            {
+              "weapon_id": "kh31p",
+              "name": "Kh-31P",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 600.0
+            },
+            {
+              "weapon_id": "kh35e",
+              "name": "Kh-35E",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 520.0
+            },
+            {
+              "weapon_id": "kh59me",
+              "name": "Kh-59ME",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 930.0,
+              "notes": "翼中侧各 1 枚导弹"
+            },
+            {
+              "weapon_id": "kh59mk",
+              "name": "Kh-59MK",
+              "category": "agm",
+              "category_label": "空对面制导武器",
+              "max_qty": 1,
+              "mass_kg": 930.0
+            },
+            {
+              "weapon_id": "ofab100",
+              "name": "OFAB-100-120",
+              "category": "bomb",
+              "category_label": "空对面非制导炸弹",
+              "max_qty": 6,
+              "mass_kg": 120.0,
+              "notes": "多悬挂架；各 6 枚"
+            },
+            {
+              "weapon_id": "p50t",
+              "name": "P-50T",
+              "category": "training",
+              "category_label": "训练弹药",
+              "max_qty": 2,
+              "mass_kg": 50.0,
+              "notes": "各 2 枚"
+            },
+            {
+              "weapon_id": "r73e",
+              "name": "R-73E",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 105.0,
+              "notes": "翼中侧各 1 枚"
+            },
+            {
+              "weapon_id": "s13_b13l",
+              "name": "S-13 / B-13L",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 520.0,
+              "notes": "B-13L 发射巢；每巢 5 发"
+            },
+            {
+              "weapon_id": "s25",
+              "name": "S-25",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 480.0
+            },
+            {
+              "weapon_id": "s8_b8m1",
+              "name": "S-8 / B-8M1",
+              "category": "rocket",
+              "category_label": "航空火箭弹/发射巢",
+              "max_qty": 1,
+              "mass_kg": 370.0,
+              "notes": "B-8M1 发射巢；每巢 20 发"
+            }
+          ],
+          "notes": "翼中侧；可挂复合/多联挂架"
+        },
+        {
+          "id": 11,
+          "name": "11 号翼外侧挂点（右）",
+          "mount": "pylon",
+          "position_index": 11,
+          "side": "right",
+          "stores": [
+            {
+              "weapon_id": "r73e",
+              "name": "R-73E",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 105.0,
+              "notes": "翼外侧各 1 枚"
+            }
+          ],
+          "notes": "翼外侧"
+        },
+        {
+          "id": 12,
+          "name": "12 号翼尖挂点（右）",
+          "mount": "pylon",
+          "position_index": 12,
+          "side": "right",
+          "stores": [
+            {
+              "weapon_id": "r73e",
+              "name": "R-73E",
+              "category": "a2a",
+              "category_label": "空对空制导武器",
+              "max_qty": 1,
+              "mass_kg": 105.0,
+              "notes": "翼尖各 1 枚"
+            }
+          ],
+          "notes": "翼尖"
+        }
+      ],
+      "limits": [
+        {
+          "store_id": "r27r1",
+          "max_count": 6,
+          "notes": "R-27R1/ER1 谱系全机最多 6 枚"
+        },
+        {
+          "store_id": "r27er1",
+          "max_count": 6,
+          "notes": "R-27R1/ER1 谱系全机最多 6 枚"
+        },
+        {
+          "store_id": "r27t1",
+          "max_count": 2,
+          "notes": "红外/被动谱系仅翼内侧；全机最多 2 枚"
+        },
+        {
+          "store_id": "r27et1",
+          "max_count": 2,
+          "notes": "红外/被动谱系仅翼内侧；全机最多 2 枚"
+        },
+        {
+          "store_id": "r27p1",
+          "max_count": 2,
+          "notes": "红外/被动谱系仅翼内侧；全机最多 2 枚"
+        },
+        {
+          "store_id": "r27ep1",
+          "max_count": 2,
+          "notes": "红外/被动谱系仅翼内侧；全机最多 2 枚"
+        },
+        {
+          "store_id": "rvv_ae",
+          "max_count": 6,
+          "notes": "RVV-AE 全机最多 6 枚"
+        },
+        {
+          "store_id": "r73e",
+          "max_count": 6,
+          "notes": "R-73E 全机最多 6 枚"
+        },
+        {
+          "store_id": "kh59me",
+          "max_count": 2,
+          "notes": "Kh-59ME 全机最多 2 枚导弹"
+        },
+        {
+          "store_id": "apk9e",
+          "max_count": 1,
+          "notes": "APK-9E 数据链吊舱全机最多 1 个（5 或 8）"
+        },
+        {
+          "store_id": "kh59mk",
+          "max_count": 4,
+          "notes": "Kh-59MK 全机最多 4 枚"
+        },
+        {
+          "store_id": "kh35e",
+          "max_count": 4,
+          "notes": "Kh-35E 全机最多 4 枚"
+        },
+        {
+          "store_id": "kh31a",
+          "max_count": 6,
+          "notes": "Kh-31A 全机最多 6 枚"
+        },
+        {
+          "store_id": "kh31p",
+          "max_count": 6,
+          "notes": "Kh-31P 全机最多 6 枚"
+        },
+        {
+          "store_id": "kh29t",
+          "max_count": 6,
+          "notes": "Kh-29T 全机最多 6 枚"
+        },
+        {
+          "store_id": "kh29te",
+          "max_count": 6,
+          "notes": "Kh-29TE 全机最多 6 枚"
+        },
+        {
+          "store_id": "kh29l",
+          "max_count": 6,
+          "notes": "Kh-29L 全机最多 6 枚"
+        },
+        {
+          "store_id": "kab500kr",
+          "max_count": 6,
+          "notes": "KAB-500KR 全机最多 6 枚"
+        },
+        {
+          "store_id": "kab1500kr",
+          "max_count": 3,
+          "notes": "KAB-1500KR 全机最多 3 枚（4/9 + 6 或 7）"
+        },
+        {
+          "store_id": "fab500",
+          "max_count": 8,
+          "notes": "FAB-500 族全机最多 8 枚"
+        },
+        {
+          "store_id": "fab250",
+          "max_count": 28,
+          "notes": "FAB-250 族全机最多 28 枚"
+        },
+        {
+          "store_id": "ofab100",
+          "max_count": 32,
+          "notes": "OFAB-100-120 全机最多 32 枚"
+        },
+        {
+          "store_id": "s8_b8m1",
+          "max_count": 4,
+          "notes": "B-8M1 发射巢全机最多 4 个（80 发）"
+        },
+        {
+          "store_id": "s13_b13l",
+          "max_count": 4,
+          "notes": "B-13L 发射巢全机最多 4 个（20 发）"
+        },
+        {
+          "store_id": "s25",
+          "max_count": 4,
+          "notes": "S-25 全机最多 4 发"
+        },
+        {
+          "store_id": "p50t",
+          "max_count": 8,
+          "notes": "P-50T 全机最多 8 枚"
         }
       ]
     }

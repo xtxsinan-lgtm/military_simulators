@@ -61,7 +61,7 @@ def test_build_loadout_catalog_includes_fragment_aircraft():
     assert {'F-15E', 'FA-18C', 'F-2', 'FA-18E'} <= ids
     assert {
         'F-14', 'F-16', 'FA-50', 'FC-1', 'Gripen-CD', 'Gripen-EF',
-        'MiG-29K', 'Mirage-2000', 'Rafale', 'Rafale-M', 'Tejas', 'Typhoon',
+        'MiG-29K', 'Mirage-2000', 'Rafale', 'Rafale-M', 'Su-30', 'Tejas', 'Typhoon',
     } <= ids
     for aid in ids:
         ac = cat['aircraft'][aid]
@@ -74,7 +74,7 @@ def test_build_loadout_catalog_includes_fragment_aircraft():
 def test_resolve_fragment_defaults():
     """碎片机型默认挂载可解析出正质量。"""
     cat = build_loadout_catalog_payload()
-    for aid in ('Typhoon', 'Rafale', 'F-16', 'MiG-29K', 'FA-50', 'Mirage-2000'):
+    for aid in ('Typhoon', 'Rafale', 'F-16', 'MiG-29K', 'FA-50', 'Mirage-2000', 'Su-30'):
         summary = resolve_loadout(aid, cat['aircraft'][aid]['default_selection'])
         assert summary.payload_mass_kg > 0
         assert summary.n_store_units > 0

@@ -92,6 +92,24 @@ TYPHOON_STORE_COMPATIBILITY_CSV_COLUMNS = (
     'station_id', 'weapon_id', 'max_qty', 'notes',
 )
 TYPHOON_STORE_MOUNTS = ('pylon', 'semi_recessed', 'centerline', 'fixed')
+# 苏-30 挂载能力图：12 挂点 + 单点 max_qty + 全机上限
+SU30_STORE_DATABASE_CSV_COLUMNS = (
+    'id', 'name', 'category', 'mass_kg', 'length_m', 'diameter_m', 'notes',
+)
+SU30_STORE_CATEGORIES = (
+    'a2a', 'agm', 'pgm', 'bomb', 'rocket', 'pod', 'training',
+)
+SU30_STORE_STATIONS_CSV_COLUMNS = (
+    'station_id', 'name', 'mount', 'position_index', 'side', 'notes',
+)
+SU30_STORE_COMPATIBILITY_CSV_COLUMNS = (
+    'station_id', 'weapon_id', 'max_qty', 'notes',
+)
+SU30_STORE_LIMITS_CSV_COLUMNS = (
+    'aircraft_id', 'store_id', 'max_count', 'notes',
+)
+SU30_STORE_MOUNTS = ('pylon', 'centerline')
+SU30_STATION_SIDES = ('left', 'right', 'center')
 
 COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
     'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'max_tsl_kN',
@@ -1453,4 +1471,162 @@ def load_typhoon_store_compatibility_csv(path: str | Path | None = None) -> list
             rows.append(item)
     if not rows:
         raise ValueError(f'{csv_path} 未读到有效兼容记录')
+    return rows
+
+
+def load_su30_store_database_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载苏-30 外挂弹药/设备库。"""
+    from utils.paths import SU30_STORE_DATABASE_CSV
+
+    csv_path = Path(path) if path is not None else SU30_STORE_DATABASE_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in SU30_STORE_DATABASE_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            item_id = (row.get('id') or '').strip()
+            name = (row.get('name') or '').strip()
+            category = (row.get('category') or '').strip()
+            if not item_id or not name or not category:
+                continue
+            if category not in SU30_STORE_CATEGORIES:
+                raise ValueError(
+                    f'{csv_path} 未知 category={category!r}（id={item_id}）'
+                )
+            item: dict[str, Any] = {
+                'id': item_id,
+                'name': name,
+                'category': category,
+                'mass_kg': _parse_float(row.get('mass_kg') or '', 'mass_kg'),
+                'length_m': _parse_float(row.get('length_m') or '', 'length_m'),
+                'diameter_m': _parse_float(row.get('diameter_m') or '', 'diameter_m'),
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效武器记录')
+    return rows
+
+
+def load_su30_store_stations_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载苏-30 挂点定义（图表从左至右 1–12）。"""
+    from utils.paths import SU30_STORE_STATIONS_CSV
+
+    csv_path = Path(path) if path is not None else SU30_STORE_STATIONS_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in SU30_STORE_STATIONS_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            station_id = (row.get('station_id') or '').strip()
+            name = (row.get('name') or '').strip()
+            mount = (row.get('mount') or '').strip()
+            side = (row.get('side') or '').strip()
+            if not station_id or not name or not mount:
+                continue
+            if mount not in SU30_STORE_MOUNTS:
+                raise ValueError(
+                    f'{csv_path} 未知 mount={mount!r}（station_id={station_id}）'
+                )
+            if side and side not in SU30_STATION_SIDES:
+                raise ValueError(
+                    f'{csv_path} 未知 side={side!r}（station_id={station_id}）'
+                )
+            item: dict[str, Any] = {
+                'station_id': _parse_int(station_id, 'station_id'),
+                'name': name,
+                'mount': mount,
+                'position_index': _parse_int(row.get('position_index') or '', 'position_index'),
+                'side': side,
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效挂点记录')
+    return rows
+
+
+def load_su30_store_compatibility_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载苏-30 挂点—弹药兼容表（含单点 max_qty）。"""
+    from utils.paths import SU30_STORE_COMPATIBILITY_CSV
+
+    csv_path = Path(path) if path is not None else SU30_STORE_COMPATIBILITY_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in SU30_STORE_COMPATIBILITY_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            station_id = (row.get('station_id') or '').strip()
+            weapon_id = (row.get('weapon_id') or '').strip()
+            if not station_id or not weapon_id:
+                continue
+            max_qty = _parse_int(row.get('max_qty') or '', 'max_qty')
+            if max_qty <= 0:
+                raise ValueError(
+                    f'{csv_path} station_id={station_id} weapon_id={weapon_id} max_qty 须为正'
+                )
+            item: dict[str, Any] = {
+                'station_id': _parse_int(station_id, 'station_id'),
+                'weapon_id': weapon_id,
+                'max_qty': max_qty,
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效兼容记录')
+    return rows
+
+
+def load_su30_store_limits_csv(path: str | Path | None = None) -> list[dict[str, Any]]:
+    """加载苏-30 全机弹药数量上限。"""
+    from utils.paths import SU30_STORE_LIMITS_CSV
+
+    csv_path = Path(path) if path is not None else SU30_STORE_LIMITS_CSV
+    rows: list[dict[str, Any]] = []
+    with csv_path.open('r', encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f'{csv_path} 缺少表头')
+        missing = [c for c in SU30_STORE_LIMITS_CSV_COLUMNS if c not in reader.fieldnames]
+        if missing:
+            raise ValueError(f'{csv_path} 缺少列: {missing}')
+        for row in reader:
+            aircraft_id = (row.get('aircraft_id') or '').strip()
+            store_id = (row.get('store_id') or '').strip()
+            if not aircraft_id or not store_id:
+                continue
+            max_count = _parse_int(row.get('max_count') or '', 'max_count')
+            if max_count <= 0:
+                raise ValueError(
+                    f'{csv_path} store_id={store_id} max_count 须为正'
+                )
+            item: dict[str, Any] = {
+                'aircraft_id': aircraft_id,
+                'store_id': store_id,
+                'max_count': max_count,
+            }
+            notes = (row.get('notes') or '').strip()
+            if notes:
+                item['notes'] = notes
+            rows.append(item)
+    if not rows:
+        raise ValueError(f'{csv_path} 未读到有效上限记录')
     return rows

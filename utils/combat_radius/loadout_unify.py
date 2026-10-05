@@ -1,6 +1,6 @@
 """把各碎片挂载目录合并进作战半径统一挂点/弹药模型。
 
-各 PR 曾分别新增 MiG-29K、F-14、F-16、阵风、幻影 2000、台风、FC-1、FA-50、
+各 PR 曾分别新增 MiG-29K、F-14、F-16、阵风、幻影 2000、台风、苏-30、FC-1、FA-50、
 光辉、鹰狮等挂点 CSV，但作战半径交互 UI 只读 `aircraft_stations_database.json`
 与 `munitions_database.csv`。本模块在构建 catalog / 解析挂载时把碎片源
 规范成同一结构，避免只显示示意图却无法按挂点选弹并重算半径。
@@ -722,6 +722,52 @@ def _collect_typhoon(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str
     }
 
 
+def _collect_su30(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """苏-30：十二挂点能力图。"""
+    from utils.weapon_loadout.su30_stores import build_su30_stores_payload
+
+    payload = build_su30_stores_payload()
+    for row in payload.get('weapons') or []:
+        _merge_munition(munitions, normalize_munition_record(
+            str(row['id']),
+            name=str(row.get('name') or row['id']),
+            category=str(row.get('category') or ''),
+            mass_kg=_f(row.get('mass_kg')),
+            length_m=_f(row.get('length_m')) or None,
+            diameter_m=_f(row.get('diameter_m')) or None,
+            notes=str(row.get('notes') or ''),
+        ))
+    st_list = []
+    for st in payload.get('stations') or []:
+        style = mount_style_from_hints(
+            mount=str(st.get('mount') or ''),
+            station_id=str(st.get('id')),
+            side=str(st.get('side') or ''),
+            position=str(st.get('name') or ''),
+        )
+        options = []
+        for item in st.get('stores') or []:
+            mid = str(item['weapon_id'])
+            max_q = int(item.get('max_qty') or 1)
+            for q in range(1, max_q + 1):
+                options.append({'munition_id': mid, 'qty': float(q)})
+        st_list.append({
+            'id': str(st['id']),
+            'label': str(st.get('name') or st['id']),
+            'mount_style': style,
+            'options': options,
+        })
+    # 默认空战：翼尖/翼外/翼中 R-73E，翼内/进气道/机腹 RVV-AE
+    defaults: dict[str, dict[str, Any]] = {}
+    for sid in ('1', '2', '3', '10', '11', '12'):
+        defaults[sid] = {'munition_id': 'r73e', 'qty': 1}
+    for sid in ('4', '5', '6', '7', '8', '9'):
+        defaults[sid] = {'munition_id': 'rvv_ae', 'qty': 1}
+    return {
+        'Su-30': _aircraft_entry('Su-30', '苏-30', st_list, defaults),
+    }
+
+
 def _collect_rafale(munitions: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
     """阵风 / 阵风 M。"""
     from utils.aircraft_mount.rafale_mount import build_rafale_mount_model
@@ -963,6 +1009,7 @@ def collect_fragment_munitions() -> dict[str, dict[str, Any]]:
         _collect_fc1,
         _collect_tejas,
         _collect_typhoon,
+        _collect_su30,
         _collect_rafale,
         _collect_mirage2000,
         _collect_gripen_cd,
@@ -1000,6 +1047,7 @@ def collect_fragment_aircraft() -> dict[str, dict[str, Any]]:
         _collect_fc1,
         _collect_tejas,
         _collect_typhoon,
+        _collect_su30,
         _collect_rafale,
         _collect_mirage2000,
         _collect_gripen_cd,
