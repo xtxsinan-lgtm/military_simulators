@@ -89,6 +89,8 @@ class StoreSpec:
     front_frac: float = 1.0
     station_id: str = ''
     munition_id: str = ''
+    style: str = ''
+    span_frac: float = -1.0
 
 
 @dataclass
@@ -381,6 +383,29 @@ def _aero_for_mount_style(mount_style: str, qty: float) -> dict[str, float]:
     return base
 
 
+def station_span_frac(label: str) -> float:
+    """由挂点名称估计翼下展向位置：0=翼根 … 1=外翼；无法判断返回 -1。"""
+    text = (label or '').lower()
+    if '中外' in text:
+        return 0.7
+    if '中内' in text:
+        return 0.35
+    if '外' in text or 'outer' in text or 'outbd' in text:
+        return 1.0
+    if '中' in text or 'mid' in text:
+        return 0.5
+    if '内' in text or '根' in text or 'inner' in text or 'inbd' in text or 'root' in text:
+        return 0.15
+    return -1.0
+
+
+def station_aero_style(mount_style: str, label: str) -> str:
+    """挂点气动类型：库里标成翼下、但名称明确在机腹/进气道的站位按 side_rail 处理。"""
+    if mount_style == 'wing_pylon' and any(k in (label or '') for k in ('机腹', '进气道', '机身')):
+        return 'side_rail'
+    return mount_style
+
+
 def resolve_loadout(
     aircraft_id: str,
     selection: dict[str, Any] | None,
@@ -443,6 +468,11 @@ def resolve_loadout(
             front_frac=float(aero['front_frac']),
             station_id=sid,
             munition_id=mid,
+            style=station_aero_style(mount_style, str(st.get('label') or '')),
+            span_frac=(
+                station_span_frac(str(st.get('label') or ''))
+                if mount_style == 'wing_pylon' else -1.0
+            ),
         ))
         custom = None
         for o in st.get('options') or []:

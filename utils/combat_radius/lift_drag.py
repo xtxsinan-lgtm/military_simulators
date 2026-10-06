@@ -235,6 +235,29 @@ STORE_CAVITY_FRONT_M2 = 0.006  # 半埋槽腔等效迎风
 STORE_WAVE_TRANS_K = 0.5
 STORE_WAVE_SS_K = 8.0
 
+# ---- 外挂位置与机体尺度修正（只作用于显式 store_specs 里带 style 的站位，
+# ---- 以及全机的相对尺寸项；无 style 的回退件仅受尺寸项影响）----
+# 中央升力体指数 λ∈[0,1]：机身宽/翼展、机身宽/高越大，机腹/进气道下的外挂越被机体流场遮蔽。
+LIFTING_BODY_WB_LO = 0.17  # 机身宽/翼展 ≤ 此值视为无升力体贡献（F-16 类）
+LIFTING_BODY_WB_SPAN = 0.11  # 达到 LO+SPAN 即满分（苏-27 / F-22 类）
+LIFTING_BODY_WH_LO = 1.10  # 机身宽/高 ≤ 此值视为圆截面
+LIFTING_BODY_WH_SPAN = 0.80  # 达到 LO+SPAN 即满分（扁平升力体）
+# 满升力体 (λ=1) 时：干扰超额 (interf-1) 与外露/迎风比例的最大削减份额
+STORE_BODY_SHIELD: dict[str, tuple[float, float]] = {
+    'centerline': (0.55, 0.20),  # 机腹中线：贴在升力体下表面，局部流速低且有机身遮挡
+    'side_rail': (0.45, 0.15),   # 进气道下/肩部：处在进气道溢流与机身边界层内
+    'cft': (0.25, 0.10),         # 保形油箱挂点：本身已顺滑
+    'chin_pod': (0.20, 0.0),
+}
+# 翼下挂点按展向站位：内侧靠机身受翼身交汇遮蔽，外侧更暴露
+STORE_SPAN_SHIELD = 0.20  # 展向位置 0（翼根）时最大遮蔽份额（乘 λ）
+STORE_SPAN_OUTER_PENALTY = 0.08  # 展向位置 1（外翼）时 (interf-1) 的额外份额
+# 干扰超额随平均弦长缩放：弦越长（大机翼），同样外挂的翼挂架交汇干扰占比越小
+STORE_CHORD_REF_M = 3.9  # 基准平均弦 S_ref/b（战斗机中位）
+STORE_CHORD_EXP = 0.5
+STORE_CHORD_SCALE_MIN = 0.80
+STORE_CHORD_SCALE_MAX = 1.20
+
 
 @dataclass
 class StoreSpec:
@@ -251,6 +274,8 @@ class StoreSpec:
     front_frac: float = -1.0
     station_id: str = ''
     munition_id: str = ''
+    style: str = ''  # 挂点类型 wing_pylon/centerline/side_rail/cft/chin_pod/wing_tip；空=不做位置修正
+    span_frac: float = -1.0  # 翼下挂点展向位置 0=翼根 … 1=外翼；<0 未知
 
 
 @dataclass
@@ -429,28 +454,77 @@ def _store_spec_front_frac(spec: StoreSpec) -> float:
     return STORE_FRONT_FRAC[spec.mount]
 
 
-def store_spec_wetted_m2(spec: StoreSpec) -> float:
-    """一件（可含 count 枚）外挂的总外露浸润面积。"""
+def _clamp01(x: float) -> float:
+    """截断到 [0,1]。"""
+    return max(0.0, min(1.0, x))
+
+
+def lifting_body_index(ac: Aircraft) -> float:
+    """中央升力体指数 λ∈[0,1]：由机身宽/翼展与宽/高估计；缺几何时为 0。"""
+    if ac.wingspan_m <= 0 or ac.fuse_width_m <= 0:
+        return 0.0
+    wb = _clamp01((ac.fuse_width_m / ac.wingspan_m - LIFTING_BODY_WB_LO) / LIFTING_BODY_WB_SPAN)
+    if ac.fuse_height_m > 0:
+        wh = _clamp01((ac.fuse_width_m / ac.fuse_height_m - LIFTING_BODY_WH_LO) / LIFTING_BODY_WH_SPAN)
+        return 0.5 * (wb + wh)
+    return wb
+
+
+def store_chord_scale(ac: Aircraft) -> float:
+    """外挂干扰超额的机体尺度系数：平均弦 S_ref/b 越大越小；缺几何时为 1。"""
+    if ac.wing_area_m2 <= 0 or ac.wingspan_m <= 0:
+        return 1.0
+    chord = ac.wing_area_m2 / ac.wingspan_m
+    k = (STORE_CHORD_REF_M / chord) ** STORE_CHORD_EXP
+    return max(STORE_CHORD_SCALE_MIN, min(STORE_CHORD_SCALE_MAX, k))
+
+
+def store_position_factors(spec: StoreSpec, ac: Aircraft | None) -> tuple[float, float]:
+    """位置/尺度修正：返回 (干扰超额乘数, 外露与迎风乘数)，皆在 (0,1.2] 内。
+
+    无 ac 时不修正（兼容单元几何测试）。
+    """
+    if ac is None:
+        return 1.0, 1.0
+    lam = lifting_body_index(ac)
+    interf_k = store_chord_scale(ac)
+    front_k = 1.0
+    style = spec.style
+    if style in STORE_BODY_SHIELD:
+        sh_i, sh_f = STORE_BODY_SHIELD[style]
+        interf_k *= 1.0 - sh_i * lam
+        front_k *= 1.0 - sh_f * lam
+    elif style == 'wing_pylon' and spec.span_frac >= 0:
+        f = _clamp01(spec.span_frac)
+        interf_k *= (1.0 - STORE_SPAN_SHIELD * lam * (1.0 - f)) * (1.0 + STORE_SPAN_OUTER_PENALTY * f)
+    return interf_k, front_k
+
+
+def store_spec_wetted_m2(spec: StoreSpec, ac: Aircraft | None = None) -> float:
+    """一件（可含 count 枚）外挂的总外露浸润面积；传入 ac 时含位置与机体尺度修正。"""
     if spec.mount == 'internal' or spec.count <= 0:
         return 0.0
     if spec.length_m <= 0 or spec.diameter_m <= 0:
         raise ValueError('外挂长径须为正')
+    interf_k, front_k = store_position_factors(spec, ac)
+    interf = 1.0 + (_store_spec_interf(spec) - 1.0) * interf_k
     cyl = math.pi * spec.diameter_m * spec.length_m
     one = (
-        _store_spec_exposed_frac(spec) * _store_spec_interf(spec) * cyl
+        _store_spec_exposed_frac(spec) * front_k * interf * cyl
         + max(spec.pylon_wetted_m2, 0.0)
     )
     return one * float(spec.count)
 
 
-def store_spec_front_m2(spec: StoreSpec) -> float:
-    """一件（可含 count 枚）外挂的总外露迎风面积。"""
+def store_spec_front_m2(spec: StoreSpec, ac: Aircraft | None = None) -> float:
+    """一件（可含 count 枚）外挂的总外露迎风面积；传入 ac 时含位置修正。"""
     if spec.mount == 'internal' or spec.count <= 0:
         return 0.0
     if spec.diameter_m <= 0:
         raise ValueError('外挂直径须为正')
+    _, front_k = store_position_factors(spec, ac)
     body = math.pi * (spec.diameter_m / 2.0) ** 2
-    one = _store_spec_front_frac(spec) * body + max(spec.pylon_front_m2, 0.0)
+    one = _store_spec_front_frac(spec) * front_k * body + max(spec.pylon_front_m2, 0.0)
     if spec.mount == 'semi_recessed' and spec.pylon_front_m2 < 0:
         one += STORE_CAVITY_FRONT_M2
     return one * float(spec.count)
@@ -473,13 +547,13 @@ def iter_store_specs(ac: Aircraft) -> tuple[StoreSpec, ...]:
 
 
 def store_total_wetted_m2(ac: Aircraft) -> float:
-    """全机外挂浸润面积合计。"""
-    return sum(store_spec_wetted_m2(s) for s in iter_store_specs(ac))
+    """全机外挂浸润面积合计（含位置与机体尺度修正）。"""
+    return sum(store_spec_wetted_m2(s, ac) for s in iter_store_specs(ac))
 
 
 def store_total_front_m2(ac: Aircraft) -> float:
-    """全机外挂迎风面积合计。"""
-    return sum(store_spec_front_m2(s) for s in iter_store_specs(ac))
+    """全机外挂迎风面积合计（含位置修正）。"""
+    return sum(store_spec_front_m2(s, ac) for s in iter_store_specs(ac))
 
 
 def cd_store_parasite(ac: Aircraft) -> float:
@@ -544,6 +618,8 @@ def _store_specs_from_dict(value: Any) -> tuple[StoreSpec, ...]:
             front_frac=float(item['front_frac']) if item.get('front_frac') not in (None, '') else -1.0,
             station_id=str(item.get('station_id') or ''),
             munition_id=str(item.get('munition_id') or ''),
+            style=str(item.get('style') or ''),
+            span_frac=float(item['span_frac']) if item.get('span_frac') not in (None, '') else -1.0,
         ))
     return tuple(out)
 
