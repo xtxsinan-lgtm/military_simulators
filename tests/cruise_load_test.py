@@ -21,6 +21,21 @@ def test_weapons_mass_kg_prefers_payload():
     assert weapons_mass_kg(152, 4, None) == pytest.approx(608)
 
 
+def test_payload_mass_from_params_manual_missiles_override():
+    """手动 n×单件时忽略拷贝自预计算的 payload_mass_kg。"""
+    from utils.combat_radius.cruise_load import payload_mass_from_params
+
+    assert payload_mass_from_params({
+        'payload_mass_kg': 17600,
+        'missile_mass_kg': 8800,
+        'n_missiles': 1,
+    }) is None
+    assert payload_mass_from_params({
+        'payload_mass_kg': 608,
+        'loadout': {'aircraft_id': 'F-16', 'selection': {}},
+    }) == pytest.approx(608)
+
+
 def test_combat_mass_kg_uses_payload_mass_kg():
     mass = combat_mass_kg(
         empty_kg=10000, internal_fuel_kg=4000, payload_mass_kg=750,

@@ -43,6 +43,14 @@ def test_dashboard_params_from_preset_f22():
 
 def test_combat_weapon_load_bomber_is_payload_once():
     """轰炸机载弹按最大载弹量一件，不乘 4 枚中距弹。"""
+    from utils.combat_radius.combat_radius_results import weapon_mass_params
+
+    mass_b = weapon_mass_params({
+        'aircraft_role': 'bomber', 'max_payload_kg': 17600, 'missile_mass_kg': 200,
+    })
+    assert mass_b['payload_mass_kg'] == pytest.approx(17600)
+    assert mass_b['missile_mass_kg'] == pytest.approx(0)
+    assert mass_b['n_missiles'] == pytest.approx(0)
     kg, n = combat_weapon_load({
         'aircraft_role': 'bomber', 'max_payload_kg': 17600, 'missile_mass_kg': 200,
     })
@@ -68,8 +76,9 @@ def test_xgb_dashboard_uses_j36_thickness_and_sweep_mach_angles():
     assert eng['tsl_kN'] == pytest.approx(175)
     assert eng['max_tsl_kN'] == pytest.approx(265)
     p = dashboard_params_from_preset(ac, eng)
-    assert p['missile_mass_kg'] == pytest.approx(17600)
-    assert p['n_missiles'] == pytest.approx(1)
+    assert p['payload_mass_kg'] == pytest.approx(17600)
+    assert p['missile_mass_kg'] == pytest.approx(0)
+    assert p['n_missiles'] == pytest.approx(0)
     assert p['target']['n_stores'] == 0
     dash = run_preset_dashboard('XGB-1')
     assert dash['success'] is True

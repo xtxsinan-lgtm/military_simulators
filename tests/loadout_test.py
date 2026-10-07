@@ -189,6 +189,16 @@ def test_resolve_station_span_frac_prefers_explicit_field():
     assert resolve_station_span_frac(st) == pytest.approx(0.35)
 
 
+def test_weapon_mass_params_fighter_uses_missile_count():
+    """无 loadout 战斗机仍用 n_missiles×missile_mass_kg。"""
+    from utils.combat_radius.combat_radius_results import weapon_mass_params
+
+    mass = weapon_mass_params({'aircraft_role': 'fighter', 'missile_mass_kg': 152})
+    assert 'payload_mass_kg' not in mass
+    assert mass['missile_mass_kg'] == pytest.approx(152)
+    assert mass['n_missiles'] == pytest.approx(4)
+
+
 def test_dashboard_params_use_default_loadout():
     """预计算参数对有挂点表的机型注入 default loadout。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets

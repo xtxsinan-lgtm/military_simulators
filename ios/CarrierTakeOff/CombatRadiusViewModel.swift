@@ -382,7 +382,7 @@ final class CombatRadiusViewModel: ObservableObject {
         scheduleLiveDash()
     }
 
-    /// 汇总挂载干重与外油，并回写中距弹字段
+    /// 汇总挂载干重与外油（写入 loadoutPayload / loadoutExtFuel）。
     func syncLoadoutSummary() {
         var payload = 0.0
         var extFuel = 0.0
@@ -460,23 +460,28 @@ final class CombatRadiusViewModel: ObservableObject {
         return DashLoadoutState(items: items, dryKg: unitKg * count, fuelKg: 0)
     }
 
-    /// 当前输入对应的挂载状态（现场重算用）。
-    func currentLoadoutState() -> DashLoadoutState {
-        guard showLoadout else {
-            return simpleLoadoutState(currentPreset, unitKg: Double(wtMissile) ?? 0, count: Double(wtNMissiles) ?? 0)
-        }
+    /// 按挂点选择与选项表汇总挂载状态。
+    private func loadoutState(
+        rows: [LoadoutStationRow],
+        selection: [String: String]
+    ) -> DashLoadoutState {
         var order: [String] = []
         var groups: [String: DashLoadoutItem] = [:]
         var dry = 0.0
         var fuel = 0.0
-        for row in loadoutRows {
-            let key = loadoutSelection[row.id] ?? ""
+        for row in rows {
+            let key = selection[row.id] ?? ""
             guard !key.isEmpty, let opt = row.options.first(where: { $0.key == key }) else { continue }
             dry += opt.dry_mass_kg ?? 0
             fuel += opt.fuel_kg ?? 0
             let mid = opt.munition_id ?? key
             if groups[mid] == nil {
-                groups[mid] = DashLoadoutItem(id: mid, name: Self.stripQtySuffix(opt.label ?? mid), count: 0, unitKg: nil)
+                groups[mid] = DashLoadoutItem(
+                    id: mid,
+                    name: Self.stripQtySuffix(opt.label ?? mid),
+                    count: 0,
+                    unitKg: nil
+                )
                 order.append(mid)
             }
             groups[mid]?.count += opt.qty ?? 1
@@ -484,16 +489,36 @@ final class CombatRadiusViewModel: ObservableObject {
         return DashLoadoutState(items: order.compactMap { groups[$0] }, dryKg: dry, fuelKg: fuel)
     }
 
-    /// 预计算快照的挂载：与 combat_radius_results 一致，战斗机 4 枚中距弹、轰炸机满载一件。
+    /// 当前输入对应的挂载状态（现场重算用）。
+    func currentLoadoutState() -> DashLoadoutState {
+        guard showLoadout else {
+            return simpleLoadoutState(currentPreset, unitKg: Double(wtMissile) ?? 0, count: Double(wtNMissiles) ?? 0)
+        }
+        return loadoutState(rows: loadoutRows, selection: loadoutSelection)
+    }
+
+    /// 预计算快照的挂载：与 combat_radius_results 一致（默认挂点或 4 枚中距弹）。
     func snapshotLoadoutState() -> DashLoadoutState {
         let p = currentPreset
-        var state: DashLoadoutState
         if p?.aircraft_role == "bomber", let payload = p?.max_payload_kg {
-            state = simpleLoadoutState(p, unitKg: payload, count: 1)
-        } else {
-            state = simpleLoadoutState(p, unitKg: p?.missile_mass_kg ?? 0, count: 4)
+            return simpleLoadoutState(p, unitKg: payload, count: 1)
         }
-        return state
+        if let id = p?.id, let ac = loadoutCatalog[id], let stations = ac.stations, !stations.isEmpty {
+            let defaults = ac.default_selection ?? [:]
+            var selection: [String: String] = [:]
+            let rows = stations.map { st in
+                let key = defaults[st.id] ?? ""
+                selection[st.id] = key
+                return LoadoutStationRow(
+                    id: st.id,
+                    label: st.label ?? st.id,
+                    options: st.options ?? [],
+                    selectedKey: key
+                )
+            }
+            return loadoutState(rows: rows, selection: selection)
+        }
+        return simpleLoadoutState(p, unitKg: p?.missile_mass_kg ?? 0, count: 4)
     }
 
     /// 预计算快照只对应：默认剖面、F-35 公开 1.22 档、不计空战

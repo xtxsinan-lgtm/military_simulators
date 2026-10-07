@@ -206,10 +206,25 @@ function simpleLoadoutState(preset, unitKg, count) {
   };
 }
 
-/** 预计算快照的挂载：与 combat_radius_results 一致，战斗机 4 枚中距弹、轰炸机满载一件。 */
-function snapshotLoadoutState(preset) {
+/** 预计算快照的挂载：与 combat_radius_results 一致（默认挂点或 4 枚中距弹）。 */
+function snapshotLoadoutState(preset, loadoutCatalog) {
   if (preset && preset.aircraft_role === 'bomber' && preset.max_payload_kg != null) {
     return simpleLoadoutState(preset, preset.max_payload_kg, 1);
+  }
+  const ac = preset && loadoutCatalog && loadoutCatalog[preset.id];
+  if (ac) {
+    const defaults = ac.default_selection || {};
+    const selection = {};
+    (ac.stations || []).forEach((st) => {
+      selection[st.id] = defaults[st.id] || '';
+    });
+    return loadoutStateFromRows(
+      (ac.stations || []).map((st) => ({
+        id: st.id,
+        options: st.options || [],
+      })),
+      selection,
+    );
   }
   return simpleLoadoutState(preset, preset && preset.missile_mass_kg, 4);
 }
@@ -501,10 +516,7 @@ Page({
         const wt = weightFromPreset(tgtp);
         const loadoutCatalog = (data.loadout_catalog && data.loadout_catalog.aircraft) || {};
         const loadoutPatch = buildLoadoutRows(tgtp && loadoutCatalog[tgtp.id]);
-        const wtMerged = Object.assign({}, wt, {
-          wtMissile: loadoutPatch.wtMissile != null ? loadoutPatch.wtMissile : wt.wtMissile,
-          wtNMissiles: loadoutPatch.wtNMissiles != null ? loadoutPatch.wtNMissiles : wt.wtNMissiles,
-        });
+        const wtMerged = Object.assign({}, wt);
         const aircraftWeapons = data.aircraft_weapons || null;
         const showLoadout = !!loadoutPatch.showLoadout;
         this.setData({
@@ -585,11 +597,8 @@ Page({
       return;
     }
     const ms = snap.max_speed || {};
-    const note = this.data.showLoadout
-      ? '预计算快照统一按 4 枚中距弹估算，未计入上方挂载配置；改动挂载或点「计算作战半径」后按所选挂载现场重算。'
-      : '';
     this.setData({
-      ...dashLoadoutPatch(snapshotLoadoutState(this.currentPreset()), note),
+      ...dashLoadoutPatch(snapshotLoadoutState(this.currentPreset(), this.data.loadoutCatalog)),
       dashOk: true,
       dashStatusText: '预计算快照',
       dashMaxCruise: snap.max_cruise_mach != null ? fmt(snap.max_cruise_mach, 3) : '—',
@@ -741,8 +750,7 @@ Page({
       loadoutSelection: selection,
       loadoutPayload: fmtDerived(sum.payload, 1),
       loadoutExtFuel: fmtDerived(sum.extFuel, 1),
-      wtMissile: String(sum.payload),
-      wtNMissiles: sum.payload > 0 ? '1' : '0',
+      payloadMassKg: sum.payload,
     };
     patch.tgt = applyDerivedLoads(
       this.data.tgt, Object.assign({}, this.data, patch), sum.extFuel, sum.payload,

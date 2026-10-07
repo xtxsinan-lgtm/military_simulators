@@ -19,17 +19,31 @@ from utils.paths import COMBAT_RADIUS_RESULTS_JSON
 RESULTS_VERSION = 1
 
 
-def combat_weapon_load(aircraft: dict[str, Any]) -> tuple[float, float]:
-    """作战载荷：(单件质量 kg, 件数)。
+def weapon_mass_params(aircraft: dict[str, Any]) -> dict[str, float]:
+    """无 loadout 时的默认作战挂载质量参数。
 
-    战斗机按 4 枚中距弹。轰炸机按最大载弹量一件计入质量，
-    弹舱内埋，不再拆成多枚外挂。
+    轰炸机用 ``payload_mass_kg``（内埋满载）；战斗机用 ``n_missiles × missile_mass_kg``。
     """
     role = str(aircraft.get('aircraft_role') or 'fighter')
     payload = aircraft.get('max_payload_kg')
     if role == 'bomber' and payload not in (None, ''):
-        return float(payload), 1.0
-    return float(aircraft.get('missile_mass_kg') or 0), float(N_MISSILES_DEFAULT)
+        return {
+            'payload_mass_kg': float(payload),
+            'missile_mass_kg': 0.0,
+            'n_missiles': 0.0,
+        }
+    return {
+        'missile_mass_kg': float(aircraft.get('missile_mass_kg') or 0),
+        'n_missiles': float(N_MISSILES_DEFAULT),
+    }
+
+
+def combat_weapon_load(aircraft: dict[str, Any]) -> tuple[float, float]:
+    """作战载荷：(单件或总干重 kg, 件数)；兼容旧测试。"""
+    mass = weapon_mass_params(aircraft)
+    if 'payload_mass_kg' in mass:
+        return float(mass['payload_mass_kg']), 1.0
+    return float(mass['missile_mass_kg']), float(mass['n_missiles'])
 
 
 def dashboard_params_from_preset(
@@ -37,7 +51,7 @@ def dashboard_params_from_preset(
     engine: dict[str, Any],
 ) -> dict[str, Any]:
     """由机型/发动机预设组装仪表盘请求（不含锚点，由核心默认填入）。"""
-    weapon_kg, n_weapons = combat_weapon_load(aircraft)
+    mass = weapon_mass_params(aircraft)
     target = dict(aircraft)
     if str(aircraft.get('aircraft_role') or '') == 'bomber':
         # 载弹按质量计入，不按中距弹外挂几何加阻力
@@ -48,8 +62,7 @@ def dashboard_params_from_preset(
         'empty_kg': aircraft['empty_kg'],
         'internal_fuel_kg': aircraft['internal_fuel_kg'],
         'n_pilots': aircraft.get('n_pilots', 1),
-        'missile_mass_kg': weapon_kg,
-        'n_missiles': n_weapons,
+        **mass,
         'n_engines': aircraft.get('n_engines', 1),
         'carrier': bool(aircraft.get('carrier', False)),
         'type_label': aircraft.get('type_label'),
@@ -137,6 +150,7 @@ def sanitize_dashboard(result: dict[str, Any]) -> dict[str, Any]:
         'max_radius_km': _round(result.get('max_radius_km'), 2),
         'fuel_kg': _round(result.get('fuel_kg'), 1),
         'fuel_usable_kg': _round(result.get('fuel_usable_kg'), 1),
+        'payload_mass_kg': _round(result.get('payload_mass_kg'), 1),
         'n_engines': result.get('n_engines'),
         'mission_fuel': {
             'reserve_min': _round(mf.get('reserve_min'), 1),

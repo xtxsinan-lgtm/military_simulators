@@ -128,9 +128,21 @@ def apply_combat_wing_loading(
 
 
 def payload_mass_from_params(params: dict[str, Any]) -> float | None:
-    """从请求字典解析挂载干重；无显式 payload 时返回 None。"""
+    """从请求字典解析挂载干重；无显式 payload 时返回 None。
+
+    有 loadout 时始终用 payload_mass_kg；否则若同时给了 n_missiles×missile_mass_kg，
+    视为手动简模挂载，忽略残留的 payload_mass_kg（例如从预计算拷贝后改弹重）。
+    """
     raw = params.get('payload_mass_kg')
     if raw in (None, ''):
+        return None
+    if params.get('loadout'):
+        return float(raw)
+    missile = params.get('missile_mass_kg')
+    n = params.get('n_missiles', N_MISSILES_DEFAULT)
+    if n in (None, ''):
+        n = N_MISSILES_DEFAULT
+    if missile not in (None, '') and float(missile) > 0 and float(n) > 0:
         return None
     return float(raw)
 
