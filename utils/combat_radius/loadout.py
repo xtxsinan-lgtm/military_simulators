@@ -91,6 +91,7 @@ class StoreSpec:
     munition_id: str = ''
     style: str = ''
     span_frac: float = -1.0
+    tank: bool = False
 
 
 @dataclass
@@ -374,12 +375,34 @@ def build_loadout_catalog_payload() -> dict[str, Any]:
     }
 
 
-def _aero_for_mount_style(mount_style: str, qty: float) -> dict[str, float]:
-    """按挂点类型与枚数给出外挂气动参数。"""
+def pylon_size_scale(length_m: float, diameter_m: float) -> float:
+    """挂架相对中距弹挂架的尺寸系数：挂架弦长随外挂长度、高度随外挂径+间隙。"""
+    from utils.combat_radius.lift_drag import (
+        STORE_DIAMETER_M, STORE_LENGTH_M, STORE_PYLON_GAP_M,
+        STORE_PYLON_SCALE_MAX, STORE_PYLON_SCALE_MIN,
+    )
+    if length_m <= 0 or diameter_m <= 0:
+        return 1.0
+    k = (length_m / STORE_LENGTH_M) * (
+        (diameter_m + STORE_PYLON_GAP_M) / (STORE_DIAMETER_M + STORE_PYLON_GAP_M)
+    )
+    return max(STORE_PYLON_SCALE_MIN, min(STORE_PYLON_SCALE_MAX, k))
+
+
+def _aero_for_mount_style(
+    mount_style: str,
+    qty: float,
+    length_m: float = 0.0,
+    diameter_m: float = 0.0,
+) -> dict[str, float]:
+    """按挂点类型、枚数与外挂尺寸给出外挂气动参数（挂架随外挂增大）。"""
     style = mount_style if mount_style in MOUNT_STYLE_AERO else 'wing_pylon'
     base = dict(MOUNT_STYLE_AERO[style])
     extra = max(float(qty) - 1.0, 0.0)
     base['interf'] = float(base['interf']) * (1.0 + MULTI_STORE_INTERF_PER_EXTRA * extra)
+    scale = pylon_size_scale(length_m, diameter_m)
+    base['pylon_wetted_m2'] = float(base['pylon_wetted_m2']) * scale
+    base['pylon_front_m2'] = float(base['pylon_front_m2']) * scale
     return base
 
 
@@ -452,7 +475,10 @@ def resolve_loadout(
             summary.external_fuel_kg += fuel
         else:
             summary.weapons_mass_kg += dry
-        aero = _aero_for_mount_style(str(st.get('mount_style') or 'wing_pylon'), qty)
+        aero = _aero_for_mount_style(
+            str(st.get('mount_style') or 'wing_pylon'), qty,
+            float(mun['length_m']), float(mun['diameter_m']),
+        )
         mount_style = str(st.get('mount_style') or 'wing_pylon')
         # StoreSpec.mount 只认 internal/semi_recessed/pylon
         mount_kind = 'semi_recessed' if mount_style == 'semi_recessed' else 'pylon'
@@ -473,6 +499,7 @@ def resolve_loadout(
                 station_span_frac(str(st.get('label') or ''))
                 if mount_style == 'wing_pylon' else -1.0
             ),
+            tank=float(mun['fuel_kg']) > 0,
         ))
         custom = None
         for o in st.get('options') or []:

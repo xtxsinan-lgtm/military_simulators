@@ -235,6 +235,14 @@ STORE_CAVITY_FRONT_M2 = 0.006  # 半埋槽腔等效迎风
 STORE_WAVE_TRANS_K = 0.5
 STORE_WAVE_SS_K = 8.0
 
+# ---- 副油箱专有阻力：挂架随油箱增大、尾翼浸润、钝头/吊耳形阻 ----
+# 挂架尺寸参照中距弹（STORE_LENGTH_M/STORE_DIAMETER_M）按 (长度比)×((径+间隙)/(参考径+间隙)) 缩放。
+STORE_PYLON_GAP_M = 0.15  # 挂架到弹体的间隙，叠加在弹径上算挂架高度
+STORE_PYLON_SCALE_MIN = 0.6
+STORE_PYLON_SCALE_MAX = 4.0
+TANK_FIN_WETTED_K = 2.0  # 尾翼浸润 = K·d²（4 片尾翼双面）
+TANK_FORM_MULT = 1.5  # 油箱迎风形阻相对导弹：钝头、吊耳、尾翼、挂架接缝
+
 # ---- 外挂位置与机体尺度修正（只作用于显式 store_specs 里带 style 的站位，
 # ---- 以及全机的相对尺寸项；无 style 的回退件仅受尺寸项影响）----
 # 中央升力体指数 λ∈[0,1]：机身宽/翼展、机身宽/高越大，机腹/进气道下的外挂越被机体流场遮蔽。
@@ -274,6 +282,7 @@ class StoreSpec:
     front_frac: float = -1.0
     station_id: str = ''
     munition_id: str = ''
+    tank: bool = False  # 副油箱：计尾翼浸润与更大的迎风形阻
     style: str = ''  # 挂点类型 wing_pylon/centerline/side_rail/cft/chin_pod/wing_tip；空=不做位置修正
     span_frac: float = -1.0  # 翼下挂点展向位置 0=翼根 … 1=外翼；<0 未知
 
@@ -513,6 +522,8 @@ def store_spec_wetted_m2(spec: StoreSpec, ac: Aircraft | None = None) -> float:
         _store_spec_exposed_frac(spec) * front_k * interf * cyl
         + max(spec.pylon_wetted_m2, 0.0)
     )
+    if spec.tank:
+        one += TANK_FIN_WETTED_K * spec.diameter_m ** 2
     return one * float(spec.count)
 
 
@@ -524,7 +535,8 @@ def store_spec_front_m2(spec: StoreSpec, ac: Aircraft | None = None) -> float:
         raise ValueError('外挂直径须为正')
     _, front_k = store_position_factors(spec, ac)
     body = math.pi * (spec.diameter_m / 2.0) ** 2
-    one = _store_spec_front_frac(spec) * front_k * body + max(spec.pylon_front_m2, 0.0)
+    form = TANK_FORM_MULT if spec.tank else 1.0
+    one = _store_spec_front_frac(spec) * front_k * body * form + max(spec.pylon_front_m2, 0.0)
     if spec.mount == 'semi_recessed' and spec.pylon_front_m2 < 0:
         one += STORE_CAVITY_FRONT_M2
     return one * float(spec.count)
@@ -618,6 +630,7 @@ def _store_specs_from_dict(value: Any) -> tuple[StoreSpec, ...]:
             front_frac=float(item['front_frac']) if item.get('front_frac') not in (None, '') else -1.0,
             station_id=str(item.get('station_id') or ''),
             munition_id=str(item.get('munition_id') or ''),
+            tank=_as_bool(item.get('tank'), False),
             style=str(item.get('style') or ''),
             span_frac=float(item['span_frac']) if item.get('span_frac') not in (None, '') else -1.0,
         ))
