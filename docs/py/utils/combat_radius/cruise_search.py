@@ -118,13 +118,19 @@ class MaxLdPoint:
 
 
 def altitude_grid(lo_m: float, hi_m: float, step_m: float) -> list[float]:
-    """闭区间 [lo, hi] 上按步长生成高度网格（整数步，避免浮点越过上界）。"""
+    """闭区间 [lo, hi] 上按步长生成高度网格；上界不能被步长整除时仍补上界点。"""
     if step_m <= 0:
         raise ValueError('高度步长须为正')
     if hi_m < lo_m:
         raise ValueError('高度上界不能低于下界')
     n_steps = int(round((hi_m - lo_m) / step_m))
-    return [lo_m + i * step_m for i in range(n_steps + 1)]
+    grid = [lo_m + i * step_m for i in range(n_steps + 1)]
+    # 步长不能整除区间时，网格不得越过上界，也不得漏掉上界本身
+    while len(grid) > 1 and grid[-1] > hi_m + 1e-9:
+        grid.pop()
+    if grid[-1] < hi_m - 1e-9:
+        grid.append(float(hi_m))
+    return grid
 
 
 def evaluate_cruise_forces(ctx: CruiseContext, mach: float, alt_m: float) -> CruiseForces:

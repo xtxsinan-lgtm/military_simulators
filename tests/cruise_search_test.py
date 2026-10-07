@@ -760,3 +760,30 @@ def test_search_best_afterburner_altitude_f22_subsonic_stays_high():
     assert best.reheat is False
     with pytest.raises(ValueError, match='马赫'):
         search_best_afterburner_altitude(mil, ab, 0.0)
+
+
+def test_altitude_grid_includes_upper_bound_when_step_does_not_divide():
+    """步长不能整除区间时仍包含上界，也不越过上界（低空带 300–3000 m、步长 500）。"""
+    g = altitude_grid(300, 3000, 500)
+    assert g[0] == 300 and g[-1] == 3000
+    assert g == [300, 800, 1300, 1800, 2300, 2800, 3000]
+    g2 = altitude_grid(0, 10, 3)
+    assert g2[-1] == 10 and all(a < b for a, b in zip(g2, g2[1:]))
+    assert altitude_grid(0, 1, 1) == [0, 1]
+
+
+def test_search_best_altitude_can_use_upper_bound_only_feasible_point():
+    """仅上界高度满足推力裕度时，搜索应能找到该点（不因网格漏掉上界而判无解）。"""
+    from dataclasses import replace
+
+    from utils.combat_radius.cruise_search import evaluate_cruise_forces, search_best_altitude
+
+    ctx = _f22_ctx()
+    load_top = evaluate_cruise_forces(ctx, 0.9, 3000).load_raw
+    load_below = evaluate_cruise_forces(ctx, 0.9, 2800).load_raw
+    assert load_below > load_top  # 低空带内越低负载比越大
+    tight = replace(ctx, thrust_margin=(load_top + load_below) / 2.0)  # 只有 3000 m 可行
+    assert not evaluate_cruise_forces(tight, 0.9, 2800).feasible
+    best = search_best_altitude(tight, 0.9, 300, 3000, 500, 100)
+    assert best is not None
+    assert best.alt_m == pytest.approx(3000)
