@@ -95,3 +95,36 @@ def test_store_specs_dict_roundtrip_keeps_tank_flag():
         {'length_m': 3.65, 'diameter_m': 0.178},
     ])
     assert specs[0].tank is True and specs[1].tank is False
+
+
+def test_tank_drag_dims_match_fuel_volume():
+    """油箱阻力外形容积≈燃油体积（长细比不变，整体缩放）。"""
+    import math
+    from utils.combat_radius.loadout import FUEL_DENSITY_KG_L, TANK_SHAPE_FILL, tank_drag_dims
+
+    for mid in ('FUEL-TANK-370', 'FUEL-TANK-600', 'drop_tank_600', 'tank_1500l'):
+        m = load_munitions()[mid]
+        length, dia = tank_drag_dims(m)
+        vol = math.pi / 4 * dia ** 2 * length * TANK_SHAPE_FILL
+        assert vol == pytest.approx(m['fuel_kg'] / FUEL_DENSITY_KG_L / 1000.0, rel=0.02)
+        assert length / dia == pytest.approx(m['length_m'] / m['diameter_m'], rel=1e-6)
+
+
+def test_undersized_f16_tanks_are_enlarged_and_munitions_untouched():
+    """F-16 库内偏小的油箱外形被放大；非油箱外挂尺寸不变。"""
+    from utils.combat_radius.loadout import tank_drag_dims
+
+    m = load_munitions()
+    for mid in ('FUEL-TANK-370', 'FUEL-TANK-600', 'FUEL-TANK-300'):
+        length, dia = tank_drag_dims(m[mid])
+        assert length > 1.2 * m[mid]['length_m'] and dia > 1.2 * m[mid]['diameter_m']
+    assert tank_drag_dims(m['pl12']) == (m['pl12']['length_m'], m['pl12']['diameter_m'])
+
+
+def test_resolve_loadout_uses_corrected_tank_dims():
+    """F-16 挂 600 加仑油箱：StoreSpec 用校正后的外形，阻力不再偏小。"""
+    s = resolve_loadout('F-16', {'4': 'FUEL-TANK-600@1'})
+    spec = s.store_specs[0]
+    m = load_munitions()['FUEL-TANK-600']
+    assert spec.length_m > m['length_m'] and spec.diameter_m > m['diameter_m']
+    assert spec.tank is True

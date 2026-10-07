@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -375,6 +376,30 @@ def build_loadout_catalog_payload() -> dict[str, Any]:
     }
 
 
+# 油箱阻力几何：按燃油体积校正外形，避免库里长径与油量不符（如 F-16 600 加仑箱只有约 1100 L 外形）
+FUEL_DENSITY_KG_L = 0.8
+TANK_SHAPE_FILL = 0.85  # 圆柱体积 × 填充系数 ≈ 油箱容积（头尾收窄）
+TANK_GEOM_SCALE_MIN = 0.80
+TANK_GEOM_SCALE_MAX = 1.60
+
+
+def tank_drag_dims(mun: dict[str, Any]) -> tuple[float, float]:
+    """油箱用于阻力的 (长度, 直径)：保持长细比，整体缩放到外形容积≈燃油体积。
+
+    非油箱或缺尺寸时原样返回；缩放限制在 0.8–1.6 倍。
+    """
+    length = float(mun['length_m'])
+    diameter = float(mun['diameter_m'])
+    fuel_kg = float(mun.get('fuel_kg') or 0.0)
+    if fuel_kg <= 0 or length <= 0 or diameter <= 0:
+        return length, diameter
+    fuel_m3 = fuel_kg / FUEL_DENSITY_KG_L / 1000.0
+    geom_m3 = math.pi / 4.0 * diameter ** 2 * length * TANK_SHAPE_FILL
+    k = (fuel_m3 / geom_m3) ** (1.0 / 3.0)
+    k = max(TANK_GEOM_SCALE_MIN, min(TANK_GEOM_SCALE_MAX, k))
+    return length * k, diameter * k
+
+
 def pylon_size_scale(length_m: float, diameter_m: float) -> float:
     """挂架相对中距弹挂架的尺寸系数：挂架弦长随外挂长度、高度随外挂径+间隙。"""
     from utils.combat_radius.lift_drag import (
@@ -475,16 +500,16 @@ def resolve_loadout(
             summary.external_fuel_kg += fuel
         else:
             summary.weapons_mass_kg += dry
+        len_m, dia_m = tank_drag_dims(mun)
         aero = _aero_for_mount_style(
-            str(st.get('mount_style') or 'wing_pylon'), qty,
-            float(mun['length_m']), float(mun['diameter_m']),
+            str(st.get('mount_style') or 'wing_pylon'), qty, len_m, dia_m,
         )
         mount_style = str(st.get('mount_style') or 'wing_pylon')
         # StoreSpec.mount 只认 internal/semi_recessed/pylon
         mount_kind = 'semi_recessed' if mount_style == 'semi_recessed' else 'pylon'
         summary.store_specs.append(StoreSpec(
-            length_m=float(mun['length_m']),
-            diameter_m=float(mun['diameter_m']),
+            length_m=len_m,
+            diameter_m=dia_m,
             count=float(qty),
             mount=mount_kind,
             pylon_wetted_m2=float(aero['pylon_wetted_m2']),
