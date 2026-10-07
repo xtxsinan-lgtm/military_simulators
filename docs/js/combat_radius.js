@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 85;
+const APP_VERSION = 86;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -219,7 +219,7 @@ function renderAircraftFields() {
       <div class="field"><label>翼型</label><select id="tgt_planform">${optionHtml(planforms)}</select></div>
       <div class="field"><label>布局</label><select id="tgt_layout">${optionHtml(layouts)}</select></div>
     </div>
-    <div class="pair">
+    <div class="pair" id="tgt_store_mount_row">
       <div class="field"><label>进气道</label><select id="tgt_inlet">${optionHtml(inlets)}</select></div>
       <div class="field"><label>挂装方式</label><select id="tgt_store_mount">${optionHtml(storeMounts)}</select></div>
     </div>
@@ -247,17 +247,32 @@ function aspectRatioFromGeometry(span, area) {
   return (span * span) / area;
 }
 
-/** 空战翼载荷 (t/m²) =（空重 + 半油 + 飞行员×0.1 t + 挂弹）/ 翼面积。 */
-function wingLoadingFromCombatMass(emptyKg, fuelKg, area, nPilots, missileKg, nMissiles) {
+/** 空战翼载荷 (t/m²) =（空重 + 半油 + 飞行员×0.1 t + 挂载干重）/ 翼面积。 */
+function wingLoadingFromCombatMass(emptyKg, fuelKg, area, nPilots, missileKg, nMissiles, payloadKg) {
   if (!(area > 0)) return null;
   const empty = Number(emptyKg);
   const fuel = Number(fuelKg);
   if (!Number.isFinite(empty) || !Number.isFinite(fuel) || empty < 0 || fuel < 0) return null;
   const pilots = Number.isFinite(Number(nPilots)) ? Number(nPilots) : 1;
-  const missile = Number.isFinite(Number(missileKg)) ? Number(missileKg) : 0;
-  const count = Number.isFinite(Number(nMissiles)) ? Number(nMissiles) : 4;
-  const massT = (empty + 0.5 * fuel + pilots * 100 + count * missile) / 1000;
+  let weaponsKg = 0;
+  if (payloadKg != null && Number.isFinite(Number(payloadKg))) {
+    weaponsKg = Number(payloadKg);
+  } else {
+    const missile = Number.isFinite(Number(missileKg)) ? Number(missileKg) : 0;
+    const count = Number.isFinite(Number(nMissiles)) ? Number(nMissiles) : 4;
+    weaponsKg = count * missile;
+  }
+  const massT = (empty + 0.5 * fuel + pilots * 100 + weaponsKg) / 1000;
   return massT / area;
+}
+
+/** 有交互挂载时隐藏全局挂装方式（阻力由 store_specs 按站计算）。 */
+function syncStoreMountFieldVisibility() {
+  const row = $('tgt_store_mount_row');
+  const sel = $('tgt_store_mount');
+  const hasLoadout = !!currentLoadoutAircraft();
+  if (row) row.hidden = hasLoadout;
+  if (sel) sel.disabled = hasLoadout;
 }
 
 /** 当前机型是否有挂点挂载表。 */
@@ -332,10 +347,19 @@ function currentLoadoutState() {
   return simpleLoadoutState(currentPreset(), $('wtMissile').value, $('wtNMissiles').value);
 }
 
-/** 预计算快照的挂载：与 combat_radius_results 一致，战斗机 4 枚中距弹、轰炸机满载一件。 */
+/** 预计算快照的挂载：与 combat_radius_results 一致（默认挂点或 4 枚中距弹）。 */
 function snapshotLoadoutState(preset) {
   if ((preset?.aircraft_role || 'fighter') === 'bomber' && preset?.max_payload_kg != null) {
     return simpleLoadoutState(preset, preset.max_payload_kg, 1);
+  }
+  const ac = (data?.loadout_catalog?.aircraft || {})[preset?.id];
+  if (ac) {
+    const defaults = ac.default_selection || {};
+    const selection = {};
+    (ac.stations || []).forEach((st) => {
+      selection[st.id] = defaults[st.id] || '';
+    });
+    return loadoutStateFromSelection(ac, selection);
   }
   return simpleLoadoutState(preset, preset?.missile_mass_kg, 4);
 }
@@ -370,9 +394,6 @@ function syncLoadoutSummaryFields() {
   const sum = summarizeLoadoutSelection(ac, loadoutSelection);
   $('loadoutPayload').value = fmtDerived(sum.payload_mass_kg, 1);
   $('loadoutExtFuel').value = fmtDerived(sum.external_fuel_kg, 1);
-  // 兼容旧字段：整包挂载按 1 件计入空战重量
-  if ($('wtMissile')) $('wtMissile').value = String(sum.payload_mass_kg);
-  if ($('wtNMissiles')) $('wtNMissiles').value = sum.payload_mass_kg > 0 ? '1' : '0';
 }
 
 function renderLoadoutPanel(aircraftId) {
@@ -385,6 +406,7 @@ function renderLoadoutPanel(aircraftId) {
     box.hidden = true;
     if (simple) simple.hidden = false;
     loadoutSelection = {};
+    syncStoreMountFieldVisibility();
     return;
   }
   box.hidden = false;
@@ -414,6 +436,7 @@ function renderLoadoutPanel(aircraftId) {
     });
   });
   syncLoadoutSummaryFields();
+  syncStoreMountFieldVisibility();
 }
 
 function fmtDerived(n, digits) {
@@ -428,17 +451,15 @@ function syncDerivedLoads() {
   if (ar != null) $('tgt_AR').value = fmtDerived(ar, 4);
   const ac = currentLoadoutAircraft();
   let fuelKg = Number($('wtFuel').value);
-  let missileKg = Number($('wtMissile').value);
-  let nMissiles = Number($('wtNMissiles').value);
+  let payloadKg = null;
   if (ac) {
     const sum = summarizeLoadoutSelection(ac, loadoutSelection);
     fuelKg = Number($('wtFuel').value) + sum.external_fuel_kg;
-    missileKg = sum.payload_mass_kg;
-    nMissiles = sum.payload_mass_kg > 0 ? 1 : 0;
+    payloadKg = sum.payload_mass_kg;
   }
   const wl = wingLoadingFromCombatMass(
     $('wtEmpty').value, fuelKg, Number($('tgt_area').value),
-    $('wtPilots').value, missileKg, nMissiles,
+    $('wtPilots').value, $('wtMissile').value, $('wtNMissiles').value, payloadKg,
   );
   if (wl != null) $('tgt_wl').value = fmtDerived(wl, 6);
 }
@@ -732,7 +753,11 @@ function readDashboardParams() {
   }
   const ac = currentLoadoutAircraft();
   if (ac) {
+    const sum = summarizeLoadoutSelection(ac, loadoutSelection);
     params.aircraft_id = ac.id;
+    params.payload_mass_kg = sum.payload_mass_kg;
+    params.missile_mass_kg = 0;
+    params.n_missiles = 0;
     params.loadout = {
       aircraft_id: ac.id,
       selection: { ...loadoutSelection },
@@ -1007,10 +1032,7 @@ function showSnapshot() {
     $('dashStatus').textContent = 'NO SNAPSHOT';
     return;
   }
-  const note = currentLoadoutAircraft()
-    ? '预计算快照统一按 4 枚中距弹估算，未计入上方挂载配置；改动挂载或点「计算作战半径」后按所选挂载现场重算。'
-    : '';
-  renderDash(snap, '预计算快照 ·', snapshotLoadoutState(currentPreset()), note);
+  renderDash(snap, '预计算快照 ·', snapshotLoadoutState(currentPreset()));
 }
 
 /** 同步「计算作战半径」按钮的禁用与文案。 */

@@ -258,7 +258,9 @@ struct CombatRadiusView: View {
         pickerRow("翼型", selection: ac.planform, options: vm.planformOptions)
         pickerRow("布局", selection: ac.layout, options: vm.layoutOptions)
         pickerRow("进气道", selection: ac.inlet, options: vm.inletOptions)
-        pickerRow("挂装方式", selection: ac.storeMount, options: vm.storeMountOptions)
+        if !vm.showLoadout {
+            pickerRow("挂装方式", selection: ac.storeMount, options: vm.storeMountOptions)
+        }
         Toggle("表面不平整（摩擦+形状阻力）", isOn: ac.rough)
             .font(.system(size: 12, design: .monospaced))
             .foregroundStyle(CombatRadiusTheme.text)

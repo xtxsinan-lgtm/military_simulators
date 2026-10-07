@@ -11,7 +11,21 @@ from utils.combat_radius.cruise_load import (
     combat_mass_kg,
     cruise_drag_n,
     engine_load_ratio,
+    weapons_mass_kg,
 )
+
+
+def test_weapons_mass_kg_prefers_payload():
+    """显式 payload_mass_kg 优先于 n_missiles×missile_mass_kg。"""
+    assert weapons_mass_kg(152, 4, 900) == pytest.approx(900)
+    assert weapons_mass_kg(152, 4, None) == pytest.approx(608)
+
+
+def test_combat_mass_kg_uses_payload_mass_kg():
+    mass = combat_mass_kg(
+        empty_kg=10000, internal_fuel_kg=4000, payload_mass_kg=750,
+    )
+    assert mass == pytest.approx(10000 + 2000 + 100 + 750)
 
 
 def test_combat_mass_kg_half_fuel_pilots_and_missiles():

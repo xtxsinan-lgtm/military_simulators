@@ -15,12 +15,14 @@ from utils.combat_radius.loadout import (
     apply_loadout_to_params,
     build_loadout_catalog_payload,
     clear_loadout_caches,
+    default_loadout_selection,
     expand_station_options,
     get_aircraft_station_def,
     load_munitions,
     option_key,
     option_label,
     resolve_loadout,
+    resolve_station_span_frac,
 )
 
 
@@ -118,9 +120,11 @@ def test_apply_loadout_to_params_sets_store_specs_and_fuel():
     }
     out = apply_loadout_to_params(params)
     assert out['internal_fuel_kg'] == pytest.approx(10100 + 1855)
-    assert out['missile_mass_kg'] == pytest.approx(120 + 152)
-    assert out['n_missiles'] == pytest.approx(1)
+    assert out['payload_mass_kg'] == pytest.approx(120 + 152)
+    assert out['missile_mass_kg'] == pytest.approx(0)
+    assert out['n_missiles'] == pytest.approx(0)
     assert len(out['target']['store_specs']) == 2
+    assert 'store_mount' not in out['target']
     assert out['loadout_summary']['external_fuel_kg'] == pytest.approx(1855)
 
 
@@ -169,6 +173,32 @@ def test_apply_loadout_noop_without_loadout():
     """无 loadout 字段时原样返回。"""
     params = {'n_missiles': 4, 'missile_mass_kg': 152}
     assert apply_loadout_to_params(params) is params or apply_loadout_to_params(params) == params
+
+
+def test_default_loadout_selection_f15e():
+    """F-15E 默认挂载为四站 AIM-120。"""
+    sel = default_loadout_selection('F-15E')
+    assert sel is not None
+    assert len(sel) == 4
+    assert all(v == 'aim120@1' for v in sel.values())
+
+
+def test_resolve_station_span_frac_prefers_explicit_field():
+    """显式 span_frac 优先于 label 推断。"""
+    st = {'mount_style': 'wing_pylon', 'label': '外翼', 'span_frac': 0.35}
+    assert resolve_station_span_frac(st) == pytest.approx(0.35)
+
+
+def test_dashboard_params_use_default_loadout():
+    """预计算参数对有挂点表的机型注入 default loadout。"""
+    from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
+    from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
+
+    ac = get_preset_by_id(load_presets(), 'F-15E')
+    eng = get_preset_by_id(load_engine_presets(), ac['engine_id'])
+    p = dashboard_params_from_preset(ac, eng)
+    assert p.get('payload_mass_kg') == pytest.approx(608)
+    assert len(p['target']['store_specs']) == 4
 
 
 def test_f15e_wing_stations_harpoon_and_slam_er():

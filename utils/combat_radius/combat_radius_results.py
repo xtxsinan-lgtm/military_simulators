@@ -13,6 +13,7 @@ from simulators.combat_radius.combat_radius import resolve_tsl_kN, run_aircraft_
 from utils.combat_radius.combat_radius_config import ui_config
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.combat_radius.cruise_load import N_MISSILES_DEFAULT
+from utils.combat_radius.loadout import apply_default_loadout_to_params, default_loadout_selection
 from utils.paths import COMBAT_RADIUS_RESULTS_JSON
 
 RESULTS_VERSION = 1
@@ -62,6 +63,8 @@ def dashboard_params_from_preset(
             * float(aircraft.get('airframe_tsfc_mult', 1.0))
         ),
     }
+    if default_loadout_selection(str(aircraft['id'])):
+        return apply_default_loadout_to_params(params, str(aircraft['id']))
     return params
 
 

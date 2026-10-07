@@ -66,7 +66,7 @@
         <view class="picker-val">{{inletNames[inletIndex]}}</view>
       </picker>
     </view>
-    <view class="field">
+    <view class="field" wx:if="{{!showLoadout}}">
       <view class="field-label"><text>挂装方式</text></view>
       <picker mode="selector" range="{{storeMountNames}}" value="{{storeMountIndex}}" bindchange="onStoreMountPreset">
         <view class="picker-val">{{storeMountNames[storeMountIndex]}}</view>

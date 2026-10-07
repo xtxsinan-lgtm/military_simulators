@@ -39,13 +39,15 @@ struct CombatRadiusAircraftInput {
 
     /// 按翼展、翼面积与空战重量覆盖展弦比和翼载荷。
     mutating func refreshDerived(
-        emptyKg: Double, fuelKg: Double, nPilots: Double, missileKg: Double, nMissiles: Double
+        emptyKg: Double, fuelKg: Double, nPilots: Double, missileKg: Double, nMissiles: Double,
+        payloadKg: Double? = nil
     ) {
         if let span = Double(wingspanM), let area = Double(wingAreaM2), span > 0, area > 0 {
             ar = String(format: "%g", (span * span / area * 10_000).rounded() / 10_000)
         }
         if let area = Double(wingAreaM2), area > 0, emptyKg >= 0, fuelKg >= 0 {
-            let massT = (emptyKg + 0.5 * fuelKg + nPilots * 100 + nMissiles * missileKg) / 1000
+            let weapons = payloadKg ?? (nMissiles * missileKg)
+            let massT = (emptyKg + 0.5 * fuelKg + nPilots * 100 + weapons) / 1000
             wingLoading = String(format: "%g", (massT / area * 1_000_000).rounded() / 1_000_000)
         }
     }
@@ -392,19 +394,19 @@ final class CombatRadiusViewModel: ObservableObject {
         }
         loadoutPayload = String(format: "%.1f", payload)
         loadoutExtFuel = String(format: "%.1f", extFuel)
-        wtMissile = String(format: "%.1f", payload)
-        wtNMissiles = payload > 0 ? "1" : "0"
     }
 
     /// 按当前翼展、翼面积与重量刷新只读展弦比和翼载荷。
     func refreshDerivedLoads() {
         let ext = showLoadout ? (Double(loadoutExtFuel) ?? 0) : 0
+        let payload = showLoadout ? (Double(loadoutPayload) ?? 0) : nil
         tgt.refreshDerived(
             emptyKg: Double(wtEmpty) ?? 0,
             fuelKg: (Double(wtFuel) ?? 0) + ext,
             nPilots: Double(wtPilots) ?? 1,
             missileKg: Double(wtMissile) ?? 0,
-            nMissiles: Double(wtNMissiles) ?? 4
+            nMissiles: Double(wtNMissiles) ?? 4,
+            payloadKg: payload
         )
     }
 
@@ -491,9 +493,6 @@ final class CombatRadiusViewModel: ObservableObject {
         } else {
             state = simpleLoadoutState(p, unitKg: p?.missile_mass_kg ?? 0, count: 4)
         }
-        if showLoadout {
-            state.note = "预计算快照统一按 4 枚中距弹估算，未计入上方挂载配置；改动挂载或点「计算作战半径」后按所选挂载现场重算。"
-        }
         return state
     }
 
@@ -535,16 +534,20 @@ final class CombatRadiusViewModel: ObservableObject {
 
     func dashboardParams() -> [String: Any] {
         refreshDerivedLoads()
+        var targetParams = tgt.asParams()
+        if showLoadout {
+            targetParams.removeValue(forKey: "store_mount")
+        }
         var params: [String: Any] = [
             "name": tgt.name,
             "flight_profile": flightProfileId,
             "combat_allowance_min": combatAllowanceOn ? combatToggleMin : 0,
-            "target": tgt.asParams(),
+            "target": targetParams,
             "empty_kg": Double(wtEmpty) ?? 0,
             "internal_fuel_kg": Double(wtFuel) ?? 0,
             "n_pilots": Double(wtPilots) ?? 1,
-            "missile_mass_kg": Double(wtMissile) ?? 0,
-            "n_missiles": Double(wtNMissiles) ?? 4,
+            "missile_mass_kg": showLoadout ? 0 : (Double(wtMissile) ?? 0),
+            "n_missiles": showLoadout ? 0 : (Double(wtNMissiles) ?? 4),
             "n_engines": Int(wtEngines) ?? 1,
             "carrier": wtCarrier,
             "bpr": Double(engBpr) ?? 0,
@@ -564,6 +567,7 @@ final class CombatRadiusViewModel: ObservableObject {
         }
         if showLoadout, !selectedTgtId.isEmpty {
             params["aircraft_id"] = selectedTgtId
+            params["payload_mass_kg"] = Double(loadoutPayload) ?? 0
             params["loadout"] = [
                 "aircraft_id": selectedTgtId,
                 "selection": loadoutSelection,

@@ -1,6 +1,7 @@
 """空战重量、平飞阻力与发动机负载比。
 
-空战重量 = 空重 + 内油×1/2 + 飞行员数×0.1 吨 + 4 枚中距弹。
+空战重量 = 空重 + 内油×1/2 + 飞行员数×0.1 吨 + 挂载干重。
+挂载干重优先用 ``payload_mass_kg``（交互挂点汇总）；否则 ``n_missiles × missile_mass_kg``。
 平飞阻力 D = W / (L/D)；负载比 = D / 该高度速度下飞机最大可用推力。
 """
 from __future__ import annotations
@@ -13,6 +14,24 @@ N_MISSILES_DEFAULT = 4
 FUEL_FRACTION_DEFAULT = 0.5
 
 
+def weapons_mass_kg(
+    missile_mass_kg: float = 0.0,
+    n_missiles: float = N_MISSILES_DEFAULT,
+    payload_mass_kg: float | None = None,
+) -> float:
+    """计入空战重量的挂载干重：显式 payload 优先，否则按件数×单件。"""
+    if payload_mass_kg is not None:
+        pm = float(payload_mass_kg)
+        if pm < 0:
+            raise ValueError('挂载干重不能为负')
+        return pm
+    if missile_mass_kg < 0:
+        raise ValueError('单件弹重不能为负')
+    if n_missiles < 0:
+        raise ValueError('挂弹数不能为负')
+    return float(n_missiles) * float(missile_mass_kg)
+
+
 def combat_mass_kg(
     empty_kg: float,
     internal_fuel_kg: float,
@@ -21,21 +40,23 @@ def combat_mass_kg(
     n_missiles: float = N_MISSILES_DEFAULT,
     fuel_fraction: float = FUEL_FRACTION_DEFAULT,
     pilot_mass_kg: float = PILOT_MASS_KG,
+    payload_mass_kg: float | None = None,
 ) -> float:
     """按空战构型估算质量（kg）。"""
-    if empty_kg < 0 or internal_fuel_kg < 0 or missile_mass_kg < 0:
-        raise ValueError('空重、内油、弹重不能为负')
-    if n_pilots < 0 or n_missiles < 0:
-        raise ValueError('飞行员数与挂弹数不能为负')
+    if empty_kg < 0 or internal_fuel_kg < 0:
+        raise ValueError('空重、内油不能为负')
+    if n_pilots < 0:
+        raise ValueError('飞行员数不能为负')
     if fuel_fraction < 0 or fuel_fraction > 1:
         raise ValueError('内油使用比例须在 [0, 1] 内')
     if pilot_mass_kg < 0:
         raise ValueError('单名飞行员质量不能为负')
+    payload = weapons_mass_kg(missile_mass_kg, n_missiles, payload_mass_kg)
     return (
         empty_kg
         + fuel_fraction * internal_fuel_kg
         + n_pilots * pilot_mass_kg
-        + n_missiles * missile_mass_kg
+        + payload
     )
 
 
@@ -48,6 +69,7 @@ def wing_loading_t_m2(
     n_missiles: float = N_MISSILES_DEFAULT,
     fuel_fraction: float = FUEL_FRACTION_DEFAULT,
     pilot_mass_kg: float = PILOT_MASS_KG,
+    payload_mass_kg: float | None = None,
 ) -> float:
     """空战翼载荷 (t/m²) = 空战重量 / 翼面积。
 
@@ -57,7 +79,7 @@ def wing_loading_t_m2(
         raise ValueError('翼面积须为正才能计算翼载荷')
     mass_t = combat_mass_kg(
         empty_kg, internal_fuel_kg, n_pilots, missile_mass_kg, n_missiles,
-        fuel_fraction, pilot_mass_kg,
+        fuel_fraction, pilot_mass_kg, payload_mass_kg,
     ) / 1000.0
     return mass_t / wing_area_m2
 
@@ -88,6 +110,7 @@ def apply_combat_wing_loading(
     n_missiles: float = N_MISSILES_DEFAULT,
     fuel_fraction: float = FUEL_FRACTION_DEFAULT,
     pilot_mass_kg: float = PILOT_MASS_KG,
+    payload_mass_kg: float | None = None,
 ) -> dict[str, Any]:
     """有翼面积时用空战重量覆盖 wing_loading，使升阻比与布雷盖用同一重量。"""
     out = dict(target)
@@ -99,9 +122,17 @@ def apply_combat_wing_loading(
         return out
     out['wing_loading'] = wing_loading_t_m2(
         empty_kg, internal_fuel_kg, area_f, n_pilots, missile_mass_kg,
-        n_missiles, fuel_fraction, pilot_mass_kg,
+        n_missiles, fuel_fraction, pilot_mass_kg, payload_mass_kg,
     )
     return out
+
+
+def payload_mass_from_params(params: dict[str, Any]) -> float | None:
+    """从请求字典解析挂载干重；无显式 payload 时返回 None。"""
+    raw = params.get('payload_mass_kg')
+    if raw in (None, ''):
+        return None
+    return float(raw)
 
 
 def apply_derived_planform_loads(
@@ -113,6 +144,7 @@ def apply_derived_planform_loads(
     n_missiles: float = N_MISSILES_DEFAULT,
     fuel_fraction: float = FUEL_FRACTION_DEFAULT,
     pilot_mass_kg: float = PILOT_MASS_KG,
+    payload_mass_kg: float | None = None,
 ) -> dict[str, Any]:
     """有几何时覆盖展弦比，有空战重量时覆盖翼载荷；缺数则保留原值。"""
     out = dict(target)
@@ -139,7 +171,7 @@ def apply_derived_planform_loads(
     if empty is not None and fuel is not None and empty >= 0 and fuel >= 0:
         out = apply_combat_wing_loading(
             out, empty, fuel, pilots, missile, n_missiles,
-            fuel_fraction, pilot_mass_kg,
+            fuel_fraction, pilot_mass_kg, payload_mass_kg,
         )
     return out
 
@@ -152,20 +184,22 @@ def combat_mass_breakdown(
     n_missiles: float = N_MISSILES_DEFAULT,
     fuel_fraction: float = FUEL_FRACTION_DEFAULT,
     pilot_mass_kg: float = PILOT_MASS_KG,
+    payload_mass_kg: float | None = None,
 ) -> dict[str, float]:
     """空战质量分项，便于前端展示。"""
     fuel_kg = fuel_fraction * internal_fuel_kg
     pilots_kg = n_pilots * pilot_mass_kg
-    missiles_kg = n_missiles * missile_mass_kg
+    payload_kg = weapons_mass_kg(missile_mass_kg, n_missiles, payload_mass_kg)
     total = combat_mass_kg(
         empty_kg, internal_fuel_kg, n_pilots, missile_mass_kg, n_missiles,
-        fuel_fraction, pilot_mass_kg,
+        fuel_fraction, pilot_mass_kg, payload_mass_kg,
     )
     return {
         'empty_kg': float(empty_kg),
         'fuel_kg': fuel_kg,
         'pilots_kg': pilots_kg,
-        'missiles_kg': missiles_kg,
+        'payload_kg': payload_kg,
+        'missiles_kg': payload_kg,  # 兼容旧字段名
         'total_kg': total,
     }
 

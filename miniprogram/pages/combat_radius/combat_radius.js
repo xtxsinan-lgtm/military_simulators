@@ -148,8 +148,7 @@ function buildLoadoutRows(acLoadout) {
     loadoutSelection: selection,
     loadoutPayload: fmtDerived(sum.payload, 1),
     loadoutExtFuel: fmtDerived(sum.extFuel, 1),
-    wtMissile: String(sum.payload),
-    wtNMissiles: sum.payload > 0 ? '1' : '0',
+    payloadMassKg: sum.payload,
   };
 }
 
@@ -243,7 +242,7 @@ function fmtDerived(n, digits) {
 }
 
 /** 按翼展、翼面积与空战重量覆盖展弦比和翼载荷。 */
-function applyDerivedLoads(tgt, wt, loadoutExtraFuel) {
+function applyDerivedLoads(tgt, wt, loadoutExtraFuel, payloadKg) {
   const out = Object.assign({}, tgt);
   const span = Number(out.wingspan_m);
   const area = Number(out.wing_area_m2);
@@ -254,10 +253,16 @@ function applyDerivedLoads(tgt, wt, loadoutExtraFuel) {
   const fuel = Number(wt.wtFuel) + (Number(loadoutExtraFuel) || 0);
   if (area > 0 && Number.isFinite(empty) && Number.isFinite(fuel) && empty >= 0 && fuel >= 0) {
     const pilots = Number.isFinite(Number(wt.wtPilots)) ? Number(wt.wtPilots) : 1;
-    const missile = Number.isFinite(Number(wt.wtMissile)) ? Number(wt.wtMissile) : 0;
-    const count = Number.isFinite(Number(wt.wtNMissiles)) ? Number(wt.wtNMissiles) : 4;
+    let weaponsKg = 0;
+    if (payloadKg != null && Number.isFinite(Number(payloadKg))) {
+      weaponsKg = Number(payloadKg);
+    } else {
+      const missile = Number.isFinite(Number(wt.wtMissile)) ? Number(wt.wtMissile) : 0;
+      const count = Number.isFinite(Number(wt.wtNMissiles)) ? Number(wt.wtNMissiles) : 4;
+      weaponsKg = count * missile;
+    }
     out.wing_loading = fmtDerived(
-      (empty + 0.5 * fuel + pilots * 100 + count * missile) / 1000 / area, 6,
+      (empty + 0.5 * fuel + pilots * 100 + weaponsKg) / 1000 / area, 6,
     );
   }
   return out;
@@ -510,7 +515,9 @@ Page({
           weaponStations: showLoadout
             ? []
             : weaponStationsForAircraft(aircraftWeapons, tgtp && tgtp.id),
-          tgt: applyDerivedLoads(cloneAc(tgtp), wtMerged, loadoutPatch.loadoutExtFuel),
+          tgt: applyDerivedLoads(
+            cloneAc(tgtp), wtMerged, loadoutPatch.loadoutExtFuel, loadoutPatch.payloadMassKg,
+          ),
           tgtPresetIndex: findIdx(ui.default_target_id),
           enginePresets: engines,
           engineNames,
@@ -632,7 +639,14 @@ Page({
     const key = e.currentTarget.dataset.key;
     const patch = { [key]: e.detail.value };
     if (['wtEmpty', 'wtFuel', 'wtPilots', 'wtMissile', 'wtNMissiles'].includes(key)) {
-      patch.tgt = applyDerivedLoads(this.data.tgt, this.derivedWeight({ [key]: e.detail.value }));
+      const sum = this.data.showLoadout
+        ? summarizeLoadout(this.data.loadoutRows, this.data.loadoutSelection) : null;
+      patch.tgt = applyDerivedLoads(
+        this.data.tgt,
+        this.derivedWeight({ [key]: e.detail.value }),
+        sum ? sum.extFuel : 0,
+        sum ? sum.payload : null,
+      );
     }
     this.setData(patch);
     if (!['q1Mach', 'q2Mach', 'q2Alt', 'q3Mach', 'q3Alt', 'q3Load'].includes(key)) {
@@ -643,7 +657,11 @@ Page({
   onAcField(e) {
     const key = e.currentTarget.dataset.key;
     const next = Object.assign({}, this.data.tgt, { [key]: e.detail.value });
-    this.setData({ tgt: applyDerivedLoads(next, this.derivedWeight()) });
+    const sum = this.data.showLoadout
+      ? summarizeLoadout(this.data.loadoutRows, this.data.loadoutSelection) : null;
+    this.setData({
+      tgt: applyDerivedLoads(next, this.derivedWeight(), sum ? sum.extFuel : 0, sum ? sum.payload : null),
+    });
     this.scheduleLiveDash();
   },
 
@@ -674,7 +692,9 @@ Page({
       const wt = weightFromPreset(p);
       const loadoutPatch = buildLoadoutRows(this.data.loadoutCatalog[p.id]);
       Object.assign(patch, wt, loadoutPatch);
-      patch.tgt = applyDerivedLoads(cloneAc(p), patch, loadoutPatch.loadoutExtFuel);
+      patch.tgt = applyDerivedLoads(
+        cloneAc(p), patch, loadoutPatch.loadoutExtFuel, loadoutPatch.payloadMassKg,
+      );
       patch.inletIndex = Math.max(0, this.data.inletIds.indexOf(p.inlet || 'dsi'));
       patch.storeMountIndex = Math.max(0, this.data.storeMountIds.indexOf(p.store_mount || 'internal'));
       if (p.engine_id) {
@@ -724,7 +744,9 @@ Page({
       wtMissile: String(sum.payload),
       wtNMissiles: sum.payload > 0 ? '1' : '0',
     };
-    patch.tgt = applyDerivedLoads(this.data.tgt, Object.assign({}, this.data, patch), sum.extFuel);
+    patch.tgt = applyDerivedLoads(
+      this.data.tgt, Object.assign({}, this.data, patch), sum.extFuel, sum.payload,
+    );
     this.setData(patch);
     this.scheduleLiveDash();
   },
@@ -791,7 +813,11 @@ Page({
   },
 
   toAircraft() {
-    const ac = applyDerivedLoads(this.data.tgt, this.derivedWeight());
+    const sum = this.data.showLoadout
+      ? summarizeLoadout(this.data.loadoutRows, this.data.loadoutSelection) : null;
+    const ac = applyDerivedLoads(
+      this.data.tgt, this.derivedWeight(), sum ? sum.extFuel : 0, sum ? sum.payload : null,
+    );
     return {
       name: ac.name || '未命名',
       AR: num(ac.AR, 0),
@@ -858,11 +884,16 @@ Page({
       const idx = this.data.tgtPresetIndex;
       const ac = idx > 0 ? this.data.presets[idx - 1] : null;
       if (ac) {
+        const sum = summarizeLoadout(this.data.loadoutRows, this.data.loadoutSelection);
         params.aircraft_id = ac.id;
+        params.payload_mass_kg = sum.payload;
+        params.missile_mass_kg = 0;
+        params.n_missiles = 0;
         params.loadout = {
           aircraft_id: ac.id,
           selection: Object.assign({}, this.data.loadoutSelection),
         };
+        if (params.target) delete params.target.store_mount;
       }
     }
     return params;

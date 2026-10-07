@@ -109,7 +109,9 @@
               "munition_id": "bdu38",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta5",
@@ -190,7 +192,9 @@
               "munition_id": "bdu38",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "centerline"
         },
         {
           "id": "sta8",
@@ -278,7 +282,9 @@
               "munition_id": "bdu38",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta2a",
@@ -310,7 +316,9 @@
               "munition_id": "ais_pod",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "sta2b",
@@ -337,7 +345,9 @@
               "munition_id": "ais_pod",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "sta8a",
@@ -364,7 +374,9 @@
               "munition_id": "ais_pod",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "sta8b",
@@ -396,7 +408,9 @@
               "munition_id": "ais_pod",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "lcft_inbd",
@@ -596,7 +610,9 @@
               "munition_id": "bdu38",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "cft"
         },
         {
           "id": "lcft_outbd",
@@ -683,7 +699,9 @@
               "munition_id": "bdu50",
               "qty": 3
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "cft"
         },
         {
           "id": "rcft_inbd",
@@ -887,7 +905,9 @@
               "munition_id": "bdu38",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "cft"
         },
         {
           "id": "rcft_outbd",
@@ -974,7 +994,9 @@
               "munition_id": "bdu50",
               "qty": 3
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "cft"
         },
         {
           "id": "ltp",
@@ -993,7 +1015,9 @@
               "munition_id": "sniper",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "chin_pod"
         },
         {
           "id": "lnp",
@@ -1004,7 +1028,9 @@
               "munition_id": "lantirn_nav",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "chin_pod"
         }
       ]
     },
@@ -1039,7 +1065,9 @@
               "munition_id": "aim9",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_tip"
         },
         {
           "id": "sta2",
@@ -1110,7 +1138,9 @@
               "munition_id": "gbu38",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta3",
@@ -1177,7 +1207,9 @@
               "munition_id": "drop_tank_330",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 0.15,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta4",
@@ -1200,7 +1232,9 @@
               "munition_id": "litening",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "sta5",
@@ -1219,7 +1253,9 @@
               "munition_id": "drop_tank_330",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "centerline"
         },
         {
           "id": "sta6",
@@ -1234,7 +1270,9 @@
               "munition_id": "aim7",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "sta7",
@@ -1301,7 +1339,9 @@
               "munition_id": "drop_tank_330",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 0.15,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta8",
@@ -1372,7 +1412,9 @@
               "munition_id": "gbu38",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta9",
@@ -1383,7 +1425,9 @@
               "munition_id": "aim9",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_tip"
         }
       ]
     },
@@ -1418,7 +1462,9 @@
               "munition_id": "aim9",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_tip"
         },
         {
           "id": "sta2",
@@ -1465,7 +1511,9 @@
               "munition_id": "gbu16",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta3",
@@ -1544,7 +1592,9 @@
               "munition_id": "drop_tank_480",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 0.7,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta4",
@@ -1623,7 +1673,9 @@
               "munition_id": "drop_tank_480",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 0.35,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta5",
@@ -1638,7 +1690,9 @@
               "munition_id": "aim7",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "sta6",
@@ -1669,7 +1723,9 @@
               "munition_id": "drop_tank_480",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "centerline"
         },
         {
           "id": "sta7",
@@ -1688,7 +1744,9 @@
               "munition_id": "atflir",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "sta8",
@@ -1767,7 +1825,9 @@
               "munition_id": "drop_tank_480",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 0.35,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta9",
@@ -1846,7 +1906,9 @@
               "munition_id": "drop_tank_480",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 0.7,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta10",
@@ -1893,7 +1955,9 @@
               "munition_id": "gbu16",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta11",
@@ -1904,7 +1968,9 @@
               "munition_id": "aim9",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_tip"
         }
       ]
     },
@@ -1948,7 +2014,9 @@
               "qty": 1,
               "label": "AIM-9L Sidewinder"
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_tip"
         },
         {
           "id": "sta2",
@@ -1977,7 +2045,9 @@
               "munition_id": "aam4",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta3",
@@ -2018,7 +2088,9 @@
               "munition_id": "asm3",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta4",
@@ -2081,7 +2153,9 @@
               "munition_id": "jlau3",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 0.15,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta5",
@@ -2114,7 +2188,9 @@
               "qty": 1,
               "label": "AIM-9L Sidewinder"
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "sta6",
@@ -2145,7 +2221,9 @@
               "munition_id": "gcs1",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "centerline"
         },
         {
           "id": "sta7",
@@ -2178,7 +2256,9 @@
               "qty": 1,
               "label": "AIM-9L Sidewinder"
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "side_rail"
         },
         {
           "id": "sta8",
@@ -2241,7 +2321,9 @@
               "munition_id": "jlau3",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 0.15,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta9",
@@ -2282,7 +2364,9 @@
               "munition_id": "asm3",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta10",
@@ -2311,7 +2395,9 @@
               "munition_id": "aam4",
               "qty": 1
             }
-          ]
+          ],
+          "span_frac": 1.0,
+          "aero_style": "wing_pylon"
         },
         {
           "id": "sta11",
@@ -2331,7 +2417,9 @@
               "qty": 1,
               "label": "AIM-9L Sidewinder"
             }
-          ]
+          ],
+          "span_frac": -1.0,
+          "aero_style": "wing_tip"
         }
       ]
     }

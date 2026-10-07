@@ -185,8 +185,22 @@ def load_aircraft_stations(path: str | Path | None = None) -> dict[str, Any]:
     data = json.loads(src.read_text(encoding='utf-8'))
     if path is None:
         data = _maybe_merge_stations(data)
+        data = _enrich_stations_root(data)
         _STATIONS_CACHE = data
     return data
+
+
+def _enrich_stations_root(root: dict[str, Any]) -> dict[str, Any]:
+    """为各挂点补全 span_frac / aero_style（缺省时由标签推断）。"""
+    aircraft = root.get('aircraft') or {}
+    out_aircraft: dict[str, Any] = {}
+    for aid, ac in aircraft.items():
+        if not isinstance(ac, dict):
+            continue
+        item = dict(ac)
+        item['stations'] = [enrich_station_aero(dict(st)) for st in (ac.get('stations') or [])]
+        out_aircraft[str(aid)] = item
+    return {**root, 'aircraft': out_aircraft}
 
 
 def _maybe_merge_munitions(base: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -253,10 +267,13 @@ def inject_loadout_catalog_payload(catalog: dict[str, Any] | None) -> None:
                     'qty': _opt_float(opt.get('qty'), 1.0),
                     **({'label': opt['label']} if opt.get('label') else {}),
                 })
+            meta = enrich_station_aero(dict(st))
             stations.append({
-                'id': st['id'],
-                'label': st.get('label') or st['id'],
-                'mount_style': st.get('mount_style') or 'wing_pylon',
+                'id': meta['id'],
+                'label': meta.get('label') or meta['id'],
+                'mount_style': meta.get('mount_style') or 'wing_pylon',
+                'span_frac': meta.get('span_frac'),
+                'aero_style': meta.get('aero_style'),
                 'options': options,
             })
         default_sel: dict[str, Any] = {}
@@ -351,10 +368,13 @@ def build_loadout_catalog_payload() -> dict[str, Any]:
     for aid, raw in (root.get('aircraft') or {}).items():
         stations = []
         for st in raw.get('stations') or []:
+            meta = enrich_station_aero(dict(st))
             stations.append({
-                'id': st['id'],
-                'label': st.get('label') or st['id'],
-                'mount_style': st.get('mount_style') or 'wing_pylon',
+                'id': meta['id'],
+                'label': meta.get('label') or meta['id'],
+                'mount_style': meta.get('mount_style') or 'wing_pylon',
+                'span_frac': meta.get('span_frac'),
+                'aero_style': meta.get('aero_style'),
                 'options': expand_station_options(st, munitions),
             })
         default_sel = {}
@@ -454,6 +474,66 @@ def station_aero_style(mount_style: str, label: str) -> str:
     return mount_style
 
 
+def resolve_station_span_frac(st: dict[str, Any]) -> float:
+    """挂点展向位置：优先读 span_frac 字段，否则由 label 推断。"""
+    raw = st.get('span_frac')
+    if raw not in (None, ''):
+        return float(raw)
+    mount_style = str(st.get('mount_style') or 'wing_pylon')
+    if mount_style != 'wing_pylon':
+        return -1.0
+    return station_span_frac(str(st.get('label') or st.get('id') or ''))
+
+
+def resolve_station_aero_style(st: dict[str, Any]) -> str:
+    """挂点气动类型：优先读 aero_style 字段，否则由 mount_style/label 推断。"""
+    explicit = st.get('aero_style')
+    if explicit not in (None, ''):
+        return str(explicit)
+    mount_style = str(st.get('mount_style') or 'wing_pylon')
+    return station_aero_style(mount_style, str(st.get('label') or st.get('id') or ''))
+
+
+def enrich_station_aero(st: dict[str, Any]) -> dict[str, Any]:
+    """补全挂点结构化气动字段（已有显式值则保留）。"""
+    out = dict(st)
+    out['span_frac'] = resolve_station_span_frac(out)
+    out['aero_style'] = resolve_station_aero_style(out)
+    return out
+
+
+def default_loadout_selection(aircraft_id: str) -> dict[str, str] | None:
+    """机型默认挂点选择（munition@qty）；无挂点表时返回 None。"""
+    ac_def = get_aircraft_station_def(aircraft_id)
+    if ac_def is None:
+        return None
+    default_sel = ac_def.get('default_selection') or {}
+    if not default_sel:
+        return None
+    out: dict[str, str] = {}
+    for sid, sel in default_sel.items():
+        if isinstance(sel, dict):
+            mid = str(sel.get('munition_id') or '').strip()
+            qty = _opt_float(sel.get('qty'), 1.0)
+        else:
+            mid, qty = _parse_selection_value(sel)
+        if mid and qty > 0:
+            out[str(sid)] = option_key(mid, qty)
+    return out or None
+
+
+def apply_default_loadout_to_params(params: dict[str, Any], aircraft_id: str) -> dict[str, Any]:
+    """有默认挂载时注入 loadout，使预计算与交互 UI 一致。"""
+    selection = default_loadout_selection(aircraft_id)
+    if not selection:
+        return params
+    return apply_loadout_to_params({
+        **params,
+        'aircraft_id': aircraft_id,
+        'loadout': {'aircraft_id': aircraft_id, 'selection': selection},
+    })
+
+
 def resolve_loadout(
     aircraft_id: str,
     selection: dict[str, Any] | None,
@@ -519,11 +599,8 @@ def resolve_loadout(
             front_frac=float(aero['front_frac']),
             station_id=sid,
             munition_id=mid,
-            style=station_aero_style(mount_style, str(st.get('label') or '')),
-            span_frac=(
-                station_span_frac(str(st.get('label') or ''))
-                if mount_style == 'wing_pylon' else -1.0
-            ),
+            style=resolve_station_aero_style(st),
+            span_frac=resolve_station_span_frac(st),
             tank=float(mun['fuel_kg']) > 0,
         ))
         custom = None
@@ -595,13 +672,16 @@ def apply_loadout_to_params(params: dict[str, Any]) -> dict[str, Any]:
     out['aircraft_id'] = aircraft_id
     base_fuel = _opt_float(out.get('internal_fuel_kg'))
     out['internal_fuel_kg'] = base_fuel + summary.external_fuel_kg
-    # 空战重量：挂载干重按「一件」计入，兼容 n_missiles×missile_mass
-    out['missile_mass_kg'] = summary.payload_mass_kg
-    out['n_missiles'] = 1.0 if summary.payload_mass_kg > 0 else 0.0
+    out['payload_mass_kg'] = summary.payload_mass_kg
+    # 兼容旧客户端：不再用 n_missiles×missile_mass 计重
+    out['missile_mass_kg'] = 0.0
+    out['n_missiles'] = 0.0
     target = dict(out.get('target') or {})
     target['store_specs'] = [asdict(s) for s in summary.store_specs]
     target['n_stores'] = summary.n_store_units
-    target['store_mount'] = 'pylon' if summary.store_specs else target.get('store_mount', 'pylon')
+    if summary.store_specs:
+        # 有按站 store_specs 时全局 store_mount 不参与阻力，避免与半埋等混淆
+        target.pop('store_mount', None)
     out['target'] = target
     out['loadout_summary'] = summary.to_dict()
     return out

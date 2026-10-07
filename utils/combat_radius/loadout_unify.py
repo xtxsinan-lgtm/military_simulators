@@ -434,12 +434,13 @@ def _station(
             continue
         seen.add(key)
         options.append({'munition_id': mid, 'qty': qty})
-    return {
+    from utils.combat_radius.loadout import enrich_station_aero
+    return enrich_station_aero({
         'id': str(station_id),
         'label': label or str(station_id),
         'mount_style': mount_style,
         'options': options,
-    }
+    })
 
 
 def _aircraft_entry(

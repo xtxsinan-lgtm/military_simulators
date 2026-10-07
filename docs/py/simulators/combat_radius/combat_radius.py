@@ -44,6 +44,7 @@ from utils.combat_radius.cruise_load import (
     combat_mass_breakdown,
     cruise_drag_n,
     engine_load_ratio,
+    payload_mass_from_params,
 )
 from utils.combat_radius.cruise_search import (
     AB_TSFC_OVER_MIL,
@@ -325,7 +326,24 @@ def _derived_target_from_params(params: dict[str, Any]) -> dict[str, Any]:
         n_pilots=params.get('n_pilots'),
         missile_mass_kg=params.get('missile_mass_kg'),
         n_missiles=float(n_missiles),
+        payload_mass_kg=payload_mass_from_params(params),
     )
+
+
+def _combat_mass_kwargs(params: dict[str, Any], *, fuel_fraction: float) -> dict[str, Any]:
+    """空战质量分项的公共参数字典。"""
+    n_missiles = params.get('n_missiles', N_MISSILES_DEFAULT)
+    if n_missiles in (None, ''):
+        n_missiles = N_MISSILES_DEFAULT
+    return {
+        'empty_kg': float(params['empty_kg']),
+        'internal_fuel_kg': float(params['internal_fuel_kg']),
+        'n_pilots': float(params.get('n_pilots', 1)),
+        'missile_mass_kg': float(params.get('missile_mass_kg', 0)),
+        'n_missiles': float(n_missiles),
+        'fuel_fraction': fuel_fraction,
+        'payload_mass_kg': payload_mass_from_params(params),
+    }
 
 
 def run_predict_ld_from_params(params: dict[str, Any]) -> dict[str, Any]:
@@ -577,13 +595,7 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
         })
         ld = float(ld_info['target']['ld'])
 
-    breakdown = combat_mass_breakdown(
-        empty_kg=float(params['empty_kg']),
-        internal_fuel_kg=float(params['internal_fuel_kg']),
-        n_pilots=float(params.get('n_pilots', 1)),
-        missile_mass_kg=float(params.get('missile_mass_kg', 0)),
-        n_missiles=float(params.get('n_missiles', N_MISSILES_DEFAULT)),
-    )
+    breakdown = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.5))
     drag_n = cruise_drag_n(breakdown['total_kg'], ld)
 
     thrust_one = estimate_military_thrust(
@@ -906,31 +918,9 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         raise ValueError('发动机台数须至少为 1')
 
     target, cf0, k_e = _calibrate_from_params(params)
-    n_missiles = float(params.get('n_missiles', N_MISSILES_DEFAULT))
-    cruise_mass = combat_mass_breakdown(
-        empty_kg=float(params['empty_kg']),
-        internal_fuel_kg=float(params['internal_fuel_kg']),
-        n_pilots=float(params.get('n_pilots', 1)),
-        missile_mass_kg=float(params.get('missile_mass_kg', 0)),
-        n_missiles=n_missiles,
-        fuel_fraction=0.5,
-    )
-    takeoff_mass = combat_mass_breakdown(
-        empty_kg=float(params['empty_kg']),
-        internal_fuel_kg=float(params['internal_fuel_kg']),
-        n_pilots=float(params.get('n_pilots', 1)),
-        missile_mass_kg=float(params.get('missile_mass_kg', 0)),
-        n_missiles=n_missiles,
-        fuel_fraction=1.0,
-    )
-    dry_mass = combat_mass_breakdown(
-        empty_kg=float(params['empty_kg']),
-        internal_fuel_kg=float(params['internal_fuel_kg']),
-        n_pilots=float(params.get('n_pilots', 1)),
-        missile_mass_kg=float(params.get('missile_mass_kg', 0)),
-        n_missiles=n_missiles,
-        fuel_fraction=0.0,
-    )
+    cruise_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.5))
+    takeoff_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=1.0))
+    dry_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.0))
     fuel_kg = float(params['internal_fuel_kg'])
 
     t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
@@ -1189,15 +1179,7 @@ def run_estimate_max_speed_from_params(params: dict[str, Any]) -> dict[str, Any]
         raise ValueError('发动机台数须至少为 1')
 
     target, cf0, k_e = _calibrate_from_params(params)
-    n_missiles = float(params.get('n_missiles', N_MISSILES_DEFAULT))
-    cruise_mass = combat_mass_breakdown(
-        empty_kg=float(params['empty_kg']),
-        internal_fuel_kg=float(params['internal_fuel_kg']),
-        n_pilots=float(params.get('n_pilots', 1)),
-        missile_mass_kg=float(params.get('missile_mass_kg', 0)),
-        n_missiles=n_missiles,
-        fuel_fraction=0.5,
-    )
+    cruise_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.5))
 
     t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
     ctx = CruiseContext(
@@ -1438,15 +1420,7 @@ def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]
     try:
         target, cf0, k_e = _calibrate_from_params(params)
         n_engines = _optional_int(params.get('n_engines'), 1)
-        n_missiles = float(params.get('n_missiles', N_MISSILES_DEFAULT))
-        cruise_mass = combat_mass_breakdown(
-            empty_kg=float(params['empty_kg']),
-            internal_fuel_kg=float(params['internal_fuel_kg']),
-            n_pilots=float(params.get('n_pilots', 1)),
-            missile_mass_kg=float(params.get('missile_mass_kg', 0)),
-            n_missiles=n_missiles,
-            fuel_fraction=0.5,
-        )
+        cruise_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.5))
         t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
         ctx = CruiseContext(
             target=target,
@@ -1485,15 +1459,7 @@ def _cruise_context_from_params(params: dict[str, Any]) -> tuple[CruiseContext, 
     if n_engines < 1:
         raise ValueError('发动机台数须至少为 1')
     target, cf0, k_e = _calibrate_from_params(params)
-    n_missiles = float(params.get('n_missiles', N_MISSILES_DEFAULT))
-    cruise_mass = combat_mass_breakdown(
-        empty_kg=float(params['empty_kg']),
-        internal_fuel_kg=float(params['internal_fuel_kg']),
-        n_pilots=float(params.get('n_pilots', 1)),
-        missile_mass_kg=float(params.get('missile_mass_kg', 0)),
-        n_missiles=n_missiles,
-        fuel_fraction=0.5,
-    )
+    cruise_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.5))
     t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
     ctx = CruiseContext(
         target=target,
