@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import math
 
-from utils.missile_interception.missile_interception_radar import radar_horizon_km
+from utils.radar_horizon import radar_horizon_km
 from utils.missile_range.estimate import (
     DEFAULT_ISP_S,
     DEFAULT_PROPELLANT_DENSITY,

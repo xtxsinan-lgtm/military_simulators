@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-range.html 中 ?v= 同步递增 */
-const APP_VERSION = 64;
+const APP_VERSION = 65;
 
 /** 在 Worker 里调用估算入口，主线程不跑 Python */
 const MISSILE_RANGE_RUN_SNIPPET = `
@@ -16,9 +16,7 @@ const MISSILE_RANGE_PY_FILES = [
   'utils/__init__.py',
   'utils/paths.py',
   'utils/database_csv.py',
-  'utils/missile_interception/__init__.py',
-  'utils/missile_interception/missile_interception_config.py',
-  'utils/missile_interception/missile_interception_radar.py',
+  'utils/radar_horizon.py',
   'utils/missile_range/__init__.py',
   'utils/missile_range/estimate.py',
   'utils/missile_range/classes.py',
@@ -37,7 +35,7 @@ const MISSILE_RANGE_DATA_FILES = [
 const MISSILE_RANGE_IMPORTS = [
   'utils.paths',
   'utils.database_csv',
-  'utils.missile_interception.missile_interception_radar',
+  'utils.radar_horizon',
   'utils.missile_range.estimate',
   'utils.missile_range.classes',
   'utils.missile_range.dataset',
@@ -431,7 +429,6 @@ function bootEngine() {
     type: 'init',
     pyodideVersion: PYODIDE_VERSION,
     files,
-    config: data.missile_interception_config || {},
     imports: MISSILE_RANGE_IMPORTS,
     runSnippet: MISSILE_RANGE_RUN_SNIPPET,
   });

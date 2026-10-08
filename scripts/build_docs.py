@@ -18,6 +18,7 @@ if str(ROOT) not in sys.path:
 # 导弹射程预设 CSV 写入 py_sources，供 Pyodide 在 /py/data/ 下读取
 PY_LOAD_ORDER = [
     'utils/__init__.py',
+    'utils/radar_horizon.py',
     'utils/paths.py',
     'utils/takeoff/__init__.py',
     'utils/takeoff/takeoff_config.py',
@@ -76,6 +77,7 @@ PY_LOAD_ORDER = [
 ]
 
 PY_IMPORT_ORDER = [
+    'utils.radar_horizon',
     'utils.paths',
     'utils.takeoff.takeoff_config',
     'utils.takeoff.takeoff_input',

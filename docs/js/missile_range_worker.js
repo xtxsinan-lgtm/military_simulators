@@ -31,12 +31,6 @@ self.onmessage = async (event) => {
       );
       pyodide = await loadPyodide();
       writeTree(msg.files || {});
-      pyodide.globals.set('_missile_interception_cfg', JSON.stringify(msg.config || {}));
-      await pyodide.runPythonAsync(`
-import json
-from utils.missile_interception.missile_interception_config import inject_missile_interception_config
-inject_missile_interception_config(json.loads(_missile_interception_cfg))
-`);
       pyodide.globals.set('_py_import_order', msg.imports || []);
       await pyodide.runPythonAsync(`
 import importlib

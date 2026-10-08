@@ -8,6 +8,7 @@ import math
 from typing import Any
 
 from utils.missile_interception.missile_interception_config import physics_config
+from utils.radar_horizon import radar_horizon_km
 
 _PHYS = physics_config()
 
@@ -38,11 +39,6 @@ _SCRAMJET_ASM_IDS = frozenset({
 def clamp(x: float, lo: float, hi: float) -> float:
     """将数值限制在 [lo, hi]。"""
     return max(lo, min(hi, x))
-
-
-def radar_horizon_km(h1: float, h2: float) -> float:
-    """地球曲率雷达视距（公里）；h1/h2 为天线与目标高度（米）。"""
-    return 4.12 * (math.sqrt(h1) + math.sqrt(h2))
 
 
 def power_range_km(
