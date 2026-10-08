@@ -13,7 +13,7 @@ import {
 
 const PYODIDE_VERSION = '0.26.4';
 /** 与 takeoff.html 中 app.js?v= 及 data.json?v= 同步递增，避免 CDN/浏览器缓存旧资源 */
-const APP_VERSION = 47;
+const APP_VERSION = 48;
 /** 让出主线程的毫秒数：须覆盖一次样式绘制，使按钮变灰与等待光标生效 */
 const UI_PAINT_YIELD_MS = 40;
 /** 引擎加载或仿真计算中，防止二次点击在阻塞前再次进入 */
@@ -76,6 +76,15 @@ if '/py' not in sys.path:
 import json
 from utils.takeoff.takeoff_config import inject_takeoff_config
 inject_takeoff_config(json.loads(_takeoff_cfg))
+`);
+
+  // utils.missile_range.classes 会间接导入 missile_interception_radar，导入时即读取配置；
+  // 浏览器 FS 中没有 /py/data/*.json，须先注入，否则 FileNotFoundError。
+  pyodide.globals.set('_missile_interception_cfg', JSON.stringify(data.missile_interception_config || {}));
+  await pyodide.runPythonAsync(`
+import json
+from utils.missile_interception.missile_interception_config import inject_missile_interception_config
+inject_missile_interception_config(json.loads(_missile_interception_cfg))
 `);
 
   const importOrder = (data.py_import_order || data.py_load_order.map((n) => n.replace(/\.py$/, '').replace(/\//g, '.')))
