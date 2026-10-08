@@ -15,7 +15,13 @@ if str(ROOT) not in sys.path:
 
 def build_ios_data() -> dict:
     """从 CSV 生成目录，并嵌入与 Web 相同的 py_sources 供本地仿真。"""
-    from scripts.build_docs import PY_DATA_FILES, PY_IMPORT_ORDER, PY_LOAD_ORDER, collect_py_sources
+    from scripts.build_docs import (
+        PY_DATA_FILES,
+        PY_IMPORT_ORDER,
+        PY_LOAD_ORDER,
+        PY_TAKEOFF_IMPORT_ORDER,
+        collect_py_sources,
+    )
     from scripts.frontend_catalog import build_catalog_payload
     from utils.database_csv import load_aircraft_csv, load_carriers_csv
     from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV
@@ -27,6 +33,7 @@ def build_ios_data() -> dict:
     py_sources = collect_py_sources()
     data['py_load_order'] = list(PY_LOAD_ORDER)
     data['py_import_order'] = list(PY_IMPORT_ORDER)
+    data['py_takeoff_import_order'] = list(PY_TAKEOFF_IMPORT_ORDER)
     data['py_data_files'] = list(PY_DATA_FILES)
     data['py_sources'] = py_sources
     return data

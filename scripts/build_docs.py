@@ -125,6 +125,17 @@ PY_IMPORT_ORDER = [
     'apps.missile_range_web',
 ]
 
+# 起飞页 / iOS 本地引擎初始化时不应 import 其它仿真（各自有独立页或按需加载）
+_TAKEOFF_IMPORT_SKIP = ('missile_interception', 'missile_range', 'combat_radius', 'database_csv')
+
+
+def build_py_takeoff_import_order() -> list[str]:
+    """从全量 import 表剔除其它仿真依赖，避免 Pyodide 读不到对应 JSON。"""
+    return [name for name in PY_IMPORT_ORDER if not any(skip in name for skip in _TAKEOFF_IMPORT_SKIP)]
+
+
+PY_TAKEOFF_IMPORT_ORDER = build_py_takeoff_import_order()
+
 # 非 Python 数据文件：写入虚拟文件系统，不参与 import
 PY_DATA_FILES = (
     'data/missile_range_preset_database.csv',
@@ -173,6 +184,7 @@ def main() -> None:
     data = build_catalog_payload(aircraft, carriers)
     data['py_load_order'] = PY_LOAD_ORDER
     data['py_import_order'] = PY_IMPORT_ORDER
+    data['py_takeoff_import_order'] = list(PY_TAKEOFF_IMPORT_ORDER)
     data['py_data_files'] = list(PY_DATA_FILES)
     data['py_sources'] = py_sources
 

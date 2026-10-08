@@ -331,6 +331,19 @@ def test_pyodide_bundles_missile_range_preset_csv():
     assert 'utils/missile_range/dataset.py' in sources
 
 
+def test_py_takeoff_import_order_excludes_other_simulators():
+    """起飞页 Pyodide 只 import 起飞链，不应拉导弹拦截/射程/作战半径模块。"""
+    from scripts.build_docs import PY_IMPORT_ORDER, PY_TAKEOFF_IMPORT_ORDER
+    from utils.paths import ROOT
+
+    assert 'utils.missile_range.classes' in PY_IMPORT_ORDER
+    assert 'utils.missile_range.classes' not in PY_TAKEOFF_IMPORT_ORDER
+    assert 'utils.missile_interception.missile_interception_radar' not in PY_TAKEOFF_IMPORT_ORDER
+    assert 'apps.web_simulator' in PY_TAKEOFF_IMPORT_ORDER
+    app_js = (ROOT / 'docs' / 'js' / 'app.js').read_text(encoding='utf-8')
+    assert 'py_takeoff_import_order' in app_js
+
+
 def test_build_catalog_payload_includes_simulators_and_csv_presets():
     """catalog 须含启动页模拟器列表，且饱和预设与 CSV 一致。"""
     from utils.database_csv import load_missile_interception_presets_csv

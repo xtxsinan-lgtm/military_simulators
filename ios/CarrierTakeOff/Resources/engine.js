@@ -7,6 +7,7 @@ const PYODIDE_VERSION = '0.26.4';
 let pyodide = null;
 let ready = false;
 let catalog = null;
+let extendedImportsReady = null;
 
 function post(msg) {
   try {
@@ -78,22 +79,65 @@ if '/py' not in sys.path:
     pyodide.FS.writeFile(`/py/${name}`, code);
   }
 
+  pyodide.globals.set('_takeoff_cfg', JSON.stringify(catalog.takeoff_config || {}));
+  pyodide.globals.set('_missile_interception_cfg', JSON.stringify(catalog.missile_interception_config || {}));
+  pyodide.globals.set('_combat_radius_cfg', JSON.stringify(catalog.combat_radius_config || {}));
+  pyodide.globals.set('_cr_ac', JSON.stringify(catalog.combat_radius_presets || []));
+  pyodide.globals.set('_cr_eng', JSON.stringify(catalog.combat_radius_engine_presets || []));
+  await pyodide.runPythonAsync(`
+import json
+from utils.takeoff.takeoff_config import inject_takeoff_config
+from utils.missile_interception.missile_interception_config import inject_missile_interception_config
+from utils.combat_radius.combat_radius_config import inject_combat_radius_config
+from utils.combat_radius.combat_radius_presets import inject_combat_radius_presets
+inject_takeoff_config(json.loads(_takeoff_cfg))
+inject_missile_interception_config(json.loads(_missile_interception_cfg))
+inject_combat_radius_config(json.loads(_combat_radius_cfg))
+inject_combat_radius_presets(json.loads(_cr_ac), json.loads(_cr_eng))
+`);
+
   const importOrder =
-    catalog.py_import_order ||
-    catalog.py_load_order.map((n) => n.replace(/\.py$/, '').replace(/\//g, '.'));
+    catalog.py_takeoff_import_order
+    || (catalog.py_import_order || catalog.py_load_order.map((n) => n.replace(/\.py$/, '').replace(/\//g, '.')))
+      .filter((name) => !name.includes('missile_interception')
+        && !name.includes('missile_range')
+        && !name.includes('combat_radius')
+        && !name.includes('database_csv'));
   pyodide.globals.set('_py_import_order', importOrder);
   await pyodide.runPythonAsync(`
 import importlib
 for _name in _py_import_order:
     importlib.import_module(_name)
 `);
-  // 与 Web 一致：注入合并后的挂点目录，供作战半径按挂点选弹重算
-  pyodide.globals.set('_cr_loadout_catalog', JSON.stringify(catalog.loadout_catalog || {}));
-  await pyodide.runPythonAsync(`
+}
+
+/** 饱和打击 / 作战半径 / 导弹射程：按需 import 全量模块（配置已在上方注入）。 */
+async function ensureExtendedSimulatorImports() {
+  if (extendedImportsReady) return extendedImportsReady;
+  extendedImportsReady = (async () => {
+    const full = catalog.py_import_order || [];
+    const boot = catalog.py_takeoff_import_order
+      || full.filter((name) => !name.includes('missile_interception')
+        && !name.includes('missile_range')
+        && !name.includes('combat_radius')
+        && !name.includes('database_csv'));
+    const bootSet = new Set(boot);
+    const extra = full.filter((name) => !bootSet.has(name));
+    if (!extra.length) return;
+    pyodide.globals.set('_py_extra_imports', extra);
+    await pyodide.runPythonAsync(`
+import importlib
+for _name in _py_extra_imports:
+    importlib.import_module(_name)
+`);
+    pyodide.globals.set('_cr_loadout_catalog', JSON.stringify(catalog.loadout_catalog || {}));
+    await pyodide.runPythonAsync(`
 import json
 from utils.combat_radius.loadout import inject_loadout_catalog_payload
 inject_loadout_catalog_payload(json.loads(_cr_loadout_catalog))
 `);
+  })();
+  return extendedImportsReady;
 }
 
 async function initEngine() {
@@ -132,6 +176,7 @@ async function runMissileInterception(payload) {
   if (!ready || !pyodide) {
     throw new Error('仿真引擎尚未就绪');
   }
+  await ensureExtendedSimulatorImports();
   pyodide.globals.set('_missile_interception_payload_json', JSON.stringify(payload));
   const raw = pyodide.runPython(`
 import json
@@ -148,6 +193,7 @@ async function runCombatRadius(payload) {
   if (!ready || !pyodide) {
     throw new Error('仿真引擎尚未就绪');
   }
+  await ensureExtendedSimulatorImports();
   pyodide.globals.set('_combat_radius_payload_json', JSON.stringify(payload));
   const raw = pyodide.runPython(`
 import json
@@ -175,6 +221,7 @@ async function runMissileRange(payload) {
   if (!ready || !pyodide) {
     throw new Error('仿真引擎尚未就绪');
   }
+  await ensureExtendedSimulatorImports();
   pyodide.globals.set('_missile_range_payload_json', JSON.stringify(payload));
   const raw = pyodide.runPython(`
 import json

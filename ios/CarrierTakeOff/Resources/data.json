@@ -63080,6 +63080,27 @@
     "apps.combat_radius_web",
     "apps.missile_range_web"
   ],
+  "py_takeoff_import_order": [
+    "utils.radar_horizon",
+    "utils.paths",
+    "utils.takeoff.takeoff_config",
+    "utils.takeoff.takeoff_input",
+    "utils.takeoff.takeoff_physics",
+    "utils.takeoff.ski_jump_geometry",
+    "utils.takeoff.trajectory",
+    "utils.takeoff.sim_config",
+    "utils.takeoff.search_utils",
+    "utils.takeoff.deck_config",
+    "utils.takeoff.exhaust_plume",
+    "utils.takeoff.propeller_thrust",
+    "utils.takeoff.tiltrotor_aero",
+    "utils.specs",
+    "simulators.takeoff.short_take_off",
+    "simulators.takeoff.short_ski_jump_take_off",
+    "simulators.takeoff.ski_jump_take_off",
+    "simulators.takeoff.tiltrotor_short_take_off",
+    "apps.web_simulator"
+  ],
   "py_data_files": [
     "data/missile_range_preset_database.csv",
     "data/munitions_database.csv",
