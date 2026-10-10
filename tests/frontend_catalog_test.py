@@ -259,9 +259,13 @@ def test_pyodide_bundles_combat_radius_modules():
     from utils.paths import ROOT
 
     for rel in (
+        'utils/takeoff/propeller_thrust.py',
         'utils/combat_radius/lift_drag.py',
         'utils/combat_radius/military_thrust.py',
         'utils/combat_radius/engine_efficiency.py',
+        'utils/combat_radius/prop_engine_efficiency.py',
+        'utils/combat_radius/propulsion.py',
+        'utils/combat_radius/turboprop_endurance.py',
         'utils/combat_radius/cruise_load.py',
         'utils/combat_radius/breguet.py',
         'utils/combat_radius/cruise_search.py',
@@ -272,9 +276,12 @@ def test_pyodide_bundles_combat_radius_modules():
         assert rel in PY_LOAD_ORDER
     js = (ROOT / 'docs' / 'js' / 'combat_radius.js').read_text(encoding='utf-8')
     assert 'apps/combat_radius_web.py' in js
+    assert 'utils/takeoff/propeller_thrust.py' in js
+    assert 'utils/combat_radius/prop_engine_efficiency.py' in js
     assert 'utils.combat_radius.lift_drag' in js
     assert 'utils.combat_radius.military_thrust' in js
     assert 'utils.combat_radius.engine_efficiency' in js
+    assert 'utils.combat_radius.prop_engine_efficiency' in js
     assert 'utils.combat_radius.breguet' in js
     assert 'utils.combat_radius.cruise_search' in js
     assert 'utils.combat_radius.max_speed_search' in js

@@ -269,3 +269,22 @@ def test_js_a2a_mass_uses_n_pilots():
     assert _eval_js_a2a(
         f14.empty_kg, f14.internal_fuel_kg, f14.missile_mass_kg, f14.n_pilots,
     ) == pytest.approx(f14.a2a_mass_kg)
+
+
+def test_combat_radius_pyodide_module_list_includes_turboprop():
+    """作战半径页 Pyodide 子集须含 cruise_search 的涡桨依赖，避免浏览器缺模块。"""
+    cr_js = (ROOT / 'docs' / 'js' / 'combat_radius.js').read_text(encoding='utf-8')
+    required = [
+        'utils/takeoff/propeller_thrust.py',
+        'utils/combat_radius/prop_engine_efficiency.py',
+        'utils/combat_radius/propulsion.py',
+        'utils/combat_radius/turboprop_endurance.py',
+    ]
+    for rel in required:
+        assert rel in cr_js, f'combat_radius.js 的 COMBAT_RADIUS_PY_FILES 缺少 {rel}'
+    html = (ROOT / 'docs' / 'combat-radius.html').read_text(encoding='utf-8')
+    import re
+    m_js = re.search(r'combat_radius\.js\?v=(\d+)', html)
+    m_ver = re.search(r'const APP_VERSION = (\d+)', cr_js)
+    assert m_js and m_ver, '缺少 combat_radius 版本号'
+    assert m_js.group(1) == m_ver.group(1), 'combat-radius.html ?v= 须与 APP_VERSION 一致'

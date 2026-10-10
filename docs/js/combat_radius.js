@@ -4,17 +4,22 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 86;
+const APP_VERSION = 87;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
   'utils/paths.py',
+  'utils/takeoff/__init__.py',
+  'utils/takeoff/propeller_thrust.py',
   'utils/combat_radius/__init__.py',
   'utils/combat_radius/combat_radius_config.py',
   'utils/database_csv.py',
   'utils/combat_radius/lift_drag.py',
   'utils/combat_radius/military_thrust.py',
   'utils/combat_radius/engine_efficiency.py',
+  'utils/combat_radius/prop_engine_efficiency.py',
+  'utils/combat_radius/propulsion.py',
+  'utils/combat_radius/turboprop_endurance.py',
   'utils/combat_radius/cruise_load.py',
   'utils/combat_radius/loadout.py',
   'utils/combat_radius/breguet.py',
@@ -33,11 +38,15 @@ const COMBAT_RADIUS_PY_FILES = [
 
 const COMBAT_RADIUS_IMPORTS = [
   'utils.paths',
+  'utils.takeoff.propeller_thrust',
   'utils.combat_radius.combat_radius_config',
   'utils.database_csv',
   'utils.combat_radius.lift_drag',
   'utils.combat_radius.military_thrust',
   'utils.combat_radius.engine_efficiency',
+  'utils.combat_radius.prop_engine_efficiency',
+  'utils.combat_radius.propulsion',
+  'utils.combat_radius.turboprop_endurance',
   'utils.combat_radius.cruise_load',
   'utils.combat_radius.loadout',
   'utils.combat_radius.breguet',
