@@ -30,6 +30,19 @@ from utils.combat_radius.engine_efficiency import (
 )
 from utils.combat_radius.lift_drag import SUPERCRUISE_BAND_HI, Aircraft, predict_ld
 from utils.combat_radius.military_thrust import ETA_C_DEFAULT, estimate_military_thrust
+from utils.combat_radius.prop_engine_efficiency import (
+    CRITICAL_ALT_M_DEFAULT,
+    ETA_THERMAL_SL_DEFAULT,
+    compute_prop_engine_efficiency,
+    prop_thrust_from_power_n,
+    available_shaft_power_w,
+)
+from utils.combat_radius.propulsion import (
+    PROPULSION_TURBOFAN,
+    is_turboprop_context,
+    normalize_propulsion,
+)
+from utils.takeoff.propeller_thrust import DEFAULT_FIGURE_OF_MERIT, DEFAULT_NACELLE_BLOCKAGE_FRAC
 
 THRUST_MARGIN_DEFAULT = 0.92
 # 全加力 TSFC / 军推最大点 TSFC。公开涡扇海平面静止大约 2.5–2.8
@@ -75,6 +88,13 @@ class CruiseContext:
     t4idle: float = T4IDLE_DEFAULT
     thrust_margin: float = THRUST_MARGIN_DEFAULT
     tsfc_install_mult: float = TSFC_INSTALL_MULT_DEFAULT
+    propulsion: str = PROPULSION_TURBOFAN
+    shaft_power_sl_w: float = 0.0
+    prop_diameter_m: float = 0.0
+    prop_figure_of_merit: float = DEFAULT_FIGURE_OF_MERIT
+    nacelle_blockage_frac: float = DEFAULT_NACELLE_BLOCKAGE_FRAC
+    eta_thermal_sl: float = ETA_THERMAL_SL_DEFAULT
+    critical_alt_m: float = CRITICAL_ALT_M_DEFAULT
 
 
 @dataclass
@@ -140,17 +160,33 @@ def evaluate_cruise_forces(ctx: CruiseContext, mach: float, alt_m: float) -> Cru
     ac = replace(ctx.target, mach=mach, alt_m=alt_m)
     ld, breakdown = predict_ld(ac, ctx.cf0, ctx.k_e)
     drag_n = cruise_drag_n(ctx.mass_kg, ld)
-    thrust_one = estimate_military_thrust(
-        bpr=ctx.bpr,
-        opr=ctx.opr,
-        t4_K=ctx.t4_K,
-        tsl_N=ctx.tsl_N,
-        alt_m=alt_m,
-        mach=mach,
-        eta_c=ctx.eta_c,
-        fan_pr_override=ctx.fan_pr_override,
-    )
-    thrust_avail = thrust_one.thrust_N * ctx.n_engines
+    if is_turboprop_context(ctx):
+        if ctx.shaft_power_sl_w <= 0 or ctx.prop_diameter_m <= 0:
+            raise ValueError('涡桨须填写海平面轴功率与桨盘直径')
+        power_max = available_shaft_power_w(
+            ctx.shaft_power_sl_w, alt_m, ctx.critical_alt_m,
+        )
+        thrust_avail = prop_thrust_from_power_n(
+            power_max,
+            alt_m,
+            mach,
+            ctx.prop_diameter_m,
+            ctx.n_engines,
+            ctx.prop_figure_of_merit,
+            ctx.nacelle_blockage_frac,
+        )
+    else:
+        thrust_one = estimate_military_thrust(
+            bpr=ctx.bpr,
+            opr=ctx.opr,
+            t4_K=ctx.t4_K,
+            tsl_N=ctx.tsl_N,
+            alt_m=alt_m,
+            mach=mach,
+            eta_c=ctx.eta_c,
+            fan_pr_override=ctx.fan_pr_override,
+        )
+        thrust_avail = thrust_one.thrust_N * ctx.n_engines
     load_raw = engine_load_ratio(drag_n, thrust_avail)
     return CruiseForces(
         mach=mach,
@@ -167,29 +203,61 @@ def evaluate_cruise_forces(ctx: CruiseContext, mach: float, alt_m: float) -> Cru
 def score_cruise_point(ctx: CruiseContext, forces: CruiseForces) -> CruiseScored:
     """在已算好的力平衡点上跑效率循环，评分 = L/D × η_o。"""
     load = clamp_load(forces.load_raw)
-    eff = compute_engine_efficiency(
-        bpr=ctx.bpr,
-        mach=forces.mach,
-        altitude_m=forces.alt_m,
-        load=load,
-        OPR=ctx.opr,
-        FPR=ctx.fpr if ctx.fpr is not None else ctx.fan_pr_override,
-        T4max=ctx.t4_K,
-        T4idle=ctx.t4idle,
-        eps=ctx.eps,
-        etan=ctx.etan,
-        acc_frac=ctx.acc_frac,
-    )
     tsfc: dict[str, float] | None = None
     eta_o = 0.0
-    if eff.valid and eff.eta_o > 0:
-        eta_o = eta_o_after_install(eff.eta_o, ctx.tsfc_install_mult)
-        if eff.V0 > 0:
+    eta_th = 0.0
+    eta_p = 0.0
+    v0 = 0.0
+    warning: str | None = None
+    if is_turboprop_context(ctx):
+        prop_eff = compute_prop_engine_efficiency(
+            drag_n=forces.drag_N,
+            mach=forces.mach,
+            altitude_m=forces.alt_m,
+            shaft_power_sl_w=ctx.shaft_power_sl_w,
+            prop_diameter_m=ctx.prop_diameter_m,
+            n_rotors=ctx.n_engines,
+            figure_of_merit=ctx.prop_figure_of_merit,
+            nacelle_blockage_frac=ctx.nacelle_blockage_frac,
+            eta_thermal_sl=ctx.eta_thermal_sl,
+            critical_alt_m=ctx.critical_alt_m,
+        )
+        if prop_eff.valid and prop_eff.eta_o > 0:
+            eta_th = prop_eff.eta_th
+            eta_p = prop_eff.eta_p
+            eta_o = eta_o_after_install(prop_eff.eta_o, ctx.tsfc_install_mult)
+            v0 = prop_eff.V0
+            load = clamp_load(prop_eff.load)
             tsfc = tsfc_from_eta_o(
-                eff.V0, eff.eta_o, install_mult=ctx.tsfc_install_mult,
+                v0, prop_eff.eta_o, install_mult=ctx.tsfc_install_mult,
             )
+        else:
+            warning = prop_eff.warning or 'prop_infeasible'
+    else:
+        eff = compute_engine_efficiency(
+            bpr=ctx.bpr,
+            mach=forces.mach,
+            altitude_m=forces.alt_m,
+            load=load,
+            OPR=ctx.opr,
+            FPR=ctx.fpr if ctx.fpr is not None else ctx.fan_pr_override,
+            T4max=ctx.t4_K,
+            T4idle=ctx.t4idle,
+            eps=ctx.eps,
+            etan=ctx.etan,
+            acc_frac=ctx.acc_frac,
+        )
+        if eff.valid and eff.eta_o > 0:
+            eta_o = eta_o_after_install(eff.eta_o, ctx.tsfc_install_mult)
+            v0 = eff.V0
+            eta_th = eff.eta_th
+            eta_p = eff.eta_p
+            if v0 > 0:
+                tsfc = tsfc_from_eta_o(
+                    v0, eff.eta_o, install_mult=ctx.tsfc_install_mult,
+                )
+        warning = None if eff.valid else (eff.warning or 'cycle_infeasible')
     score = forces.ld * eta_o if eta_o > 0 else -1.0
-    warning = None if eff.valid else (eff.warning or 'cycle_infeasible')
     return CruiseScored(
         mach=forces.mach,
         alt_m=forces.alt_m,
@@ -200,10 +268,10 @@ def score_cruise_point(ctx: CruiseContext, forces: CruiseForces) -> CruiseScored
         feasible=forces.feasible,
         cd_breakdown=forces.cd_breakdown,
         load=load,
-        eta_th=eff.eta_th if eff.valid else 0.0,
-        eta_p=eff.eta_p if eff.valid else 0.0,
+        eta_th=eta_th,
+        eta_p=eta_p,
         eta_o=eta_o,
-        v0=eff.V0 if eff.valid else 0.0,
+        v0=v0,
         tsfc_kg_n_s=None if tsfc is None else tsfc['tsfc_kg_n_s'],
         tsfc_mg_n_s=None if tsfc is None else tsfc['tsfc_mg_n_s'],
         tsfc_lb_lbf_h=None if tsfc is None else tsfc['tsfc_lb_lbf_h'],
@@ -809,3 +877,64 @@ def scored_to_dict(point: CruiseScored) -> dict[str, Any]:
         'CDa': point.cd_breakdown.get('CDa'),
         'CDs': point.cd_breakdown.get('CDs'),
     }
+
+
+def build_cruise_context_from_params(
+    *,
+    target: Aircraft,
+    cf0: float,
+    k_e: float,
+    mass_kg: float,
+    params: dict[str, Any],
+) -> CruiseContext:
+    """由 API 参数字典构造巡航上下文（涡扇 / 涡桨共用）。"""
+    n_engines = int(params.get('n_engines') or 1)
+    if n_engines < 1:
+        raise ValueError('发动机台数须至少为 1')
+    propulsion = normalize_propulsion(params.get('propulsion'))
+    t4max = float(params.get('t4_K', params.get('t4', params.get('T4max', 0.0)) or 0.0))
+    tsl_n = float(params.get('tsl_N') or 0.0)
+    if tsl_n <= 0 and params.get('tsl_kN') not in (None, ''):
+        tsl_n = float(params['tsl_kN']) * 1000.0
+    shaft_power = float(params.get('shaft_power_sl_w') or 0.0)
+    prop_diameter = float(params.get('prop_diameter_m') or 0.0)
+    if propulsion == PROPULSION_TURBOFAN and tsl_n <= 0:
+        raise ValueError('缺少海平面军推 tsl_N 或 tsl_kN')
+    if propulsion != PROPULSION_TURBOFAN:
+        if shaft_power <= 0:
+            raise ValueError('涡桨须填写海平面轴功率 shaft_power_sl_w')
+        if prop_diameter <= 0:
+            raise ValueError('涡桨须填写桨盘直径 prop_diameter_m')
+    return CruiseContext(
+        target=target,
+        cf0=cf0,
+        k_e=k_e,
+        mass_kg=mass_kg,
+        n_engines=n_engines,
+        bpr=float(params.get('bpr') or 0.0),
+        opr=float(params.get('opr') or 1.0),
+        t4_K=t4max,
+        tsl_N=tsl_n,
+        eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
+        fan_pr_override=_optional_float_param(params.get('fan_pr_override', params.get('fan_pr'))),
+        fpr=_optional_float_param(params.get('FPR', params.get('fan_pr_override'))),
+        eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
+        etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
+        acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
+        t4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
+        thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
+        tsfc_install_mult=float(params.get('tsfc_install_mult') or TSFC_INSTALL_MULT_DEFAULT),
+        propulsion=propulsion,
+        shaft_power_sl_w=shaft_power,
+        prop_diameter_m=prop_diameter,
+        prop_figure_of_merit=float(params.get('prop_figure_of_merit') or DEFAULT_FIGURE_OF_MERIT),
+        nacelle_blockage_frac=float(params.get('nacelle_blockage_frac') or DEFAULT_NACELLE_BLOCKAGE_FRAC),
+        eta_thermal_sl=float(params.get('eta_thermal_sl') or ETA_THERMAL_SL_DEFAULT),
+        critical_alt_m=float(params.get('critical_alt_m') or CRITICAL_ALT_M_DEFAULT),
+    )
+
+
+def _optional_float_param(value: Any) -> float | None:
+    if value in (None, ''):
+        return None
+    return float(value)

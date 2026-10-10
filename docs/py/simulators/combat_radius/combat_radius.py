@@ -63,6 +63,7 @@ from utils.combat_radius.cruise_search import (
     CruiseScored,
     SUPERSONIC_MACH,
     build_altitude_scan,
+    build_cruise_context_from_params,
     contiguous_peak_max_mach,
     evaluate_cruise_forces,
     max_ld_fields,
@@ -76,6 +77,8 @@ from utils.combat_radius.cruise_search import (
     search_max_ld_altitude,
     snap_mach,
 )
+from utils.combat_radius.prop_engine_efficiency import static_prop_thrust_sl_n
+from utils.combat_radius.propulsion import cruise_envelope_defaults, is_turboprop_params
 from utils.combat_radius.engine_efficiency import (
     ACC_FRAC_DEFAULT,
     EPS_DEFAULT,
@@ -386,6 +389,11 @@ def resolve_tsl_kN(params: dict[str, Any]) -> float | None:
     前端选机后若把空军推当成 0 传来，仍应使用发动机表里的加力数字，
     避免军推循环报「参数超出有效范围」。
     """
+    if is_turboprop_params(params):
+        try:
+            return parse_sea_level_thrust_n(params) / 1000.0
+        except ValueError:
+            return None
     tsl_n = _positive_thrust_value(params.get('tsl_N'))
     if tsl_n is not None:
         return tsl_n / 1000.0
@@ -403,6 +411,19 @@ def resolve_tsl_kN(params: dict[str, Any]) -> float | None:
 
 def parse_sea_level_thrust_n(params: dict[str, Any]) -> float:
     """从 tsl_N / tsl_kN 读取海平面军推（牛顿）；缺省则由加力按比例估计。"""
+    if is_turboprop_params(params):
+        shaft = float(params.get('shaft_power_sl_w') or 0.0)
+        prop_d = float(params.get('prop_diameter_m') or 0.0)
+        n_eng = _optional_int(params.get('n_engines'), 1)
+        if shaft <= 0 or prop_d <= 0:
+            raise ValueError('涡桨须填写 shaft_power_sl_w 与 prop_diameter_m')
+        return static_prop_thrust_sl_n(
+            shaft,
+            prop_d,
+            n_rotors=n_eng,
+            figure_of_merit=float(params.get('prop_figure_of_merit') or 0.78),
+            nacelle_blockage_frac=float(params.get('nacelle_blockage_frac') or 0.08),
+        )
     tsl_kn = resolve_tsl_kN(params)
     if tsl_kn is None:
         raise ValueError('缺少海平面军推 tsl_N 或 tsl_kN')
@@ -447,6 +468,36 @@ def combat_allowance_fuel_kg(
 
 def run_estimate_thrust_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """从 JSON 参数估算可用军推。"""
+    if is_turboprop_params(params):
+        n_engines = _optional_int(params.get('n_engines'), 1)
+        thrust_n = parse_sea_level_thrust_n(params)
+        alt_m = float(params.get('alt_m', 0.0))
+        mach = float(params.get('mach', 0.0))
+        from utils.combat_radius.prop_engine_efficiency import prop_thrust_from_power_n, available_shaft_power_w
+
+        power_sl = float(params['shaft_power_sl_w'])
+        critical = float(params.get('critical_alt_m') or 7620.0)
+        power_avail = available_shaft_power_w(power_sl, alt_m, critical)
+        thrust_flight = prop_thrust_from_power_n(
+            power_avail,
+            alt_m,
+            mach,
+            float(params['prop_diameter_m']),
+            n_engines,
+            float(params.get('prop_figure_of_merit') or 0.78),
+            float(params.get('nacelle_blockage_frac') or 0.08),
+        )
+        alpha = thrust_flight / thrust_n if thrust_n > 0 else 0.0
+        payload = {
+            'success': True,
+            'name': str(params.get('name') or ''),
+            'thrust_N': thrust_flight,
+            'thrust_kN': thrust_flight / 1000.0,
+            'alpha': alpha,
+            'propulsion': 'turboprop',
+            'shaft_power_avail_w': power_avail,
+        }
+        return payload
     result = estimate_military_thrust(
         bpr=float(params['bpr']),
         opr=float(params['opr']),
@@ -513,11 +564,12 @@ def _subsonic_scored_for_burn(
     alt_max_m: float,
     coarse_m: float,
     refine_m: float,
+    mach: float = 0.8,
     fallback_alt_m: float = 12000.0,
 ) -> Any:
-    """取 Ma 0.8 最佳高度的亚音速油耗；推力不可行时退到 12 km 仍算 TSFC。"""
+    """取给定亚音速马赫最佳高度的油耗；推力不可行时退到 fallback 高度仍算 TSFC。"""
     scored = search_best_altitude(
-        ctx, 0.8, alt_min_m, alt_max_m, coarse_m, refine_m,
+        ctx, mach, alt_min_m, alt_max_m, coarse_m, refine_m,
     )
     if (
         scored is not None
@@ -528,7 +580,7 @@ def _subsonic_scored_for_burn(
     ):
         return scored
     alt = min(max(fallback_alt_m, alt_min_m), alt_max_m)
-    forces = evaluate_cruise_forces(ctx, 0.8, alt)
+    forces = evaluate_cruise_forces(ctx, mach, alt)
     fallback = score_cruise_point(ctx, forces)
     if (
         fallback.tsfc_kg_n_s is not None
@@ -598,36 +650,75 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
     breakdown = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.5))
     drag_n = cruise_drag_n(breakdown['total_kg'], ld)
 
-    thrust_one = estimate_military_thrust(
-        bpr=float(params['bpr']),
-        opr=float(params['opr']),
-        t4_K=float(params.get('t4_K', params.get('t4'))),
-        tsl_N=parse_sea_level_thrust_n(params),
-        alt_m=alt_m,
-        mach=mach,
-        eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
-        fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
-    )
-    thrust_avail_n = thrust_one.thrust_N * n_engines
-    load_raw = engine_load_ratio(drag_n, thrust_avail_n)
-    load = clamp_load(load_raw)
+    if is_turboprop_params(params):
+        target, cf0, k_e = _calibrate_from_params(params)
+        ctx = build_cruise_context_from_params(
+            target=target,
+            cf0=cf0,
+            k_e=k_e,
+            mass_kg=breakdown['total_kg'],
+            params=params,
+        )
+        forces = evaluate_cruise_forces(ctx, mach, alt_m)
+        scored = score_cruise_point(ctx, forces)
+        if scored.eta_o <= 0:
+            raise ValueError(f'涡桨效率无解（{scored.warning or "unknown"}）')
+        eff_payload = {
+            'eta_th': scored.eta_th,
+            'eta_p': scored.eta_p,
+            'eta_o': scored.eta_o,
+            'V0': scored.v0,
+            'load': scored.load,
+            'thrust_avail_N': scored.thrust_avail_N,
+            'warning': scored.warning,
+        }
+    else:
+        thrust_one = estimate_military_thrust(
+            bpr=float(params['bpr']),
+            opr=float(params['opr']),
+            t4_K=float(params.get('t4_K', params.get('t4'))),
+            tsl_N=parse_sea_level_thrust_n(params),
+            alt_m=alt_m,
+            mach=mach,
+            eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
+            fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
+        )
+        thrust_avail_n = thrust_one.thrust_N * n_engines
+        load_raw = engine_load_ratio(drag_n, thrust_avail_n)
+        load = clamp_load(load_raw)
 
-    t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
-    eff = compute_engine_efficiency(
-        bpr=float(params['bpr']),
-        mach=mach,
-        altitude_m=alt_m,
-        load=load,
-        OPR=float(params['opr']),
-        FPR=_optional_float(params.get('FPR', params.get('fan_pr_override'))),
-        T4max=t4max,
-        T4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
-        eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
-        etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
-        acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
-    )
-    if not eff.valid:
-        raise ValueError(f'效率循环无解（{eff.warning or "unknown"}）')
+        t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
+        eff = compute_engine_efficiency(
+            bpr=float(params['bpr']),
+            mach=mach,
+            altitude_m=alt_m,
+            load=load,
+            OPR=float(params['opr']),
+            FPR=_optional_float(params.get('FPR', params.get('fan_pr_override'))),
+            T4max=t4max,
+            T4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
+            eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
+            etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
+            acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
+        )
+        if not eff.valid:
+            raise ValueError(f'效率循环无解（{eff.warning or "unknown"}）')
+        eff_payload = {
+            'eta_th': eff.eta_th,
+            'eta_p': eff.eta_p,
+            'eta_o': eta_o_after_install(eff.eta_o, parse_tsfc_install_mult(params.get('tsfc_install_mult'))),
+            'V0': eff.V0,
+            'load': load,
+            'thrust_avail_N': thrust_avail_n,
+            'warning': eff.warning,
+        }
+
+    thrust_avail_n = float(eff_payload['thrust_avail_N'])
+    load = float(eff_payload['load'])
+    load_raw = engine_load_ratio(drag_n, thrust_avail_n)
+    eta_o_out = float(eff_payload['eta_o'])
+    v0_out = float(eff_payload['V0'])
+    warning_tag = eff_payload.get('warning')
 
     payload: dict[str, Any] = {
         'success': True,
@@ -637,30 +728,33 @@ def run_estimate_efficiency_from_params(params: dict[str, Any]) -> dict[str, Any
         'drag_N': drag_n,
         'drag_kN': drag_n / 1000.0,
         'n_engines': n_engines,
-        'thrust_per_engine_N': thrust_one.thrust_N,
+        'thrust_per_engine_N': thrust_avail_n / n_engines,
         'thrust_avail_N': thrust_avail_n,
         'thrust_avail_kN': thrust_avail_n / 1000.0,
         'load_raw': load_raw,
         'load': load,
         'name': str(params.get('name') or ''),
+        'eta_th': eff_payload['eta_th'],
+        'eta_p': eff_payload['eta_p'],
+        'eta_o': eta_o_out,
+        'V0': v0_out,
+        'thrust_N': thrust_avail_n,
+        'thrust_kN': thrust_avail_n / 1000.0,
     }
-    payload.update(thrust_result_to_dict(thrust_one))
-    payload.update(engine_result_to_dict(eff))
-    # 整机可用推力覆盖单发 thrust_N 字段，避免与前端军推面板混淆
-    payload['thrust_N'] = thrust_avail_n
-    payload['thrust_kN'] = thrust_avail_n / 1000.0
+    if is_turboprop_params(params):
+        payload['propulsion'] = 'turboprop'
 
     warnings: list[str] = []
     if load_raw > 1.0:
         warnings.append('load_exceeds_thrust')
-    if eff.warning:
-        warnings.append(eff.warning)
+    if warning_tag:
+        warnings.append(str(warning_tag))
     payload['warning'] = ','.join(warnings) if warnings else None
 
     install_mult = parse_tsfc_install_mult(params.get('tsfc_install_mult'))
-    if eff.eta_o > 0 and eff.V0 > 0:
-        payload.update(tsfc_from_eta_o(eff.V0, eff.eta_o, install_mult=install_mult))
-        payload['eta_o'] = eta_o_after_install(eff.eta_o, install_mult)
+    if eta_o_out > 0 and v0_out > 0:
+        payload.update(tsfc_from_eta_o(v0_out, eta_o_out / install_mult, install_mult=install_mult))
+        payload['eta_o'] = eta_o_out
     else:
         payload['tsfc_kg_n_s'] = None
         payload['tsfc_mg_n_s'] = None
@@ -685,6 +779,8 @@ def _calibrate_from_params(params: dict[str, Any]) -> tuple[Aircraft, float, flo
 
 def _optional_ab_context(ctx: CruiseContext, params: dict[str, Any]) -> CruiseContext | None:
     """若请求带了海平面加力，构造加力搜索上下文（100% 推力，与极速同一包线）。"""
+    if is_turboprop_params(params):
+        return None
     try:
         tsl_n = parse_max_sea_level_thrust_n(params)
     except (TypeError, ValueError):
@@ -923,35 +1019,24 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     dry_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.0))
     fuel_kg = float(params['internal_fuel_kg'])
 
-    t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
-    ctx = CruiseContext(
+    envelope = cruise_envelope_defaults(params)
+    ctx = build_cruise_context_from_params(
         target=target,
         cf0=cf0,
         k_e=k_e,
         mass_kg=cruise_mass['total_kg'],
-        n_engines=n_engines,
-        bpr=float(params['bpr']),
-        opr=float(params['opr']),
-        t4_K=t4max,
-        tsl_N=parse_sea_level_thrust_n(params),
-        eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
-        fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
-        fpr=_optional_float(params.get('FPR', params.get('fan_pr_override'))),
-        eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
-        etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
-        acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
-        t4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
-        thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
-        tsfc_install_mult=parse_tsfc_install_mult(params.get('tsfc_install_mult')),
+        params=params,
     )
 
-    alt_min = float(params['alt_min_m']) if params.get('alt_min_m') not in (None, '') else ALT_MIN_M
-    alt_max = float(params['alt_max_m']) if params.get('alt_max_m') not in (None, '') else ALT_MAX_M
-    coarse_m = float(params['alt_coarse_m']) if params.get('alt_coarse_m') not in (None, '') else ALT_COARSE_M
-    refine_m = float(params['alt_refine_m']) if params.get('alt_refine_m') not in (None, '') else ALT_REFINE_M
-    mach_lo = float(params['mach_search_lo']) if params.get('mach_search_lo') not in (None, '') else MACH_SEARCH_LO
-    mach_hi = float(params['mach_search_hi']) if params.get('mach_search_hi') not in (None, '') else MACH_SEARCH_HI
-    mach_iters = _optional_int(params.get('mach_search_iters'), MACH_SEARCH_ITERS)
+    alt_min = float(params['alt_min_m']) if params.get('alt_min_m') not in (None, '') else float(envelope['alt_min_m'])
+    alt_max = float(params['alt_max_m']) if params.get('alt_max_m') not in (None, '') else float(envelope['alt_max_m'])
+    coarse_m = float(params['alt_coarse_m']) if params.get('alt_coarse_m') not in (None, '') else float(envelope['alt_coarse_m'])
+    refine_m = float(params['alt_refine_m']) if params.get('alt_refine_m') not in (None, '') else float(envelope['alt_refine_m'])
+    mach_lo = float(params['mach_search_lo']) if params.get('mach_search_lo') not in (None, '') else float(envelope['mach_search_lo'])
+    mach_hi = float(params['mach_search_hi']) if params.get('mach_search_hi') not in (None, '') else float(envelope['mach_search_hi'])
+    mach_iters = _optional_int(params.get('mach_search_iters'), int(envelope['mach_search_iters']))
+    fixed_machs = tuple(envelope['fixed_machs'])
+    prac_mach_lo = float(envelope['practical_max_cruise_mach_lo'])
     ab_ctx = _optional_ab_context(ctx, params)
 
     carrier = _parse_carrier(params)
@@ -960,7 +1045,13 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
     flight_prof = resolve_flight_profile(params.get('flight_profile'))
     climb_extra_km, descent_save_km = profile_mission_fuel_km(flight_prof['id'])
     reserve_min = reserve_min_for_mission(carrier, type_label)
-    subsonic = _subsonic_scored_for_burn(ctx, alt_min, alt_max, coarse_m, refine_m)
+    subsonic_mach = 0.45 if is_turboprop_params(params) else 0.8
+    subsonic_fallback_alt = 6000.0 if is_turboprop_params(params) else 12000.0
+    subsonic = _subsonic_scored_for_burn(
+        ctx, alt_min, alt_max, coarse_m, refine_m,
+        mach=subsonic_mach,
+        fallback_alt_m=subsonic_fallback_alt,
+    )
     hi_lo_low_ref = None
     if str(flight_prof.get('mode')) == 'mixed_high_low':
         hi_lo_low_ref = search_low_altitude_point(ctx, HI_LO_HI_LOW_MACH)
@@ -1042,13 +1133,13 @@ def run_estimate_radius_from_params(params: dict[str, Any]) -> dict[str, Any]:
         )
 
     points: list[dict[str, Any]] = []
-    for mach in FIXED_MACHS:
+    for mach in fixed_machs:
         label = f'Ma {mach:g}'
         point_id = f'mach_{str(mach).replace(".", "_")}'
         points.append(pack_point(point_id, label, mach))
 
     # 实用最大巡航按高度极值搜；同时在同一剖面上找 Ma 1.2 以上半径最大点
-    prac_lo = max(mach_lo, PRACTICAL_MAX_CRUISE_MACH_LO)
+    prac_lo = max(mach_lo, prac_mach_lo)
     max_mach = None
     max_radius_mach = None
     max_radius_km = None
@@ -1420,28 +1511,13 @@ def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]
 
     try:
         target, cf0, k_e = _calibrate_from_params(params)
-        n_engines = _optional_int(params.get('n_engines'), 1)
         cruise_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.5))
-        t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
-        ctx = CruiseContext(
+        ctx = build_cruise_context_from_params(
             target=target,
             cf0=cf0,
             k_e=k_e,
             mass_kg=cruise_mass['total_kg'],
-            n_engines=n_engines,
-            bpr=float(params['bpr']),
-            opr=float(params['opr']),
-            t4_K=t4max,
-            tsl_N=parse_sea_level_thrust_n(params),
-            eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
-            fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
-            fpr=_optional_float(params.get('FPR', params.get('fan_pr_override'))),
-            eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
-            etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
-            acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
-            t4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
-            thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
-            tsfc_install_mult=parse_tsfc_install_mult(params.get('tsfc_install_mult')),
+            params=params,
         )
         radius['afterburner_best_altitude'] = _afterburner_best_altitude_profile(
             params,
@@ -1456,31 +1532,14 @@ def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]
 def _cruise_context_from_params(params: dict[str, Any]) -> tuple[CruiseContext, Aircraft]:
     """由请求参数标定并构造巡航搜索上下文（空战半油重量）。"""
     params = ensure_default_anchors(params)
-    n_engines = _optional_int(params.get('n_engines'), 1)
-    if n_engines < 1:
-        raise ValueError('发动机台数须至少为 1')
     target, cf0, k_e = _calibrate_from_params(params)
     cruise_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.5))
-    t4max = float(params.get('t4_K', params.get('t4', params.get('T4max'))))
-    ctx = CruiseContext(
+    ctx = build_cruise_context_from_params(
         target=target,
         cf0=cf0,
         k_e=k_e,
         mass_kg=cruise_mass['total_kg'],
-        n_engines=n_engines,
-        bpr=float(params['bpr']),
-        opr=float(params['opr']),
-        t4_K=t4max,
-        tsl_N=parse_sea_level_thrust_n(params),
-        eta_c=float(params['eta_c']) if params.get('eta_c') not in (None, '') else ETA_C_DEFAULT,
-        fan_pr_override=_optional_float(params.get('fan_pr_override', params.get('fan_pr'))),
-        fpr=_optional_float(params.get('FPR', params.get('fan_pr_override'))),
-        eps=float(params['eps']) if params.get('eps') not in (None, '') else EPS_DEFAULT,
-        etan=float(params['etan']) if params.get('etan') not in (None, '') else ETAN_DEFAULT,
-        acc_frac=float(params['acc_frac']) if params.get('acc_frac') not in (None, '') else ACC_FRAC_DEFAULT,
-        t4idle=float(params['T4idle']) if params.get('T4idle') not in (None, '') else T4IDLE_DEFAULT,
-        thrust_margin=float(params['thrust_margin']) if params.get('thrust_margin') not in (None, '') else THRUST_MARGIN_DEFAULT,
-        tsfc_install_mult=parse_tsfc_install_mult(params.get('tsfc_install_mult')),
+        params=params,
     )
     return ctx, target
 

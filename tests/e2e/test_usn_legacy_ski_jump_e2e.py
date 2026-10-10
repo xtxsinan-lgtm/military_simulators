@@ -8,7 +8,7 @@ from scripts.frontend_catalog import build_catalog_payload
 from utils.database_csv import load_aircraft_csv, load_carriers_csv
 from utils.paths import AIRCRAFT_CSV, CARRIERS_CSV
 
-_USN_LEGACY_IDS = ('A-6', 'A-7', 'S-3', 'C-2', 'E-2', 'A-3', 'A-5')
+_USN_LEGACY_IDS = ('A-6', 'A-7', 'S-3', 'C-2', 'A-3', 'A-5')
 
 
 @pytest.mark.e2e
@@ -95,7 +95,7 @@ def test_e2e_e2_hawkeye_ski_jump_constant_power_longer_than_static_thrust():
 
 @pytest.mark.e2e
 def test_e2e_usn_legacy_stay_out_of_combat_radius():
-    """未填分段浸润几何，作战半径库不含这六型攻击/支援机。"""
+    """未填分段浸润几何，作战半径库不含这些攻击/支援机（E-2 已单独纳入预警机库）。"""
     from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_presets
 
     presets = load_presets()

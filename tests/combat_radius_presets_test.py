@@ -28,6 +28,7 @@ EXPECTED_COMBAT_RADIUS_AIRCRAFT_IDS = [
     'F-35B',
     'J-15', 'J-15T', 'MiG-29K', 'Rafale-M', 'Rafale', 'Mirage-2000',
     'FA-18E', 'FA-18C', 'F-14',
+    'E-2', 'KJ-600',
     'NG6C', 'NG6B', 'NG6A',
     'F-15', 'F-15E', 'F-16', 'F-2', 'Typhoon', 'Gripen-CD', 'Gripen-EF',
     'F-CK-1', 'FC-1', 'L-15B', 'Tejas',

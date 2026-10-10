@@ -646,8 +646,8 @@ def aircraft_from_dict(data: dict[str, Any]) -> Aircraft:
     if layout not in LAYOUT_MULT:
         raise ValueError(f'未知布局 {layout!r}，可选: {", ".join(LAYOUT_MULT)}')
     aircraft_role = str(data.get('aircraft_role') or 'fighter').strip().lower()
-    if aircraft_role not in {'fighter', 'bomber'}:
-        raise ValueError(f'未知机型角色 {aircraft_role!r}，可选: fighter, bomber')
+    if aircraft_role not in {'fighter', 'bomber', 'awacs'}:
+        raise ValueError(f'未知机型角色 {aircraft_role!r}，可选: fighter, bomber, awacs')
     inlet = parse_inlet(data.get('inlet'))
     return Aircraft(
         name=str(data.get('name') or '未命名'),

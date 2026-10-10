@@ -25,6 +25,11 @@ def weapon_mass_params(aircraft: dict[str, Any]) -> dict[str, float]:
     轰炸机用 ``payload_mass_kg``（内埋满载）；战斗机用 ``n_missiles × missile_mass_kg``。
     """
     role = str(aircraft.get('aircraft_role') or 'fighter')
+    if role == 'awacs':
+        return {
+            'missile_mass_kg': 0.0,
+            'n_missiles': 0.0,
+        }
     payload = aircraft.get('max_payload_kg')
     if role == 'bomber' and payload not in (None, ''):
         return {
@@ -76,6 +81,19 @@ def dashboard_params_from_preset(
             * float(aircraft.get('airframe_tsfc_mult', 1.0))
         ),
     }
+    if str(engine.get('propulsion') or '').lower() == 'turboprop':
+        params['propulsion'] = 'turboprop'
+        shaft = engine.get('shaft_power_sl_w') or aircraft.get('shaft_power_sl_w')
+        if shaft not in (None, ''):
+            params['shaft_power_sl_w'] = float(shaft)
+        prop_d = aircraft.get('prop_diameter_m')
+        if prop_d not in (None, ''):
+            params['prop_diameter_m'] = float(prop_d)
+        if aircraft.get('nacelle_blockage_frac') not in (None, ''):
+            params['nacelle_blockage_frac'] = float(aircraft['nacelle_blockage_frac'])
+        for key in ('critical_alt_m', 'eta_thermal_sl', 'prop_figure_of_merit'):
+            if engine.get(key) not in (None, ''):
+                params[key] = float(engine[key])
     if default_loadout_selection(str(aircraft['id'])):
         return apply_default_loadout_to_params(params, str(aircraft['id']))
     return params

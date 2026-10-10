@@ -116,6 +116,9 @@ COMBAT_RADIUS_ENGINE_CSV_COLUMNS = (
     'id', 'name', 'nation', 'bpr', 'opr', 't4_K', 'tsl_kN', 'max_tsl_kN',
     'tsfc_install_mult', 'notes',
 )
+COMBAT_RADIUS_ENGINE_OPTIONAL_COLUMNS = (
+    'propulsion', 'shaft_power_sl_w', 'critical_alt_m', 'eta_thermal_sl', 'prop_figure_of_merit',
+)
 
 # 飞机挂点挂载：按 station_id 定义可挂载的 store 类型
 AIRCRAFT_PYLON_CSV_COLUMNS = (
@@ -352,13 +355,19 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
     engine_id = (row.get('engine_id') or '').strip()
     if engine_id:
         item['engine_id'] = engine_id
+    for key in ('shaft_power_sl_w', 'prop_diameter_m', 'nacelle_blockage_frac'):
+        value = _parse_optional_float(row.get(key) or '')
+        if value is not None:
+            item[key] = value
     type_label = (row.get('type_label') or '').strip()
     if type_label:
         item['type_label'] = type_label
     aircraft_role = (row.get('aircraft_role') or '').strip().lower()
     if aircraft_role:
-        if aircraft_role not in {'fighter', 'bomber'}:
-            raise ValueError(f'{csv_path} 记录 {item_id} aircraft_role={aircraft_role!r} 非法，需为 fighter 或 bomber')
+        if aircraft_role not in {'fighter', 'bomber', 'awacs'}:
+            raise ValueError(
+                f'{csv_path} 记录 {item_id} aircraft_role={aircraft_role!r} 非法，需为 fighter、bomber 或 awacs',
+            )
         item['aircraft_role'] = aircraft_role
     else:
         item['aircraft_role'] = 'fighter'
@@ -405,8 +414,10 @@ def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
         if not type_label:
             raise ValueError(f'{csv_path} 起飞机型 {ac_id} 缺少 type_label')
         aircraft_role = (row.get('aircraft_role') or '').strip().lower() or 'fighter'
-        if aircraft_role not in {'fighter', 'bomber'}:
-            raise ValueError(f'{csv_path} 记录 {ac_id} aircraft_role={aircraft_role!r} 非法，需为 fighter 或 bomber')
+        if aircraft_role not in {'fighter', 'bomber', 'awacs'}:
+            raise ValueError(
+                f'{csv_path} 记录 {ac_id} aircraft_role={aircraft_role!r} 非法，需为 fighter、bomber 或 awacs',
+            )
         aircraft[ac_id] = AircraftSpec(
             id=ac_id,
             name=row['name'].strip(),
@@ -776,6 +787,16 @@ def load_combat_radius_engine_csv(path: str | Path | None = None) -> list[dict[s
             notes = (row.get('notes') or '').strip()
             if notes:
                 item['notes'] = notes
+            for opt in COMBAT_RADIUS_ENGINE_OPTIONAL_COLUMNS:
+                if opt not in (reader.fieldnames or ()):
+                    continue
+                raw = (row.get(opt) or '').strip()
+                if not raw:
+                    continue
+                if opt == 'propulsion':
+                    item[opt] = raw
+                else:
+                    item[opt] = _parse_float(raw, opt)
             rows.append(item)
     if not rows:
         raise ValueError(f'{csv_path} 未读到有效发动机记录')

@@ -59,7 +59,7 @@ class AircraftSpec:
     wingspan_m: float
     wing_area_m2: float
     wing_height_m: float
-    aircraft_role: str = 'fighter'  # 'fighter' | 'bomber'
+    aircraft_role: str = 'fighter'  # 'fighter' | 'bomber' | 'awacs'
     wing_body_blend: bool = False
     mtow_kg: float = 0.0
     empty_kg: float = 0.0
