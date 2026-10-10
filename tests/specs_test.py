@@ -179,6 +179,13 @@ def test_mv22_tiltrotor_spec_from_wikipedia():
     assert ac.uses_propeller_power is True
 
 
+def test_unswept_carrier_aircraft_takeoff_flap_25_deg():
+    """平直翼（planform=unswept）机型库起飞襟翼偏角为 25°。"""
+    aircraft = load_aircraft_csv(AIRCRAFT_CSV)
+    for ac_id in ('E-2', 'C-2', 'KJ-600', 'S-3', 'MV-22'):
+        assert aircraft[ac_id].takeoff_flap_deg == pytest.approx(25.0)
+
+
 def test_kj600_is_lighter_e2_with_aep500_and_flap_cl_max():
     """空警-600：空重轻 1.5 t、MTOW 轻 1 t，双发 AEP500，襟翼最大升力系数 2.0。"""
     aircraft = load_aircraft_csv(AIRCRAFT_CSV)

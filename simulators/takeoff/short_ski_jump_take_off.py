@@ -61,6 +61,8 @@ from utils.takeoff.takeoff_physics import (
     check_pitch_deg,
     drag_coefficient as _drag_coefficient,
     dynamic_pressure as _dynamic_pressure,
+    FLAP_DEFLECTION_DEG,
+    resolve_takeoff_flap_deg,
     taxi_alpha_deg,
 )
 
@@ -169,11 +171,13 @@ def _plume_edge_or_zero(value):
     return value if value is not None else 0.0
 
 
-TAXI_ALPHA_DEG = taxi_alpha_deg()
+TAKEOFF_FLAP_DEG = FLAP_DEFLECTION_DEG
+TAXI_ALPHA_DEG = taxi_alpha_deg(TAKEOFF_FLAP_DEG)
 
 
 def recompute_aero_parameters():
-    global ASPECT_RATIO, WEIGHT_N, OSWALD_E, K_IND, CL_ALPHA, PHI_GROUND_FLAT, CL_TAXI
+    global ASPECT_RATIO, WEIGHT_N, OSWALD_E, K_IND, CL_ALPHA, PHI_GROUND_FLAT, CL_TAXI, TAXI_ALPHA_DEG
+    TAXI_ALPHA_DEG = taxi_alpha_deg(TAKEOFF_FLAP_DEG)
     ASPECT_RATIO = WINGSPAN_M ** 2 / S_REF_M2
     WEIGHT_N = MASS_KG * G
     OSWALD_E = calc_oswald_e(ASPECT_RATIO, SWEEP_LE_DEG)
@@ -211,9 +215,9 @@ def apply_stovl_thrust_sl(t_main_sl_n, t_liftfan_sl_n, t_rollposts_sl_n):
 
 
 def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_le_deg, cd0=None,
-                            layout='conventional', canard_htail_area_m2=None):
+                            layout='conventional', canard_htail_area_m2=None, takeoff_flap_deg=None):
     global MASS_KG, S_REF_M2, WINGSPAN_M, WING_HEIGHT_M, SWEEP_LE_DEG, CD0
-    global LAYOUT, CANARD_HTAIL_AREA_M2
+    global LAYOUT, CANARD_HTAIL_AREA_M2, TAKEOFF_FLAP_DEG
     MASS_KG = mass_kg
     S_REF_M2 = s_ref_m2
     WINGSPAN_M = wingspan_m
@@ -223,6 +227,7 @@ def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_
         CD0 = cd0
     LAYOUT = layout or 'conventional'
     CANARD_HTAIL_AREA_M2 = float(canard_htail_area_m2 or 0.0)
+    TAKEOFF_FLAP_DEG = resolve_takeoff_flap_deg(takeoff_flap_deg)
     recompute_aero_parameters()
 
 

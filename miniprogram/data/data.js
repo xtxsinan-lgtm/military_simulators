@@ -90,7 +90,8 @@ module.exports = {
       "notes": "舰载型；rough 表面不平整（摩擦+形状阻力）；DSI 进气道；L/D 由统一物理模型预测（半油+4弹）",
       "layout": "conventional",
       "canard_htail_area_m2": 13.04,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "F-35A",
@@ -121,7 +122,8 @@ module.exports = {
       "notes": "陆基型；rough 表面不平整（摩擦+形状阻力）；DSI 进气道；1×F135-PW-100；AIM-120D；可在滑跃舰上按 STOBAR 仿真；MTOW 70000 lb、外挂约 8160 kg；加力 191 kN",
       "layout": "conventional",
       "canard_htail_area_m2": 11.12,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "J-20",
@@ -152,7 +154,8 @@ module.exports = {
       "notes": "陆基；DSI 进气道；L/D 由统一物理模型预测；2×涡扇15；机身截面为估算；可在滑跃舰上按 STOBAR 仿真；MTOW 37 t、外挂约 9.5 t；推力按双发涡扇15加力 156 kN×2",
       "layout": "canard",
       "canard_htail_area_m2": 6.9,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "J-10C",
@@ -183,7 +186,8 @@ module.exports = {
       "notes": "陆基；DSI 进气道；三角翼鸭式；1×涡扇10B；Wikipedia：翼面积 37 m²、机长 16.9 m、空重 9750 kg、内油 3860 kg、MTOW 19277 kg；加力约 144 kN；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；浸润倒推：三角翼鸭式；补单垂尾≈5.5 m²；公开约 1100–1200 km 多含副油箱；内油模型 S_wet≈175 m²",
       "layout": "canard",
       "canard_htail_area_m2": 4.9,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "J-50N",
@@ -214,7 +218,8 @@ module.exports = {
       "notes": "舰载型；几何同歼-50；DSI 进气道；空重 19.9 t、内油 13 t；MTOW 41.8 t；推力按双发涡扇15改进加力约 181 kN×2 估计",
       "layout": "tailless",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "J-35",
@@ -245,7 +250,8 @@ module.exports = {
       "notes": "舰载；梯形翼常规；DSI 进气道；2×涡扇21；重量/几何以作战半径库为准；加力约 186 kN",
       "layout": "conventional",
       "canard_htail_area_m2": 12.66,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "53636",
@@ -276,7 +282,8 @@ module.exports = {
       "notes": "陆基无人；兰姆达翼无尾；加莱特进气道；1×涡扇10C；机长 14.7 m、空重 7.7 t、MTOW 14.6 t；可在滑跃舰上按 STOBAR 仿真；推力按涡扇10C 加力约 132 kN 估计",
       "layout": "tailless",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "53636N",
@@ -307,7 +314,8 @@ module.exports = {
       "notes": "无人舰载；几何同 53636；加莱特进气道；空重 8.3 t、内油 4.87 t、MTOW 15.2 t；推力按涡扇10C 加力约 132 kN 估计",
       "layout": "tailless",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "F-35B",
@@ -338,7 +346,8 @@ module.exports = {
       "notes": "STOVL；DSI 进气道；Lockheed Fast Facts：翼展 10.7 m、翼面积 42.7 m²；含升力风扇；1×F135-PW-600",
       "layout": "conventional",
       "canard_htail_area_m2": 11.12,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "AV-8B",
@@ -369,7 +378,8 @@ module.exports = {
       "notes": "Pegasus F402-408；超临界翼；载弹量 4200 kg；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "J-15",
@@ -400,7 +410,8 @@ module.exports = {
       "notes": "Wikipedia：翼面积 67.84 m²、机长 22.28 m；WS-10H/AL-31 双发加力约 251 kN；机身截面为估算；分段机头按机长比例估算；主翼暴露 47.5 m²、平尾两侧 13.6 m²、垂尾两侧 11.0 m²、腹鳍两侧 2.6 m² 为估计；进气道按加莱特；PL-12 外挂挂架；浸润倒推：侧卫舰载弹射型；几何同歼-15；内油 10 t，公开约 1270 km；S_wet≈348 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 13.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "J-15T",
@@ -431,7 +442,8 @@ module.exports = {
       "notes": "弹射型，滑跃舰上仍按 STOBAR 仿真；几何同歼-15；空重 18.2 t、内油 10 t、MTOW 36.3 t；机身截面为估算；分段几何同歼-15；平尾/垂尾/腹鳍为估计；进气道按加莱特；PL-15 外挂挂架；浸润倒推：侧卫舰载弹射型；几何同歼-15；内油 10 t，公开约 1270 km；S_wet≈348 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 13.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "MiG-29K",
@@ -462,7 +474,8 @@ module.exports = {
       "notes": "2×RD-33MK；载弹量 5500 kg；机身截面为估算；分段机头按机长比例估算；主翼暴露 24.8 m²、平尾两侧 8.8 m²、垂尾两侧 7.4 m²、腹鳍两侧 1.8 m² 为估计；进气道按加莱特；外挂挂架；浸润倒推：双发舰载；公开约 850 km；S_wet≈190 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 8.5,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Rafale-M",
@@ -493,7 +506,8 @@ module.exports = {
       "notes": "舰载型；2×M88-2；三角翼鸭式；外挂 9500 kg；近距耦合鸭翼面积约 5.5 m²（估计，相对翼面积约 12%）；单垂尾平面面积约 6.3 m²（估计）；机身分段为估算；浸润倒推：近距耦合鸭式；宣传 1850 km 多含副油箱；内油 4700 kg 模型锚≈1000 km；S_wet≈192 m²",
       "layout": "canard",
       "canard_htail_area_m2": 5.5,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Rafale",
@@ -524,7 +538,8 @@ module.exports = {
       "notes": "陆基；Dassault / Wikipedia 阵风 C：翼面积 45.7 m²、翼展 10.90 m、机长 15.27 m、空重约 10000 kg、内油 4700 kg、MTOW 24500 kg；2×M88-2 加力各 75 kN；外挂 9500 kg；三角翼鸭式前缘 48°；近距耦合鸭翼约 5.5 m²（估计）；单垂尾约 6.3 m²（估计）；可在滑跃舰上按 STOBAR 仿真；机身分段为估算",
       "layout": "canard",
       "canard_htail_area_m2": 5.5,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Mirage-2000",
@@ -555,7 +570,8 @@ module.exports = {
       "notes": "陆基；Wikipedia / Jane 幻影 2000C：翼面积 41 m²、翼展 9.13 m、机长 14.36 m、空重 7500 kg、MTOW 17000 kg、外挂 6300 kg；内油按 4000 L×0.80 取 3200 kg；1×M53-P2 军推 64.3 kN、加力 95.1 kN；前缘后掠 58°；无尾三角；单垂尾 5.6 m² 与分段机头为估计；可在滑跃舰上按 STOBAR 仿真；浸润倒推：无尾三角细长机身；公开含副油箱航程不直接用；按真实细长截面+大三角暴露翼得 S_wet≈148 m²",
       "layout": "tailless",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "FA-18E",
@@ -586,7 +602,8 @@ module.exports = {
       "notes": "2×F414-GE-400；Jane 展弦比约 4.0；外挂 8050 kg；机身截面为估算；分段机头按机长比例估算；主翼含边条暴露约 36.3 m²、平尾两侧 9.3 m²、垂尾两侧 11.2 m² 为估计；进气道按加莱特；外挂挂架；浸润倒推：相对 FA-18C 加长加宽、内油 6667 kg；按尺寸比放大浸润至≈258 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 9.8,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "FA-18C",
@@ -617,7 +634,8 @@ module.exports = {
       "notes": "2×F404-GE-402；Jane 展弦比 3.52；外挂 6215 kg；机身截面为估算；分段机头按机长比例估算；主翼含边条暴露约 29.6 m²、平尾两侧 7.6 m²、垂尾两侧 8.4 m² 为估计；进气道按加莱特；外挂挂架；浸润倒推：Aerospaceweb 空优航程约 800 nmi；内油+4 弹模型锚≈900–950 km；双发舰载截面；边条计入主翼暴露；S_wet≈210 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 8.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "F-14",
@@ -648,7 +666,8 @@ module.exports = {
       "notes": "变后掠；起飞按前掠 20° / 翼展 19.54 m；双座；F-14B/D F110；机身截面为估算；Wikipedia F-14D 空重 19838 kg；变后掠，起飞与作战半径均按前掠 20°；主翼暴露 37.8 m²、平尾 11.5 m²、双垂尾两侧合计 9.4 m² 为估计；斜板进气道按加莱特；外挂挂架；浸润倒推：变后掠宽机身；公开作战半径约 500 nmi；前掠构型 S_wet≈290 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 12.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "A-6",
@@ -679,7 +698,8 @@ module.exports = {
       "notes": "Wikipedia A-6E：翼面积 49.14 m²、翼展 16.15 m、空重 12093 kg、内油 15940 lb（7230 kg）、岸基 MTOW 60400 lb；2×J52-P-8B 各 9300 lbf；外挂 18000 lb；可自卫 AIM-9；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "A-7",
@@ -710,7 +730,8 @@ module.exports = {
       "notes": "Wikipedia A-7E：翼面积 34.83 m²、翼展 11.80 m、空重 8676 kg、内油 8697 lb（3945 kg）、过载 MTOW 41998 lb；1×TF41-A-2 15000 lbf；外挂 15000 lb；1/4 弦后掠 35°；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "S-3",
@@ -726,7 +747,7 @@ module.exports = {
       "max_payload_kg": 1800.0,
       "bvr_missile": "—",
       "missile_mass_kg": 0.0,
-      "cd0": 0.03607700924957324,
+      "cd0": 0.03717025195410577,
       "t_max_sl_n": 82600.0,
       "t_main_stovl_sl_n": null,
       "t_liftfan_sl_n": null,
@@ -741,7 +762,8 @@ module.exports = {
       "notes": "Wikipedia S-3B：翼面积 55.56 m²、翼展 20.93 m、空重 12057 kg、内油 13145 lb（5962 kg）、MTOW 52539 lb；2×TF34-GE-2 各 9275 lbf；武器约 1800 kg；前缘后掠 15°；四人机组；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": 25.0
     },
     {
       "id": "C-2",
@@ -757,7 +779,7 @@ module.exports = {
       "max_payload_kg": 4536.0,
       "bvr_missile": "—",
       "missile_mass_kg": 0.0,
-      "cd0": 0.03925309886446384,
+      "cd0": 0.04044258670884153,
       "t_max_sl_n": 110130.0,
       "t_main_stovl_sl_n": null,
       "t_liftfan_sl_n": null,
@@ -772,7 +794,8 @@ module.exports = {
       "notes": "NAVAIR C-2A：翼展 24.56 m、MTOW 57500 lb（26082 kg）；Wikipedia 空重 15307 kg、翼面积 700 ft²；内油按 12400 lb（5625 kg）；2×T56-A-425 各 4600 shp、桨盘 ⌀13.5 ft；滑跃按恒定轴功率动量理论（推力随空速下降；静推力仅作机库对照；品质因数 0.78、短舱遮挡 8%）；舰上载荷 10000 lb；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": 25.0
     },
     {
       "id": "E-2",
@@ -788,7 +811,7 @@ module.exports = {
       "max_payload_kg": 0.0,
       "bvr_missile": "—",
       "missile_mass_kg": 0.0,
-      "cd0": 0.03925309886446384,
+      "cd0": 0.04044258670884153,
       "t_max_sl_n": 110130.0,
       "t_main_stovl_sl_n": null,
       "t_liftfan_sl_n": null,
@@ -803,7 +826,8 @@ module.exports = {
       "notes": "NAVAIR E-2C：翼展 24.56 m、MTOW 57500 lb（26082 kg）；Wikipedia 空重 18234 kg；五人机组（飞行员 2 + 任务员 3）；2×T56-A-425 各 5100 shp（总 7606.14 kW）；桨盘 ⌀13.5 ft；滑跃按恒定轴功率动量理论（推力随空速下降；静推力仅作机库对照；品质因数 0.78、短舱遮挡 8%）；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": 25.0
     },
     {
       "id": "KJ-600",
@@ -819,7 +843,7 @@ module.exports = {
       "max_payload_kg": 0.0,
       "bvr_missile": "—",
       "missile_mass_kg": 0.0,
-      "cd0": 0.03925309886446384,
+      "cd0": 0.04044258670884153,
       "t_max_sl_n": 132169.0,
       "t_main_stovl_sl_n": null,
       "t_liftfan_sl_n": null,
@@ -834,7 +858,8 @@ module.exports = {
       "notes": "空警-600：翼展 25.2 m、翼面积 68.4 m²；空重按 E-2C 轻 1.5 t（16734 kg）、MTOW 轻 1 t（25082 kg）；内油 5825 kg（较 E-2C 多 200 kg）；五人机组同 E-2C；2×AEP500 各 5000 kW（总 10 MW）；桨盘沿用 E-2 ⌀4.11 m；襟翼起飞最大升力系数 2.0；滑跃按恒定轴功率动量理论（品质因数 0.78、短舱遮挡 8%）；机身截面沿用 E-2 估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": 2.0
+      "cl_max": 2.0,
+      "takeoff_flap_deg": 25.0
     },
     {
       "id": "A-3",
@@ -865,7 +890,8 @@ module.exports = {
       "notes": "Wikipedia A-3B：翼面积 75.4 m²、翼展 22.10 m、空重 17876 kg、MTOW 82000 lb；内油 4400 US gal JP-5（13570 kg）；2×J57-P-10 喷水起飞各 12400 lbf；炸弹 12000 lb；后掠 36°；三人机组；历史上依赖弹射/JATO，滑跃为假设；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "A-5",
@@ -896,7 +922,8 @@ module.exports = {
       "notes": "Wikipedia A-5A：翼面积 65.1 m²、翼展 16.16 m、空重 14870 kg、内油 19074 lb JP-5（8652 kg）、MTOW 63085 lb；2×J79-GE-8 加力各 17000 lbf；高单翼后掠 37.5°；载弹量按线性弹舱+翼下挂点约 2000 kg 估计；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "MV-22",
@@ -927,7 +954,8 @@ module.exports = {
       "notes": "2×T406；桨盘 ⌀38 ft；CD0 由升阻比模型估计；短舱遮挡 10%；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": 25.0
     },
     {
       "id": "NG6C",
@@ -958,7 +986,8 @@ module.exports = {
       "notes": "弹射舰载；兰姆达翼 + 平尾两侧合计 16.7 m²（常规构型）；DSI 进气道；1×涡扇15改；PL-15；军推 14.6 t、加力 21.8 t；折叠翼展 6.7 m；弹仓长 5.1 m、弹仓载荷 3.5 t",
       "layout": "conventional",
       "canard_htail_area_m2": 16.7,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "NG6B",
@@ -989,7 +1018,8 @@ module.exports = {
       "notes": "STOVL；兰姆达翼 + 平尾两侧合计 13.1 m²（常规构型）；DSI 进气道；1×涡扇15改垂起；PL-15；军推 14.0 t、加力 20.7 t；折叠翼展 6.1 m；弹仓长 4.4 m、弹仓载荷 2.7 t；短距主喷管/升力风扇/滚转喷管按原比例、总和对齐加力 20.7 t",
       "layout": "conventional",
       "canard_htail_area_m2": 13.1,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "F-15",
@@ -1020,7 +1050,8 @@ module.exports = {
       "notes": "陆基；Wikipedia F-15C：翼面积 56.5 m²、翼展 13.06 m、空重 13154 kg、内油 6103 kg、MTOW 68000 lb；2×F100-PW-220 加力各 105.7 kN；外挂 7300 kg；前缘后掠 45°；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；主翼暴露 40.7 m² 为估计；公开三面图平尾 111.36 ft²（10.35 m²）、垂尾两侧 105.28 ft²（9.78 m²）；外挂挂架",
       "layout": "conventional",
       "canard_htail_area_m2": 10.35,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "F-15E",
@@ -1051,7 +1082,8 @@ module.exports = {
       "notes": "陆基双座；Wikipedia F-15E：翼面积 56.5 m²、翼展 13.05 m、机长 19.45 m；空重取含保形油箱 17690 kg、内油取机内 5952 kg（13123 lb，不含保形油箱 4400 kg；保形油箱空箱重量与外形仍计入）、MTOW 36741 kg；2×F100-PW-229 加力各 129.7 kN；外挂约 10400 kg；平尾/垂尾同 F-15C 公开三面图；机身宽按保形油箱加到 3.3 m（估计）；可在滑跃舰上按 STOBAR 仿真；浸润倒推：含保形油箱加宽；浸润倒推时燃油 10100 kg（含保形油箱）；公开约 1270 km → S_wet≈290 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 10.35,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "F-16",
@@ -1082,7 +1114,8 @@ module.exports = {
       "notes": "陆基；Wikipedia F-16C Block 50：翼面积 28 m²、翼展 9.96 m、空重 8573 kg、内油 7000 lb（3200 kg）、MTOW 42300 lb；1×F110-GE-129 加力 131.2 kN；外挂约 7800 kg；前缘后掠 40°；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；主翼暴露 20.2 m² 为估计；Aerospaceweb 平尾 63.7 ft²（5.92 m²）、垂尾含背鳍腹鳍 43.1 ft²（4.00 m²）；外挂挂架；浸润倒推：JSBSim 总浸润≈130.4 m²；平尾 Aerospaceweb 63.7 ft²；垂尾 JSBSim 54.75 ft²；腹鳍 JSBSim；主翼暴露≈15.85 m²；机身截面按细长单发等效矩形倒推",
       "layout": "conventional",
       "canard_htail_area_m2": 5.92,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "F-2",
@@ -1113,7 +1146,8 @@ module.exports = {
       "notes": "陆基；F-16 放大改型；Wikipedia F-2A：翼面积 34.84 m²、翼展 11.125 m（含翼尖弹架）、机长 15.52 m、空重 9527 kg、内油约 4637 L（3710 kg）、MTOW 22100 kg；1×F110-IHI-129 加力 131 kN；最大外挂约 8085 kg；前缘后掠 40°（同 F-16）；可在滑跃舰上按 STOBAR 仿真；分段几何按 F-16 同比例放大估算；主翼暴露 25.1 m²、平尾 7.4 m²、垂尾 5.0 m² 为估计；外挂挂架",
       "layout": "conventional",
       "canard_htail_area_m2": 7.37,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Typhoon",
@@ -1144,7 +1178,8 @@ module.exports = {
       "notes": "陆基；Wikipedia 台风：翼面积 51.2 m²、翼展 10.95 m、空重 11000 kg、内油约 4500 kg、MTOW 23500 kg；2×EJ200 加力各 90 kN；外挂逾 9000 kg；三角翼鸭式前缘 53°；前翼面积 2.4 m²（Eurofighter 公开值）；双垂尾两侧合计 7.8 m²（估计）；可在滑跃舰上按 STOBAR 仿真；机身分段为估算；浸润倒推：公开 1389 km 多含副油箱；前翼 2.4 m² 为厂家值；内油 4500 kg 模型锚≈1000–1050 km；S_wet≈200 m²",
       "layout": "canard",
       "canard_htail_area_m2": 2.4,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Gripen-CD",
@@ -1175,7 +1210,8 @@ module.exports = {
       "notes": "陆基；Wikipedia / Saab JAS 39C：翼面积 30 m²、翼展 8.4 m、空重 6800 kg、内油 2340 kg、MTOW 14000 kg；1×RM12 加力 80.5 kN；外挂 5300 kg；三角翼鸭式；鸭翼约 4.5 m²（资料翼面积 25.5 m²、含鸭翼 30 m²）；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；主翼暴露 19.1 m²（参考面积已含鸭翼 4.5 m²）、单垂尾 4.0 m² 为估计；外挂挂架；浸润倒推：公开约 800 km；鸭翼约 4.5 m²；S_wet≈132 m²",
       "layout": "canard",
       "canard_htail_area_m2": 4.5,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Gripen-EF",
@@ -1206,7 +1242,8 @@ module.exports = {
       "notes": "陆基；Wikipedia / Saab JAS 39E：翼面积 31 m²、翼展 8.6 m、空重 8000 kg、内油 3400 kg、MTOW 16500 kg；1×F414-GE-39E 加力 98 kN；外挂 7200 kg；三角翼鸭式；鸭翼约 4.6 m²（按 C 型 4.5 m² 随翼面积 31/30 缩放）；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；主翼暴露 20.6 m²（参考面积已含鸭翼 4.6 m²）、单垂尾 4.2 m² 为估计；外挂挂架；浸润倒推：相对 C 型加长、内油 3400 kg；宣传 1500 km 含副油箱；内油模型 S_wet≈130 m²",
       "layout": "canard",
       "canard_htail_area_m2": 4.6,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "F-CK-1",
@@ -1237,7 +1274,8 @@ module.exports = {
       "notes": "陆基；Wikipedia F-CK-1A：翼面积 24.2 m²、翼展 9.0 m、空重 6486 kg、MTOW 12247 kg；内油约 2268 kg（估计）；2×F125-GA-100 加力各 42.1 kN；外挂约 3600 kg；天剑二；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；主翼暴露 17.4 m²、平尾两侧 5.5 m²、双垂尾两侧合计 4.6 m² 为估计；外挂挂架",
       "layout": "conventional",
       "canard_htail_area_m2": 5.5,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "FC-1",
@@ -1268,7 +1306,8 @@ module.exports = {
       "notes": "陆基；Wikipedia JF-17 Block 3 / FC-1：翼面积 24.43 m²、翼展 9.44 m、空重 7965 kg、内油 2449 kg、MTOW 13500 kg；1×RD-93MA 加力 91.2 kN；外挂约 3600 kg；DSI 进气道；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；主翼暴露 17.6 m²、平尾两侧 5.4 m²、单垂尾 4.2 m² 为估计；DSI；PL-12 外挂挂架；浸润倒推：枭龙；宣传半径常含副油箱；内油 2449 kg 模型锚≈780–820 km；DSI；S_wet≈128 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 5.2,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "L-15B",
@@ -1299,7 +1338,8 @@ module.exports = {
       "notes": "陆基双座；Wikipedia L-15B：机长 12.4 m、翼展 9.4 m、MTOW 11600 kg；2×AI-222K-25F 加力各 41.2 kN；翼面积 24.5 m²、空重 5500 kg、内油 1700 kg、外挂 3500 kg 为估计（公开规格未给）；主翼暴露 17.6 m²、平尾两侧 4.8 m²、单垂尾 3.4 m² 与分段机头为估计；PL-12 外挂挂架；可在滑跃舰上按 STOBAR 仿真；浸润倒推：高级教练/轻战；内油约 1.7 t；小截面；公开航程多含副油箱；S_wet≈112 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 4.6,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Tejas",
@@ -1330,7 +1370,8 @@ module.exports = {
       "notes": "陆基；ADA / Wikipedia Tejas Mk1：翼面积 38.4 m²、翼展 8.20 m、空重 6560 kg、内油 2458 kg、MTOW 13500 kg；1×F404-GE-IN20 加力 85 kN；外挂 3500 kg；无尾复合三角翼；可在滑跃舰上按 STOBAR 仿真；机身截面为估算；分段机头按机长比例估算；无尾三角主翼暴露 26.9 m²、单垂尾 5.2 m² 为估计；外挂挂架",
       "layout": "tailless",
       "canard_htail_area_m2": null,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Su-30",
@@ -1361,7 +1402,8 @@ module.exports = {
       "notes": "陆基双座；几何参考歼-15（同侧卫族）；翼面积/翼展/分段浸润沿用歼-15 量级；空重约 17.7 t、内油约 9.4 t、MTOW 34.5 t；2×AL-31FP 加力各 122.6 kN（双发约 245 kN）；外挂约 8000 kg；RVV-AE 外挂挂架；可在滑跃舰上按 STOBAR 仿真；S_wet≈348 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 13.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Su-57",
@@ -1392,7 +1434,8 @@ module.exports = {
       "notes": "陆基；Wikipedia 苏-57E：翼面积 78.8 m²、翼展 14.1 m、机长 20.1 m、空重 18500 kg、内油 9700 kg、MTOW 35000 kg；2×AL-41F1 加力各 142.2 kN；外挂约 6500 kg；梯形翼常规平尾/垂尾；加莱特进气道；可在滑跃舰上按 STOBAR 仿真；机身分段与尾面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": 14.4,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "KF-21",
@@ -1423,7 +1466,8 @@ module.exports = {
       "notes": "陆基；Wikipedia KF-21 C109：翼面积 46.5 m²、翼展 11.2 m、机长 16.9 m、空重 11800 kg、内油 5400 kg、MTOW 25600 kg；2×F414-GE-400K 加力各 97.9 kN；外挂约 7700 kg；梯形翼常规；DSI 进气道；Block I 外挂中距弹；可在滑跃舰上按 STOBAR 仿真；机身分段与尾面为估算；浸润倒推：双发常规+DSI；Block I 外挂中距弹；内油 5400 kg；S_wet≈245 m²",
       "layout": "conventional",
       "canard_htail_area_m2": 9.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "FA-50",
@@ -1454,7 +1498,8 @@ module.exports = {
       "notes": "陆基双座；Wikipedia FA-50 Block 10：翼面积 23.69 m²、翼展 9.45 m（含翼尖弹）、机长 13.14 m、空重 6454 kg、内油 2655 L ≈ 2124 kg、MTOW 12215 kg；1×F404-GE-102 军推 53.07 kN、加力 78.7 kN；外挂约 4500 kg（公开资料常用值）；主翼暴露 17.1 m²、平尾 5.0 m²、单垂尾 3.3 m² 与分段机头为估计；可在滑跃舰上按 STOBAR 仿真；浸润倒推：轻型战斗机；空重低使内油剖面半径不低；按小截面 S_wet≈120 m²（公开对地半径更短）",
       "layout": "conventional",
       "canard_htail_area_m2": 4.8,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "KAAN",
@@ -1485,7 +1530,8 @@ module.exports = {
       "notes": "陆基；Wikipedia / TUSAŞ 初步规格：翼面积 71.6 m²、翼展 13.4 m、机长 20.3 m、MTOW 34750 kg；空重约 18000 kg、内油约 8000 kg（估计）；原型 2×F110-GE-129 加力各 131.2 kN；外挂约 8000 kg；梯形翼常规；加莱特进气道；可在滑跃舰上按 STOBAR 仿真；机身分段与尾面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": 14.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "Su-75",
@@ -1516,7 +1562,8 @@ module.exports = {
       "notes": "陆基；Wikipedia / 公开资料苏-75：翼展 11.8 m、机长 17.7 m、翼面积约 58.2 m²（估计）、空重约 11800 kg、内油约 5100 kg、MTOW 26000 kg；1×AL-51F1（izdeliye 30）加力 161.9 kN；外挂 7400 kg；兰姆达翼 + 平尾（按常规构型计算）；DSI 进气道；可在滑跃舰上按 STOBAR 仿真；机身分段与尾面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": 9.6,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "XGB-1",
@@ -1547,7 +1594,8 @@ module.exports = {
       "notes": "西工大变后掠翼轰炸机第一态；翼身融合；投影面积=翼面积 658 m²；外段前缘 20.6°；内段前缘 68.2°；等效前缘后掠 61.86°；厚弦比 0.043（同歼-36）；马赫角 39.7°；翼展 43.2 m；机长 38 m；空重 94 t；内油 131.6 t；载弹量 17.6 t；4×涡扇15衍生版，BPR 0.475，单台军推 175 kN、单台加力 265 kN",
       "layout": "tailless",
       "canard_htail_area_m2": 0.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "XGB-2",
@@ -1578,7 +1626,8 @@ module.exports = {
       "notes": "西工大变后掠翼轰炸机第二态；翼身融合；投影面积=翼面积 651 m²；外段前缘 49.5°；内段前缘 68.2°；等效前缘后掠 64.95°；厚弦比 0.043（同歼-36）；马赫角 30.2°；翼展 39.4 m；机长 38 m；空重 94 t；内油 131.6 t；载弹量 17.6 t；4×涡扇15衍生版，BPR 0.475，单台军推 175 kN、单台加力 265 kN",
       "layout": "tailless",
       "canard_htail_area_m2": 0.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     },
     {
       "id": "XGB-3",
@@ -1609,7 +1658,8 @@ module.exports = {
       "notes": "西工大变后掠翼轰炸机第三态；翼身融合；投影面积=翼面积 562 m²；外段前缘 68.2°；内段前缘 68.2°；等效前缘后掠 68.2°；厚弦比 0.043（同歼-36）；马赫角 21.1°；翼展 30.2 m；机长 40.6 m；空重 94 t；内油 131.6 t；载弹量 17.6 t；4×涡扇15衍生版，BPR 0.475，单台军推 175 kN、单台加力 265 kN",
       "layout": "tailless",
       "canard_htail_area_m2": 0.0,
-      "cl_max": null
+      "cl_max": null,
+      "takeoff_flap_deg": null
     }
   ],
   "carriers": [

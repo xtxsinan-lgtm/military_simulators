@@ -102,6 +102,14 @@ def calc_ground_effect_phi(wing_height_m, wingspan_m):
     return x * x / (1 + x * x)
 
 
+def resolve_takeoff_flap_deg(takeoff_flap_deg: float | None,
+                             default_deg: float = FLAP_DEFLECTION_DEG) -> float:
+    """机型库起飞襟翼偏角；未填或非正则用全局默认。"""
+    if takeoff_flap_deg is None or float(takeoff_flap_deg) <= 0:
+        return float(default_deg)
+    return float(takeoff_flap_deg)
+
+
 def taxi_alpha_deg(fldef_deg=FLAP_DEFLECTION_DEG, flap_efficiency=FLAP_EFFICIENCY,
                    wing_incidence_deg=WING_INCIDENCE_DEG):
     """滑行等效迎角，°。"""

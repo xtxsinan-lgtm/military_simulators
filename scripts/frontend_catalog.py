@@ -85,7 +85,7 @@ _AIRCRAFT_KEYS = (
     'wing_height_m', 'cd0', 't_max_sl_n', 't_main_stovl_sl_n', 't_liftfan_sl_n',
     't_rollposts_sl_n', 'exhaust_mdot_kg_s', 'exhaust_d0_m', 'exhaust_height_m',
         'shaft_power_sl_w', 'prop_diameter_m', 'nacelle_blockage_frac', 'n_pilots', 'notes',
-        'layout', 'canard_htail_area_m2', 'cl_max',
+        'layout', 'canard_htail_area_m2', 'cl_max', 'takeoff_flap_deg',
 )
 
 

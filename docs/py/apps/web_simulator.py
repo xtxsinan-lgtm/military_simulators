@@ -89,6 +89,7 @@ def aircraft_from_dict(d: dict[str, Any]) -> AircraftSpec:
         layout=(d.get('layout') or 'conventional'),
         canard_htail_area_m2=_opt_float(d.get('canard_htail_area_m2')),
         cl_max=_opt_float(d.get('cl_max')),
+        takeoff_flap_deg=_opt_float(d.get('takeoff_flap_deg')),
     )
 
 
@@ -262,6 +263,7 @@ def _wing_geom(ac: AircraftSpec, mass_kg: float) -> dict:
         mass_kg=mass_kg, s_ref_m2=ac.wing_area_m2, wingspan_m=ac.wingspan_m,
         wing_height_m=ac.wing_height_m, sweep_le_deg=ac.sweep_le_deg, cd0=ac.cd0,
         layout=ac.layout, canard_htail_area_m2=ac.canard_htail_area_m2,
+        takeoff_flap_deg=ac.takeoff_flap_deg,
     )
 
 

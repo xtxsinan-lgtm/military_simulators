@@ -24,7 +24,7 @@ AIRCRAFT_CSV_COLUMNS = (
     't_max_sl_n', 't_main_stovl_sl_n', 't_liftfan_sl_n', 't_rollposts_sl_n',
     'exhaust_mdot_kg_s', 'exhaust_d0_m', 'exhaust_height_m',
     'shaft_power_sl_w', 'prop_diameter_m', 'nacelle_blockage_frac',
-    'airframe_tsfc_mult', 'cl_max',
+    'airframe_tsfc_mult', 'cl_max', 'takeoff_flap_deg',
 )
 
 # 兼容旧名：作战半径从统一库抽取这些字段
@@ -252,6 +252,7 @@ def export_aircraft_csv(path: str | Path, aircraft: dict[str, 'AircraftSpec']) -
                 'mtow_kg': _cell_str(ac.mtow_kg),
                 'max_payload_kg': _cell_str(ac.max_payload_kg),
                 'cl_max': _cell_str(ac.cl_max),
+                'takeoff_flap_deg': _cell_str(ac.takeoff_flap_deg),
                 'notes': ac.notes,
                 'carrier': row.get('carrier') or '1',
             })
@@ -434,6 +435,7 @@ def load_aircraft_csv(path: str | Path) -> dict[str, 'AircraftSpec']:
             prop_diameter_m=_parse_optional_float(row.get('prop_diameter_m') or ''),
             nacelle_blockage_frac=_parse_optional_float(row.get('nacelle_blockage_frac') or ''),
             cl_max=_parse_optional_float(row.get('cl_max') or ''),
+            takeoff_flap_deg=_parse_optional_float(row.get('takeoff_flap_deg') or ''),
             n_pilots=cr_item['n_pilots'],
             notes=(row.get('notes') or '').strip(),
             layout=cr_item['layout'],

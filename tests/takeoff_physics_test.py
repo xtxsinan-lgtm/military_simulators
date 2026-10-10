@@ -16,6 +16,7 @@ from utils.takeoff.takeoff_physics import (
     check_pitch_deg,
     drag_coefficient,
     dynamic_pressure,
+    resolve_takeoff_flap_deg,
     taxi_alpha_deg,
     wind_knots_to_mps,
     KT_TO_MPS,
@@ -53,6 +54,15 @@ def test_ground_effect_phi_f35b():
 
 def test_taxi_alpha_default():
     assert taxi_alpha_deg() == FLAP_DEFLECTION_DEG * FLAP_EFFICIENCY + WING_INCIDENCE_DEG
+
+
+def test_resolve_takeoff_flap_deg_uses_default_when_empty():
+    assert resolve_takeoff_flap_deg(None) == pytest.approx(FLAP_DEFLECTION_DEG)
+    assert resolve_takeoff_flap_deg(0) == pytest.approx(FLAP_DEFLECTION_DEG)
+
+
+def test_resolve_takeoff_flap_deg_accepts_aircraft_value():
+    assert resolve_takeoff_flap_deg(25.0) == pytest.approx(25.0)
 
 
 def test_cl_from_alpha_linear():

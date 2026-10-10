@@ -108,6 +108,30 @@ def test_propeller_ski_jump_slower_than_constant_static_thrust():
         _restore_ski_conv_defaults()
 
 
+def test_apply_takeoff_flap_deg_updates_taxi_cl():
+    """机型库起飞襟翼偏角应进入滑行升力系数计算。"""
+    from utils.takeoff.takeoff_physics import taxi_alpha_deg
+
+    _restore_ski_conv_defaults()
+    base_cl = ski_conv.CL_TAXI
+    ski_conv.apply_aircraft_geometry(
+        mass_kg=29500,
+        s_ref_m2=68.9,
+        wingspan_m=13.6,
+        wing_height_m=1.96,
+        sweep_le_deg=38,
+        cd0=0.039,
+        t_max_sl_n=186000,
+        takeoff_flap_deg=25,
+    )
+    try:
+        assert ski_conv.TAKEOFF_FLAP_DEG == pytest.approx(25.0)
+        assert ski_conv.TAXI_ALPHA_DEG == pytest.approx(taxi_alpha_deg(25.0))
+        assert ski_conv.CL_TAXI > base_cl
+    finally:
+        _restore_ski_conv_defaults()
+
+
 def test_apply_cl_max_then_reset_to_mode_default():
     """机型填写的最大升力系数只作用于该机，下一架未填时回到模式默认。"""
     _restore_ski_conv_defaults()

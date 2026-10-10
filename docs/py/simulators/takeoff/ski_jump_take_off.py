@@ -38,6 +38,7 @@ from utils.takeoff.takeoff_physics import (
     check_pitch_deg,
     drag_coefficient as _drag_coefficient,
     dynamic_pressure as _dynamic_pressure,
+    resolve_takeoff_flap_deg,
     taxi_alpha_deg,
 )
 
@@ -105,11 +106,13 @@ FINE_SEARCH_STEP = int(_SHARED['fine_search_step'])
 # ---------------------------------------------------------------------------
 # 气动参数（计算值）
 # ---------------------------------------------------------------------------
-TAXI_ALPHA_DEG = taxi_alpha_deg()
+TAKEOFF_FLAP_DEG = FLAP_DEFLECTION_DEG
+TAXI_ALPHA_DEG = taxi_alpha_deg(TAKEOFF_FLAP_DEG)
 
 
 def recompute_aero_parameters():
-    global ASPECT_RATIO, WEIGHT_N, OSWALD_E, K_IND, CL_ALPHA, PHI_GROUND_FLAT, CL_TAXI
+    global ASPECT_RATIO, WEIGHT_N, OSWALD_E, K_IND, CL_ALPHA, PHI_GROUND_FLAT, CL_TAXI, TAXI_ALPHA_DEG
+    TAXI_ALPHA_DEG = taxi_alpha_deg(TAKEOFF_FLAP_DEG)
     ASPECT_RATIO = WINGSPAN_M ** 2 / S_REF_M2
     WEIGHT_N = MASS_KG * G
     OSWALD_E = calc_oswald_e(ASPECT_RATIO, SWEEP_LE_DEG)
@@ -173,9 +176,10 @@ def apply_propulsion_sl(
 
 
 def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_le_deg, cd0, t_max_sl_n,
-                            layout='conventional', canard_htail_area_m2=None, cl_max=None):
+                            layout='conventional', canard_htail_area_m2=None, cl_max=None,
+                            takeoff_flap_deg=None):
     global MASS_KG, S_REF_M2, WINGSPAN_M, WING_HEIGHT_M, SWEEP_LE_DEG, CD0, T_MAX_SL_N
-    global LAYOUT, CANARD_HTAIL_AREA_M2, CL_MAX
+    global LAYOUT, CANARD_HTAIL_AREA_M2, CL_MAX, TAKEOFF_FLAP_DEG
     MASS_KG = mass_kg
     S_REF_M2 = s_ref_m2
     WINGSPAN_M = wingspan_m
@@ -185,6 +189,7 @@ def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_
     T_MAX_SL_N = t_max_sl_n
     LAYOUT = layout or 'conventional'
     CANARD_HTAIL_AREA_M2 = float(canard_htail_area_m2 or 0.0)
+    TAKEOFF_FLAP_DEG = resolve_takeoff_flap_deg(takeoff_flap_deg)
     # 喷气机默认；涡桨须在此后再调用 apply_propulsion_sl，避免上一机残留功率模型
     apply_propulsion_sl(0.0, 0.0)
     apply_thrust_temperature(AMBIENT_TEMP_C)
