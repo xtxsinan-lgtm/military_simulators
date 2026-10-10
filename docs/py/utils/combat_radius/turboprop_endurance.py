@@ -127,21 +127,14 @@ def endurance_dry_mass_kg(params: dict[str, Any]) -> float:
     )['total_kg']
 
 
-def endurance_internal_fuel_kg(params: dict[str, Any], *, land_scenario: bool) -> float:
-    """待战可用内油：舰载用库内油；陆基可取 MTOW 允许的最大燃油（公开 8 h 口径）。"""
-    internal = float(params['internal_fuel_kg'])
-    if not land_scenario:
-        return internal
-    te_cfg = turboprop_endurance_config()
-    if not te_cfg.get('land_use_mtow_fuel', True):
-        return internal
-    mtow = params.get('mtow_kg')
-    if mtow in (None, ''):
-        return internal
-    max_fuel = max(0.0, float(mtow) - endurance_dry_mass_kg(params))
-    if max_fuel <= internal:
-        return internal
-    return max_fuel
+def endurance_internal_fuel_kg(params: dict[str, Any], *, land_scenario: bool = False) -> float:
+    """待战可用内油：固定油箱容量（catalog internal_fuel_kg），舰载/陆基相同。
+
+    预警机无副油箱建模，陆基不能按 MTOW 余量「灌满」超过内油——与 E-2 公开 12,400 lb 油箱一致。
+    land_scenario 参数保留兼容，不再改变油量。
+    """
+    _ = land_scenario
+    return float(params['internal_fuel_kg'])
 
 
 def endurance_loiter_flow_mult(params: dict[str, Any]) -> float:
@@ -320,10 +313,10 @@ def endurance_block_to_dict(
     v0 = s.v0
     scen = scenario or result.scenario
     if scen == 'land':
-        title = '陆基待战续航（30 min 余油·MTOW 满油）'
+        title = '陆基待战续航（30 min 余油）'
         note = (
-            '陆基口径：余油按留航速度闭合；燃油取 MTOW 允许的最大内油；'
-            '油耗经 awacs 角色校准，对齐公开约 8 h 量级。'
+            '陆基口径：内油与舰载相同（固定油箱）；余油 30 min、按留航速度闭合。'
+            '公开「陆基 8 h」常含任务/定义差异，本模型仅余油更宽，时长略高于舰载。'
         )
     elif scen == 'carrier':
         title = '舰载待战续航（45 min 余油）'

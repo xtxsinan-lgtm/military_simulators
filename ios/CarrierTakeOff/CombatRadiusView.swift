@@ -327,7 +327,7 @@ struct CombatRadiusView: View {
                             out.append(("舰载待战续航（45 min 余油）", c, en.scenario == "carrier"))
                         }
                         if let l = v["land"], l.feasible == true {
-                            out.append(("陆基待战续航（30 min·MTOW 满油）", l, en.scenario == "land"))
+                            out.append(("陆基待战续航（30 min·内油同舰载）", l, en.scenario == "land"))
                         }
                         return out
                     }

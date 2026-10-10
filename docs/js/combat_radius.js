@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 88;
+const APP_VERSION = 89;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -1037,7 +1037,7 @@ function renderDash(r, sourceLabel, loadoutState = null, loadoutNote = '') {
   if (variants.carrier || variants.land) {
     enduranceStat = [
       enduranceStatRow('舰载待战续航（45 min 余油）', variants.carrier, en.scenario === 'carrier'),
-      enduranceStatRow('陆基待战续航（30 min 余油·MTOW 满油）', variants.land, en.scenario === 'land'),
+      enduranceStatRow('陆基待战续航（30 min 余油·内油同舰载）', variants.land, en.scenario === 'land'),
     ].join('');
   } else {
     enduranceStat = enduranceStatRow('待战续航（最小流量速度）', en, true);

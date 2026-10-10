@@ -16,8 +16,7 @@
     "default_loiter_flow_mult": 1.0,
     "loiter_flow_mult_by_role": {
       "awacs": 0.79
-    },
-    "land_use_mtow_fuel": true
+    }
   },
   "flight_profiles": {
     "default": "hi_hi_hi",

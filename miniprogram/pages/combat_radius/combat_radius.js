@@ -382,7 +382,7 @@ function enduranceDashPatch(r) {
       rows.push(rowFrom('舰载待战续航（45 min 余油）', variants.carrier, en.scenario === 'carrier'));
     }
     if (variants.land && variants.land.feasible) {
-      rows.push(rowFrom('陆基待战续航（30 min·MTOW 满油）', variants.land, en.scenario === 'land'));
+      rows.push(rowFrom('陆基待战续航（30 min·内油同舰载）', variants.land, en.scenario === 'land'));
     }
   } else {
     rows = [rowFrom('待战续航（最小流量速度）', en, true)];
