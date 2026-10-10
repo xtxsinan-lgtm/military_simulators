@@ -187,9 +187,16 @@ def test_kj600_is_lighter_e2_with_aep500_and_flap_cl_max():
     assert ac.empty_kg == pytest.approx(e2.empty_kg - 1500)
     assert ac.mtow_kg == pytest.approx(e2.mtow_kg - 1000)
     assert ac.internal_fuel_kg == pytest.approx(e2.internal_fuel_kg)
+    assert e2.n_pilots == 5
     assert ac.n_pilots == e2.n_pilots
+    assert e2.a2a_mass_kg == pytest.approx(
+        e2.empty_kg + e2.internal_fuel_kg + 5 * PILOT_LOAD_KG
+    )
+    assert ac.a2a_mass_kg == pytest.approx(
+        ac.empty_kg + ac.internal_fuel_kg + 5 * PILOT_LOAD_KG
+    )
     assert ac.wingspan_m == pytest.approx(25.2)
-    assert ac.wing_area_m2 == pytest.approx(66.7)
+    assert ac.wing_area_m2 == pytest.approx(68.4)
     assert ac.shaft_power_sl_w == pytest.approx(10_000_000)
     assert ac.prop_diameter_m == pytest.approx(e2.prop_diameter_m)
     assert ac.cl_max == pytest.approx(2.0)
@@ -202,6 +209,7 @@ def test_e2_hawkeye_uses_t56_propeller_power_model():
     aircraft = load_aircraft_csv(AIRCRAFT_CSV)
     ac = aircraft['E-2']
     assert ac.empty_kg == pytest.approx(18234)
+    assert ac.n_pilots == 5
     assert ac.mtow_kg == pytest.approx(26082)
     assert ac.wingspan_m == pytest.approx(24.56)
     assert ac.wing_area_m2 == pytest.approx(65.03)

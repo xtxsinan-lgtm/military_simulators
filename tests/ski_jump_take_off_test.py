@@ -114,7 +114,7 @@ def test_apply_cl_max_then_reset_to_mode_default():
     default_cl = ski_conv.CL_MAX
     ski_conv.apply_aircraft_geometry(
         mass_kg=25082,
-        s_ref_m2=66.7,
+        s_ref_m2=68.4,
         wingspan_m=25.2,
         wing_height_m=3.5,
         sweep_le_deg=20,
