@@ -93,6 +93,7 @@ struct MissileInterceptionUiDefaults: Codable {
     var nm: Int?
     var ni: Int?
     var vm: Double?
+    var target_g: Double?
     var rcs: Double?
     var traj: String?
     var awacs_area: Double?
@@ -103,6 +104,7 @@ struct MissileInterceptionUiDefaults: Codable {
     var sam_range: Double?
     var sam_max_alt: Double?
     var vi: Double?
+    var interceptor_g: Double?
     var interceptor_dia: Double?
     var seeker_type: String?
     var tlock: Double?
@@ -484,6 +486,7 @@ struct MissileInterceptionPresetItem: Codable, Identifiable, Hashable {
     var guidance: String?
     var range: Double?
     var max_alt: Double?
+    var max_g: Double?
     var maneuver_class: String?
 }
 
@@ -508,6 +511,14 @@ struct MissileInterceptionResult: Codable {
     var engage_dist: Double?
     var binding: String?
     var speed_factor: Double?
+    var pk_kinematic: Double?
+    var sensor_factor: Double?
+    var target_g: Double?
+    var interceptor_g: Double?
+    var g_required: Double?
+    var miss_m: Double?
+    var lethal_radius_m: Double?
+    var t_go_s: Double?
     var ship_radar_factor: Double?
     var seeker_factor: Double?
     var rcs_factor: Double?

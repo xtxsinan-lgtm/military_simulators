@@ -71,8 +71,16 @@ def test_e2e_missile_interception_estimate_paths():
 
     pk = run_missile_interception_json({'action': 'estimate_pk', 'params': params})
     assert pk['success'] is True
-    assert 0.03 <= pk['pk'] <= 0.97
+    assert 0.03 <= pk['pk'] <= 0.95
+    assert pk['miss_m'] > 0
+    assert pk['target_g'] > 0 and pk['interceptor_g'] > 0
     assert 'ecm_factor' not in pk
+    # 显式提高来袭过载应降低单发 Pk
+    pk_hard = run_missile_interception_json({
+        'action': 'estimate_pk',
+        'params': {**params, 'target_g': 20, 'interceptor_g': 20},
+    })
+    assert pk_hard['pk'] < pk['pk']
     # 遗留抗干扰档数不得影响拦截率估算
     pk_hi = run_missile_interception_json({
         'action': 'estimate_pk',

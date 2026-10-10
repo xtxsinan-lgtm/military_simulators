@@ -10,6 +10,7 @@ final class MissileInterceptionViewModel: ObservableObject {
 
     @Published var nm = "24"
     @Published var vm = "2.6"
+    @Published var targetG = "8"
     @Published var rcs = "0.5"
     @Published var traj = "high"
     @Published var awacsArea = "8"
@@ -22,6 +23,7 @@ final class MissileInterceptionViewModel: ObservableObject {
     @Published var discoveryKm = "120"
     @Published var ni = "16"
     @Published var vi = "3.8"
+    @Published var interceptorG = "30"
     @Published var interceptorDia = "0.35"
     @Published var seekerType = "active_aesa"
     @Published var pk = "0.7"
@@ -84,6 +86,7 @@ final class MissileInterceptionViewModel: ObservableObject {
         if let v = ui.nm { nm = String(v) }
         if let v = ui.ni { ni = String(v) }
         if let v = ui.vm { vm = String(v) }
+        if let v = ui.target_g { targetG = String(v) }
         if let v = ui.rcs { rcs = String(v) }
         if let v = ui.traj { traj = v }
         if let v = ui.awacs_area { awacsArea = String(v) }
@@ -94,6 +97,7 @@ final class MissileInterceptionViewModel: ObservableObject {
         if let v = ui.sam_range { samRange = String(v) }
         if let v = ui.sam_max_alt { samMaxAlt = String(v) }
         if let v = ui.vi { vi = String(v) }
+        if let v = ui.interceptor_g { interceptorG = String(v) }
         if let v = ui.interceptor_dia { interceptorDia = String(v) }
         if let v = ui.seeker_type { seekerType = v }
         if let v = ui.tlock { tlock = String(v) }
@@ -178,6 +182,7 @@ final class MissileInterceptionViewModel: ObservableObject {
     func applyAsmPreset() {
         guard let p = asmPresets.first(where: { $0.id == selectedAsmId }) else { return }
         if let v = p.vm { vm = String(v) }
+        if let v = p.max_g { targetG = String(v) }
         if let v = p.rcs { rcs = String(v) }
         if let v = p.traj { traj = v }
         markResultsStale()
@@ -201,6 +206,7 @@ final class MissileInterceptionViewModel: ObservableObject {
     func applySamPreset() {
         guard let p = samPresets.first(where: { $0.id == selectedSamId }) else { return }
         if let v = p.vi { vi = String(v) }
+        if let v = p.max_g { interceptorG = String(v) }
         if let v = p.dia { interceptorDia = String(v) }
         if let v = p.guidance { seekerType = v }
         if let v = p.range { samRange = String(v) }
@@ -220,7 +226,9 @@ final class MissileInterceptionViewModel: ObservableObject {
             "sam_range": Double(samRange) ?? 40,
             "sam_max_alt": Double(samMaxAlt) ?? 33,
             "vm": Double(vm) ?? 2.6,
+            "target_g": Double(targetG) ?? 8,
             "vi": Double(vi) ?? 3.8,
+            "interceptor_g": Double(interceptorG) ?? 30,
             "interceptor_dia": Double(interceptorDia) ?? 0.35,
             "seeker_type": seekerType,
             "has_awacs": hasAwacs,
@@ -281,7 +289,7 @@ final class MissileInterceptionViewModel: ObservableObject {
                 distNote = "无预警机：巡航 \(hTarget)m / 射高 \(hEngage)m，舰载探测=\(String(format: "%.0f", shipDetect))km，交战距离 \(String(format: "%.1f", dist)) km（受限于：\(distR.binding ?? "")）"
             }
             pk = String(format: "%.2f", value)
-            pkNote = "估算拦截率（单发）= \(String(format: "%.2f", value))（机动性×\(String(format: "%.2f", pkR.maneuver_factor ?? 1))[\(pkR.maneuver_class ?? "cruise")]）"
+            pkNote = "估算拦截率（单发）= \(String(format: "%.2f", value))（运动学 \(String(format: "%.2f", pkR.pk_kinematic ?? 0)) × 传感器 \(String(format: "%.2f", pkR.sensor_factor ?? 0))；来袭 \(String(format: "%.0f", pkR.target_g ?? 0))g / 拦截 \(String(format: "%.0f", pkR.interceptor_g ?? 0))g，脱靶 \(String(format: "%.1f", pkR.miss_m ?? 0))m）"
             statusTag = "READY"
         } catch {
             distNote = error.localizedDescription

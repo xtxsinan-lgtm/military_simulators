@@ -26,6 +26,7 @@ struct MissileInterceptionStrikeView: View {
                         vm.applyAsmPreset()
                     }
                     field("速度 (Ma)", text: $vm.vm, hintKey: "vm")
+                    field("来袭弹末端过载 (g)", text: $vm.targetG, hintKey: "targetG")
                     field("RCS (m²)", text: $vm.rcs, hintKey: "rcs")
                     pickerRow("弹道", selection: $vm.traj, options: vm.trajOptions, hintKey: "traj")
 
@@ -52,6 +53,7 @@ struct MissileInterceptionStrikeView: View {
                     field("拦截弹射程 (km)", text: $vm.samRange, hintKey: "samRange")
                     field("拦截弹最大射高 (km)", text: $vm.samMaxAlt, hintKey: "samMaxAlt")
                     field("拦截弹速度 (Ma)", text: $vm.vi, hintKey: "vi")
+                    field("拦截弹可用过载 (g)", text: $vm.interceptorG, hintKey: "interceptorG")
                     field("拦截弹直径 (m)", text: $vm.interceptorDia, hintKey: "interceptorDia")
                     pickerRow("制导头", selection: $vm.seekerType, options: vm.seekerOptions, hintKey: "seekerType")
                     field("火控锁定时间 (s)", text: $vm.tlock, hintKey: "tlock")

@@ -56,6 +56,10 @@
       <input type="number" id="vm" value="2.6" min="0.1" step="0.1">
     </div>
     <div class="field">
+      <label>来袭弹末端过载 <span class="unit">g</span></label>
+      <input type="number" id="targetG" value="8" min="1" step="0.5">
+    </div>
+    <div class="field">
       <label>反舰导弹 RCS <span class="unit">m²</span></label>
       <input type="number" id="rcs" value="0.5" min="0.001" step="0.01">
     </div>
@@ -124,6 +128,10 @@
     <div class="field">
       <label>拦截弹飞行速度 <span class="unit">马赫 Ma</span></label>
       <input type="number" id="vi" value="3.8" min="0.1" step="0.1">
+    </div>
+    <div class="field">
+      <label>拦截弹可用过载 <span class="unit">g</span></label>
+      <input type="number" id="interceptorG" value="30" min="5" step="1">
     </div>
     <div class="field">
       <label>拦截弹直径 <span class="unit">m</span></label>
@@ -227,7 +235,7 @@
 
 <div class="footer">MONTE CARLO N=<span id="mcN">–</span> · Python 同源仿真 · 仅用于战术资源分配算法演示</div>
 
-<script type="module" src="js/missile_interception.js?v=17"></script>
+<script type="module" src="js/missile_interception.js?v=18"></script>
 <button type="button" id="backToTop" class="back-to-top" hidden>↑ 顶部</button>
 </body>
 </html>

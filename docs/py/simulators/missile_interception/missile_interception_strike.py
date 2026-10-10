@@ -185,6 +185,8 @@ def run_estimate_distance_from_params(params: dict[str, Any]) -> dict[str, Any]:
 
 def run_estimate_pk_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """从参数字典估算 Pk（供 Web/API）。"""
+    raw_tg = params.get('target_g', None)
+    raw_ig = params.get('interceptor_g', None)
     return estimate_pk(
         vm_ma=float(params.get('vm', _EST['vm'])),
         vi_ma=float(params.get('vi', _EST['vi'])),
@@ -196,6 +198,8 @@ def run_estimate_pk_from_params(params: dict[str, Any]) -> dict[str, Any]:
         seeker_type=str(params.get('seeker_type', _EST['seeker_type'])),
         maneuver_class=str(params.get('maneuver_class', '') or '') or None,
         asm_id=str(params.get('asm_id', '') or ''),
+        target_g=None if raw_tg in (None, '') else float(raw_tg),
+        interceptor_g=None if raw_ig in (None, '') else float(raw_ig),
     )
 
 

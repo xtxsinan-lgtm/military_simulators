@@ -3,7 +3,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 missile-interception-strike.html 中 ?v= 同步递增 */
-const APP_VERSION = 17;
+const APP_VERSION = 18;
 
 /** 预警机预设中「无预警机」的特殊 value */
 const AEW_NONE_VALUE = '__none__';
@@ -156,6 +156,7 @@ function applyPresetsFromData() {
   const presets = data.missile_interception_presets || {};
   bindNationModelSelects($('asmNation'), $('asmPreset'), presets.asm || [], (p) => {
     $('vm').value = p.vm;
+    if (p.max_g != null) $('targetG').value = p.max_g;
     $('rcs').value = p.rcs;
     $('traj').value = p.traj;
   });
@@ -175,6 +176,7 @@ function applyPresetsFromData() {
       presets: presets.sam || [],
       apply: (p) => {
         $('vi').value = p.vi;
+        if (p.max_g != null) $('interceptorG').value = p.max_g;
         $('interceptorDia').value = p.dia;
         $('seekerType').value = p.guidance;
         $('samRange').value = p.range;
@@ -323,7 +325,9 @@ function collectEstimateParams() {
     sam_range: +$('samRange').value,
     sam_max_alt: +$('samMaxAlt').value,
     vm: +$('vm').value,
+    target_g: +$('targetG').value,
     vi: +$('vi').value,
+    interceptor_g: +$('interceptorG').value,
     interceptor_dia: +$('interceptorDia').value,
     seeker_type: $('seekerType').value,
     has_awacs: $('aewPreset').value !== AEW_NONE_VALUE,
@@ -533,7 +537,7 @@ async function onEstimateDistanceAndPk() {
     if (!pkR.success) throw new Error(pkR.error || '拦截率估算失败');
     $('pk').value = Number(pkR.pk).toFixed(2);
     $('pkEstBreakdown').textContent =
-      `估算拦截率（单发）= ${pkR.pk.toFixed(2)}（基线0.75 × 速度系数${pkR.speed_factor.toFixed(2)} × 舰载雷达增益${pkR.ship_radar_factor.toFixed(2)} × 导引头增益${pkR.seeker_factor.toFixed(2)} × RCS系数${pkR.rcs_factor.toFixed(2)} × 弹道系数${pkR.traj_factor.toFixed(2)} × 机动性系数${Number(pkR.maneuver_factor).toFixed(2)}[${pkR.maneuver_class}]）— 已填入下方「单发拦截成功概率」，可手动修改。`;
+      `估算拦截率（单发）= ${pkR.pk.toFixed(2)}（运动学 ${Number(pkR.pk_kinematic).toFixed(2)} × 传感器 ${Number(pkR.sensor_factor).toFixed(2)}；来袭 ${Number(pkR.target_g).toFixed(0)}g / 拦截 ${Number(pkR.interceptor_g).toFixed(0)}g，需用 ${Number(pkR.g_required).toFixed(0)}g；脱靶 ${Number(pkR.miss_m).toFixed(1)}m / 杀伤半径 ${Number(pkR.lethal_radius_m).toFixed(0)}m，末制导 ${Number(pkR.t_go_s).toFixed(1)}s）— 已填入下方「单发拦截成功概率」，可手动修改。`;
   } catch (e) {
     const msg = String(e.message || e);
     $('distBreakdown').textContent = msg;
@@ -615,6 +619,7 @@ function applyMissileInterceptionUiDefaults() {
     Nm: ui.nm,
     Ni: ui.ni,
     vm: ui.vm,
+    targetG: ui.target_g,
     rcs: ui.rcs,
     awacsArea: ui.awacs_area,
     standoff: ui.standoff,
@@ -622,6 +627,7 @@ function applyMissileInterceptionUiDefaults() {
     samRange: ui.sam_range,
     samMaxAlt: ui.sam_max_alt ?? 33,
     vi: ui.vi,
+    interceptorG: ui.interceptor_g,
     interceptorDia: ui.interceptor_dia,
     tlock: ui.tlock,
     minr: ui.minr,

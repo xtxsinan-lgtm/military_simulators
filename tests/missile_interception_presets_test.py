@@ -24,6 +24,28 @@ def test_get_preset_by_id_found():
     assert p['traj'] == 'high'
 
 
+def test_missile_presets_have_positive_max_g():
+    """反舰弹与防空弹预设都带正的末端过载，供运动学 Pk 使用。"""
+    for group in (ASM_PRESETS, SAM_PRESETS):
+        assert group
+        for item in group:
+            assert item.get('max_g', 0) > 0, item['id']
+
+
+def test_published_g_anchors():
+    """少量有公开或广泛引用量级的过载锚点：Aster 30 高过载，亚音速鱼叉远低于它。"""
+    aster = get_preset_by_id(SAM_PRESETS, 'aster30')
+    essm = get_preset_by_id(SAM_PRESETS, 'essm')
+    harpoon = get_preset_by_id(ASM_PRESETS, 'harpoon')
+    zircon = get_preset_by_id(ASM_PRESETS, 'zircon')
+    yj21 = get_preset_by_id(ASM_PRESETS, 'yj21')
+    assert aster is not None and aster['max_g'] >= 50
+    assert essm is not None and essm['max_g'] >= 40
+    assert harpoon is not None and harpoon['max_g'] <= 6
+    assert zircon is not None and zircon['max_g'] <= harpoon['max_g'] + 3
+    assert yj21 is not None and yj21['max_g'] > zircon['max_g']
+
+
 def test_yj17_yj20_yj21_traj_types():
     """鹰击-17 为滑翔体弹道，鹰击-20/21 为弹道导弹弹道。"""
     yj17 = get_preset_by_id(ASM_PRESETS, 'yj17')

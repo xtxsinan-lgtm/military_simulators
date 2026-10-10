@@ -40,6 +40,11 @@
       <view class="field-range" wx:if="{{ranges.vm}}">范围 {{ranges.vm.min}}–{{ranges.vm.max}} Ma</view>
     </view>
     <view class="field">
+      <view class="field-label"><text>来袭弹末端过载</text><text class="hint-q" data-key="targetG" bindtap="onHint">?</text><text class="unit">g</text></view>
+      <input class="input" type="digit" value="{{targetG}}" data-key="targetG" bindinput="onField"/>
+      <view class="field-range" wx:if="{{ranges.targetG}}">范围 {{ranges.targetG.min}}–{{ranges.targetG.max}} g</view>
+    </view>
+    <view class="field">
       <view class="field-label"><text>RCS</text><text class="hint-q" data-key="rcs" bindtap="onHint">?</text><text class="unit">m²</text></view>
       <input class="input" type="digit" value="{{rcs}}" data-key="rcs" bindinput="onField"/>
     </view>
@@ -114,6 +119,11 @@
     <view class="field">
       <view class="field-label"><text>拦截弹速度</text><text class="unit">Ma</text></view>
       <input class="input" type="digit" value="{{vi}}" data-key="vi" bindinput="onField"/>
+    </view>
+    <view class="field">
+      <view class="field-label"><text>拦截弹可用过载</text><text class="hint-q" data-key="interceptorG" bindtap="onHint">?</text><text class="unit">g</text></view>
+      <input class="input" type="digit" value="{{interceptorG}}" data-key="interceptorG" bindinput="onField"/>
+      <view class="field-range" wx:if="{{ranges.interceptorG}}">范围 {{ranges.interceptorG.min}}–{{ranges.interceptorG.max}} g</view>
     </view>
     <view class="field">
       <view class="field-label"><text>拦截弹直径</text><text class="hint-q" data-key="interceptorDia" bindtap="onHint">?</text><text class="unit">m</text></view>

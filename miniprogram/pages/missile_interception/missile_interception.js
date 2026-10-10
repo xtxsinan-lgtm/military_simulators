@@ -103,10 +103,10 @@ Page({
     radarTypeNames: RADAR_TYPE_NAMES,
     awacsTypeIndex: 2, shipTypeIndex: 2, seekerIndex: 0,
     seekerNames: SEEKER_NAMES,
-    nm: '24', vm: '2.6', rcs: '0.5', asmId: '', maneuverClass: '',
+    nm: '24', vm: '2.6', targetG: '8', rcs: '0.5', asmId: '', maneuverClass: '',
     awacsArea: '8', standoff: '150',
     shipArea: '12', samRange: '40', samMaxAlt: '33',
-    discoveryKm: '120', ni: '16', vi: '3.8',
+    discoveryKm: '120', ni: '16', vi: '3.8', interceptorG: '30',
     interceptorDia: '0.35', pk: '0.7', tlock: '6', minr: '3',
     awacsDetectKm: '待估算', shipDetectKm: '待估算', diveEntryDisplay: '—',
     distNote: '', pkNote: '', statusText: '', statusTag: 'STANDBY',
@@ -140,6 +140,7 @@ Page({
         samNames: modelNames(samList),
         nm: String(ui.nm ?? '24'),
         vm: String(ui.vm ?? '2.6'),
+        targetG: String(ui.target_g ?? '8'),
         rcs: String(ui.rcs ?? '0.5'),
         awacsArea: String(ui.awacs_area ?? '8'),
         standoff: String(ui.standoff ?? '150'),
@@ -149,6 +150,7 @@ Page({
         discoveryKm: String(ui.discovery_km ?? '120'),
         ni: String(ui.ni ?? '16'),
         vi: String(ui.vi ?? '3.8'),
+        interceptorG: String(ui.interceptor_g ?? '30'),
         interceptorDia: String(ui.interceptor_dia ?? '0.35'),
         pk: String(ui.pk ?? '0.7'),
         tlock: String(ui.tlock ?? '6'),
@@ -246,7 +248,9 @@ Page({
     const p = this.data.asmFiltered[idx - 1];
     if (!p) return;
     this.setData({
-      vm: String(p.vm), rcs: String(p.rcs),
+      vm: String(p.vm),
+      targetG: p.max_g != null ? String(p.max_g) : this.data.targetG,
+      rcs: String(p.rcs),
       trajIndex: trajIndexForId(this._trajKeys || trajFromConfig().keys, p.traj),
       asmId: p.id || '',
       maneuverClass: p.maneuver_class || '',
@@ -284,7 +288,9 @@ Page({
     const p = this.data.samFiltered[idx - 1];
     if (!p) return;
     this.setData({
-      vi: String(p.vi), interceptorDia: String(p.dia), samRange: String(p.range),
+      vi: String(p.vi),
+      interceptorG: p.max_g != null ? String(p.max_g) : this.data.interceptorG,
+      interceptorDia: String(p.dia), samRange: String(p.range),
       samMaxAlt: p.max_alt != null ? String(p.max_alt) : this.data.samMaxAlt,
       seekerIndex: Math.max(0, SEEKERS.indexOf(p.guidance)),
     });
@@ -304,7 +310,9 @@ Page({
       sam_range: num(d.samRange, 40),
       sam_max_alt: num(d.samMaxAlt, 33),
       vm: num(d.vm, 2.6),
+      target_g: num(d.targetG, 8),
       vi: num(d.vi, 3.8),
+      interceptor_g: num(d.interceptorG, 30),
       interceptor_dia: num(d.interceptorDia, 0.35),
       seeker_type: SEEKERS[d.seekerIndex] || 'active_aesa',
       has_awacs: d.aewIndex !== 0,
@@ -334,7 +342,7 @@ Page({
             discoveryKm: fmt(dist.engage_dist, 1),
             distNote,
             pk: fmt(pkR.pk, 2),
-            pkNote: `估算拦截率（单发）= ${fmt(pkR.pk, 2)}（含机动性×${fmt(pkR.maneuver_factor, 2)}[${pkR.maneuver_class || 'cruise'}]）`,
+            pkNote: `估算拦截率（单发）= ${fmt(pkR.pk, 2)}（运动学 ${fmt(pkR.pk_kinematic, 2)} × 传感器 ${fmt(pkR.sensor_factor, 2)}；来袭 ${fmt(pkR.target_g, 0)}g / 拦截 ${fmt(pkR.interceptor_g, 0)}g，脱靶 ${fmt(pkR.miss_m, 1)}m）`,
           });
         });
       })

@@ -1365,7 +1365,7 @@ module.exports = {
       "max_payload_kg": 4500.0,
       "bvr_missile": "AIM-120C AMRAAM",
       "missile_mass_kg": 152.0,
-      "cd0": 0.03070889364541749,
+      "cd0": 0.030708893645417495,
       "t_max_sl_n": 78700.0,
       "t_main_stovl_sl_n": null,
       "t_liftfan_sl_n": null,
@@ -1660,7 +1660,8 @@ module.exports = {
         "notes": "公开资料速度/弹道；RCS 为量级估计",
         "vm": 0.93,
         "rcs": 0.15,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 5.0
       },
       {
         "id": "harpoon",
@@ -1669,7 +1670,8 @@ module.exports = {
         "notes": "公开资料速度/弹道；RCS 为量级估计",
         "vm": 0.85,
         "rcs": 0.3,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 4.0
       },
       {
         "id": "yj12",
@@ -1679,7 +1681,8 @@ module.exports = {
         "vm": 3.5,
         "rcs": 0.3,
         "traj": "high",
-        "maneuver_class": "scramjet"
+        "maneuver_class": "scramjet",
+        "max_g": 10.0
       },
       {
         "id": "yj18",
@@ -1688,7 +1691,8 @@ module.exports = {
         "notes": "公开资料速度/弹道；RCS 为量级估计",
         "vm": 3.0,
         "rcs": 0.2,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 8.0
       },
       {
         "id": "kalibr",
@@ -1697,7 +1701,8 @@ module.exports = {
         "notes": "公开资料速度/弹道；RCS 为量级估计",
         "vm": 2.9,
         "rcs": 0.2,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 8.0
       },
       {
         "id": "brahmos",
@@ -1707,7 +1712,8 @@ module.exports = {
         "vm": 3.0,
         "rcs": 0.3,
         "traj": "sea",
-        "maneuver_class": "scramjet"
+        "maneuver_class": "scramjet",
+        "max_g": 12.0
       },
       {
         "id": "nsm",
@@ -1716,7 +1722,8 @@ module.exports = {
         "notes": "公开资料速度/弹道；RCS 为量级估计",
         "vm": 0.93,
         "rcs": 0.05,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 6.0
       },
       {
         "id": "yj83",
@@ -1725,7 +1732,8 @@ module.exports = {
         "notes": "公开资料亚音速掠海反舰弹·射程约180km；部分资料称末端可加速至1.2-1.4Ma；RCS为量级估计",
         "vm": 0.9,
         "rcs": 0.2,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 5.0
       },
       {
         "id": "yj62",
@@ -1734,7 +1742,8 @@ module.exports = {
         "notes": "公开资料亚音速掠海反舰弹·巡航高度30m/末段7-10m·射程约280-400km；RCS为量级估计",
         "vm": 0.8,
         "rcs": 0.25,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 4.0
       },
       {
         "id": "yj91",
@@ -1743,7 +1752,8 @@ module.exports = {
         "notes": "反辐射弹改型反舰弹·末端掠海约1.2m·射程约110km；RCS为量级估计",
         "vm": 3.5,
         "rcs": 0.15,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 10.0
       },
       {
         "id": "yj17",
@@ -1753,7 +1763,8 @@ module.exports = {
         "vm": 8.0,
         "rcs": 0.1,
         "traj": "glide",
-        "maneuver_class": "glide"
+        "maneuver_class": "glide",
+        "max_g": 8.0
       },
       {
         "id": "yj19",
@@ -1763,7 +1774,8 @@ module.exports = {
         "vm": 8.5,
         "rcs": 0.15,
         "traj": "high",
-        "maneuver_class": "scramjet"
+        "maneuver_class": "scramjet",
+        "max_g": 5.0
       },
       {
         "id": "yj20",
@@ -1773,7 +1785,8 @@ module.exports = {
         "vm": 10.0,
         "rcs": 0.1,
         "traj": "ballistic",
-        "maneuver_class": "dual_cone"
+        "maneuver_class": "dual_cone",
+        "max_g": 15.0
       },
       {
         "id": "yj21",
@@ -1783,7 +1796,8 @@ module.exports = {
         "vm": 10.0,
         "rcs": 0.12,
         "traj": "ballistic",
-        "maneuver_class": "dual_cone"
+        "maneuver_class": "dual_cone",
+        "max_g": 15.0
       },
       {
         "id": "lrasm",
@@ -1792,7 +1806,8 @@ module.exports = {
         "notes": "JASSM衍生低RCS隐身反舰弹·多模复合导引头(GPS/INS+成像红外+无源ESM)含自主目标识别；RCS为量级估计",
         "vm": 0.9,
         "rcs": 0.04,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 5.0
       },
       {
         "id": "jsm",
@@ -1801,7 +1816,8 @@ module.exports = {
         "notes": "F-35内埋弹舱适配隐身反舰弹·可高-高-低/低-低-低多剖面飞行；RCS为量级估计",
         "vm": 0.9,
         "rcs": 0.05,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 5.0
       },
       {
         "id": "zircon",
@@ -1811,7 +1827,8 @@ module.exports = {
         "vm": 8.0,
         "rcs": 0.2,
         "traj": "high",
-        "maneuver_class": "scramjet"
+        "maneuver_class": "scramjet",
+        "max_g": 5.0
       },
       {
         "id": "p500",
@@ -1821,7 +1838,8 @@ module.exports = {
         "vm": 2.5,
         "rcs": 0.35,
         "traj": "high",
-        "maneuver_class": "scramjet"
+        "maneuver_class": "scramjet",
+        "max_g": 8.0
       },
       {
         "id": "p700",
@@ -1831,7 +1849,8 @@ module.exports = {
         "vm": 2.5,
         "rcs": 0.35,
         "traj": "high",
-        "maneuver_class": "scramjet"
+        "maneuver_class": "scramjet",
+        "max_g": 8.0
       },
       {
         "id": "p270",
@@ -1841,7 +1860,8 @@ module.exports = {
         "vm": 2.2,
         "rcs": 0.3,
         "traj": "sea",
-        "maneuver_class": "scramjet"
+        "maneuver_class": "scramjet",
+        "max_g": 12.0
       },
       {
         "id": "kh22",
@@ -1850,7 +1870,8 @@ module.exports = {
         "notes": "大型高空超音速反舰/对陆弹·高空模式爬升27000m后俯冲·射程约600km；RCS为量级估计",
         "vm": 4.6,
         "rcs": 0.4,
-        "traj": "high"
+        "traj": "high",
+        "max_g": 6.0
       },
       {
         "id": "kh32",
@@ -1859,7 +1880,8 @@ module.exports = {
         "notes": "Kh-22升级型·升限达40000m·射程约600-1000km；RCS为量级估计",
         "vm": 4.6,
         "rcs": 0.4,
-        "traj": "high"
+        "traj": "high",
+        "max_g": 6.0
       },
       {
         "id": "kh31",
@@ -1869,7 +1891,8 @@ module.exports = {
         "vm": 2.5,
         "rcs": 0.15,
         "traj": "sea",
-        "maneuver_class": "scramjet"
+        "maneuver_class": "scramjet",
+        "max_g": 10.0
       },
       {
         "id": "kh15",
@@ -1879,7 +1902,8 @@ module.exports = {
         "vm": 5.0,
         "rcs": 0.15,
         "traj": "high",
-        "maneuver_class": "dual_cone"
+        "maneuver_class": "dual_cone",
+        "max_g": 12.0
       },
       {
         "id": "hf2",
@@ -1888,7 +1912,8 @@ module.exports = {
         "notes": "亚音速掠海反舰弹·射程约80km·弹径0.34m；RCS为量级估计",
         "vm": 0.75,
         "rcs": 0.2,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 4.0
       },
       {
         "id": "hf3",
@@ -1898,7 +1923,8 @@ module.exports = {
         "vm": 2.5,
         "rcs": 0.25,
         "traj": "sea",
-        "maneuver_class": "scramjet"
+        "maneuver_class": "scramjet",
+        "max_g": 10.0
       },
       {
         "id": "rbs15",
@@ -1907,7 +1933,8 @@ module.exports = {
         "notes": "亚音速掠海反舰弹·惯性/抗干扰GPS/J波段主动雷达制导·射程超300km；RCS为量级估计",
         "vm": 0.9,
         "rcs": 0.2,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 5.0
       },
       {
         "id": "taurus350",
@@ -1916,7 +1943,8 @@ module.exports = {
         "notes": "隐身外形亚音速巡航弹·地形跟踪低空突防(30-40m)·主要用于对陆/大型舰船·射程超500km；RCS为量级估计",
         "vm": 0.9,
         "rcs": 0.1,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 4.0
       },
       {
         "id": "quicksink",
@@ -1925,7 +1953,8 @@ module.exports = {
         "notes": "GBU-31/GBU-38 JDAM改装反舰套件(加装雷达+成像红外导引头)·由高空投放滑翔·滑翔射程约74km；RCS为量级估计",
         "vm": 0.9,
         "rcs": 0.15,
-        "traj": "high"
+        "traj": "high",
+        "max_g": 3.0
       },
       {
         "id": "tasm",
@@ -1934,7 +1963,8 @@ module.exports = {
         "notes": "战斧Block Va海上打击型·GPS/INS加改进导引头可打击海上机动目标·射程约1600km；RCS为量级估计",
         "vm": 0.75,
         "rcs": 0.2,
-        "traj": "sea"
+        "traj": "sea",
+        "max_g": 4.0
       },
       {
         "id": "aargmer",
@@ -1943,7 +1973,8 @@ module.exports = {
         "notes": "反辐射弹用于压制/摧毁舰载雷达等辐射源·射程约130km；RCS为量级估计",
         "vm": 2.0,
         "rcs": 0.07,
-        "traj": "high"
+        "traj": "high",
+        "max_g": 8.0
       }
     ],
     "aew": [
@@ -2350,7 +2381,8 @@ module.exports = {
         "dia": 0.343,
         "guidance": "semi_active",
         "range": 167.0,
-        "max_alt": 24.4
+        "max_alt": 24.4,
+        "max_g": 25.0
       },
       {
         "id": "sm6",
@@ -2361,7 +2393,8 @@ module.exports = {
         "dia": 0.343,
         "guidance": "active_mech",
         "range": 240.0,
-        "max_alt": 33.0
+        "max_alt": 33.0,
+        "max_g": 30.0
       },
       {
         "id": "aster30",
@@ -2372,7 +2405,8 @@ module.exports = {
         "dia": 0.18,
         "guidance": "active_mech",
         "range": 120.0,
-        "max_alt": 20.0
+        "max_alt": 20.0,
+        "max_g": 60.0
       },
       {
         "id": "essm",
@@ -2383,7 +2417,8 @@ module.exports = {
         "dia": 0.254,
         "guidance": "active_mech",
         "range": 50.0,
-        "max_alt": 15.0
+        "max_alt": 15.0,
+        "max_g": 50.0
       },
       {
         "id": "hhq9",
@@ -2394,7 +2429,8 @@ module.exports = {
         "dia": 0.56,
         "guidance": "active_mech",
         "range": 200.0,
-        "max_alt": 30.0
+        "max_alt": 30.0,
+        "max_g": 22.0
       },
       {
         "id": "barak8",
@@ -2405,7 +2441,8 @@ module.exports = {
         "dia": 0.225,
         "guidance": "active_mech",
         "range": 100.0,
-        "max_alt": 16.0
+        "max_alt": 16.0,
+        "max_g": 30.0
       },
       {
         "id": "seaceptor",
@@ -2416,7 +2453,8 @@ module.exports = {
         "dia": 0.166,
         "guidance": "active_aesa",
         "range": 25.0,
-        "max_alt": 10.0
+        "max_alt": 10.0,
+        "max_g": 40.0
       },
       {
         "id": "s300f",
@@ -2427,7 +2465,8 @@ module.exports = {
         "dia": 0.52,
         "guidance": "semi_active",
         "range": 150.0,
-        "max_alt": 27.0
+        "max_alt": 27.0,
+        "max_g": 20.0
       },
       {
         "id": "sm2er",
@@ -2438,7 +2477,8 @@ module.exports = {
         "dia": 0.343,
         "guidance": "semi_active",
         "range": 240.0,
-        "max_alt": 24.4
+        "max_alt": 24.4,
+        "max_g": 25.0
       },
       {
         "id": "hhq9b",
@@ -2449,7 +2489,8 @@ module.exports = {
         "dia": 0.56,
         "guidance": "active_mech",
         "range": 260.0,
-        "max_alt": 30.0
+        "max_alt": 30.0,
+        "max_g": 25.0
       },
       {
         "id": "hhq16f",
@@ -2460,7 +2501,8 @@ module.exports = {
         "dia": 0.34,
         "guidance": "semi_active",
         "range": 160.0,
-        "max_alt": 27.0
+        "max_alt": 27.0,
+        "max_g": 24.0
       },
       {
         "id": "hq10",
@@ -2471,7 +2513,8 @@ module.exports = {
         "dia": 0.12,
         "guidance": "active_mech",
         "range": 9.0,
-        "max_alt": 6.0
+        "max_alt": 6.0,
+        "max_g": 25.0
       },
       {
         "id": "rim116",
@@ -2482,7 +2525,8 @@ module.exports = {
         "dia": 0.159,
         "guidance": "active_mech",
         "range": 15.0,
-        "max_alt": 5.0
+        "max_alt": 5.0,
+        "max_g": 20.0
       },
       {
         "id": "hhq16b",
@@ -2493,7 +2537,8 @@ module.exports = {
         "dia": 0.34,
         "guidance": "semi_active",
         "range": 70.0,
-        "max_alt": 25.0
+        "max_alt": 25.0,
+        "max_g": 22.0
       },
       {
         "id": "kmsam",
@@ -2504,7 +2549,8 @@ module.exports = {
         "dia": 0.275,
         "guidance": "semi_active",
         "range": 40.0,
-        "max_alt": 15.0
+        "max_alt": 15.0,
+        "max_g": 50.0
       },
       {
         "id": "ksaam",
@@ -2515,7 +2561,8 @@ module.exports = {
         "dia": 0.13,
         "guidance": "active_mech",
         "range": 20.0,
-        "max_alt": 10.0
+        "max_alt": 10.0,
+        "max_g": 30.0
       },
       {
         "id": "aster15",
@@ -2526,7 +2573,8 @@ module.exports = {
         "dia": 0.18,
         "guidance": "active_mech",
         "range": 30.0,
-        "max_alt": 13.0
+        "max_alt": 13.0,
+        "max_g": 50.0
       },
       {
         "id": "vlmica",
@@ -2537,7 +2585,8 @@ module.exports = {
         "dia": 0.16,
         "guidance": "active_mech",
         "range": 20.0,
-        "max_alt": 9.0
+        "max_alt": 9.0,
+        "max_g": 50.0
       }
     ]
   },
@@ -2865,7 +2914,36 @@ module.exports = {
         "ballistic": 0.72
       },
       "lock_fraction": 0.65,
-      "pk0": 0.75
+      "pk0": 0.75,
+      "pk_kinematics": {
+        "g0": 9.80665,
+        "nav_ratio": 4.0,
+        "tau_aero_s": 0.32,
+        "tau_tvc_s": 0.15,
+        "tvc_g": 45.0,
+        "tau_track_s": 0.4,
+        "semi_active_extra_s": 0.08,
+        "homing_range_m": 8000.0,
+        "homing_mach_knee": 2.5,
+        "homing_mach_slope": 0.08,
+        "homing_floor": 0.35,
+        "lag_coeff": 1.0,
+        "settle_taus": 3.0,
+        "heading_error_deg": 0.5,
+        "heading_mach_k": 0.15,
+        "heading_mach_ref": 1.5,
+        "heading_exp": 1.4,
+        "lethal_radius_m": 20.0,
+        "lethal_ref_dia_m": 0.34,
+        "lethal_exp": 0.6,
+        "lethal_floor_m": 8.0,
+        "lethal_cap_m": 22.0,
+        "sensor_ref": 1.25,
+        "sensor_lo": 0.4,
+        "sensor_hi": 1.15,
+        "pk_lo": 0.03,
+        "pk_hi": 0.95
+      }
     },
     "traj_types": {
       "high": "高空 / 常规弹道",
@@ -2877,6 +2955,7 @@ module.exports = {
       "nm": 24,
       "ni": 16,
       "vm": 2.6,
+      "target_g": 8,
       "rcs": 0.5,
       "traj": "high",
       "awacs_area": 8,
@@ -2887,6 +2966,7 @@ module.exports = {
       "sam_range": 40,
       "sam_max_alt": 33,
       "vi": 3.8,
+      "interceptor_g": 30,
       "interceptor_dia": 0.35,
       "seeker_type": "active_aesa",
       "tlock": 6,
@@ -2913,7 +2993,9 @@ module.exports = {
       "sam_range": 40,
       "sam_max_alt": 33,
       "vm": 2.6,
+      "target_g": 8,
       "vi": 3.8,
+      "interceptor_g": 30,
       "interceptor_dia": 0.35,
       "seeker_type": "active_aesa"
     },
@@ -2921,6 +3003,8 @@ module.exports = {
       "nm": "同时来袭的反舰导弹枚数。数量越大，防空弹药越容易被摊薄。",
       "ni": "本舰可用于本次交战的防空拦截弹库存。",
       "vm": "来袭导弹飞行速度，以海平面声速倍数表示（1 Ma ≈ 340 m/s）。",
+      "targetG": "来袭弹末端可用过载（g）。公开资料很少，预设为量级估计：亚音速掠海约 4–6g，超音速末端机动约 8–12g，高超声速巡航约 5g，滑翔体约 8g，反舰弹道末制导约 15g。",
+      "interceptorG": "拦截弹可用过载（g）。Aster / ESSM / MICA 一类有公开或广泛引用的高过载；标准系列、红旗-9、S-300 等大型弹按弹体级别估计。过载达到约 45g 时按推力矢量/直接力，响应更快。",
       "rcs": "雷达散射截面积：目标被雷达「看见」的有效反射面积，越小越难探测。",
       "traj": "弹道类型影响巡航高度、海杂波环境和导引头截获难度。",
       "awacsArea": "预警机雷达天线有效孔径。面积越大，功率限制下的探测距离越远。",
@@ -2935,7 +3019,7 @@ module.exports = {
       "seekerType": "主动 AESA 最强；半主动依赖舰载雷达持续照射。",
       "tlock": "每轮开火前的火控锁定/再装订时间。越长则窗口数越少。",
       "minr": "小于此距离不再拦截（近界/最小交战距离）。",
-      "pk": "单发拦截成功概率（0–1）。可由上方估算填入，也可手动覆盖。"
+      "pk": "单发拦截成功概率（0–1）。由速度、双方过载和导引头口径估算末段脱靶后，再乘雷达/RCS/弹道系数。可由上方估算填入，也可手动覆盖。"
     },
     "field_ranges": {
       "nm": {
@@ -2955,6 +3039,12 @@ module.exports = {
         "max": 12,
         "step": 0.1,
         "unit": "Ma"
+      },
+      "targetG": {
+        "min": 1,
+        "max": 40,
+        "step": 0.5,
+        "unit": "g"
       },
       "rcs": {
         "min": 0.001,
@@ -2997,6 +3087,12 @@ module.exports = {
         "max": 12,
         "step": 0.1,
         "unit": "Ma"
+      },
+      "interceptorG": {
+        "min": 5,
+        "max": 80,
+        "step": 1,
+        "unit": "g"
       },
       "interceptorDia": {
         "min": 0.05,

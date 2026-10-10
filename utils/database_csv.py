@@ -39,7 +39,7 @@ CARRIERS_CSV_COLUMNS = (
 MISSILE_INTERCEPTION_MISSILE_CSV_COLUMNS = (
     'category', 'id', 'name', 'nation',
     'vm_ma', 'rcs_m2', 'traj', 'maneuver_class',
-    'vi_ma', 'dia_m', 'guidance', 'range_km', 'max_alt_km',
+    'vi_ma', 'dia_m', 'guidance', 'range_km', 'max_alt_km', 'max_g',
     'notes',
 )
 
@@ -525,6 +525,9 @@ def load_missile_interception_missile_csv(path: str | Path) -> dict[str, list[di
                 max_alt = _parse_optional_float(row.get('max_alt_km') or '')
                 if max_alt is not None:
                     item['max_alt'] = max_alt
+            max_g = _parse_optional_float(row.get('max_g') or '')
+            if max_g is not None:
+                item['max_g'] = max_g
             grouped[cat].append(item)
     for cat in MISSILE_INTERCEPTION_MISSILE_CATEGORIES:
         if not grouped[cat]:

@@ -1,6 +1,7 @@
-"""饱和打击用简化雷达方程估算（探测距离 / 火控锁定 / 单发 Pk）。
+"""饱和打击用简化雷达方程与末段运动学估算（探测距离 / 火控锁定 / 单发 Pk）。
 
-仅为演示用启发式模型，不对应任何真实型号实测参数。
+单发 Pk 由比例导引末段脱靶（双方速度与过载）再乘传感器系数得到。
+过载多为公开量级或估计，不对应型号实测鉴定值。
 """
 from __future__ import annotations
 
@@ -26,9 +27,6 @@ PK_TRAJ_FACTOR: dict[str, float] = dict(_PHYS.get('pk_traj_factor', {'sea': 0.85
 
 # 火控锁定距离占搜索探测距离的比例
 LOCK_FRACTION = float(_PHYS['lock_fraction'])
-
-# Pk 基线（相对中等 RCS、无机动目标）
-PK0 = float(_PHYS['pk0'])
 
 # 冲压 / 超燃冲压等型号 id（CSV 未填 maneuver_class 时回退）
 _SCRAMJET_ASM_IDS = frozenset({
@@ -77,8 +75,165 @@ def default_maneuver_class(traj: str, asm_id: str = '') -> str:
 
 
 def maneuver_pk_factor(maneuver_class: str) -> float:
-    """目标机动性对 Pk 的修正（<1 表示目标更灵活、更难拦截）。"""
+    """旧版机动性类别乘数。Pk 已改用过载；此函数仅保留类别表供对照。"""
     return float(MANEUVER_PK.get(maneuver_class, MANEUVER_PK.get('cruise', 1.0)))
+
+
+def _kin() -> dict[str, float]:
+    """读取末段运动学常数；缺省键用内置默认，避免旧配置注入后缺字段。"""
+    raw = dict(physics_config().get('pk_kinematics') or {})
+    defaults = {
+        'g0': 9.80665,
+        'nav_ratio': 4.0,
+        'tau_aero_s': 0.32,
+        'tau_tvc_s': 0.15,
+        'tvc_g': 45.0,
+        'tau_track_s': 0.4,
+        'semi_active_extra_s': 0.08,
+        'homing_range_m': 8000.0,
+        'homing_mach_knee': 2.5,
+        'homing_mach_slope': 0.08,
+        'homing_floor': 0.35,
+        'lag_coeff': 1.0,
+        'settle_taus': 3.0,
+        'heading_error_deg': 0.5,
+        'heading_mach_k': 0.15,
+        'heading_mach_ref': 1.5,
+        'heading_exp': 1.4,
+        'lethal_radius_m': 20.0,
+        'lethal_ref_dia_m': 0.34,
+        'lethal_exp': 0.6,
+        'lethal_floor_m': 8.0,
+        'lethal_cap_m': 22.0,
+        'sensor_ref': 1.25,
+        'sensor_lo': 0.4,
+        'sensor_hi': 1.15,
+        'pk_lo': 0.03,
+        'pk_hi': 0.95,
+    }
+    defaults.update({k: float(v) for k, v in raw.items()})
+    return defaults
+
+
+def default_target_g(maneuver_class: str, vm_ma: float) -> float:
+    """未给出过载时，按机动类别与速度估计来袭弹末端可用过载（g）。
+
+    亚音速巡航按数 g 的拉起/蛇形；超音速巡航更高。
+    冲压在中低马赫按末端机动（约 12g），马赫 5 以上按热/结构限制降到约 5g。
+    滑翔体约 8g，双锥末制导约 15g。
+    """
+    vm = float(vm_ma)
+    kind = (maneuver_class or 'cruise').strip() or 'cruise'
+    if kind == 'glide':
+        return 8.0
+    if kind == 'dual_cone':
+        return 15.0
+    if kind == 'scramjet':
+        return 5.0 if vm >= 5.0 else 12.0
+    return 8.0 if vm >= 2.0 else 5.0
+
+
+def default_interceptor_g(interceptor_dia_m: float) -> float:
+    """未给出过载时，按弹径粗分拦截弹可用过载（g）。小弹按点防御高机动，大弹按中程弹体。"""
+    dia = float(interceptor_dia_m)
+    if dia <= 0.20:
+        return 50.0
+    if dia <= 0.28:
+        return 40.0
+    return 25.0
+
+
+def homing_range_factor(vm_ma: float) -> float:
+    """高速目标缩短可用末制导距离（跟踪噪声、气动加热、等离子体）。低速保持 1。"""
+    k = _kin()
+    vm = float(vm_ma)
+    if vm <= k['homing_mach_knee']:
+        return 1.0
+    return clamp(
+        1.0 - k['homing_mach_slope'] * (vm - k['homing_mach_knee']),
+        k['homing_floor'],
+        1.0,
+    )
+
+
+def guidance_time_constant_s(interceptor_g: float, seeker_type: str) -> float:
+    """自动驾驶仪时间常数（秒）。高过载按直接力/推力矢量更快；半主动照射回路更慢。"""
+    k = _kin()
+    tau = k['tau_tvc_s'] if float(interceptor_g) >= k['tvc_g'] else k['tau_aero_s']
+    if seeker_type == 'semi_active':
+        tau += k['semi_active_extra_s']
+    return tau
+
+
+def angle_track_time_constant_s(autopilot_tau_s: float) -> float:
+    """航向误差通道的时间常数：跟踪滤波与舵回路各占一半，高速目标不会因舵快而误差消失。"""
+    k = _kin()
+    track = k['tau_track_s']
+    auto = float(autopilot_tau_s)
+    slower = max(track, auto)
+    return 0.5 * slower + 0.5 * auto
+
+
+def lethal_radius_m(interceptor_dia_m: float) -> float:
+    """按弹径估计破片杀伤半径（米）。参考 0.34 m 弹径约 20 m。"""
+    k = _kin()
+    dia = max(0.05, float(interceptor_dia_m))
+    radius = k['lethal_radius_m'] * (dia / k['lethal_ref_dia_m']) ** k['lethal_exp']
+    return clamp(radius, k['lethal_floor_m'], k['lethal_cap_m'])
+
+
+def endgame_miss_m(
+    vm_ma: float,
+    vi_ma: float,
+    target_g: float,
+    interceptor_g: float,
+    seeker_type: str,
+) -> dict[str, float]:
+    """迎头比例导引末段脱靶（米）。
+
+    需用过载约为导航比 N'/(N'-2) 倍目标过载（N'=4 时为 2 倍）。
+    拦截弹达不到时，亏欠加速度在末段饱和时间内积累成脱靶。
+    舵回路滞后带来与目标加速度成正比的残余脱靶；
+    截获时的航向误差在剩余飞行时间短于跟踪时间常数时留不下来。
+    """
+    k = _kin()
+    vm = max(0.1, float(vm_ma))
+    vi = max(0.1, float(vi_ma))
+    tg = max(0.5, float(target_g))
+    ig = max(1.0, float(interceptor_g))
+    g0 = k['g0']
+    nav = k['nav_ratio']
+    closing = (vm + vi) * float(physics_config()['mach_mps'])
+    homing_m = k['homing_range_m'] * homing_range_factor(vm)
+    t_go = max(homing_m / closing, 0.05)
+    a_t = tg * g0
+    a_i = ig * g0
+    a_req = (nav / (nav - 2.0)) * a_t
+    if a_i >= a_req:
+        t_sat = 0.0
+    else:
+        t_sat = t_go * (1.0 - a_i / a_req)
+    miss_sat = 0.5 * a_t * t_sat * t_sat
+    tau = guidance_time_constant_s(ig, seeker_type)
+    settle = max(1.0, (k['settle_taus'] * tau / t_go) ** 2)
+    miss_lag = k['lag_coeff'] * a_t * tau * tau * settle
+    heading = math.radians(k['heading_error_deg']) * (
+        1.0 + k['heading_mach_k'] * max(0.0, vm - k['heading_mach_ref'])
+    )
+    tau_ang = angle_track_time_constant_s(tau)
+    frac = min(1.0, (tau_ang / t_go) ** k['heading_exp'])
+    miss_heading = homing_m * heading * frac
+    miss = math.sqrt(miss_sat ** 2 + miss_lag ** 2 + miss_heading ** 2)
+    return {
+        'miss_m': miss,
+        'miss_saturation_m': miss_sat,
+        'miss_lag_m': miss_lag,
+        'miss_heading_m': miss_heading,
+        't_go_s': t_go,
+        'homing_range_m': homing_m,
+        'g_required': a_req / g0,
+        'closing_mps': closing,
+    }
 
 
 def dive_entry_horizontal_km(
@@ -211,19 +366,27 @@ def estimate_pk(
     seeker_type: str,
     maneuver_class: str | None = None,
     asm_id: str = '',
+    target_g: float | None = None,
+    interceptor_g: float | None = None,
 ) -> dict[str, Any]:
-    """估算单发拦截成功概率 Pk 及各因子分解（不含抗干扰/干扰能力）。"""
+    """估算单发拦截成功概率 Pk。
+
+    运动学项是脱靶相对杀伤半径的指数：Pk_kin = exp(-(miss/R)^2)。
+    弹径已体现在杀伤半径和导引时间常数里，传感器项只乘舰载雷达、RCS 与弹道。
+    未传入过载时按机动类别 / 弹径估计。
+    """
     vm_ma = max(0.1, float(vm_ma))
     vi_ma = max(0.1, float(vi_ma))
     rcs = max(0.001, float(rcs))
     ship_area = max(0.1, float(ship_area))
     dia = max(0.05, float(interceptor_dia_m))
-
-    ratio = vi_ma / vm_ma
-    speed_factor = clamp(0.55 + 0.5 * min(ratio / 1.3, 1.2), 0.5, 1.1)
+    mclass = (maneuver_class or '').strip() or default_maneuver_class(traj, asm_id)
+    tg = float(target_g) if target_g not in (None, '') else default_target_g(mclass, vm_ma)
+    ig = float(interceptor_g) if interceptor_g not in (None, '') else default_interceptor_g(dia)
+    tg = max(0.5, tg)
+    ig = max(1.0, ig)
 
     ship_radar_factor = radar_gain_factor(ship_area, ship_type, 10.0)
-
     if seeker_type == 'semi_active':
         seeker_factor = ship_radar_factor * 0.9
     else:
@@ -233,22 +396,35 @@ def estimate_pk(
 
     rcs_factor = clamp(1.0 + 0.15 * math.log10(rcs / 0.5), 0.55, 1.15)
     traj_factor = float(PK_TRAJ_FACTOR.get(traj, PK_TRAJ_FACTOR.get('high', 1.0)))
-    mclass = (maneuver_class or '').strip() or default_maneuver_class(traj, asm_id)
-    maneuver_factor = maneuver_pk_factor(mclass)
-
-    pk = clamp(
-        PK0 * speed_factor * ship_radar_factor * seeker_factor * rcs_factor * traj_factor * maneuver_factor,
-        0.03,
-        0.97,
+    kin_cfg = _kin()
+    # 导引头口径已进入杀伤半径与时间常数，不再重复乘进传感器项
+    sensor_ratio = clamp(
+        ship_radar_factor * rcs_factor * traj_factor / kin_cfg['sensor_ref'],
+        kin_cfg['sensor_lo'],
+        kin_cfg['sensor_hi'],
     )
+    miss = endgame_miss_m(vm_ma, vi_ma, tg, ig, seeker_type)
+    r_kill = lethal_radius_m(dia)
+    pk_kin = math.exp(-((miss['miss_m'] / r_kill) ** 2))
+    pk = clamp(pk_kin * sensor_ratio, kin_cfg['pk_lo'], kin_cfg['pk_hi'])
     return {
         'pk': pk,
-        'speed_factor': speed_factor,
+        'pk_kinematic': pk_kin,
+        'sensor_factor': sensor_ratio,
         'ship_radar_factor': ship_radar_factor,
         'seeker_factor': seeker_factor,
         'rcs_factor': rcs_factor,
         'traj_factor': traj_factor,
-        'maneuver_factor': maneuver_factor,
+        'target_g': tg,
+        'interceptor_g': ig,
+        'g_required': miss['g_required'],
+        'miss_m': miss['miss_m'],
+        'miss_saturation_m': miss['miss_saturation_m'],
+        'miss_lag_m': miss['miss_lag_m'],
+        'miss_heading_m': miss['miss_heading_m'],
+        'lethal_radius_m': r_kill,
+        't_go_s': miss['t_go_s'],
+        'homing_range_km': miss['homing_range_m'] / 1000.0,
         'maneuver_class': mclass,
     }
 
