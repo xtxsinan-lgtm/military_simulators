@@ -71,6 +71,8 @@ def dashboard_params_from_preset(
         'n_engines': aircraft.get('n_engines', 1),
         'carrier': bool(aircraft.get('carrier', False)),
         'type_label': aircraft.get('type_label'),
+        'aircraft_role': aircraft.get('aircraft_role'),
+        'mtow_kg': aircraft.get('mtow_kg'),
         'bpr': engine['bpr'],
         'opr': engine['opr'],
         't4_K': engine['t4_K'],
@@ -133,20 +135,24 @@ def sanitize_cruise_point(point: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def sanitize_endurance(block: dict[str, Any] | None) -> dict[str, Any] | None:
-    """涡桨待战续航摘要；非涡桨为 None。"""
+def _sanitize_endurance_variant(block: dict[str, Any] | None) -> dict[str, Any] | None:
     if not block:
         return None
     return {
         'success': bool(block.get('success', True)),
         'feasible': block.get('feasible'),
         'fail_reason': block.get('fail_reason'),
+        'scenario': block.get('scenario'),
+        'label': block.get('label'),
         'mach': _round(block.get('mach'), 4),
         'alt_m': _round(block.get('alt_m'), 1),
         'speed_kmh': _round(block.get('speed_kmh'), 1),
         'speed_kts': _round(block.get('speed_kts'), 1),
         'fuel_flow_kg_s': _round(block.get('fuel_flow_kg_s'), 4),
         'fuel_flow_kg_h': _round(block.get('fuel_flow_kg_h'), 1),
+        'internal_fuel_kg': _round(block.get('internal_fuel_kg'), 1),
+        'reserve_fuel_kg': _round(block.get('reserve_fuel_kg'), 1),
+        'reserve_min': _round(block.get('reserve_min'), 1),
         'loiter_fuel_kg': _round(block.get('loiter_fuel_kg'), 1),
         'endurance_h': _round(block.get('endurance_h'), 2),
         'endurance_min': _round(block.get('endurance_min'), 0),
@@ -154,6 +160,23 @@ def sanitize_endurance(block: dict[str, Any] | None) -> dict[str, Any] | None:
         'load': _round(block.get('load'), 4),
         'note': block.get('note'),
     }
+
+
+def sanitize_endurance(block: dict[str, Any] | None) -> dict[str, Any] | None:
+    """涡桨待战续航摘要；非涡桨为 None。"""
+    if not block:
+        return None
+    out = _sanitize_endurance_variant(block)
+    if not out:
+        return None
+    raw_variants = block.get('variants') if isinstance(block.get('variants'), dict) else None
+    if raw_variants:
+        out['scenario'] = block.get('scenario')
+        out['variants'] = {
+            key: _sanitize_endurance_variant(val)
+            for key, val in raw_variants.items()
+        }
+    return out
 
 
 def sanitize_max_speed(block: dict[str, Any] | None) -> dict[str, Any]:

@@ -80,7 +80,7 @@ from utils.combat_radius.cruise_search import (
 from utils.combat_radius.prop_engine_efficiency import static_prop_thrust_sl_n
 from utils.combat_radius.propulsion import cruise_envelope_defaults, is_turboprop_params
 from utils.combat_radius.turboprop_endurance import (
-    compute_turboprop_endurance,
+    build_turboprop_endurance_pack,
     endurance_block_to_dict,
 )
 from utils.combat_radius.engine_efficiency import (
@@ -1488,15 +1488,9 @@ def _afterburner_best_altitude_profile(
 
 
 def _attach_turboprop_endurance(params: dict[str, Any], radius: dict[str, Any]) -> None:
-    """涡桨专用：按最小 TSFC×阻力 速度估算待战续航，并追加仪表盘行。"""
+    """涡桨专用：舰载/陆基双口径待战续航，并追加仪表盘行。"""
     if not is_turboprop_params(params):
         radius['endurance'] = None
-        return
-    mf = radius.get('mission_fuel') or {}
-    reserve_kg = mf.get('reserve_fuel_kg')
-    if reserve_kg in (None, ''):
-        radius['endurance'] = endurance_block_to_dict(None)
-        radius['endurance']['fail_reason'] = '缺少降落余油，无法估算续航'
         return
     try:
         target, cf0, k_e = _calibrate_from_params(params)
@@ -1509,19 +1503,10 @@ def _attach_turboprop_endurance(params: dict[str, Any], radius: dict[str, Any]) 
             params=params,
         )
         envelope = cruise_envelope_defaults(params)
-        result = compute_turboprop_endurance(
-            ctx,
-            float(params['internal_fuel_kg']),
-            float(reserve_kg),
-            alt_min_m=float(envelope['alt_min_m']),
-            alt_max_m=float(envelope['alt_max_m']),
-            mach_lo=float(envelope['mach_search_lo']),
-            mach_hi=float(envelope['mach_search_hi']),
-        )
+        block = build_turboprop_endurance_pack(params, ctx, envelope)
     except (TypeError, ValueError):
         radius['endurance'] = endurance_block_to_dict(None)
         return
-    block = endurance_block_to_dict(result)
     radius['endurance'] = block
     if not block.get('feasible'):
         return

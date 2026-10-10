@@ -319,17 +319,36 @@ struct CombatRadiusView: View {
                     : (r.max_speed?.fail_reason ?? "—")
                 stat("极速", value: vmax)
             }
-            if let en = r.endurance, en.feasible == true, let hours = en.endurance_h {
-                let mach = en.mach.map { String(format: "Ma %.3f", $0) } ?? "—"
-                let alt = en.alt_m.map { String(format: "%.1f km", $0 / 1000) } ?? "—"
-                let spd = en.speed_kmh.map { String(format: "%.0f km/h", $0) } ?? "—"
-                let flow = en.fuel_flow_kg_h.map { String(format: "%.0f kg/h", $0) } ?? "—"
-                stat(
-                    "待战续航（最小流量速度）",
-                    value: String(format: "%.1f h", hours),
-                    sub: "\(mach) · \(alt) · \(spd) · \(flow)",
-                    amber: true
-                )
+            if let en = r.endurance, en.feasible == true {
+                let rows: [(String, CombatRadiusEnduranceSummary, Bool)] = {
+                    if let v = en.variants {
+                        var out: [(String, CombatRadiusEnduranceSummary, Bool)] = []
+                        if let c = v["carrier"], c.feasible == true {
+                            out.append(("舰载待战续航（45 min 余油）", c, en.scenario == "carrier"))
+                        }
+                        if let l = v["land"], l.feasible == true {
+                            out.append(("陆基待战续航（30 min·MTOW 满油）", l, en.scenario == "land"))
+                        }
+                        return out
+                    }
+                    return [("待战续航（最小流量速度）", en, true)]
+                }()
+                ForEach(Array(rows.enumerated()), id: \.offset) { _, item in
+                    let block = item.1
+                    if let hours = block.endurance_h {
+                        let mach = block.mach.map { String(format: "Ma %.3f", $0) } ?? "—"
+                        let alt = block.alt_m.map { String(format: "%.1f km", $0 / 1000) } ?? "—"
+                        let spd = block.speed_kmh.map { String(format: "%.0f km/h", $0) } ?? "—"
+                        let flow = block.fuel_flow_kg_h.map { String(format: "%.0f kg/h", $0) } ?? "—"
+                        let fuel = block.internal_fuel_kg.map { String(format: "油 %.0f kg", $0) } ?? ""
+                        stat(
+                            item.0,
+                            value: String(format: "%.1f h", hours),
+                            sub: [mach, alt, spd, flow, fuel].filter { !$0.isEmpty }.joined(separator: " · "),
+                            amber: item.2
+                        )
+                    }
+                }
             }
             ForEach(r.points ?? []) { p in
                 HStack {

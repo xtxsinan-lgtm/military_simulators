@@ -4,7 +4,7 @@
  */
 const PYODIDE_VERSION = '0.26.4';
 /** 与 combat-radius.html 中 ?v= 同步递增 */
-const APP_VERSION = 87;
+const APP_VERSION = 88;
 
 const COMBAT_RADIUS_PY_FILES = [
   'utils/__init__.py',
@@ -1017,9 +1017,31 @@ function renderDash(r, sourceLabel, loadoutState = null, loadoutNote = '') {
 
   renderDashLoadout(loadoutState, loadoutNote);
   const en = r.endurance || {};
-  const enduranceStat = en.feasible && en.endurance_h != null
-    ? `<div class="stat-row"><div class="stat wide"><div class="k">待战续航（最小流量速度）</div><div class="v amber">${fmt(en.endurance_h, 1)} h</div><div class="sub">${en.mach != null ? `Ma ${fmt(en.mach, 3)}` : '—'} · ${en.alt_m != null ? `${fmt(en.alt_m / 1000, 1)} km` : '—'} · ${en.speed_kmh != null ? `${fmt(en.speed_kmh, 0)} km/h` : '—'} · ${en.fuel_flow_kg_h != null ? `${fmt(en.fuel_flow_kg_h, 0)} kg/h` : '—'}</div></div></div>`
-    : '';
+  function enduranceSub(block) {
+    if (!block) return '—';
+    return [
+      block.mach != null ? `Ma ${fmt(block.mach, 3)}` : '—',
+      block.alt_m != null ? `${fmt(block.alt_m / 1000, 1)} km` : '—',
+      block.speed_kmh != null ? `${fmt(block.speed_kmh, 0)} km/h` : '—',
+      block.fuel_flow_kg_h != null ? `${fmt(block.fuel_flow_kg_h, 0)} kg/h` : '—',
+      block.internal_fuel_kg != null ? `油 ${fmt(block.internal_fuel_kg, 0)} kg` : '',
+    ].filter(Boolean).join(' · ');
+  }
+  function enduranceStatRow(title, block, amber) {
+    if (!block || !block.feasible || block.endurance_h == null) return '';
+    const cls = amber ? ' amber' : '';
+    return `<div class="stat-row"><div class="stat wide"><div class="k">${title}</div><div class="v${cls}">${fmt(block.endurance_h, 1)} h</div><div class="sub">${enduranceSub(block)}</div></div></div>`;
+  }
+  const variants = en.variants || {};
+  let enduranceStat = '';
+  if (variants.carrier || variants.land) {
+    enduranceStat = [
+      enduranceStatRow('舰载待战续航（45 min 余油）', variants.carrier, en.scenario === 'carrier'),
+      enduranceStatRow('陆基待战续航（30 min 余油·MTOW 满油）', variants.land, en.scenario === 'land'),
+    ].join('');
+  } else {
+    enduranceStat = enduranceStatRow('待战续航（最小流量速度）', en, true);
+  }
   $('dashBox').innerHTML = `
     <div class="stat-row">
       <div class="stat"><div class="k">实用最大巡航速度</div><div class="v amber">${r.max_cruise_mach != null ? `Ma ${fmt(r.max_cruise_mach, 3)}` : '—'}</div></div>

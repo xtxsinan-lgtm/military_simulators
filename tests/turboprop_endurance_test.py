@@ -1,17 +1,20 @@
-"""涡桨待战续航（最小流量速度）单元测试。"""
+"""涡桨待战续航（留航余油 + 舰载/陆基双口径）单元测试。"""
 from __future__ import annotations
 
 from utils.combat_radius.combat_radius_presets import get_preset_by_id, load_engine_presets, load_presets
 from utils.combat_radius.combat_radius_results import dashboard_params_from_preset
 from utils.combat_radius.cruise_search import build_cruise_context_from_params, search_best_altitude
-from utils.combat_radius.lift_drag import model_coefficients
 from utils.combat_radius.turboprop_endurance import (
-    compute_turboprop_endurance,
+    build_turboprop_endurance_pack,
+    compute_turboprop_endurance_scenario,
+    endurance_internal_fuel_kg,
     fuel_flow_kg_s_from_scored,
+    loiter_landing_reserve_fuel_kg,
     search_min_fuel_flow_cruise,
 )
 from simulators.combat_radius.combat_radius import run_aircraft_dashboard_from_params, _calibrate_from_params
 from utils.combat_radius.cruise_load import combat_mass_breakdown
+from utils.combat_radius.propulsion import cruise_envelope_defaults
 
 
 def _e2_ctx_and_params():
@@ -52,7 +55,46 @@ def test_min_flow_speed_differs_from_max_range_score():
     assert min_flow_scored.score != best_range.score or min_flow_scored.mach != best_range.mach
 
 
-def test_dashboard_includes_endurance_for_e2():
+def test_land_internal_fuel_uses_mtow_when_larger():
+    _, params = _e2_ctx_and_params()
+    assert params.get('mtow_kg') == 26082.0
+    assert endurance_internal_fuel_kg(params, land_scenario=False) == params['internal_fuel_kg']
+    land_fuel = endurance_internal_fuel_kg(params, land_scenario=True)
+    assert land_fuel > params['internal_fuel_kg']
+
+
+def test_loiter_reserve_less_than_mission_850kph_reserve():
+    ctx, params = _e2_ctx_and_params()
+    scored, _ = search_min_fuel_flow_cruise(ctx)
+    assert scored is not None
+    from utils.combat_radius.breguet import landing_reserve_fuel_kg, reserve_loiter_km
+    dry = combat_mass_breakdown(
+        empty_kg=params['empty_kg'],
+        internal_fuel_kg=params['internal_fuel_kg'],
+        n_pilots=params['n_pilots'],
+        missile_mass_kg=0,
+        n_missiles=0,
+        fuel_fraction=0.0,
+    )['total_kg']
+    loiter_res = loiter_landing_reserve_fuel_kg(dry, 45.0, scored)
+    fast_km = reserve_loiter_km(45.0, 850.0)
+    fast_res = landing_reserve_fuel_kg(dry, fast_km, scored.v0, scored.tsfc_kg_n_s, scored.ld)
+    assert loiter_res < fast_res
+
+
+def test_e2_endurance_carrier_near_6h_land_near_8h():
+    ctx, params = _e2_ctx_and_params()
+    env = cruise_envelope_defaults(params)
+    pack = build_turboprop_endurance_pack(params, ctx, env)
+    carrier = pack['variants']['carrier']
+    land = pack['variants']['land']
+    assert carrier['feasible'] is True
+    assert land['feasible'] is True
+    assert 5.5 <= float(carrier['endurance_h']) <= 6.5
+    assert 7.5 <= float(land['endurance_h']) <= 8.5
+
+
+def test_dashboard_includes_dual_endurance_for_e2():
     presets = load_presets()
     engines = {e['id']: e for e in load_engine_presets()}
     params = dashboard_params_from_preset(
@@ -62,19 +104,27 @@ def test_dashboard_includes_endurance_for_e2():
     dash = run_aircraft_dashboard_from_params(params)
     en = dash.get('endurance') or {}
     assert en.get('feasible') is True
-    assert float(en['endurance_h']) > 3.5
-    assert float(en['mach']) < 0.55
+    assert en.get('scenario') == 'carrier'
+    variants = en.get('variants') or {}
+    assert variants['carrier']['endurance_h'] >= 5.5
+    assert variants['land']['endurance_h'] >= 7.5
     ids = [p.get('id') for p in dash.get('points') or []]
     assert 'min_fuel_flow_endurance' in ids
 
 
-def test_compute_endurance_uses_loiter_fuel():
+def test_compute_scenario_reserve_uses_loiter_fuel():
     ctx, params = _e2_ctx_and_params()
-    result = compute_turboprop_endurance(
+    env = cruise_envelope_defaults(params)
+    result = compute_turboprop_endurance_scenario(
         ctx,
-        float(params['internal_fuel_kg']),
-        reserve_fuel_kg=800.0,
+        params,
+        land_scenario=False,
+        reserve_min=45.0,
+        alt_min_m=env['alt_min_m'],
+        alt_max_m=env['alt_max_m'],
+        mach_lo=env['mach_search_lo'],
+        mach_hi=env['mach_search_hi'],
     )
     assert result is not None
-    assert result.loiter_fuel_kg == params['internal_fuel_kg'] - 800.0
+    assert result.loiter_fuel_kg == params['internal_fuel_kg'] - result.reserve_fuel_kg
     assert result.endurance_h > 0

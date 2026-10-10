@@ -349,20 +349,50 @@ function q1RowsFrom(r) {
   }));
 }
 
-function enduranceDashPatch(r) {
-  const en = r && r.endurance;
-  if (!en || !en.feasible) {
-    return { showDashEndurance: false, dashEndurance: '', dashEnduranceSub: '' };
-  }
-  const h = en.endurance_h != null ? `${fmt(en.endurance_h, 1)} h` : '—';
+function enduranceBlockSub(en) {
+  if (!en) return '—';
   const mach = en.mach != null ? `Ma ${fmt(en.mach, 3)}` : '—';
   const alt = en.alt_m != null ? `${fmt(en.alt_m / 1000, 1)} km` : '—';
   const spd = en.speed_kmh != null ? `${fmt(en.speed_kmh, 0)} km/h` : '—';
   const flow = en.fuel_flow_kg_h != null ? `${fmt(en.fuel_flow_kg_h, 0)} kg/h` : '—';
+  const fuel = en.internal_fuel_kg != null ? `油 ${fmt(en.internal_fuel_kg, 0)} kg` : '';
+  return [mach, alt, spd, flow, fuel].filter(Boolean).join(' · ');
+}
+
+function enduranceDashPatch(r) {
+  const en = r && r.endurance;
+  const variants = en && en.variants;
+  if (!en || !en.feasible) {
+    return {
+      showDashEndurance: false,
+      dashEnduranceRows: [],
+      dashEndurance: '',
+      dashEnduranceSub: '',
+    };
+  }
+  const rowFrom = (title, block, highlight) => ({
+    title,
+    hours: block.endurance_h != null ? `${fmt(block.endurance_h, 1)} h` : '—',
+    sub: enduranceBlockSub(block),
+    highlight: !!highlight,
+  });
+  let rows = [];
+  if (variants && (variants.carrier || variants.land)) {
+    if (variants.carrier && variants.carrier.feasible) {
+      rows.push(rowFrom('舰载待战续航（45 min 余油）', variants.carrier, en.scenario === 'carrier'));
+    }
+    if (variants.land && variants.land.feasible) {
+      rows.push(rowFrom('陆基待战续航（30 min·MTOW 满油）', variants.land, en.scenario === 'land'));
+    }
+  } else {
+    rows = [rowFrom('待战续航（最小流量速度）', en, true)];
+  }
+  const primary = rows.find((x) => x.highlight) || rows[0] || {};
   return {
-    showDashEndurance: true,
-    dashEndurance: h,
-    dashEnduranceSub: `${mach} · ${alt} · ${spd} · ${flow}`,
+    showDashEndurance: rows.length > 0,
+    dashEnduranceRows: rows,
+    dashEndurance: primary.hours || '',
+    dashEnduranceSub: primary.sub || '',
   };
 }
 
@@ -452,6 +482,7 @@ Page({
     dashVmax: '—',
     dashEndurance: '',
     dashEnduranceSub: '',
+    dashEnduranceRows: [],
     showDashEndurance: false,
     dashRows: [],
     dashAbRows: [],

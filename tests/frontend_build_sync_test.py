@@ -288,3 +288,4 @@ def test_combat_radius_pyodide_module_list_includes_turboprop():
     m_ver = re.search(r'const APP_VERSION = (\d+)', cr_js)
     assert m_js and m_ver, '缺少 combat_radius 版本号'
     assert m_js.group(1) == m_ver.group(1), 'combat-radius.html ?v= 须与 APP_VERSION 一致'
+    assert '舰载待战续航' in cr_js

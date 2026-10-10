@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "engine": {
     "dry_to_max_thrust_ratio": 0.7
   },
@@ -11,6 +11,13 @@
     "descent_save_km": 87.5,
     "combat_allowance_min": 0,
     "combat_toggle_min": 1
+  },
+  "turboprop_endurance": {
+    "default_loiter_flow_mult": 1.0,
+    "loiter_flow_mult_by_role": {
+      "awacs": 0.79
+    },
+    "land_use_mtow_fuel": true
   },
   "flight_profiles": {
     "default": "hi_hi_hi",

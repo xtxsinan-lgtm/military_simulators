@@ -60,6 +60,12 @@ def mission_fuel_config() -> dict[str, Any]:
     return dict(load_combat_radius_config()['mission_fuel'])
 
 
+def turboprop_endurance_config() -> dict[str, Any]:
+    """涡桨待战续航：留航余油闭合与公开标称校准缺省。"""
+    cfg = load_combat_radius_config().get('turboprop_endurance') or {}
+    return dict(cfg)
+
+
 def dry_to_max_thrust_ratio() -> float:
     """军推/加力默认比例：发动机只给了加力时，用此比例反推海平面军推。"""
     engine = load_combat_radius_config().get('engine') or {}
@@ -144,6 +150,7 @@ def build_combat_radius_config_payload() -> dict[str, Any]:
         'inlet_labels': dict(cfg.get('inlet_labels', {})),
         'store_mount_labels': dict(cfg.get('store_mount_labels', {})),
         'mission_fuel': dict(cfg.get('mission_fuel', {})),
+        'turboprop_endurance': turboprop_endurance_config(),
         'engine': dict(cfg.get('engine', {})),
         'f135_tsfc_toggle': f135_tsfc_toggle_config(),
         'flight_profiles': {

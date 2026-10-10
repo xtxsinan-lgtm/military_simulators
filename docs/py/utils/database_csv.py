@@ -327,6 +327,9 @@ def _combat_radius_item_from_row(row: dict[str, str], csv_path: Path) -> dict[st
     payload = _parse_optional_float(row.get('max_payload_kg') or '')
     if payload is not None:
         item['max_payload_kg'] = payload
+    mtow = _parse_optional_float(row.get('mtow_kg') or '')
+    if mtow is not None:
+        item['mtow_kg'] = mtow
     ld_known = _parse_optional_float(row.get('ld_known') or '')
     if ld_known is not None:
         item['ld_known'] = ld_known

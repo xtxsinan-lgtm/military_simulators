@@ -368,16 +368,22 @@ struct CombatRadiusResult: Codable {
 struct CombatRadiusEnduranceSummary: Codable, Hashable {
     var feasible: Bool?
     var fail_reason: String?
+    var scenario: String?
+    var label: String?
     var mach: Double?
     var alt_m: Double?
     var speed_kmh: Double?
     var speed_kts: Double?
     var fuel_flow_kg_s: Double?
     var fuel_flow_kg_h: Double?
+    var internal_fuel_kg: Double?
+    var reserve_fuel_kg: Double?
+    var reserve_min: Double?
     var loiter_fuel_kg: Double?
     var endurance_h: Double?
     var endurance_min: Double?
     var note: String?
+    var variants: [String: CombatRadiusEnduranceSummary]?
 }
 
 struct CombatRadiusAfterburnerPoint: Codable, Identifiable, Hashable {
