@@ -199,9 +199,11 @@ def test_kj600_is_lighter_e2_with_aep500_and_flap_cl_max():
     assert ac.wing_area_m2 == pytest.approx(68.4)
     assert ac.shaft_power_sl_w == pytest.approx(10_000_000)
     assert ac.prop_diameter_m == pytest.approx(e2.prop_diameter_m)
+    assert e2.cl_max == pytest.approx(2.0)
     assert ac.cl_max == pytest.approx(2.0)
+    assert e2.flap_deflection_deg is None
+    assert ac.flap_deflection_deg == pytest.approx(25.0)
     assert ac.uses_propeller_power is True
-    assert e2.cl_max is None
 
 
 def test_e2_hawkeye_uses_t56_propeller_power_model():

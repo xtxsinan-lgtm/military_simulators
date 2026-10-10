@@ -38,6 +38,7 @@ from utils.takeoff.takeoff_physics import (
     check_pitch_deg,
     drag_coefficient as _drag_coefficient,
     dynamic_pressure as _dynamic_pressure,
+    flap_profile_drag_increment,
     taxi_alpha_deg,
 )
 
@@ -173,18 +174,22 @@ def apply_propulsion_sl(
 
 
 def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_le_deg, cd0, t_max_sl_n,
-                            layout='conventional', canard_htail_area_m2=None, cl_max=None):
+                            layout='conventional', canard_htail_area_m2=None, cl_max=None,
+                            flap_deflection_deg=None):
     global MASS_KG, S_REF_M2, WINGSPAN_M, WING_HEIGHT_M, SWEEP_LE_DEG, CD0, T_MAX_SL_N
-    global LAYOUT, CANARD_HTAIL_AREA_M2, CL_MAX
+    global LAYOUT, CANARD_HTAIL_AREA_M2, CL_MAX, TAXI_ALPHA_DEG
     MASS_KG = mass_kg
     S_REF_M2 = s_ref_m2
     WINGSPAN_M = wingspan_m
     WING_HEIGHT_M = wing_height_m
     SWEEP_LE_DEG = sweep_le_deg
-    CD0 = cd0
     T_MAX_SL_N = t_max_sl_n
     LAYOUT = layout or 'conventional'
     CANARD_HTAIL_AREA_M2 = float(canard_htail_area_m2 or 0.0)
+    # 未填襟翼偏度时回到全局起飞襟翼，避免上一架滑跃机的偏度残留
+    fldef = FLAP_DEFLECTION_DEG if flap_deflection_deg is None else float(flap_deflection_deg)
+    TAXI_ALPHA_DEG = taxi_alpha_deg(fldef_deg=fldef)
+    CD0 = float(cd0) + flap_profile_drag_increment(fldef)
     # 喷气机默认；涡桨须在此后再调用 apply_propulsion_sl，避免上一机残留功率模型
     apply_propulsion_sl(0.0, 0.0)
     apply_thrust_temperature(AMBIENT_TEMP_C)

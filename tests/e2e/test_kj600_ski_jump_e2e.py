@@ -19,6 +19,10 @@ def test_e2e_kj600_ski_jump_on_shandong_uses_cl_max():
     catalog = build_catalog_payload(aircraft, carriers)
     row = next(a for a in catalog['aircraft'] if a['id'] == 'KJ-600')
     assert row['cl_max'] == pytest.approx(2.0)
+    assert row['flap_deflection_deg'] == pytest.approx(25.0)
+    e2_row = next(a for a in catalog['aircraft'] if a['id'] == 'E-2')
+    assert e2_row['cl_max'] == pytest.approx(2.0)
+    assert e2_row['flap_deflection_deg'] is None
     spec = aircraft_from_dict(row)
     assert spec is not None
     ski_ids = {a.id for a in filter_aircraft_for_mode('ski_jump', list(aircraft.values()))}
@@ -27,11 +31,17 @@ def test_e2e_kj600_ski_jump_on_shandong_uses_cl_max():
     result = run_simulation(
         'ski_jump', spec, carrier, spec.mtow_kg, 30.0, 30.0,
     )
+    import simulators.takeoff.ski_jump_take_off as ski
+    from utils.takeoff.takeoff_physics import flap_profile_drag_increment, taxi_alpha_deg
+
+    assert result['success'] is True
+    assert ski.CL_MAX == pytest.approx(2.0)
+    assert ski.TAXI_ALPHA_DEG == pytest.approx(taxi_alpha_deg(25))
+    assert ski.CD0 == pytest.approx(spec.cd0 + flap_profile_drag_increment(25))
     # 线性升力在 20° 俯仰下约 1.6–1.8，2.0 与模式默认 1.8 距离相同；压到 1.5 才会变长
     lower = run_simulation(
         'ski_jump', replace(spec, cl_max=1.5), carrier, spec.mtow_kg, 30.0, 30.0,
     )
-    assert result['success'] is True
     assert lower['success'] is True
     assert result['distance_m'] < lower['distance_m']
     assert aircraft_to_dict(spec)['cl_max'] == pytest.approx(2.0)

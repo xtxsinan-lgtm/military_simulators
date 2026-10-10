@@ -4,6 +4,7 @@ import pytest
 from utils.takeoff.takeoff_physics import (
     FLAP_DEFLECTION_DEG,
     FLAP_EFFICIENCY,
+    flap_profile_drag_increment,
     PITCH_MAX_DEG,
     RHO_ISA_KG_M3,
     WING_INCIDENCE_DEG,
@@ -98,3 +99,10 @@ def test_cl_alpha_with_canard_scales_helmbold():
     base = calc_cl_alpha(ar, eta, sweep)
     scaled = calc_cl_alpha_with_canard(ar, eta, sweep, 'canard', 4.9, 37.0)
     assert scaled == pytest.approx(base * (1.0 + 0.5 * 4.9 / 37.0))
+
+
+def test_flap_profile_drag_increment_only_above_takeoff_setting():
+    """基准起飞襟翼及更小偏度不增加零升阻力；+5° 约增加 0.004。"""
+    assert flap_profile_drag_increment(FLAP_DEFLECTION_DEG) == 0.0
+    assert flap_profile_drag_increment(FLAP_DEFLECTION_DEG - 5) == 0.0
+    assert flap_profile_drag_increment(25.0) == pytest.approx(0.004, abs=0.0005)

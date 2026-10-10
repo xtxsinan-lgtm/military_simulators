@@ -212,6 +212,9 @@ final class SimulatorViewModel: ObservableObject {
         if let clMax = ac.cl_max, clMax > 0 {
             specs.append(SpecItem(label: "最大升力系数", value: Physics.fmtNum(clMax, digits: 2)))
         }
+        if let flap = ac.flap_deflection_deg, flap > 0 {
+            specs.append(SpecItem(label: "滑跃襟翼", value: "\(Physics.fmtNum(flap, digits: 0))°"))
+        }
         if isVtol {
             specs.append(contentsOf: [
                 SpecItem(label: "主喷管推力 (15°C SL)", value: "\(Physics.fmtNum((ac.t_main_stovl_sl_n ?? 0) / 1000, digits: 1)) kN"),

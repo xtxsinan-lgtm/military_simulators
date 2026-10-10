@@ -86,6 +86,8 @@ class AircraftSpec:
     canard_htail_area_m2: float | None = None
     # 滑跃离舰最大升力系数；空则用模式默认值
     cl_max: float | None = None
+    # 滑跃起飞襟翼偏度，°；空则用全局起飞襟翼（20°）
+    flap_deflection_deg: float | None = None
 
     @property
     def is_vtol(self) -> bool:

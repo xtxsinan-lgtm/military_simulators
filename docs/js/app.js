@@ -13,7 +13,7 @@ import {
 
 const PYODIDE_VERSION = '0.26.4';
 /** 与 takeoff.html 中 app.js?v= 及 data.json?v= 同步递增，避免 CDN/浏览器缓存旧资源 */
-const APP_VERSION = 50;
+const APP_VERSION = 51;
 /** 让出主线程的毫秒数：须覆盖一次样式绘制，使按钮变灰与等待光标生效 */
 const UI_PAINT_YIELD_MS = 40;
 /** 引擎加载或仿真计算中，防止二次点击在阻塞前再次进入 */
@@ -473,6 +473,7 @@ function updateAircraftInfo() {
     <tr><th>翼展</th><td>${fmtNum(ac.wingspan_m, 2)} m</td></tr>
     <tr><th>翼面积</th><td>${fmtNum(ac.wing_area_m2, 2)} m²</td></tr>
     ${ac.cl_max ? `<tr><th>最大升力系数</th><td>${fmtNum(ac.cl_max, 2)}</td></tr>` : ''}
+    ${ac.flap_deflection_deg ? `<tr><th>滑跃襟翼</th><td>${fmtNum(ac.flap_deflection_deg, 0)}°</td></tr>` : ''}
     ${thrustRows}
     <tr><th>前缘后掠角</th><td>${fmtNum(ac.sweep_le_deg, 1)}°</td></tr>
     <tr><th>展弦比</th><td>${fmtNum(aero.aspect_ratio, 3)}</td></tr>

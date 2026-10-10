@@ -108,6 +108,19 @@ def taxi_alpha_deg(fldef_deg=FLAP_DEFLECTION_DEG, flap_efficiency=FLAP_EFFICIENC
     return fldef_deg * flap_efficiency + wing_incidence_deg
 
 
+# 富勒襟翼相对基准起飞偏度的剖面阻力：按偏角正弦平方增量，+5° 约 +0.004
+FLAP_EXTRA_DRAG_PER_SIN2 = 0.065
+
+
+def flap_profile_drag_increment(defl_deg, reference_deg=FLAP_DEFLECTION_DEG):
+    """相对基准起飞襟翼偏度的零升阻力增量。不大于基准时为 0。"""
+    extra = (np.sin(np.deg2rad(float(defl_deg))) ** 2
+             - np.sin(np.deg2rad(float(reference_deg))) ** 2)
+    if extra <= 0:
+        return 0.0
+    return float(FLAP_EXTRA_DRAG_PER_SIN2 * extra)
+
+
 def dynamic_pressure(rho, airspeed_mps):
     """动压 q = ½·ρ·V²，Pa"""
     return 0.5 * rho * airspeed_mps * airspeed_mps

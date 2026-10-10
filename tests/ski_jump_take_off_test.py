@@ -129,6 +129,31 @@ def test_apply_cl_max_then_reset_to_mode_default():
     assert ski_conv.CL_MAX == pytest.approx(default_cl)
 
 
+def test_extra_flap_raises_taxi_cl_and_cd0_then_resets():
+    """大于基准的襟翼提高滑跑升力并略增零升阻力，下一架未填时回到 20°。"""
+    from utils.takeoff.takeoff_physics import flap_profile_drag_increment, taxi_alpha_deg
+
+    _restore_ski_conv_defaults()
+    base_cd0 = 0.02
+    geom = dict(
+        mass_kg=25082, s_ref_m2=68.4, wingspan_m=25.2, wing_height_m=3.5,
+        sweep_le_deg=20, cd0=base_cd0, t_max_sl_n=132169,
+    )
+    ski_conv.apply_aircraft_geometry(**geom)
+    cl_base = ski_conv.CL_TAXI
+    alpha_base = ski_conv.TAXI_ALPHA_DEG
+    ski_conv.apply_aircraft_geometry(**geom, flap_deflection_deg=25)
+    try:
+        assert ski_conv.TAXI_ALPHA_DEG == pytest.approx(taxi_alpha_deg(25))
+        assert ski_conv.CL_TAXI > cl_base
+        assert ski_conv.CD0 == pytest.approx(base_cd0 + flap_profile_drag_increment(25))
+    finally:
+        ski_conv.apply_aircraft_geometry(**geom)
+    assert ski_conv.TAXI_ALPHA_DEG == pytest.approx(alpha_base)
+    assert ski_conv.CL_TAXI == pytest.approx(cl_base)
+    assert ski_conv.CD0 == pytest.approx(base_cd0)
+
+
 def test_canard_layout_raises_cl_taxi():
     """鸭式布局把滑行 CL 按 Sc/S 的一半抬高。"""
     from utils.takeoff.takeoff_physics import calc_canard_lift_factor

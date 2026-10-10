@@ -392,6 +392,9 @@ Page({
     if (ac.cl_max) {
       specs.push({ label: '最大升力系数', value: fmtNum(ac.cl_max, 2) });
     }
+    if (ac.flap_deflection_deg) {
+      specs.push({ label: '滑跃襟翼', value: `${fmtNum(ac.flap_deflection_deg, 0)}°` });
+    }
 
     if (isVtol) {
       specs.push(
