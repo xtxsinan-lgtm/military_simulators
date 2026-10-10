@@ -319,13 +319,28 @@ struct CombatRadiusView: View {
                     : (r.max_speed?.fail_reason ?? "—")
                 stat("极速", value: vmax)
             }
+            if let en = r.endurance, en.feasible == true, let hours = en.endurance_h {
+                let mach = en.mach.map { String(format: "Ma %.3f", $0) } ?? "—"
+                let alt = en.alt_m.map { String(format: "%.1f km", $0 / 1000) } ?? "—"
+                let spd = en.speed_kmh.map { String(format: "%.0f km/h", $0) } ?? "—"
+                let flow = en.fuel_flow_kg_h.map { String(format: "%.0f kg/h", $0) } ?? "—"
+                stat(
+                    "待战续航（最小流量速度）",
+                    value: String(format: "%.1f h", hours),
+                    sub: "\(mach) · \(alt) · \(spd) · \(flow)",
+                    amber: true
+                )
+            }
             ForEach(r.points ?? []) { p in
                 HStack {
                     Text(cruiseSpeedLabel(p))
                         .foregroundStyle(CombatRadiusTheme.green)
                     Spacer()
                     let maxLd = p.max_ld.map { String(format: " L/Dmax %.2f", $0) } ?? ""
-                    if p.feasible == true, let km = p.radius_km {
+                    if p.endurance_h != nil, p.radius_km == nil, let hours = p.endurance_h {
+                        Text(String(format: "%.1f h 待战%@", hours, maxLd))
+                            .foregroundStyle(CombatRadiusTheme.amber)
+                    } else if p.feasible == true, let km = p.radius_km {
                         let mixed: String = {
                             if let m = p.mach, m > 1, let mix = p.mixed_radius_km {
                                 return String(format: " 混合 %.0f km", mix)

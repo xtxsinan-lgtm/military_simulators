@@ -936,6 +936,24 @@ function renderDash(r, sourceLabel, loadoutState = null, loadoutNote = '') {
     const maxLdAlt = p.max_ld_alt_m != null ? fmt(p.max_ld_alt_m / 1000, 1) : '—';
     const maxLdMode = thrustModeLabel(p.max_ld_thrust_mode);
 
+    if (p.endurance_h != null && (p.radius_km == null || p.radius_km === undefined)) {
+      return `<tr class="target">
+        <td>${speed}</td>
+        <td>待战</td>
+        <td>${fmt((p.alt_m || 0) / 1000, 1)}</td>
+        <td>${p.ld != null ? fmt(p.ld, 2) : '—'}</td>
+        <td>${maxLd}</td>
+        <td>${p.thrust_avail_kN != null ? fmt(p.thrust_avail_kN, 1) : '—'}</td>
+        <td>${p.load != null ? pct(p.load) : '—'}</td>
+        <td>${p.eta_th != null ? pct(p.eta_th) : '—'}</td>
+        <td>${p.eta_p != null ? pct(p.eta_p) : '—'}</td>
+        <td>${p.eta_o != null ? pct(p.eta_o) : '—'}</td>
+        <td>${fmt(p.endurance_h, 1)} h</td>
+        <td>${p.fuel_flow_kg_h != null ? fmt(p.fuel_flow_kg_h, 0) + ' kg/h' : '—'}</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>`;
+    }
     if (!p.feasible) {
       /** 军推无解：若加力可行则显示加力行 */
       if (ab && ab.feasible) {
@@ -989,6 +1007,10 @@ function renderDash(r, sourceLabel, loadoutState = null, loadoutNote = '') {
   }).join('');
 
   renderDashLoadout(loadoutState, loadoutNote);
+  const en = r.endurance || {};
+  const enduranceStat = en.feasible && en.endurance_h != null
+    ? `<div class="stat-row"><div class="stat wide"><div class="k">待战续航（最小流量速度）</div><div class="v amber">${fmt(en.endurance_h, 1)} h</div><div class="sub">${en.mach != null ? `Ma ${fmt(en.mach, 3)}` : '—'} · ${en.alt_m != null ? `${fmt(en.alt_m / 1000, 1)} km` : '—'} · ${en.speed_kmh != null ? `${fmt(en.speed_kmh, 0)} km/h` : '—'} · ${en.fuel_flow_kg_h != null ? `${fmt(en.fuel_flow_kg_h, 0)} kg/h` : '—'}</div></div></div>`
+    : '';
   $('dashBox').innerHTML = `
     <div class="stat-row">
       <div class="stat"><div class="k">实用最大巡航速度</div><div class="v amber">${r.max_cruise_mach != null ? `Ma ${fmt(r.max_cruise_mach, 3)}` : '—'}</div></div>
@@ -996,6 +1018,7 @@ function renderDash(r, sourceLabel, loadoutState = null, loadoutNote = '') {
       <div class="stat"><div class="k">极速</div><div class="v">${vmax}</div><div class="sub">${ms.alt_m != null ? `${fmt(ms.alt_m / 1000, 1)} km` : ''}</div></div>
       <div class="stat"><div class="k">可用油</div><div class="v">${fmt(r.fuel_usable_kg, 0)} kg</div><div class="sub">内油 ${fmt(r.fuel_kg, 0)} · ${r.mission_fuel && r.mission_fuel.reserve_min != null ? `${r.mission_fuel.reserve_min} min 余油` : (r.carrier ? '舰载' : '陆基')}</div></div>
     </div>
+    ${enduranceStat}
     <div class="scroll-x">
       <table>
         <thead><tr>

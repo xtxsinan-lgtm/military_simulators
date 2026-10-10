@@ -79,6 +79,10 @@ from utils.combat_radius.cruise_search import (
 )
 from utils.combat_radius.prop_engine_efficiency import static_prop_thrust_sl_n
 from utils.combat_radius.propulsion import cruise_envelope_defaults, is_turboprop_params
+from utils.combat_radius.turboprop_endurance import (
+    compute_turboprop_endurance,
+    endurance_block_to_dict,
+)
 from utils.combat_radius.engine_efficiency import (
     ACC_FRAC_DEFAULT,
     EPS_DEFAULT,
@@ -1483,6 +1487,54 @@ def _afterburner_best_altitude_profile(
     return rows
 
 
+def _attach_turboprop_endurance(params: dict[str, Any], radius: dict[str, Any]) -> None:
+    """涡桨专用：按最小 TSFC×阻力 速度估算待战续航，并追加仪表盘行。"""
+    if not is_turboprop_params(params):
+        radius['endurance'] = None
+        return
+    mf = radius.get('mission_fuel') or {}
+    reserve_kg = mf.get('reserve_fuel_kg')
+    if reserve_kg in (None, ''):
+        radius['endurance'] = endurance_block_to_dict(None)
+        radius['endurance']['fail_reason'] = '缺少降落余油，无法估算续航'
+        return
+    try:
+        target, cf0, k_e = _calibrate_from_params(params)
+        cruise_mass = combat_mass_breakdown(**_combat_mass_kwargs(params, fuel_fraction=0.5))
+        ctx = build_cruise_context_from_params(
+            target=target,
+            cf0=cf0,
+            k_e=k_e,
+            mass_kg=cruise_mass['total_kg'],
+            params=params,
+        )
+        envelope = cruise_envelope_defaults(params)
+        result = compute_turboprop_endurance(
+            ctx,
+            float(params['internal_fuel_kg']),
+            float(reserve_kg),
+            alt_min_m=float(envelope['alt_min_m']),
+            alt_max_m=float(envelope['alt_max_m']),
+            mach_lo=float(envelope['mach_search_lo']),
+            mach_hi=float(envelope['mach_search_hi']),
+        )
+    except (TypeError, ValueError):
+        radius['endurance'] = endurance_block_to_dict(None)
+        return
+    block = endurance_block_to_dict(result)
+    radius['endurance'] = block
+    if not block.get('feasible'):
+        return
+    row = dict(block)
+    row['id'] = 'min_fuel_flow_endurance'
+    row['feasible'] = True
+    row['fail_reason'] = None
+    row['radius_km'] = None
+    row['fuel_kg_per_km'] = None
+    row['mixed_radius_km'] = None
+    radius.setdefault('points', []).append(row)
+
+
 def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]:
     """机型仪表盘：最大巡航、极速、各马赫作战半径与混合作战半径。
 
@@ -1490,6 +1542,7 @@ def run_aircraft_dashboard_from_params(params: dict[str, Any]) -> dict[str, Any]
     """
     params = ensure_default_anchors(params)
     radius = run_estimate_radius_from_params(params)
+    _attach_turboprop_endurance(params, radius)
     max_speed_block = {
         'success': True,
         'feasible': False,

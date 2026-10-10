@@ -243,6 +243,9 @@
         <view class="stat"><view class="k">最大巡航速度</view><view class="v">{{dashMaxPossibleCruise}}</view></view>
         <view class="stat"><view class="k">极速</view><view class="v">{{dashVmax}}</view></view>
       </view>
+      <view class="stat-row" wx:if="{{showDashEndurance}}">
+        <view class="stat wide"><view class="k">待战续航（最小流量速度）</view><view class="v amber">{{dashEndurance}}</view><view class="sub">{{dashEnduranceSub}}</view></view>
+      </view>
       <view class="tr th">
         <text class="th">速度/马赫</text><text class="th">最大L/D</text><text class="th">半径km</text><text class="th">混合km</text>
       </view>

@@ -362,6 +362,22 @@ struct CombatRadiusResult: Codable {
     var max_ld_thrust_mode: String?
     var altitude_scan: [CombatRadiusAltitudeScanPoint]?
     var afterburner_best_altitude: [CombatRadiusAfterburnerPoint]?
+    var endurance: CombatRadiusEnduranceSummary?
+}
+
+struct CombatRadiusEnduranceSummary: Codable, Hashable {
+    var feasible: Bool?
+    var fail_reason: String?
+    var mach: Double?
+    var alt_m: Double?
+    var speed_kmh: Double?
+    var speed_kts: Double?
+    var fuel_flow_kg_s: Double?
+    var fuel_flow_kg_h: Double?
+    var loiter_fuel_kg: Double?
+    var endurance_h: Double?
+    var endurance_min: Double?
+    var note: String?
 }
 
 struct CombatRadiusAfterburnerPoint: Codable, Identifiable, Hashable {
@@ -446,6 +462,8 @@ struct CombatRadiusCruisePoint: Codable, Identifiable, Hashable {
     var max_ld: Double?
     var max_ld_alt_m: Double?
     var max_ld_thrust_mode: String?
+    var endurance_h: Double?
+    var fuel_flow_kg_h: Double?
 }
 
 struct CombatRadiusRow: Codable, Identifiable, Hashable {

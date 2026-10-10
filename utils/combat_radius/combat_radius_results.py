@@ -133,6 +133,29 @@ def sanitize_cruise_point(point: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def sanitize_endurance(block: dict[str, Any] | None) -> dict[str, Any] | None:
+    """涡桨待战续航摘要；非涡桨为 None。"""
+    if not block:
+        return None
+    return {
+        'success': bool(block.get('success', True)),
+        'feasible': block.get('feasible'),
+        'fail_reason': block.get('fail_reason'),
+        'mach': _round(block.get('mach'), 4),
+        'alt_m': _round(block.get('alt_m'), 1),
+        'speed_kmh': _round(block.get('speed_kmh'), 1),
+        'speed_kts': _round(block.get('speed_kts'), 1),
+        'fuel_flow_kg_s': _round(block.get('fuel_flow_kg_s'), 4),
+        'fuel_flow_kg_h': _round(block.get('fuel_flow_kg_h'), 1),
+        'loiter_fuel_kg': _round(block.get('loiter_fuel_kg'), 1),
+        'endurance_h': _round(block.get('endurance_h'), 2),
+        'endurance_min': _round(block.get('endurance_min'), 0),
+        'ld': _round(block.get('ld'), 4),
+        'load': _round(block.get('load'), 4),
+        'note': block.get('note'),
+    }
+
+
 def sanitize_max_speed(block: dict[str, Any] | None) -> dict[str, Any]:
     """极速摘要四舍五入。"""
     block = block or {}
@@ -175,6 +198,7 @@ def sanitize_dashboard(result: dict[str, Any]) -> dict[str, Any]:
         } if mf else None,
         'points': [sanitize_cruise_point(p) for p in (result.get('points') or [])],
         'max_speed': sanitize_max_speed(result.get('max_speed')),
+        'endurance': sanitize_endurance(result.get('endurance')),
         'afterburner_best_altitude': [
             {
                 'mach': _round(p.get('mach'), 4),

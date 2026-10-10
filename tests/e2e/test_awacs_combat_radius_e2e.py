@@ -22,6 +22,10 @@ def test_e2e_e2_hawkeye_combat_radius_dashboard():
     best = max(feasible, key=lambda p: float(p['radius_km']))
     assert 800 <= float(best['radius_km']) <= 3500
     assert float(best['mach']) <= 0.65
+    en = dash.get('endurance') or {}
+    assert en.get('feasible') is True
+    assert float(en['endurance_h']) > 3.5
+    assert any(p.get('id') == 'min_fuel_flow_endurance' for p in dash.get('points') or [])
 
 
 @pytest.mark.e2e
@@ -47,3 +51,6 @@ def test_e2e_kj600_combat_radius_dashboard():
     )
     kj_best = max(feasible, key=lambda p: float(p['radius_km']))
     assert float(kj_best['radius_km']) >= float(e2_best['radius_km']) * 0.85
+    en = dash.get('endurance') or {}
+    assert en.get('feasible') is True
+    assert float(en['endurance_h']) > 3.5

@@ -349,10 +349,37 @@ function q1RowsFrom(r) {
   }));
 }
 
+function enduranceDashPatch(r) {
+  const en = r && r.endurance;
+  if (!en || !en.feasible) {
+    return { showDashEndurance: false, dashEndurance: '', dashEnduranceSub: '' };
+  }
+  const h = en.endurance_h != null ? `${fmt(en.endurance_h, 1)} h` : '—';
+  const mach = en.mach != null ? `Ma ${fmt(en.mach, 3)}` : '—';
+  const alt = en.alt_m != null ? `${fmt(en.alt_m / 1000, 1)} km` : '—';
+  const spd = en.speed_kmh != null ? `${fmt(en.speed_kmh, 0)} km/h` : '—';
+  const flow = en.fuel_flow_kg_h != null ? `${fmt(en.fuel_flow_kg_h, 0)} kg/h` : '—';
+  return {
+    showDashEndurance: true,
+    dashEndurance: h,
+    dashEnduranceSub: `${mach} · ${alt} · ${spd} · ${flow}`,
+  };
+}
+
 function dashRowsFrom(r) {
   return (r.points || []).map((p) => {
     const maxLd = p.max_ld != null ? fmt(p.max_ld, 2) : '—';
     const speed = cruiseSpeedLabel(p);
+    if (p.endurance_h != null && (p.radius_km == null || p.radius_km === '')) {
+      return {
+        label: p.label,
+        mach: speed,
+        maxLd,
+        radius: `${fmt(p.endurance_h, 1)} h`,
+        mixed: p.fuel_flow_kg_h != null ? `${fmt(p.fuel_flow_kg_h, 0)} kg/h` : '—',
+        ok: true,
+      };
+    }
     if (!p.feasible) {
       return {
         label: p.label,
@@ -423,6 +450,9 @@ Page({
     dashMaxCruise: '—',
     dashMaxPossibleCruise: '—',
     dashVmax: '—',
+    dashEndurance: '',
+    dashEnduranceSub: '',
+    showDashEndurance: false,
     dashRows: [],
     dashAbRows: [],
     dashLoadoutShow: false,
@@ -599,6 +629,7 @@ Page({
     const ms = snap.max_speed || {};
     this.setData({
       ...dashLoadoutPatch(snapshotLoadoutState(this.currentPreset(), this.data.loadoutCatalog)),
+      ...enduranceDashPatch(snap),
       dashOk: true,
       dashStatusText: '预计算快照',
       dashMaxCruise: snap.max_cruise_mach != null ? fmt(snap.max_cruise_mach, 3) : '—',
@@ -926,6 +957,7 @@ Page({
           dashMaxCruise: r.max_cruise_mach != null ? fmt(r.max_cruise_mach, 3) : '—',
           dashMaxPossibleCruise: r.max_possible_cruise_mach != null ? fmt(r.max_possible_cruise_mach, 3) : '—',
           dashVmax: ms.feasible ? `${fmt(ms.max_speed_kmh, 0)} km/h` : (ms.fail_reason || '—'),
+          ...enduranceDashPatch(r),
           dashRows: dashRowsFrom(r),
           dashAbRows: abBestRowsFrom(r),
           running: false,

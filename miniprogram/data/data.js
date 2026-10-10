@@ -6232,6 +6232,7 @@ module.exports = {
           "load": 0.9995,
           "thrust_avail_kN": 101.796
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -6702,6 +6703,7 @@ module.exports = {
           "load": 0.9997,
           "thrust_avail_kN": 250.637
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -7149,6 +7151,7 @@ module.exports = {
           "load": 0.9968,
           "thrust_avail_kN": 107.784
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -7619,6 +7622,7 @@ module.exports = {
           "load": 0.9984,
           "thrust_avail_kN": 245.008
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -8066,6 +8070,7 @@ module.exports = {
           "load": 0.9993,
           "thrust_avail_kN": 69.076
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -8536,6 +8541,7 @@ module.exports = {
           "load": 0.9989,
           "thrust_avail_kN": 290.127
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -9006,6 +9012,7 @@ module.exports = {
           "load": 0.9987,
           "thrust_avail_kN": 309.02
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -9476,6 +9483,7 @@ module.exports = {
           "load": 0.9988,
           "thrust_avail_kN": 404.799
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -9923,6 +9931,7 @@ module.exports = {
           "load": 0.9999,
           "thrust_avail_kN": 111.056
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -10393,6 +10402,7 @@ module.exports = {
           "load": 0.9973,
           "thrust_avail_kN": 135.293
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -10863,6 +10873,7 @@ module.exports = {
           "load": 0.9978,
           "thrust_avail_kN": 80.385
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -11333,6 +11344,7 @@ module.exports = {
           "load": 0.9967,
           "thrust_avail_kN": 85.62
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -11803,6 +11815,7 @@ module.exports = {
           "load": 0.9982,
           "thrust_avail_kN": 89.737
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -12250,6 +12263,7 @@ module.exports = {
           "load": 0.9974,
           "thrust_avail_kN": 98.862
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -12697,6 +12711,7 @@ module.exports = {
           "load": 0.9966,
           "thrust_avail_kN": 124.262
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -13144,6 +13159,7 @@ module.exports = {
           "load": 0.9995,
           "thrust_avail_kN": 124.262
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -13591,6 +13607,7 @@ module.exports = {
           "load": 0.9968,
           "thrust_avail_kN": 89.192
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -14038,6 +14055,7 @@ module.exports = {
           "load": 0.9991,
           "thrust_avail_kN": 81.641
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -14485,6 +14503,7 @@ module.exports = {
           "load": 0.9981,
           "thrust_avail_kN": 95.589
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -14932,6 +14951,7 @@ module.exports = {
           "load": 0.9995,
           "thrust_avail_kN": 65.669
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -15379,6 +15399,7 @@ module.exports = {
           "load": 0.9969,
           "thrust_avail_kN": 114.96
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -15826,6 +15847,7 @@ module.exports = {
           "load": 0.9995,
           "thrust_avail_kN": 80.119
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -16273,6 +16295,7 @@ module.exports = {
           "load": 0.9933,
           "thrust_avail_kN": 107.572
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -16660,6 +16683,29 @@ module.exports = {
             "max_ld": 7.6005,
             "max_ld_alt_m": 7600.0,
             "max_ld_thrust_mode": "military"
+          },
+          {
+            "id": "min_fuel_flow_endurance",
+            "label": "最大续航（最小流量速度）",
+            "mach": 0.375,
+            "feasible": true,
+            "fail_reason": null,
+            "alt_m": 3000.0,
+            "ld": 8.4054,
+            "thrust_avail_kN": 44.639,
+            "load": 0.5459,
+            "eta_th": 0.340384,
+            "eta_p": 0.745882,
+            "eta_o": 0.248808,
+            "score": 2.091346,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": 11.476,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           }
         ],
         "max_speed": {
@@ -16673,6 +16719,23 @@ module.exports = {
           "ld": null,
           "load": null,
           "thrust_avail_kN": null
+        },
+        "endurance": {
+          "success": true,
+          "feasible": true,
+          "fail_reason": null,
+          "mach": 0.375,
+          "alt_m": 3000.0,
+          "speed_kmh": 443.5,
+          "speed_kts": 239.5,
+          "fuel_flow_kg_s": 0.2885,
+          "fuel_flow_kg_h": 1038.5,
+          "loiter_fuel_kg": 4267.9,
+          "endurance_h": 4.11,
+          "endurance_min": 247.0,
+          "ld": 8.4054,
+          "load": 0.5459,
+          "note": "待战续航：内油扣除降落余油，在使 TSFC×阻力 最小的马赫/高度下平飞；与表内作战半径（单位航程油耗最优）不同。"
         },
         "afterburner_best_altitude": []
       },
@@ -16898,6 +16961,29 @@ module.exports = {
             "max_ld": 6.5754,
             "max_ld_alt_m": 7600.0,
             "max_ld_thrust_mode": "military"
+          },
+          {
+            "id": "min_fuel_flow_endurance",
+            "label": "最大续航（最小流量速度）",
+            "mach": 0.365,
+            "feasible": true,
+            "fail_reason": null,
+            "alt_m": 3000.0,
+            "ld": 8.1324,
+            "thrust_avail_kN": 58.774,
+            "load": 0.3926,
+            "eta_th": 0.343033,
+            "eta_p": 0.745121,
+            "eta_o": 0.250489,
+            "score": 2.037086,
+            "radius_km": null,
+            "fuel_kg_per_km": null,
+            "mixed_radius_km": null,
+            "mixed_fuel_kg_per_km": null,
+            "tsfc_mg_n_s": 11.095,
+            "max_ld": null,
+            "max_ld_alt_m": null,
+            "max_ld_thrust_mode": null
           }
         ],
         "max_speed": {
@@ -16911,6 +16997,23 @@ module.exports = {
           "ld": null,
           "load": null,
           "thrust_avail_kN": null
+        },
+        "endurance": {
+          "success": true,
+          "feasible": true,
+          "fail_reason": null,
+          "mach": 0.365,
+          "alt_m": 3000.0,
+          "speed_kmh": 431.7,
+          "speed_kts": 233.1,
+          "fuel_flow_kg_s": 0.2707,
+          "fuel_flow_kg_h": 974.4,
+          "loiter_fuel_kg": 4703.1,
+          "endurance_h": 4.83,
+          "endurance_min": 290.0,
+          "ld": 8.1324,
+          "load": 0.3926,
+          "note": "待战续航：内油扣除降落余油，在使 TSFC×阻力 最小的马赫/高度下平飞；与表内作战半径（单位航程油耗最优）不同。"
         },
         "afterburner_best_altitude": []
       },
@@ -17219,6 +17322,7 @@ module.exports = {
           "load": 0.998,
           "thrust_avail_kN": 195.103
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -17689,6 +17793,7 @@ module.exports = {
           "load": 0.9989,
           "thrust_avail_kN": 190.057
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -18159,6 +18264,7 @@ module.exports = {
           "load": 0.9961,
           "thrust_avail_kN": 162.5
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -18606,6 +18712,7 @@ module.exports = {
           "load": 0.9998,
           "thrust_avail_kN": 110.136
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -19053,6 +19160,7 @@ module.exports = {
           "load": 0.9997,
           "thrust_avail_kN": 147.878
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -19500,6 +19608,7 @@ module.exports = {
           "load": 0.9999,
           "thrust_avail_kN": 59.934
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -19947,6 +20056,7 @@ module.exports = {
           "load": 0.9986,
           "thrust_avail_kN": 71.607
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -20417,6 +20527,7 @@ module.exports = {
           "load": 0.9976,
           "thrust_avail_kN": 110.684
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -20864,6 +20975,7 @@ module.exports = {
           "load": 1.0,
           "thrust_avail_kN": 33.963
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -21311,6 +21423,7 @@ module.exports = {
           "load": 0.999,
           "thrust_avail_kN": 56.764
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -21758,6 +21871,7 @@ module.exports = {
           "load": 0.9995,
           "thrust_avail_kN": 35.712
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -22205,6 +22319,7 @@ module.exports = {
           "load": 0.9964,
           "thrust_avail_kN": 61.793
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -22652,6 +22767,7 @@ module.exports = {
           "load": 0.9967,
           "thrust_avail_kN": 31.45
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -23099,6 +23215,7 @@ module.exports = {
           "load": 0.9977,
           "thrust_avail_kN": 43.228
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -23546,6 +23663,7 @@ module.exports = {
           "load": 0.9973,
           "thrust_avail_kN": 112.717
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -23993,6 +24111,7 @@ module.exports = {
           "load": 0.9992,
           "thrust_avail_kN": 184.614
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -24440,6 +24559,7 @@ module.exports = {
           "load": 0.9998,
           "thrust_avail_kN": 134.598
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -24887,6 +25007,7 @@ module.exports = {
           "load": 0.9996,
           "thrust_avail_kN": 42.282
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -25334,6 +25455,7 @@ module.exports = {
           "load": 0.9975,
           "thrust_avail_kN": 140.426
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -25781,6 +25903,7 @@ module.exports = {
           "load": 0.9987,
           "thrust_avail_kN": 104.938
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -26228,6 +26351,7 @@ module.exports = {
           "load": 0.9997,
           "thrust_avail_kN": 706.111
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -26675,6 +26799,7 @@ module.exports = {
           "load": 0.9978,
           "thrust_avail_kN": 834.34
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
@@ -27145,6 +27270,7 @@ module.exports = {
           "load": 0.9989,
           "thrust_avail_kN": 879.308
         },
+        "endurance": null,
         "afterburner_best_altitude": [
           {
             "mach": 0.8,
