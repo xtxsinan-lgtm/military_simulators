@@ -84,6 +84,8 @@ class AircraftSpec:
     # 起飞增升：仅 layout=canard 且填了鸭翼面积时启用
     layout: str = 'conventional'
     canard_htail_area_m2: float | None = None
+    # 滑跃离舰最大升力系数；空则用模式默认值
+    cl_max: float | None = None
 
     @property
     def is_vtol(self) -> bool:

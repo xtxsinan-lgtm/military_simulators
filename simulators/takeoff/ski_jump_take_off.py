@@ -173,9 +173,9 @@ def apply_propulsion_sl(
 
 
 def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_le_deg, cd0, t_max_sl_n,
-                            layout='conventional', canard_htail_area_m2=None):
+                            layout='conventional', canard_htail_area_m2=None, cl_max=None):
     global MASS_KG, S_REF_M2, WINGSPAN_M, WING_HEIGHT_M, SWEEP_LE_DEG, CD0, T_MAX_SL_N
-    global LAYOUT, CANARD_HTAIL_AREA_M2
+    global LAYOUT, CANARD_HTAIL_AREA_M2, CL_MAX
     MASS_KG = mass_kg
     S_REF_M2 = s_ref_m2
     WINGSPAN_M = wingspan_m
@@ -188,6 +188,9 @@ def apply_aircraft_geometry(mass_kg, s_ref_m2, wingspan_m, wing_height_m, sweep_
     # 喷气机默认；涡桨须在此后再调用 apply_propulsion_sl，避免上一机残留功率模型
     apply_propulsion_sl(0.0, 0.0)
     apply_thrust_temperature(AMBIENT_TEMP_C)
+    # 未填 cl_max 时回到模式默认，避免上一架预警机的襟翼升力残留
+    default_cl_max = float(_MODE['cl_max'])
+    CL_MAX = default_cl_max if cl_max is None or float(cl_max) <= 0 else float(cl_max)
     recompute_aero_parameters()
 
 
@@ -237,6 +240,7 @@ def print_config_summary():
     print(f"诱导因子 k:   {K_IND:.3f}")
     print(f"C_Lα:         {CL_ALPHA:.4f} /rad  (Λ={SWEEP_LE_DEG}°)")
     print(f"Cl_taxi:      {CL_TAXI:.4f}")
+    print(f"C_Lmax:       {CL_MAX:.2f}")
     print(f"滑跃圆弧:     {SKI_JUMP_ANGLE_DEG:.1f}° 出口 | R={SKI_JUMP_RADIUS_M:.0f} m | "
           f"弧长 {SKI_JUMP_ARC_LENGTH_M:.1f} m | 水平 {SKI_JUMP_HORIZONTAL_M:.1f} m")
 

@@ -88,6 +88,7 @@ def aircraft_from_dict(d: dict[str, Any]) -> AircraftSpec:
         notes=d.get('notes', ''),
         layout=(d.get('layout') or 'conventional'),
         canard_htail_area_m2=_opt_float(d.get('canard_htail_area_m2')),
+        cl_max=_opt_float(d.get('cl_max')),
     )
 
 
@@ -294,7 +295,7 @@ def _configure_ski_conv(ac: AircraftSpec, mass_kg: float, temp_c: float, wind_kt
     ski_conv.apply_wind_knots(wind_kt)
     ski_conv.apply_ski_jump_deck(ski_angle, lip_height_m)
     ski_conv.apply_aircraft_geometry(
-        **_wing_geom(ac, mass_kg), t_max_sl_n=ac.t_max_sl_n)
+        **_wing_geom(ac, mass_kg), t_max_sl_n=ac.t_max_sl_n, cl_max=ac.cl_max)
     if ac.uses_propeller_power:
         ski_conv.apply_propulsion_sl(
             ac.shaft_power_sl_w,

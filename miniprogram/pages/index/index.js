@@ -389,6 +389,9 @@ Page({
       { label: '翼展', value: `${fmtNum(ac.wingspan_m, 2)} m` },
       { label: '翼面积', value: `${fmtNum(ac.wing_area_m2, 2)} m²` },
     ];
+    if (ac.cl_max) {
+      specs.push({ label: '最大升力系数', value: fmtNum(ac.cl_max, 2) });
+    }
 
     if (isVtol) {
       specs.push(

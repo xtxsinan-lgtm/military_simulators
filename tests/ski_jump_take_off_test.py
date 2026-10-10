@@ -108,6 +108,27 @@ def test_propeller_ski_jump_slower_than_constant_static_thrust():
         _restore_ski_conv_defaults()
 
 
+def test_apply_cl_max_then_reset_to_mode_default():
+    """机型填写的最大升力系数只作用于该机，下一架未填时回到模式默认。"""
+    _restore_ski_conv_defaults()
+    default_cl = ski_conv.CL_MAX
+    ski_conv.apply_aircraft_geometry(
+        mass_kg=25082,
+        s_ref_m2=66.7,
+        wingspan_m=25.2,
+        wing_height_m=3.5,
+        sweep_le_deg=20,
+        cd0=0.039,
+        t_max_sl_n=132169,
+        cl_max=2.0,
+    )
+    try:
+        assert ski_conv.CL_MAX == pytest.approx(2.0)
+    finally:
+        _restore_ski_conv_defaults()
+    assert ski_conv.CL_MAX == pytest.approx(default_cl)
+
+
 def test_canard_layout_raises_cl_taxi():
     """鸭式布局把滑行 CL 按 Sc/S 的一半抬高。"""
     from utils.takeoff.takeoff_physics import calc_canard_lift_factor

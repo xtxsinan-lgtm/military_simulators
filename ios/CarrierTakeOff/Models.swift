@@ -623,6 +623,7 @@ struct Aircraft: Codable, Identifiable, Hashable {
     var exhaust_mdot_kg_s: Double?
     var layout: String?
     var canard_htail_area_m2: Double?
+    var cl_max: Double?
 }
 
 /// 规格行
