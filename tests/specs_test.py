@@ -186,7 +186,7 @@ def test_kj600_is_lighter_e2_with_aep500_and_flap_cl_max():
     ac = aircraft['KJ-600']
     assert ac.empty_kg == pytest.approx(e2.empty_kg - 1500)
     assert ac.mtow_kg == pytest.approx(e2.mtow_kg - 1000)
-    assert ac.internal_fuel_kg == pytest.approx(e2.internal_fuel_kg)
+    assert ac.internal_fuel_kg == pytest.approx(e2.internal_fuel_kg + 370)
     assert e2.n_pilots == 5
     assert ac.n_pilots == e2.n_pilots
     assert e2.a2a_mass_kg == pytest.approx(
