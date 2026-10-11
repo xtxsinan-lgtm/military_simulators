@@ -10514,7 +10514,7 @@
     },
     "E-2": {
       "success": true,
-      "name": "E-2C Hawkeye / T56-A-425",
+      "name": "E-2D Hawkeye / T56-A-425",
       "carrier": true,
       "max_cruise_mach": 0.6,
       "max_possible_cruise_mach": 0.6007,

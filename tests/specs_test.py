@@ -212,6 +212,7 @@ def test_e2_hawkeye_uses_t56_propeller_power_model():
     """E-2 作为双 T56 涡桨机型，必须按恒定轴功率计算起飞推力。"""
     aircraft = load_aircraft_csv(AIRCRAFT_CSV)
     ac = aircraft['E-2']
+    assert ac.name == 'E-2D Hawkeye'
     assert ac.empty_kg == pytest.approx(18234)
     assert ac.n_pilots == 5
     assert ac.mtow_kg == pytest.approx(26082)
