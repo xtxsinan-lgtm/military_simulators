@@ -534,6 +534,23 @@ def test_parse_optional_float_blank_and_number():
     assert _parse_optional_float('116.0') == 116.0
 
 
+def test_carrier_aircraft_label_ski_jump_flap_explicitly():
+    """舰载机滑跃襟翼写在机型上：E-2 与空警-600 为 25°，其余为 20°，面板不靠全局默认。"""
+    rows = _read_unified_aircraft_rows(AIRCRAFT_CSV)
+    labeled = 0
+    for row in rows:
+        if (row.get('carrier') or '').strip() != '1':
+            assert (row.get('flap_deflection_deg') or '').strip() == '', row['id']
+            continue
+        labeled += 1
+        flap = float(row['flap_deflection_deg'])
+        if row['id'] in ('E-2', 'KJ-600'):
+            assert flap == pytest.approx(25.0), row['id']
+        else:
+            assert flap == pytest.approx(20.0), row['id']
+    assert labeled >= 2
+
+
 def test_load_combat_radius_engine_csv():
     rows = load_combat_radius_engine_csv(COMBAT_RADIUS_ENGINE_CSV)
     by_id = {r['id']: r for r in rows}

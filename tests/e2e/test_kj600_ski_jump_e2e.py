@@ -22,7 +22,9 @@ def test_e2e_kj600_ski_jump_on_shandong_uses_cl_max():
     assert row['flap_deflection_deg'] == pytest.approx(25.0)
     e2_row = next(a for a in catalog['aircraft'] if a['id'] == 'E-2')
     assert e2_row['cl_max'] == pytest.approx(2.0)
-    assert e2_row['flap_deflection_deg'] is None
+    assert e2_row['flap_deflection_deg'] == pytest.approx(25.0)
+    j15 = next(a for a in catalog['aircraft'] if a['id'] == 'J-15')
+    assert j15['flap_deflection_deg'] == pytest.approx(20.0)
     spec = aircraft_from_dict(row)
     assert spec is not None
     ski_ids = {a.id for a in filter_aircraft_for_mode('ski_jump', list(aircraft.values()))}
@@ -45,3 +47,11 @@ def test_e2e_kj600_ski_jump_on_shandong_uses_cl_max():
     assert lower['success'] is True
     assert result['distance_m'] < lower['distance_m']
     assert aircraft_to_dict(spec)['cl_max'] == pytest.approx(2.0)
+    e2 = aircraft_from_dict(e2_row)
+    # 最大起飞重量加 25° 襟翼阻力后山东舰无可行解；空战重量可滑跃，并带上同样的偏度与阻力增量
+    e2_result = run_simulation(
+        'ski_jump', e2, carrier, e2.a2a_mass_kg, 30.0, 30.0,
+    )
+    assert e2_result['success'] is True
+    assert ski.TAXI_ALPHA_DEG == pytest.approx(taxi_alpha_deg(25))
+    assert ski.CD0 == pytest.approx(e2.cd0 + flap_profile_drag_increment(25))

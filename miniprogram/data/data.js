@@ -91,7 +91,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 13.04,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "F-35A",
@@ -219,7 +219,7 @@ module.exports = {
       "layout": "tailless",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "J-35",
@@ -251,7 +251,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 12.66,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "53636",
@@ -315,7 +315,7 @@ module.exports = {
       "layout": "tailless",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "F-35B",
@@ -347,7 +347,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 11.12,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "AV-8B",
@@ -379,7 +379,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "J-15",
@@ -411,7 +411,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 13.0,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "J-15T",
@@ -443,7 +443,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 13.0,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "MiG-29K",
@@ -475,7 +475,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 8.5,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "Rafale-M",
@@ -507,7 +507,7 @@ module.exports = {
       "layout": "canard",
       "canard_htail_area_m2": 5.5,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "Rafale",
@@ -603,7 +603,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 9.8,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "FA-18C",
@@ -635,7 +635,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 8.0,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "F-14",
@@ -667,7 +667,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 12.0,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "A-6",
@@ -699,7 +699,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "A-7",
@@ -731,7 +731,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "S-3",
@@ -763,7 +763,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "C-2",
@@ -795,7 +795,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "E-2",
@@ -823,11 +823,11 @@ module.exports = {
       "prop_diameter_m": 4.11,
       "nacelle_blockage_frac": 0.08,
       "n_pilots": 5,
-      "notes": "NAVAIR E-2C：翼展 24.56 m、MTOW 57500 lb（26082 kg）；Wikipedia 空重 18234 kg；五人机组（飞行员 2 + 任务员 3）；2×T56-A-425 各 5100 shp（总 7606.14 kW）；桨盘 ⌀13.5 ft；滑跃按恒定轴功率动量理论（推力随空速下降；静推力仅作机库对照；品质因数 0.78、短舱遮挡 8%）；起飞襟翼 20°、滑跃最大升力系数 2.0；机身截面为估算",
+      "notes": "NAVAIR E-2C：翼展 24.56 m、MTOW 57500 lb（26082 kg）；Wikipedia 空重 18234 kg；五人机组（飞行员 2 + 任务员 3）；2×T56-A-425 各 5100 shp（总 7606.14 kW）；桨盘 ⌀13.5 ft；滑跃按恒定轴功率动量理论（推力随空速下降；静推力仅作机库对照；品质因数 0.78、短舱遮挡 8%）；滑跃襟翼 25°、滑跃最大升力系数 2.0，零升阻力按偏角正弦平方略增；机身截面为估算",
       "layout": "conventional",
       "canard_htail_area_m2": 18.0,
       "cl_max": 2.0,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 25.0
     },
     {
       "id": "KJ-600",
@@ -855,7 +855,7 @@ module.exports = {
       "prop_diameter_m": 4.11,
       "nacelle_blockage_frac": 0.08,
       "n_pilots": 5,
-      "notes": "空警-600：翼展 25.2 m、翼面积 68.4 m²；空重按 E-2C 轻 1.5 t（16734 kg）、MTOW 轻 1 t（25082 kg）；内油 5995 kg（较 E-2C 多 370 kg）；五人机组同 E-2C；2×AEP500 各 5000 kW（总 10 MW）；桨盘沿用 E-2 ⌀4.11 m；滑跃襟翼 25°（相对 E-2 起飞位 +5°）、最大升力系数 2.0，零升阻力按偏角正弦平方略增；滑跃按恒定轴功率动量理论（品质因数 0.78、短舱遮挡 8%）；机身截面沿用 E-2 估算",
+      "notes": "空警-600：翼展 25.2 m、翼面积 68.4 m²；空重按 E-2C 轻 1.5 t（16734 kg）、MTOW 轻 1 t（25082 kg）；内油 5995 kg（较 E-2C 多 370 kg）；五人机组同 E-2C；2×AEP500 各 5000 kW（总 10 MW）；桨盘沿用 E-2 ⌀4.11 m；滑跃襟翼 25°（与 E-2 相同）、最大升力系数 2.0，零升阻力按偏角正弦平方略增；滑跃按恒定轴功率动量理论（品质因数 0.78、短舱遮挡 8%）；机身截面沿用 E-2 估算",
       "layout": "conventional",
       "canard_htail_area_m2": 18.5,
       "cl_max": 2.0,
@@ -891,7 +891,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "A-5",
@@ -923,7 +923,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "MV-22",
@@ -955,7 +955,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": null,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "NG6C",
@@ -987,7 +987,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 16.7,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "NG6B",
@@ -1019,7 +1019,7 @@ module.exports = {
       "layout": "conventional",
       "canard_htail_area_m2": 13.1,
       "cl_max": null,
-      "flap_deflection_deg": null
+      "flap_deflection_deg": 20.0
     },
     {
       "id": "F-15",
@@ -1483,7 +1483,7 @@ module.exports = {
       "max_payload_kg": 4500.0,
       "bvr_missile": "AIM-120C AMRAAM",
       "missile_mass_kg": 152.0,
-      "cd0": 0.03070889364541749,
+      "cd0": 0.030708893645417495,
       "t_max_sl_n": 78700.0,
       "t_main_stovl_sl_n": null,
       "t_liftfan_sl_n": null,
@@ -4008,7 +4008,7 @@ module.exports = {
       "n_engines": 2,
       "max_payload_kg": 0.0,
       "mtow_kg": 25082.0,
-      "notes": "空警-600：翼展 25.2 m、翼面积 68.4 m²；空重按 E-2C 轻 1.5 t（16734 kg）、MTOW 轻 1 t（25082 kg）；内油 5995 kg（较 E-2C 多 370 kg）；五人机组同 E-2C；2×AEP500 各 5000 kW（总 10 MW）；桨盘沿用 E-2 ⌀4.11 m；滑跃襟翼 25°（相对 E-2 起飞位 +5°）、最大升力系数 2.0，零升阻力按偏角正弦平方略增；滑跃按恒定轴功率动量理论（品质因数 0.78、短舱遮挡 8%）；机身截面沿用 E-2 估算",
+      "notes": "空警-600：翼展 25.2 m、翼面积 68.4 m²；空重按 E-2C 轻 1.5 t（16734 kg）、MTOW 轻 1 t（25082 kg）；内油 5995 kg（较 E-2C 多 370 kg）；五人机组同 E-2C；2×AEP500 各 5000 kW（总 10 MW）；桨盘沿用 E-2 ⌀4.11 m；滑跃襟翼 25°（与 E-2 相同）、最大升力系数 2.0，零升阻力按偏角正弦平方略增；滑跃按恒定轴功率动量理论（品质因数 0.78、短舱遮挡 8%）；机身截面沿用 E-2 估算",
       "wing_area_m2": 68.4,
       "length_m": 17.32,
       "wingspan_m": 25.2,
@@ -4824,7 +4824,7 @@ module.exports = {
       "n_engines": 2,
       "max_payload_kg": 0.0,
       "mtow_kg": 26082.0,
-      "notes": "NAVAIR E-2C：翼展 24.56 m、MTOW 57500 lb（26082 kg）；Wikipedia 空重 18234 kg；五人机组（飞行员 2 + 任务员 3）；2×T56-A-425 各 5100 shp（总 7606.14 kW）；桨盘 ⌀13.5 ft；滑跃按恒定轴功率动量理论（推力随空速下降；静推力仅作机库对照；品质因数 0.78、短舱遮挡 8%）；起飞襟翼 20°、滑跃最大升力系数 2.0；机身截面为估算",
+      "notes": "NAVAIR E-2C：翼展 24.56 m、MTOW 57500 lb（26082 kg）；Wikipedia 空重 18234 kg；五人机组（飞行员 2 + 任务员 3）；2×T56-A-425 各 5100 shp（总 7606.14 kW）；桨盘 ⌀13.5 ft；滑跃按恒定轴功率动量理论（推力随空速下降；静推力仅作机库对照；品质因数 0.78、短舱遮挡 8%）；滑跃襟翼 25°、滑跃最大升力系数 2.0，零升阻力按偏角正弦平方略增；机身截面为估算",
       "wing_area_m2": 65.03,
       "length_m": 17.32,
       "wingspan_m": 24.56,

@@ -201,8 +201,10 @@ def test_kj600_is_lighter_e2_with_aep500_and_flap_cl_max():
     assert ac.prop_diameter_m == pytest.approx(e2.prop_diameter_m)
     assert e2.cl_max == pytest.approx(2.0)
     assert ac.cl_max == pytest.approx(2.0)
-    assert e2.flap_deflection_deg is None
+    assert e2.flap_deflection_deg == pytest.approx(25.0)
     assert ac.flap_deflection_deg == pytest.approx(25.0)
+    assert '滑跃襟翼 25°' in e2.notes
+    assert '与 E-2 相同' in ac.notes
     assert ac.uses_propeller_power is True
 
 
